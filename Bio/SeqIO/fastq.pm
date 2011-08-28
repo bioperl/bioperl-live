@@ -11,8 +11,8 @@ sub _initialize {
     my($self,@args) = @_;
     $self->SUPER::_initialize(@args);
     my ($variant, $validate, $header) = $self->_rearrange([qw(VARIANT
-                                                   VALIDATE
-                                                   QUALITY_HEADER)], @args);
+                                                              VALIDATE
+                                                              QUALITY_HEADER)], @args);
     $variant ||= 'sanger';
     $validate = defined $validate ? $validate : 1;
     $self->variant($variant);
@@ -319,7 +319,7 @@ Bio::SeqIO::fastq - fastq sequence input/output stream
 
   # simple 'fastq' format defaults to 'sanger' variant
   my $out = Bio::SeqIO->new(-format    => 'fastq',
-                           -file      => '>mydata.fq');
+                            -file      => '>mydata.fq');
 
   # $seq is a Bio::Seq::Quality object
   while (my $seq = $in->next_seq) {
