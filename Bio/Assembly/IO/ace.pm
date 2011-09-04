@@ -823,13 +823,13 @@ sub write_footer {
 =cut
 
 sub variant {
-    my ($self, $enc) = @_;
-    if (defined $enc) {
-        $enc = lc $enc;
-        if (not exists $variant{$enc}) {
-            $self->throw('Not a valid ACE variant format');
+    my ($self, $var) = @_;
+    if (defined $var) {
+        $var = lc $var;
+        if (not exists $variant{$var}) {
+            $self->throw($var.' is not a valid variant of the '.$self->format.' format');
         }
-        $self->{variant} = $enc;
+        $self->{variant} = $var;
     }
     return $self->{variant};
 }

@@ -14,8 +14,8 @@ sub _initialize {
                                                               VALIDATE
                                                               QUALITY_HEADER)], @args);
     $variant ||= 'sanger';
-    $validate = defined $validate ? $validate : 1;
     $self->variant($variant);
+    $validate = defined $validate ? $validate : 1;
     $self->validate($validate);
     $header     && $self->quality_header($header);
 
@@ -65,7 +65,7 @@ sub next_dataset {
             }
             $data->{-id} = $id;
             $data->{-desc} = $fulldesc;
-            $data->{-namespace} = $self->{qualtype};
+            $data->{-namespace} = $self->variant;
         } elsif ($mode eq '-seq' && $line =~ m{^\+([^\n]*)}xmso) {
             my $desc = $1;
             $self->throw("No description line parsed") unless $data->{-descriptor};
@@ -109,7 +109,7 @@ sub next_dataset {
             $self->throw("Unknown symbol with ASCII value ".ord($_)." outside of quality range")
             # TODO: fallback?
         }
-        $self->{qualtype} eq 'solexa' ?
+        $self->variant eq 'solexa' ?
             $self->{sol2phred}->{$self->{chr2qual}->{$_}}:
             $self->{chr2qual}->{$_};
     } unpack("A1" x length($data->{-raw_quality}), $data->{-raw_quality})];
@@ -121,10 +121,11 @@ sub next_dataset {
 
 sub write_seq {
     my ($self,@seq) = @_;
-    my $var = $self->{qualtype};
+    my $var = $self->variant;
     foreach my $seq (@seq) {
         unless ($seq->isa("Bio::Seq::Quality")){
-            $self->warn("You can't write FASTQ without supplying a Bio::Seq::Quality object! ", ref($seq), "\n");
+            $self->warn("You can't write FASTQ without supplying a Bio::Seq::".
+                "Quality object! ".ref($seq)."\n");
             next;
         }
         my $str = $seq->seq || '';
@@ -216,14 +217,16 @@ sub write_qual {
     );
 
 sub variant {
-    my ($self, $enc) = @_;
-    if (defined $enc) {
-        $enc = lc $enc;
-        $self->throw('Not a valid FASTQ variant format') unless exists $VARIANT{$enc};
-        $self->_init_tables($enc);
-        $self->{qualtype} = $enc;
+    my ($self, $var) = @_;
+    if (defined $var) {
+        $var = lc $var;
+        if (not exists $VARIANT{$var}) {
+            $self->throw($var.' is not a valid variant of the '.$self->format.' format');
+        }
+        $self->_init_tables($var);
+        $self->{variant} = $var;
     }
-    return $self->{qualtype};
+    return $self->{variant};
 }
 
 sub _init_tables {

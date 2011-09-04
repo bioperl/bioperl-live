@@ -19,7 +19,7 @@ Bio::Matrix::IO - A factory for Matrix parsing
 
   use Bio::Matrix::IO;
   my $parser = Bio::Matrix::IO->new(-format => 'scoring',
-                                   -file   => 'BLOSUMN50');
+                                    -file   => 'BLOSUMN50');
 
   my $matrix = $parser->next_matrix;
 

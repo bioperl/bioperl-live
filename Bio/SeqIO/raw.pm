@@ -94,12 +94,16 @@ use Bio::Seq::SeqFactory;
 
 use base qw(Bio::SeqIO);
 
+our %variant = ( 'multiple' => undef, # default
+                 'single'   => undef );
+
 sub _initialize {
     my($self,@args) = @_;
     $self->SUPER::_initialize(@args);
     my ($variant) = $self->_rearrange([qw(VARIANT)], @args);
     $variant ||= 'multiple';
     $self->variant($variant);
+    $self->{record_separator} = $variant eq 'single' ? undef : $/;
     if( ! defined $self->sequence_factory ) {
         $self->sequence_factory(Bio::Seq::SeqFactory->new
                     (-verbose => $self->verbose(),
@@ -173,7 +177,8 @@ sub write_qual {
     my @qual = ();
     foreach (@seq) {
         unless ($_->isa("Bio::Seq::Quality")){
-           warn("You cannot write raw qualities without supplying a Bio::Seq::Quality object! You passed a ", ref($_), "\n");
+           warn("You cannot write raw qualities without supplying a Bio::Seq::".
+                "Quality object! You passed a ".ref($_)."\n");
            next;
         }
         @qual = @{$_->qual};
@@ -204,12 +209,12 @@ sub write_qual {
 
 sub variant {
     my ($self, $var) = @_;
-    if (defined $var || !defined $self->{variant}) {
-        $var ||= 'multiple';
+    if (defined $var) {
         $var = lc $var;
-        $self->throw("Accepted raw format variants: 'single', 'multiple'") unless
-            $var eq 'single' || $var eq 'multiple';
-        $self->{record_separator} = $var eq 'single' ? undef : $/;
+        if (not exists $variant{$var}) {
+            $self->throw($var.' is not a valid variant of the '.$self->format.
+                ' format');
+        }
         $self->{variant} = $var;
     }
     return $self->{variant};

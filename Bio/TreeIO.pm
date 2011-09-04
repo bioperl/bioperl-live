@@ -19,8 +19,8 @@ Bio::TreeIO - Parser for Tree files
 
   {
       use Bio::TreeIO;
-      my $treeio = Bio::TreeIO->new('-format' => 'newick',
-                   '-file'   => 'globin.dnd');
+      my $treeio = Bio::TreeIO->new(-format => 'newick',
+                                    -file   => 'globin.dnd');
       while( my $tree = $treeio->next_tree ) {
 		print "Tree is ", $tree->number_nodes, "\n";
       }

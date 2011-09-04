@@ -527,23 +527,6 @@ sub write_seq {
 }
 
 
-=head2 format
-
- Title   : format
- Usage   : $self->format($newval)
- Function: Get the format of the sequence file.
- Returns : format of the file, e.g. fasta, fastq, Genbank, EMBL, etc.
- Args    : none
-
-=cut
-
-sub format {
-    my ($self) = @_;
-    my $format = (split '::', ref($self))[-1];
-    return $format;
-}
-
-
 =head2 alphabet
 
  Title   : alphabet
