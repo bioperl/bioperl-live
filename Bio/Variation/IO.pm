@@ -240,7 +240,7 @@ package Bio::Variation::IO;
 use strict;
 
 
-use base qw(Bio::SeqIO);
+use base qw(Bio::SeqIO Bio::Root::IO);
 
 =head2 new
 
