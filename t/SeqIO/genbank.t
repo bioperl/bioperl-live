@@ -599,5 +599,5 @@ $ast = Bio::SeqIO->new(-format => 'genbank' ,
                        -file => $testfile );
 $as = $ast->next_seq;
 ($cds) = grep { $_->primary_tag eq 'CDS' } $as->get_SeqFeatures();
-my @notes = $cds->get_tag_values('note');
+@notes = $cds->get_tag_values('note');
 is(scalar @notes, 2);
