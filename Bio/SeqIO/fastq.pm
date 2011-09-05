@@ -7,6 +7,24 @@ use Bio::Seq::SeqFactory;
 
 use base qw(Bio::SeqIO);
 
+our %variant = (
+        sanger     => {
+            'offset'     => 33,
+            'qual_start' => 0,
+            'qual_end'   => 93
+            },
+        solexa     => {
+            'offset'     => 64,
+            'qual_start' => -5,
+            'qual_end'   => 62
+            },
+        illumina   => {
+            'offset'     => 64,
+            'qual_start' => 0,
+            'qual_end'   => 62
+            },
+    );
+
 sub _initialize {
     my($self,@args) = @_;
     $self->SUPER::_initialize(@args);
@@ -15,12 +33,16 @@ sub _initialize {
                                                               QUALITY_HEADER)], @args);
     $variant ||= 'sanger';
     $self->variant($variant);
+    $self->_init_tables($variant);
     $validate = defined $validate ? $validate : 1;
     $self->validate($validate);
     $header     && $self->quality_header($header);
 
     if( ! defined $self->sequence_factory ) {
-        $self->sequence_factory(Bio::Seq::SeqFactory->new(-verbose => $self->verbose(), -type => 'Bio::Seq::Quality'));
+        $self->sequence_factory(Bio::Seq::SeqFactory->new(
+            -verbose => $self->verbose(),
+            -type => 'Bio::Seq::Quality')
+        );
     }
 }
 
@@ -70,7 +92,8 @@ sub next_dataset {
             my $desc = $1;
             $self->throw("No description line parsed") unless $data->{-descriptor};
             if ($desc && $data->{-descriptor} ne $desc) {
-                $self->throw("Quality descriptor [$desc] doesn't match seq descriptor ".$data->{-descriptor}.", line: $." );
+                $self->throw("Quality descriptor [$desc] doesn't match seq ".
+                    "descriptor ".$data->{-descriptor}.", line: $." );
             }
             $mode = '-raw_quality';
         } else {
@@ -100,13 +123,15 @@ sub next_dataset {
 
     # simple quality control tests
     if (length $data->{-seq} != length $data->{-raw_quality}) {
-        $self->throw("Quality string [".$data->{-raw_quality}."] of length [".length($data->{-raw_quality})."]\ndoesn't match ".
-                     "length of sequence ".$data->{-seq}."\n[".length($data->{-seq})."], line: $.");
+        $self->throw("Quality string [".$data->{-raw_quality}."] of length [".
+            length($data->{-raw_quality})."]\ndoesn't match length of sequence ".
+            $data->{-seq}."\n[".length($data->{-seq})."], line: $.");
     }
 
     $data->{-qual} = [map {
         if ($self->{_validate_qual} && !exists($self->{chr2qual}->{$_})) {
-            $self->throw("Unknown symbol with ASCII value ".ord($_)." outside of quality range")
+            $self->throw("Unknown symbol with ASCII value ".ord($_)." outside ".
+                "of quality range")
             # TODO: fallback?
         }
         $self->variant eq 'solexa' ?
@@ -197,44 +222,25 @@ sub write_qual {
     return $self->{qual_proxy}->write_seq(@seq);
 }
 
-{
-    my %VARIANT = (
-        sanger     => {
-            'offset'     => 33,
-            'qual_start' => 0,
-            'qual_end'   => 93
-            },
-        solexa     => {
-            'offset'     => 64,
-            'qual_start' => -5,
-            'qual_end'   => 62
-            },
-        illumina   => {
-            'offset'     => 64,
-            'qual_start' => 0,
-            'qual_end'   => 62
-            },
-    );
-
 sub variant {
-    my ($self, $var) = @_;
-    if (defined $var) {
-        $var = lc $var;
-        if (not exists $VARIANT{$var}) {
-            $self->throw($var.' is not a valid variant of the '.$self->format.' format');
+    my ($self, $variant) = @_;
+    if (defined $variant) {
+        $variant = lc $variant;
+        if (not exists $variant{$variant}) {
+            $self->throw($variant.' is not a valid variant of the '.$self->format.
+                ' format');
         }
-        $self->_init_tables($var);
-        $self->{variant} = $var;
+        $self->{variant} = $variant;
     }
     return $self->{variant};
 }
 
 sub _init_tables {
-    my ($self, $enc) = @_;
+    my ($self, $var) = @_;
     # cache encode/decode values for quicker accession
     ($self->{qual_start}, $self->{qual_end}, $self->{qual_offset}) =
-        @{ $VARIANT{$enc} }{qw(qual_start qual_end offset)};
-    if ($enc eq 'solexa') {
+        @{ $variant{$var} }{qw(qual_start qual_end offset)};
+    if ($var eq 'solexa') {
         for my $q ($self->{qual_start} .. $self->{qual_end}) {
             my $char = chr($q + $self->{qual_offset});
             $self->{chr2qual}->{$char} = $q;
@@ -263,8 +269,6 @@ sub _init_tables {
             $self->{fuzzy_qual2chr}->{sprintf("%.1f-%.1f",$c - 0.5, $c + 0.5)} = $char;
         }
     }
-}
-
 }
 
 sub validate {

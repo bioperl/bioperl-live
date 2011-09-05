@@ -208,14 +208,14 @@ sub write_qual {
 =cut
 
 sub variant {
-    my ($self, $var) = @_;
-    if (defined $var) {
-        $var = lc $var;
-        if (not exists $variant{$var}) {
-            $self->throw($var.' is not a valid variant of the '.$self->format.
+    my ($self, $variant) = @_;
+    if (defined $variant) {
+        $variant = lc $variant;
+        if (not exists $variant{$variant}) {
+            $self->throw($variant.' is not a valid variant of the '.$self->format.
                 ' format');
         }
-        $self->{variant} = $var;
+        $self->{variant} = $variant;
     }
     return $self->{variant};
 }
