@@ -814,7 +814,7 @@ sub write_footer {
 =head2 variant
 
  Title   : variant
- Usage   : $format  = $obj->variant();
+ Usage   : $variant = $ass_io->variant();
  Function: Get and set method for the assembly variant. This is important since
            not all assemblers respect the reference ACE format.
  Returns : string

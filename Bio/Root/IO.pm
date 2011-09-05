@@ -468,7 +468,8 @@ sub file {
 
  Title   : format
  Usage   : $self->format($newval)
- Function: Get the format of a Bio::Root::IO sequence file or filehandle.
+ Function: Get the format of a Bio::Root::IO sequence file or filehandle. Every
+           object inheriting Bio::Root::IO is guaranteed to have a format.
  Returns : format of the file or filehandle, e.g. fasta, fastq, genbank, embl.
  Args    : none
 
@@ -486,11 +487,12 @@ sub format {
  Title   : format
  Usage   : $self->format($newval)
  Function: Get the variant of a Bio::Root::IO sequence file or filehandle.
-           The format variant depends on the specific format used.
+           The format variant depends on the specific format used. Note that not
+           all formats have variants
  Returns : variant of the file or filehandle, e.g. sanger, solexa or illumina for
-           the fastq format.
+           the fastq format, or undef for formats that do not have variants.
  Args    : none
- Note    : The Bio::Root::IO-implementing module that requires access to variants
+ Note    : The Bio::Root::IO-implementing modules that require access to variants
            need to define a global hash that has the allowed variants as its keys.
 
 =cut

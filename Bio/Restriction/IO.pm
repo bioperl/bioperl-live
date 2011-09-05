@@ -160,6 +160,19 @@ sub new {
 }
 
 
+=head2 format
+
+ Title   : format
+ Usage   : $format = $stream->format()
+ Function: Get the restriction format
+ Returns : restriction format
+ Args    : none
+
+=cut
+
+# format() method inherited from Bio::Root::IO
+
+
 sub _load_format_module {
   my ($class, $format) = @_;
   my $module = "Bio::Restriction::IO::" . $format;

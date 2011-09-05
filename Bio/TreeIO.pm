@@ -135,6 +135,19 @@ sub new {
 }
 
 
+=head2 format
+
+ Title   : format
+ Usage   : $format = $obj->format()
+ Function: Get the tree format
+ Returns : tree format
+ Args    : none
+
+=cut
+
+# format() method inherited from Bio::Root::IO
+
+
 =head2 next_tree
 
  Title   : next_tree

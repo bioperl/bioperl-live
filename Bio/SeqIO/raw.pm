@@ -209,7 +209,6 @@ sub write_qual {
 
 # variant() method inherited from Bio::Root::IO
 
-
 # private method for testing record separator
 
 sub _separator {

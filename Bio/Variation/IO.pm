@@ -270,6 +270,19 @@ sub new {
 }
 
 
+=head2 format
+
+ Title   : format
+ Usage   : $format = $stream->format()
+ Function: Get the variation format
+ Returns : variation format
+ Args    : none
+
+=cut
+
+# format() method inherited from Bio::Root::IO
+
+
 sub _load_format_module {
   my ($class, $format) = @_;
   my $module = "Bio::Variation::IO::" . $format;

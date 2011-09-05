@@ -159,6 +159,19 @@ sub fh {
 }
 
 
+=head2 format
+
+ Title   : format
+ Usage   : $format = $obj->format()
+ Function: Get the matrix format
+ Returns : matrix format
+ Args    : none
+
+=cut
+
+# format() method inherited from Bio::Root::IO
+
+
 =head2 next_matrix
 
  Title   : next_matrix

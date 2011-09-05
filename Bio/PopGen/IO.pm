@@ -126,6 +126,20 @@ sub new {
   }
 }
 
+
+=head2 format
+
+ Title   : format
+ Usage   : $format = $stream->format()
+ Function: Get the PopGen format
+ Returns : PopGen format
+ Args    : none
+
+=cut
+
+# format() method inherited from Bio::Root::IO
+
+
 # _initialize is chained for all PopGen::IO classes
 
 sub _initialize {

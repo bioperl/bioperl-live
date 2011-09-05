@@ -342,6 +342,19 @@ sub fh {
   return $s;
 }
 
+=head2 format
+
+ Title   : format
+ Usage   : $format = $stream->format()
+ Function: Get the feature format
+ Returns : feature format
+ Args    : none
+
+=cut
+
+# format() method inherited from Bio::Root::IO
+
+
 # _initialize is chained for all FeatureIO classes
 
 sub _initialize {
