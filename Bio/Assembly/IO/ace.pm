@@ -824,24 +824,6 @@ sub write_footer {
 
 # variant() method inherited from Bio::Root::IO
 
-sub variant {
-    my ($self, $variant) = @_;
-    if (defined $variant) {
-        $variant = lc $variant;
-        my $var_name = '%'.ref($self).'::variant';
-        my %ok_variants = eval $var_name; # e.g. %Bio::Assembly::IO::ace::variant
-        if (scalar keys %ok_variants == 0) {
-            $self->throw('Cannot check for validity of variant because global '.
-                "variant $var_name is not set or is empty\n");
-        }
-        if (not exists $ok_variants{$variant}) {
-            $self->throw($variant.' is not a valid variant of the '.$self->format.
-                ' format');
-        }
-        $self->{variant} = $variant;
-    }
-    return $self->{variant};
-}
 
 =head2 _write_read
 
