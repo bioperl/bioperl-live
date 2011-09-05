@@ -10,10 +10,13 @@ BEGIN {
     test_begin(-tests => 69);
 
     use_ok('Bio::Root::IO');
+    use_ok('Bio::SeqIO');
+    use_ok('Bio::Assembly::IO');
 }
 
 my $obj = Bio::Root::IO->new();
 ok defined($obj) && $obj->isa('Bio::Root::IO');
+
 
 #############################################
 # tests for exceptions/debugging/verbosity
@@ -41,9 +44,11 @@ is $verbobj->verbose(), 1, 'set verbosity to 1';
 
 ok $obj->verbose(-1);
 
+
 #############################################
 # tests for finding executables
 #############################################
+
 ok(my $io = Bio::Root::IO->new());
 # An executable file
 my $test_file = 'test_file.txt';
@@ -107,6 +112,7 @@ SKIP: {
     warnings_like sub { $temp_io->close }, '', 'no warnings in ->close call';
 }
 
+
 ##############################################
 # tests _pushback for multi-line buffering
 ##############################################
@@ -129,6 +135,7 @@ isnt $line5, $line4;
 
 ok close($I);
 ok close($O);
+
 
 ##############################################
 # test _print and _insert
@@ -171,6 +178,7 @@ for (1..5) {
 
 }
 
+
 ##############################################
 # test Win vs UNIX line ending using PerlIO::eol
 ##############################################
@@ -184,6 +192,7 @@ SKIP: {
         is($unix_rio->_readline, $win_rio->_readline);
     }
 }
+
 
 ##############################################
 # test Path::Class support
@@ -213,6 +222,7 @@ SKIP: {
   lives_ok {$rio = Bio::Root::IO->new(-url=>$TESTURL)};
 }
 
+
 ##############################################
 # test -string
 ##############################################
@@ -231,3 +241,30 @@ $line3 = $rio->_readline;
 is($line3, "Bar\n");
 $line3 = $rio->_readline;
 is($line3, "Baz");
+
+
+##############################################
+# test format() and variant()
+##############################################
+
+my $in = Bio::SeqIO->new(
+   -file    => test_input_file('bug2901.fa'),
+   -format  => "fasta",
+);
+is $in->format, 'fasta';
+is $in->variant, undef;
+
+$in = Bio::SeqIO->new(
+   -file    => test_input_file('fastq', 'illumina_faked.fastq'),
+   -format  => "fastq",
+   -variant => 'illumina',
+);
+is $in->format, 'fastq';
+is $in->variant, 'illumina';
+
+$in = Bio::Assembly::IO->new(
+   -file   => test_input_file('assembly_with_singlets.ace'),
+);
+is $in->format, 'ace';
+is $in->variant, 'consed';
+
