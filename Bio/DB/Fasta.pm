@@ -60,7 +60,7 @@ sequences without bringing the entire sequence into memory.
 When you initialize the module, you point it at a single fasta file or
 a directory of multiple such files.  The first time it is run, the
 module generates an index of the contents of the file or directory
-using the AnyDBM module (Berkeley DB* preferred, followed by GDBM_File,
+using the AnyDBM_File module (BerkeleyDB preferred, followed by GDBM_File,
 NDBM_File, and SDBM_File).  Thereafter it uses the index file to find
 the file and offset for any requested sequence.  If one of the source
 fasta files is updated, the module reindexes just that one file.  (You
