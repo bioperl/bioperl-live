@@ -526,22 +526,17 @@ sub write_seq {
     $self->throw("Sorry, you cannot write to a generic Bio::SeqIO object.");
 }
 
-
 =head2 format
 
  Title   : format
- Usage   : $self->format($newval)
- Function: Get the format of the sequence file.
- Returns : format of the file, e.g. fasta, fastq, Genbank, EMBL, etc.
+ Usage   : $format = $stream->format()
+ Function: Get the sequence format
+ Returns : sequence format, e.g. fasta, fastq
  Args    : none
 
 =cut
 
-sub format {
-    my ($self) = @_;
-    my $format = (split '::', ref($self))[-1];
-    return $format;
-}
+# format() method inherited from Bio::Root::IO
 
 
 =head2 alphabet

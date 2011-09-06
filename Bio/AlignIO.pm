@@ -375,6 +375,20 @@ sub fh {
   return $s;
 }
 
+
+=head2 format
+
+ Title   : format
+ Usage   : $format = $stream->format()
+ Function: Get the alignment format
+ Returns : alignment format
+ Args    : none
+
+=cut
+
+# format() method inherited from Bio::Root::IO
+
+
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
