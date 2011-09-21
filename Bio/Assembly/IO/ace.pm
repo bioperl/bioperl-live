@@ -814,7 +814,7 @@ sub write_footer {
 =head2 variant
 
  Title   : variant
- Usage   : $format  = $obj->variant();
+ Usage   : $variant = $ass_io->variant();
  Function: Get and set method for the assembly variant. This is important since
            not all assemblers respect the reference ACE format.
  Returns : string
@@ -822,17 +822,7 @@ sub write_footer {
 
 =cut
 
-sub variant {
-    my ($self, $enc) = @_;
-    if (defined $enc) {
-        $enc = lc $enc;
-        if (not exists $variant{$enc}) {
-            $self->throw('Not a valid ACE variant format');
-        }
-        $self->{variant} = $enc;
-    }
-    return $self->{variant};
-}
+# variant() method inherited from Bio::Root::IO
 
 
 =head2 _write_read

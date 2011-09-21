@@ -28,7 +28,7 @@ Bio::SeqIO - Handler for SeqIO Formats
                            -format => 'EMBL');
 
     while ( my $seq = $in->next_seq() ) {
-	    $out->write_seq($seq);
+        $out->write_seq($seq);
     }
 
   # Now, to actually get at the sequence object, use the standard Bio::Seq
@@ -98,7 +98,7 @@ operations to read and write sequence objects:
     # read from standard input or the input filenames
 
     while ( $seq = <$stream> ) {
-	  # do something with $seq
+        # do something with $seq
     }
 
 and
@@ -170,12 +170,12 @@ some HTML tags:
   use Bio::SeqIO;
   use IO::String;
   my $in  = Bio::SeqIO->new(-file => "emblfile",
-  		            -format => 'EMBL');
+                            -format => 'EMBL');
   while ( my $seq = $in->next_seq() ) {
       # the output handle is reset for every file
       my $stringio = IO::String->new($string);
       my $out = Bio::SeqIO->new(-fh => $stringio,
-  			        -format => 'fasta');
+                                -format => 'fasta');
       # output goes into $string
       $out->write_seq($seq);
       # modify $string
@@ -348,55 +348,58 @@ See L<Bio::SeqIO::Handler>
 my $entry = 0;
 
 sub new {
-	my ($caller,@args) = @_;
-	my $class = ref($caller) || $caller;
+    my ($caller,@args) = @_;
+    my $class = ref($caller) || $caller;
 
-	# or do we want to call SUPER on an object if $caller is an
-	# object?
-	if( $class =~ /Bio::SeqIO::(\S+)/ ) {
-		my ($self) = $class->SUPER::new(@args);
-		$self->_initialize(@args);
-		return $self;
-	} else {
+    # or do we want to call SUPER on an object if $caller is an
+    # object?
+    if( $class =~ /Bio::SeqIO::(\S+)/ ) {
+        my ($self) = $class->SUPER::new(@args);
+        $self->_initialize(@args);
+        return $self;
+    } else {
 
-		my %param = @args;
-		@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
+        my %param = @args;
+        @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
 
-		unless( defined $param{-file} ||
-			defined $param{-fh}   ||
-			defined $param{-string} ) {
-		    $class->throw("file argument provided, but with an undefined value") 
-			if exists $param{'-file'};
-		    $class->throw("fh argument provided, but with an undefined value") 
-			if exists $param{'-fh'};
-		    $class->throw("string argument provided, but with an undefined value") 
-			if exists($param{'-string'});
-		    # $class->throw("No file, fh, or string argument provided"); # neither defined
-		}
+        unless( defined $param{-file} ||
+                defined $param{-fh}   ||
+                defined $param{-string} ) {
+            $class->throw("file argument provided, but with an undefined value") 
+                if exists $param{'-file'};
+            $class->throw("fh argument provided, but with an undefined value") 
+                if exists $param{'-fh'};
+            $class->throw("string argument provided, but with an undefined value") 
+                if exists($param{'-string'});
+            # $class->throw("No file, fh, or string argument provided"); # neither defined
+        }
 
-	my $format = $param{'-format'} ||
-	    $class->_guess_format( $param{-file} || $ARGV[0] );
+        my $format = $param{'-format'} ||
+            $class->_guess_format( $param{-file} || $ARGV[0] );
         
-	if( ! $format ) {
-	    if ($param{-file}) {
-		$format = Bio::Tools::GuessSeqFormat->new(-file => $param{-file}||$ARGV[0] )->guess;
-	    } elsif ($param{-fh}) {
-		$format = Bio::Tools::GuessSeqFormat->new(-fh => $param{-fh}||$ARGV[0] )->guess;
-	    }
-	}
-    # changed 1-3-11; no need to print out an empty string (only way this
-    # exception is triggered) - cjfields
-    $class->throw("Could not guess format from file/fh") unless $format;
-	$format = "\L$format";	# normalize capitalization to lower case
+        if( ! $format ) {
+            if ($param{-file}) {
+                $format = Bio::Tools::GuessSeqFormat->new(-file => $param{-file}||$ARGV[0] )->guess;
+            } elsif ($param{-fh}) {
+                $format = Bio::Tools::GuessSeqFormat->new(-fh => $param{-fh}||$ARGV[0] )->guess;
+            }
+        }
+        # changed 1-3-11; no need to print out an empty string (only way this
+        # exception is triggered) - cjfields
+        $class->throw("Could not guess format from file/fh") unless $format;
+        $format = "\L$format";  # normalize capitalization to lower case
 
-    if ($format =~ /-/) {
-        ($format, my $variant) = split('-', $format, 2);
-        push @args, (-variant => $variant);
-    }
-	return unless( $class->_load_format_module($format) );
-	return "Bio::SeqIO::$format"->new(@args);
+        if ($format =~ /-/) {
+            ($format, my $variant) = split('-', $format, 2);
+            push @args, (-variant => $variant);
+        }
+
+
+        return unless( $class->_load_format_module($format) );
+        return "Bio::SeqIO::$format"->new(@args);
     }
 }
+
 
 =head2 newFh
 
@@ -414,10 +417,11 @@ See L<Bio::SeqIO::Fh>
 =cut
 
 sub newFh {
-  my $class = shift;
-  return unless my $self = $class->new(@_);
-  return $self->fh;
+    my $class = shift;
+    return unless my $self = $class->new(@_);
+    return $self->fh;
 }
+
 
 =head2 fh
 
@@ -432,47 +436,47 @@ sub newFh {
 
 =cut
 
-
 sub fh {
-  my $self = shift;
-  my $class = ref($self) || $self;
-  my $s = Symbol::gensym;
-  tie $$s,$class,$self;
-  return $s;
+    my $self = shift;
+    my $class = ref($self) || $self;
+    my $s = Symbol::gensym;
+    tie $$s,$class,$self;
+    return $s;
 }
+
 
 # _initialize is chained for all SeqIO classes
 
 sub _initialize {
-	my($self, @args) = @_;
+    my($self, @args) = @_;
 
-	# flush is initialized by the Root::IO init
+    # flush is initialized by the Root::IO init
 
-	my ($seqfact,$locfact,$objbuilder, $alphabet) =
-	  $self->_rearrange([qw(SEQFACTORY
-			      LOCFACTORY
-			      OBJBUILDER
-                  ALPHABET)
-							  ], @args);
+    my ($seqfact,$locfact,$objbuilder, $alphabet) =
+        $self->_rearrange([qw(SEQFACTORY
+                              LOCFACTORY
+                              OBJBUILDER
+                              ALPHABET)
+                                         ], @args);
 
-	$locfact = Bio::Factory::FTLocationFactory->new(-verbose => $self->verbose)
-	  if ! $locfact;
-	$objbuilder = Bio::Seq::SeqBuilder->new(-verbose => $self->verbose)
-	  unless $objbuilder;
-	$self->sequence_builder($objbuilder);
-	$self->location_factory($locfact);
+    $locfact = Bio::Factory::FTLocationFactory->new(-verbose => $self->verbose)
+        if ! $locfact;
+    $objbuilder = Bio::Seq::SeqBuilder->new(-verbose => $self->verbose)
+        unless $objbuilder;
+    $self->sequence_builder($objbuilder);
+    $self->location_factory($locfact);
 
-	# note that this should come last because it propagates the sequence
-	# factory to the sequence builder
-	$seqfact && $self->sequence_factory($seqfact);
+    # note that this should come last because it propagates the sequence
+    # factory to the sequence builder
+    $seqfact && $self->sequence_factory($seqfact);
         
     #bug 2160
     $alphabet && $self->alphabet($alphabet);
 
-
-	# initialize the IO part
-	$self->_initialize_io(@args);
+    # initialize the IO part
+    $self->_initialize_io(@args);
 }
+
 
 =head2 next_seq
 
@@ -506,6 +510,7 @@ sub next_seq {
    $self->throw("Sorry, you cannot read from a generic Bio::SeqIO object.");
 }
 
+
 =head2 write_seq
 
  Title   : write_seq
@@ -520,6 +525,18 @@ sub write_seq {
     my ($self, $seq) = @_;
     $self->throw("Sorry, you cannot write to a generic Bio::SeqIO object.");
 }
+
+=head2 format
+
+ Title   : format
+ Usage   : $format = $stream->format()
+ Function: Get the sequence format
+ Returns : sequence format, e.g. fasta, fastq
+ Args    : none
+
+=cut
+
+# format() method inherited from Bio::Root::IO
 
 
 =head2 alphabet
@@ -538,21 +555,21 @@ sub alphabet {
    my ($self, $value) = @_;
 
    if ( defined $value) {
-		$value = lc $value;
-		unless ($valid_alphabet_cache{$value}) {
-			# instead of hard-coding the allowed values once more, we check by
-			# creating a dummy sequence object
-			eval {
-				require Bio::PrimarySeq;
-				my $seq = Bio::PrimarySeq->new('-verbose' => $self->verbose,
-														 '-alphabet' => $value);
-			};
-			if ($@) {
-				$self->throw("Invalid alphabet: $value\n. See Bio::PrimarySeq for allowed values.");
-			}
-			$valid_alphabet_cache{$value} = 1;
-		}
-		$self->{'alphabet'} = $value;
+        $value = lc $value;
+        unless ($valid_alphabet_cache{$value}) {
+            # instead of hard-coding the allowed values once more, we check by
+            # creating a dummy sequence object
+            eval {
+                require Bio::PrimarySeq;
+                my $seq = Bio::PrimarySeq->new('-verbose' => $self->verbose,
+                                                         '-alphabet' => $value);
+            };
+            if ($@) {
+                $self->throw("Invalid alphabet: $value\n. See Bio::PrimarySeq for allowed values.");
+            }
+            $valid_alphabet_cache{$value} = 1;
+        }
+        $self->{'alphabet'} = $value;
    }
    return $self->{'alphabet'};
 }
@@ -569,23 +586,23 @@ sub alphabet {
 =cut
 
 sub _load_format_module {
-	my ($self, $format) = @_;
-	my $module = "Bio::SeqIO::" . $format;
-	my $ok;
+    my ($self, $format) = @_;
+    my $module = "Bio::SeqIO::" . $format;
+    my $ok;
 
-	eval {
-		$ok = $self->_load_module($module);
-	};
-	if ( $@ ) {
-		print STDERR <<END;
+    eval {
+        $ok = $self->_load_module($module);
+    };
+    if ( $@ ) {
+        print STDERR <<END;
 $self: $format cannot be found
 Exception $@
 For more information about the SeqIO system please see the SeqIO docs.
 This includes ways of checking for formats at compile time, not run time
 END
-		;
-	}
-	return $ok;
+        ;
+    }
+    return $ok;
 }
 
 =head2 _concatenate_lines
@@ -604,10 +621,10 @@ END
 =cut
 
 sub _concatenate_lines {
-	my ($self, $s1, $s2) = @_;
+    my ($self, $s1, $s2) = @_;
 
-	$s1 .= " " if($s1 && ($s1 !~ /-$/) && $s2);
-	return ($s1 ? $s1 : "") . ($s2 ? $s2 : "");
+    $s1 .= " " if($s1 && ($s1 !~ /-$/) && $s2);
+    return ($s1 ? $s1 : "") . ($s2 ? $s2 : "");
 }
 
 =head2 _filehandle
@@ -643,55 +660,55 @@ sub _filehandle {
 sub _guess_format {
    my $class = shift;
    return unless $_ = shift;
-   return 'abi'     if /\.ab[i1]$/i;
-   return 'ace'     if /\.ace$/i;
-   return 'alf'     if /\.alf$/i;
-   return 'bsml'    if /\.(bsm|bsml)$/i;
-   return 'ctf'     if /\.ctf$/i;
-   return 'embl'    if /\.(embl|ebl|emb|dat)$/i;
-	return 'entrezgene' if /\.asn$/i;
-   return 'exp'     if /\.exp$/i;
-   return 'fasta'   if /\.(fasta|fast|fas|seq|fa|fsa|nt|aa|fna|faa)$/i;
-   return 'fastq'   if /\.fastq$/i;
-   return 'gcg'     if /\.gcg$/i;
-   return 'genbank' if /\.(gb|gbank|genbank|gbk|gbs)$/i;
-   return 'phd'     if /\.(phd|phred)$/i;
-   return 'pir'     if /\.pir$/i;
-   return 'pln'     if /\.pln$/i;
-   return 'qual'    if /\.qual$/i;
-   return 'raw'     if /\.txt$/i;
-   return 'scf'     if /\.scf$/i;
-   return 'swiss'   if /\.(swiss|sp)$/i;
+   return 'abi'        if /\.ab[i1]$/i;
+   return 'ace'        if /\.ace$/i;
+   return 'alf'        if /\.alf$/i;
+   return 'bsml'       if /\.(bsm|bsml)$/i;
+   return 'ctf'        if /\.ctf$/i;
+   return 'embl'       if /\.(embl|ebl|emb|dat)$/i;
+   return 'entrezgene' if /\.asn$/i;
+   return 'exp'        if /\.exp$/i;
+   return 'fasta'      if /\.(fasta|fast|fas|seq|fa|fsa|nt|aa|fna|faa)$/i;
+   return 'fastq'      if /\.fastq$/i;
+   return 'gcg'        if /\.gcg$/i;
+   return 'genbank'    if /\.(gb|gbank|genbank|gbk|gbs)$/i;
+   return 'phd'        if /\.(phd|phred)$/i;
+   return 'pir'        if /\.pir$/i;
+   return 'pln'        if /\.pln$/i;
+   return 'qual'       if /\.qual$/i;
+   return 'raw'        if /\.txt$/i;
+   return 'scf'        if /\.scf$/i;
+   return 'swiss'      if /\.(swiss|sp)$/i;
 
    # from Strider 1.4 Release Notes: The file name extensions used by
    # Strider 1.4 are ".xdna", ".xdgn", ".xrna" and ".xprt" for DNA,
    # DNA Degenerate, RNA and Protein Sequence Files, respectively
-   return 'strider' if /\.(xdna|xdgn|xrna|xprt)$/i;
+   return 'strider'    if /\.(xdna|xdgn|xrna|xprt)$/i;
 
-   return 'ztr'     if /\.ztr$/i;
+   return 'ztr'        if /\.ztr$/i;
 }
 
 sub DESTROY {
-	my $self = shift;
-	$self->close();
+    my $self = shift;
+    $self->close();
 }
 
 sub TIEHANDLE {
-	my ($class,$val) = @_;
-	return bless {'seqio' => $val}, $class;
+    my ($class,$val) = @_;
+    return bless {'seqio' => $val}, $class;
 }
 
 sub READLINE {
-	my $self = shift;
-	return $self->{'seqio'}->next_seq() unless wantarray;
-	my (@list, $obj);
-	push @list, $obj while $obj = $self->{'seqio'}->next_seq();
-	return @list;
+    my $self = shift;
+    return $self->{'seqio'}->next_seq() unless wantarray;
+    my (@list, $obj);
+    push @list, $obj while $obj = $self->{'seqio'}->next_seq();
+    return @list;
 }
 
 sub PRINT {
-	my $self = shift;
-	$self->{'seqio'}->write_seq(@_);
+    my $self = shift;
+    $self->{'seqio'}->write_seq(@_);
 }
 
 =head2 sequence_factory
@@ -707,15 +724,15 @@ sub PRINT {
 sub sequence_factory{
    my ($self,$obj) = @_;
    if( defined $obj ) {
-		if( ! ref($obj) || ! $obj->isa('Bio::Factory::SequenceFactoryI') ) {
-			$self->throw("Must provide a valid Bio::Factory::SequenceFactoryI object to ".ref($self)."::sequence_factory()");
-		}
-		$self->{'_seqio_seqfactory'} = $obj;
-		my $builder = $self->sequence_builder();
-		if($builder && $builder->can('sequence_factory') &&
-			(! $builder->sequence_factory())) {
-			$builder->sequence_factory($obj);
-		}
+        if( ! ref($obj) || ! $obj->isa('Bio::Factory::SequenceFactoryI') ) {
+            $self->throw("Must provide a valid Bio::Factory::SequenceFactoryI object to ".ref($self)."::sequence_factory()");
+        }
+        $self->{'_seqio_seqfactory'} = $obj;
+        my $builder = $self->sequence_builder();
+        if($builder && $builder->can('sequence_factory') &&
+            (! $builder->sequence_factory())) {
+            $builder->sequence_factory($obj);
+        }
    }
    $self->{'_seqio_seqfactory'};
 }
@@ -732,7 +749,7 @@ sub sequence_factory{
 =cut
 
 sub object_factory{
-	return shift->sequence_factory(@_);
+    return shift->sequence_factory(@_);
 }
 
 =head2 sequence_builder
@@ -752,14 +769,14 @@ sub object_factory{
 =cut
 
 sub sequence_builder{
-	my ($self,$obj) = @_;
-	if( defined $obj ) {
-		if( ! ref($obj) || ! $obj->isa('Bio::Factory::ObjectBuilderI') ) {
-			$self->throw("Must provide a valid Bio::Factory::ObjectBuilderI object to ".ref($self)."::sequence_builder()");
-		}
-		$self->{'_object_builder'} = $obj;
-	}
-	$self->{'_object_builder'};
+    my ($self,$obj) = @_;
+    if( defined $obj ) {
+        if( ! ref($obj) || ! $obj->isa('Bio::Factory::ObjectBuilderI') ) {
+            $self->throw("Must provide a valid Bio::Factory::ObjectBuilderI object to ".ref($self)."::sequence_builder()");
+        }
+        $self->{'_object_builder'} = $obj;
+    }
+    $self->{'_object_builder'};
 }
 
 =head2 location_factory
@@ -775,15 +792,15 @@ sub sequence_builder{
 =cut
 
 sub location_factory{
-	my ($self,$obj) = @_;
-	if( defined $obj ) {
-		if( ! ref($obj) || ! $obj->isa('Bio::Factory::LocationFactoryI') ) {
-			$self->throw("Must provide a valid Bio::Factory::LocationFactoryI" .
-							 " object to ".ref($self)."->location_factory()");
-		}
-		$self->{'_seqio_locfactory'} = $obj;
-	}
-	$self->{'_seqio_locfactory'};
+    my ($self,$obj) = @_;
+    if( defined $obj ) {
+        if( ! ref($obj) || ! $obj->isa('Bio::Factory::LocationFactoryI') ) {
+            $self->throw("Must provide a valid Bio::Factory::LocationFactoryI" .
+                             " object to ".ref($self)."->location_factory()");
+        }
+        $self->{'_seqio_locfactory'} = $obj;
+    }
+    $self->{'_seqio_locfactory'};
 }
 
 1;

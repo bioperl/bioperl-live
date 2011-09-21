@@ -506,6 +506,8 @@ for my $file ( @files ) {
 
         # Note that we use our own get_all_SeqFeatures function 
         # to rescue cloned exons
+
+        @GFF_LINE_FEAT = ();
         for my $feature ( get_all_SeqFeatures($seq) ) {
             
             my $method = $feature->primary_tag;

@@ -566,7 +566,7 @@ sub _finish_bulk_update {
     my $fh = $self->dump_filehandle($table);
     my $path = $self->dump_path($table);
     $fh->close;
-    print STDERR "$path\n";
+    #print STDERR "$path\n";
     
     $dbh->do("LOAD DATA LOCAL INFILE '$path' REPLACE INTO TABLE $table FIELDS OPTIONALLY ENCLOSED BY '\\''") 
       or $self->throw($dbh->errstr);
