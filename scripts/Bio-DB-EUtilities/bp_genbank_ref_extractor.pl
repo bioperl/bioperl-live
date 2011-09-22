@@ -815,11 +815,8 @@ When saving a file, to avoid problems with limited filesystems such as NTFS or F
 characters are allowed. All other characters will be replaced by an underscore. Allowed characters
 are:
 
-=over
-
 B<a-z 0-9 - +  . , () {} []'>
 
-=back
 =cut
 
 ## Tries to sanitize a filename
@@ -1062,3 +1059,9 @@ sub get_product_list {
     default    { return map { $self->get_product_list($product, $_) } @_; }
   }
 }
+
+## this =back closes the last point on the NOTES on usage section
+
+=back
+
+=cut
