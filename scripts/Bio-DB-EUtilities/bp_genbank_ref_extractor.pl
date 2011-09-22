@@ -57,7 +57,7 @@ When retrieving the sequence, a specific assemly can be defined. The value expec
 is a regex that will case-insensitive. If it matches more than one assembly, it will
 use the first match. It defauls to C<reference (primary )?assembly>.
 =cut
-my $assemly_regex = 'reference (primary )?assembly';
+my $assembly_regex = 'reference (primary )?assembly';
 
 =item B<--debug>
 
@@ -293,7 +293,7 @@ C<bp_genbank_ref_extractor --transcripts -- 'H2A AND homo sapiens'>
 ################################################################################
 
 GetOptions(
-            'assembly:s'          => \$assemly_regex,
+            'assembly:s'          => \$assembly_regex,
             'debug'               => \$debug,
             'down|downstream=i'   => \$downstream,
             'format=s'            => \$format,
@@ -534,7 +534,7 @@ sub analyze_entrez_genes {
 
     foreach my $l (@{$result->{'locus'}}){
       $l = $l->[0] if(ref($l) eq 'ARRAY');
-      next unless ($l->{'heading'} && $l->{'heading'} =~ m/$assemly_regex/i);
+      next unless ($l->{'heading'} && $l->{'heading'} =~ m/$assembly_regex/i);
       my $ChrAccVer = $l->{'accession'};
       my $ChrStart  = $l->{'seqs'}->[0]->{'int'}->[0]->{'from'};
       my $ChrStop   = $l->{'seqs'}->[0]->{'int'}->[0]->{'to'};
