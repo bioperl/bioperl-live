@@ -54,7 +54,7 @@ See the section bugs for problems when using default values of options.
 =item B<--assembly>
 
 When retrieving the sequence, a specific assemly can be defined. The value expected
-is a regex that will case-insensitive. If it matches more than one assembly, it will
+is a regex that will be case-insensitive. If it matches more than one assembly, it will
 use the first match. It defauls to C<reference (primary )?assembly>.
 =cut
 my $assembly_regex = 'reference (primary )?assembly';
