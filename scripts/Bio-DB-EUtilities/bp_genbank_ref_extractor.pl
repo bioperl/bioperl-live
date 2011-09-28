@@ -157,13 +157,15 @@ my $save          = File::Spec->catfile (getcwd, 'extracted sequences');
 This options saves the data (gene UIDs, description, product accessions, etc) to
 a file. As an optional value, the file format can be specified. Defaults to CSV.
 
-Currently only CSV is supported
+Currently only CSV is supported.
+
+Saving the data structure as a CSV file, requires the installation of the Text::CSV module.
 =cut
 my $save_data     = '';
 sub save_data_option_parsing {
   given ($_[1]) {
-    when (/^csv$/i) { $save_data = 'csv'; }
-    when ('')       { $save_data = 'csv'; } ## Do nothing. If not set, use default
+    when (/^csv$/i) { $save_data = 'csv'; require Text::CSV; }
+    when ('')       { $save_data = 'csv'; require Text::CSV; } ## Do nothing. If not set, use default
     default         { die "Specified format to save data '$save_data' is not valid."; }
   }
 }
@@ -878,15 +880,8 @@ sub save_structure {
   }
 }
 
-=item *
-
-Saving the data structure as a CSV file, requires the installation of the Text::CSV module.
-
-=cut
-
 sub create_csv {
   my $struct = shift;
-  require Text::CSV;
   my $csv = Text::CSV->new ({
                               binary => 1,
                               eol => $/,
