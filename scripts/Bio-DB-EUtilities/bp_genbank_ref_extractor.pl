@@ -535,6 +535,7 @@ sub analyze_entrez_genes {
     foreach my $l (@{$result->{'locus'}}){
       $l = $l->[0] if(ref($l) eq 'ARRAY');
       next unless ($l->{'heading'} && $l->{'heading'} =~ m/$assembly_regex/i);
+      my $assembly  = $l->{'heading'};
       my $ChrAccVer = $l->{'accession'};
       my $ChrStart  = $l->{'seqs'}->[0]->{'int'}->[0]->{'from'};
       my $ChrStop   = $l->{'seqs'}->[0]->{'int'}->[0]->{'to'};
@@ -551,6 +552,7 @@ sub analyze_entrez_genes {
       log_it (3, "Update: gene with UID='$uid' has Accesion number '$ChrAccVer' between coordinates $ChrStart ... $ChrStop on strand $ChrStrand.");
       $struct->add_gene(
                         uid       => $uid,
+                        assembly  => $assembly,
                         ChrAccVer => $ChrAccVer,
                         ChrStart  => $ChrStart,
                         ChrStop   => $ChrStop,
@@ -893,7 +895,7 @@ sub create_csv {
   my $csv_file  = File::Spec->catfile ($save, 'data.csv');
   open (my $fh, ">", $csv_file) or die "Couldn't open file $csv_file for writing: $!";
 
-  $csv->print ($fh, ['gene symbol', 'gene UID', 'EnsEMBL ID', 'gene name', 'pseudo', 'transcript accession','protein accession', 'chromosome accession', 'chromosome start coordinates', 'chromosome stop coordinates'] );
+  $csv->print ($fh, ['gene symbol', 'gene UID', 'EnsEMBL ID', 'gene name', 'pseudo', 'transcript accession','protein accession', 'chromosome accession', 'chromosome start coordinates', 'chromosome stop coordinates', 'assembly'] );
 
   my @uids = $struct->get_list('gene');
   foreach my $uid(@uids) {
@@ -912,6 +914,7 @@ sub create_csv {
                     $struct->get_info('gene', $uid, 'ChrAccVer'),
                     $struct->get_info('gene', $uid, 'ChrStart'),
                     $struct->get_info('gene', $uid, 'ChrStop'),
+                    $struct->get_info('gene', $uid, 'assembly'),
                     ]);
     }
     $csv->print ($fh, $_) for @lines;
