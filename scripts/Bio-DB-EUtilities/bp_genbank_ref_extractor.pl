@@ -54,10 +54,10 @@ See the section bugs for problems when using default values of options.
 =item B<--assembly>
 
 When retrieving the sequence, a specific assemly can be defined. The value expected
-is a regex that will case-insensitive. If it matches more than one assembly, it will
-use the first match. It defauls to C<reference (primary )?assembly>.
+is a regex that will be case-insensitive. If it matches more than one assembly, it will
+use the first match. It defauls to C<(primary|reference) assembly>.
 =cut
-my $assembly_regex = 'reference (primary )?assembly';
+my $assembly_regex = '(primary|reference) assembly';
 
 =item B<--debug>
 
@@ -157,13 +157,15 @@ my $save          = File::Spec->catfile (getcwd, 'extracted sequences');
 This options saves the data (gene UIDs, description, product accessions, etc) to
 a file. As an optional value, the file format can be specified. Defaults to CSV.
 
-Currently only CSV is supported
+Currently only CSV is supported.
+
+Saving the data structure as a CSV file, requires the installation of the Text::CSV module.
 =cut
 my $save_data     = '';
 sub save_data_option_parsing {
   given ($_[1]) {
-    when (/^csv$/i) { $save_data = 'csv'; }
-    when ('')       { $save_data = 'csv'; } ## Do nothing. If not set, use default
+    when (/^csv$/i) { $save_data = 'csv'; require Text::CSV; }
+    when ('')       { $save_data = 'csv'; require Text::CSV; } ## Do nothing. If not set, use default
     default         { die "Specified format to save data '$save_data' is not valid."; }
   }
 }
@@ -535,6 +537,7 @@ sub analyze_entrez_genes {
     foreach my $l (@{$result->{'locus'}}){
       $l = $l->[0] if(ref($l) eq 'ARRAY');
       next unless ($l->{'heading'} && $l->{'heading'} =~ m/$assembly_regex/i);
+      my $assembly  = $l->{'heading'};
       my $ChrAccVer = $l->{'accession'};
       my $ChrStart  = $l->{'seqs'}->[0]->{'int'}->[0]->{'from'};
       my $ChrStop   = $l->{'seqs'}->[0]->{'int'}->[0]->{'to'};
@@ -551,6 +554,7 @@ sub analyze_entrez_genes {
       log_it (3, "Update: gene with UID='$uid' has Accesion number '$ChrAccVer' between coordinates $ChrStart ... $ChrStop on strand $ChrStrand.");
       $struct->add_gene(
                         uid       => $uid,
+                        assembly  => $assembly,
                         ChrAccVer => $ChrAccVer,
                         ChrStart  => $ChrStart,
                         ChrStop   => $ChrStop,
@@ -876,15 +880,8 @@ sub save_structure {
   }
 }
 
-=item *
-
-Saving the data structure as a CSV file, requires the installation of the Text::CSV module.
-
-=cut
-
 sub create_csv {
   my $struct = shift;
-  require Text::CSV;
   my $csv = Text::CSV->new ({
                               binary => 1,
                               eol => $/,
@@ -893,7 +890,7 @@ sub create_csv {
   my $csv_file  = File::Spec->catfile ($save, 'data.csv');
   open (my $fh, ">", $csv_file) or die "Couldn't open file $csv_file for writing: $!";
 
-  $csv->print ($fh, ['gene symbol', 'gene UID', 'EnsEMBL ID', 'gene name', 'pseudo', 'transcript accession','protein accession', 'chromosome accession', 'chromosome start coordinates', 'chromosome stop coordinates'] );
+  $csv->print ($fh, ['gene symbol', 'gene UID', 'EnsEMBL ID', 'gene name', 'pseudo', 'transcript accession','protein accession', 'chromosome accession', 'chromosome start coordinates', 'chromosome stop coordinates', 'assembly'] );
 
   my @uids = $struct->get_list('gene');
   foreach my $uid(@uids) {
@@ -912,6 +909,7 @@ sub create_csv {
                     $struct->get_info('gene', $uid, 'ChrAccVer'),
                     $struct->get_info('gene', $uid, 'ChrStart'),
                     $struct->get_info('gene', $uid, 'ChrStop'),
+                    $struct->get_info('gene', $uid, 'assembly'),
                     ]);
     }
     $csv->print ($fh, $_) for @lines;
