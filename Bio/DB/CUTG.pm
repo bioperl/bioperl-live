@@ -46,6 +46,11 @@ reference variable.
 I intend at a later date to allow retrieval of multiple codon tables
 e.g., from a wildcard search.
 
+Examples URLs:
+
+L<http://www.kazusa.or.jp/codon/cgi-bin/spsearch.cgi?species=Pan+troglodytes&c=s>
+L<http://www.kazusa.or.jp/codon/cgi-bin/showcodon.cgi?species=37011&aa=1&style=GCG>
+
 =head1 SEE ALSO
 
 L<Bio::Tools::CodonTable>,
@@ -56,7 +61,6 @@ L<Bio::CodonUsage::IO>
 =head1 FEEDBACK
 
 =head2 Mailing Lists
-
 
 User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one

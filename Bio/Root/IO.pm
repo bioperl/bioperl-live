@@ -374,6 +374,7 @@ sub _initialize_io {
     return 1;
 }
 
+
 =head2 _fh
 
  Title   : _fh
@@ -392,6 +393,7 @@ sub _fh {
     }
     return $obj->{'_filehandle'};
 }
+
 
 =head2 mode
 
@@ -441,6 +443,7 @@ sub mode {
     return $obj->{'_mode'};
 }
 
+
 =head2 file
 
  Title   : file
@@ -459,6 +462,60 @@ sub file {
     }
     return $obj->{'_file'};
 }
+
+
+=head2 format
+
+ Title   : format
+ Usage   : $self->format($newval)
+ Function: Get the format of a Bio::Root::IO sequence file or filehandle. Every
+           object inheriting Bio::Root::IO is guaranteed to have a format.
+ Returns : format of the file or filehandle, e.g. fasta, fastq, genbank, embl.
+ Args    : none
+
+=cut
+
+sub format {
+    my ($self) = @_;
+    my $format = (split '::', ref($self))[-1];
+    return $format;
+}
+
+
+=head2 variant
+
+ Title   : format
+ Usage   : $self->format($newval)
+ Function: Get the variant of a Bio::Root::IO sequence file or filehandle.
+           The format variant depends on the specific format used. Note that not
+           all formats have variants
+ Returns : variant of the file or filehandle, e.g. sanger, solexa or illumina for
+           the fastq format, or undef for formats that do not have variants.
+ Args    : none
+ Note    : The Bio::Root::IO-implementing modules that require access to variants
+           need to define a global hash that has the allowed variants as its keys.
+
+=cut
+
+sub variant {
+    my ($self, $variant) = @_;
+    if (defined $variant) {
+        $variant = lc $variant;
+        my $var_name = '%'.ref($self).'::variant';
+        my %ok_variants = eval $var_name; # e.g. %Bio::Assembly::IO::ace::variant
+        if (scalar keys %ok_variants == 0) {
+            $self->throw('Cannot check for validity of variant because global '.
+                "variant $var_name is not set or is empty\n");
+        }
+        if (not exists $ok_variants{$variant}) {
+            $self->throw($variant.' is not a valid variant of the '.$self->format.
+                ' format');
+        }
+        $self->{variant} = $variant;
+    }
+    return $self->{variant};
+}
+
 
 =head2 _print
 

@@ -7,20 +7,42 @@ use Bio::Seq::SeqFactory;
 
 use base qw(Bio::SeqIO);
 
+our %variant = (
+        sanger     => {
+            'offset'     => 33,
+            'qual_start' => 0,
+            'qual_end'   => 93
+            },
+        solexa     => {
+            'offset'     => 64,
+            'qual_start' => -5,
+            'qual_end'   => 62
+            },
+        illumina   => {
+            'offset'     => 64,
+            'qual_start' => 0,
+            'qual_end'   => 62
+            },
+    );
+
 sub _initialize {
     my($self,@args) = @_;
     $self->SUPER::_initialize(@args);
     my ($variant, $validate, $header) = $self->_rearrange([qw(VARIANT
-                                                   VALIDATE
-                                                   QUALITY_HEADER)], @args);
+                                                              VALIDATE
+                                                              QUALITY_HEADER)], @args);
     $variant ||= 'sanger';
-    $validate = defined $validate ? $validate : 1;
     $self->variant($variant);
+    $self->_init_tables($variant);
+    $validate = defined $validate ? $validate : 1;
     $self->validate($validate);
     $header     && $self->quality_header($header);
 
     if( ! defined $self->sequence_factory ) {
-        $self->sequence_factory(Bio::Seq::SeqFactory->new(-verbose => $self->verbose(), -type => 'Bio::Seq::Quality'));
+        $self->sequence_factory(Bio::Seq::SeqFactory->new(
+            -verbose => $self->verbose(),
+            -type => 'Bio::Seq::Quality')
+        );
     }
 }
 
@@ -65,12 +87,13 @@ sub next_dataset {
             }
             $data->{-id} = $id;
             $data->{-desc} = $fulldesc;
-            $data->{-namespace} = $self->{qualtype};
+            $data->{-namespace} = $self->variant;
         } elsif ($mode eq '-seq' && $line =~ m{^\+([^\n]*)}xmso) {
             my $desc = $1;
             $self->throw("No description line parsed") unless $data->{-descriptor};
             if ($desc && $data->{-descriptor} ne $desc) {
-                $self->throw("Quality descriptor [$desc] doesn't match seq descriptor ".$data->{-descriptor}.", line: $." );
+                $self->throw("Quality descriptor [$desc] doesn't match seq ".
+                    "descriptor ".$data->{-descriptor}.", line: $." );
             }
             $mode = '-raw_quality';
         } else {
@@ -100,16 +123,18 @@ sub next_dataset {
 
     # simple quality control tests
     if (length $data->{-seq} != length $data->{-raw_quality}) {
-        $self->throw("Quality string [".$data->{-raw_quality}."] of length [".length($data->{-raw_quality})."]\ndoesn't match ".
-                     "length of sequence ".$data->{-seq}."\n[".length($data->{-seq})."], line: $.");
+        $self->throw("Quality string [".$data->{-raw_quality}."] of length [".
+            length($data->{-raw_quality})."]\ndoesn't match length of sequence ".
+            $data->{-seq}."\n[".length($data->{-seq})."], line: $.");
     }
 
     $data->{-qual} = [map {
         if ($self->{_validate_qual} && !exists($self->{chr2qual}->{$_})) {
-            $self->throw("Unknown symbol with ASCII value ".ord($_)." outside of quality range")
+            $self->throw("Unknown symbol with ASCII value ".ord($_)." outside ".
+                "of quality range")
             # TODO: fallback?
         }
-        $self->{qualtype} eq 'solexa' ?
+        $self->variant eq 'solexa' ?
             $self->{sol2phred}->{$self->{chr2qual}->{$_}}:
             $self->{chr2qual}->{$_};
     } unpack("A1" x length($data->{-raw_quality}), $data->{-raw_quality})];
@@ -121,10 +146,11 @@ sub next_dataset {
 
 sub write_seq {
     my ($self,@seq) = @_;
-    my $var = $self->{qualtype};
+    my $var = $self->variant;
     foreach my $seq (@seq) {
         unless ($seq->isa("Bio::Seq::Quality")){
-            $self->warn("You can't write FASTQ without supplying a Bio::Seq::Quality object! ", ref($seq), "\n");
+            $self->warn("You can't write FASTQ without supplying a Bio::Seq::".
+                "Quality object! ".ref($seq)."\n");
             next;
         }
         my $str = $seq->seq || '';
@@ -196,42 +222,14 @@ sub write_qual {
     return $self->{qual_proxy}->write_seq(@seq);
 }
 
-{
-    my %VARIANT = (
-        sanger     => {
-            'offset'     => 33,
-            'qual_start' => 0,
-            'qual_end'   => 93
-            },
-        solexa     => {
-            'offset'     => 64,
-            'qual_start' => -5,
-            'qual_end'   => 62
-            },
-        illumina   => {
-            'offset'     => 64,
-            'qual_start' => 0,
-            'qual_end'   => 62
-            },
-    );
-
-sub variant {
-    my ($self, $enc) = @_;
-    if (defined $enc) {
-        $enc = lc $enc;
-        $self->throw('Not a valid FASTQ variant format') unless exists $VARIANT{$enc};
-        $self->_init_tables($enc);
-        $self->{qualtype} = $enc;
-    }
-    return $self->{qualtype};
-}
+# variant() method inherited from Bio::Root::IO
 
 sub _init_tables {
-    my ($self, $enc) = @_;
+    my ($self, $var) = @_;
     # cache encode/decode values for quicker accession
     ($self->{qual_start}, $self->{qual_end}, $self->{qual_offset}) =
-        @{ $VARIANT{$enc} }{qw(qual_start qual_end offset)};
-    if ($enc eq 'solexa') {
+        @{ $variant{$var} }{qw(qual_start qual_end offset)};
+    if ($var eq 'solexa') {
         for my $q ($self->{qual_start} .. $self->{qual_end}) {
             my $char = chr($q + $self->{qual_offset});
             $self->{chr2qual}->{$char} = $q;
@@ -260,8 +258,6 @@ sub _init_tables {
             $self->{fuzzy_qual2chr}->{sprintf("%.1f-%.1f",$c - 0.5, $c + 0.5)} = $char;
         }
     }
-}
-
 }
 
 sub validate {
@@ -319,7 +315,7 @@ Bio::SeqIO::fastq - fastq sequence input/output stream
 
   # simple 'fastq' format defaults to 'sanger' variant
   my $out = Bio::SeqIO->new(-format    => 'fastq',
-                           -file      => '>mydata.fq');
+                            -file      => '>mydata.fq');
 
   # $seq is a Bio::Seq::Quality object
   while (my $seq = $in->next_seq) {

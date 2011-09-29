@@ -111,7 +111,7 @@ my %format_driver_map = (
                          "interpro"    => "InterProParser",
                          "interprosax" => "Handlers::InterPro_BioSQL_Handler",
                          "evoc"        => "simplehierarchy",
-                         "obo"        => "obo"
+                         "obo"         => "obo"
                          );
 
 =head2 new
@@ -184,6 +184,20 @@ sub new {
     }
 
 }
+
+
+=head2 format
+
+ Title   : format
+ Usage   : $format = $parser->format()
+ Function: Get the ontology format
+ Returns : ontology format
+ Args    : none
+
+=cut
+
+# format() method inherited from Bio::Root::IO
+
 
 sub _initialize {
     my($self, @args) = @_;

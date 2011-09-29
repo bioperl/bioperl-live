@@ -425,8 +425,8 @@ for my $example (sort keys %error) {
 # fastq
 
 my $in = Bio::SeqIO->new(-format    => "fastq",
-                             -file      => test_input_file('fastq', 'zero_qual.fastq'),
-                             -verbose   => 2);  #strictest level
+                         -file      => test_input_file('fastq', 'zero_qual.fastq'),
+                         -verbose   => 2);  #strictest level
 
 lives_and {my $seq = $in->next_seq;
            is($seq->seq, 'G');}, 'edge case; single 0 in quality fails';

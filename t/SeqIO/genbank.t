@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 272 );
+	test_begin(-tests => 274 );
 	
     use_ok('Bio::SeqIO::genbank');
 }
@@ -581,3 +581,23 @@ $seq = $ast->next_seq;
 ok my @ctg = $seq->annotation->get_Annotations('contig');
 like $ctg[0]->value, qr/join\(.*?gap.*?complement/;
 
+# write_seq() and FTHelper duplicate specific tags, need to check a round-trip
+$ast = Bio::SeqIO->new(-format => 'genbank' ,
+                       -verbose => $verbose,
+                       -file => test_input_file('singlescore.gbk'));
+$as = $ast->next_seq();
+($cds) = grep { $_->primary_tag eq 'CDS' } $as->get_SeqFeatures();
+my @notes = $cds->get_tag_values('note');
+is(scalar @notes, 2);
+$testfile = test_output_file();
+$out = Bio::SeqIO->new(-file => ">$testfile",
+                       -format => 'genbank');
+$out->write_seq($as);
+$out->close();
+$ast = Bio::SeqIO->new(-format => 'genbank' ,
+                       -verbose => $verbose,
+                       -file => $testfile );
+$as = $ast->next_seq;
+($cds) = grep { $_->primary_tag eq 'CDS' } $as->get_SeqFeatures();
+@notes = $cds->get_tag_values('note');
+is(scalar @notes, 2);

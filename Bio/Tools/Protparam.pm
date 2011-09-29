@@ -17,14 +17,17 @@ Bio::Tools::Protparam - submit to and parse output from protparam ;
 
 =head1 SYNOPSIS
 
-  my $gb = new Bio::DB::GenBank(-retrievaltype => 'tempfile' ,
+  use Bio::DB::GenBank;
+  use Bio::Tools::Protparam;
+
+  my $gb = new Bio::DB::GenBank(-retrievaltype => 'tempfile' , 
                                 -format => 'Fasta');
   my @ids=qw(O14521 O43709 O43826);
   my $seqio = $gb->get_Stream_by_acc(\@ids );
 
   while( my $seq =  $seqio->next_seq ) {
 
-	my $pp = Protparam->new(seq=>$seq->seq);
+	my $pp = Bio::Tools::Protparam->new(seq=>$seq->seq);
 
 	print
 	"ID : ", $seq->display_id,"\n",

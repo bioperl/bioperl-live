@@ -120,6 +120,20 @@ sub new {
 
 }
 
+
+=head2 format
+
+ Title   : format
+ Usage   : $format = $stream->format()
+ Function: Get the map format
+ Returns : map format
+ Args    : none
+
+=cut
+
+# format() method inherited from Bio::Root::IO
+
+
 =head2 Bio::Factory::MapFactoryI methods
 
 =cut

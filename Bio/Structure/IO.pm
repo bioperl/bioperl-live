@@ -300,6 +300,19 @@ sub fh {
 }
 
 
+=head2 format
+
+ Title   : format
+ Usage   : $format = $obj->format()
+ Function: Get the structure format
+ Returns : structure format
+ Args    : none
+
+=cut
+
+# format() method inherited from Bio::Root::IO
+
+
 # _initialize is chained for all SeqIO classes
 
 sub _initialize {
