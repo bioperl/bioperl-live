@@ -208,30 +208,30 @@ sub next_feature_group {
   $self->{group_not_done} = 1;
 
   while ($self->{group_not_done} && ($feat = $self->next_feature()) && defined($feat)) {
-	# we start by collecting all features in the group and
-	# memorizing those which have an ID attribute
+    # we start by collecting all features in the group and
+    # memorizing those which have an ID attribute
     my $anno_ID = $feat->get_Annotations('ID');
-	if(ref($anno_ID)) {
+    if(ref($anno_ID)) {
       my $attr_ID = $anno_ID->value;
       $self->throw("Oops! ID $attr_ID exists more than once in your file!")
-		if (exists($seen_ids{$attr_ID}));
+        if (exists($seen_ids{$attr_ID}));
       $seen_ids{$attr_ID} = $feat;
-	}
-	push(@all_feats, $feat);
+    }
+    push(@all_feats, $feat);
   }
 
   # assemble the top-level features
   foreach $feat (@all_feats) {
-	my @parents = $feat->get_Annotations('Parent');
-	if (@parents) {
+    my @parents = $feat->get_Annotations('Parent');
+    if (@parents) {
       foreach my $parent (@parents) {
-		my $parent_id = $parent->value;
-		$self->throw("Parent with ID $parent_id not found!") unless (exists($seen_ids{$parent_id}));
-		$seen_ids{$parent_id}->add_SeqFeature($feat);
+        my $parent_id = $parent->value;
+        $self->throw("Parent with ID $parent_id not found!") unless (exists($seen_ids{$parent_id}));
+        $seen_ids{$parent_id}->add_SeqFeature($feat);
       }
-	} else {
-	    push(@toplevel_feats, $feat);
-      }
+    } else {
+      push(@toplevel_feats, $feat);
+    }
   }
 
   return @toplevel_feats;
@@ -239,8 +239,12 @@ sub next_feature_group {
 
 =head2 next_seq()
 
-access the FASTA section (if any) at the end of the GFF stream.  note that this method
-will return undef if not all features in the stream have been handled
+ Usage   : $featureio->next_seq( );
+ Function: access the FASTA section (if any) at the end of the GFF stream. Note
+           that this method will return undef until all the features in the GFF
+           stream have been handled.
+ Returns : a Bio::SeqI object or undef
+ Args    : none
 
 =cut
 
@@ -295,7 +299,8 @@ sub write_feature {
 =head2 fasta_mode()
 
  Usage   : $obj->fasta_mode($newval)
- Function: 
+ Function: Returns whether or not we're currently in a FASTA section of the GFF
+           stream
  Example : 
  Returns : value of fasta_mode (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
@@ -311,7 +316,7 @@ sub fasta_mode {
   $self->{'fasta_mode'} = $val if defined($val);
 
   if ($val && $val == 1) {
-  #  seek $self->_fh(), -1, 1; #rewind 1 byte to get the previous line's \n
+    #seek $self->_fh(), -1, 1; #rewind 1 byte to get the previous line's \n
     $self->_pushback("\n");
   }
 
@@ -321,10 +326,11 @@ sub fasta_mode {
 =head2 seqio()
 
  Usage   : $obj->seqio($newval)
- Function: holds a Bio::SeqIO instance for handling the GFF3 ##FASTA section.
- Returns : value of seqio (a scalar)
+ Function: get/set a Bio::SeqIO instance for handling the GFF3 ##FASTA section.
+           Note that this method will return undef until all the features in the 
+           GFF stream have been handled.
+ Returns : value of seqio (a scalar) or undef
  Args    : on set, new value (a scalar or undef, optional)
-
 
 =cut
 
