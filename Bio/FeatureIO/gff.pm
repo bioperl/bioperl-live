@@ -241,7 +241,7 @@ sub next_feature_group {
 
  Usage   : $featureio->next_seq( );
  Function: access the FASTA section (if any) at the end of the GFF stream. Note
-           that this method will return undef until all the features in the GFF
+           that this method will return undef before all the features in the GFF
            stream have been handled.
  Returns : a Bio::SeqI object or undef
  Args    : none
@@ -250,12 +250,7 @@ sub next_feature_group {
 
 sub next_seq() {
   my $self = shift;
-  return unless $self->fasta_mode();
-
-  #first time next_seq has been called.  initialize Bio::SeqIO instance
-  if(!$self->seqio){
-    $self->seqio( Bio::SeqIO->new(-format => 'fasta', -fh => $self->_fh()) );
-  }
+  return undef unless $self->fasta_mode();
   return $self->seqio->next_seq();
 }
 
@@ -326,19 +321,27 @@ sub fasta_mode {
 =head2 seqio()
 
  Usage   : $obj->seqio($newval)
- Function: get/set a Bio::SeqIO instance for handling the GFF3 ##FASTA section.
-           Note that this method will return undef until all the features in the 
-           GFF stream have been handled.
- Returns : value of seqio (a scalar) or undef
+ Function: get/set a Bio::SeqIO instance to handle the GFF3 ##FASTA section.
+ Returns : a Bio::SeqIO object or undef
  Args    : on set, new value (a scalar or undef, optional)
 
 =cut
 
 sub seqio {
   my($self,$val) = @_;
-  $self->{'seqio'} = $val if defined($val);
+ if (defined $val) {
+    $self->{'seqio'} = $val;
+  } else {
+    # Cannot get seqio before we've reached the ##FASTA section
+    return undef unless $self->fasta_mode();
+    if (not defined $self->{'seqio'}) {
+      # Initialize Bio::SeqIO instance
+      $self->{'seqio'} = Bio::SeqIO->new(-format => 'fasta', -fh => $self->_fh());
+    }
+  }
   return $self->{'seqio'};
 }
+
 
 =head2 sequence_region()
 
