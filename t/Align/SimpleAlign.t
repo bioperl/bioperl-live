@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 201 );
+    test_begin( -tests => 198 );
 
     use_ok('Bio::SimpleAlign');
     use_ok('Bio::AlignIO');
@@ -38,7 +38,7 @@ my $aln2 = $aln->select( 1, 3 );
 isa_ok( $aln2, 'Bio::Align::AlignI' );
 is( $aln2->num_sequences, 3, 'num_sequences' );
 
-# test select non continuous-sorted by default
+# test select non contiguous-sorted by default
 $aln2 = $aln->select_noncont( 6, 7, 8, 9, 10, 1, 2, 3, 4, 5 );
 is( $aln2->num_sequences, 10, 'num_sequences' );
 is(
@@ -52,7 +52,7 @@ is(
     'select_noncont'
 );
 
-# test select non continuous-nosort option
+# test select non contiguous-nosort option
 $aln2 = $aln->select_noncont( 'nosort', 6, 7, 8, 9, 10, 1, 2, 3, 4, 5 );
 is( $aln2->num_sequences, 10, 'num_sequences' );
 is(
@@ -65,6 +65,15 @@ is(
     $aln->get_seq_by_pos(3)->id,
     'select_noncont'
 );
+
+# test select non contiguous by name
+my $aln3 = $aln->select_noncont_by_name('1433_LYCES','BMH1_YEAST','143T_HUMAN');
+is( $aln3->num_sequences, 3, 'select_noncont_by_name' );
+my @seqs3 = $aln3->each_seq();
+is $seqs3[0]->id, '1433_LYCES', 'select_noncont_by_name';
+is $seqs3[1]->id, 'BMH1_YEAST', 'select_noncont_by_name';
+is $seqs3[2]->id, '143T_HUMAN', 'select_noncont_by_name';
+
 
 @seqs = $aln->each_seq();
 is scalar @seqs, 16, 'each_seq';
