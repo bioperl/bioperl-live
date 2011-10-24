@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 198 );
+    test_begin( -tests => 205 );
 
     use_ok('Bio::SimpleAlign');
     use_ok('Bio::AlignIO');
@@ -585,7 +585,7 @@ my $d = Bio::LocatableSeq->new(
 );
 my $e = Bio::LocatableSeq->new(
     -id    => 'e',
-    -strand => 1,    
+    -strand => 1,
     -seq   => '-t-gatcgatcga-c-',
     -start => 100,
     -end   => 111
@@ -679,7 +679,7 @@ for my $seq ($slice->each_seq) {
         is $seq->end,   101;
         is $seq->strand, 1;
         is $seq->seq,   '-t-g';
-    }    
+    }
 }
 
 my $f = Bio::LocatableSeq->new(
@@ -754,8 +754,8 @@ EOU
     $consensus =~ s/\n//g;
 
     is( $aln->consensus_string, $consensus, 'consensus string looks ok' );
-    
-    
+
+
     my @cons_got = $aln->consensus_conservation;
     # 422 positions, mostly two of six sequences conserved, set as default
     my @cons_expect = (100 * 2/6) x 422;
@@ -767,11 +767,11 @@ EOU
     $cons_expect[$_-1] = 100 * 4/6 for (84,93,99,100,102,107,108,112,113,119,150,);
     $cons_expect[$_-1] = 100 * 5/6 for (81,110);
     # Format for string comparison
-    @cons_expect = map { sprintf "%4.1f", $_ } @cons_expect;   
-    @cons_got = map { sprintf "%4.1f", $_ } @cons_got; 
+    @cons_expect = map { sprintf "%4.1f", $_ } @cons_expect;
+    @cons_got = map { sprintf "%4.1f", $_ } @cons_got;
     is(length($aln->consensus_string), scalar(@cons_got),"conservation length");
     is_deeply(\@cons_got, \@cons_expect, "conservation scores");
-        
+
 
     is( aln2str( $aln => 'pfam' ), <<EOA, 'looks like correct unmasked alignment (from clustalw)' );
 P84139/1-420              MNEGEHQIKLDELFEKLLRARKIFKNKDVLRHSYTPKDLPLRHEQIETLAQILVPVLRGETPSNIFVYG-KTGTGKTVTVK-FVTEELKRISEKYNIPVDVIYINCEIVDTHYRVLANIVNYFKDETGIGVPMVGWPTDEVYAKLKQVIDMKERFVIIVLDEIDKLVKKSGDEVLYSLTRINTELKRAKVSVIGISNDLKFKEYLDPRVLSSLSEEEVVFPPYDANQLRDILTQRAEEAFYPGVLDEGVIPLCAALAAREHGDARKALDLLRVAGEIAEREGASKVTEKHVWKAQEKIEQDMMEEVIKTRPLQSKVLLYAIVLLDENGDLPANTGDVYAVYRELCEYIDLEPLTQRRISDLINELDMLGIINAKVVSKGRYGRTKEIRLNVTSYKIRNVLRYDYSIQPLLTISLKSEQRRLI
@@ -806,18 +806,18 @@ EOF
     $aln = $in->next_aln();
     is( aln2str( $aln, 'phylip' ), <<EOU );
  3 37
-seq1         AAAATGGGGG TGGT------ GGTACCT--- ------- 
-seq2         -----GGCGG TGGTGNNNNG GGTTCCCTNN NNNNNNN 
-new          AAAATGGNGG TGGTN----N GGTNCCNTNN NNNNNNN 
+seq1         AAAATGGGGG TGGT------ GGTACCT--- -------
+seq2         -----GGCGG TGGTGNNNNG GGTTCCCTNN NNNNNNN
+new          AAAATGGNGG TGGTN----N GGTNCCNTNN NNNNNNN
 
 EOU
 
     $newaln = $aln->mask_columns(15,20,'?');
     is( aln2str( $newaln,'phylip' ), <<EOU, 'align after looks ok' );
  3 37
-seq1         AAAATGGGGG TGGT------ GGTACCT--- ------- 
-seq2         -----GGCGG TGGT?????? GGTTCCCTNN NNNNNNN 
-new          AAAATGGNGG TGGT?----? GGTNCCNTNN NNNNNNN 
+seq1         AAAATGGGGG TGGT------ GGTACCT--- -------
+seq2         -----GGCGG TGGT?????? GGTTCCCTNN NNNNNNN
+new          AAAATGGNGG TGGT?----? GGTNCCNTNN NNNNNNN
 
 EOU
 }
@@ -832,4 +832,3 @@ sub aln2str {
     $alignio_out->write_aln( $aln );
     return $out;
 }
-
