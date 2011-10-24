@@ -248,7 +248,7 @@ sub _create_desc {
    }
    # Description of the original sequence
    my $ref_desc = $self->reference->desc;
-   if (defined $self->reference->desc) {
+   if ( (defined $self->reference->desc) && ($self->reference->desc !~ m/^\s*$/) ) {
       $ref_desc =~ s/"/\\"/g; # escape double-quotes to \"
       $desc_str .= 'description="'.$ref_desc.'" ';
    }
