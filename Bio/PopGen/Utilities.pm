@@ -195,8 +195,8 @@ sub aln_to_population{
 	   # slicing vertically
 	   for my $seq ( @seqs ) {
 	       my $site = uc(substr($seq,$i,1));
-	       $set{$site}++;
 	       push @genotypes, $ambig_code{$site};
+	       $set{$site}++;
 	   }
 	   if( keys %set > 1 || $includefixed ) {
 	       my $genoct = scalar @genotypes;
@@ -217,7 +217,7 @@ sub aln_to_population{
        }
        my $codonct = 0;
        for( my $i = $phase; $i < $alength; $i += CodonLen ) {
-	   my (@genotypes,%set,$genoct);
+	   my (@unambig_site,@genotypes,%set,$genoct);
 	   
 	   for my $seq ( @seqs ) {
 	       my $site = uc(substr($seq,$i,CodonLen));
@@ -227,8 +227,13 @@ sub aln_to_population{
 		   next;
 	       }
 	       # do we check for gaps/indels here?
-	       $set{$site}++;
-	       push @genotypes, $ambig_code{$site};
+	       for (my $pos=1; $pos<=CodonLen; $pos++)
+               {
+                    $unambig_site[0] .= $ambig_code{substr($site, $pos, 1)}[0];
+                    $unambig_site[1] .= $ambig_code{substr($site, $pos, 1)}[1];
+               }
+               push @genotypes, \@unambig_site;
+               $set{$site}++;
 	   }
 	   $genoct = scalar @genotypes;
 	   
