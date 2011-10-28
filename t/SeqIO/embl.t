@@ -8,7 +8,7 @@ BEGIN {
 	use lib '../..';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 95);
+	test_begin(-tests => 96);
 	
     use_ok('Bio::SeqIO::embl');
 }
@@ -314,4 +314,17 @@ foreach my $feature ($seq->top_SeqFeatures) {
     ok(defined $embl_species, "The read sequence has a species object");
     is($embl_species->ncbi_taxid, 9606, "The taxid of the source feature overrides that of the OX line");
     is($embl_species->binomial(), 'Anopheles gambiae', "Name has roundtripped");
+}
+
+# Handle Seq objects that only define an ID, not an accession number
+{
+    my $seq = Bio::Seq->new(-seq=>'actg', -id=>'test_id');
+
+    my $string;
+    open(my $str_fh, '>', \$string) || skip("Can't open string, skipping", 1);
+
+    my $out = Bio::SeqIO->new(-format=>'embl', -fh=>$str_fh);
+    $out->write_seq($seq);
+
+    ok($string =~ m/ID   test_id;/, "The ID field was written correctly");
 }
