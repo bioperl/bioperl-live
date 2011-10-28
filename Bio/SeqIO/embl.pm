@@ -505,7 +505,7 @@ sub _write_ID_line {
 
         # The sequence name is supposed to be the primary accession number,
         my $name = $seq->accession_number();
-        if (!$name) {
+        if (!defined($name) || $name eq 'unknown') {
             # but if it is not present, use the sequence ID.
             $name = $seq->id();
         }
