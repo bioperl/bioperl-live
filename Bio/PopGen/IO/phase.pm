@@ -90,7 +90,7 @@ package Bio::PopGen::IO::phase;
 use vars qw($FieldDelim $AlleleDelim $NoHeader);
 use strict;
 
-($FieldDelim,$AlleleDelim,$NoHeader) =( ',', '\s+',0);
+($FieldDelim,$AlleleDelim,$NoHeader) =(' ', '\s+', 0);
 
 
 
@@ -108,7 +108,7 @@ use base qw(Bio::PopGen::IO);
  Function: Builds a new Bio::PopGen::IO::hapmap object 
  Returns : an instance of Bio::PopGen::IO::hapmap
  Args    : [optional, these are the current defaults] 
-           -field_delimiter => ','
+           -field_delimiter => ' '
            -allele_delimiter=> '\s+'
            -no_header       => 0,
 
@@ -311,15 +311,18 @@ sub write_individual {
 	}
 	# we'll go ahead and sort these until
 	# we have a better way to insure a consistent order
-	my @marker_names = sort $ind->get_marker_names;
+	my @marker_names = sort {$a <=> $b} $ind->get_marker_names;
+	my $n_markers =scalar(@marker_names);
+	$self->_print( "1\n");
+	$self->_print( $n_markers, "\n");
 	if( ! $self->flag('no_header') && 
 	    ! $self->flag('header_written') ) {
-	    $self->_print(join($fielddelim, ('SAM', @marker_names)), "\n");
+	    $self->_print(join($fielddelim, ('P', @marker_names)), "\n");
 	    $self->flag('header_written',1);
 	}
+	$self->_print('S'x$n_markers, "\n");
 
 	my(@row1,@row2);
-
 	for (@marker_names){
 	    my $geno = $ind->get_Genotypes(-marker => $_);
 	    my @alleles = $geno->get_Alleles();
@@ -356,13 +359,17 @@ sub write_population {
 	}
 	# we'll go ahead and sort these until
 	# we have a better way to insure a consistent order
-	my @marker_names = sort $pop->get_marker_names;
+	my @marker_names = sort {$a <=> $b} $pop->get_marker_names;
+	my $n_markers =scalar(@marker_names);
+	$self->_print( $pop->get_number_individuals, "\n");
+	$self->_print( $n_markers, "\n");
 	if( ! $self->flag('no_header') && 
 	    ! $self->flag('header_written') ) {
-	    $self->_print( join($fielddelim, ('SAM', @marker_names)), 
-			   "\n");
+	    $self->_print( join($fielddelim, ('P', @marker_names)), "\n");
 	    $self->flag('header_written',1);
 	}
+	$self->_print('S'x$n_markers, "\n");
+	
 	foreach my $ind ( $pop->get_Individuals ) {
 	    my(@row1,@row2);
 	    for (@marker_names){
@@ -374,7 +381,7 @@ sub write_population {
 	    $self->_print("#",$ind->unique_id,"\n",
 			  join($fielddelim,@row1),"\n",
 			  join($fielddelim,@row2),"\n");
-	} 
+	}
     }
 }
 
