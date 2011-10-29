@@ -227,8 +227,8 @@ sub write_aln {
 
 sub _get_len {
 	my ($self,$seq) = @_;
-	my $chars = $Bio::LocatableSeq::RESIDUE_SYMBOLS;
-	$seq =~ s{[^$chars]+}{}gi;
+	my $chars = $Bio::LocatableSeq::GAP_SYMBOLS.$Bio::LocatableSeq::FRAMESHIFT_SYMBOLS;
+	$seq =~ s{[$chars]+}{}gi;
 	return CORE::length($seq);
 }
 
