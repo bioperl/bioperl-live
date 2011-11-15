@@ -211,30 +211,25 @@ sub write_feature {
   $self->throw("Only Bio::SeqFeature::Generic or Bio::SeqFeature::Annotated objects are writeable") 
   unless ( $feat->isa('Bio::SeqFeature::Generic') || $feat->isa('Bio::SeqFeature::Annotated') );
 
-  # Could be a problematic condition since it assumes all proteins have a 
-  # primary tag of 'CDS' as in the Genbank files from NCBI
-  if ( $feat->primary_tag eq 'CDS' ) {
+  # Default
+  my ($len,$pid,$gene,$synonym,$code,$cog,$product) = qw(- - - - - - -);
 
-    # Default
-    my ($len,$pid,$gene,$synonym,$code,$cog,$product) = qw(- - - - - - -);
+  my $start = $feat->start;
+  my $end   = $feat->end;
+  my $loc   = "$start..$end";
 
-    my $start = $feat->start;
-    my $end   = $feat->end;
-    my $loc   = "$start..$end";
+  my $strand = $feat->strand == 1 ? '+' : '-';
 
-    my $strand = $feat->strand == 1 ? '+' : '-';
+  $len = int(($end - $start)/3);
 
-    $len = int(($end - $start)/3);
+  $product = join ' ',$feat->get_tag_values("product")     if ($feat->has_tag("product"));
+  $pid     = join ' ',$feat->get_tag_values("protein_id")  if ($feat->has_tag("protein_id"));
+  $code    = join ' ',$feat->get_tag_values("codon_start") if ($feat->has_tag("codon_start"));
 
-    $product = join ' ',$feat->get_tag_values("product")     if ($feat->has_tag("product"));
-    $pid     = join ' ',$feat->get_tag_values("protein_id")  if ($feat->has_tag("protein_id"));
-    $code    = join ' ',$feat->get_tag_values("codon_start") if ($feat->has_tag("codon_start"));
+  $self->_print(join("\t",($loc,$strand,$len,$pid,$gene,$synonym,$code,$cog,$product)) . "\n");
 
-    $self->_print(join("\t",($loc,$strand,$len,$pid,$gene,$synonym,$code,$cog,$product)) . "\n");
+  $self->write_feature($_) foreach $feat->get_SeqFeatures();
 
-    $self->write_feature($_) foreach $feat->get_SeqFeatures();
-
-  }
 }
 
 =head2 description

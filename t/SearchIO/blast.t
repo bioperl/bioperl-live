@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 1352);
+    test_begin(-tests => 1354);
 
     use_ok('Bio::SearchIO');
 }
@@ -1261,6 +1261,8 @@ my $parser = Bio::SearchIO->new(
 );
 
 $r = $parser->next_result;
+is( $r->algorithm,                           'RPS-BLAST(BLASTP)');
+is( $r->algorithm_version,                   '2.2.4 [Aug-26-2002]');
 is( $r->algorithm_reference,                 undef );
 is( $r->query_name,                          'gi|1786183|gb|AAC73113.1|' );
 is( $r->query_gi,                            1786183 );

@@ -548,6 +548,7 @@ sub force_flush {
             $self->{force_flush} = 0;
         }
     }
+
     return $self->{force_flush};
 }
 
@@ -583,7 +584,6 @@ sub _do_flush {
 }
 
 
-
 =head2 is_flush
 
  Title   : is_flush
@@ -611,7 +611,7 @@ sub is_flush {
         $sticky .= "$name " if $self->length != $self->named_meta_length($name);
     } else {
         foreach my $m ($self->meta_names) {
-            $sticky .= "$m " if $self->length != $self->named_meta_length($m);
+            $sticky .= "$m " if ($self->named_meta_length($m) > 0) && ($self->length != $self->named_meta_length($m)) ;
         }
     }
 

@@ -27,6 +27,9 @@ CPAN releases are branched from 'master'.
       instances where blank lines are within sequences [cjfields]
     * [3238] Fixes for Bio::DB::SeqFeature::Store::DBI::Pg [Thomas Burkhard,
       cjfields]
+    * Various fixes for Stockholm file indexing and processing [bosborne]
+    * Fix edge case in FASTQ parsing where sequence of length 1 and qual of 0
+      breaks parsing [cjfields]
 
 1.6.901 May 18, 2011
 

@@ -719,7 +719,7 @@ sub attach_seq {
    my ($self, $seq) = @_;
 
    if ( ! ($seq && ref($seq) && $seq->isa("Bio::PrimarySeqI")) ) {
-       $self->throw("Must attach Bio::PrimarySeqI objects to SeqFeatures");
+       $self->throw("Must attach Bio::PrimarySeqI objects to SeqFeatures but got '".ref($seq)."'");
    }
 
    $self->{'seq'} = $seq;

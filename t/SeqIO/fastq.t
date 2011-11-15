@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 139 );
+    test_begin( -tests => 140 );
 
     use_ok('Bio::SeqIO::fastq');
     use_ok('Bio::Seq::Quality');
@@ -19,7 +19,7 @@ my $DEBUG = test_debug();
 
 my %example_files = (
     bug2335               => {
-        'variant'       => 'sanger', 
+        'variant'       => 'sanger',
         'seq'           => 'TTGGAATGTTGCAAATGGGAGGCAGTTTGAAATACTGAATAGGCCTCATC'.
                            'GAGAATGTGAAGTTTCAGTAAAGACTTGAGGAAGTTGAATGAGCTGATGA'.
                            'ATGGATATATG',
@@ -84,7 +84,7 @@ my %example_files = (
         'desc'          => undef,
         'count'         => 25
                                 },
-    example                 => {  
+    example                 => {
         'variant'       => 'sanger', # TODO: guessing on the format here...
         'seq'           => 'GTTGCTTCTGGCGTGGGTGGGGGGG',
         'qual'          => '26 26 26 26 26 26 26 26 26 26 26 24 26 22 26 26 '.
@@ -274,7 +274,7 @@ my %conversion = (  # check conversions, particularly solexa
           '-raw_quality' => 'hgfedcba`_^]\[ZYXWVUTSRQPONMLKJHGFECB@>;;',
           '-id' => 'Test',
           '-desc' => 'PHRED qualities from 40 to 0 inclusive',
-          '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'            
+          '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'
         },
         'to_illumina'   => {
           '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
@@ -312,13 +312,13 @@ for my $example (sort keys %conversion) {
         my $newdata = Bio::SeqIO->new(-format => "fastq-$newvar",
                                     -file     => $outfile)->next_dataset;
         # round for simple comparison, get around floating pt comparison probs
-        
+
         if ($newvar eq 'solexa') {
             $newdata->{-qual} = [map {sprintf("%.0f",$_)} @{$newdata->{-qual}}];
         }
-        
+
         #print Dumper($newdata) if $variant eq 'sanger' && $newvar eq 'illumina';
-        
+
         $conversion{$example}->{"to_$newvar"}->{'-namespace'} = $newvar;
         is_deeply($newdata, $conversion{$example}->{"to_$newvar"}, "Conversion from $variant to $newvar");
     }
@@ -327,7 +327,7 @@ for my $example (sort keys %conversion) {
 # test fastq exception handling
 
 my %error = (
-    # file name                
+    # file name
     error_diff_ids          => {
         variant         => 'sanger',
         exception       => qr/doesn't\smatch\sseq\sdescriptor/xms,
@@ -399,7 +399,7 @@ my %error = (
     error_trunc_in_seq      => {
         variant         => 'sanger',
         exception       => qr/Missing\ssequence\sand\/or\squality\sdata/xms,
-                                },    
+                                },
     error_trunc_in_plus     => {
         variant         => 'sanger',
         exception       => qr/doesn't\smatch\sseq\s descriptor/xms,
@@ -407,7 +407,7 @@ my %error = (
     error_trunc_in_qual     => {
         variant         => 'sanger',
         exception       => qr/doesn't\smatch\slength\sof\ssequence/xms,
-                                },    
+                                },
 );
 
 for my $example (sort keys %error) {
@@ -421,4 +421,14 @@ for my $example (sort keys %error) {
             $ct++;
         } } $error{$example}->{exception}, "Exception caught for $example";
 }
+
+# fastq
+
+my $in = Bio::SeqIO->new(-format    => "fastq",
+                         -file      => test_input_file('fastq', 'zero_qual.fastq'),
+                         -verbose   => 2);  #strictest level
+
+lives_and {my $seq = $in->next_seq;
+           is($seq->seq, 'G');}, 'edge case; single 0 in quality fails';
+
 

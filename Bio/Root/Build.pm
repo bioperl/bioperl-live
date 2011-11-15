@@ -92,7 +92,7 @@ BEGIN {
 use strict;
 use warnings;
 
-our $VERSION = '1.006901'; # pre-1.7
+our $VERSION = '1.006902'; # pre-1.7
 our @extra_types = qw(options excludes_os feature_requires test); # test must always be last in the list!
 our $checking_types = "requires|conflicts|".join("|", @extra_types);
 
@@ -191,33 +191,6 @@ sub script_files {
     }
 
     return $_ = { map {$_,1} @{$self->rscan_dir('scripts', qr/\.PLS$|\.pl$/)} };
-}
-
-# process scripts normally, except that we change name from *.PLS to bp_*.pl
-sub process_script_files {
-    my $self = shift;
-    my $files = $self->find_script_files;
-    return unless keys %$files;
-
-    my $script_dir = File::Spec->catdir($self->blib, 'script');
-    File::Path::mkpath( $script_dir );
-
-    foreach my $file (keys %$files) {
-        my $result = $self->copy_if_modified($file, $script_dir, 'flatten') or next;
-        $self->fix_shebang_line($result) unless $self->os_type eq 'VMS';
-        $self->make_executable($result);
-
-        my $final = File::Basename::basename($result);
-        $final =~ s/\.PLS$/\.pl/;                  # change from .PLS to .pl
-        $final =~ s/^/bp_/ unless $final =~ /^bp/; # add the "bp" prefix
-        $final = File::Spec->catfile($script_dir, $final);
-        # silence scripts
-        #$self->log_info("$result -> $final\n");
-        if (-e $final) {
-            unlink $final || warn "[WARNING] Deleting '$final' failed!\n";
-        }
-        File::Copy::move($result, $final) or die "Can't rename '$result' to '$final': $!";
-    }
 }
 
 # extended to handle extra checking types
@@ -1159,14 +1132,14 @@ sub make_zip {
 # a method that can be called in a Build.PL script to ask the user if they want
 # internet tests.
 # Should only be called if you have tested for yourself that
-# $build->feature('Network') is true
+# $build->feature('Network Tests') is true
 sub prompt_for_network {
     my ($self, $accept) = @_;
 
     my $proceed = $accept ? 0 : $self->y_n("Do you want to run tests that require connection to servers across the internet\n(likely to cause some failures)? y/n", 'n');
 
     if ($proceed) {
-        $self->notes('Network Tests' => 1);
+        $self->notes('network' => 1);
         $self->log_info("  - will run internet-requiring tests\n");
         my $use_email = $self->y_n("Do you want to run tests requiring a valid email address? y/n",'n');
         if ($use_email) {

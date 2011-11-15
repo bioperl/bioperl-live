@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 128);
+    test_begin(-tests => 132);
 	
 	use_ok('Bio::Seq::Meta');
 	use_ok('Bio::Seq::Meta::Array');
@@ -19,6 +19,8 @@ BEGIN {
 my $DEBUG = test_debug();
 
 ok my $seq = Bio::Seq::Meta->new( -seq => "AT-CGATCGA");
+is $seq->is_flush, 1;
+is $seq->revcom->seq, 'TCGATCG-AT';
 is $seq->meta, "";
 ok $seq->force_flush(1);
 is $seq->meta, "          ";
@@ -27,6 +29,8 @@ is $seq->meta, "            ";
 ok not $seq->force_flush(0);
 
 ok $seq = Bio::Seq::Meta::Array->new( -seq => "AT-CGATCGA");
+is $seq->is_flush, 1;
+is $seq->revcom->seq, 'TCGATCG-AT';
 is $seq->meta_text, "";
 ok $seq->force_flush(1);
 $seq->seq("AT-CGATCGATT");

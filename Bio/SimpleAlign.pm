@@ -373,15 +373,13 @@ sub removeSeq {
 sub remove_seq {
     my $self = shift;
     my $seq = shift;
-    my ($name,$id,$start,$end);
+    my ($name,$id);
 
     $self->throw("Need Bio::Locatable seq argument ")
 	unless ref $seq && $seq->isa( 'Bio::LocatableSeq');
 
     $id = $seq->id();
-    $start = $seq->start();
-    $end  = $seq->end();
-    $name = sprintf("%s/%d-%d",$id,$start,$end);
+    $name = $seq->get_nse;
 
     if( !exists $self->{'_seq'}->{$name} ) {
 	$self->throw("Sequence $name does not exist in the alignment to remove!");
@@ -1064,6 +1062,29 @@ sub select_noncont {
 	$aln->id($self->id);
     # fix for meta, sf, ann    
 	return $aln;
+}
+
+=head2 select_noncont_by_name
+
+ Title     : select_noncont_by_name
+ Usage     : my $aln2 = $aln->select_noncont_by_name('A123', 'B456');
+ Function  : Creates a new alignment from a subset of sequences which are
+             selected by name (sequence ID).
+ Returns   : a Bio::SimpleAlign object
+ Args      : array of names (i.e., identifiers) for the sequences.
+
+=cut
+
+sub select_noncont_by_name {
+    my ($self, @names) = @_;
+    
+    my $aln = $self->new;
+    foreach my $name (@names) {
+        $aln->add_seq($self->get_seq_by_id($name));
+    }
+    $aln->id($self->id);
+
+    return $aln;
 }
 
 =head2 slice

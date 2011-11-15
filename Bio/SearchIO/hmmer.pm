@@ -91,52 +91,40 @@ sub new {
   my ( $caller, @args ) = @_;
   my $class = ref($caller) || $caller;
 
-  if( $class =~ /Bio::SearchIO::hmmer(\d)/ ) {
-    my ($self) = $class->SUPER::new(@args);
-    $self->_initialize(@args);
-    return $self;
+  my $self = $class->SUPER::new(@args);
+  $self->_initialize(@args);
+
+  # Try to guess the hmmer format version if it's not specified.
+  my $version;
+  my %param = @args;
+
+  @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
+
+  # If the caller specified a version, go for that
+  if (defined($param{"-version"})) {
+    $version = $param{"-version"};
   } else {
-    # Try to guess the hmmer format version if it's not specified.
-    my $version;
-    my $fh;
-    my $fh_needs_close = 0;
-    my %param = @args;
 
-    @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
+    # read second line of the file
+    my $first_line = $self->_readline;
+    $_ = $self->_readline;
 
-    # If the caller specified a version, go for that
-    if (defined($param{"-version"})) {
-      $version = $param{"-version"};
+    if ( m/HMMER\s3/ ) {
+      $version = "3";
     } else {
-      # Check the contents of the file for the hmmer version mentioned in there
-      if (defined($param{"-fh"})) {
-          $fh = $param{"-fh"};
-      } elsif (defined($param{"-file"})) {
-        open($fh, $param{"-file"}) || return;
-        $fh_needs_close = 1;
-      }
-
-      # read second line of the file
-      <$fh>;
-      $_ = <$fh>;
-
-      if ( m/HMMER\s3/ ) {
-        $version = "3";
-      } else {
-        $version = "2";
-      }
-
-      if ($fh_needs_close) {
-          close($fh);
-      } else {
-          seek($fh, 0, 0);
-      }
+      $version = "2";
     }
 
-    my $format = "hmmer$version";
-    return unless( $class->_load_format_module($format) );
-    return "Bio::SearchIO::${format}"->new(@args);
+    $self->_pushback($_);
+    $self->_pushback($first_line);
   }
+
+  my $format = "hmmer$version";
+  return unless( $class->_load_format_module($format) );
+
+  bless($self, "Bio::SearchIO::$format");
+
+  return $self;
 }
 
 sub _initialize {

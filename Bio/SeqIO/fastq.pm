@@ -7,20 +7,42 @@ use Bio::Seq::SeqFactory;
 
 use base qw(Bio::SeqIO);
 
-sub _initialize { 
+our %variant = (
+        sanger     => {
+            'offset'     => 33,
+            'qual_start' => 0,
+            'qual_end'   => 93
+            },
+        solexa     => {
+            'offset'     => 64,
+            'qual_start' => -5,
+            'qual_end'   => 62
+            },
+        illumina   => {
+            'offset'     => 64,
+            'qual_start' => 0,
+            'qual_end'   => 62
+            },
+    );
+
+sub _initialize {
     my($self,@args) = @_;
     $self->SUPER::_initialize(@args);
     my ($variant, $validate, $header) = $self->_rearrange([qw(VARIANT
-                                                   VALIDATE
-                                                   QUALITY_HEADER)], @args);
+                                                              VALIDATE
+                                                              QUALITY_HEADER)], @args);
     $variant ||= 'sanger';
-    $validate = defined $validate ? $validate : 1;
     $self->variant($variant);
+    $self->_init_tables($variant);
+    $validate = defined $validate ? $validate : 1;
     $self->validate($validate);
     $header     && $self->quality_header($header);
-    
+
     if( ! defined $self->sequence_factory ) {
-        $self->sequence_factory(Bio::Seq::SeqFactory->new(-verbose => $self->verbose(), -type => 'Bio::Seq::Quality'));      
+        $self->sequence_factory(Bio::Seq::SeqFactory->new(
+            -verbose => $self->verbose(),
+            -type => 'Bio::Seq::Quality')
+        );
     }
 }
 
@@ -44,13 +66,13 @@ sub next_dataset {
     # speed this up by directly accessing the filehandle and in-lining the
     # _readline stuff vs. making the repeated method calls. Tradeoff is speed
     # over repeated code.
-    
+
     # we can probably normalize line endings using PerlIO::eol or
     # Encode::Newlines
-    
+
     my $fh = $self->_fh;
     my $line = $self->{lastline} || <$fh>;
-    
+
     FASTQ:
     while (defined $line) {
         $line =~ s/\015\012/\012/;
@@ -65,16 +87,17 @@ sub next_dataset {
             }
             $data->{-id} = $id;
             $data->{-desc} = $fulldesc;
-            $data->{-namespace} = $self->{qualtype};
+            $data->{-namespace} = $self->variant;
         } elsif ($mode eq '-seq' && $line =~ m{^\+([^\n]*)}xmso) {
             my $desc = $1;
             $self->throw("No description line parsed") unless $data->{-descriptor};
             if ($desc && $data->{-descriptor} ne $desc) {
-                $self->throw("Quality descriptor [$desc] doesn't match seq descriptor ".$data->{-descriptor}.", line: $." );
+                $self->throw("Quality descriptor [$desc] doesn't match seq ".
+                    "descriptor ".$data->{-descriptor}.", line: $." );
             }
             $mode = '-raw_quality';
         } else {
-            if ($mode eq '-raw_quality' && $data->{-raw_quality} &&
+            if ($mode eq '-raw_quality' && defined($data->{-raw_quality}) &&
                 (length($data->{-raw_quality}) >= length($data->{-seq}))) {
                 $self->{lastline} = $line;
                 last FASTQ
@@ -92,47 +115,50 @@ sub next_dataset {
             last FASTQ;
         }
     }
-    
+
     return unless $data;
-    if (!$data->{-seq} || !$data->{-raw_quality}) {
+    if (!$data->{-seq} || !defined($data->{-raw_quality})) {
         $self->throw("Missing sequence and/or quality data; line: $.");
     }
-    
+
     # simple quality control tests
     if (length $data->{-seq} != length $data->{-raw_quality}) {
-        $self->throw("Quality string [".$data->{-raw_quality}."] of length [".length($data->{-raw_quality})."]\ndoesn't match ".
-                     "length of sequence ".$data->{-seq}."\n[".length($data->{-seq})."], line: $.");
+        $self->throw("Quality string [".$data->{-raw_quality}."] of length [".
+            length($data->{-raw_quality})."]\ndoesn't match length of sequence ".
+            $data->{-seq}."\n[".length($data->{-seq})."], line: $.");
     }
-    
+
     $data->{-qual} = [map {
         if ($self->{_validate_qual} && !exists($self->{chr2qual}->{$_})) {
-            $self->throw("Unknown symbol with ASCII value ".ord($_)." outside of quality range")
+            $self->throw("Unknown symbol with ASCII value ".ord($_)." outside ".
+                "of quality range")
             # TODO: fallback?
         }
-        $self->{qualtype} eq 'solexa' ?
+        $self->variant eq 'solexa' ?
             $self->{sol2phred}->{$self->{chr2qual}->{$_}}:
             $self->{chr2qual}->{$_};
     } unpack("A1" x length($data->{-raw_quality}), $data->{-raw_quality})];
     return $data;
 }
 
-# This should be creating fastq output only.  Bio::SeqIO::fasta and 
+# This should be creating fastq output only.  Bio::SeqIO::fasta and
 # Bio::SeqIO::qual should be used for that output
 
 sub write_seq {
     my ($self,@seq) = @_;
-    my $var = $self->{qualtype};
+    my $var = $self->variant;
     foreach my $seq (@seq) {
         unless ($seq->isa("Bio::Seq::Quality")){
-            $self->warn("You can't write FASTQ without supplying a Bio::Seq::Quality object! ", ref($seq), "\n");
+            $self->warn("You can't write FASTQ without supplying a Bio::Seq::".
+                "Quality object! ".ref($seq)."\n");
             next;
         }
         my $str = $seq->seq || '';
         my @qual = @{$seq->qual};
-        
+
         # this should be the origin of the sequence (illumina, solexa, sanger)
-        my $ns= $seq->namespace; 
-        
+        my $ns= $seq->namespace;
+
         my $top = $seq->display_id();
         if (my $desc = $seq->desc()) {
             $desc =~ s/\n//g;
@@ -143,7 +169,7 @@ sub write_seq {
             ($ns eq 'solexa' && $var eq 'solexa') ? $self->{phred_fp2chr} :
             ($var eq 'solexa')                    ? $self->{phred_int2chr} :
             $self->{qual2chr};
-        
+
         my %bad_qual;
         for my $q (@qual) {
             $q = sprintf("%.0f", $q) if ($var ne 'solexa' && $ns eq 'solexa');
@@ -196,59 +222,31 @@ sub write_qual {
     return $self->{qual_proxy}->write_seq(@seq);
 }
 
-{
-    my %VARIANT = (
-        sanger     => {
-            'offset'     => 33,
-            'qual_start' => 0,
-            'qual_end'   => 93
-            },
-        solexa     => {
-            'offset'     => 64,
-            'qual_start' => -5,
-            'qual_end'   => 62
-            },
-        illumina   => {
-            'offset'     => 64,            
-            'qual_start' => 0,
-            'qual_end'   => 62
-            },
-    );
-
-sub variant {
-    my ($self, $enc) = @_;
-    if (defined $enc) {
-        $enc = lc $enc;
-        $self->throw('Not a valid FASTQ variant format') unless exists $VARIANT{$enc};
-        $self->_init_tables($enc);
-        $self->{qualtype} = $enc;
-    }
-    return $self->{qualtype};
-}
+# variant() method inherited from Bio::Root::IO
 
 sub _init_tables {
-    my ($self, $enc) = @_;
+    my ($self, $var) = @_;
     # cache encode/decode values for quicker accession
     ($self->{qual_start}, $self->{qual_end}, $self->{qual_offset}) =
-        @{ $VARIANT{$enc} }{qw(qual_start qual_end offset)};
-    if ($enc eq 'solexa') {
+        @{ $variant{$var} }{qw(qual_start qual_end offset)};
+    if ($var eq 'solexa') {
         for my $q ($self->{qual_start} .. $self->{qual_end}) {
             my $char = chr($q + $self->{qual_offset});
             $self->{chr2qual}->{$char} = $q;
             $self->{qual2chr}->{$q} = $char;
             my $s2p = 10 * log(1 + 10 ** ($q / 10.0)) / log(10);
-            
+
             # solexa <=> solexa mapping speedup (retain floating pt precision)
-            $self->{phred_fp2chr}->{$s2p} = $char;  
+            $self->{phred_fp2chr}->{$s2p} = $char;
             $self->{sol2phred}->{$q} = $s2p;
-            
+
             # this is for mapping values fuzzily (fallback)
-            $self->{fuzzy_qual2chr}->{sprintf("%.1f-%.1f",$q - 0.5, $q + 0.5)} = $char;            
+            $self->{fuzzy_qual2chr}->{sprintf("%.1f-%.1f",$q - 0.5, $q + 0.5)} = $char;
 
             next if $q < 0; # skip loop; PHRED scores greater than 0
             my $p2s = sprintf("%.0f",($q <= 1) ? -5 : 10 * log(-1 + 10 ** ($q / 10.0)) / log(10));
             # sanger/illumina PHRED <=> Solexa char mapping speedup
-            $self->{phred_int2chr}->{$q} = chr($p2s + $self->{qual_offset});  
+            $self->{phred_int2chr}->{$q} = chr($p2s + $self->{qual_offset});
         }
     } else {
         for my $c ($self->{qual_start}..$self->{qual_end}) {
@@ -260,8 +258,6 @@ sub _init_tables {
             $self->{fuzzy_qual2chr}->{sprintf("%.1f-%.1f",$c - 0.5, $c + 0.5)} = $char;
         }
     }
-}
-
 }
 
 sub validate {
@@ -286,11 +282,11 @@ __END__
 
 # BioPerl module for Bio::SeqIO::fastq
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for Chris Fields
 #
-# Completely refactored from the original FASTQ parser 
+# Completely refactored from the original FASTQ parser
 # by Tony Cox <avc@sanger.ac.uk>
 #
 # Copyright Chris Fields
@@ -312,32 +308,32 @@ Bio::SeqIO::fastq - fastq sequence input/output stream
 =head1 SYNOPSIS
 
   ################## pertains to FASTQ parsing only ##################
-  
+
   # grabs the FASTQ parser, specifies the Illumina variant
   my $in = Bio::SeqIO->new(-format    => 'fastq-illumina',
                            -file      => 'mydata.fq');
 
   # simple 'fastq' format defaults to 'sanger' variant
-  my $out = Bio::SeqIO->new(-format    => 'fastq',  
-                           -file      => '>mydata.fq');
-                           
+  my $out = Bio::SeqIO->new(-format    => 'fastq',
+                            -file      => '>mydata.fq');
+
   # $seq is a Bio::Seq::Quality object
   while (my $seq = $in->next_seq) {
       $out->write_seq($seq);  # convert Illumina 1.3 to Sanger format
   }
-  
+
   # for 4x faster parsing, one can do something like this for raw data
   use Bio::Seq::Quality;
-  
+
   # $data is a hash reference containing all arguments to be passed to
   # the Bio::Seq::Quality constructor
   while (my $data = $in->next_dataset) {
       # process $data, such as trim, etc
       my $seq = Bio::Seq::Quality->new(%$data);
-      
+
       # for now, write_seq only accepts Bio::Seq::Quality, but may be modified
       # to allow raw hash references for speed
-      $out->write_seq($data);  
+      $out->write_seq($data);
   }
 
 =head1 DESCRIPTION
@@ -377,7 +373,7 @@ Bio::Seq::Quality instances:
     sequence lines                              seq
     quality                                     qual*
     FASTQ variant                               namespace
-    
+
     ^ first nonwhitespace chars are id(), everything else after (to end of line)
       is in desc()
     * Converted to PHRED quality scores where applicable ('solexa')
@@ -390,7 +386,7 @@ This parser supports all variants of FASTQ, including Illumina v 1.0 and 1.3:
     -----------------------------------------------------------
     sanger                 original
     solexa                 Solexa, Inc. (2004), aka Illumina 1.0
-    illumina               Illumina 1.3 
+    illumina               Illumina 1.3
 
 The variant can be specified by passing by either passing the additional
 -variant parameter to the constructor:
@@ -420,15 +416,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -477,7 +473,7 @@ methods. Internal methods are usually preceded with a _
  Function: Get and set method for the quality sequence variant.  This is
            important for indicating the encoding/decoding to be used for
            quality data.
-           
+
            Current values accepted are:
             'sanger'   (orginal FASTQ)
                 ASCII encoding from 33-126, PHRED quality score from 0 to 93
@@ -485,11 +481,11 @@ methods. Internal methods are usually preceded with a _
                 ASCII encoding from 59-104, SOLEXA quality score from -5 to 40
             'illumina' (aka illumina1.3)
                 ASCII encoding from 64-104, PHRED quality score from 0 to 40
-            
+
             (Derived from the MAQ website):
             For 'solexa', scores are converted to PHRED qual scores using:
                 $Q = 10 * log(1 + 10 ** (ord($sq) - 64) / 10.0)) / log(10)
-            
+
 
  Returns : string
  Args    : new value, string
