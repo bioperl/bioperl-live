@@ -277,6 +277,10 @@ sub fu_and_li_D {
 sub fu_and_li_D_counts {
     my ($self,$n,$seg_sites, $external_mut) = @_;
     my $a_n = 0;
+    if( $n <= 3 ) {
+	$self->warn("n is $n, too small, must be > 3\n");
+	return;
+    }
     for(my $k= 1; $k < $n; $k++ ) {
 	$a_n += ( 1 / $k );
     }
