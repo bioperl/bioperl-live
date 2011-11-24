@@ -19,8 +19,8 @@ Bio::Seq::SimulatedRead - Read with sequencing errors taken from a reference seq
     my $read = Bio::Seq::SimulatedRead->new(
        -reference => $genome  , # sequence to generate the read from
        -id        => 'read001', # read ID
-       -start     => 3        , # start of the read on the genome
-       -end       => 12       , # end of the read on the genome
+       -start     => 3        , # start of the read on the genome forward strand
+       -end       => 12       , # end of the read on the genome forward strand
        -strand    => 1        , # genome strand that the read is on
     );
 
@@ -54,7 +54,11 @@ The sequence of the read is automatically calculated based on this information.
 By default, the description of the reads contain tracking information and will
 look like this:
 
-  reference=human_chr2 position=3-12 strand=+1 mid=ACGT errors=1%G,4-,8+AAA description="The human genome"
+  reference=human_chr2 position=3-12 strand=-1 mid=ACGT errors=1%G,4-,8+AAA description="The human genome"
+
+or
+
+  reference=human_chr2 position=12-3 mid=ACGT errors=1%G,4-,8+AAA description="The human genome"
 
 Creating a simulated read follows these steps:
   1/ Define the read start(), end(), strand() and qual_levels() if you want
@@ -98,14 +102,15 @@ use base qw( Bio::Seq::Quality Bio::LocatableSeq );
                -end       => 135      ,
                -strand    => 1        ,
             );
- Arguments: -reference => Bio::SeqI, Bio::PrimarySeqI object representing the
-                          reference sequence to take the read from. See
-                          reference().
-            -errors    => Hashref representing the position of errors in the read
-                          See errors().
-            -mid       => String of a MID to prepend to the read. See mid().
-            -track     => Track where the read came from in the read description?
-                          See track().
+ Arguments: -reference  => Bio::SeqI, Bio::PrimarySeqI object representing the
+                           reference sequence to take the read from. See
+                           reference().
+            -errors     => Hashref representing the position of errors in the read
+                           See errors().
+            -mid        => String of a MID to prepend to the read. See mid().
+            -track      => Track where the read came from in the read description?
+                           See track().
+            -trackstyle => Define what coordinate system to use. See trackstyle().
             All other methods from Bio::LocatableSeq are available.
  Returns  : new Bio::Seq::SimulatedRead object
 
@@ -114,8 +119,10 @@ use base qw( Bio::Seq::Quality Bio::LocatableSeq );
 sub new {
    my ($class, @args) = @_;
    my $self = $class->SUPER::new(@args);
-   my ($qual_levels, $reference, $mid, $errors, $track) =
-      $self->_rearrange([qw(QUAL_LEVELS REFERENCE MID ERRORS TRACK )], @args);
+   my ($qual_levels, $reference, $mid, $errors, $track, $trackstyle) =
+      $self->_rearrange([qw(QUAL_LEVELS REFERENCE MID ERRORS TRACK TRACKSTYLE)], @args);
+   $trackstyle = defined $trackstyle ? $trackstyle : 'use_strand';
+   $self->trackstyle($trackstyle);
    $track = defined $track ? $track : 1;
    $self->track($track);
    $qual_levels = defined $qual_levels ? $qual_levels : [];
@@ -238,13 +245,23 @@ sub _create_desc {
    if (defined $ref_id) {
       $desc_str .= 'reference='.$ref_id.' ';
    }
-   # Position of read on reference sequence: start and end
-   $desc_str .= 'position='.$self->start.'-'.$self->end.' ';
-   # Strand of the reference sequence that the read is on
+   # Position of read on reference sequence: start, end and strand
    my $strand = $self->strand;
-   if (defined $strand) {
-      $strand = '+1' if $strand == 1;
-      $desc_str .= 'strand='.$strand.' ';
+   if ($self->trackstyle eq 'use_strand') {
+     $desc_str .= 'position='.$self->start.'-'.$self->end.' ';
+     if (defined $strand) {
+        # Strand of the reference sequence that the read is on
+        $strand = '+1' if $strand == 1;
+        $desc_str .= 'strand='.$strand.' ';
+     }
+   } else {
+     if ( (defined $strand) && ($strand == -1) ) {
+       # Reverse complemented
+       $desc_str .= 'position='.$self->end.'-'.$self->start.' ';
+     } else {
+       # Regular (forward) orientation
+       $desc_str .= 'position='.$self->start.'-'.$self->end.' ';
+     }
    }
    # Description of the original sequence
    my $ref_desc = $self->reference->desc;
@@ -599,6 +616,31 @@ sub track {
       $self->{track} = $track;
    }
    return $self->{track};
+}
+
+
+=head2 trackstyle
+
+ Title    : trackstyle
+ Function : When tracking is on, define what coordinate system to use:
+              use_strand uses the 'strand' keyword (default)
+              no_strand does not use the 'strand' keyword 
+            Definition by example for a read taken from the reverse-complement
+            of a sequence:
+              use_strand: position=1-10 strand=-1    Bioperl-style
+              no_strand:  position=10-1              More compact
+ Usage    : my $trackstyle = $read->track();
+ Arguments: 'use_strand' or 'no_strand'
+ Returns  : 'use_strand' or 'no_strand'
+
+=cut
+
+sub trackstyle {
+   my ($self, $trackstyle) = @_;
+   if (defined $trackstyle) {
+      $self->{trackstyle} = $trackstyle;
+   }
+   return $self->{trackstyle};
 }
 
 

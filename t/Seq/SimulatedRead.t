@@ -7,7 +7,7 @@ use warnings;
 BEGIN { 
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 182);
+    test_begin(-tests => 188);
 
     use_ok('Bio::Seq');
     use_ok('Bio::Seq::Quality');
@@ -64,6 +64,12 @@ is join(' ',@{$read->qual}), '';
 is $read->track, 1;
 is $read->desc, 'reference=human_id position=1-12 strand=+1 description="The human genome"';
 
+ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -track => 1, -trackstyle => 'use_strand' );
+is $read->desc, 'reference=human_id position=1-12 strand=+1 description="The human genome"';
+
+ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -track => 1, -trackstyle => 'no_strand' );
+is $read->desc, 'reference=human_id position=1-12 description="The human genome"';
+
 ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -qual_levels => [30, 10]);
 is $read->start, 1;
 is $read->end, 12;
@@ -91,6 +97,9 @@ ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -strand => -1, -qua
 is $read->seq, 'GGGGTTTTTTTA';
 is join(' ', @{$read->qual}), '30 30 30 30 30 30 30 30 30 30 30 30';
 is $read->desc, 'reference=human_id position=1-12 strand=-1 description="The human genome"';
+
+ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -strand => -1, -qual_levels => [30, 10], -trackstyle => 'no_strand' );
+is $read->desc, 'reference=human_id position=12-1 description="The human genome"';
 
 ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -start => 2, -end => 8, -qual_levels => [30, 10]);
 is $read->seq, 'AAAAAAA';
