@@ -64,10 +64,10 @@ is join(' ',@{$read->qual}), '';
 is $read->track, 1;
 is $read->desc, 'reference=human_id start=1 end=12 strand=+1 description="The human genome"';
 
-ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -track => 1, -coordstyle => 'bioperl' );
+ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -track => 1, -coord_style => 'bioperl' );
 is $read->desc, 'reference=human_id start=1 end=12 strand=+1 description="The human genome"';
 
-ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -track => 1, -coordstyle => 'genbank' );
+ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -track => 1, -coord_style => 'genbank' );
 is $read->desc, 'reference=human_id position=1..12 description="The human genome"';
 
 ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -qual_levels => [30, 10]);
@@ -98,7 +98,7 @@ is $read->seq, 'GGGGTTTTTTTA';
 is join(' ', @{$read->qual}), '30 30 30 30 30 30 30 30 30 30 30 30';
 is $read->desc, 'reference=human_id start=1 end=12 strand=-1 description="The human genome"';
 
-ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -strand => -1, -qual_levels => [30, 10], -coordstyle => 'genbank' );
+ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -strand => -1, -qual_levels => [30, 10], -coord_style => 'genbank' );
 is $read->desc, 'reference=human_id position=complement(1..12) description="The human genome"';
 
 ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -start => 2, -end => 8, -qual_levels => [30, 10]);
