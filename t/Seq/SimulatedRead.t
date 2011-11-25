@@ -35,7 +35,7 @@ $ref4 = Bio::LocatableSeq->new( -id  => 'a_thaliana',
                                 -seq => 'CGTATTCTGAGGAGAGCTCT' );
 
 
-# Basic object
+## Basic object
 
 ok $read = Bio::Seq::SimulatedRead->new( );
 isa_ok $read, 'Bio::Seq::SimulatedRead';
@@ -203,12 +203,23 @@ is $read->desc, 'reference=human_id start=1 end=12 strand=+1 errors=6+G,6+G desc
 
 # More tracking tests
 
+ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -mid => 'ACGT', -qual_levels => [], -coord_style => 'genbank' );
+is $read->desc, 'reference=human_id position=1..12 mid=ACGT description="The human genome"';
+
+ok $read->mid('AAAA');
+is $read->desc, 'reference=human_id position=1..12 mid=AAAA description="The human genome"';
+
+$errors = {};
+$errors->{'6'}->{'+'} = 'GG';
+ok $read->errors($errors);
+is $read->desc, 'reference=human_id position=1..12 mid=AAAA errors=6+G,6+G description="The human genome"';
+
 ok not($read->track(0)), 'track()';
 is $read->track, 0;
 is $read->desc, undef;
 ok $read->track(1);
 is $read->track, 1;
-is $read->desc, 'reference=human_id start=1 end=12 strand=+1 errors=6+G,6+G description="The human genome"';
+is $read->desc, 'reference=human_id position=1..12 mid=AAAA errors=6+G,6+G description="The human genome"';
 
 
 # qual_levels() method

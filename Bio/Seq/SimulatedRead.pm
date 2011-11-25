@@ -102,14 +102,14 @@ use base qw( Bio::Seq::Quality Bio::LocatableSeq );
                -end       => 135      ,
                -strand    => 1        ,
             );
- Arguments: -reference  => Bio::SeqI, Bio::PrimarySeqI object representing the
-                           reference sequence to take the read from. See
-                           reference().
-            -errors     => Hashref representing the position of errors in the read
-                           See errors().
-            -mid        => String of a MID to prepend to the read. See mid().
-            -track      => Track where the read came from in the read description?
-                           See track().
+ Arguments: -reference   => Bio::SeqI, Bio::PrimarySeqI object representing the
+                            reference sequence to take the read from. See
+                            reference().
+            -errors      => Hashref representing the position of errors in the read
+                            See errors().
+            -mid         => String of a MID to prepend to the read. See mid().
+            -track       => Track where the read came from in the read description?
+                            See track().
             -coord_style => Define what coordinate system to use. See coord_style().
             All other methods from Bio::LocatableSeq are available.
  Returns  : new Bio::Seq::SimulatedRead object
@@ -354,7 +354,7 @@ sub _update_desc_mid {
       # Sequencing errors introduced in the read
       my $mid_str = "mid=".$mid;
       my $desc_str = $self->desc;
-      $desc_str =~ s/(strand=\S+)( mid=\S+)?/$1 $mid_str/g;
+      $desc_str =~ s/((position|strand)=\S+)( mid=\S+)?/$1 $mid_str/g;
       $self->desc( $desc_str );
    }
    return 1;
@@ -583,7 +583,7 @@ sub _update_desc_errors {
       }
       $err_str =~ s/,$//;
       my $desc_str = $self->desc;
-      $desc_str =~ s/(strand=\S+( mid=\S+)?)( errors=\S+)?/$1 $err_str/g;
+      $desc_str =~ s/((position|strand)=\S+( mid=\S+)?)( errors=\S+)?/$1 $err_str/g;
       $self->desc( $desc_str );
    }
    return 1;
