@@ -607,7 +607,7 @@ sub track {
       if (defined $self->reference) {
          if ($track == 1) {
             $self->_create_desc;
-            $self->_update_desc_mid;
+            $self->_update_desc_mid($self->mid);
             $self->_update_desc_errors;
          } else {
             $self->desc(undef);

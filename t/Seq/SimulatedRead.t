@@ -7,7 +7,7 @@ use warnings;
 BEGIN { 
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 188);
+    test_begin(-tests => 194);
 
     use_ok('Bio::Seq');
     use_ok('Bio::Seq::Quality');
@@ -35,7 +35,7 @@ $ref4 = Bio::LocatableSeq->new( -id  => 'a_thaliana',
                                 -seq => 'CGTATTCTGAGGAGAGCTCT' );
 
 
-## Basic object
+# Basic object
 
 ok $read = Bio::Seq::SimulatedRead->new( );
 isa_ok $read, 'Bio::Seq::SimulatedRead';
