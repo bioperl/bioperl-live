@@ -52,13 +52,13 @@ read on the reference sequence, and the sequencing errors to generate.
 
 The sequence of the read is automatically calculated based on this information.
 By default, the description of the reads contain tracking information and will
-look like this:
+look like this (Bioperl-style):
 
-  reference=human_chr2 position=3-12 strand=-1 mid=ACGT errors=1%G,4-,8+AAA description="The human genome"
+  reference=human_chr2 start=3 end=12 strand=-1 mid=ACGT errors=1%G,4-,8+AAA description="The human genome"
 
-or
+or Genbank-style:
 
-  reference=human_chr2 position=12-3 mid=ACGT errors=1%G,4-,8+AAA description="The human genome"
+  reference=human_chr2 position=complement(3..12) mid=ACGT errors=1%G,4-,8+AAA description="The human genome"
 
 Creating a simulated read follows these steps:
   1/ Define the read start(), end(), strand() and qual_levels() if you want
@@ -110,7 +110,7 @@ use base qw( Bio::Seq::Quality Bio::LocatableSeq );
             -mid        => String of a MID to prepend to the read. See mid().
             -track      => Track where the read came from in the read description?
                            See track().
-            -trackstyle => Define what coordinate system to use. See trackstyle().
+            -coordstyle => Define what coordinate system to use. See coordstyle().
             All other methods from Bio::LocatableSeq are available.
  Returns  : new Bio::Seq::SimulatedRead object
 
@@ -119,10 +119,10 @@ use base qw( Bio::Seq::Quality Bio::LocatableSeq );
 sub new {
    my ($class, @args) = @_;
    my $self = $class->SUPER::new(@args);
-   my ($qual_levels, $reference, $mid, $errors, $track, $trackstyle) =
-      $self->_rearrange([qw(QUAL_LEVELS REFERENCE MID ERRORS TRACK TRACKSTYLE)], @args);
-   $trackstyle = defined $trackstyle ? $trackstyle : 'use_strand';
-   $self->trackstyle($trackstyle);
+   my ($qual_levels, $reference, $mid, $errors, $track, $coordstyle) =
+      $self->_rearrange([qw(QUAL_LEVELS REFERENCE MID ERRORS TRACK COORDSTYLE)], @args);
+   $coordstyle = defined $coordstyle ? $coordstyle : 'bioperl';
+   $self->coordstyle($coordstyle);
    $track = defined $track ? $track : 1;
    $self->track($track);
    $qual_levels = defined $qual_levels ? $qual_levels : [];
@@ -247,8 +247,8 @@ sub _create_desc {
    }
    # Position of read on reference sequence: start, end and strand
    my $strand = $self->strand;
-   if ($self->trackstyle eq 'use_strand') {
-     $desc_str .= 'position='.$self->start.'-'.$self->end.' ';
+   if ($self->coordstyle eq 'bioperl') {
+     $desc_str .= 'start='.$self->start.' end='.$self->end.' ';
      if (defined $strand) {
         # Strand of the reference sequence that the read is on
         $strand = '+1' if $strand == 1;
@@ -257,10 +257,10 @@ sub _create_desc {
    } else {
      if ( (defined $strand) && ($strand == -1) ) {
        # Reverse complemented
-       $desc_str .= 'position='.$self->end.'-'.$self->start.' ';
+       $desc_str .= 'position=complement('.$self->start.'..'.$self->end.') ';
      } else {
        # Regular (forward) orientation
-       $desc_str .= 'position='.$self->start.'-'.$self->end.' ';
+       $desc_str .= 'position='.$self->start.'..'.$self->end.' ';
      }
    }
    # Description of the original sequence
@@ -619,28 +619,34 @@ sub track {
 }
 
 
-=head2 trackstyle
+=head2 coordstyle
 
- Title    : trackstyle
- Function : When tracking is on, define what coordinate system to use:
-              use_strand uses the 'strand' keyword (default)
-              no_strand does not use the 'strand' keyword 
-            Definition by example for a read taken from the reverse-complement
-            of a sequence:
-              use_strand: position=1-10 strand=-1    Bioperl-style
-              no_strand:  position=10-1              More compact
- Usage    : my $trackstyle = $read->track();
- Arguments: 'use_strand' or 'no_strand'
- Returns  : 'use_strand' or 'no_strand'
+ Title    : coordstyle
+ Function : When tracking is on, define which 1-based coordinate system to use
+            in the read description:
+              * 'bioperl' uses the start, end and strand keywords (default),
+                similarly to the GFF3 format. Example:
+                  start=1 end=10 strand=+1
+                  start=1 end=10 strand=-1
+              * 'genbank' does only provide the position keyword. Example:
+                  position=1..10
+                  position=complement(1..10)
+ Usage    : my $coordstyle = $read->track();
+ Arguments: 'bioperl' or 'genbank'
+ Returns  : 'bioperl' or 'genbank'
 
 =cut
 
-sub trackstyle {
-   my ($self, $trackstyle) = @_;
-   if (defined $trackstyle) {
-      $self->{trackstyle} = $trackstyle;
+sub coordstyle {
+   my ($self, $coordstyle) = @_;
+   my %styles = ( 'bioperl' => undef, 'genbank' => undef );
+   if (defined $coordstyle) {
+      if (not exists $styles{$coordstyle}) {
+         die "Error: Invalid coordinate style '$coordstyle'\n";
+      }
+      $self->{coordstyle} = $coordstyle;
    }
-   return $self->{trackstyle};
+   return $self->{coordstyle};
 }
 
 
