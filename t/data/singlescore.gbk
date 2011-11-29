@@ -1,0 +1,48 @@
+LOCUS       test0001                1500 bp    dna     linear   UNK 
+DEFINITION  [organism=Test test] [strain=test0001] [gcode=11] [date=8-24-2011]
+ACCESSION   test0001
+KEYWORDS    .
+FEATURES             Location/Qualifiers
+     fasta_record    1..1200
+                     /name="contig00002"
+                     /note="untiled"
+     CDS             16..1215
+                     /locus_tag="test0001_10"
+                     /inference="similar to AA sequence:BLASTX:2.2.18"
+                     /score="463"
+                     /product="tRNA uridine 5-carboxymethylaminomethyl
+                     modification enzyme MnmG n=70 Tax=Proteobacteria
+                     RepID=MNMG_ALTMD"
+                     /note="score=463"
+                     /note="similar to tRNA uridine 5-carboxymethylaminomethyl
+                     modification enzyme GidA PRK05192"
+     gene            16..1215
+                     /locus_tag="test0001_10"
+                     /inference="ab initio prediction:glimmer3:3.0.2"
+ORIGIN      
+        1 ctaacacaaa gtaatatgag tttttattct agatcagttg tattatcaac aggtaccttt
+       61 ctaggtggaa aaatacacat aggtttagaa agttattctg ctggaagaaa aggagaaaaa
+      121 gcatctatag atttagctct tcgtttaaga gatttgcctt ttcgtgtgga tagattaaaa
+      181 actggaacac cacctcgaat tgatattaat acaattaatt ttgaaaattt atttgtccag
+      241 catggtgatg ttcctactcc tgttttttct tttatggggg atatttctaa tcatcctctt
+      301 caaataccgt gttttcttac acacactaat gaaaaaacgc atgaaataat acgtaaaaat
+      361 ttacataaga gtcctctata tacaggtatt attaaaggtg tgggacctcg atattgtcct
+      421 tctattgaag ataaaattgt acgtttccct gataggaaat cacatcaaat ttttttagag
+      481 ccagaaggat taactagtat tgaaatatat ccaaatggta tctcaactag tttaccctta
+      541 gatgttcaaa aagaaatagt aagttctgta aaaggtttag aaaagtctaa aattattact
+      601 cctggttatg ctgtagaata tgattttttt gatcctaagg atttaaatct tactttagag
+      661 agtaaatgga ttaaaggtct ttttttagct ggtcaaatta atggtactac tggttatgaa
+      721 gaagctgcgt ctcaaggact tttagcaggt ttaaatgcag ctttaagtgc aaaagattgc
+      781 aaacaatggt ttcctagacg tgatcaagct tatttaggtg ttcttattga tgatttaact
+      841 actcaaggtg cgaatgaacc ttatcgaatg tttacttcaa gatctgaata tcggttaact
+      901 ttaagagaag ataatgctga tttacgttta actgaaatag cttataaatt gggattagta
+      961 gataatccaa gatggattcg ttataatgaa aaagtactaa atatcagtaa tgaaaaaaat
+     1021 cgtttaaaaa aaataaaaat atatcctaaa tcctctgata gtactatttt aaatcagtta
+     1081 tttaatattg ttttaactaa agaaattaat attttaaatt tattaaaacg tccagaaatt
+     1141 acatatgaaa atttaaagta tttaaaaaat tttaaagtag gtatttctga tttagaagca
+     1201 nnnttaatta attaannngg tgagtttact tctagtgatt tattaaaacg tattttttct
+     1261 accttttgca taggaaaata agaatataat ttttgcccgg aggcggaatt gaaccaccga
+     1321 cacggggatt ttcagtcccc tgctctaccg actgagctat ccgggcaatt tttacattaa
+     1381 atcatcaaag ataaaacttt gtcaatcttt ttttgtagaa gttaatttga aattttgatt
+     1441 taactaatat cttttctatt ttgaaaatat aaaataaaaa taaaaaaata attttttccc
+//

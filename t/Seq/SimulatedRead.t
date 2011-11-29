@@ -7,7 +7,7 @@ use warnings;
 BEGIN { 
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 182);
+    test_begin(-tests => 194);
 
     use_ok('Bio::Seq');
     use_ok('Bio::Seq::Quality');
@@ -62,7 +62,13 @@ is $read->end, 12;
 is $read->seq, 'TAAAAAAACCCC';
 is join(' ',@{$read->qual}), '';
 is $read->track, 1;
-is $read->desc, 'reference=human_id position=1-12 strand=+1 description="The human genome"';
+is $read->desc, 'reference=human_id start=1 end=12 strand=+1 description="The human genome"';
+
+ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -track => 1, -coord_style => 'bioperl' );
+is $read->desc, 'reference=human_id start=1 end=12 strand=+1 description="The human genome"';
+
+ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -track => 1, -coord_style => 'genbank' );
+is $read->desc, 'reference=human_id position=1..12 description="The human genome"';
 
 ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -qual_levels => [30, 10]);
 is $read->start, 1;
@@ -70,7 +76,7 @@ is $read->end, 12;
 is $read->seq, 'TAAAAAAACCCC';
 is join(' ', @{$read->qual}), '30 30 30 30 30 30 30 30 30 30 30 30';
 is $read->track, 1;
-is $read->desc, 'reference=human_id position=1-12 strand=+1 description="The human genome"';
+is $read->desc, 'reference=human_id start=1 end=12 strand=+1 description="The human genome"';
 is $read->revcom->seq, 'GGGGTTTTTTTA';
 
 ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref2 );
@@ -78,29 +84,32 @@ is $read->start, 1;
 is $read->end, 8;
 is $read->seq, 'ACGTACGT';
 is join(' ',@{$read->qual}), '';
-is $read->desc, 'reference=other_genome position=1-8 strand=+1 description="\"Secret\" sequence"';
+is $read->desc, 'reference=other_genome start=1 end=8 strand=+1 description="\"Secret\" sequence"';
 
 ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref3 );
 is $read->start, 1;
 is $read->end, 37;
 is $read->seq, 'ACACTGATCTAGCGTCGTGCTAGCTGACGTAGCTGAT';
 is join(' ',@{$read->qual}), '';
-is $read->desc, 'position=1-37 strand=+1';
+is $read->desc, 'start=1 end=37 strand=+1';
 
 ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -strand => -1, -qual_levels => [30, 10]);
 is $read->seq, 'GGGGTTTTTTTA';
 is join(' ', @{$read->qual}), '30 30 30 30 30 30 30 30 30 30 30 30';
-is $read->desc, 'reference=human_id position=1-12 strand=-1 description="The human genome"';
+is $read->desc, 'reference=human_id start=1 end=12 strand=-1 description="The human genome"';
+
+ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -strand => -1, -qual_levels => [30, 10], -coord_style => 'genbank' );
+is $read->desc, 'reference=human_id position=complement(1..12) description="The human genome"';
 
 ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -start => 2, -end => 8, -qual_levels => [30, 10]);
 is $read->seq, 'AAAAAAA';
 is join(' ', @{$read->qual}), '30 30 30 30 30 30 30';
-is $read->desc, 'reference=human_id position=2-8 strand=+1 description="The human genome"';
+is $read->desc, 'reference=human_id start=2 end=8 strand=+1 description="The human genome"';
 
 ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -strand => -1, -start => 2, -end => 8, -qual_levels => [30, 10]);
 is $read->seq, 'TTTTTTT';
 is join(' ', @{$read->qual}), '30 30 30 30 30 30 30';
-is $read->desc, 'reference=human_id position=2-8 strand=-1 description="The human genome"';
+is $read->desc, 'reference=human_id start=2 end=8 strand=-1 description="The human genome"';
 
 $errors = {};
 $errors->{'6'}->{'+'} = 'GG';
@@ -109,7 +118,7 @@ is $read->start, 2;
 is $read->end, 8;
 is $read->seq, 'TTTTTTGGT';
 is join(' ', @{$read->qual}), '30 30 30 30 30 30 10 10 30';
-is $read->desc, 'reference=human_id position=2-8 strand=-1 errors=6+G,6+G description="The human genome"';
+is $read->desc, 'reference=human_id start=2 end=8 strand=-1 errors=6+G,6+G description="The human genome"';
 
 $errors = {};
 $errors->{'6'}->{'+'} = 'GG';
@@ -120,7 +129,7 @@ is $read->start, 2;
 is $read->end, 8;
 is $read->seq, 'TAAAAGGA';
 is join(' ', @{$read->qual}), '10 30 30 30 30 10 10 30';
-is $read->desc, 'reference=human_id position=2-8 strand=+1 errors=1%T,3-,6+G,6+G description="The human genome"';
+is $read->desc, 'reference=human_id start=2 end=8 strand=+1 errors=1%T,3-,6+G,6+G description="The human genome"';
 
 $errors = {};
 $errors->{'6'}->{'+'} = 'GG';
@@ -129,28 +138,28 @@ is $read->start, 1;
 is $read->end, 12;
 is $read->seq, 'TAAAAAGGAACCCC';
 is join(' ', @{$read->qual}), '30 30 30 30 30 30 10 10 30 30 30 30 30 30';
-is $read->desc, 'reference=human_id position=1-12 strand=+1 errors=6+G,6+G description="The human genome"';
+is $read->desc, 'reference=human_id start=1 end=12 strand=+1 errors=6+G,6+G description="The human genome"';
 
 ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -errors => $errors, -mid => 'ACGT', -errors => $errors, -qual_levels => [30, 10]);
 is $read->start, 1;
 is $read->end, 12;
 is $read->seq, 'ACGTTAGGAAAAAACCCC';
 is join(' ', @{$read->qual}), '30 30 30 30 30 30 10 10 30 30 30 30 30 30 30 30 30 30';
-is $read->desc, 'reference=human_id position=1-12 strand=+1 mid=ACGT errors=6+G,6+G description="The human genome"';
+is $read->desc, 'reference=human_id start=1 end=12 strand=+1 mid=ACGT errors=6+G,6+G description="The human genome"';
 
 ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -mid => 'TTTAAA', -qual_levels => [30, 10]);
 is $read->start, 1;
 is $read->end, 12;
 is $read->seq, 'TTTAAATAAAAAAACCCC';
 is join(' ', @{$read->qual}), '30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30';
-is $read->desc, 'reference=human_id position=1-12 strand=+1 mid=TTTAAA description="The human genome"';
+is $read->desc, 'reference=human_id start=1 end=12 strand=+1 mid=TTTAAA description="The human genome"';
 
 ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -mid => '', -qual_levels => []);
 is $read->start, 1;
 is $read->end, 12;
 is $read->seq, 'TAAAAAAACCCC';
 is join(' ', @{$read->qual}), '';
-is $read->desc, 'reference=human_id position=1-12 strand=+1 description="The human genome"';
+is $read->desc, 'reference=human_id start=1 end=12 strand=+1 description="The human genome"';
 
 
 # Redundant errors
@@ -164,7 +173,7 @@ is $read->start, 2;
 is $read->end, 8;
 is $read->seq, 'TAAAAGGA';
 is join(' ', @{$read->qual}), '10 30 30 30 30 10 10 30';
-is $read->desc, 'reference=human_id position=2-8 strand=+1 errors=1%A,1%G,1%T,3-,3-,6+G,6+G description="The human genome"';
+is $read->desc, 'reference=human_id start=2 end=8 strand=+1 errors=1%A,1%G,1%T,3-,3-,6+G,6+G description="The human genome"';
 
 
 # Specifying errors() after new()
@@ -174,14 +183,14 @@ is $read->start, 1;
 is $read->end, 12;
 is $read->seq, 'TAAAAAAACCCC';
 is join(' ', @{$read->qual}), '';
-is $read->desc, 'reference=human_id position=1-12 strand=+1 description="The human genome"';
+is $read->desc, 'reference=human_id start=1 end=12 strand=+1 description="The human genome"';
 
 $errors = {};
 ok $read->errors($errors), 'errors()';
 is $read->start, 1;
 is $read->end, 12;
 is $read->seq, 'TAAAAAAACCCC';
-is $read->desc, 'reference=human_id position=1-12 strand=+1 description="The human genome"';
+is $read->desc, 'reference=human_id start=1 end=12 strand=+1 description="The human genome"';
 
 $errors = {};
 $errors->{'6'}->{'+'} = 'GG';
@@ -189,17 +198,28 @@ ok $read->errors($errors);
 is $read->seq, 'TAAAAAGGAACCCC';
 is $read->start, 1;
 is $read->end, 12;
-is $read->desc, 'reference=human_id position=1-12 strand=+1 errors=6+G,6+G description="The human genome"';
+is $read->desc, 'reference=human_id start=1 end=12 strand=+1 errors=6+G,6+G description="The human genome"';
 
 
 # More tracking tests
+
+ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -mid => 'ACGT', -qual_levels => [], -coord_style => 'genbank' );
+is $read->desc, 'reference=human_id position=1..12 mid=ACGT description="The human genome"';
+
+ok $read->mid('AAAA');
+is $read->desc, 'reference=human_id position=1..12 mid=AAAA description="The human genome"';
+
+$errors = {};
+$errors->{'6'}->{'+'} = 'GG';
+ok $read->errors($errors);
+is $read->desc, 'reference=human_id position=1..12 mid=AAAA errors=6+G,6+G description="The human genome"';
 
 ok not($read->track(0)), 'track()';
 is $read->track, 0;
 is $read->desc, undef;
 ok $read->track(1);
 is $read->track, 1;
-is $read->desc, 'reference=human_id position=1-12 strand=+1 errors=6+G,6+G description="The human genome"';
+is $read->desc, 'reference=human_id position=1..12 mid=AAAA errors=6+G,6+G description="The human genome"';
 
 
 # qual_levels() method
@@ -223,13 +243,13 @@ ok $read->mid, 'ACGT';
 
 is $read->seq, 'ACGTTAAAAAAACCCC';
 is join(' ', @{$read->qual}), '30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30';
-is $read->desc, 'reference=human_id position=1-12 strand=+1 mid=ACGT description="The human genome"';
+is $read->desc, 'reference=human_id start=1 end=12 strand=+1 mid=ACGT description="The human genome"';
 
 ok $read->mid('TTTAAA');
 ok $read->mid, 'TTTAAA';
 is $read->seq, 'TTTAAATAAAAAAACCCC';
 is join(' ', @{$read->qual}), '30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30';
-is $read->desc, 'reference=human_id position=1-12 strand=+1 mid=TTTAAA description="The human genome"';
+is $read->desc, 'reference=human_id start=1 end=12 strand=+1 mid=TTTAAA description="The human genome"';
 
 
 # Edge case... mutation of the last bases of a simulated read with MID

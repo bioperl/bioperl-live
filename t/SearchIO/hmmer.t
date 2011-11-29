@@ -13,9 +13,10 @@ BEGIN {
 }
 
 my $searchio = Bio::SearchIO->new(-format => 'hmmer',
-				 -file   => test_input_file('hmmpfam.out'));
+				  -file   => test_input_file('hmmpfam.out'));
+my $result;
 
-while( my $result = $searchio->next_result ) {
+while( $result = $searchio->next_result ) {
     is(ref($result),'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
     is($result->algorithm, 'HMMPFAM', 'Check algorithm');
     is($result->algorithm_version, '2.1.1', 'Check algorithm version');
@@ -77,7 +78,7 @@ while( my $result = $searchio->next_result ) {
 }
 $searchio = Bio::SearchIO->new(-format => 'hmmer',
 			      -file   => test_input_file('hmmsearch.out'));
-while( my $result = $searchio->next_result ) {
+while( $result = $searchio->next_result ) {
     is(ref($result),'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
     is($result->algorithm, 'HMMSEARCH', 'Check algorithm');
     is($result->algorithm_version, '2.0', 'Check algorithm version');
@@ -106,7 +107,7 @@ while( my $result = $searchio->next_result ) {
 $searchio = Bio::SearchIO->new(-format => 'hmmer',
 			      -file   => test_input_file('L77119.hmmer'));
 
-while( my $result = $searchio->next_result ) {
+while( $result = $searchio->next_result ) {
     is(ref($result),'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
     is($result->algorithm, 'HMMPFAM', 'Check algorithm');
     is($result->algorithm_version, '2.2g', 'Check algorithm version');
@@ -150,7 +151,7 @@ $searchio = Bio::SearchIO->new(-format => 'hmmer',
 			      -file   => test_input_file('cysprot1b.hmmsearch'));
 
 
-while( my $result = $searchio->next_result ) {
+while( $result = $searchio->next_result ) {
     is(ref($result),'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
     is($result->algorithm, 'HMMSEARCH', 'Check algorithm');
     is($result->algorithm_version, '2.2g', 'Check algorithm version');
@@ -190,7 +191,7 @@ while( my $result = $searchio->next_result ) {
 
 # test for bug 2632 - CS lines should get ignored without breaking the parser
 $searchio = Bio::SearchIO->new(-format => 'hmmer', -file => test_input_file('hmmpfam_cs.out'));
-my $result = $searchio->next_result;
+$result = $searchio->next_result;
 my $hit = $result->next_hit;
 my $hsp = $hit->next_hsp;
 is($hsp->seq_str, 'CGV-GFIADVNNVANHKIVVQALEALTCMEHRGACSADRDSGDGAGITTAIPWNLFQKSLQNQNIKFEQnDSVGVGMLFLPAHKLKES--KLIIETVLKEENLEIIGWRLVPTVQEVLGKQAYLNKPHVEQVFCKSSNLSKDRLEQQLFLVRKKIEKYIGINGKDwaheFYICSLSCYTIVYKGMMRSAVLGQFYQDLYHSEYTSSFAIYHRRFSTNTMPKWPLAQPMR---------FVSHNGEINTLLGNLNWMQSREPLLQSKVWKDRIHELKPITNKDNSDSANLDAAVELLIASGRSPEEALMILVPEAFQNQPDFA-NNTEISDFYEYYSGLQEPWDGPALVVFTNGKV-IGATLDRNGL-RPARYVIT----KDNLVIVSSES',
@@ -202,7 +203,7 @@ $searchio = Bio::SearchIO->new(-format  => 'hmmer',
                                -file    => test_input_file('hmmscan.out'),
                                -verbose => 1);
 is(ref($searchio), 'Bio::SearchIO::hmmer3', 'Check if correct searchio object is returned');
-while( my $result = $searchio->next_result ) {
+while( $result = $searchio->next_result ) {
     is(ref($result),'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
     is($result->algorithm, 'HMMSCAN', 'Check algorithm');
     is($result->algorithm_version, '3.0', 'Check algorithm version');
@@ -239,7 +240,7 @@ while( my $result = $searchio->next_result ) {
 $searchio = Bio::SearchIO->new(-format  => 'hmmer',
                                -file    => test_input_file('hmmsearch3.out'),
                                -verbose => 1);
-while( my $result = $searchio->next_result ) {
+while( $result = $searchio->next_result ) {
     is(ref($result),'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
     is($result->algorithm, 'HMMSEARCH', 'Check algorithm');
     is($result->algorithm_version, '3.0', 'Check algorithm version');
@@ -267,7 +268,7 @@ my @multi_hits = (
          [4, 18, 1243, 1257, 11.4, 4.3e-05]]]
     );
 
-while( my $result = $searchio->next_result ) {
+while( $result = $searchio->next_result ) {
     is(ref($result),'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
     is($result->algorithm, 'HMMSCAN', 'Check algorithm');
     is($result->algorithm_version, '3.0', 'Check algorithm version');
@@ -316,7 +317,7 @@ $searchio = Bio::SearchIO->new(-format  => 'hmmer',
          ['plslaeaadqlgtdeg', 'EINISQAARRVGFSSR']]]
     );
 
-while( my $result = $searchio->next_result ) {
+while( $result = $searchio->next_result ) {
     is(ref($result),'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
     is($result->algorithm, 'HMMSCAN', 'Check algorithm');
     is($result->algorithm_version, '3.0', 'Check algorithm version');

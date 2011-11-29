@@ -288,6 +288,20 @@ sub fh {
   return $s;
 }
 
+
+=head2 format
+
+ Title   : format
+ Usage   : $format = $obj->format()
+ Function: Get the search format
+ Returns : search format
+ Args    : none
+
+=cut
+
+# format() method inherited from Bio::Root::IO
+
+
 =head2 attach_EventHandler
 
  Title   : attach_EventHandler
