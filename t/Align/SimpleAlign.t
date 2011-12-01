@@ -796,23 +796,24 @@ EOA
 
     my $phylip_str = <<EOF;
  3 37
-seq1       AAAATGGGGG TGGT------ GGTACCT--- -------
-seq2       -----GGCGG TGGTGNNNNG GGTTCCCTNN NNNNNNN
-new        AAAATGGNGG TGGTN----N GGTNCCNTNN NNNNNNN
+seq1         AAAATGGGGG TGGT------ GGTACCT--- -------
+seq2         -----GGCGG TGGTGNNNNG GGTTCCCTNN NNNNNNN
+new          AAAATGGNGG TGGTN----N GGTNCCNTNN NNNNNNN
 
 EOF
 
     my $phylip_masked = <<EOF;
  3 37
-seq1       AAAATGGGGG TGGT------ GGTACCT--- -------
-seq2       -----GGCGG TGGT?????? GGTTCCCTNN NNNNNNN
-new        AAAATGGNGG TGGT?----? GGTNCCNTNN NNNNNNN
+seq1         AAAATGGGGG TGGT------ GGTACCT--- -------
+seq2         -----GGCGG TGGT?????? GGTTCCCTNN NNNNNNN
+new          AAAATGGNGG TGGT?----? GGTNCCNTNN NNNNNNN
 
 EOF
 
     my $phy_fh = IO::String->new( $phylip_str );
 
     my $in = Bio::AlignIO->new( -fh => $phy_fh, -format => 'phylip' );
+    unified_diff;
 
     $aln = $in->next_aln();
     eq_or_diff( aln2str( $aln, 'phylip' ), $phylip_str );

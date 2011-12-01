@@ -50,19 +50,19 @@ read or write data in sequential format.
 
 Long IDs up to 50 characters are supported by flag -longid =E<gt>
 1. ID strings can be surrounded by single quoted. They are mandatory
-only if the IDs contain spaces. 
+only if the IDs contain spaces.
 
 =head1 FEEDBACK
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -180,7 +180,7 @@ sub next_aln {
     # if we see a non-blank line that isn't the seqcount and residuecount line
     # then bail out of next_aln (return)
     HEADER: while ($entry = $self->_readline) {
-        next if $entry =~ /^\s?$/; 
+        next if $entry =~ /^\s?$/;
         if ($entry =~ /\s*(\d+)\s+(\d+)/) {
             ($seqcount, $residuecount) = ($1, $2);
 
@@ -214,7 +214,7 @@ sub next_aln {
 	    }
 #	    $name =~ s/[\s\/]/_/g; # not sure how wise is it to do this
 	    $name =~ s/_+$//; # remove any trailing _'s
-	    
+
 	    push @names, $name;
 	    $str =~ s/\s//g;
 	    $count = scalar @names;
@@ -356,8 +356,8 @@ sub write_aln {
 	foreach $seq ( $aln->each_seq() ) {
 	    $name = $aln->displayname($seq->get_nse);
 	    if ($self->longid) {
-		$self->warn("The lenght of the name is over 50 chars long [$name]") 
-		    if length($name) > 50; 
+		$self->warn("The length of the name is over 50 chars long [$name]")
+		    if length($name) > 50;
 		$name = "'$name'  "
 	    } else {
 		$name = substr($name, 0, $idlength) if length($name) > $idlength;
@@ -404,7 +404,7 @@ sub write_aln {
 		    # last
 		    if( $index < $numtags) {
 			# space to print!
-			$self->_print (sprintf("%s ",substr($hash{$name},
+			$self->_print (sprintf("%s",substr($hash{$name},
 							    $tempcount)));
 			$tempcount += $tag_length;
 		    }
