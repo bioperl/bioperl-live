@@ -6,13 +6,13 @@ use strict;
 BEGIN {
 	use lib '.';
 	use Bio::Root::Test;
-	
+
 	test_begin(-tests => 20,
 			   -requires_modules => [qw(IO::String
 									    LWP::UserAgent
 										HTTP::Request::Common)],
 			   -requires_networking => 1);
-	
+
 	use_ok('Bio::DB::SwissProt');
 }
 
@@ -20,41 +20,42 @@ ok my $gb = Bio::DB::SwissProt->new(-retrievaltype =>'pipeline',
                                  -delay => 0);
 
 my %expected_lengths = (
-                        'NDP_MOUSE' => 131, 
-                        'NDP_HUMAN' => 133, 
-                        'BOLA_HAEIN'=> 103, 
-                        'YNB3_YEAST'=> 125, 
-                        'O39869'    => 56,  
-                        'DEGP_CHLTR'=> 497, 
+                        'NDP_MOUSE' => 131,
+                        'NDP_HUMAN' => 133,
+                        'BOLA_HAEIN'=> 103,
+                        'YNB3_YEAST'=> 125,
+                        'O39869'    => 56,
+                        'DEGP_CHLTR'=> 497,
+                        'DEGPL_CHLTR' => 497
                         );
 
 my ($seq, $seqio);
 
 SKIP: {
     eval {$seq = $gb->get_Seq_by_id('YNB3_YEAST');};
-    skip "Couldn't connect to SwissProt with Bio::DB::Swiss.pm. Skipping those tests", 14 if $@;
+    skip "Couldn't connect to SwissProt with Bio::DB::SwissProt.pm. Skipping those tests", 14 if $@;
     is $seq->length, $expected_lengths{$seq->display_id}, $seq->display_id;
     is $seq->division, 'YEAST';
-    
+
     eval {$seq = $gb->get_Seq_by_acc('P43780');};
-    skip "Couldn't connect to SwissProt with Bio::DB::Swiss.pm. Skipping those tests", 12 if $@;
+    skip "Couldn't connect to SwissProt with Bio::DB::SwissProt.pm. Skipping those tests", 12 if $@;
     is $seq->length, $expected_lengths{$seq->display_id}, $seq->display_id;
     eval {$seq = $gb->get_Seq_by_acc('O39869');};
-    skip "Couldn't connect to SwissProt with Bio::DB::Swiss.pm. Skipping those tests", 11 if $@;
+    skip "Couldn't connect to SwissProt with Bio::DB::SwissProt.pm. Skipping those tests", 11 if $@;
     is $seq->length, $expected_lengths{$seq->accession_number}, $seq->accession_number;
     is $seq->accession_number, 'O39869';
     is $seq->division, '9PICO';
-    
+
     # test for bug #958
     eval {$seq = $gb->get_Seq_by_id('P18584');};
-    skip "Couldn't connect to SwissProt with Bio::DB::Swiss.pm. Skipping those tests", 8 if $@;
+    skip "Couldn't connect to SwissProt with Bio::DB::SwissProt.pm. Skipping those tests", 8 if $@;
+    ok exists $expected_lengths{$seq->display_id}, 'P18584';
     is $seq->length, $expected_lengths{$seq->display_id}, $seq->display_id;
-    is $seq->display_id, 'DEGP_CHLTR';
     is $seq->division, 'CHLTR';
 
     ok $gb = Bio::DB::SwissProt->new('-retrievaltype' => 'tempfile', '-delay' => 0);
     eval {$seqio = $gb->get_Stream_by_id(['NDP_MOUSE', 'NDP_HUMAN']);};
-    skip "Couldn't connect to SwissProt with Bio::DB::Swiss.pm. Skipping those tests", 4 if $@;
+    skip "Couldn't connect to SwissProt with Bio::DB::SwissProt.pm. Skipping those tests", 4 if $@;
     undef $gb; # testing to see if we can remove gb
     ok $seq = $seqio->next_seq();
     is $seq->length, $expected_lengths{$seq->display_id}, $seq->display_id;
@@ -65,7 +66,7 @@ SKIP: {
 # test idtracker() method
 ok $gb = Bio::DB::SwissProt->new(-retrievaltype =>'pipeline',
                                  -delay => 0,
-                                 -verbose => -1); 
+                                 -verbose   => 2);
 
 SKIP: {
     my $map;
@@ -75,12 +76,12 @@ SKIP: {
                                   -ids  => [qw(MYOD1_PIG YNB3_YEAST)])
                                   };
     skip("Problem with idtracker(), skipping these tests: $@", 3) if $@;
-    
+
     is($map->{MYOD1_PIG}, 'P49811');
     is($map->{YNB3_YEAST}, 'P53979');
     eval {$map = $gb->id_mapper(-from => 'ACC+ID',
                                 -to   => 'ENSEMBL_PRO_ID',
-                                -ids  => [qw(MYOD1_PIG)])
+                                -ids  => [qw(YNB3_YEAST)])
                                   };
     skip("Problem with idtracker(), skipping these tests: $@", 1) if $@;
 
