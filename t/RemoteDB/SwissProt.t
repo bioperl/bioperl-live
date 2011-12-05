@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
 	use Bio::Root::Test;
 
-	test_begin(-tests => 20,
+	test_begin(-tests => 23,
 			   -requires_modules => [qw(IO::String
 									    LWP::UserAgent
 										HTTP::Request::Common)],
@@ -73,19 +73,23 @@ SKIP: {
     # check old ID
     eval {$map = $gb->id_mapper(-from => 'ACC+ID',
                                   -to   => 'ACC',
-                                  -ids  => [qw(MYOD1_PIG YNB3_YEAST)])
+                                  -ids  => [qw(MYOD1_PIG PYRC_YEAST)])
                                   };
     skip("Problem with idtracker(), skipping these tests: $@", 3) if $@;
 
-    is($map->{MYOD1_PIG}, 'P49811');
-    is($map->{YNB3_YEAST}, 'P53979');
+    cmp_ok(@{$map->{MYOD1_PIG}}, '>=', 1);
+    is($map->{MYOD1_PIG}[0], 'P49811');
+    cmp_ok(@{$map->{PYRC_YEAST}}, '>=', 1);
+    is($map->{PYRC_YEAST}[0], 'P20051');
+
     eval {$map = $gb->id_mapper(-from => 'ACC+ID',
-                                -to   => 'ENSEMBL_PRO_ID',
-                                -ids  => [qw(YNB3_YEAST)])
+                                -to   => 'EMBL',
+                                -ids  => [qw(PYRC_YEAST)])
                                   };
     skip("Problem with idtracker(), skipping these tests: $@", 1) if $@;
 
-    is($map->{MYOD1_PIG}, 'ENSSSCP00000014214');
+    cmp_ok(@{$map->{PYRC_YEAST}}, '>=', 2);
+    is($map->{PYRC_YEAST}[0], 'CAA30444.1');
 }
 
 1;
