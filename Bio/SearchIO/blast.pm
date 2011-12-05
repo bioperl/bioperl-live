@@ -448,7 +448,7 @@ sub next_result {
     my $flavor = '';
     $self->{'_seentop'} = 0;     # start next report at top
     $self->{'_seentop'} = 0;
-    my ( $reporttype, $seenquery, $reportline );
+    my ( $reporttype, $seenquery, $reportline, $reportversion );
     my ( $seeniteration, $found_again );
     my $incl_threshold = $self->inclusion_threshold;
     my $bl2seq_fix;
@@ -462,14 +462,14 @@ sub next_result {
         next if (/^\s+$/);       # skip empty lines
         next if (/CPU time:/);
         next if (/^>\s*$/);
-        next if (/\Q***** No hits found ******\E/);
+        next if (/\Q[*]+\s+No hits found\s+[*]+\E/);
         if (
                /^((?:\S+?)?BLAST[NPX]?)\s+(.+)$/i  # NCBI BLAST, PSIBLAST
                                                    # RPSBLAST, MEGABLAST
             || /^(P?GENEWISE|HFRAME|SWN|TSWN)\s+(.+)/i    #Paracel BTK
           )
         {
-            ($reporttype, my $reportversion) = ($1, $2);
+            ($reporttype, $reportversion) = ($1, $2);
             # need to keep track of whether this is WU-BLAST
             if ($reportversion && $reportversion =~ m{WashU$}) {
                 $self->{'_wublast'}++;
@@ -510,13 +510,16 @@ sub next_result {
             # want to preserve newlines for the BLAST algorithm reference
             my $algorithm_reference = "$1\n";
             $_ = $self->_readline;
-            # while the current line, does not match an empty line, a RID:, a Database:, or a query definition line (Query=)
-			# we are still looking at the algorithm_reference, append it to what we parsed so far
+            # while the current line, does not match an empty line, a RID:, a
+            # Database:, or a query definition line (Query=) we are still
+            # looking at the algorithm_reference, append it to what we parsed so
+            # far
             while($_ !~ /^$/ && $_ !~ /^RID:/ && $_ !~ /^Database:/ && $_ !~ /^Query=/) {
                 $algorithm_reference .= "$_";
                 $_ = $self->_readline;
             }
-            # if we exited the while loop, we saw an empty line, a RID:, or a Database:, so push it back
+            # if we exited the while loop, we saw an empty line, a RID:, or a
+            # Database:, so push it back
             $self->_pushback($_);
             $self->element(
                 {
@@ -559,23 +562,21 @@ sub next_result {
             $self->debug("blast.pm: Query= found...$_\n");
             my $size = 0;
             if ( defined $seenquery ) {
-                $self->_pushback($reportline) if $reportline;
                 $self->_pushback($_);
+                $self->_pushback($reportline) if $reportline;
                 last PARSER;
             }
-            else {
-                if ( !defined $reporttype ) {
-                    $self->_start_blastoutput;
-                    if ( defined $seeniteration ) {
-                        $self->in_element('iteration')
-                          && $self->end_element( { 'Name' => 'Iteration' } );
-                        $self->start_element( { 'Name' => 'Iteration' } );
-                    }
-                    else {
-                        $self->start_element( { 'Name' => 'Iteration' } );
-                    }
-                    $seeniteration = 1;
+            if ( !defined $reporttype ) {
+                $self->_start_blastoutput;
+                if ( defined $seeniteration ) {
+                    $self->in_element('iteration')
+                      && $self->end_element( { 'Name' => 'Iteration' } );
+                    $self->start_element( { 'Name' => 'Iteration' } );
                 }
+                else {
+                    $self->start_element( { 'Name' => 'Iteration' } );
+                }
+                $seeniteration = 1;
             }
             $seenquery = $q;
             $_ = $self->_readline;
@@ -1152,7 +1153,7 @@ sub next_result {
         {
 
             # consume this event ( we infer strand from start/end)
-            unless ($reporttype) {
+            if (!defined($reporttype)) {
                 $self->{'_reporttype'} = $reporttype = 'BLASTN';
                 $bl2seq_fix = 1;    # special case to resubmit the algorithm
                                     # reporttype
@@ -2063,11 +2064,16 @@ sub end_element {
     my $nm   = $data->{'Name'};
     my $type;
     my $rc;
+    # cache these (TODO: we should probably cache all cross-report data)
     if ( $nm eq 'BlastOutput_program' ) {
         if ( $self->{'_last_data'} =~ /(t?blast[npx])/i ) {
             $self->{'_reporttype'} = uc $1;
         }
         $self->{'_reporttype'} ||= $DEFAULTREPORTTYPE;
+    }
+
+    if ( $nm eq 'BlastOutput_version' ) {
+        $self->{'_reportversion'} = $self->{'_last_data'};
     }
 
     # Hsps are sort of weird, in that they end when another
