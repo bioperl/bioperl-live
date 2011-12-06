@@ -316,7 +316,7 @@ sub write_individual {
 
     # For now capture print_header flag from @inds
     my $header = 1;
-    $header = pop(@inds) if($inds[-1] =~ m/[01]/);
+    $header = pop(@inds) if($inds[-1] =~ m/^[01]$/);
 
     foreach my $ind ( @inds ) {
 	if (! ref($ind) || ! $ind->isa('Bio::PopGen::IndividualI') ) {
@@ -338,8 +338,9 @@ sub write_individual {
 		$self->flag('header_written',1);
 	    }
 	    foreach my $geno ($ind->get_Genotypes()) {
-		$self->print($geno->marker_type);
+		$self->_print($geno->marker_type);
 	    }
+	    $self->_print("\n");
 	}
 	
 	my(@row1,@row2);

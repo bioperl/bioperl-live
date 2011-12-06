@@ -10,7 +10,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 104);
+    test_begin(-tests => 105);
 	
     use_ok('IO::String');
     use_ok('Bio::PopGen::Individual');
@@ -428,6 +428,21 @@ is(sprintf("%.3f",$stats->theta($population)),5.548);
     is(sprintf("%.3f",$stats->tajima_D($population)),'2.926');
     is(sprintf("%.3f",$stats->tajima_D($population->haploid_population)),3.468);
 #}
+
+# test converting from hapmap to phase
+my $string;
+my $out = IO::String->new($string);
+Bio::PopGen::IO->new(-fh => $out, -format => 'phase')->write_individual(@population[0]);
+is($string, "1
+34
+P rs3739586 rs962817 rs4742225 rs4742220 rs912174 rs1359058 rs4742236 rs881684 rs745877 rs2296049 rs4742292 rs4584192 rs4742215 rs4400444 rs2025308 rs1570473 rs2296054 rs912175 rs745876 rs4740849 rs4740866 rs4742222 rs732119 rs4740850 rs4742223 rs4742219 rs1022827 rs1475202 rs4740851 rs732118 rs2296050 rs1323262 rs4742227 rs2025307
+SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+#NA06985
+C C G A A A A A T A A A G T A G T C A C T A T A C C G G A A C C G A
+C T T G C T G A T G A G T T A G T G A G T G T G T T G G T A G G G A
+");
+
+
 $io = Bio::PopGen::IO->new(-format => 'phase',
 			   -file   => test_input_file('example.phase'));
 
