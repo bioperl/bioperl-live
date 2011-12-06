@@ -308,26 +308,23 @@ sub reset_alleles{
    $self->{'_allele_freqs'} = {};
 }
 
-=head2 allele_coverage
+=head2 marker_coverage
 
- Title   : allele_coverage
- Usage   : $marker->allele_coverage();
- Function: Get/Set allele coverage
- Returns : integer, representing allele coverage
+ Title   : marker_coverage
+ Usage   : $marker->marker_coverage();
+ Function: Get marker coverage, that is, the number of 
+           individuals where the marker is present 
+           excluding missing or ambiguous alleles
+ Returns : integer, representing marker coverage
  Args    : 
 
 
 =cut
 
-sub allele_coverage{
-    my ($self,$coverage) = @_;
+sub marker_coverage{
+    my ($self) = @_;
  
-    if(defined($coverage)) {
-	$self->{_allele_coverage} = $coverage;
-    }
-    else {
-	return $self->{_allele_coverage};
-    }
+    return $self->{_marker_coverage};
 }
 
 1;

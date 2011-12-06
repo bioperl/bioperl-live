@@ -10,7 +10,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 100);
+    test_begin(-tests => 102);
 	
     use_ok('Bio::PopGen::Individual');
     use_ok('Bio::PopGen::Genotype');
@@ -104,6 +104,7 @@ is(($g[0]->get_Alleles())[0], 'C');
 my $marker = $population->get_Marker('Mkr3');
 ok($marker);
 
+is($marker->marker_coverage, 2);
 @alleles = $marker->get_Alleles;
 is(@alleles,2);
 my %af = $marker->get_Allele_Frequencies();
@@ -112,6 +113,7 @@ is($af{'A'}, 0.25);
 
 $population->remove_Individuals('10a');
 $marker = $population->get_Marker('Mkr3');
+is($marker->marker_coverage, 1);
 %af = $marker->get_Allele_Frequencies();
 
 is($af{'a'}, 1);
