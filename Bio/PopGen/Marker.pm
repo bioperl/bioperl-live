@@ -308,6 +308,26 @@ sub reset_alleles{
    $self->{'_allele_freqs'} = {};
 }
 
+=head2 allele_coverage
 
+ Title   : allele_coverage
+ Usage   : $marker->allele_coverage();
+ Function: Get/Set allele coverage
+ Returns : integer, representing allele coverage
+ Args    : 
+
+
+=cut
+
+sub allele_coverage{
+    my ($self,$coverage) = @_;
+ 
+    if(defined($coverage)) {
+	$self->{_allele_coverage} = $coverage;
+    }
+    else {
+	return $self->{_allele_coverage};
+    }
+}
 
 1;

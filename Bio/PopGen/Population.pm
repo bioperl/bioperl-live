@@ -442,6 +442,7 @@ sub get_Marker{
 	   }
 	   foreach my $allele ( keys %alleles ) {
 	       $marker->add_Allele_Frequency($allele, $alleles{$allele}/$count);
+	       $marker->allele_coverage($count/2);
 	   }
        }
        $self->{'_allele_freqs'}->{$markername} = $marker;

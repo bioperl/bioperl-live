@@ -795,7 +795,7 @@ EOA
 ###### test with phylip
 
     my $phy_fh = IO::String->new( <<EOF );
- 3   37
+ 3 37
 seq1        AAAATGGGGG TGGT------ GGTACCT--- -------
 seq2        -----GGCGG TGGTGNNNNG GGTTCCCTNN NNNNNNN
 new         AAAATGGNGG TGGTN----N GGTNCCNTNN NNNNNNN
