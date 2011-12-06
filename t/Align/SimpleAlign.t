@@ -794,32 +794,29 @@ EOA
 
 ###### test with phylip
 
-    my $phy_fh = IO::String->new( <<EOF );
- 3 37
+my $phy_fh = IO::String->new(" 3 37
 seq1        AAAATGGGGG TGGT------ GGTACCT--- -------
 seq2        -----GGCGG TGGTGNNNNG GGTTCCCTNN NNNNNNN
 new         AAAATGGNGG TGGTN----N GGTNCCNTNN NNNNNNN
-EOF
-
+");
+    
     my $in = Bio::AlignIO->new( -fh => $phy_fh, -format => 'phylip' );
-
     $aln = $in->next_aln();
-    is( aln2str( $aln, 'phylip' ), <<EOU );
- 3 37
-seq1         AAAATGGGGG TGGT------ GGTACCT--- -------
-seq2         -----GGCGG TGGTGNNNNG GGTTCCCTNN NNNNNNN
-new          AAAATGGNGG TGGTN----N GGTNCCNTNN NNNNNNN
 
-EOU
+    is( aln2str( $aln, 'phylip' ), " 3 37
+seq1         AAAATGGGGG TGGT------ GGTACCT--- ------- 
+seq2         -----GGCGG TGGTGNNNNG GGTTCCCTNN NNNNNNN 
+new          AAAATGGNGG TGGTN----N GGTNCCNTNN NNNNNNN 
 
+");
+    
     $newaln = $aln->mask_columns(15,20,'?');
-    is( aln2str( $newaln,'phylip' ), <<EOU, 'align after looks ok' );
- 3 37
-seq1         AAAATGGGGG TGGT------ GGTACCT--- -------
-seq2         -----GGCGG TGGT?????? GGTTCCCTNN NNNNNNN
-new          AAAATGGNGG TGGT?----? GGTNCCNTNN NNNNNNN
+    is( aln2str( $newaln,'phylip' ), " 3 37
+seq1         AAAATGGGGG TGGT------ GGTACCT--- ------- 
+seq2         -----GGCGG TGGT?????? GGTTCCCTNN NNNNNNN 
+new          AAAATGGNGG TGGT?----? GGTNCCNTNN NNNNNNN 
 
-EOU
+", 'align after looks ok' );
 }
 
 ######## SUBROUTINES

@@ -10,8 +10,9 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 102);
+    test_begin(-tests => 104);
 	
+    use_ok('IO::String');
     use_ok('Bio::PopGen::Individual');
     use_ok('Bio::PopGen::Genotype');
     use_ok('Bio::PopGen::Population');
@@ -428,7 +429,7 @@ is(sprintf("%.3f",$stats->theta($population)),5.548);
     is(sprintf("%.3f",$stats->tajima_D($population->haploid_population)),3.468);
 #}
 $io = Bio::PopGen::IO->new(-format => 'phase',
-			  -file   => test_input_file('example.phase'));
+			   -file   => test_input_file('example.phase'));
 
 # Some IO might support reading in a population at a time
 
@@ -436,8 +437,27 @@ $io = Bio::PopGen::IO->new(-format => 'phase',
 while( my $ind = $io->next_individual ) {
     push @population, $ind;
 }
-is(@population, 4);
+is(@population, 3);
 
+# test writing in phase format
+$population = Bio::PopGen::Population->new(-individuals => \@population);
+my $string;
+my $out = IO::String->new($string);
+Bio::PopGen::IO->new(-fh => $out, -format => 'phase')->write_population($population);
+is($string, "3
+5
+P 300 1313 1500 2023 5635
+MSSSM
+#1
+12 1 0 1 3
+11 0 1 0 3
+#2
+12 1 1 1 2
+12 0 0 0 3
+#3
+-1 ? 0 0 2
+-1 ? 1 1 13
+");
 
 # test diploid data
 
