@@ -87,7 +87,7 @@ package Bio::PopGen::Genotype;
 use vars qw($BlankAlleles);
 use strict;
 
-$BlankAlleles = '[\s\-Nn]';
+$BlankAlleles = '[\s\-Nn\?]';
 
 
 # Object preamble - inherits from Bio::Root::Root

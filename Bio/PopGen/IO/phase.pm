@@ -346,7 +346,7 @@ sub write_individual {
 	my(@row1,@row2);
 	for (@marker_names){
 	    my $geno = $ind->get_Genotypes(-marker => $_);
-	    my @alleles = $geno->get_Alleles();
+	    my @alleles = $geno->get_Alleles(1);
 	    push(@row1,$alleles[0]);
 	    push(@row2,$alleles[1]);
 	}
