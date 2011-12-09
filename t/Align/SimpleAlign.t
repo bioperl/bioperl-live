@@ -794,32 +794,32 @@ EOA
 
 ###### test with phylip
 
-    my $phy_fh = IO::String->new( <<EOF );
- 3   37
-seq1        AAAATGGGGG TGGT------ GGTACCT--- -------
-seq2        -----GGCGG TGGTGNNNNG GGTTCCCTNN NNNNNNN
-new         AAAATGGNGG TGGTN----N GGTNCCNTNN NNNNNNN
-EOF
-
-    my $in = Bio::AlignIO->new( -fh => $phy_fh, -format => 'phylip' );
-
-    $aln = $in->next_aln();
-    is( aln2str( $aln, 'phylip' ), <<EOU );
+    my $phylip_str = <<EOF;
  3 37
 seq1         AAAATGGGGG TGGT------ GGTACCT--- -------
 seq2         -----GGCGG TGGTGNNNNG GGTTCCCTNN NNNNNNN
 new          AAAATGGNGG TGGTN----N GGTNCCNTNN NNNNNNN
 
-EOU
+EOF
 
-    $newaln = $aln->mask_columns(15,20,'?');
-    is( aln2str( $newaln,'phylip' ), <<EOU, 'align after looks ok' );
+    my $phylip_masked = <<EOF;
  3 37
 seq1         AAAATGGGGG TGGT------ GGTACCT--- -------
 seq2         -----GGCGG TGGT?????? GGTTCCCTNN NNNNNNN
 new          AAAATGGNGG TGGT?----? GGTNCCNTNN NNNNNNN
 
-EOU
+EOF
+
+    my $phy_fh = IO::String->new( $phylip_str );
+
+    my $in = Bio::AlignIO->new( -fh => $phy_fh, -format => 'phylip' );
+    unified_diff;
+
+    $aln = $in->next_aln();
+    eq_or_diff( aln2str( $aln, 'phylip' ), $phylip_str );
+
+    $newaln = $aln->mask_columns(15,20,'?');
+    eq_or_diff( aln2str( $newaln,'phylip' ), $phylip_masked, 'align after looks ok' );
 }
 
 ######## SUBROUTINES
