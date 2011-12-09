@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 use version;
-our $API_VERSION = qv('1.1.6');
+our $API_VERSION = qv('1.1.7');
 
 use strict;
 use File::Path qw(mkpath rmtree);
@@ -10,7 +10,7 @@ BEGIN {
     use Bio::Root::Test;
 
     test_begin(
-        -tests               => 85,
+        -tests               => 89,
         -requires_modules    => [q(Bio::SeqIO::msout)],
         -requires_networking => 0
     );
@@ -21,8 +21,8 @@ BEGIN {
 
 # skip tests if the msout.pm module is too old.
 my $api_version = $Bio::SeqIO::msout::API_VERSION;
-cmp_ok( $api_version,
-    '>=', qv('1.1.5'), "Bio::SeqIO::msout is at least api version 1.1.5" );
+cmp_ok( $api_version, '>=', qv('1.1.5'),
+    "Bio::SeqIO::msout is at least api version 1.1.5" );
 
 test_file_1( 0, "msout/msout_infile1" );
 test_file_2( 0, "msout/msout_infile2" );
@@ -30,8 +30,17 @@ test_file_3( 0, "msout/msout_infile3" );
 
 # tests to run for api versions >= 1.1.6
 SKIP: {
-    skip q($Bio::SeqIO::msout::API_VERSION < 1.1.6) , 22 unless $api_version >= qv('1.1.6');
+    skip q($Bio::SeqIO::msout::API_VERSION < 1.1.6), 22
+      unless $api_version >= qv('1.1.6');
     test_file_4( 0, q(msout/msout_infile4) );
+}
+
+# tests to run for api versions >= 1.1.7
+SKIP: {
+    skip q($Bio::SeqIO::msout::API_VERSION < 1.1.7), 4
+      unless $api_version >= qv('1.1.7');
+    bad_test_file_1( 0, q(msout/bad_msout_infile1) );
+    bad_test_file_2( 0, q(msout/bad_msout_infile2) );
 }
 
 sub create_dir {
@@ -439,8 +448,8 @@ sub test_file_4 {
 ## Test file 4
 ##############################################################################
 
-# All this does is test to see if Bio::SeqIO::msout can handle ms output files 
-# with multiple newline characters randomly interspersed in the file.
+  # All this does is test to see if Bio::SeqIO::msout can handle ms output files
+  # with multiple newline characters randomly interspersed in the file.
 
     my $gzip   = shift;
     my $infile = shift;
@@ -794,7 +803,6 @@ END
     close OUT;
 }
 
-
 sub print_to_file {
     my ( $ra_in, $out ) = @_;
     unless ( open OUT, ">$out" ) {
@@ -818,5 +826,63 @@ sub convert_bases_to_nums {
     }
 
     return @out_seqstrings;
+
+}
+
+sub bad_test_file_1 {
+##############################################################################
+## Bad Test file 1
+##############################################################################
+
+    # This sub tests to see if msout.pm will catch if the msinfo line's
+    # advertized haps are less than are actually in the file
+
+    my $gzip   = shift;
+    my $infile = shift;
+    $infile = test_input_file($infile);
+
+    my $file_sequence = $infile;
+    if ($gzip) {
+        $file_sequence = "gunzip -c <$file_sequence |";
+    }
+    my $msout = Bio::SeqIO->new(
+        -file   => "$file_sequence",
+        -format => 'msout',
+    );
+
+    isa_ok( $msout, 'Bio::SeqIO::msout' );
+
+    throws_ok { $msout->get_next_run }
+qr/msout file has only 2 hap\(s\), which is less than indicated in msinfo line \( 9 \)/,
+      q(Caught error in bad msout file 1);
+
+}
+
+sub bad_test_file_2 {
+##############################################################################
+## Bad Test file 2
+##############################################################################
+
+    # This sub tests to see if msout.pm will catch if the msinfo line's
+    # advertized haps are more than are actually in the file
+
+    my $gzip   = shift;
+    my $infile = shift;
+    $infile = test_input_file($infile);
+
+    my $file_sequence = $infile;
+    if ($gzip) {
+        $file_sequence = "gunzip -c <$file_sequence |";
+    }
+    my $msout = Bio::SeqIO->new(
+        -file   => "$file_sequence",
+        -format => 'msout',
+    );
+
+    isa_ok( $msout, 'Bio::SeqIO::msout' );
+
+    throws_ok { $msout->get_next_run }
+qr/\'\/\/\' not encountered when expected. There are more haplos in one of the msOUT runs than advertised in the msinfo line/,
+      q(Caught error in bad msout file 2);
 
 }
