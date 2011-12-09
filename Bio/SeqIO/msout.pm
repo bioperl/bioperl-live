@@ -77,7 +77,7 @@ particular purpose.
 
 package Bio::SeqIO::msout;
 use version;
-our $API_VERSION = qv('1.1.6');
+our $API_VERSION = qv('1.1.7');
 
 use strict;
 use base qw(Bio::SeqIO);    # This ISA Bio::SeqIO object
@@ -533,7 +533,7 @@ Note    : This function is only included for convention.  It calls get_next_seq(
 =cut
 
 sub next_seq {
-    my $self      = shift;
+    my $self = shift;
     return $self->get_next_seq();
 }
 
@@ -564,8 +564,15 @@ sub get_next_hap {
     # Setting last_haps_run_num
     $self->{LAST_HAPS_RUN_NUM} = $self->get_next_run_num;
 
+    my $last_read_hap = $self->get_last_read_hap_num;
     my ($seqstring) =
       $self->_get_next_clean_hap( $self->{_filehandle}, 1, $end_run );
+    if ( !defined $seqstring && $last_read_hap < $self->get_tot_haps ) {
+        $self->throw(
+"msout file has only $last_read_hap hap(s), which is less than indicated in msinfo line ( "
+              . $self->get_tot_haps
+              . " )" );
+    }
 
     return $seqstring;
 }
@@ -739,10 +746,10 @@ sub _load_run_info {
     my ( $self, $fh ) = @_;
 
     my $data = <$fh>;
-    
+
     # getting rid of excess newlines
-    while (defined($data) && $data !~ /./){
-	$data = <$fh>;
+    while ( defined($data) && $data !~ /./ ) {
+        $data = <$fh>;
     }
 
     # In this case we are at EOF
