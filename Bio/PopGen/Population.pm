@@ -437,11 +437,13 @@ sub get_Marker{
 	   my %alleles;
 	   my $count;
 	   for my $al ( map { $_->get_Alleles} @genotypes ) {
-	     $count++; 
-	     $alleles{$al}++
+	       next if($al eq '?');
+	       $count++; 
+	       $alleles{$al}++
 	   }
 	   foreach my $allele ( keys %alleles ) {
 	       $marker->add_Allele_Frequency($allele, $alleles{$allele}/$count);
+	       $marker->{_marker_coverage} = $count/2;
 	   }
        }
        $self->{'_allele_freqs'}->{$markername} = $marker;
