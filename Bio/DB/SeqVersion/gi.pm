@@ -196,7 +196,7 @@ sub get_recent {
 sub get_history {
     my ( $self, $id ) = @_;
     my $html = $self->_get_request($id);
-    my ($ref, $status)  = $self->_process_data($html);
+    my ( $ref, $status ) = $self->_process_data($html);
 
     # store the very last result in case some other methods
     # are called using the same identifier
@@ -223,7 +223,9 @@ sub _get_request {
     my $url = sprintf( $URL, $id );
     my $response = $self->get($url);
     if ( not $response->is_success ) {
-        $self->throw( "Can't query $url: " . $response->status_line . "\n" ."ID likely does not exist");
+        $self->throw( "Can't query $url: "
+              . $response->status_line . "\n"
+              . "ID likely does not exist" );
     }
     $self->debug( "Response is:\n", $response->content, "\n" );
     return $response->content;
@@ -243,13 +245,15 @@ sub _process_data {
     my ( $self, $html ) = @_;
     my @table = ();
     my $count = 0;
-    my ($table, $status);
+    my ( $table, $status );
 
-    my $p = HTML::TokeParser->new(\$html);
-    while (my $token = $p->get_tag('td')) {
+    my $p = HTML::TokeParser->new( \$html );
+    while ( my $token = $p->get_tag('td') ) {
+
         #print Dumper $token;
-        print $p->get_text."\n";;
+        print $p->get_text . "\n";
     }
+
     #if ($html =~ /Current\s+status:\s+([a-z]+)<\/div>(<table.+)/xms) {
     #    ($status, $table) = ($1, $2);
     #} else {
