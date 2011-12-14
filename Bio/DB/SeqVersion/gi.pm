@@ -108,7 +108,8 @@ use base qw(Bio::DB::SeqVersion);
 
 # Private class variables
 
-my $URL = 'http://www.ncbi.nlm.nih.gov/nuccore/%s?report=girevhist';
+# TODO: this may be an unstable setting (text is actually minimal XHTML)
+my $URL = 'http://www.ncbi.nlm.nih.gov/nuccore/%s?report=girevhist&format=text';
 
 =head2 new
 
@@ -251,7 +252,7 @@ sub _process_data {
     while ( my $token = $p->get_tag('td') ) {
 
         #print Dumper $token;
-        print $p->get_text . "\n";
+        print STDERR $p->get_text . "\n";
     }
 
     #if ($html =~ /Current\s+status:\s+([a-z]+)<\/div>(<table.+)/xms) {
