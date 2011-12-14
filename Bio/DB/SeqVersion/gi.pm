@@ -102,7 +102,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::SeqVersion::gi;
 use strict;
-use HTML::TokeParser;
+use HTML::TableExtract;
 use Data::Dumper;
 use base qw(Bio::DB::SeqVersion);
 
@@ -246,14 +246,22 @@ sub _process_data {
     my ( $self, $html ) = @_;
     my @table = ();
     my $count = 0;
-    my ( $table, $status );
 
-    my $p = HTML::TokeParser->new( \$html );
-    while ( my $token = $p->get_tag('td') ) {
+    my $te = HTML::TableExtract->new( headers => ['Version', 'Gi', 'Update Date'] );
+    $te->parse($html);
 
-        #print Dumper $token;
-        print STDERR $p->get_text . "\n";
+    # Examine all matching tables
+    foreach my $ts ($te->tables) {
+        print STDERR "Table (", join(',', $ts->coords), "):\n";
+        foreach my $row ($ts->rows) {
+            print STDERR join(',', @$row), "\n";
+        }
     }
+    #while ( my $token = $p->get_tag('td') ) {
+    #
+    #    #print Dumper $token;
+    #    print STDERR $p->get_text . "\n";
+    #}
 
     #if ($html =~ /Current\s+status:\s+([a-z]+)<\/div>(<table.+)/xms) {
     #    ($status, $table) = ($1, $2);
@@ -268,8 +276,8 @@ sub _process_data {
     #    $count++;
     #}
     #$self->throw("Bad table data: \n".join("\n",@rows)) unless @table > 1;
-    print Dumper \@table;
-    \@table, $status;
+    #print Dumper \@table;
+    \@table;
 }
 
 1;

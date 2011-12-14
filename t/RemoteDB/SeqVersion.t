@@ -24,7 +24,7 @@ SKIP: {
     throws_ok { $query->get_history('DODGY_ID_WHICH_SHOULD_FAIL') }
     qr/ID likely does not exist/i, 'throw on bad ID';
 
-    #my $latest_gi = $query->get_recent(2);
+    my $latest_gi = $query->get_recent(2);
     #is($latest_gi, 2, 'get_recent');
     #
     #my @all_gis = $query->get_all(2);
