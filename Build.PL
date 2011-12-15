@@ -43,129 +43,132 @@ WARN
 }
 
 }
- 
+
 my %recommends = (
     # AcePerl support is deprecated, per LDS - cjfields - 5-5-2011
-    
+
     #'Ace'                       => [0,
     #    'Access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace'],
-    
+
     'Algorithm::Munkres'        => [0,
         'Phylogenetic Networks/Bio::PhyloNetwork'],
-    
+
     'Array::Compare'            => [0,
         'Phylogenetic Networks/Bio::PhyloNetwork'],
-    
+
     'YAML'                      => [0,
         'GenBank->GFF3/bp_genbank2gff3.pl'],
-    
+
     # this won't actually install due to circular dep, but we have no way of
     # doing a post-install the [circular dependency!] specifies it is only
     # installed on explicit request for this specific module, not when simply
     # choosing to install 'all' modules
-    
+
     #'Bio::ASN1::EntrezGene'     => [0,
     #    'Parsing entrezgene/Bio::SeqIO::entrezgene [circular dependency!]'],
 
     'Clone'                     => [0,
         'Cloning objects/Bio::Tools::Primer3'],
-    
+
     'Convert::Binary::C'        => [0,
         'Strider functionality/Bio::SeqIO::strider'],
-        
+
     'Error'                     => [0,
         'OO-based exception handling (very optional)/Bio::Root::Exception'],
-    
+
     'GD'                        => [0,
         'Alignment graphic output/Bio::Align::Graphics'],
-    
+
     'Graph'                     => [0,
         'Phylogenetic Networks, ontology engine implementation, contig analysis'.
         '/Bio::PhyloNetwork,Bio::Ontology::SimpleGOEngine::GraphAdaptor,'.
         'Bio::Assembly::Tools::ContigSpectrum'],
-    
+
     'GraphViz'                  => [0,
         'Phylogenetic Network Visulization/Bio::PhyloNetwork::GraphViz'],
-    
+
     'HTML::Entities'            => [0,
         'Remote analysis POST submissions/Bio::SearchIO::blastxml'],
-    
+
     'HTML::HeadParser'          => [3,
         'Parsing <HEAD> section of HTML docs/Bio::Tools::Analysis::DNA::ESEfinder'],
-    
+
+    'HTML::TableParser'          => [3,
+        'Parsing HTML tables/Bio::DB::SeqVersion::gi'],
+
     'HTTP::Request::Common'     => [0,
         'GenBank+GenPept sequence retrieval, remote http Blast jobs'.
         '/Bio::DB::*,Bio::Tools::Run::RemoteBlast,'.
         'Bio::Tools::Analysis::Protein*,Bio::Tools::Analysis::DNA*'],
-    
+
     'List::MoreUtils'           => [0,
         'Back- or reverse-translation of sequences/'.
         'Bio::Tools::SeqPattern,Bio::Tools::SeqPattern::BackTranslate'],
-    
+
     'LWP::UserAgent'            => [0,
         'Remote access/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::WebAgent'],
-        
+
     'Math::Random'              => [0,
         'Random Phylogenetic Networks/Bio::PhyloNetwork::RandomFactory'],
-    
+
     'PostScript::TextBlock'     => [0,
         'EPS output/Bio::Tree::Draw::Cladogram'],
-    
+
     'Set::Scalar'               => [0,
         'Proper operation/Bio::Tree::Compatible'],
-    
+
     'SOAP::Lite'                => [0,
         'Bibliographic queries/Bio::DB::Biblio::soap'],
-    
+
     'Sort::Naturally'           => [0,
         'Sort lexically, but sort numeral parts numerically/'.
         'Bio::Assembly::IO::ace,Bio::Assembly::IO::tigr'],
-    
+
     'Spreadsheet::ParseExcel'   => [0,
         'Parsing Excel files/Bio::SeqIO::excel'],
-    
+
     'Storable'                  => [2.05,
         'Storing sequence objects in local file cache/'.
         'Bio::DB::FileCache,Bio::SeqFeature::Collection,Bio::PopGen::HtSNP,'.
         'Bio::PopGen::TagHaplotype,Bio::DB::GFF::Adaptor::berkeleydb'],
-    
+
     'SVG'                       => [2.26,
         'Creating SVG images/Bio::Draw::Pictogram'],
-        
+
     'SVG::Graph'                => [0.01,
         'Creating SVG images/Bio::TreeIO::svggraph'],
-    
+
     'Text::ParseWords'          => [0,
         'Test scripts/Bio::DB::SeqFeature::Store::FeatureFileLoader'],
-    
+
     'URI::Escape'               => [0,
         'Dealing with web resources/Bio::FeatureIO::gff,Bio::FeatureIO::interpro,'.
         'Bio::DB::Biblio::eutils,Bio::DB::EUtilParameters,'.
         'Bio::DB::Query::GenBank,Bio::DB::NCBIHelper,Bio::SeqFeature::Annotated'],
-    
+
     'XML::DOM::XPath'           => [0.13,
         'parsing interpro features/Bio::FeatureIO::interpro'],
-    
+
     'XML::Parser'               => [0,
         'parsing xml/Bio::Biblio::IO::medlinexml'],
-    
+
     'XML::Parser::PerlSAX'      => [0,
         'Parsing XML/Bio::SeqIO::tinyseq,Bio::SeqIO::game::gameSubs,',
         'Bio::OntologyIO::InterProParser,Bio::ClusterIO::dbsnp'],
-    
+
     'XML::SAX'                  => [0.15,
         'Parsing XML/Bio::SearchIO::blastxml,Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax'],
-    
+
     'XML::SAX::Writer'          => [0,
         'Writing XML/Bio::SeqIO::tigrxml'],
-    
+
     'XML::Simple'               => [0,
         'Reading custom XML/Bio::Tools::EUtilities,Bio::DB::HIV,Bio::DB::Query::HIVQuery'],
-    
+
     'XML::Twig'                 => [0,
         'Parsing XML/Bio::Variation::IO::xml,Bio::DB::Taxonomy::entrez,'.
         'Bio::DB::Biblio::eutils'],
-    
+
     'XML::Writer'               => [0.4,
         'Parsing and writing XML/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,'.
         'Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,'.
@@ -193,57 +196,57 @@ my $build = Bio::Root::Build->new(
                             'Scalar::Util'              => 0,    # not in Perl 5.6.1, arrived in core in 5.7.3
                             'ExtUtils::Manifest'        => '1.52', # allows spaces in file names
                            },
-    
+
     build_requires      => {
                             'Test::Most'                => 0,
                             'Module::Build'             => 0.2805,
                             'Test::Harness'             => 2.62,
                             'CPAN'                      => 1.81
                            },
-    
+
     recommends          => {
         # reverted to a simple Module::Build-compatible hash, but we keep
         # additional data in the %recommends hash above. May be converted to
         # something simpler if there aren't complaints down the line.
         map {$_ => $recommends{$_}[0]} sort keys %recommends
     },
-    
+
     get_options         => {
         accept  => { },
         network => { } # say 'perl Build.PL --network' to manually request network tests
                            },
-    
+
     auto_features       => {
         'EntrezGene'    => {
             description => "Presence of Bio::ASN1::EntrezGene",
             requires    => { 'Bio::ASN1::EntrezGene' => 0 } # feature_requires is like requires, except that it doesn't trigger installation
         },
-        
+
         'DB_File Tests' => {
             description => "BDB tests for Bio::DB::SeqFeature::Store",
             requires    => { 'DB_File' => 0 } # feature_requires is like requires, except that it doesn't trigger installation
          },
-        
+
         'Bio::DB::GFF Tests' => {
             description => "Bio::DB::GFF database tests (will need to answer questions before really enabling)",
             requires    => { 'DBI' => 0 },
          },
-        
+
         'MySQL Tests'   => {
             description => "MySQL-related tests for Bio::DB::SeqFeature::Store",
             requires    => { 'DBI' => 0, 'DBD::mysql' => 0 },
          },
-        
+
         'Pg Tests'      => {
             description => "PostgreSQL-related tests for Bio::DB::SeqFeature::Store",
             requires    => { 'DBI' => 0, 'DBD::Pg' => 0},
          },
-        
+
         'SQLite Tests'  => {
             description => "SQLite-related tests for Bio::DB::SeqFeature::Store",
             requires    => { 'DBI' => 0, 'DBD::SQLite' => 0},
          },
-        
+
         'Network Tests'              => {
             description      => "Enable tests that need an internet connection",
             requires => { 'LWP::UserAgent' => 0 },
@@ -252,10 +255,10 @@ my $build = Bio::Root::Build->new(
     dynamic_config      => 1,
     #create_makefile_pl  => 'passthrough',
     recursive_test_files => 1,
-    
+
     # Extra files needed for BioPerl modules
     xml_files => {'./Bio/DB/HIV/lanl-schema.xml' => 'lib/Bio/DB/HIV/lanl-schema.xml'},
-    
+
     #pm_files           => {} # modules in Bio are treated as if they were in lib and auto-installed
     #script_files       => [] # scripts in scripts directory are installed on-demand
 );
@@ -272,7 +275,7 @@ however, because it has a circular dependency with BioPerl we do not
 include it on our list of recommended modules.
 
 If you require EntrezGene functionality, you can install
-Bio::ASN1::EntrezGene after BioPerl has finished installing.  
+Bio::ASN1::EntrezGene after BioPerl has finished installing.
 
 ############################# WARNING #############################
 
@@ -324,7 +327,7 @@ exit;
 sub make_bdb_test {
     my $path0 = File::Spec->catfile('t', 'LocalDB', 'SeqFeature.t');
     my $path = File::Spec->catfile('t', 'LocalDB','SeqFeature_BDB.t');
-    unlink($path) if (-e $path); 
+    unlink($path) if (-e $path);
     open(my $F, ">", $path) || die "Can't create test file\n";
     print $F <<END;
 system '$^X $path0 -adaptor berkeleydb -create 1 -temp 1';
@@ -385,7 +388,7 @@ sub prompt_for_biodb {
     my $proceed = $accept ? 0 : $build->y_n("Do you want to run the Bio::DB::GFF or ".
                               "Bio::DB::SeqFeature::Store live database tests? ".
                               "y/n", 'n');
-    
+
     if ($proceed) {
         my @driver_choices;
         foreach my $poss ('SQLite', 'mysql', 'Pg', 'Oracle') {
@@ -395,7 +398,7 @@ sub prompt_for_biodb {
                 push(@driver_choices, $choice);
             }
         }
-        
+
         my $driver;
         if (@driver_choices > 1) {
             my ($default) = $driver_choices[0] =~ /\[(.)/;
@@ -416,19 +419,19 @@ sub prompt_for_biodb {
         elsif ($driver =~ /^[sS]/) {
             $driver = 'SQLite';
         }
-        
+
         my $test_db = $build->prompt("Which database should I use for testing the $driver driver?\n".
                                      "This database should already be present but doesn't have to ".
                                      "be preloaded for any schema", 'test');
         my $test_host = $build->prompt("On which host is database '$test_db' running (hostname, ip address or host:port)", 'localhost');
         my $test_user = $build->prompt("User name for connecting to database '$test_db'?", 'undef');
         my $test_pass = $build->prompt("Password for connecting to database '$test_db'?", 'undef');
-        
+
         my $use_host = 1;
         if ($test_host eq 'undef' || $test_host eq 'localhost') {
             $use_host = 0;
         }
-        
+
         my $test_dsn;
         if ($driver eq 'Pg' || $driver eq 'SQLite') {
             $test_dsn = "dbi:$driver:dbname=$test_db";
@@ -441,14 +444,14 @@ sub prompt_for_biodb {
         if ($use_host) {
             $test_dsn .= ";host=$test_host";
         }
-        
+
         $build->notes(dbd_driver => $driver);
         $build->notes(test_db => $test_db);
         $build->notes(test_host => $test_host);
         $build->notes(test_user => $test_user eq 'undef' ? undef : $test_user);
         $build->notes(test_pass => $test_pass eq 'undef' ? undef : $test_pass);
         $build->notes(test_dsn => $test_dsn);
-        
+
         $build->log_info("  - will run tests with database driver '$driver' and these settings:\n",
                         "    Database $test_db\n",
                         "    Host     $test_host\n",
@@ -461,7 +464,7 @@ sub prompt_for_biodb {
     else {
         $build->log_info("  - will not run the BioDBGFF or BioDBSeqFeature live database tests\n");
     }
-    
+
     $build->log_info("\n");
     return $proceed;
 }
