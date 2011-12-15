@@ -103,7 +103,6 @@ methods. Internal methods are usually preceded with a _
 package Bio::DB::SeqVersion::gi;
 use strict;
 use HTML::TableExtract;
-use Data::Dumper;
 use base qw(Bio::DB::SeqVersion);
 
 # Private class variables
