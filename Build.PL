@@ -93,7 +93,7 @@ my %recommends = (
     'HTML::HeadParser'          => [3,
         'Parsing <HEAD> section of HTML docs/Bio::Tools::Analysis::DNA::ESEfinder'],
 
-    'HTML::TableParser'          => [0,
+    'HTML::TableExtract'        => [0,
         'Parsing HTML tables/Bio::DB::SeqVersion::gi'],
 
     'HTTP::Request::Common'     => [0,
