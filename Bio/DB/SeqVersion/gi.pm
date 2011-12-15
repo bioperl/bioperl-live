@@ -168,6 +168,25 @@ sub get_recent {
     $ref->[0]->[0];
 }
 
+=head2 get_status
+
+ Title   : get_status
+ Usage   : my $newest_gi = $q->get_status(2)
+ Function: Get most recent GI given a single GI
+ Returns : String
+ Args    : A single GI number (string)
+
+=cut
+
+sub get_status {
+    my ( $self, $id ) = @_;
+    $self->throw("Must pass an ID") if !defined $id;
+    if ($id ne $self->{_last_id} ) {
+        $self->get_history($id);
+    }
+    $self->{_last_status};
+}
+
 =head2 get_history
 
  Title   : get_history
@@ -180,7 +199,6 @@ sub get_recent {
            0      GI number
            1      Version
            2      Update Date
-           3      Status
 
            For example, to get the GI number of the first version:
 
@@ -191,6 +209,10 @@ sub get_recent {
            $ref->[0]->[2]
 
  Args    : One identifier (string)
+ Note    : Status of the GI was returned here previously as the last element in
+           the row of elemnts above; however the status is currently only
+           returned for the GI requested (e.g. a single value).  One can get
+           the status for this using the get_status() method above
 
 =cut
 
@@ -203,6 +225,7 @@ sub get_history {
     # are called using the same identifier
     $self->{_last_result} = $ref;
     $self->{_last_id}     = $id;
+    $self->{_last_status} = $status;
     $ref;
 }
 
@@ -219,7 +242,7 @@ sub get_history {
 sub _get_request {
     my ( $self, $id ) = @_;
 
-    $self->throw("Must specify a single id to query") if ( !$id || ref($id) );
+    $self->throw("Must specify a single id to query") if ( !defined($id) || ref($id) );
 
     my $url = sprintf( $URL, $id );
     my $response = $self->get($url);
@@ -244,8 +267,15 @@ sub _get_request {
 sub _process_data {
     my ( $self, $html ) = @_;
 
-    # TODO: this is a quick patch, the status is not currently captured as
-    # it lies outside the table
+    # Only one status is returned (not one per revision).  Setting once
+    my $status;
+    if ($html =~ /<div class="status">Current status:\s+(\S+)<\/div>/) {
+        $status = $1;
+    } else {
+        $self->warn("No current status found, setting to 'unknown'");
+        $status = 'unknown';
+    }
+
     my $te = HTML::TableExtract->new(
         headers => ['Gi', 'Version', 'Update Date'] ,
         depth   => 0);
@@ -253,7 +283,7 @@ sub _process_data {
     my $table = $te->first_table_found;
     $self->throw("No table found") unless defined $table;
     my $t = [$table->rows];
-    ($t, 1);  # the prior version never returned a status...
+    ($t, $status);
 }
 
 1;
