@@ -25,21 +25,21 @@ SKIP: {
     qr/ID likely does not exist/i, 'throw on bad ID';
 
     my $latest_gi = $query->get_recent(2);
-    #is($latest_gi, 2, 'get_recent');
-    #
-    #my @all_gis = $query->get_all(2);
-    #cmp_ok(@all_gis, '>=', 8, 'get_all');
+    is($latest_gi, 2, 'get_recent');
 
-    #my $latest_gi = $query->get_recent('A00002');
-    #is($latest_gi, 2, 'get_recent, string');
-    #
-    #$latest_gi = $query->get_recent(27478738);
-    #is($latest_gi, 42659163, 'get_recent, integer');
-    #
-    ## check that default type is "gi"
-    #ok $query = Bio::DB::SeqVersion->new();
-    #ok my $ref = $query->get_history(3245);
-    #is($ref->[0]->[0], 578167, 'get_history');
+    my @all_gis = $query->get_all(2);
+    cmp_ok(@all_gis, '>=', 8, 'get_all');
+
+    $latest_gi = $query->get_recent('A00002');
+    is($latest_gi, 2, 'get_recent, string');
+
+    $latest_gi = $query->get_recent(27478738);
+    is($latest_gi, 42659163, 'get_recent, integer');
+
+    # check that default type is "gi"
+    ok $query = Bio::DB::SeqVersion->new();
+    ok my $ref = $query->get_history(3245);
+    is($ref->[0]->[0], 578167, 'get_history');
 }
 
 done_testing();

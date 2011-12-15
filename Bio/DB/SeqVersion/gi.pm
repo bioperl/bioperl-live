@@ -228,7 +228,6 @@ sub _get_request {
               . $response->status_line . "\n"
               . "ID likely does not exist" );
     }
-    $self->debug( "Response is:\n", $response->content, "\n" );
     return $response->content;
 }
 
@@ -244,40 +243,17 @@ sub _get_request {
 
 sub _process_data {
     my ( $self, $html ) = @_;
-    my @table = ();
-    my $count = 0;
 
-    my $te = HTML::TableExtract->new( headers => ['Version', 'Gi', 'Update Date'] );
+    # TODO: this is a quick patch, the status is not currently captured as
+    # it lies outside the table
+    my $te = HTML::TableExtract->new(
+        headers => ['Gi', 'Version', 'Update Date'] ,
+        depth   => 0);
     $te->parse($html);
-
-    # Examine all matching tables
-    foreach my $ts ($te->tables) {
-        print STDERR "Table (", join(',', $ts->coords), "):\n";
-        foreach my $row ($ts->rows) {
-            print STDERR join(',', @$row), "\n";
-        }
-    }
-    #while ( my $token = $p->get_tag('td') ) {
-    #
-    #    #print Dumper $token;
-    #    print STDERR $p->get_text . "\n";
-    #}
-
-    #if ($html =~ /Current\s+status:\s+([a-z]+)<\/div>(<table.+)/xms) {
-    #    ($status, $table) = ($1, $2);
-    #} else {
-    #    $self->throw("Could not parse 'Revision history' HTML table: \n$html")
-    #}
-    #my (@rows) = $table =~ /<tr>(.+?)<\/tr>/g;
-    #shift @rows;    # get rid of header
-    #for my $row (@rows) {
-    #    my (@arr) = $row =~ />([^<>]+)/g;
-    #    $table[$count] = \@arr;
-    #    $count++;
-    #}
-    #$self->throw("Bad table data: \n".join("\n",@rows)) unless @table > 1;
-    #print Dumper \@table;
-    \@table;
+    my $table = $te->first_table_found;
+    $self->throw("No table found") unless defined $table;
+    my $t = [$table->rows];
+    ($t, 1);  # the prior version never returned a status...
 }
 
 1;
