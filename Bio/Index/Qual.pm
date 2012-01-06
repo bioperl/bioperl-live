@@ -106,7 +106,7 @@ web:
 
 =head1 AUTHOR - James Gilbert, Mark Johnson
 
-Email - jgrg@sanger.ac.uk, mjohnson@watson.wustl.edu
+Email - jgrg@sanger.ac.uk, johnsonm-at-gmail-dot-com 
 
 =head1 APPENDIX
 
