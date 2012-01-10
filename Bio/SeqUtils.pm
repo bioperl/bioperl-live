@@ -51,6 +51,32 @@ Bio::SeqUtils - Additional methods for PrimarySeq objects
     # reverse complement a sequence and its features
     my $revcomseq = Bio::SeqUtils->revcom_with_features($seq);
 
+    # simulate cloning of a fragment into a vector. Cut the vector at
+    # positions 1000 and 1100 (deleting postions 1001 to 1099) and
+    # ligate a fragment into the sites. The fragment is
+    # reverse-complemented in this case. All features of the vector
+    # and fragment are preserved and features that are affected by the
+    # deletion/insertion are modified accordingly
+    my $new_molecule = Bio::Sequtils->ligate(
+      -vector => $vector, 
+      -fragment => $fragment,
+      -left => 1000,
+      -right => 1100,
+      -flip => 1 
+    );
+
+    # delete a segment of a seqence (from pos 1000 to 1100, inclusive), 
+    # again preserving features and annotations
+    my $new_molecule = Bio::SeqUtils->cut( $seq, 1000, 1100 );
+
+    # insert a fragment into a recipient between positions 1000 and
+    # 1001 
+    my $insert_seq =  Bio::SeqUtils::PbrTools->insert( 
+      $recipient_seq, 
+      $fragment_seq,
+      1000
+    );
+
 =head1 DESCRIPTION
 
 This class is a holder of methods that work on Bio::PrimarySeqI-
@@ -82,6 +108,35 @@ sequence features will be transferred.
 The revcom_with_features() and trunc_with_features() methods are similar
 to the revcom() and trunc() methods from Bio::Seq, but also adjust any
 features associated with the sequence as appropriate.
+
+There are also methods that simulate molecular cloning with rich
+sequence objects. 
+The delete() method cuts a segment out of a sequence and re-joins the
+left and right fragments (like splicing or digesting and re-ligating a
+molecule).  Positions (and types) of sequence features are adjusted
+accordingly: 
+Features that span the cut site are converted to split featuress to
+indicate the disruption.  Features that extend into the cut-out
+fragment are truncated and the end that was cut off becomes a fuzzy
+location to indicate that it is no longer the true end of the original
+feature.  
+A new molecule is created and returned.
+
+The insert() method inserts a fragment (which can be a rich Bio::Seq
+object) into another sequence object adding all annotations and
+features to the final product.  
+Features that span the insertion site are converted to split features
+to indicate the disruption. 
+A new feature is added to indicate the inserted fragment itself.  
+A new molecule is created and returned.
+
+The ligate() method simulates digesting a recipient (vector) and
+ligating a fragment into it, which can also be flipped if needed. It
+is simply a combination of a deletion and an insertion step and
+returns a new molecule. The rules for modifying feature locations
+outlined above are also used here, e.g. features that span the cut
+sites are converted to split features with truncated sub-locations.
+
 
 =head1 FEEDBACK
 
