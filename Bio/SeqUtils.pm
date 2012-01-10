@@ -880,7 +880,7 @@ sub _coord_adjust_deletion {
   my $del_length = $right - $left + 1;
 
   my @adjsubfeat;
-  for my $subfeat ($feat->remove_SeqFeatures) {
+  for my $subfeat ($feat->get_SeqFeatures) {
     my $adjsubfeat = $self->_coord_adjust_deletion($subfeat, $left, $right);
     push @adjsubfeat, $adjsubfeat if $adjsubfeat;
   }
@@ -975,7 +975,7 @@ sub _coord_adjust_insertion {
   $self->throw('missing insert length') unless defined $insert_len;
 
   my @adjsubfeat;
-  for my $subfeat ($feat->remove_SeqFeatures) {
+  for my $subfeat ($feat->get_SeqFeatures) {
     push @adjsubfeat, $self->_coord_adjust_insertion($subfeat, $insert_pos, $insert_len);
   }
 
@@ -1135,7 +1135,7 @@ sub _coord_adjust {
                  '] should be a Bio::SeqFeatureI ')
         unless $feat->isa('Bio::SeqFeatureI');
     my @adjsubfeat;
-    for my $subfeat ($feat->remove_SeqFeatures) {
+    for my $subfeat ($feat->get_SeqFeatures) {
         push @adjsubfeat, $self->_coord_adjust($subfeat, $add, $length);
     }
     my @loc;
@@ -1232,7 +1232,7 @@ sub _feature_revcom {
                  '] should be a Bio::SeqFeatureI ')
         unless $feat->isa('Bio::SeqFeatureI');
     my @adjsubfeat;
-    for my $subfeat ($feat->remove_SeqFeatures) {
+    for my $subfeat ($feat->get_SeqFeatures) {
         push @adjsubfeat, $self->_feature_revcom($subfeat, $length);
     }
     my @loc;
