@@ -1144,20 +1144,10 @@ sub _coord_adjust {
         my $strand=$_->strand;
 	my $type=$_->location_type;
         map s/(\d+)/if ($add+$1<1) {'<1'} elsif (defined $length and $add+$1>$length) {">$length"} else {$add+$1}/ge, @coords;
-	my($newstart,$newend)=@coords;
-	unless ($type eq 'IN-BETWEEN') {
-	    push @loc, Bio::Location::Fuzzy->new(-start=>$newstart,
-						 -end=>$newend,
-						 -strand=>$strand,
-						 -location_type=>$type
-						);
-	} else {
-	    push @loc, Bio::Location::Simple->new(-start=>$newstart,
-					  -end=>$newend,
-					  -strand=>$strand,
-					  -location_type=>$type
-					 );
-	}
+
+        push @loc, $self->_location_objects_from_coordinate_list(
+          [\@coords], $strand, $type
+        );
     }
     my $newfeat=Bio::SeqFeature::Generic->new(-primary=>$feat->primary_tag);
     foreach my $key ( $feat->annotation->get_all_annotation_keys() ) {
@@ -1168,13 +1158,8 @@ sub _coord_adjust {
     foreach my $key ( $feat->get_all_tags() ) {
 	    $newfeat->add_tag_value($key, $feat->get_tag_values($key));
     }
-    if (@loc==1) {
-        $newfeat->location($loc[0])
-    } else {
-        my $loc=Bio::Location::Split->new;
-        $loc->add_sub_Location(@loc);
-        $newfeat->location($loc);
-    }
+    my $loc = $self->_single_loc_object_from_collection( @loc );
+    $loc ? $newfeat->location( $loc ) : return ;
     $newfeat->add_SeqFeature($_) for @adjsubfeat;
     return $newfeat;
 }
@@ -1248,19 +1233,9 @@ sub _feature_revcom {
 	my $newstart=$self->_coord_revcom($_->end,
 					  $_->end_pos_type,
 					  $length);
-	unless ($type eq 'IN-BETWEEN') {
-	    push @loc, Bio::Location::Fuzzy->new(-start=>$newstart,
-						 -end=>$newend,
-						 -strand=>$strand,
-						 -location_type=>$type
-						);
-	} else {
-	    push @loc, Bio::Location::Simple->new(-start=>$newstart,
-						  -end=>$newend,
-						  -strand=>$strand,
-						  -location_type=>$type
-						 );
-	}
+        push @loc, $self->_location_objects_from_coordinate_list(
+          [[$newstart, $newend]], $strand, $type
+        );
     }
     my $newfeat=Bio::SeqFeature::Generic->new(-primary=>$feat->primary_tag);
     foreach my $key ( $feat->annotation->get_all_annotation_keys() ) {
@@ -1271,13 +1246,10 @@ sub _feature_revcom {
     foreach my $key ( $feat->get_all_tags() ) {
 	    $newfeat->add_tag_value($key, $feat->get_tag_values($key));
     }
-    if (@loc==1) {
-        $newfeat->location($loc[0])
-    } else {
-        my $loc=Bio::Location::Split->new;
-        $loc->add_sub_Location(@loc);
-        $newfeat->location($loc);
-    }
+  
+    my $loc = $self->_single_loc_object_from_collection( @loc );
+    $loc ? $newfeat->location( $loc ) : return ;
+
     $newfeat->add_SeqFeature($_) for @adjsubfeat;
     return $newfeat;
 }
