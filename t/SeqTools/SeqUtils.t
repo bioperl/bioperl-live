@@ -508,7 +508,13 @@ ok(
 # ligate
 lives_ok(
   sub {
-    $product = Bio::SeqUtils->ligate( $seq_obj, $fragment_obj, 10, 21 );
+    $product = Bio::SeqUtils->ligate( 
+      -recipient => $seq_obj, 
+      -fragment  => $fragment_obj, 
+      -left      => 10, 
+      -right     => 21,
+      -flip      => 1
+    ); 
   },
   "No error thrown when inserting a fragment into recipient sequence"
 );
