@@ -787,13 +787,13 @@ sub insert{
            # vector, i.e. everything between these two positions is deleted and
            # replaced by the fragment
            my $new_molecule = Bio::Sequtils::Pbrtools->ligate(
-             -vector => $vector, 
+             -recipient => $vector, 
              -fragment => $fragment,
              -left => 1000,
              -right => 1100,
              -flip => 1 
            );
- args    : vector: the recipient molecule
+ args    : recipient: the recipient/vector molecule
            fragment: molecule that is to be ligated into the vector
            left: left cut site (fragment will be inserted to the right of 
                  this position)
@@ -819,7 +819,7 @@ sub ligate {
   $self->throw("Fragment must be a Bio::PrimarySeqI compliant object but it is a ".
     ref($fragment)) unless blessed($fragment) && $fragment->isa('Bio::PrimarySeqI');
 
-  $fragment = $fragment->revcom_with_features if $flip;
+  $fragment = $self->revcom_with_features($fragment) if $flip;
 
   # clone in two steps: first delete between the insertion sites,
   # then insert the fragment
