@@ -120,6 +120,7 @@ Email:  heikki-at-bioperl-dot-org
 =head1 CONTRIBUTORS
 
 Roy R. Chaudhuri - roy.chaudhuri at gmail.com
+Frank Schwach - frank.schwach@sanger.ac.uk
 
 =head1 APPENDIX
 
