@@ -8,7 +8,7 @@ BEGIN {
 #    use List::MoreUtils qw(uniq);
     use Bio::Root::Test;
     
-    test_begin(-tests => 105);
+    test_begin(-tests => 109);
 	
 	use_ok('Bio::PrimarySeq');
 	use_ok('Bio::SeqUtils');
@@ -341,7 +341,8 @@ my $feature2 = Bio::SeqFeature::Generic->new(
   -primary_tag => 'feat2',
   -seq_id      => 'seq1',
   -start       => 15,
-  -end         => 25
+  -end         => 25,
+  -strand      => -1,
 );
 my $feature3 = Bio::SeqFeature::Generic->new(
   -primary_tag => 'feat3',
@@ -413,7 +414,6 @@ ok ($subfeat1_del, "sub-feature 1 of the composite feature is still present");
 is ($subfeat1->end, 12, "the original end of sf1 is 12");
 is ($subfeat1_del->end, 10, "after deletion, the end of sf1 is 1nt before the deletion site");
 is ($subfeat1->location->end_pos_type, 'EXACT', 'the original end location of sf1 EXACT');
-is ($subfeat1_del->location->end_pos_type, 'AFTER', 'after deletion, the end location of sf1 has changed to type AFTER');
 
 my ($subfeat1_comment) = $subfeat1->annotation->get_Annotations('comment');
 my ($subfeat1_del_comment) = $subfeat1_del->annotation->get_Annotations('comment');
@@ -421,17 +421,15 @@ is( $subfeat1_comment, $subfeat1_del_comment, 'annotation of subeature 1 has bee
 
 my ($feature1_del) = grep ($_->primary_tag eq 'feat1', $product->get_SeqFeatures);
 ok ($feature1_del, "feature1 is till present");
-isa_ok( $feature1->location, 'Bio::Location::Simple', 'the original location type of feature1');
 isa_ok( $feature1_del->location, 'Bio::Location::Split', 'feature1 location has now been split by the deletion and location object');
 is( my @feature1_del_sublocs = $feature1_del->location->each_Location, 2, 'feature1 has two locations after the deletion');
 is( $feature1_del_sublocs[0]->start, 2, 'feature1 start is unaffected by the deletion');
 is( $feature1_del_sublocs[0]->end, 10, 'feature1 end of first split is 1nt before deletion site');
-is( $feature1_del_sublocs[0]->end_pos_type, 'AFTER', 'feature1 end of first split is now of type AFTER');
 is( $feature1_del_sublocs[1]->start, 11, 'feature1 start of second split is 1nt after deletion site');
-is( $feature1_del_sublocs[1]->start_pos_type, 'BEFORE', 'feature1 start of second split is now of type BEFORE');
 is( $feature1_del_sublocs[1]->end, 15, 'feature1 end of second split has been adjusted correctly');
-
-
+my @fd1_notes = $feature1_del->get_tag_values('note');
+is( @fd1_notes,1, 'split feature now has a note');
+is (shift @fd1_notes, '10bp internal deletion between pos 10 and 11', 'got the expected note about length and position of deletion');
 
 my ($feature3_del) = grep ($_->primary_tag eq 'feat3', $product->get_SeqFeatures);
 ok ($feature3_del, "feature3 is till present");
@@ -440,6 +438,13 @@ is ( ($feature3_del->start, $feature3_del->end), ($feature3->start - 10, $featur
 my ($feature4_del) = grep ($_->primary_tag eq 'feat4', $product->get_SeqFeatures);
 ok ($feature4_del, "feature4 is till present");
 is ( ($feature4_del->start, $feature4_del->end), ($feature4->start, $feature4->end), 'a feature upstream of the deletion site is not repositioned by the deletion');
+
+my ($feature2_del) = grep ($_->primary_tag eq 'feat2', $product->get_SeqFeatures);
+ok ($feature2_del, "feature2 is till present");
+is ( $feature2_del->start, 11, 'start pos of a feature that started in the deletion site has been altered accordingly');
+my @fd2_notes = $feature2_del->get_tag_values('note');
+is( @fd2_notes,1, 'feature 2 now has a note');
+is (shift @fd2_notes, "10bp deleted from feature 3' end", "note added to feature2 about deletion at 3' end");
 
 ok (!grep ($_->primary_tag eq 'feat5', $product->get_SeqFeatures), 'a feature that was completely positioned inside the deletion site is not present on the new molecule');
 
@@ -473,6 +478,9 @@ is (
 my ($subfeat1_comment) = $subfeat1->annotation->get_Annotations('comment');
 my ($subfeat1_ins_comment) = $subfeat1_ins->annotation->get_Annotations('comment');
 is( $subfeat1_comment, $subfeat1_ins_comment, 'annotation of subeature 1 has been moved to new molecule');
+my @sf1ins_notes = $subfeat1_ins->get_tag_values('note');
+is( @sf1ins_notes,1, 'split feature now has a note');
+is (shift @sf1ins_notes, '10bp internal insertion between pos 10 and 21', 'got the expected note about length and position of insertion');
 
 my ($feature3_ins) = grep ($_->primary_tag eq 'feat3', $product->get_SeqFeatures);
 ok ($feature3_ins, "feature3 is till present");

@@ -840,8 +840,9 @@ sub ligate {
  function: recursively adjusts coordinates of seqfeatures on a molecule
            where a segment has been deleted.
            (sub)features that span the deletion site become split features.
-           (sub)features that extend into the deletion site are truncated
-           and the end that was cut off becomes a fuzzy location.
+           (sub)features that extend into the deletion site are truncated.
+           A note is added to the feature to inform about the size and
+           position of the deletion.
  usage   : my $adjusted_feature = Bio::Sequtils::_coord_adjust_deletion( 
              $feature,
              $start,
@@ -886,6 +887,7 @@ sub _coord_adjust_deletion {
   }
 
   my @loc;
+  my $note;
   for ($feat->location->each_Location) {
     next if $deletion->contains( $_ ); # this location will be deleted;
     my $strand = $_->strand;
@@ -897,13 +899,26 @@ sub _coord_adjust_deletion {
     my @newcoords=();
     if ($_->contains( $deletion )){ # split the feature
       @newcoords = (
-        [ $start, '>'.($deletion->start - 1), $start_type, 'AFTER' ],
-        [ '<'.($deletion->start ), $end - $del_length, 'BEFORE', $end_type ]
+        [ $start, ($deletion->start - 1), $start_type, $end_type ],
+        [ ($deletion->start ), $end - $del_length, $start_type, $end_type ]
       );
+      $note = $del_length . 'bp internal deletion between pos '
+        . ($deletion->start - 1) . ' and ' . $deletion->start;
     } elsif ($_->contains( $deletion->start )){ # truncate feature end
-      @newcoords = ([$start, ($deletion->start - 1), $start_type, 'AFTER' ]);      
+      @newcoords = ([$start, ($deletion->start - 1), $start_type, $end_type ]);
+      $note = ($end - $deletion->start + 1). 'bp deleted from feature ';
+      if ($feat->strand){
+        $note .= $feat->strand == 1 ? "3' " : "5' ";
+      }
+      $note .= 'end'
     } elsif ($_->contains( $deletion->end )){ # truncate feature start and shift end
-      @newcoords = ([($deletion->start), $end - $del_length, 'BEFORE', $end_type]);
+      @newcoords = ([($deletion->start), $end - $del_length, $start_type, $end_type]);
+      $note = ( $deletion->end - $start + 1) . 'bp deleted from feature ';
+      if ($feat->strand){
+        $note .= $feat->strand == 1 ? "5' end" : "3' end";
+      } else {
+        $note .= 'start';
+      }
     } elsif ($start >= $deletion->end){ # just shift entire location
       @newcoords = ([$start - $del_length, $end - $del_length, $start_type, $end_type ]);
     } else { # not affected by deletion
@@ -935,6 +950,11 @@ sub _coord_adjust_deletion {
     $newfeat->add_tag_value($key, $feat->get_tag_values($key));
   }
 
+  # If we have a note about the deleted bases, add it
+  if ($note){
+    $newfeat->add_tag_value('note',$note);
+  }
+
   # set modified location(s) for the new feature and 
   # add its subfeatures if any
   my $loc = $self->_single_loc_object_from_collection( @loc );
@@ -950,9 +970,8 @@ sub _coord_adjust_deletion {
  title   : _coord_adjust_insertion
  function: recursively adjusts coordinates of seqfeatures on a molecule
            where another sequence has been inserted.
-           (sub)features that span the insertion site become split features.
-           In contrast to _coord_adjust_deletion, affected feature start/ends
-           are not turned fuzzy because no part of the feature is lost.
+           (sub)features that span the insertion site become split features
+           and a note is added about the size and positin of the insertion.
  usage   : my $adjusted_feature = Bio::Sequtils::_coord_adjust_insertion( 
              $feature,
              $insert_pos,
@@ -980,6 +999,7 @@ sub _coord_adjust_insertion {
   }
 
   my @loc;
+  my $note;
   for ($feat->location->each_Location) {
     my $strand = $_->strand;
     my $type = $_->location_type;
@@ -991,8 +1011,11 @@ sub _coord_adjust_insertion {
     if ($start <= $insert_pos && $end > $insert_pos){ # split the feature
       @newcoords = (
         [ $start, $insert_pos, $start_type, $end_type ],
-        [ ($insert_pos + $insert_len ), $end + $insert_len, $start_type, $end_type ]
+        [ ($insert_pos + 1 + $insert_len ), $end + $insert_len, $start_type, $end_type ]
       );
+      $note = $insert_len . 'bp internal insertion between pos '
+        . $insert_pos . ' and ' . ( $insert_pos + $insert_len + 1);
+
     } elsif ($start > $insert_pos){ # just shift entire location
       @newcoords = ([$start + $insert_len, $end + $insert_len, $start_type, $end_type ]);
     } else { # not affected
@@ -1017,6 +1040,11 @@ sub _coord_adjust_insertion {
   }
   foreach my $key ( $feat->get_all_tags() ) {
     $newfeat->add_tag_value($key, $feat->get_tag_values($key));
+  }
+
+  # If we have a note about the inserted bases, add it
+  if ($note){
+    $newfeat->add_tag_value('note',$note);
   }
 
   # set modified location(s) for the new feature and 
