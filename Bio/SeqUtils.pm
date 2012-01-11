@@ -628,6 +628,20 @@ sub delete{
     }
   }
 
+  # add a feature to annotate the deletion
+  my $deletion_feature = Bio::SeqFeature::Generic->new(
+    -primary_tag => 'misc_feature',
+    -tag => {
+      note => 'deletion of ' . ( $right - $left + 1 ) .'bp' 
+    },
+    -location => Bio::Location::Simple->new(
+      -start => $left - 1, 
+      -end   => $left,
+      -location_type => 'IN-BETWEEN'
+    )
+  );
+  $product->add_SeqFeature( $deletion_feature );
+
   return $product;
 }
 
@@ -737,7 +751,8 @@ sub insert{
     # for the fragment, just shift the features to new position
     if ( $fragment->isa('Bio::SeqI') ) {
       for my $feat ( $fragment->get_SeqFeatures ) {
-        $product->add_SeqFeature( $self->_coord_adjust( $feat, $insert_pos ) );
+        my $adjfeat = $self->_coord_adjust( $feat, $insert_pos ) ;
+        $product->add_SeqFeature( $adjfeat ) if $adjfeat ;
       }
     }
     # for recipient, shift and modify features according to insertion
@@ -749,7 +764,7 @@ sub insert{
     }
   }
 
-  # add a feautre to annotate the insertion
+  # add a feature to annotate the insertion
   my $insertion_feature = Bio::SeqFeature::Generic->new(
     -start => $insert_pos + 1, 
     -end   => $insert_pos + $fragment->length,
@@ -822,9 +837,16 @@ sub ligate {
   $fragment = $self->revcom_with_features($fragment) if $flip;
 
   # clone in two steps: first delete between the insertion sites,
-  # then insert the fragment
+  # then insert the fragment. Step 1 is skipped if insert positions 
+  # are adjacent (no deletion)
   my ($product1, $product2) ;
-  eval { $product1 = $self->delete($recipient, $left + 1, $right - 1 ) };
+  eval { 
+    if ($right == $left + 1){ 
+      $product1 = $recipient ; 
+    } else {
+      $product1 = $self->delete($recipient, $left + 1, $right - 1 ) ;
+    }
+  };
   $self->throw("Failed in step 1 (cut recipient): ".$@) if $@;
   eval { $product2 = $self->insert( $product1, $fragment, $left ) };
   $self->throw("Failed in step 2 (insert fragment): ".$@) if $@;
@@ -897,7 +919,7 @@ sub _coord_adjust_deletion {
     my $end = $_->end;
     my $end_type = $_->can('end_pos_type') ? $_->end_pos_type : undef;
     my @newcoords=();
-    if ($_->contains( $deletion )){ # split the feature
+    if ($_->start < $deletion->start && $_->end > $deletion->end){ # split the feature
       @newcoords = (
         [ $start, ($deletion->start - 1), $start_type, $end_type ],
         [ ($deletion->start ), $end - $del_length, $start_type, $end_type ]
@@ -972,6 +994,8 @@ sub _coord_adjust_deletion {
            where another sequence has been inserted.
            (sub)features that span the insertion site become split features
            and a note is added about the size and positin of the insertion.
+           Features with an IN-BETWEEN location at the insertion site
+           are lost (such features can only exist between adjacent bases)
  usage   : my $adjusted_feature = Bio::Sequtils::_coord_adjust_insertion( 
              $feature,
              $insert_pos,
@@ -1001,6 +1025,10 @@ sub _coord_adjust_insertion {
   my @loc;
   my $note;
   for ($feat->location->each_Location) {
+    # loose IN-BETWEEN features at the insertion site
+    if ($_->location_type eq 'IN-BETWEEN' && $_->start == $insert_pos ){
+      next;
+    }
     my $strand = $_->strand;
     my $type = $_->location_type;
     my $start = $_->start;
@@ -1021,6 +1049,10 @@ sub _coord_adjust_insertion {
     } else { # not affected
       @newcoords = ( [$start, $end, $start_type, $end_type ]);
     } 
+
+    # if we have deleted all coordinates, return nothing
+    # (possible if all locations are IN-BETWEEN)
+    return unless @newcoords;
 
     my @subloc = $self->_location_objects_from_coordinate_list(
       \@newcoords,
@@ -1049,7 +1081,8 @@ sub _coord_adjust_insertion {
 
   # set modified location(s) for the new feature and 
   # add its subfeatures if any
-  $newfeat->location( $self->_single_loc_object_from_collection( @loc ) ) ;
+  my $loc = $self->_single_loc_object_from_collection( @loc );
+  $loc ? $newfeat->location( $loc ) : return ;
   $newfeat->add_SeqFeature($_) for @adjsubfeat;
 
   return $newfeat;

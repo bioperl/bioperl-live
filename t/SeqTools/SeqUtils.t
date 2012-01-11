@@ -8,7 +8,7 @@ BEGIN {
 #    use List::MoreUtils qw(uniq);
     use Bio::Root::Test;
     
-    test_begin(-tests => 109);
+    test_begin(-tests => 116);
 	
 	use_ok('Bio::PrimarySeq');
 	use_ok('Bio::SeqUtils');
@@ -403,6 +403,15 @@ my ($seq_obj_comment) = $seq_obj->annotation->get_Annotations('comment');
 my ($product_comment) = $product->annotation->get_Annotations('comment');
 is( $seq_obj_comment, $product_comment, 'annotation of whole sequence has been moved to new molecule');
 
+ok( 
+  grep ($_ eq 'deletion of 10bp', 
+    map ($_->get_tag_values('note'), 
+      grep ($_->primary_tag eq 'misc_feature', $product->get_SeqFeatures)
+    )
+  ),
+  "the product has an additional 'misc_feature' and the note specifies the lengths of the deletion'"
+);
+
 my ($composite_feat1_del) = grep ($_->primary_tag eq 'comp_feat1', $product->get_SeqFeatures);
 ok ($composite_feat1_del, "The composite feature is still present");
 isa_ok( $composite_feat1_del, 'Bio::SeqFeature::Generic');
@@ -444,7 +453,7 @@ ok ($feature2_del, "feature2 is till present");
 is ( $feature2_del->start, 11, 'start pos of a feature that started in the deletion site has been altered accordingly');
 my @fd2_notes = $feature2_del->get_tag_values('note');
 is( @fd2_notes,1, 'feature 2 now has a note');
-is (shift @fd2_notes, "10bp deleted from feature 3' end", "note added to feature2 about deletion at 3' end");
+is (shift @fd2_notes, "6bp deleted from feature 3' end", "note added to feature2 about deletion at 3' end");
 
 ok (!grep ($_->primary_tag eq 'feat5', $product->get_SeqFeatures), 'a feature that was completely positioned inside the deletion site is not present on the new molecule');
 
@@ -520,13 +529,31 @@ lives_ok(
       -recipient => $seq_obj, 
       -fragment  => $fragment_obj, 
       -left      => 10, 
-      -right     => 21,
+      -right     => 31,
       -flip      => 1
     ); 
   },
-  "No error thrown when inserting a fragment into recipient sequence"
+  "No error thrown using 'ligate' of fragment into recipient"
 );
 
+is ($product->length, 30, 'product has the expected length');
+is ($product->subseq(11,20), 'atatatatat', 'the sequence of the fragment is inserted into the product');
+
+my ($inserted_fragment_feature) = grep( 
+  grep($_ eq 'inserted fragment', $_->get_tag_values('note')),
+  grep( $_->has_tag('note'), $product->get_SeqFeatures)
+);
+
+ok($inserted_fragment_feature, 'we have a feature annotating the ligated fragment');
+is( 
+  ($inserted_fragment_feature->start, $inserted_fragment_feature->end),
+  (11,20),
+  'coordinates of the feature annotating the ligated feature are correct'
+);
+
+my ($fragment_feat_lig) = grep ($_->primary_tag eq 'frag_feat1', $product->get_SeqFeatures);
+ok( $fragment_feat_lig, 'the fragment feature1 is now a feature of the product');
+is( ($fragment_feat_lig->start, $fragment_feat_lig->end), (17,19), 'start and end of a feature on the fragment are correct after insertion with "flip" option');
 
 
 
