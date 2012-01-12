@@ -842,7 +842,7 @@ sub ligate {
     if ($right == $left + 1){ 
       $product1 = $recipient ; 
     } else {
-      $product1 = $self->delete($recipient, $left + 1, $right - 1 ) ;
+      $product1 = $self->delete($recipient, $left + 1, $right - 1, $opts_ref ) ;
     }
   };
   $self->throw("Failed in step 1 (cut recipient): ".$@) if $@;

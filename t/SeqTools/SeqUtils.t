@@ -8,7 +8,7 @@ BEGIN {
 #    use List::MoreUtils qw(uniq);
     use Bio::Root::Test;
     
-    test_begin(-tests => 123);
+    test_begin(-tests => 125);
 	
 	use_ok('Bio::PrimarySeq');
 	use_ok('Bio::SeqUtils');
@@ -594,6 +594,33 @@ ok ($composite_feat1_del, "The composite feature is still present");
 isa_ok( $composite_feat1_del, 'Bio::SeqFeature::Generic');
 isa_ok( $composite_feat1_del->location, 'Bio::Location::Split', "a composite feature that spanned the deletion site has been split up, Location");
 
+# ligate with clone_obj
+dies_ok(
+  sub {
+    $product = Bio::SeqUtils->ligate( 
+      -recipient => $foo_seq_obj, 
+      -fragment  => $fragment_obj, 
+      -left      => 10, 
+      -right     => 31,
+      -flip      => 1
+    ); 
+  },
+  "'ligate' without clone_obj option dies with a Bio::Seq::Foo object that can't call new"
+);
+
+lives_ok(
+  sub {
+    $product = Bio::SeqUtils->ligate( 
+      -recipient => $foo_seq_obj, 
+      -fragment  => $fragment_obj, 
+      -left      => 10, 
+      -right     => 31,
+      -flip      => 1,
+      -clone_obj => 1,
+    ); 
+  },
+  "'ligate' with clone_obj option works with a Bio::Seq::Foo object that can't call new"
+);
 
 sub uniq_sort {
     my @args = @_;
