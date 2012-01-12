@@ -1173,7 +1173,7 @@ sub _location_objects_from_coordinate_list {
 =head2 _new_seq_via_clone
  
  Title   : _new_seq_via_clone
- Function: clone a sequence object using Clone::Fast and set the new sequence string
+ Function: clone a sequence object using Bio::Root::Root::clone and set the new sequence string
            sequence features are removed.
  Usage   : my $new_seq = $self->_new_seq_via_clone( $seq_obj, $seq_str );
  Args    : original seq object [, new sequence string]
@@ -1182,9 +1182,8 @@ sub _location_objects_from_coordinate_list {
 =cut
 
 sub _new_seq_via_clone {
-  require Clone::Fast;
   my ($self, $in_seq_obj, $seq_str) = @_;
-  my $out_seq_obj = Clone::Fast::clone($in_seq_obj);
+  my $out_seq_obj = $in_seq_obj->clone;
   $out_seq_obj->remove_SeqFeatures if $out_seq_obj->can('remove_SeqFeatures');
   if ( blessed $out_seq_obj->seq && $out_seq_obj->seq->isa('Bio::PrimarySeq')){
     $out_seq_obj->seq->seq( $seq_str );
