@@ -8,7 +8,7 @@ BEGIN {
 #    use List::MoreUtils qw(uniq);
     use Bio::Root::Test;
     
-    test_begin(-tests => 116);
+    test_begin(-tests => 123);
 	
 	use_ok('Bio::PrimarySeq');
 	use_ok('Bio::SeqUtils');
@@ -555,6 +555,44 @@ my ($fragment_feat_lig) = grep ($_->primary_tag eq 'frag_feat1', $product->get_S
 ok( $fragment_feat_lig, 'the fragment feature1 is now a feature of the product');
 is( ($fragment_feat_lig->start, $fragment_feat_lig->end), (17,19), 'start and end of a feature on the fragment are correct after insertion with "flip" option');
 
+# test clone_obj option (create new objects via clone not 'new')
+my $foo_seq_obj = Bio::Seq::Foo->new( 
+  -seq =>'aaaaaaaaaaccccccccccggggggggggtttttttttt',
+  -display_id => 'seq1',
+  -desc       => 'some sequence for testing'
+); 
+$foo_seq_obj->add_SeqFeature( $composite_feat1, $feature1, $feature2, $feature3, $feature4, $feature5);
+$foo_seq_obj->annotation($coll);
+
+dies_ok(
+  sub {
+    $product = Bio::SeqUtils->delete( $foo_seq_obj, 11, 20, { clone_obj => 0} );
+  },
+  "Trying to delete from an object of a custom Bio::Seq subclass that doesn't allow calling 'new' throws an error"
+);
+
+lives_ok(
+  sub {
+    $product = Bio::SeqUtils->delete( $foo_seq_obj, 11, 20, { clone_obj => 1} );
+  },
+  "Deleting from Bio::Seq::Foo does not throw an error when using the 'clone_obj' option to clone instead of calling 'new'"
+);
+
+isa_ok( $product, 'Bio::Seq::Foo');
+
+# just repeat some of the tests for the cloned feature
+ok( 
+  grep ($_ eq 'deletion of 10bp', 
+    map ($_->get_tag_values('note'), 
+      grep ($_->primary_tag eq 'misc_feature', $product->get_SeqFeatures)
+    )
+  ),
+  "the product has an additional 'misc_feature' and the note specifies the lengths of the deletion'"
+);
+($composite_feat1_del) = grep ($_->primary_tag eq 'comp_feat1', $product->get_SeqFeatures);
+ok ($composite_feat1_del, "The composite feature is still present");
+isa_ok( $composite_feat1_del, 'Bio::SeqFeature::Generic');
+isa_ok( $composite_feat1_del->location, 'Bio::Location::Split', "a composite feature that spanned the deletion site has been split up, Location");
 
 
 sub uniq_sort {
@@ -564,3 +602,9 @@ sub uniq_sort {
     @uniq{@args} = (0..$#args);
     return sort {$uniq{$a} <=> $uniq{$b}} keys %uniq;
 }
+
+package Bio::Seq::Foo;
+use base 'Bio::Seq';
+sub can_call_new { 0 }
+
+
