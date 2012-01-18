@@ -1267,7 +1267,7 @@ sub _coord_adjust {
         my @coords=($_->start, $_->end);
         my $strand=$_->strand;
 	my $type=$_->location_type;
-        map s/(\d+)/if ($add+$1<1) {'<1'} elsif (defined $length and $add+$1>$length) {">$length"} else {$add+$1}/ge, @coords;
+        map s/(-?\d+)/if ($add+$1<1) {'<1'} elsif (defined $length and $add+$1>$length) {">$length"} else {$add+$1}/ge, @coords;
 
         push @loc, $self->_location_objects_from_coordinate_list(
           [\@coords], $strand, $type
