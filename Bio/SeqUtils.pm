@@ -53,10 +53,12 @@ Bio::SeqUtils - Additional methods for PrimarySeq objects
 
     # simulate cloning of a fragment into a vector. Cut the vector at
     # positions 1000 and 1100 (deleting postions 1001 to 1099) and
-    # ligate a fragment into the sites. The fragment is
-    # reverse-complemented in this case. All features of the vector
-    # and fragment are preserved and features that are affected by the
-    # deletion/insertion are modified accordingly
+    # "ligate" a fragment into the sites. The fragment is
+    # reverse-complemented in this example (option "flip"). 
+    # All features of the vector and fragment are preserved and 
+    # features that are affected by the deletion/insertion are 
+    # modified accordingly.
+    # $vector and $fragment must be Bio::SeqI compliant objects 
     my $new_molecule = Bio::Sequtils->ligate(
       -vector => $vector, 
       -fragment => $fragment,
@@ -70,8 +72,8 @@ Bio::SeqUtils - Additional methods for PrimarySeq objects
     my $new_molecule = Bio::SeqUtils->cut( $seq, 1000, 1100 );
 
     # insert a fragment into a recipient between positions 1000 and
-    # 1001 
-    my $insert_seq =  Bio::SeqUtils::PbrTools->insert( 
+    # 1001. $recipient is a Bio::SeqI compliant object
+    my $new_molecule =  Bio::SeqUtils::PbrTools->insert( 
       $recipient_seq, 
       $fragment_seq,
       1000
@@ -115,11 +117,9 @@ The delete() method cuts a segment out of a sequence and re-joins the
 left and right fragments (like splicing or digesting and re-ligating a
 molecule).  Positions (and types) of sequence features are adjusted
 accordingly: 
-Features that span the cut site are converted to split featuress to
-indicate the disruption.  Features that extend into the cut-out
-fragment are truncated and the end that was cut off becomes a fuzzy
-location to indicate that it is no longer the true end of the original
-feature.  
+Features that span the deleted segment are converted to split featuress
+to indicate the disruption. (Sub)Features that extend into the deleted
+segment are truncated.
 A new molecule is created and returned.
 
 The insert() method inserts a fragment (which can be a rich Bio::Seq
@@ -556,22 +556,25 @@ sub trunc_with_features{
            Positions (and types) of sequence features are adjusted accordingly:
            Features that span the cut site are converted to split featuress to
            indicate the disruption. 
-           Features that extend into the cut-out fragment are truncated and 
-           the end that was cut off becomes a fuzzy location to indicate that it
-           is no longer the true end of the original feature.
+           Features that extend into the cut-out fragment are truncated.
            A new molecule is created and returned.
  Usage   : my $cutseq =  Bio::SeqUtils::PbrTools->cut( $seq, 1000, 1100 );
  Args    : a Bio::PrimarySeqI compliant object to cut,
            first nt of the segment to be deleted 
            last nt of the segment to be deleted  
+           optional:
+           hash-ref of options:
+            clone_obj: if true, clone the input sequence object rather
+                       than calling "new" on the object's class 
+
  Returns : a new Bio::Seq object 
 
 =cut
 
 sub delete{
   my $self = shift;
-  my ( $seq, $left, $right) = @_ ;
-  $self->throw( 'was expecting 3 paramters but got '.@_) unless @_ == 3;
+  my ( $seq, $left, $right, $opts_ref) = @_ ;
+  $self->throw( 'was expecting 3-4 paramters but got '.@_) unless @_ == 3 || @_ == 4;
 
   $self->throw( 'Object of class ['
     . ref($seq)
@@ -592,35 +595,18 @@ sub delete{
   }
   my $seq_str =  $left_seq . $right_seq;
 
-  # create the new seq object
-  my $seqclass;
-  if ( $seq->can_call_new ) {
-    $seqclass = ref($seq);
+  # create the new seq object with the same class as the recipient
+  # or (if requested), make a clone of the existing object. In the
+  # latter case we need to remove sequence features from the cloned
+  # object instead of copying them
+  my $product;
+  if ($opts_ref->{clone_obj}){
+    $product = $self->_new_seq_via_clone( $seq, $seq_str );
   } else {
-    $seqclass = 'Bio::PrimarySeq';
-    $self->_attempt_to_load_Seq;
-  }
-  my $product = $seqclass->new(
-    -seq              => $seq_str,
-    -display_id       => $seq->display_id.
-    -accession_number => $seq->accession_number,
-    -alphabet         => $seq->alphabet,
-    -desc             => $seq->desc,
-    -verbose          => $seq->verbose,
-    -is_circular      => $seq->is_circular,
-  );
-
-  # move annotations
-  if ( $product->isa("Bio::AnnotatableI") && $seq->isa("Bio::AnnotatableI") ) {
-    foreach my $key ( $seq->annotation->get_all_annotation_keys ) {
-      foreach my $value ( $seq->annotation->get_Annotations($key) ) {
-        $product->annotation->add_Annotation( $key, $value );
-      }
-    }
+    $product = $self->_new_seq_from_old( $seq, { seq  => $seq_str } );
   }
 
   # move sequence features
-  # or delete them
   if ( $product->isa('Bio::SeqI') && $seq->isa('Bio::SeqI') ) {
     for my $feat ( $seq->get_SeqFeatures ) {
       my $adjfeat = $self->_coord_adjust_deletion( $feat, $left, $right );
@@ -628,7 +614,8 @@ sub delete{
     }
   }
 
-  # add a feature to annotate the deletion
+
+  # add a feature to annotatde the deletion
   my $deletion_feature = Bio::SeqFeature::Generic->new(
     -primary_tag => 'misc_feature',
     -tag => {
@@ -641,7 +628,6 @@ sub delete{
     )
   );
   $product->add_SeqFeature( $deletion_feature );
-
   return $product;
 }
 
@@ -664,14 +650,18 @@ sub delete{
            a fragmetn to insert (Bio::PrimarySeqI compliant object), 
            insertion position (fragment is inserted to the right of this pos)
             pos=0 will prepend the fragment to the recipient
+           optional:
+           hash-ref of options:
+            clone_obj: if true, clone the input sequence object rather
+                       than calling "new" on the object's class 
  Returns : a new Bio::Seq object 
 
 =cut
 
 sub insert{
   my $self = shift;
-  my ( $recipient, $fragment, $insert_pos) = @_ ;
-  $self->throw( 'was expecting 3 paramters but got '.@_) unless @_ == 3;
+  my ( $recipient, $fragment, $insert_pos, $opts_ref) = @_ ;
+  $self->throw( 'was expecting 3-4 paramters but got '.@_) unless @_ == 3 || @_ == 4;
 
   $self->throw( 'Recipient object of class ['
     . ref($recipient)
@@ -712,39 +702,39 @@ sub insert{
   my $seq_str =  $left_seq . $mid_seq . $right_seq;
 
   # create the new seq object with the same class as the recipient
-  my $seqclass;
-  if ( $recipient->can_call_new ) {
-    $seqclass = ref($recipient);
+  # or (if requested), make a clone of the existing object. In the
+  # latter case we need to remove sequence features from the cloned
+  # object instead of copying them
+  my $product;
+  if ($opts_ref->{clone_obj}){
+    $product = $self->_new_seq_via_clone( $recipient, $seq_str );
   } else {
-    $seqclass = 'Bio::Primaryseq';
-    $self->_attempt_to_load_seq;
-  }
-
   my @desc;
   push @desc, 'Inserted fragment: '.$fragment->desc if defined $fragment->desc;
   push @desc, 'Recipient: '.$recipient->desc if defined $recipient->desc;
-  my $product = $seqclass->new(
-    -seq              => $seq_str,
-    -display_id       => $recipient->display_id,
-    -accession_number => $recipient->accession_number || '',
-    -alphabet         => $recipient->alphabet,
-    -desc             => join('; ', @desc), 
-    -verbose          => $recipient->verbose || $fragment->verbose,
-    -is_circular      => $recipient->is_circular || 0,
+    $product = $self->_new_seq_from_old( 
+      $recipient,
+      {
+        seq              => $seq_str,
+        display_id       => $recipient->display_id,
+        accession_number => $recipient->accession_number || '',
+        alphabet         => $recipient->alphabet,
+        desc             => join('; ', @desc), 
+        verbose          => $recipient->verbose || $fragment->verbose,
+        is_circular      => $recipient->is_circular || 0,
+      }
   );
 
-  # move annotations from recipient and fragment to product
-  if ( $product->isa("Bio::AnnotatableI") ) {
-    foreach ( $recipient, $fragment ) {
-      if ( $_->isa("Bio::AnnotatableI") ) {
-        foreach my $key ( $_->annotation->get_all_annotation_keys ) {
-          foreach my $value ( $_->annotation->get_Annotations($key) ) {
+  } # if clone_obj
+
+  # move annotations from fragment to product
+  if ( $product->isa("Bio::AnnotatableI") && $fragment->isa("Bio::AnnotatableI") ) {
+    foreach my $key ( $fragment->annotation->get_all_annotation_keys ) {
+      foreach my $value ( $fragment->annotation->get_Annotations($key) ) {
             $product->annotation->add_Annotation( $key, $value );
           }
         }
       }
-    }
-  }
 
   # move sequence features to product with adjusted coordinates
   if ( $product->isa('Bio::SeqI') ) {
@@ -755,7 +745,7 @@ sub insert{
         $product->add_SeqFeature( $adjfeat ) if $adjfeat ;
       }
     }
-    # for recipient, shift and modify features according to insertion
+    # for recipient, shift and modify features according to insertion. 
     if ( $recipient->isa('Bio::SeqI') ) {
       for my $feat ( $recipient->get_SeqFeatures ) {
         my $adjfeat = $self->_coord_adjust_insertion( $feat, $insert_pos, $fragment->length );
@@ -793,8 +783,7 @@ sub insert{
            L</"delete"> amd L</"insert">:
            Features spanning the insertion site will be split up into two sub-locations.
            (Sub-)features in the deleted region are themselves deleted.
-           Start/edn positions of (Sub-)features that extend into the deleted region 
-           are turned into "fuzzy" positions to indicate that the true start/end was lost.
+           (Sub-)features that extend into the deleted region are truncated. 
            The class of the product object depends on the class of the recipient (vector)
            sequence object. if it is not possible to instantiate a new
            object of that class, a Bio::Primaryseq object is created instead.
@@ -806,7 +795,8 @@ sub insert{
              -fragment => $fragment,
              -left => 1000,
              -right => 1100,
-             -flip => 1 
+             -flip      => 1, 
+             -clone_obj => 1 
            );
  args    : recipient: the recipient/vector molecule
            fragment: molecule that is to be ligated into the vector
@@ -817,14 +807,16 @@ sub insert{
                    left of this position). defaults to left+1
             flip: boolean, if true, the fragment is reverse-complemented 
                   (including features) before inserting
+            clone_obj: if true, clone the recipient object to create the product
+                       instead of calling "new" on its class
  returns : a new Bio::Seq object of the ligated fragments
 
 =cut
 
 sub ligate {
   my $self = shift;
-  my ($recipient, $fragment, $left, $right, $flip) =  $self->_rearrange(
-    [qw(RECIPIENT FRAGMENT LEFT RIGHT FLIP)],@_);
+  my ($recipient, $fragment, $left, $right, $flip, $clone_obj ) =  $self->_rearrange(
+    [qw(RECIPIENT FRAGMENT LEFT RIGHT FLIP CLONE_OBJ )],@_);
   $self->throw("missing required parameter 'recipient'") unless $recipient;
   $self->throw("missing required parameter 'fragment'") unless $fragment;
   $self->throw("missing required parameter 'left'") unless defined $left;
@@ -836,6 +828,9 @@ sub ligate {
 
   $fragment = $self->revcom_with_features($fragment) if $flip;
 
+  my $opts_ref = {};
+  $opts_ref->{clone_obj} = 1 if $clone_obj;
+
   # clone in two steps: first delete between the insertion sites,
   # then insert the fragment. Step 1 is skipped if insert positions 
   # are adjacent (no deletion)
@@ -844,11 +839,11 @@ sub ligate {
     if ($right == $left + 1){ 
       $product1 = $recipient ; 
     } else {
-      $product1 = $self->delete($recipient, $left + 1, $right - 1 ) ;
+      $product1 = $self->delete($recipient, $left + 1, $right - 1, $opts_ref ) ;
     }
   };
   $self->throw("Failed in step 1 (cut recipient): ".$@) if $@;
-  eval { $product2 = $self->insert( $product1, $fragment, $left ) };
+  eval { $product2 = $self->insert( $product1, $fragment, $left, $opts_ref ) };
   $self->throw("Failed in step 2 (insert fragment): ".$@) if $@;
 
   return $product2;
@@ -1172,6 +1167,74 @@ sub _location_objects_from_coordinate_list {
   return @loc;
 } # _location_objects_from_coordinate_list
 
+=head2 _new_seq_via_clone
+ 
+ Title   : _new_seq_via_clone
+ Function: clone a sequence object using Bio::Root::Root::clone and set the new sequence string
+           sequence features are removed.
+ Usage   : my $new_seq = $self->_new_seq_via_clone( $seq_obj, $seq_str );
+ Args    : original seq object [, new sequence string]
+ Returns : a clone of the original sequence object, optionally with new sequence string
+
+=cut
+
+sub _new_seq_via_clone {
+  my ($self, $in_seq_obj, $seq_str) = @_;
+  my $out_seq_obj = $in_seq_obj->clone;
+  $out_seq_obj->remove_SeqFeatures if $out_seq_obj->can('remove_SeqFeatures');
+  if ( blessed $out_seq_obj->seq && $out_seq_obj->seq->isa('Bio::PrimarySeq')){
+    $out_seq_obj->seq->seq( $seq_str );
+  } else {
+    $out_seq_obj->seq( $seq_str );
+  }
+  return $out_seq_obj;
+
+} # _new_seq_via_clone
+
+=head2 _new_seq_from_old
+ 
+ Title   : _new_seq_from_old
+ Function: creates a new sequence obejct, if possible of the same class as the old and adds 
+           attributes to it. Also copies annotation across to the new object.
+ Usage   : my $new_seq = $self->_new_seq_from_old( $seq_obj, { seq => $seq_str, display_id => 'some_ID'});
+ Args    : old sequence object
+           hashref of attributes for the new sequence (sequence string etc.)
+ Returns : a new Bio::Seq object
+
+=cut
+
+sub _new_seq_from_old {
+  my ($self, $in_seq_obj, $attr) = @_ ;
+  $self->throw('attributes must be a hashref') if $attr && ref($attr) ne 'HASH';
+
+  my $seqclass;
+  if ( $in_seq_obj->can_call_new ) {
+    $seqclass = ref($in_seq_obj);
+  } else {
+    $seqclass = 'Bio::Primaryseq';
+    $self->_attempt_to_load_seq;
+  }
+
+  my $out_seq_obj = $seqclass->new(
+    -seq              => $attr->{seq} || $in_seq_obj->seq,
+    -display_id       => $attr->{display_id} || $in_seq_obj->display_id,
+    -accession_number => $attr->{accession_number} || $in_seq_obj->accession_number || '',
+    -alphabet         => $in_seq_obj->alphabet,
+    -desc             => $attr->{desc} || $in_seq_obj->desc, 
+    -verbose          => $attr->{verbose} || $in_seq_obj->verbose,
+    -is_circular      => $attr->{is_circular} || $in_seq_obj->is_circular || 0,
+  );
+  # move the annotation across to the product
+  if ( $out_seq_obj->isa("Bio::AnnotatableI") && $in_seq_obj->isa("Bio::AnnotatableI") ) {
+    foreach my $key ( $in_seq_obj->annotation->get_all_annotation_keys ) {
+      foreach my $value ( $in_seq_obj->annotation->get_Annotations($key) ) {
+        $out_seq_obj->annotation->add_Annotation( $key, $value );
+      }
+    }
+  }
+  return $out_seq_obj;
+} # _new_seq_from_old
+
 
 =head2 _coord_adjust
 
@@ -1204,7 +1267,7 @@ sub _coord_adjust {
         my @coords=($_->start, $_->end);
         my $strand=$_->strand;
 	my $type=$_->location_type;
-        map s/(\d+)/if ($add+$1<1) {'<1'} elsif (defined $length and $add+$1>$length) {">$length"} else {$add+$1}/ge, @coords;
+        map s/(-?\d+)/if ($add+$1<1) {'<1'} elsif (defined $length and $add+$1>$length) {">$length"} else {$add+$1}/ge, @coords;
 
         push @loc, $self->_location_objects_from_coordinate_list(
           [\@coords], $strand, $type
