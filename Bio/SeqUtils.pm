@@ -53,10 +53,12 @@ Bio::SeqUtils - Additional methods for PrimarySeq objects
 
     # simulate cloning of a fragment into a vector. Cut the vector at
     # positions 1000 and 1100 (deleting postions 1001 to 1099) and
-    # ligate a fragment into the sites. The fragment is
-    # reverse-complemented in this case. All features of the vector
-    # and fragment are preserved and features that are affected by the
-    # deletion/insertion are modified accordingly
+    # "ligate" a fragment into the sites. The fragment is
+    # reverse-complemented in this example (option "flip"). 
+    # All features of the vector and fragment are preserved and 
+    # features that are affected by the deletion/insertion are 
+    # modified accordingly.
+    # $vector and $fragment must be Bio::SeqI compliant objects 
     my $new_molecule = Bio::Sequtils->ligate(
       -vector => $vector, 
       -fragment => $fragment,
@@ -70,8 +72,8 @@ Bio::SeqUtils - Additional methods for PrimarySeq objects
     my $new_molecule = Bio::SeqUtils->cut( $seq, 1000, 1100 );
 
     # insert a fragment into a recipient between positions 1000 and
-    # 1001 
-    my $insert_seq =  Bio::SeqUtils::PbrTools->insert( 
+    # 1001. $recipient is a Bio::SeqI compliant object
+    my $new_molecule =  Bio::SeqUtils::PbrTools->insert( 
       $recipient_seq, 
       $fragment_seq,
       1000
@@ -115,11 +117,9 @@ The delete() method cuts a segment out of a sequence and re-joins the
 left and right fragments (like splicing or digesting and re-ligating a
 molecule).  Positions (and types) of sequence features are adjusted
 accordingly: 
-Features that span the cut site are converted to split featuress to
-indicate the disruption.  Features that extend into the cut-out
-fragment are truncated and the end that was cut off becomes a fuzzy
-location to indicate that it is no longer the true end of the original
-feature.  
+Features that span the deleted segment are converted to split featuress
+to indicate the disruption. (Sub)Features that extend into the deleted
+segment are truncated.
 A new molecule is created and returned.
 
 The insert() method inserts a fragment (which can be a rich Bio::Seq
@@ -556,9 +556,7 @@ sub trunc_with_features{
            Positions (and types) of sequence features are adjusted accordingly:
            Features that span the cut site are converted to split featuress to
            indicate the disruption. 
-           Features that extend into the cut-out fragment are truncated and 
-           the end that was cut off becomes a fuzzy location to indicate that it
-           is no longer the true end of the original feature.
+           Features that extend into the cut-out fragment are truncated.
            A new molecule is created and returned.
  Usage   : my $cutseq =  Bio::SeqUtils::PbrTools->cut( $seq, 1000, 1100 );
  Args    : a Bio::PrimarySeqI compliant object to cut,
@@ -785,8 +783,7 @@ sub insert{
            L</"delete"> amd L</"insert">:
            Features spanning the insertion site will be split up into two sub-locations.
            (Sub-)features in the deleted region are themselves deleted.
-           Start/edn positions of (Sub-)features that extend into the deleted region 
-           are turned into "fuzzy" positions to indicate that the true start/end was lost.
+           (Sub-)features that extend into the deleted region are truncated. 
            The class of the product object depends on the class of the recipient (vector)
            sequence object. if it is not possible to instantiate a new
            object of that class, a Bio::Primaryseq object is created instead.
