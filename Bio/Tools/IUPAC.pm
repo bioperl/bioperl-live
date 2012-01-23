@@ -67,7 +67,7 @@ the meaning shown below)
         ------------------------------------------
         A        Alanine
         B        Aspartic Acid, Asparagine
-        C        Cystine
+        C        Cysteine
         D        Aspartic Acid
         E        Glutamic Acid
         F        Phenylalanine

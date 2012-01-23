@@ -1254,7 +1254,7 @@ sub remove_gaps {
     # Do the matching to get the segments to remove
     while ($gap_line =~ m/[$del_char]/g) {
         my $start = pos($gap_line)-1;
-        $gap_line=~/\G[$del_char]+/gc;
+        $gap_line =~ m/\G[$del_char]+/gc;
         my $end = pos($gap_line)-1;
 
         #have to offset the start and end for subsequent removes
@@ -1691,12 +1691,12 @@ sub gap_line {
     my %gap_hsh; # column gaps vector
     foreach my $seq ( $self->each_seq ) {
 		my $i = 0;
-    	map {$gap_hsh{$_->[0]} = undef} grep {$_->[1] eq $gapchar}
+    	map {$gap_hsh{$_->[0]} = undef} grep {$_->[1] =~ m/[$gapchar]/}
 		  map {[$i++, $_]} split(//, uc ($seq->seq));
     }
     my $gap_line;
     foreach my $pos ( 0..$self->length-1 ) {
-	  $gap_line .= (exists $gap_hsh{$pos}) ? $gapchar:'.';
+	  $gap_line .= (exists $gap_hsh{$pos}) ? $self->gap_char:'.';
     }
     return $gap_line;
 }
@@ -1719,14 +1719,14 @@ sub all_gap_line {
     my @seqs = $self->each_seq;
     foreach my $seq ( @seqs ) {
 	my $i = 0;
-    	map {$gap_hsh{$_->[0]}++} grep {$_->[1] eq $gapchar}
+    	map {$gap_hsh{$_->[0]}++} grep {$_->[1] =~ m/[$gapchar]/}
 	map {[$i++, $_]} split(//, uc ($seq->seq));
     }
     my $gap_line;
     foreach my $pos ( 0..$self->length-1 ) {
 	if (exists $gap_hsh{$pos} && $gap_hsh{$pos} == scalar @seqs) {
             # gaps column
-	    $gap_line .= $gapchar;
+	    $gap_line .= $self->gap_char;
 	} else {
 	    $gap_line .= '.';
 	}
@@ -1759,7 +1759,7 @@ sub gap_col_matrix {
 	my $id = $seq->display_id;
 	while( $i < $len ) {
 	    $ch = substr($str, $i, 1);
-	    $cols[$i++]->{$id} = ($ch eq $gapchar);
+	    $cols[$i++]->{$id} = ($ch =~ m/[$gapchar]/);
 	}
     }
     return \@cols;

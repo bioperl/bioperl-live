@@ -257,7 +257,7 @@ sub get_Genotypes{
        unshift @args, '-marker' if( @args == 1 );  # deal with single args
        
        my ($name) = $self->_rearrange([qw(MARKER)], @args);
-       if( ! $name ) {
+       if( ! defined($name) ) {
 	   $self->warn("Only know how to process the -marker field currently");
 	   return();
        }

@@ -1393,9 +1393,9 @@ sub mcdonald_kreitman {
 	    my $outcount = 1;
 	    for my $ind ( @{$vals{$t}} ) {
 		my @alleles = $ind->get_Genotypes($codon)->get_Alleles;
-		if( @alleles > 1 ) {
+		if( @alleles > 2 ) {
+		    warn("Codon $codon saw ", scalar @alleles, " alleles for ind ", $ind->unique_id, "\n");
 		    die;
-#		  warn("$codon $codon saw ", scalar @alleles, " for ind ", $ind->unique_id, "\n");
 		} else {
 		    my ($allele) = shift @alleles;
 		    $all_alleles{$ind->unique_id} = $allele;

@@ -112,10 +112,12 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($marker_name, $ind_id, $alleles) = $self->_rearrange([qw(MARKER_NAME
+  my ($marker_name, $marker_type, $ind_id, $alleles) = $self->_rearrange([qw(MARKER_NAME
+                                                               MARKER_TYPE
 							       INDIVIDUAL_ID
 							       ALLELES)],@args);
   defined $marker_name && $self->marker_name($marker_name);
+  defined $marker_type && $self->marker_type($marker_type);
   defined $ind_id      && $self->individual_id($ind_id);
   if( defined $alleles ) {
       if( ref($alleles) =~ /array/i ) {
@@ -144,6 +146,25 @@ sub marker_name{
     return $self->{'_marker_name'} = shift if @_;
     return $self->{'_marker_name'};
 }
+
+=head2 marker_type
+
+ Title   : marker_type
+ Usage   : my $name = $genotype->marker_type();
+ Function: Get the marker type for a genotype result
+ Returns : M (microsatellite, or other multi-allelic 
+           locus) or S (biallelic/SNP locus)
+ Args    : [optional] marker type value to store
+
+
+=cut
+
+sub marker_type{
+    my ($self) = shift;
+    return $self->{'_marker_type'} = shift if @_;
+    return $self->{'_marker_type'};
+}
+
 
 =head2 individual_id
 
