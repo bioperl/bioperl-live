@@ -8,7 +8,7 @@ BEGIN {
 #    use List::MoreUtils qw(uniq);
     use Bio::Root::Test;
     
-    test_begin(-tests => 125);
+    test_begin(-tests => 128);
 	
 	use_ok('Bio::PrimarySeq');
 	use_ok('Bio::SeqUtils');
@@ -362,7 +362,13 @@ my $feature5 = Bio::SeqFeature::Generic->new(
   -start       => 11,
   -end         => 20
 );
-$seq_obj->add_SeqFeature( $composite_feat1, $feature1, $feature2, $feature3, $feature4, $feature5);
+my $feature6 = Bio::SeqFeature::Generic->new(
+  -primary_tag => 'feat6',
+  -seq_id      => 'seq1',
+  -start       => 11,
+  -end         => 25
+);
+$seq_obj->add_SeqFeature( $composite_feat1, $feature1, $feature2, $feature3, $feature4, $feature5, $feature6);
 
 my $coll = Bio::Annotation::Collection->new;
 $coll->add_Annotation(
@@ -456,6 +462,12 @@ is( @fd2_notes,1, 'feature 2 now has a note');
 is (shift @fd2_notes, "6bp deleted from feature 3' end", "note added to feature2 about deletion at 3' end");
 
 ok (!grep ($_->primary_tag eq 'feat5', $product->get_SeqFeatures), 'a feature that was completely positioned inside the deletion site is not present on the new molecule');
+
+my ($feature6_del) = grep ($_->primary_tag eq 'feat6', $product->get_SeqFeatures);
+ok ($feature6_del, "feature6 is till present");
+is ( $feature6_del->start, 11, 'start pos of a feature that started in the deletion site has been altered accordingly');
+is ( $feature6_del->end, 15, 'end pos of a feature that started in the deletion site has been altered accordingly');
+
 
 # insert
 lives_ok(
