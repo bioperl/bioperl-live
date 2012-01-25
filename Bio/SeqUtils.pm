@@ -1267,8 +1267,16 @@ sub _coord_adjust {
         my @coords=($_->start, $_->end);
         my $strand=$_->strand;
 	my $type=$_->location_type;
-        map s/(-?\d+)/if ($add+$1<1) {'<1'} elsif (defined $length and $add+$1>$length) {">$length"} else {$add+$1}/ge, @coords;
-
+        foreach (@coords){
+            $self->throw("can not handle negative feature positions (got: $_)") if $_<0;;
+            if ($add+$_<1) {
+                $_ = '<1';
+            } elsif (defined $length and $add+$_>$length) {
+                $_ = ">$length" ;
+            } else {
+                $_ = $add+$_ ;
+            }
+        }
         push @loc, $self->_location_objects_from_coordinate_list(
           [\@coords], $strand, $type
         );
