@@ -846,7 +846,7 @@ sub each_seq_with_id {
  Usage     : $seq = $aln->get_seq_by_pos(3) # third sequence from the alignment
  Function  : Gets a sequence based on its position in the alignment.
              Numbering starts from 1.  Sequence positions larger than
-             num_sequences() will thow an error.
+             num_sequences() will throw an error.
  Returns   : a Bio::LocatableSeq object
  Args      : positive integer for the sequence position
 
@@ -984,7 +984,7 @@ current MSA.
  Usage     : $aln2 = $aln->select(1, 3) # three first sequences
  Function  : Creates a new alignment from a continuous subset of
              sequences.  Numbering starts from 1.  Sequence positions
-             larger than num_sequences() will thow an error.
+             larger than num_sequences() will throw an error.
  Returns   : a Bio::SimpleAlign object
  Args      : positive integer for the first sequence
              positive integer for the last sequence to include (optional)
