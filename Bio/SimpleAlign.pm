@@ -1737,29 +1737,29 @@ sub all_gap_line {
 
  Title    : gap_col_matrix()
  Usage    : my $cols = $align->gap_col_matrix()
- Function : Generates an array of hashes where
-            each entry in the array is a hash reference
-            with keys of all the sequence names and
-            and value of 1 or 0 if the sequence has a gap at that column
- Args     : (optional) gap line characters ($aln->gap_char or '-' by default)
+ Function : Generates an array where each element in the array is a 
+            hash reference with a key of the sequence name and a
+            value of 1 if the sequence has a gap at that column
+ Returns  : Reference to an array
+ Args     : Optional: gap line character ($aln->gap_char or '-' by default)
 
 =cut
 
 sub gap_col_matrix {
-    my ($self,$gapchar) = @_;
+    my ( $self, $gapchar ) = @_;
     $gapchar = $gapchar || $self->gap_char;
-    my %gap_hsh; # column gaps vector
+    my %gap_hsh;    # column gaps vector
     my @cols;
     foreach my $seq ( $self->each_seq ) {
-	my $i = 0;
-	my $str = $seq->seq;
-	my $len = $seq->length;
-	my $ch;
-	my $id = $seq->display_id;
-	while( $i < $len ) {
-	    $ch = substr($str, $i, 1);
-	    $cols[$i++]->{$id} = ($ch =~ m/[$gapchar]/);
-	}
+        my $i   = 0;
+        my $str = $seq->seq;
+        my $len = $seq->length;
+        my $ch;
+        my $id = $seq->display_id;
+        while ( $i < $len ) {
+            $ch = substr( $str, $i, 1 );
+            $cols[ $i++ ]->{$id} = ( $ch =~ m/[$gapchar]/ );
+        }
     }
     return \@cols;
 }
