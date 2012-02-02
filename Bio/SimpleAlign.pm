@@ -1455,14 +1455,13 @@ sub splice_by_seq_pos{
  Title     : map_chars
  Usage     : $ali->map_chars('\.','-')
  Function  : Does a s/$arg1/$arg2/ on the sequences. Useful for gap
-             characters
+             characters.
 
-             Notice that the from (arg1) is interpretted as a regex,
-             so be careful about quoting meta characters (eg
-             $ali->map_chars('.','-') wont do what you want)
+             Note that the first argument is interpreted as a regexp
+             so be careful and escape any wild card characters (e.g.
+             do $ali->map_chars('\.','-') to replace periods with dashes.
  Returns   :
- Argument  : 'from' rexexp
-             'to' string
+ Argument  : A regexp and a string
 
 =cut
 
@@ -1470,15 +1469,15 @@ sub map_chars {
     my $self = shift;
     my $from = shift;
     my $to   = shift;
-    my ($seq,$temp);
+    my ( $seq, $temp );
 
-    $self->throw("Need exactly two arguments")
-	unless defined $from and defined $to;
+    $self->throw("Need two arguments: a regexp and a string")
+      unless defined $from and defined $to;
 
     foreach $seq ( $self->each_seq() ) {
-	$temp = $seq->seq();
-	$temp =~ s/$from/$to/g;
-	$seq->seq($temp);
+        $temp = $seq->seq();
+        $temp =~ s/$from/$to/g;
+        $seq->seq($temp);
     }
     return 1;
 }
