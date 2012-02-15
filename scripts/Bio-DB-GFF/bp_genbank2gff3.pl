@@ -996,7 +996,7 @@ sub gff_header {
     $source_type ||= "region";
 
     my $info= "$source_type:$name";
-    my $head= "##gff-version $GFF_VERSION\n# sequence-region $name 1 $end\n";
+    my $head= "##gff-version $GFF_VERSION\n##sequence-region $name 1 $end\n";
     $head .= "# conversion-by bp_genbank2gff3.pl\n";
     if($source_feat) {
     ## dgg: these header comment fields are not useful when have multi-records, diff organisms
