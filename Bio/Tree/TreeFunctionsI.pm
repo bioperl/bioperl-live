@@ -199,7 +199,7 @@ sub get_lca {
     my $self = shift;
     my @nodes = @_;
     
-    @nodes >= 2 or $self->throw("At least 2 nodes are required");
+    scalar(@nodes) >= 2 or $self->throw("At least 2 nodes are required");
 
     # Go through all the nodes in the argument array, keeping track of
     # the current LCA as we go.

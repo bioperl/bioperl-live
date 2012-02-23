@@ -1126,15 +1126,16 @@ sub find_by_id {
     my $value = shift;
 
     my @nodes;
-    foreach my $node ($self,$self->nodes) {
+    foreach my $node ($self->nodes) {
 	push @nodes, $node if ($node->isa("Bio::Tree::LabeledNodeI") && $node->id eq $value);
     }
     
-    if ( wantarray) { 
+    if ( wantarray) {
 	return @nodes;
     } else { 
-	if( @nodes > 1 ) { 
-	    $self->warn("More than 1 node found but caller requested scalar, only returning first node");
+	if( scalar(@nodes) > 1 ) { 
+	    $self->warn("More than 1 node found for [$value] but caller requested scalar, only returning first node");
+            print $self->ascii(1,1,1);
        }
 	return shift @nodes;
     }

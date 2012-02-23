@@ -70,4 +70,12 @@ sub get_tagvalue_hash {
   return $new_tags;
 }
 
+sub apply_tagvalue_hash {
+  my ($self, $hash) = @_;
+  foreach my $key (keys %$hash) {
+    $self->set_tag_value($key, $hash->{$key});
+  }
+}
+
+
 1;
