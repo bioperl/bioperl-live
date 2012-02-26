@@ -14,7 +14,7 @@ BEGIN {
 }
 
 SKIP: {
-    test_skip(-tests => 2, -requires_module => 'Path::Class');
+    test_skip(-tests => 4, -requires_module => 'Path::Class');
 
 
     my $file = Path::Class::file(test_input_file('ecolitst.bls'));
