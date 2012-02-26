@@ -29,7 +29,8 @@ Bio::Tools::SeqPattern - represent a sequence pattern or motif
 
 L<Bio::Tools::SeqPattern> module encapsulates generic data and
 methods for manipulating regular expressions describing nucleic or
-amino acid sequence patterns (a.k.a, "motifs").
+amino acid sequence patterns (a.k.a, "motifs"), such as the ones produced by
+L<Bio::Tools::IUPAC>.
 
 L<Bio::Tools::SeqPattern> is a concrete class that inherits from L<Bio::Seq>.
 
@@ -148,6 +149,9 @@ directory of the central Bioperl distribution.
 =head1 SEE ALSO
 
 L<Bio::Seq> - Lightweight sequence object.
+
+L<Bio::Tools::IUPAC> - The IUPAC code for degenerate residues and their
+conversion to a regular expression.
 
 =head1 FEEDBACK
 
