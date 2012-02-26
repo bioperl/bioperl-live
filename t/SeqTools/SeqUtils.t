@@ -8,7 +8,7 @@ BEGIN {
 #    use List::MoreUtils qw(uniq);
     use Bio::Root::Test;
     
-    test_begin(-tests => 125);
+    test_begin(-tests => 130);
 	
 	use_ok('Bio::PrimarySeq');
 	use_ok('Bio::SeqUtils');
@@ -203,7 +203,7 @@ my $ft3 = Bio::SeqFeature::Generic->new( -start => 3,
 $seq2->add_SeqFeature($ft2);
 $seq2->add_SeqFeature($ft3);
 
-
+my $seq1_length = $seq1->length;
 ok (Bio::SeqUtils->cat($seq1, $seq2));
 is $seq1->seq, 'aaaattttcccctttt';
 is scalar $seq1->annotation->get_Annotations, 5;
@@ -214,6 +214,10 @@ lives_ok {
   @tags = map{$_->get_tag_values(q(note))}$seq1->get_SeqFeatures ;
 } 'cat - note tag transfered (no throw)';
 cmp_ok(scalar(@tags),'==',3, 'cat - note tag values transfered (correct count)') ;
+my ($ft3_precat) = grep ($_->primary_tag eq 'hotspot', $seq2->get_SeqFeatures);
+is ($ft3_precat->start, 3, "get correct start of feature before 'cat'");
+my ($ft3_cat) = grep ($_->primary_tag eq 'hotspot', $seq1->get_SeqFeatures);
+is ($ft3_cat->start, 3+$seq1_length, "get correct start of feature after 'cat'");
 
 
 my $protseq = Bio::PrimarySeq->new(-id => 2, -seq => 'MVTF'); # protein seq
@@ -362,7 +366,13 @@ my $feature5 = Bio::SeqFeature::Generic->new(
   -start       => 11,
   -end         => 20
 );
-$seq_obj->add_SeqFeature( $composite_feat1, $feature1, $feature2, $feature3, $feature4, $feature5);
+my $feature6 = Bio::SeqFeature::Generic->new(
+  -primary_tag => 'feat6',
+  -seq_id      => 'seq1',
+  -start       => 11,
+  -end         => 25
+);
+$seq_obj->add_SeqFeature( $composite_feat1, $feature1, $feature2, $feature3, $feature4, $feature5, $feature6);
 
 my $coll = Bio::Annotation::Collection->new;
 $coll->add_Annotation(
@@ -456,6 +466,12 @@ is( @fd2_notes,1, 'feature 2 now has a note');
 is (shift @fd2_notes, "6bp deleted from feature 3' end", "note added to feature2 about deletion at 3' end");
 
 ok (!grep ($_->primary_tag eq 'feat5', $product->get_SeqFeatures), 'a feature that was completely positioned inside the deletion site is not present on the new molecule');
+
+my ($feature6_del) = grep ($_->primary_tag eq 'feat6', $product->get_SeqFeatures);
+ok ($feature6_del, "feature6 is till present");
+is ( $feature6_del->start, 11, 'start pos of a feature that started in the deletion site has been altered accordingly');
+is ( $feature6_del->end, 15, 'end pos of a feature that started in the deletion site has been altered accordingly');
+
 
 # insert
 lives_ok(

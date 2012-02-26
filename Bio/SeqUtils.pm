@@ -914,21 +914,21 @@ sub _coord_adjust_deletion {
     my $end = $_->end;
     my $end_type = $_->can('end_pos_type') ? $_->end_pos_type : undef;
     my @newcoords=();
-    if ($_->start < $deletion->start && $_->end > $deletion->end){ # split the feature
+    if ($start < $deletion->start && $end > $deletion->end){ # split the feature
       @newcoords = (
         [ $start, ($deletion->start - 1), $start_type, $end_type ],
         [ ($deletion->start ), $end - $del_length, $start_type, $end_type ]
       );
       $note = $del_length . 'bp internal deletion between pos '
         . ($deletion->start - 1) . ' and ' . $deletion->start;
-    } elsif ($_->contains( $deletion->start )){ # truncate feature end
+    } elsif ($_->start < $deletion->start && $_->end >= $deletion->start ){ # truncate feature end
       @newcoords = ([$start, ($deletion->start - 1), $start_type, $end_type ]);
       $note = ($end - $deletion->start + 1). 'bp deleted from feature ';
       if ($feat->strand){
         $note .= $feat->strand == 1 ? "3' " : "5' ";
       }
       $note .= 'end'
-    } elsif ($_->contains( $deletion->end )){ # truncate feature start and shift end
+    } elsif ($_->start <= $deletion->end && $_->end > $deletion->end ){ # truncate feature start and shift end
       @newcoords = ([($deletion->start), $end - $del_length, $start_type, $end_type]);
       $note = ( $deletion->end - $start + 1) . 'bp deleted from feature ';
       if ($feat->strand){
@@ -1267,8 +1267,16 @@ sub _coord_adjust {
         my @coords=($_->start, $_->end);
         my $strand=$_->strand;
 	my $type=$_->location_type;
-        map s/(-?\d+)/if ($add+$1<1) {'<1'} elsif (defined $length and $add+$1>$length) {">$length"} else {$add+$1}/ge, @coords;
-
+        foreach (@coords){
+            $self->throw("can not handle negative feature positions (got: $_)") if $_<0;;
+            if ($add+$_<1) {
+                $_ = '<1';
+            } elsif (defined $length and $add+$_>$length) {
+                $_ = ">$length" ;
+            } else {
+                $_ = $add+$_ ;
+            }
+        }
         push @loc, $self->_location_objects_from_coordinate_list(
           [\@coords], $strand, $type
         );
