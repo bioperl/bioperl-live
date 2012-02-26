@@ -4,10 +4,10 @@
 
 BEGIN {
     use lib '.';
-	use Bio::Root::Test;
+    use Bio::Root::Test;
 
     test_begin(-tests => 23,
-	       -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
+               -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
 use warnings;
@@ -51,7 +51,6 @@ my $out = Bio::SeqIO->new(-format => 'genbank',
               -file  => '>'.test_output_file());
 $primary_seq = Bio::Seq->new(-primary_seq => $db->get_Seq_by_acc('AW057119'));
 eval {
-    #warn(ref($primary_seq),"\n");
     $out->write_seq($primary_seq)
 };
 ok(!$@);

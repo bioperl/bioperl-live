@@ -505,11 +505,11 @@ sub _write_ID_line {
 
         # The sequence name is supposed to be the primary accession number,
         my $name = $seq->accession_number();
-        if (!defined($name) || $name eq 'unknown') {
-            # but if it is not present, use the sequence ID.
-            $name = $seq->id();
+        if ( not(defined $name) || $name eq 'unknown') {
+            # but if it is not present, use the sequence ID or the empty string
+            $name = $seq->id() || '';
         }
-
+ 
         $self->warn("No whitespace allowed in EMBL id [". $name. "]") if $name =~ /\s/;
 
         # Use the sequence version, or default to 1.
