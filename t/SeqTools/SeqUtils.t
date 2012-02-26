@@ -9,14 +9,14 @@ BEGIN {
     use Bio::Root::Test;
     
     test_begin(-tests => 125);
-	
-	use_ok('Bio::PrimarySeq');
-	use_ok('Bio::SeqUtils');
-	use_ok('Bio::LiveSeq::Mutation');
-	use_ok('Bio::SeqFeature::Generic');
-	use_ok('Bio::Annotation::SimpleValue');
-        use_ok('Bio::Annotation::Collection');
-        use_ok('Bio::Annotation::Comment');
+
+    use_ok('Bio::PrimarySeq');
+    use_ok('Bio::SeqUtils');
+    use_ok('Bio::LiveSeq::Mutation');
+    use_ok('Bio::SeqFeature::Generic');
+    use_ok('Bio::Annotation::SimpleValue');
+    use_ok('Bio::Annotation::Collection');
+    use_ok('Bio::Annotation::Comment');
 }
 
 my ($seq, $util, $ascii, $ascii_aa, $ascii3);
@@ -29,8 +29,8 @@ $ascii3 =
     'AlaAsxCysAspGluPheGlyHisIleXleLysLeuMetAsnPylProGlnArgSerThrSecValTrpXaaTyrGlx';
 
 $seq = Bio::PrimarySeq->new('-seq'=> $ascii,
-			    '-alphabet'=>'protein', 
-			       '-id'=>'test');
+                            '-alphabet'=>'protein', 
+                            '-id'=>'test');
 
 # one letter amino acid code to three letter code
 ok $util = Bio::SeqUtils->new();
@@ -56,8 +56,8 @@ is (Bio::SeqUtils->seq3in($seq, $ascii3)->seq, $ascii_aa);
 #
 
 $seq = Bio::PrimarySeq->new('-seq'=> 'agctgctgatcggattgtgatggctggatggcttgggatgctgg',
-			    '-alphabet'=>'dna', 
-			    '-id'=>'test2');
+                            '-alphabet'=>'dna', 
+                            '-id'=>'test2');
 
 my @a = $util->translate_3frames($seq);
 is scalar @a, 3;
@@ -95,8 +95,8 @@ is( $valid_aa{'Cys'}, 'C');
 
 my $string1 = 'aggt';
 $seq = Bio::PrimarySeq->new('-seq'=> 'aggt',
-			    '-alphabet'=>'dna',
-			    '-id'=>'test3');
+                            '-alphabet'=>'dna',
+                            '-id'=>'test3');
 
 # point
 Bio::SeqUtils->mutate($seq,
@@ -173,7 +173,7 @@ my $ac3 = Bio::Annotation::Collection->new();
 my $simple3 = Bio::Annotation::SimpleValue->new(
                                                 -tagname => 'colour',
                                                 -value   => 'red'
-						 ), ;
+                                               );
 $ac3->add_Annotation('simple',$simple3);
 $seq3->annotation($ac3);
 
@@ -185,20 +185,20 @@ is scalar $seq1->annotation->get_Annotations, 3;
 
 # seq features
 my $ft2 = Bio::SeqFeature::Generic->new( -start => 1,
-                                      -end => 4,
-                                      -strand => 1,
-                                      -primary => 'source',
-                                      -tag     => {note => 'note2'},
-				       );
+                                         -end => 4,
+                                         -strand => 1,
+                                         -primary => 'source',
+                                         -tag     => {note => 'note2'},
+                                       );
 
 
 my $ft3 = Bio::SeqFeature::Generic->new( -start => 3,
-                                      -end => 3,
-                                      -strand => 1,
-                                      -primary => 'hotspot',
-                                      -tag     => {note => ['note3a','note3b'], 
-                                                   comment => 'c1'},
-				       );
+                                         -end => 3,
+                                         -strand => 1,
+                                         -primary => 'hotspot',
+                                         -tag     => {note => ['note3a','note3b'],
+                                                      comment => 'c1'},
+                                       );
 
 $seq2->add_SeqFeature($ft2);
 $seq2->add_SeqFeature($ft3);
@@ -242,7 +242,7 @@ $ac3 = Bio::Annotation::Collection->new();
 $simple3 = Bio::Annotation::SimpleValue->new(
                                                 -tagname => 'colour',
                                                 -value   => 'red'
-                                                 ), ;
+                                            );
 $ac3->add_Annotation('simple',$simple3);
 $seq2->annotation($ac3);
 $ft2 = Bio::SeqFeature::Generic->new( -start => 1,
@@ -250,7 +250,7 @@ $ft2 = Bio::SeqFeature::Generic->new( -start => 1,
                                       -strand => 1,
                                       -primary => 'source',
                                       -tag     => {note => 'note2'},
-                                       );
+                                    );
 
 
 $ft3 = Bio::SeqFeature::Generic->new( -start => 5,
@@ -259,7 +259,7 @@ $ft3 = Bio::SeqFeature::Generic->new( -start => 5,
                                       -primary => 'hotspot',
                                       -tag     => {note => ['note3a','note3b'], 
                                                    comment => 'c1'},
-                                       );
+                                    );
 $seq2->add_SeqFeature($ft2);
 $seq2->add_SeqFeature($ft3);
 
@@ -442,11 +442,11 @@ is (shift @fd1_notes, '10bp internal deletion between pos 10 and 11', 'got the e
 
 my ($feature3_del) = grep ($_->primary_tag eq 'feat3', $product->get_SeqFeatures);
 ok ($feature3_del, "feature3 is till present");
-is ( ($feature3_del->start, $feature3_del->end), ($feature3->start - 10, $feature3->end - 10 ), 'a feature downstream of the deletion site is shifted entirely by 10nt to the left');
+is_deeply ( [$feature3_del->start, $feature3_del->end], [$feature3->start - 10, $feature3->end - 10], 'a feature downstream of the deletion site is shifted entirely by 10nt to the left');
 
 my ($feature4_del) = grep ($_->primary_tag eq 'feat4', $product->get_SeqFeatures);
 ok ($feature4_del, "feature4 is till present");
-is ( ($feature4_del->start, $feature4_del->end), ($feature4->start, $feature4->end), 'a feature upstream of the deletion site is not repositioned by the deletion');
+is_deeply ( [$feature4_del->start, $feature4_del->end], [$feature4->start, $feature4->end], 'a feature upstream of the deletion site is not repositioned by the deletion');
 
 my ($feature2_del) = grep ($_->primary_tag eq 'feat2', $product->get_SeqFeatures);
 ok ($feature2_del, "feature2 is till present");
@@ -464,8 +464,8 @@ lives_ok(
   },
   "No error thrown when inserting a fragment into recipient sequence"
 );
-my ($seq_obj_comment) = $seq_obj->annotation->get_Annotations('comment');
-my ($product_comment) = $product->annotation->get_Annotations('comment');
+($seq_obj_comment) = $seq_obj->annotation->get_Annotations('comment');
+($product_comment) = $product->annotation->get_Annotations('comment');
 is( $seq_obj_comment, $product_comment, 'annotation of whole sequence has been moved to new molecule');
 
 my ($composite_feat1_ins) = grep ($_->primary_tag eq 'comp_feat1', $product->get_SeqFeatures);
@@ -479,12 +479,12 @@ ok ($subfeat1_ins, "sub-feature 1 of the composite feature is still present");
 is ($subfeat1->end, 12, "the original end of sf1 is 12");
 is ($subfeat1_ins->end, $subfeat1->end + $fragment_obj->length, "after insertion, the end of sf1 has been shifted by the length of the insertion");
 isa_ok( $subfeat1_ins->location, 'Bio::Location::Split', 'sub-feature 1 (spans insertion site) is now split up and');
-is (
-  ($subfeat1->location->end_pos_type, $subfeat1->location->start_pos_type), 
-  ($subfeat1_ins->location->end_pos_type, $subfeat1_ins->location->start_pos_type), 
+is_deeply (
+  [$subfeat1->location->end_pos_type, $subfeat1->location->start_pos_type],
+  [$subfeat1_ins->location->end_pos_type, $subfeat1_ins->location->start_pos_type],
   'the start and end position types of sub-feature1 have not changed'
 );
-my ($subfeat1_comment) = $subfeat1->annotation->get_Annotations('comment');
+($subfeat1_comment) = $subfeat1->annotation->get_Annotations('comment');
 my ($subfeat1_ins_comment) = $subfeat1_ins->annotation->get_Annotations('comment');
 is( $subfeat1_comment, $subfeat1_ins_comment, 'annotation of subeature 1 has been moved to new molecule');
 my @sf1ins_notes = $subfeat1_ins->get_tag_values('note');
@@ -493,20 +493,20 @@ is (shift @sf1ins_notes, '10bp internal insertion between pos 10 and 21', 'got t
 
 my ($feature3_ins) = grep ($_->primary_tag eq 'feat3', $product->get_SeqFeatures);
 ok ($feature3_ins, "feature3 is till present");
-is ( 
-  ($feature3_ins->start, $feature3_ins->end), 
-  ($feature3->start + $fragment_obj->length, $feature3->end + $fragment_obj->length ), 
+is_deeply ( 
+  [$feature3_ins->start, $feature3_ins->end],
+  [$feature3->start + $fragment_obj->length, $feature3->end + $fragment_obj->length],
   'a feature downstream of the insertion site is shifted entirely to the left by the length of the insertion');
 
 my ($feature4_ins) = grep ($_->primary_tag eq 'feat4', $product->get_SeqFeatures);
 ok ($feature4_ins, "feature4 is till present");
-is ( ($feature4_ins->start, $feature4_ins->end), ($feature4->start, $feature4->end), 'a feature upstream of the insertion site is not repositioned');
+is_deeply ( [$feature4_ins->start, $feature4_ins->end], [$feature4->start, $feature4->end], 'a feature upstream of the insertion site is not repositioned');
 
 my ($frag_feature1_ins) = grep ($_->primary_tag eq 'frag_feat1', $product->get_SeqFeatures);
 ok( $frag_feature1_ins, 'a feature on the inserted fragment is present on the product molecule');
-is(
-  ($frag_feature1_ins->start, $frag_feature1_ins->end),
-  (12, 14),
+is_deeply (
+  [$frag_feature1_ins->start, $frag_feature1_ins->end],
+  [12, 14],
   'position of the feature on the insert has been adjusted to product coordinates'
 );
 is( $frag_feature1_ins->strand, $frag_feature1->strand, 'strand of the feature on insert has not changed');
@@ -545,15 +545,15 @@ my ($inserted_fragment_feature) = grep(
 );
 
 ok($inserted_fragment_feature, 'we have a feature annotating the ligated fragment');
-is( 
-  ($inserted_fragment_feature->start, $inserted_fragment_feature->end),
-  (11,20),
+is_deeply ( 
+  [$inserted_fragment_feature->start, $inserted_fragment_feature->end],
+  [11, 20],
   'coordinates of the feature annotating the ligated feature are correct'
 );
 
 my ($fragment_feat_lig) = grep ($_->primary_tag eq 'frag_feat1', $product->get_SeqFeatures);
 ok( $fragment_feat_lig, 'the fragment feature1 is now a feature of the product');
-is( ($fragment_feat_lig->start, $fragment_feat_lig->end), (17,19), 'start and end of a feature on the fragment are correct after insertion with "flip" option');
+is_deeply( [$fragment_feat_lig->start, $fragment_feat_lig->end], [17,19], 'start and end of a feature on the fragment are correct after insertion with "flip" option');
 
 # test clone_obj option (create new objects via clone not 'new')
 my $foo_seq_obj = Bio::Seq::Foo->new( 
