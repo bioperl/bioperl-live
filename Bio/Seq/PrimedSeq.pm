@@ -44,7 +44,7 @@ flanking a target region
 
       # use primer3 to design some primers
       my $primer3run = Bio::Tools::Run::Primer3->new(-seq => $seq);
-      $primer3run -> run; # run it with the default parameters
+      $primer3run->run; # run it with the default parameters
 
       # create a file to write the results to
       my $seqout = Bio::SeqIO->new(-file => ">primed_sequence.gbk", 
@@ -319,11 +319,8 @@ sub annotated_sequence {
 
 sub amplicon {
  my ($self,@args) = @_;
- my $id = $self->{'-seq'}->{'id'};
- unless ($id) {$id=""}
- # this just prevents a warning when $self->{'-seq'}->{'id'} is not defined
+ my $id = $self->{'-seq'}->{'id'} || '';
  $id = "Amplicon from ".$id;
- 
  my $seqobj=Bio::Seq->new(-id=>$id, seq=>$self->{'amplicon_sequence'});
  return $seqobj;
 }
