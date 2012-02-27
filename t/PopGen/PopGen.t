@@ -11,7 +11,7 @@ BEGIN {
     use Bio::Root::Test;
     
     test_begin(-tests => 105);
-	
+
     use_ok('IO::String');
     use_ok('Bio::PopGen::Individual');
     use_ok('Bio::PopGen::Genotype');
@@ -432,14 +432,14 @@ is(sprintf("%.3f",$stats->theta($population)),5.548);
 # test converting from hapmap to phase
 my $string;
 my $out = IO::String->new($string);
-Bio::PopGen::IO->new(-fh => $out, -format => 'phase')->write_individual(@population[0]);
+Bio::PopGen::IO->new(-fh => $out, -format => 'phase')->write_individual($population[0]);
 is($string, "1
 34
-P rs3739586 rs962817 rs4742225 rs4742220 rs912174 rs1359058 rs4742236 rs881684 rs745877 rs2296049 rs4742292 rs4584192 rs4742215 rs4400444 rs2025308 rs1570473 rs2296054 rs912175 rs745876 rs4740849 rs4740866 rs4742222 rs732119 rs4740850 rs4742223 rs4742219 rs1022827 rs1475202 rs4740851 rs732118 rs2296050 rs1323262 rs4742227 rs2025307
+P rs1022827 rs1323262 rs1359058 rs1475202 rs1570473 rs2025307 rs2025308 rs2296049 rs2296050 rs2296054 rs3739586 rs4400444 rs4584192 rs4740849 rs4740850 rs4740851 rs4740866 rs4742215 rs4742219 rs4742220 rs4742222 rs4742223 rs4742225 rs4742227 rs4742236 rs4742292 rs732118 rs732119 rs745876 rs745877 rs881684 rs912174 rs912175 rs962817
 SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
 #NA06985
-C C G A A A A A T A A A G T A G T C A C T A T A C C G G A A C C G A
-C T T G C T G A T G A G T T A G T G A G T G T G T T G G T A G G G A
+G C A G G A A A C T C T A C A A T G C A A C G G A A A T A T A A C C
+G G T G G A A G G T C T G G G T T T T G G T T G G A A T A T A C G T
 ");
 
 
@@ -456,22 +456,22 @@ is(@population, 3);
 
 # test writing in phase format
 $population = Bio::PopGen::Population->new(-individuals => \@population);
-my $string;
-my $out = IO::String->new($string);
+$string = '';
+$out = IO::String->new($string);
 Bio::PopGen::IO->new(-fh => $out, -format => 'phase')->write_population($population);
 is($string, "3
 5
-P 300 1313 1500 2023 5635
-MSSSM
+P 1313 1500 2023 300 5635
+SSSMM
 #1
-12 1 0 1 3
-11 0 1 0 3
+1 0 1 12 3
+0 1 0 11 3
 #2
-12 1 1 1 2
-12 0 0 0 3
+1 1 1 12 2
+0 0 0 12 3
 #3
--1 ? 0 0 2
--1 ? 1 1 13
+? 0 0 -1 2
+? 1 1 -1 13
 ");
 
 # test diploid data
