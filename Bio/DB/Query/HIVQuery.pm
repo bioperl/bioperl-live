@@ -108,10 +108,9 @@ An attempt was made to make the query field names natural and easy to
 remember. Aliases are specified in an XML file (C<lanl-schema.xml>) that is part
 of the distribution. Custom field aliases can be set up by modifying this file.
 
-An HTML cheatsheet with valid field names, aliases, and match data can
-be generated from the XML by using
-C<hiv_object-E<gt>help('help.html')>. A query can also be validated
-locally before it is unleashed on the server; see below.
+An HTML cheatsheet with valid field names, aliases, and match data can be
+generated from the XML by using C<hiv_object-E<gt>help('help.html')>. A query
+can also be validated locally before it is unleashed on the server; see below.
 
 =head2 Annotations
 
@@ -429,44 +428,50 @@ sub help{
        @flds = grep /^$tbl/, $schema->fields;
        @flds = grep !/_id/, @flds;
        print $fh (
-	   $h->start_Tr({-style=>"background-color: lightblue;"}), 
-	   $h->td([$h->a({-id=>$tbl},$tbl), $h->span({-style=>"font-style:italic"},"fields"), $h->span({-style=>"font-style:italic"}, "aliases")]),
-	   $h->end_Tr
-	   );
+           $h->start_Tr({-style=>"background-color: lightblue;"}), 
+           $h->td([$h->a({-id=>$tbl},$tbl), $h->span({-style=>"font-style:italic"},"fields"), $h->span({-style=>"font-style:italic"}, "aliases")]),
+           $h->end_Tr
+       );
        foreach my $fld (@flds) {
-	   @als = reverse $schema->aliases($fld);
-	   print $fh (
-	       $h->Tr( $h->td( ["", $h->a({-href=>"#opt$fld"}, shift @als), $h->code(join(',',@als))] ))
-	       );
-       my @tmp = grep {$_} $schema->options($fld);
-	   @tmp = sort {(($a =~ /^[0-9]+$/) && $b =~ /^[0-9]+$/) ? $a<=>$b : $a cmp $b} @tmp;
-	   if (grep /Any/,@tmp) {
-	       @tmp = grep !/Any/, @tmp;
-	       unshift @tmp, 'Any';
-	   }
-       #print STDERR join(', ',@tmp)."\n";
-	   push @opts, $h->div(
-	       {-style=>"font-family:sans-serif;font-size:small"},
-	       $h->hr,
-	       $h->a(
-		   {-id=>"opt$fld"},
-		   "<i>Valid options for</i> <b>$fld</b>: "),
-	       $h->blockquote(
-		   @tmp ? $h->code(join(", ", @tmp)) : $h->i("free text")
-	       ),
-	       $h->span(
-		   "<i>Other aliases</i>: "),
-	       $h->blockquote(
-		   @als ? $h->code(join(",",@als)) : "<i>none</i>"
-	       ),
-	       " ", 
-	       $h->table( $h->Tr( 
-			      $h->td([
-				  $h->a({-href=>"#$tbl"}, $h->small('BACK')), 
-				  $h->a({-href=>"#TOP"}, $h->small('TOP'))
-				     ]) ) )
-	       );
-	   
+           @als = reverse $schema->aliases($fld);
+           print $fh (
+               # note that aliases can sometimes be empty
+               $h->Tr( $h->td( ["", $h->a({-href=>"#opt$fld"}, shift @als || '???'), $h->code(join(',',@als))] ))
+           );
+           my @tmp = grep {$_} $schema->options($fld);
+           @tmp = sort {(($a =~ /^[0-9]+$/) && $b =~ /^[0-9]+$/) ? $a<=>$b : $a cmp $b} @tmp;
+           if (grep /Any/,@tmp) {
+               @tmp = grep !/Any/, @tmp;
+               unshift @tmp, 'Any';
+           }
+           #print STDERR join(', ',@tmp)."\n";
+           push @opts, $h->div(
+               {-style=>"font-family:sans-serif;font-size:small"},
+               $h->hr,
+               $h->a(
+                   {-id=>"opt$fld"},
+                   "<i>Valid options for</i> <b>$fld</b>: "
+               ),
+               $h->blockquote(
+                   @tmp ? $h->code(join(", ", @tmp)) : $h->i("free text")
+               ),
+               $h->span(
+                   "<i>Other aliases</i>: "
+               ),
+               $h->blockquote(
+                   @als ? $h->code(join(",",@als)) : "<i>none</i>"
+               ),
+               " ", 
+               $h->table(
+                   $h->Tr(
+                       $h->td([
+                           $h->a({-href=>"#$tbl"}, $h->small('BACK')), 
+                           $h->a({-href=>"#TOP"}, $h->small('TOP'))
+                       ])
+                   )
+               )
+           );
+   
        }
    }
    print $fh $h->end_table;
