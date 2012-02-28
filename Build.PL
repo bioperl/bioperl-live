@@ -253,9 +253,9 @@ my $build = Bio::Root::Build->new(
             requires    => { 'DBI' => 0, 'DBD::SQLite' => 0},
          },
 
-        'Network Tests'              => {
-            description      => "Enable tests that need an internet connection",
-            requires => { 'LWP::UserAgent' => 0 },
+        'Network Tests' => {
+            description => "Enable tests that need an internet connection",
+            requires    => { 'LWP::UserAgent' => 0 },
         }
                            },
     dynamic_config      => 1,
