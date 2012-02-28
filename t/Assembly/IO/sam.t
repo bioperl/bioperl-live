@@ -46,7 +46,7 @@ ok(@contig_seq_ids = $assembly->get_contig_seq_ids, "get_contig_seq_ids");
 is(@contig_seq_ids, 334);
 # trashing these for now; not much a test really anyway/maj
 # for my $contig_seq_id (@contig_seq_ids) {
-# 	ok ($contig_seq_id =~ m/^SRR/i);
+#     ok ($contig_seq_id =~ m/^SRR/i);
 # }
 
 ok(@contig_ids = $assembly->get_contig_ids, "get_contig_ids");
@@ -58,7 +58,7 @@ ok(@singlet_ids = $assembly->get_singlet_ids, "get_singlet_ids");
 is(@singlet_ids, 35);
 # trashing these/maj
 # for my $singlet_id (@singlet_ids) {
-# 	ok ($singlet_id =~ m/^SRR/i);
+#     ok ($singlet_id =~ m/^SRR/i);
 # }
 
 ok(@all_seq_ids = $assembly->get_all_seq_ids, "get_all_seq_ids");
