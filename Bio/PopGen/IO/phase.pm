@@ -90,7 +90,7 @@ package Bio::PopGen::IO::phase;
 use vars qw($FieldDelim $AlleleDelim $NoHeader);
 use strict;
 
-($FieldDelim,$AlleleDelim,$NoHeader) =(' ', '\s+', 1);
+($FieldDelim, $AlleleDelim, $NoHeader) = (' ', '\s+', 1);
 
 
 
@@ -324,9 +324,8 @@ sub write_individual {
 	    next;
 	}
 
-	# we'll go ahead and sort these until
-	# we have a better way to insure a consistent order
-	my @marker_names = sort {$a <=> $b} $ind->get_marker_names;
+	# sort lexically until we have a better way to insure a consistent order
+	my @marker_names = sort $ind->get_marker_names;
 
 	if ($header) {
 	    my $n_markers = scalar(@marker_names);
@@ -378,9 +377,8 @@ sub write_population {
 	    $self->warn("Cannot write an object that is not a Bio::PopGen::PopulationI object");
 	    next;
 	}
-	# we'll go ahead and sort these until
-	# we have a better way to insure a consistent order
-	my @marker_names = sort {$a <=> $b} $pop->get_marker_names;
+	# sort lexically until we have a better way to insure a consistent order
+	my @marker_names = sort $pop->get_marker_names;
 	my $n_markers = scalar(@marker_names);
 	$self->_print( $pop->get_number_individuals, "\n");
 	$self->_print( $n_markers, "\n");
