@@ -56,9 +56,6 @@ my %recommends = (
     'Array::Compare'            => [0,
         'Phylogenetic Networks/Bio::PhyloNetwork'],
 
-    'YAML'                      => [0,
-        'GenBank->GFF3/bp_genbank2gff3.pl'],
-
     # this won't actually install due to circular dep, but we have no way of
     # doing a post-install the [circular dependency!] specifies it is only
     # installed on explicit request for this specific module, not when simply
@@ -66,6 +63,9 @@ my %recommends = (
 
     #'Bio::ASN1::EntrezGene'     => [0,
     #    'Parsing entrezgene/Bio::SeqIO::entrezgene [circular dependency!]'],
+
+    'Bio::DB::Sam'              => [0,
+        'Manipulating SAM files/Bio::Assembly::IO::sam'],
 
     'Clone'                     => [0,
         'Cloning objects/Bio::Tools::Primer3'],
@@ -100,6 +100,9 @@ my %recommends = (
         'GenBank+GenPept sequence retrieval, remote http Blast jobs'.
         '/Bio::DB::*,Bio::Tools::Run::RemoteBlast,'.
         'Bio::Tools::Analysis::Protein*,Bio::Tools::Analysis::DNA*'],
+
+    'IO::Uncompress::Gunzip'    => [0,
+        'Manipulating SAM files/Bio::Assembly::IO::sam'],
 
     'List::MoreUtils'           => [0,
         'Back- or reverse-translation of sequences/'.
@@ -173,6 +176,9 @@ my %recommends = (
         'Parsing and writing XML/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,'.
         'Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,'.
         'Bio::SearchIO::Writer::BSMLResultWriter'],
+
+    'YAML'                      => [0,
+        'GenBank->GFF3/bp_genbank2gff3.pl'],
 );
 
 my $mysql_ok = 0;
