@@ -148,27 +148,27 @@ sub new {
     my ($class, %args) = @_;  
     my $self = $class->SUPER::new(%args);
 
-    # Save arbitrary parameters like
+    # Set the display ID
+    my $id = delete $args{'-id'} || 'SeqFeature Primer object';
+
+    # Set the primer sequence
+    my $seq = delete $args{'-seq'} || delete $args{'-sequence'} ||
+        $self->throw("Need to provide a sequence for primer\n");
+    if (not ref $seq) {
+         $seq = Bio::Seq->new( -seq => $seq, -id => $id );
+    } else {
+        if (not $seq->isa('Bio::PrimarySeqI')) {
+            $self->throw("Expected a sequence object but got a [".ref($seq)."]\n");
+        }
+    }
+    $self->{seq} = $seq;
+    
+    # Save arbitrary parameters like:
     #   TARGET=513,26
     #   PRIMER_FIRST_BASE_INDEX=1
     #   PRIMER_LEFT=484,20
-    # We don't demand them, but provide a mechanism to check that they exist
-
-    my $id = delete $args{'-id'} || 'SeqFeature Primer object';
     while (my ($arg, $val) = each %args) {
-        if ( $arg =~ m/^-seq/ ) {
-            if (not ref $val) {
-                 $val = Bio::Seq->new( -seq => $val, -id => $id );
-            } else {
-                if (not $val->isa('Bio::PrimarySeqI')) {
-                    $self->throw("Expected a sequence object but got a [".ref($val)."]\n")
-                 }
-            }
-            $self->{seq} = $val;
-
-        } else {
-            $self->{$arg} = $val;
-        }
+        $self->{$arg} = $val;
     }
 
     return $self;

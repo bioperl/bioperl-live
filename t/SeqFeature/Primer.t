@@ -17,7 +17,7 @@ BEGIN {
 my ($primer, $location, $start, $end, $strand, $id, $tm, $tme);
 
 # Initialize with a Bio::PrimarySeq
-my $seq = Bio::PrimarySeq->new( -seq => 'CTTTTCATTCTGACTGCAACG');
+my $seq = Bio::PrimarySeq->new(-seq => 'CTTTTCATTCTGACTGCAACG');
 ok $primer = Bio::SeqFeature::Primer->new(-sequence => $seq);
 is $primer->seq->seq, 'CTTTTCATTCTGACTGCAACG';
 
