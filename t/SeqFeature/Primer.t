@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 24);
+    test_begin(-tests => 25);
 
     use_ok('Bio::SeqFeature::Primer');
     use_ok('Bio::PrimarySeq');
@@ -26,6 +26,7 @@ ok $primer = Bio::SeqFeature::Primer->new(
     -seq => 'CTTTTCATTCTGACTGCAACG',
     -TARGET => '5,3',
 );
+is $primer->display_id, 'SeqFeature Primer object';
 is $primer->seq->seq, 'CTTTTCATTCTGACTGCAACG';
 is $primer->primary_tag, 'Primer';
 ok $id = $primer->display_id('test');

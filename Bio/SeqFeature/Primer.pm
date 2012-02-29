@@ -30,7 +30,7 @@ Bio::SeqFeature::Primer - Primer Generic SeqFeature
 
 =head1 SYNOPSIS
 
- # set up a single primer that can be used in a PCR reaction
+ # Set up a single primer that can be used in a PCR reaction
 
  use Bio::SeqFeature::Primer;
 
@@ -148,23 +148,27 @@ sub new {
     my ($class, %args) = @_;  
     my $self = $class->SUPER::new(%args);
 
-    my $seq = $args{'-seq'} || $args{'-sequence'};
-    if (not ref $seq) {
-        $seq = Bio::Seq->new( -seq => $seq, -id => $args{'-id'} || 'SeqFeature Primer object' );
-    } else {
-        if (not $seq->isa('Bio::PrimarySeqI')) {
-            $self->throw("Expected a sequence object but got a [".ref($seq)."]\n")
-        }
-    }
-    $self->{seq} = $seq;
-
     # Save arbitrary parameters like
     #   TARGET=513,26
     #   PRIMER_FIRST_BASE_INDEX=1
     #   PRIMER_LEFT=484,20
     # We don't demand them, but provide a mechanism to check that they exist
+
+    my $id = delete $args{'-id'} || 'SeqFeature Primer object';
     while (my ($arg, $val) = each %args) {
-        $self->{$arg} = $val;
+        if ( $arg =~ m/^-seq/ ) {
+            if (not ref $val) {
+                 $val = Bio::Seq->new( -seq => $val, -id => $id );
+            } else {
+                if (not $val->isa('Bio::PrimarySeqI')) {
+                    $self->throw("Expected a sequence object but got a [".ref($val)."]\n")
+                 }
+            }
+            $self->{seq} = $val;
+
+        } else {
+            $self->{$arg} = $val;
+        }
     }
 
     return $self;
@@ -303,7 +307,7 @@ sub strand {
 
  Title   : display_id()
  Usage   : $id = $primer->display_id($new_id);
- Function: Returns the display ID for this Primer feature
+ Function: Get the display ID for this primer feature
  Returns : A scalar.
  Args    : If an argument is provided, the display_id of this primer is
            set to that value.
