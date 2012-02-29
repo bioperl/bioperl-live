@@ -57,9 +57,9 @@ There is experimental support for WU-Blast and NCBI rpsblast.
 
 =head1 DESCRIPTION
 
-This DESCRIPTION only documents Bio::Tools::Run::StandAloneBlast: - a
+This DESCRIPTION only documents Bio::Tools::Run::StandAloneBlast, a
 Bioperl object for running the NCBI standAlone BLAST package. Blast
-itself, is a large & complex program - for more information regarding
+itself is a large & complex program - for more information regarding
 BLAST, please see the BLAST documentation which accompanies the BLAST
 distribution. BLAST is available from ftp://ncbi.nlm.nih.gov/blast/.
 
@@ -147,7 +147,7 @@ object or (a reference to) an array of Bio::Seq objects, e.g.:
 
 NOTE: Use of the BPlite method has been deprecated and is no longer supported.
 
-For blastall and non-psiblast blastpgp runs, report object is aL<Bio::SearchIO>
+For blastall and non-psiblast blastpgp runs, report object is a L<Bio::SearchIO>
 object, selected by the user with the parameter _READMETHOD. The leading
 underscore is needed to distinguish this option from options which are passed to
 the BLAST executable. The default parser is Bio::SearchIO::blast. In any case,
