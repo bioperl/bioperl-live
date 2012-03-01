@@ -40,16 +40,9 @@ Bio::SeqFeature::Primer - Primer Generic SeqFeature
  # Get the primary tag for the primer. This is always 'Primer'.
  my $tag = $primer->primary_tag;
 
- # Get or set the location of the template on which the primer starts binding
- $primer->location(500);
- my $location = $primer->location(500);
-
- # Get or set the 5' end of the primer homology, as the primer doesn't 
- # have to be the same as the target sequence
+ # Get or set the start and end of the primer match on the template
  $primer->start(2);
  my $start = $primer->start;
-
- # Get or set the 3' end of the primer homology
  $primer->end(19);
  my $end = $primer->end;
 
@@ -136,7 +129,7 @@ use base qw(Bio::Root::Root Bio::SeqFeature::Generic);
 
  Title   : new()
  Usage   : $primer = Bio::SeqFeature::Primer(-id => 'primerX', -seq => $seq_object);
- Function: Instantiate a new object
+ Function: Instantiate a new Bio::SeqFeature::Primer object
  Returns : A Bio::SeqFeature::Primer object
  Args    : You must pass either a sequence object (preferable) or a sequence string.
            You can also pass arbitray arguments, e.g. -TARGET => '5,3' which will
@@ -153,7 +146,7 @@ sub new {
 
     # Set the primer sequence
     my $seq = delete $args{'-seq'} || delete $args{'-sequence'} ||
-        $self->throw("Need to provide a sequence for primer\n");
+        $self->throw("Need to provide a sequence during Primer object construction\n");
     if (not ref $seq) {
          $seq = Bio::Seq->new( -seq => $seq, -id => $id );
     } else {
@@ -179,7 +172,7 @@ sub new {
 
  Title   : seq()
  Usage   : $seq = $primer->seq();
- Function: Return the sequence associated with this Primer. 
+ Function: Get the sequence object of this Primer.
  Returns : A Bio::Seq object
  Args    : None.
 
@@ -191,8 +184,18 @@ sub seq {
 }
 
 
+=head2 primary_tag()
+
+ Title   : primary_tag()
+ Usage   : $tag = $primer->primary_tag();
+ Function: Get the primary tag associated with this Primer.
+ Returns : A string, always 'Primer'.
+ Args    : None.
+
+=cut
+
 sub primary_tag {
-    return "Primer";
+    return 'Primer';
 }
 
 
@@ -200,7 +203,7 @@ sub primary_tag {
 
  Title   : source_tag()
  Usage   : $tag = $feature->source_tag();
- Function: Return the source of this tag.
+ Function: Get or set the source tag associated with this Primer.
  Returns : A string.
  Args    : If an argument is provided, the source of this SeqFeature
            is set to that argument.
@@ -245,8 +248,9 @@ sub location {
 
  Title   : start()
  Usage   : $start_position = $primer->start($new_position);
- Function: Return the start position of this Primer.
-           This is the leftmost base, regardless of whether it is a left or right primer.
+ Function: Get or set the start position of this Primer on the template.
+           This is the leftmost base, regardless of whether it is a left or
+           right primer, i.e. start() < end().
  Returns : The start position of this primer or 0 if not set.
  Args    : If supplied will set a start position.
 
@@ -265,9 +269,10 @@ sub start {
 
  Title   : end()
  Usage   : $end_position = $primer->end($new_position);
- Function: Return the end position of this primer.
-           This is the rightmost base, regardless of whether it is a left or right primer.
- Returns : The end position of this primer.
+ Function: Get or set the end position of this Primer on the template.
+           This is the rightmost base, regardless of whether it is a left or
+           right primer, i.e. start() < $end().
+ Returns : The end position of this primer or 0 if not set.
  Args    : If supplied will set an end position.
 
 =cut
@@ -285,9 +290,9 @@ sub end {
 
  Title   : strand()
  Usage   : $strand = $primer->strand();
- Function: Get or set the strand.
+ Function: Get or set the strand. It can be 1, 0 (not set), or -1.
  Returns : The strand that the primer binds to.
- Args    : If an argument is supplied will set the strand, otherwise will return it. Should be 1, 0 (not set), or -1
+ Args    : If an argument is supplied will set the strand, otherwise will return it.
 
 =cut
 
@@ -295,7 +300,7 @@ sub strand {
     my ($self, $strand) = @_;
     if ($strand) {
         unless ($strand == -1 || $strand == 0 || $strand == 1) {
-            $self->throw("Strand must be either 1, 0, or -1 not $strand");
+            $self->throw("Strand must be either 1, 0, or -1, not $strand");
         }
         $self->{strand} = $strand;
     }
@@ -307,7 +312,7 @@ sub strand {
 
  Title   : display_id()
  Usage   : $id = $primer->display_id($new_id);
- Function: Get the display ID for this primer feature
+ Function: Get or set the display ID for this Primer.
  Returns : A scalar.
  Args    : If an argument is provided, the display_id of this primer is
            set to that value.
@@ -327,7 +332,7 @@ sub display_id {
 
  Title   : Tm()
  Usage   : $tm = $primer->Tm(-salt => 0.05, -oligo => 0.0000001);
- Function: Calculates and returns the Tm (melting temperature) of the primer
+ Function: Calculate the Tm (melting temperature) of the primer
  Returns : A scalar containing the Tm.
  Args    : -salt  : set the Na+ concentration on which to base the calculation
                     (default=0.05 molar).
