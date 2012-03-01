@@ -64,9 +64,6 @@ my %recommends = (
     #'Bio::ASN1::EntrezGene'     => [0,
     #    'Parsing entrezgene/Bio::SeqIO::entrezgene [circular dependency!]'],
 
-    'Bio::DB::Sam'              => [0,
-        'Manipulating SAM files/Bio::Assembly::IO::sam'],
-
     'Clone'                     => [0,
         'Cloning objects/Bio::Tools::Primer3'],
 
@@ -100,9 +97,6 @@ my %recommends = (
         'GenBank+GenPept sequence retrieval, remote http Blast jobs'.
         '/Bio::DB::*,Bio::Tools::Run::RemoteBlast,'.
         'Bio::Tools::Analysis::Protein*,Bio::Tools::Analysis::DNA*'],
-
-    'IO::Uncompress::Gunzip'    => [0,
-        'Manipulating SAM files/Bio::Assembly::IO::sam'],
 
     'List::MoreUtils'           => [0,
         'Back- or reverse-translation of sequences/'.
