@@ -390,7 +390,7 @@ later).
 For the 1.6 release and beyond, tests have been organized into groups
 based upon the specific task or class the module being tested belongs
 to. If you want to investigate the behavior of a specific test such as
-the Seq test you would type:
+the Seq test you would type: 
 
  >./Build test --test_files t/Seq/Seq.t --verbose
 
