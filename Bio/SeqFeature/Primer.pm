@@ -30,7 +30,6 @@ Bio::SeqFeature::Primer - Primer Generic SeqFeature
 
 =head1 SYNOPSIS
 
- # Set up a single primer that can be used in a PCR reaction
 
  use Bio::SeqFeature::Primer;
 
@@ -40,13 +39,9 @@ Bio::SeqFeature::Primer - Primer Generic SeqFeature
  # Get the primary tag for the primer. This is always 'Primer'.
  my $tag = $primer->primary_tag;
 
- # Get or set the start and end of the primer match on the template
+ # Get or set the start, end or strand of the primer on the template
  $primer->start(2);
- my $start = $primer->start;
  $primer->end(19);
- my $end = $primer->end;
-
- # Get or set the strand of the primer. Strand should be 1, 0, or -1
  $primer->strand(-1);
  my $strand = $primer->strand;
 
@@ -130,42 +125,70 @@ use base qw(Bio::SeqFeature::Generic);
 =head2 new()
 
  Title   : new()
- Usage   : $primer = Bio::SeqFeature::Primer(-id => 'primerX', -seq => $seq_object);
+ Usage   : $primer = Bio::SeqFeature::Primer(
+               -seq => $seq_object,
+           );
  Function: Instantiate a new Bio::SeqFeature::Primer object
  Returns : A Bio::SeqFeature::Primer object
- Args    : You must pass either a sequence object (preferable) or a sequence string.
+ Args    : -seq , a sequence object (preferable) or a sequence string.
+           -id  , the ID to give to the primer sequence (not feature)
            You can also pass arbitray arguments, e.g. -TARGET => '5,3' which will
            be stored in $primer->{'-TARGET'}
 
 =cut
 
 sub new {
-    my ($class, %args) = @_;
-    my $self = $class->SUPER::new(%args);
+    my ($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
 
-    # Set the display ID
-    my $id = delete $args{'-id'} || 'SeqFeature Primer object';
-    ####$self->SUPER::display_name($id);
-
-    # Set the primer sequence
-    my $seq = delete $args{'-seq'} || delete $args{'-sequence'} ||
-        $self->throw("Need to provide a sequence during Primer object construction\n");
-    if (not ref $seq) {
-         $seq = Bio::PrimarySeq->new( -seq => $seq, -id => $id );
-    } else {
-        if (not $seq->isa('Bio::PrimarySeqI')) {
-            $self->throw("Expected a sequence object but got a [".ref($seq)."]\n");
-        }
+    my ($id, $seq, $sequence) = $self->_rearrange([qw(ID SEQ SEQUENCE)], @args);
+    if (defined $sequence) {
+        Bio::Root::Root->deprecated(
+            -message => 'Creating a Bio::SeqFeature::Primer with -sequence is deprecated. Use -seq instead.',
+            -warn_version  => '1.006',
+            -throw_version => '1.008',
+        );
+        $seq = $sequence;
     }
-    $self->{seq} = $seq;
     
-    # Save arbitrary parameters like:
-    #   TARGET=513,26
-    #   PRIMER_FIRST_BASE_INDEX=1
-    #   PRIMER_LEFT=484,20
-    while (my ($arg, $val) = each %args) {
-        $self->{$arg} = $val;
+    if (defined $seq) {
+        # Set the primer sequence
+        if (not ref $seq) {
+            # Convert string to sequence object
+            $seq = Bio::PrimarySeq->new( -seq => $seq );
+            $seq->id($id) if defined $id;
+        } else {
+            # Sanity check
+            if (not $seq->isa('Bio::PrimarySeqI')) {
+                $self->throw("Expected a sequence object but got a [".ref($seq)."]\n");
+            }
+        }
+        $self->seq($seq);
     }
+
+#    # Set the display ID
+#    my $id = delete $args{'-id'} || 'SeqFeature Primer object';
+#    ####$self->SUPER::display_name($id);
+
+#    # Set the primer sequence
+#    my $seq = delete $args{'-seq'} || delete $args{'-sequence'} ||
+#        $self->throw("Need to provide a sequence during Primer object construction\n");
+#    if (not ref $seq) {
+#         $seq = Bio::PrimarySeq->new( -seq => $seq, -id => $id );
+#    } else {
+#        if (not $seq->isa('Bio::PrimarySeqI')) {
+#            $self->throw("Expected a sequence object but got a [".ref($seq)."]\n");
+#        }
+#    }
+#    $self->{seq} = $seq;
+#    
+#    # Save arbitrary parameters like:
+#    #   TARGET=513,26
+#    #   PRIMER_FIRST_BASE_INDEX=1
+#    #   PRIMER_LEFT=484,20
+#    while (my ($arg, $val) = each %args) {
+#        $self->{$arg} = $val;
+#    }
 
     $self->primary_tag('Primer');
 
@@ -177,182 +200,54 @@ sub new {
 
  Title   : seq()
  Usage   : $seq = $primer->seq();
- Function: Get the sequence object of this Primer.
- Returns : A Bio::PrimarySeq object
+ Function: Get or set the sequence object of this Primer. If no sequence was
+           provided, but the primer is attached, get the matching subsequence.
+ Returns : A sequence object
  Args    : None.
 
 =cut
 
 sub seq {
-    my $self = shift;
-    return $self->{seq};
+    my ($self, $value) = @_;
+    if (defined $value) {
+        if ( not(ref $value) || not $value->isa('Bio::PrimarySeqI') ) {
+            $self->throw("Expected a sequence object but got a '".ref($value)."'\n");
+        }
+        $self->{seq} = $value;
+    }
+    my $seq = $self->{seq};
+    if (not defined $seq) {
+        # the sequence is implied
+        if (not($self->start && $self->end)) {
+            $self->throw('Could not get primer sequence. Specify it explictly '.
+                'using seq(), or implicitly using start() and end().');
+        }
+        $seq = $self->SUPER::seq;
+    }
+    return $seq;
 }
 
 
-#=head2 primary_tag()
-
-# Title   : primary_tag()
-# Usage   : $tag = $primer->primary_tag();
-# Function: Get the primary tag associated with this Primer.
-# Returns : A string, always 'Primer'.
-# Args    : None.
-
-#=cut
-
-##sub primary_tag {
-##    return 'Primer';
-##}
-
-
-#=head2 source_tag()
-
-# Title   : source_tag()
-# Usage   : $tag = $feature->source_tag();
-# Function: Get or set the source tag associated with this Primer.
-# Returns : A string.
-# Args    : If an argument is provided, the source of this SeqFeature
-#           is set to that argument.
-
-#=cut
-
-##sub source_tag {
-##    my ($self, $insource) = @_;
-##    if ($insource) {
-##        $self->{source} = $insource;
-##    }
-##    return $self->{source};
-##}
-
-
-#=head2 location()
-
-# Title   : location()
-# Usage   : $tag = $primer->location();
-# Function: Get or set the location of the primer on the template sequence  
-# Returns : If the location is set, return that, if not, return 0. 
-#           Note: You can set the location to whatever you want, but at the
-#           moment I am using the primer3 notation of location. In this form, the
-#           location of both primers is given as their start from the 5' end, and
-#           a length. In this case, the left primer is given from the leftmost
-#           end, but the right primer is given from the rightmost end. You could
-#           also specify a location as a L<Bio::Location::Simple> object or other.
-#           You can also use start() and end() to get the leftmost and rightmost
-#           base of each primer sequence.
-# Args    : If supplied will set a location
-
-#=cut
-
-##sub location {
-##    my ($self, $location) = @_;
-##    if ($location) {
-##        $self->{location} = $location;
-##    }
-##    return $self->{location} || 0;
-##}
 # Use Bio::SeqFeature::Generic's location() method, but just have an extra conversion
 # layer for compatibility with previous usages of location() in Bio::SeqFeature::Primer.
 
 sub location {
     my ($self, $location) = @_;
     if ($location) {
-        unless (ref($location) and $location->isa('Bio::LocationI')) {
+        if ( not ref $location ) {
             # Convert location string for backward compatibility
-            $self->warn('Passing a string to location() is deprecated. Try to pass a Bio::Location::Simple object or use start() and end() instead.');
-            my ($start, $end) = ($location =~ m/^(\d+).*?(\d*)$/);
-            if (not $start) {
-                $self->throw("Wrong location entered: $location");
-            }
-            $end = $start if not $end;
-            $location = Bio::Location::Simple->new( -start => $start, -end => $end );
+            Bio::Root::Root->deprecated(
+                -message => 'Passing a string to location() is deprecated. Pass a Bio::Location::Simple object or use start() and end() instead.',
+                -warn_version  => '1.006',
+                -throw_version => '1.008',
+            );
+            $self->{'_location'} = $location;
+        } else {
+            $self->SUPER::location($location);
         }
-        $self->SUPER::location($location);
     }
     return $self->SUPER::location;
 }
-
-
-#=head2 start()
-
-# Title   : start()
-# Usage   : $start_position = $primer->start($new_position);
-# Function: Get or set the start position of this Primer on the template.
-#           This is the leftmost base, regardless of whether it is a left or
-#           right primer, i.e. start() < end().
-# Returns : The start position of this primer or 0 if not set.
-# Args    : If supplied will set a start position.
-
-#=cut
-
-##sub start {
-##    my ($self, $start) = @_;
-##    if ($start) {
-##        $self->{start_position} = $start;
-##    }
-##    return $self->{start_position} || 0;
-##}
-
-
-#=head2 end()
-
-# Title   : end()
-# Usage   : $end_position = $primer->end($new_position);
-# Function: Get or set the end position of this Primer on the template.
-#           This is the rightmost base, regardless of whether it is a left or
-#           right primer, i.e. start() < end().
-# Returns : The end position of this primer or 0 if not set.
-# Args    : If supplied will set an end position.
-
-#=cut
-
-##sub end {
-##    my ($self, $end) = @_;
-##    if ($end) {
-##        $self->{end_position} = $end;
-##    }
-##    return $self->{end_position} || 0;
-##}
-
-
-#=head2 strand()
-
-# Title   : strand()
-# Usage   : $strand = $primer->strand();
-# Function: Get or set the strand. It can be 1, 0 (not set), or -1.
-# Returns : The strand that the primer binds to.
-# Args    : If an argument is supplied will set the strand, otherwise will return it.
-
-#=cut
-
-##sub strand {
-##    my ($self, $strand) = @_;
-##    if ($strand) {
-##        unless ($strand == -1 || $strand == 0 || $strand == 1) {
-##            $self->throw("Strand must be either 1, 0, or -1, not $strand");
-##        }
-##        $self->{strand} = $strand;
-##    }
-##    return $self->{strand} || 0;
-##}
-
-
-#=head2 display_id()
-
-# Title   : display_id()
-# Usage   : $id = $primer->display_id($new_id);
-# Function: Get or set the display ID for this Primer.
-# Returns : A scalar.
-# Args    : If an argument is provided, the display_id of this primer is
-#           set to that value.
-
-#=cut
-
-##sub display_id {
-##    my ($self, $newid) = @_;
-##    if ($newid) {
-##        $self->seq()->display_id($newid);
-##    }
-##    return $self->seq()->display_id();
-##}
 
 
 =head2 Tm()
