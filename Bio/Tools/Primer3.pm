@@ -318,13 +318,13 @@ sub next_primer {
 
     my $left_seq  = Bio::SeqFeature::Primer->new(
          -primer_sequence_id => 'left_primer',
-         -sequence   => ${$results}{'PRIMER_LEFT_SEQUENCE'},
+         -seq        => ${$results}{'PRIMER_LEFT_SEQUENCE'},
          -display_id => ($self->{'next_to_return'} + 1),
     );
 
     my $right_seq = Bio::SeqFeature::Primer->new(
              -primer_sequence_id => "right_primer",
-             -sequence   => ${$results}{'PRIMER_RIGHT_SEQUENCE'},
+             -seq        => ${$results}{'PRIMER_RIGHT_SEQUENCE'},
              -display_id => ($self->{'next_to_return'} + 1) );
 
     # add data to the Primer objects
