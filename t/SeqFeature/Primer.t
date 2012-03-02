@@ -7,7 +7,7 @@ use strict;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 39);
+    test_begin(-tests => 46);
     use_ok('Bio::SeqFeature::Primer');
     use_ok('Bio::PrimarySeq');
 }
@@ -22,6 +22,7 @@ ok $primer_seq = $primer->seq;
 isa_ok $primer_seq, 'Bio::PrimarySeqI';
 is $primer_seq->seq, 'CCCCC';
 
+
 # Bio::PrimarySeq primer
 $template = Bio::Seq->new( -seq => 'AAAAACCCCCGGGGGTTTTT' );
 $seq = Bio::PrimarySeq->new(-seq => 'CTTTTCATTCTGACTGCAACG');
@@ -30,6 +31,7 @@ ok $primer->attach_seq($template);
 ok $primer_seq = $primer->seq;
 isa_ok $primer_seq, 'Bio::PrimarySeqI';
 is $primer_seq->seq, 'CTTTTCATTCTGACTGCAACG';
+
 
 # Initialize with a sequence string
 ok $primer = Bio::SeqFeature::Primer->new(
@@ -46,6 +48,7 @@ is $primer->primary_tag, 'Primer';
 ok $primer->display_name('test');
 is $primer->display_name, 'test';
 
+
 # Coordinates
 ok $primer->start(2);
 is $primer->start, 2;
@@ -56,6 +59,7 @@ is $primer->strand, -1;
 ok $location = $primer->location;
 isa_ok $location, 'Bio::LocationI';
 
+
 # Melting temperatures
 ok $tm = $primer->Tm;
 is int($tm), 52;
@@ -63,6 +67,7 @@ ok $tm = $primer->Tm(-salt => 0.05, -oligo => 0.0000001);
 ok $tme = $primer->Tm_estimate;
 is int($tme), 58;
 ok $tm = $primer->Tm_estimate(-salt => 0.05);
+
 
 # Legacy
 #   * initializing with -sequence
@@ -78,6 +83,39 @@ ok $tm = $primer->Tm_estimate(-salt => 0.05);
    ok $location = $primer->location('3,25');
    is $location, '3,25';
 }
+
+
+# Chad's tests
+
+# ok, and what about variables governing where the feature is located?
+# check the primer3docs, luke...
+# TARGET=513,26
+# PRIMER_FIRST_BASE_INDEX=1
+# PRIMER_LEFT=484,20
+
+$seq = Bio::Seq->new(
+    -seq => 'gcatcgatctagctagcta' ,
+    -id  => 'chads_nifty_sequence',
+);
+$primer = Bio::SeqFeature::Primer->new(
+    -seq => $seq,
+    -TARGET => '5,3'
+);
+
+isa_ok $primer, 'Bio::SeqFeature::Primer';
+is $primer->seq->display_id, 'chads_nifty_sequence';
+is $primer->seq->seq, 'gcatcgatctagctagcta';
+
+my $primer = Bio::SeqFeature::Primer->new(
+    -seq => 'aaaaaacgatcgatcgtagctagct',
+    -id => 'chads_nifty_primer',
+    -TARGET => '5,3',
+);
+isa_ok $primer, 'Bio::SeqFeature::Primer';
+isa_ok $primer->seq(), 'Bio::PrimarySeq';
+is $primer->seq->id, 'chads_nifty_primer';
+is $primer->seq->seq, 'aaaaaacgatcgatcgtagctagct';
+
 
 
 
