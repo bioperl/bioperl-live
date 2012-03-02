@@ -316,14 +316,14 @@ sub next_primer {
     $self->throw("No right primer sequence") unless (${$results}{'PRIMER_RIGHT_SEQUENCE'});
     $self->throw("No target sequence") unless ($self->{'seqobject'});
 
-    my $left_seq  = Bio::SeqFeature::Primer->new(
-         -primer_sequence_id => 'left_primer',
+    my $left_seq = Bio::SeqFeature::Primer->new(
+         -id         => 'left_primer',
          -seq        => ${$results}{'PRIMER_LEFT_SEQUENCE'},
          -display_id => ($self->{'next_to_return'} + 1),
     );
 
     my $right_seq = Bio::SeqFeature::Primer->new(
-             -primer_sequence_id => "right_primer",
+             -id         => "right_primer",
              -seq        => ${$results}{'PRIMER_RIGHT_SEQUENCE'},
              -display_id => ($self->{'next_to_return'} + 1) );
 
