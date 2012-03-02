@@ -7,7 +7,7 @@ use strict;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 46);
+    test_begin(-tests => 45);
     use_ok('Bio::SeqFeature::Primer');
     use_ok('Bio::PrimarySeq');
 }
@@ -71,28 +71,18 @@ ok $tm = $primer->Tm_estimate(-salt => 0.05);
 
 # Legacy
 #   * initializing with -sequence
-#   * passing a string to location
+#   * passing a string to location()
 {
    local $SIG{'__WARN__'} = sub {  }; # Silence deprecation warnings
    ok $primer = Bio::SeqFeature::Primer->new(
        -sequence => 'CTTTTCATTCTGACTGCAACG',
-       -TARGET   => '5,3',
-       -start    => 3,
    );
-   is $primer->{'-TARGET'}, '5,3';
    ok $location = $primer->location('3,25');
    is $location, '3,25';
 }
 
 
 # Chad's tests
-
-# ok, and what about variables governing where the feature is located?
-# check the primer3docs, luke...
-# TARGET=513,26
-# PRIMER_FIRST_BASE_INDEX=1
-# PRIMER_LEFT=484,20
-
 $seq = Bio::Seq->new(
     -seq => 'gcatcgatctagctagcta' ,
     -id  => 'chads_nifty_sequence',
@@ -101,12 +91,10 @@ $primer = Bio::SeqFeature::Primer->new(
     -seq => $seq,
     -TARGET => '5,3'
 );
-
 isa_ok $primer, 'Bio::SeqFeature::Primer';
 is $primer->seq->display_id, 'chads_nifty_sequence';
 is $primer->seq->seq, 'gcatcgatctagctagcta';
-
-my $primer = Bio::SeqFeature::Primer->new(
+$primer = Bio::SeqFeature::Primer->new(
     -seq => 'aaaaaacgatcgatcgtagctagct',
     -id => 'chads_nifty_primer',
     -TARGET => '5,3',

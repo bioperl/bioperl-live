@@ -30,7 +30,6 @@ Bio::SeqFeature::Primer - Primer Generic SeqFeature
 
 =head1 SYNOPSIS
 
-
  use Bio::SeqFeature::Primer;
 
  # Initiate a primer with raw sequence
@@ -39,21 +38,24 @@ Bio::SeqFeature::Primer - Primer Generic SeqFeature
  # Get the primary tag for the primer. This is always 'Primer'.
  my $tag = $primer->primary_tag;
 
- # Get or set the start, end or strand of the primer on the template
+ # Set the start, end or strand of the primer on the template
  $primer->start(2);
  $primer->end(19);
  $primer->strand(-1);
- my $strand = $primer->strand;
 
- # Get or set the ID of the primer
- $primer->display_id('test_id');
- my $id = $primer->display_id;
+ # Set the ID of the feature
+ $primer->display_name('test_id');
 
  # Calculate the Tm (melting temperature) for the primer
  my $tm = $primer->Tm;
 
- print "These are the details of the primer:\n\tTag:\t\t$tag\n\tLocation\t$location\n\tStart:\t\t$start\n";
- print "\tEnd:\t\t$end\n\tStrand:\t\t$strand\n\tID:\t\t$id\n\tTm:\t\t$tm\n";
+ print "These are the details of the primer:\n".
+       "Tag:    $tag\n".
+       "Start:  ".$primer->start."\n".
+       "End:    ".$primer->end."\n".
+       "Strand: ".$primer->strand."\n".
+       "Name:   ".$primer->display_name."\n".
+       "Tm:     $tm\n";
 
 =head1 DESCRIPTION
 
@@ -110,9 +112,6 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 
-# Let the code begin...
-
-
 package Bio::SeqFeature::Primer;
 
 use strict;
@@ -132,8 +131,6 @@ use base qw(Bio::SeqFeature::Generic);
  Returns : A Bio::SeqFeature::Primer object
  Args    : -seq , a sequence object (preferable) or a sequence string.
            -id  , the ID to give to the primer sequence (not feature)
-           You can also pass arbitray arguments, e.g. -TARGET => '5,3' which will
-           be stored in $primer->{'-TARGET'}
 
 =cut
 
@@ -165,30 +162,6 @@ sub new {
         }
         $self->seq($seq);
     }
-
-#    # Set the display ID
-#    my $id = delete $args{'-id'} || 'SeqFeature Primer object';
-#    ####$self->SUPER::display_name($id);
-
-#    # Set the primer sequence
-#    my $seq = delete $args{'-seq'} || delete $args{'-sequence'} ||
-#        $self->throw("Need to provide a sequence during Primer object construction\n");
-#    if (not ref $seq) {
-#         $seq = Bio::PrimarySeq->new( -seq => $seq, -id => $id );
-#    } else {
-#        if (not $seq->isa('Bio::PrimarySeqI')) {
-#            $self->throw("Expected a sequence object but got a [".ref($seq)."]\n");
-#        }
-#    }
-#    $self->{seq} = $seq;
-#    
-#    # Save arbitrary parameters like:
-#    #   TARGET=513,26
-#    #   PRIMER_FIRST_BASE_INDEX=1
-#    #   PRIMER_LEFT=484,20
-#    while (my ($arg, $val) = each %args) {
-#        $self->{$arg} = $val;
-#    }
 
     $self->primary_tag('Primer');
 
@@ -228,14 +201,13 @@ sub seq {
 }
 
 
-# Use Bio::SeqFeature::Generic's location() method, but just have an extra conversion
-# layer for compatibility with previous usages of location() in Bio::SeqFeature::Primer.
+# Bypass B::SF::Generic's location() when a string is passed (for compatibility)
 
 sub location {
     my ($self, $location) = @_;
     if ($location) {
         if ( not ref $location ) {
-            # Convert location string for backward compatibility
+            # Use location as a string for backward compatibility
             Bio::Root::Root->deprecated(
                 -message => 'Passing a string to location() is deprecated. Pass a Bio::Location::Simple object or use start() and end() instead.',
                 -warn_version  => '1.006',
@@ -402,21 +374,6 @@ sub Tm_estimate {
     my $percent_gc = ($gc/$length)*100;
 
     my $tm = 81.5+(16.6*(log($salt)/log(10)))+(0.41*$percent_gc) - (600/$length);
-
-    # and now error check compared to primer3
-    # note that this NEVER gives me the same values, so I am ignoring it
-    # you can get these out separately anyway
-
-    #if ($self->{'PRIMER_LEFT_TM'}) {
-    # unless ($self->{'PRIMER_LEFT_TM'} == $tm) {
-    #  $self->warn("Calculated $tm for Left primer but received ".$self->{'PRIMER_LEFT_TM'}." from primer3\n");
-    # }
-    #}
-    #elsif ($self->{'PRIMER_RIGHT_TM'}) {
-    # unless ($self->{'PRIMER_RIGHT_TM'} == $tm) {
-    #   $self->warn("Calculated $tm for Right primer but received ".$self->{'PRIMER_RIGHT_TM'}." from primer3\n");
-    # }
-    #}
 
     return $tm; 
 } 
