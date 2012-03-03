@@ -18,7 +18,7 @@ my ($amplicon, $amplicon_seq, $fwd_primer, $rev_primer, $template);
 
 $amplicon = Bio::SeqFeature::Amplicon->new();
 isa_ok $amplicon, 'Bio::SeqFeature::Amplicon';
-isa_ok $amplicon, 'Bio::SeqFeature::Generic';
+isa_ok $amplicon, 'Bio::SeqFeature::SubSeq';
 
 
 # Amplicon with explicit sequence (sequence string)

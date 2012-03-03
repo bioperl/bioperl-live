@@ -37,7 +37,7 @@ Bio::SeqFeature::Amplicon - Amplicon feature
 
 =head1 DESCRIPTION
 
-Bio::SeqFeature::Amplicon extends Bio::SeqFeature::Generic to represent an
+Bio::SeqFeature::Amplicon extends L<Bio::SeqFeature::Subseq> to represent an
 amplicon sequence and optional primer sequences.
 
 =head1 FEEDBACK
@@ -86,7 +86,7 @@ package Bio::SeqFeature::Amplicon;
 
 use strict;
 
-use base qw(Bio::SeqFeature::Generic);
+use base qw(Bio::SeqFeature::SubSeq);
 
 =head2 new
 
@@ -103,58 +103,12 @@ use base qw(Bio::SeqFeature::Generic);
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($seq, $fwd_primer, $rev_primer) =
-        $self->_rearrange([qw(SEQ FWD_PRIMER REV_PRIMER)], @args);
-    if (defined $seq) {
-        # Set the amplicon sequence
-        if (not ref $seq) {
-            # Convert string to sequence object
-            $seq = Bio::PrimarySeq->new( -seq => $seq );
-        } else {
-            # Sanity check
-            if (not $seq->isa('Bio::PrimarySeqI')) {
-                $self->throw("Expected a sequence object but got a '".ref($seq)."'\n");
-            }
-        }
-        $self->seq($seq);
-    }
+    my ($fwd_primer, $rev_primer) =
+        $self->_rearrange([qw(FWD_PRIMER REV_PRIMER)], @args);
     $fwd_primer && $self->fwd_primer($fwd_primer);
     $rev_primer && $self->rev_primer($rev_primer);
     return $self;
 }  
-
-
-=head2 seq
-
- Title   : seq()
- Usage   : $seq = $amplicon->seq();
- Function: Get or set the sequence object of this Amplicon. If no sequence was
-           provided, but the amplicon is located and attached to a sequence, get
-           the matching subsequence.
- Returns : A sequence object
- Args    : None.
-
-=cut
-
-sub seq {
-    my ($self, $value) = @_;
-    if (defined $value) {
-        if ( not(ref $value) || not $value->isa('Bio::PrimarySeqI') ) {
-            $self->throw("Expected a sequence object but got a '".ref($value)."'\n");
-        }
-        $self->{seq} = $value;
-    }
-    my $seq = $self->{seq};
-    if (not defined $seq) {
-        # the sequence is implied
-        if (not($self->start && $self->end)) {
-            $self->throw('Could not get amplicon sequence. Specify it explictly '.
-                'using seq(), or implicitly using start() and end().');
-        }
-        $seq = $self->SUPER::seq;
-    }
-    return $seq;
-}
 
 
 sub _primer {
