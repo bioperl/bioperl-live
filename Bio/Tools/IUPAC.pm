@@ -18,14 +18,14 @@ an ambiguous IUPAC sequence
 
 =head1 SYNOPSIS
 
- use Bio::Seq;
+ use Bio::PrimarySeq;
  use Bio::Tools::IUPAC;
 
  # Get the IUPAC code for proteins
  my %iupac_prot = Bio::Tools::IUPAC->new->iupac_iup;
 
  # Create a sequence with degenerate residues
- my $ambiseq = Bio::Seq->new(-seq => 'ARTCGUTGN', -alphabet => 'dna');
+ my $ambiseq = Bio::PrimarySeq->new(-seq => 'ARTCGUTGN', -alphabet => 'dna');
 
  # Create all possible non-degenerate sequences
  my $iupac = Bio::Tools::IUPAC->new(-seq => $ambiseq);
@@ -115,11 +115,11 @@ report the IUPAC mapping between ambiguous and non-ambiguous residues
 =item *
 
 produce a stream of all possible corresponding unambiguous Bio::Seq objects given
-an ambiguous Bio::Seq object
+an ambiguous sequence object
 
 =item *
 
-convert an ambiguous Bio::Seq object to a corresponding regular expression
+convert an ambiguous sequence object to a corresponding regular expression
 
 =back
 
@@ -293,7 +293,7 @@ sub new {
 
     if (defined $seq) {
         if (not $seq->isa('Bio::PrimarySeqI')) {
-            $self->throw('Must supply a Bio::Seq object');
+            $self->throw('Must supply a sequence object');
         }
         if (length $seq->seq == 0) {
             $self->throw('Sequence had zero-length');
