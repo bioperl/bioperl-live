@@ -10,6 +10,9 @@ package Bio::Tools::AmpliconSearch;
 use strict;
 use warnings;
 use Bio::Tools::IUPAC;
+use Bio::SeqFeature::Amplicon;
+# we require Bio::SeqIO
+# and Bio::SeqFeature::Primer
 
 use base qw(Bio::Root::Root);
 
@@ -83,56 +86,111 @@ methods. Internal methods are usually preceded with a _
  Title    : new
  Usage    : my $search = Bio::Tools::AmpliconSearch->new( );
  Function : 
- Args     : -template
+ Args     : -template        Sequence object. Note that the template sequence will be converted to Bio::Seq if needed. Features (amplicons and primers will be added to this object).
             -forward_primer
             -reverse_primer
             -primer_file    replaces -forward_primer and -reverse_primer (optional)
-            -want_a         type of object to have next_amplicon() return: PrimarySeq, LocatableSeq, Amplicon
-            -attach_primers when returning amplicon objects as Amplicons, whether or not to attach primers to it
- Returns  : 
+            -attach_primers whether or not to attach primers to Amplicon objects. Default: 0 (off)
+ Returns  : A Bio::Tools::AmpliconSearch object
 
 =cut
 
 sub new {
    my ($class, @args) = @_;
    my $self = $class->SUPER::new(@args);
-   my ($template, $primer_file, $forward_primer, $reverse_primer, $want_a,
+   my ($template, $primer_file, $forward_primer, $reverse_primer,
        $attach_primers) = $self->_rearrange([qw(TEMPLATE PRIMER_FILE
-       FORWARD_PRIMER REVERSE_PRIMER WANT_A ATTACH_PRIMERS)], @args);
+       FORWARD_PRIMER REVERSE_PRIMER ATTACH_PRIMERS)], @args);
 
+   # Get primers
    if (defined $primer_file) {
-      $self->_set_primers($primer_file);
+      $self->_set_primers_from_file($primer_file);
    } else {
       $self->_set_forward_primer($forward_primer) if defined $forward_primer;
       $self->_set_reverse_primer($reverse_primer) if defined $reverse_primer;
    }
 
+   # Get template sequence
    $self->_set_template($template) if defined $template;
-   $self->_set_want_a($want_a) if defined $want_a;
+
    $self->_set_attach_primers($attach_primers) if defined $attach_primers;
 
    return $self;
 }
 
 
+=head2 get_template
+
+ Title    : get_template
+ Usage    : my $template = $search->get_template;
+ Function : Return the template sequence
+ Args     :                   
+ Returns  : A Bio::Seq object
+
+=cut
+
 sub get_template {
    my ($self) = @_;
-   return $self->{'template'};
+   return $self->{template};
 }
 
-
 sub _set_template {
-   my ($self, $val) = @_;
-   $self->{'template'} = $val;
-   if (not $val->isa('Bio::PrimarySeqI') ) { 
-      # not a Bio::Seq or Bio::PrimarySEq
-      $self->throw("Expected a sequence object as input but got a ".ref($val)."\n");
+   my ($self, $template) = @_;
+   if ( not(ref $template) || not $template->isa('Bio::PrimarySeqI')) {
+      # Not a Bio::Seq or Bio::PrimarySeq
+      $self->throw("Expected a sequence object as input but got a '".ref($template)."'\n");
    }
+   #if ($self->get_attach_primer && not $template->isa('Bio::SeqI')) {
+   if (not $template->isa('Bio::SeqI')) {
+      # Convert sequence object to Bio::Seq Seq so that features can be added
+      my $primary_seq = $template;
+      $template = Bio::Seq->new();
+      $template->primary_seq($primary_seq);
+   }
+   $self->{template} = $template;
    return $self->get_template;
 }
 
 
-sub _set_primers {
+
+
+sub get_forward_primer {
+   my ($self) = @_;
+   return $self->{forward_primer};
+}
+
+
+sub _set_forward_primer {
+   my ($self, $primer) = @_;
+   if (not(ref $primer) || not $primer->isa('Bio::PrimarySeqI') || not $primer->isa('Bio::SeqFeature::Primer') ) { 
+      # Not a sequence or a primer object
+      $self->throw("Expected a sequence or primer object as input but got a ".ref($primer)."\n");
+   }
+   $self->{forward_primer} = $primer;
+   $self->_set_forward_regexp( Bio::Tools::IUPAC->new( -seq => $primer )->regexp );
+   return $self->get_forward_primer;
+}
+
+
+sub get_reverse_primer {
+   my ($self) = @_;
+   return $self->{reverse_primer};
+}
+
+
+sub _set_reverse_primer {
+   my ($self, $primer) = @_;
+   if (not(ref $primer) || not $primer->isa('Bio::PrimarySeqI') || not $primer->isa('Bio::SeqFeature::Primer') ) { 
+      # Not a sequence or a primer object
+      $self->throw("Expected a sequence or primer object as input but got a ".ref($primer)."\n");
+   }
+   $self->{reverse_primer} = $primer;
+   $self->_set_reverse_regexp( Bio::Tools::IUPAC->new( -seq => $primer->revcom )->regexp );
+   return $self->get_reverse_primer;
+}
+
+
+sub _set_primers_from_file {
    my ($self, $primer_file) = @_;
    # Read primer file and convert primers into regular expressions to catch
    # amplicons present in the database
@@ -167,90 +225,42 @@ sub _set_primers {
 }
 
 
-sub get_forward_primer {
-   my ($self) = @_;
-   return $self->{'forward_primer'};
-}
-
-
-sub _set_forward_primer {
-   my ($self, $val) = @_;
-   $self->{'forward_primer'} = $val;
-   if (not $val->isa('Bio::PrimarySeqI') || not $val->isa('Bio::SeqFeature::Primer') ) { 
-      # Not a sequence or a primer object
-      $self->throw("Expected a sequence or primer object as input but got a ".ref($val)."\n");
-   }
-   $self->_set_forward_regexp( Bio::Tools::IUPAC->new( -seq => $val )->regexp );
-   return $self->get_forward_primer;
-}
-
-
-sub get_reverse_primer {
-   my ($self) = @_;
-   return $self->{'reverse_primer'};
-}
-
-
-sub _set_reverse_primer {
-   my ($self, $val) = @_;
-   $self->{'reverse_primer'} = $val;
-   if (not $val->isa('Bio::PrimarySeqI') || not $val->isa('Bio::SeqFeature::Primer') ) { 
-      # Not a sequence or a primer object
-      $self->throw("Expected a sequence or primer object as input but got a ".ref($val)."\n");
-   }
-   $self->_set_reverse_regexp( Bio::Tools::IUPAC->new( -seq => $val->revcom )->regexp );
-   return $self->get_reverse_primer;
-}
-
-
 sub get_forward_regexp {
    my ($self) = @_;
-   return $self->{'forward_regexp'};
+   return $self->{forward_regexp};
 }
 
 
 sub _set_forward_regexp {
-   my ($self, $val) = @_;
-   $self->{'forward_regexp'} = $val;
+   my ($self, $regexp) = @_;
+   $self->{forward_regexp} = $regexp;
    return $self->get_forward_regexp;
 }
 
 
 sub get_reverse_regexp {
    my ($self) = @_;
-   return $self->{'reverse_regexp'};
+   return $self->{reverse_regexp};
 }
 
 
 sub _set_reverse_regexp {
-   my ($self, $val) = @_;
-   $self->{'reverse_regexp'} = $val;
+   my ($self, $regexp) = @_;
+   $self->{reverse_regexp} = $regexp;
    return $self->get_reverse_regexp;
-}
-
-
-sub get_want_a {
-   my ($self) = @_;
-   return $self->{'want_a'} || 'Bio::PrimarySeq';
-}
-
-
-sub _set_want_a {
-   my ($self, $val) = @_;
-   $self->{'want_a'} = $val;
-   return $self->get_want_a;
 }
 
 
 sub get_attach_primers {
    my ($self) = @_;
-   return $self->{'attach_primers'} || 0;
+   return $self->{attach_primers} || 0;
 }
 
 
 sub _set_attach_primers {
    my ($self, $val) = @_;
-   $self->{'attach_primers'} = $val;
+   $self->{attach_primers} = $val;
+   require Bio::SeqFeature::Primer;
    return $self->get_attach_primers;
 }
 
@@ -260,8 +270,7 @@ sub _set_attach_primers {
  Title    : next_amplicon
  Usage    : my $amplicon = $search->
  Function : Get the next amplicon
- Args     : -want_a :  Bio::PrimarySeq (default), Bio::LocatableSeq or Bio::SeqFeature::Amplicon
-            -attach_primers : 0 (no, default) or 1 (yes). Only possible is -want_a => 'Bio::SeqFeature::Amplicon'
+ Args     :
  Returns  : an amplicon object
 
 =cut
@@ -280,30 +289,29 @@ sub next_amplicon {
    my $orientation = 1;
 
    if ( defined($fwd_regexp) && not(defined $rev_regexp) ) {
-       # From forward primer to end of template
-       $seqstr   =~ m/($fwd_regexp)/g;
-       my $start = pos($seqstr) - length($1) + 1;
-       my $end   = length($seqstr); ### $seq->length;
-       $amplicon = $self->_create_amplicon($start, $end, $orientation);
+      # From forward primer to end of template
+      $seqstr   =~ m/($fwd_regexp)/g;
+      my $start = pos($seqstr) - length($1) + 1;
+      my $end   = length($seqstr); ### $seq->length;
+      $amplicon = $self->_create_amplicon($start, $end, $orientation);
 
    } elsif ( defined($fwd_regexp) && defined($rev_regexp) ) {
-       # From forward to reverse primer
-       $seqstr   =~ m/($fwd_regexp.*?$rev_regexp)/g;
-       my $end   = pos($seqstr);
-       my $start = $end - length($1) + 1;
-       # Now trim the left end to obtain the shortest amplicon
-       my $ampliconstr = substr $seqstr, $start - 1, $end - $start + 1;
-       if ($ampliconstr =~ m/$fwd_regexp.*($fwd_regexp)/g) {
-          $start += pos($ampliconstr) - length($1);
-       }
-       $amplicon = $self->_create_amplicon($start, $end, $orientation);
+      # From forward to reverse primer
+      $seqstr   =~ m/($fwd_regexp.*?$rev_regexp)/g;
+      my $end   = pos($seqstr);
+      my $start = $end - length($1) + 1;
+      # Now trim the left end to obtain the shortest amplicon
+      my $ampliconstr = substr $seqstr, $start - 1, $end - $start + 1;
+      if ($ampliconstr =~ m/$fwd_regexp.*($fwd_regexp)/g) {
+        $start += pos($ampliconstr) - length($1);
+      }
+      $amplicon = $self->_create_amplicon($start, $end, $orientation);
 
    } else {
       $self->throw("Need to provide at least a forward primer\n");
    }
 
-   #### return an amplicon? primedseq?
-   return 1;
+   return $amplicon;
 }
 
 
@@ -311,11 +319,30 @@ sub _create_amplicon {
    # Create an amplicon sequence and register its coordinates
    my ($self, $start, $end, $orientation) = @_;
 
-   my $want_a = $self->get_want_a;
-
    my $template = $self->get_template;
-   my $amplicon;
-   my $coord;
+
+   my $amplicon = Bio::SeqFeature::Amplicon->new(
+      -start => $start,
+      -end   => $end,
+      ###-strand => XXX,
+   );
+
+   $template->add_SeqFeature($amplicon);
+
+   if ($self->get_attach_primers) {
+
+      for my $type ('fwd', 'rev') {
+         my $primer_seq = $type eq 'fwd' ? $self->get_forward_primer : $self->get_reverse_primer;
+         next if $type eq 'fwd' and not defined $primer_seq;
+         ###my $length = $->length;
+         my $primer = Bio::SeqFeature::Primer->new(
+            -start => 1,
+         ###   -end   => $length,
+         );
+      }
+   }
+
+#   my $coord;
 
 #   if ($want_a eq 'Bio::PrimarySeq') {
 #      require Bio::PrimarySeq;
@@ -377,7 +404,7 @@ sub _create_amplicon {
   #}
   #$amplicon->{_amplicon} = $coord;
 
-  return $amplicon
+  return $amplicon;
 }
 
 
