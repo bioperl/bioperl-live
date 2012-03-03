@@ -119,17 +119,17 @@ sub new {
 }
 
 
-=head2 get_template
+=head2 template
 
- Title    : get_template
- Usage    : my $template = $search->get_template;
- Function : Return the template sequence
+ Title    : template
+ Usage    : my $template = $search->template;
+ Function : Get the template sequence
  Args     :                   
  Returns  : A Bio::Seq object
 
 =cut
 
-sub get_template {
+sub template {
    my ($self) = @_;
    return $self->{template};
 }
@@ -140,7 +140,7 @@ sub _set_template {
       # Not a Bio::Seq or Bio::PrimarySeq
       $self->throw("Expected a sequence object as input but got a '".ref($template)."'\n");
    }
-   #if ($self->get_attach_primer && not $template->isa('Bio::SeqI')) {
+   #if ($self->attach_primer && not $template->isa('Bio::SeqI')) {
    if (not $template->isa('Bio::SeqI')) {
       # Convert sequence object to Bio::Seq Seq so that features can be added
       my $primary_seq = $template;
@@ -148,13 +148,13 @@ sub _set_template {
       $template->primary_seq($primary_seq);
    }
    $self->{template} = $template;
-   return $self->get_template;
+   return $self->template;
 }
 
 
 
 
-sub get_forward_primer {
+sub forward_primer {
    my ($self) = @_;
    return $self->{forward_primer};
 }
@@ -168,11 +168,11 @@ sub _set_forward_primer {
    }
    $self->{forward_primer} = $primer;
    $self->_set_forward_regexp( Bio::Tools::IUPAC->new( -seq => $primer )->regexp );
-   return $self->get_forward_primer;
+   return $self->forward_primer;
 }
 
 
-sub get_reverse_primer {
+sub reverse_primer {
    my ($self) = @_;
    return $self->{reverse_primer};
 }
@@ -186,7 +186,7 @@ sub _set_reverse_primer {
    }
    $self->{reverse_primer} = $primer;
    $self->_set_reverse_regexp( Bio::Tools::IUPAC->new( -seq => $primer->revcom )->regexp );
-   return $self->get_reverse_primer;
+   return $self->reverse_primer;
 }
 
 
@@ -225,7 +225,7 @@ sub _set_primers_from_file {
 }
 
 
-sub get_forward_regexp {
+sub forward_regexp {
    my ($self) = @_;
    return $self->{forward_regexp};
 }
@@ -234,11 +234,11 @@ sub get_forward_regexp {
 sub _set_forward_regexp {
    my ($self, $regexp) = @_;
    $self->{forward_regexp} = $regexp;
-   return $self->get_forward_regexp;
+   return $self->forward_regexp;
 }
 
 
-sub get_reverse_regexp {
+sub reverse_regexp {
    my ($self) = @_;
    return $self->{reverse_regexp};
 }
@@ -247,11 +247,11 @@ sub get_reverse_regexp {
 sub _set_reverse_regexp {
    my ($self, $regexp) = @_;
    $self->{reverse_regexp} = $regexp;
-   return $self->get_reverse_regexp;
+   return $self->reverse_regexp;
 }
 
 
-sub get_attach_primers {
+sub attach_primers {
    my ($self) = @_;
    return $self->{attach_primers} || 0;
 }
@@ -261,7 +261,7 @@ sub _set_attach_primers {
    my ($self, $val) = @_;
    $self->{attach_primers} = $val;
    require Bio::SeqFeature::Primer;
-   return $self->get_attach_primers;
+   return $self->attach_primers;
 }
 
 
@@ -280,32 +280,45 @@ sub next_amplicon {
 
    my $amplicon;
 
-   my $seq = $self->get_template;
-   my $seqstr = $seq->seq;
-   my $fwd_regexp = $self->get_forward_regexp;
-   my $rev_regexp = $self->get_reverse_regexp;
+   my $seqstr = $self->template->seq;
+   my $fwd_regexp = $self->forward_regexp;
+   my $rev_regexp = $self->reverse_regexp;
  
-   #### orientation?
-   my $orientation = 1;
+   #### orientation? need to revcom the template if we have exhausted the fwd orientation
+   my $strand = 1;
 
    if ( defined($fwd_regexp) && not(defined $rev_regexp) ) {
       # From forward primer to end of template
-      $seqstr   =~ m/($fwd_regexp)/g;
-      my $start = pos($seqstr) - length($1) + 1;
-      my $end   = length($seqstr); ### $seq->length;
-      $amplicon = $self->_create_amplicon($start, $end, $orientation);
+      if ($seqstr  =~ m/($fwd_regexp)/g) {
+         my $start = pos($seqstr) - length($1) + 1;
+         my $end   = length($seqstr);
+         $amplicon = $self->_create_amplicon($start, $end, $strand);
+      }
 
    } elsif ( defined($fwd_regexp) && defined($rev_regexp) ) {
       # From forward to reverse primer
-      $seqstr   =~ m/($fwd_regexp.*?$rev_regexp)/g;
-      my $end   = pos($seqstr);
-      my $start = $end - length($1) + 1;
-      # Now trim the left end to obtain the shortest amplicon
-      my $ampliconstr = substr $seqstr, $start - 1, $end - $start + 1;
-      if ($ampliconstr =~ m/$fwd_regexp.*($fwd_regexp)/g) {
-        $start += pos($ampliconstr) - length($1);
+#  while ( $seqstr =~ m/($fwd_regexp.*?$rev_regexp)/g ) {
+#      if ($seqstr  =~ m/($fwd_regexp.*?$rev_regexp)/g) {
+      if ($seqstr  =~ m/\G.*?($fwd_regexp.*?$rev_regexp)/g) {
+ 
+         #####
+         print "match: '$1'\n";
+         #####
+
+         my $end   = pos($seqstr);
+         my $start = $end - length($1) + 1;
+
+         ####
+         pos($seqstr) = $start + 2;
+         ####
+
+         # Now trim the left end to obtain the shortest amplicon
+         my $ampliconstr = substr $seqstr, $start - 1, $end - $start + 1;
+         if ($ampliconstr =~ m/$fwd_regexp.*($fwd_regexp)/g) {
+            $start += pos($ampliconstr) - length($1);
+         }
+         $amplicon = $self->_create_amplicon($start, $end, $strand);
       }
-      $amplicon = $self->_create_amplicon($start, $end, $orientation);
 
    } else {
       $self->throw("Need to provide at least a forward primer\n");
@@ -317,27 +330,42 @@ sub next_amplicon {
 
 sub _create_amplicon {
    # Create an amplicon sequence and register its coordinates
-   my ($self, $start, $end, $orientation) = @_;
+   my ($self, $start, $end, $strand) = @_;
 
-   my $template = $self->get_template;
-
+   # Create Bio::SeqFeature::Amplicon feature and attach it to the template
    my $amplicon = Bio::SeqFeature::Amplicon->new(
-      -start => $start,
-      -end   => $end,
-      ###-strand => XXX,
+      -start    => $start,
+      -end      => $end,
+      -strand   => $strand,
+      -template => $self->template,
    );
 
-   $template->add_SeqFeature($amplicon);
-
-   if ($self->get_attach_primers) {
-
+   # Create Bio::SeqFeature::Primer feature and attach them to the amplicon
+   if ($self->attach_primers) {
       for my $type ('fwd', 'rev') {
-         my $primer_seq = $type eq 'fwd' ? $self->get_forward_primer : $self->get_reverse_primer;
-         next if $type eq 'fwd' and not defined $primer_seq;
-         ###my $length = $->length;
+         my ($pstart, $pend, $pstrand);
+
+         if ($type eq 'fwd') {
+            # Forward primer
+            $pstart  = 1;
+            $pend    = $self->forward_primer->length;
+            $pstrand = $amplicon->strand;
+         }
+         
+         else {
+            # Optional reverse primer
+            my $primer_seq = $self->reverse_primer;
+            next if not defined $primer_seq;
+            $pstart  = $end - $primer_seq->length + 1;
+            $pend    = $end;
+            $pstrand = -1 * $amplicon->strand;
+         }
+
          my $primer = Bio::SeqFeature::Primer->new(
-            -start => 1,
-         ###   -end   => $length,
+            -start    => $pstart,
+            -end      => $pend,
+            -strand   => $pstrand,
+            -template => $amplicon,
          );
       }
    }
@@ -363,7 +391,7 @@ sub _create_amplicon {
 #      $amplicon->start( XXX );
 #      $amplicon->end( XXX );
 #      $amplicon->strand( XXX );
-#      if ( ($want_a eq 'Bio::SeqFeature::Amplicon') && ($self->get_attach_primers) ) {
+#      if ( ($want_a eq 'Bio::SeqFeature::Amplicon') && ($self->attach_primers) ) {
 #         # add primers to
 #         $amplicon->fwd_primer( XXX );
 #         $amplicon->rev_primer( XXX );
