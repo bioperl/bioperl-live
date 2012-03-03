@@ -17,6 +17,8 @@ my ($primer, $primer_seq, $location, $start, $end, $strand, $id, $tm, $tme, $tem
 # Implied primer sequence
 $template = Bio::Seq->new( -seq => 'AAAAACCCCCGGGGGTTTTT' );
 ok $primer = Bio::SeqFeature::Primer->new( -start => 6, -end => 10 ), 'Implied primer sequence';
+isa_ok $primer, 'Bio::SeqFeature::Primer';
+isa_ok $primer, 'Bio::SeqFeature::SubSeq';
 ok $template->add_SeqFeature($primer); # $primer->attach_seq($template);
 ok $primer_seq = $primer->seq;
 isa_ok $primer_seq, 'Bio::PrimarySeqI';

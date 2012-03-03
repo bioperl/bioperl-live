@@ -53,7 +53,7 @@ Bio::SeqFeature::Primer - Primer Generic SeqFeature
 =head1 DESCRIPTION
 
 This module handles PCR primer sequences. The L<Bio::SeqFeature::Primer> object
-is a L<Bio::SeqFeature::Generic> object that can additionally contain a primer
+is a L<Bio::SeqFeature::Subseq> object that can additionally contain a primer
 sequence and its coordinates on a template sequence. The primary_tag() for this
 object is 'Primer'. A method is provided to calculate the melting temperature Tm
 of the primer. L<Bio::SeqFeature::Primer> objects are useful to build
@@ -111,7 +111,7 @@ use strict;
 use Bio::PrimarySeq;
 use Bio::Tools::SeqStats;
 
-use base qw(Bio::SeqFeature::Generic);
+use base qw(Bio::SeqFeature::SubSeq);
 
 
 =head2 new()
@@ -129,66 +129,19 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my ($id, $seq, $sequence) = $self->_rearrange([qw(ID SEQ SEQUENCE)], @args);
+    my ($id, $sequence) = $self->_rearrange([qw(ID SEQUENCE)], @args);
     if (defined $sequence) {
         Bio::Root::Root->deprecated(
             -message => 'Creating a Bio::SeqFeature::Primer with -sequence is deprecated. Use -seq instead.',
             -warn_version  => '1.006',
             -throw_version => '1.008',
         );
-        $seq = $sequence;
-    }
-    
-    if (defined $seq) {
-        # Set the primer sequence
-        if (not ref $seq) {
-            # Convert string to sequence object
-            $seq = Bio::PrimarySeq->new( -seq => $seq );
-            $seq->id($id) if defined $id;
-        } else {
-            # Sanity check
-            if (not $seq->isa('Bio::PrimarySeqI')) {
-                $self->throw("Expected a sequence object but got a [".ref($seq)."]\n");
-            }
-        }
-        $self->seq($seq);
+        $self->seq($sequence);
     }
 
     $self->primary_tag('Primer');
 
     return $self;
-}
-
-
-=head2 seq()
-
- Title   : seq()
- Usage   : my $seq = $primer->seq();
- Function: Get or set the sequence object of this Primer. If no sequence was
-           provided, but the primer is attached, get the matching subsequence.
- Returns : A sequence object
- Args    : None.
-
-=cut
-
-sub seq {
-    my ($self, $value) = @_;
-    if (defined $value) {
-        if ( not(ref $value) || not $value->isa('Bio::PrimarySeqI') ) {
-            $self->throw("Expected a sequence object but got a '".ref($value)."'\n");
-        }
-        $self->{seq} = $value;
-    }
-    my $seq = $self->{seq};
-    if (not defined $seq) {
-        # the sequence is implied
-        if (not($self->start && $self->end)) {
-            $self->throw('Could not get primer sequence. Specify it explictly '.
-                'using seq(), or implicitly using start() and end().');
-        }
-        $seq = $self->SUPER::seq;
-    }
-    return $seq;
 }
 
 
