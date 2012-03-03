@@ -311,7 +311,7 @@ sub _create_amplicon {
    # Create an amplicon sequence and register its coordinates
    my ($self, $start, $end, $orientation) = @_;
 
-   my $want_a = $self->want_a;
+   my $want_a = $self->get_want_a;
 
    my $template = $self->get_template;
    my $amplicon;
@@ -336,7 +336,7 @@ sub _create_amplicon {
 #      $amplicon->start( XXX );
 #      $amplicon->end( XXX );
 #      $amplicon->strand( XXX );
-#      if ( ($want_a eq 'Bio::SeqFeature::Amplicon') && ($self->attach_primers) ) {
+#      if ( ($want_a eq 'Bio::SeqFeature::Amplicon') && ($self->get_attach_primers) ) {
 #         # add primers to
 #         $amplicon->fwd_primer( XXX );
 #         $amplicon->rev_primer( XXX );
