@@ -63,7 +63,6 @@ is $search->get_template->seq, 'AAACTTAAAGGAATTGACGGaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 is $search->get_forward_primer->seq, 'AAACTYAAAKGAATTGRCGG';
 is $search->get_reverse_primer->seq, 'ACGGGCGGTGTGTRC';
 
-
 ok $search->next_amplicon;
 
 
