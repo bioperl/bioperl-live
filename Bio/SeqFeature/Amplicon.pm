@@ -14,17 +14,26 @@ Bio::SeqFeature::Amplicon - Amplicon feature
 
 =head1 SYNOPSIS
 
-   use Bio::Seq;
-   use Bio::SeqFeature::Amplicon;
+  # Amplicon with explicit sequence
+  use Bio::SeqFeature::Amplicon;
+  my $amplicon = Bio::SeqFeature::Amplicon->new( 
+      -seq        => $seq_object,
+      -fwd_primer => $primer_object_1,
+      -rev_primer => $primer_object_2,
+  );
 
-   my $seq  = Bio::Seq->new( -seq => 'AAAAACCCCCGGGGGTTTTT' );
-   my $feat = Bio::SeqFeature::Amplicon->new( 
-            -start        => 6,
-            -end          => 15,
-            -strand       => 1,
-            -fwd_primer   =>
-            -rev_primer   =>
-   );
+  # Amplicon with implicit sequence
+  use Bio::Seq;
+  my $template = Bio::Seq->new( -seq => 'AAAAACCCCCGGGGGTTTTT' );
+  $amplicon = Bio::SeqFeature::Amplicon->new(
+      -start => 6,
+      -end   => 15,
+  );
+  $template->add_SeqFeature($amplicon);
+  print "Amplicon start   : ".$amplicon->start."\n";
+  print "Amplicon end     : ".$amplicon->end."\n";
+  print "Amplicon sequence: ".$amplicon->seq->seq."\n";
+  # Amplicon sequence should be 'CCCCCGGGGG'
 
 =head1 DESCRIPTION
 
@@ -81,22 +90,93 @@ use base qw(Bio::SeqFeature::Generic);
 
 =head2 new
 
- Title   : new
- Usage   :
- Function:
- Args    :
- Returns :
+ Title   : new()
+ Usage   : my $amplicon = Bio::SeqFeature::Amplicon( -seq => $seq_object );
+ Function: Instantiate a new Bio::SeqFeature::Amplicon object
+ Args    : -seq        , the sequence object or sequence string of the amplicon (optional)
+           -fwd_primer , a Bio::SeqFeature primer object with specified location on amplicon (optional)
+           -rev_primer , a Bio::SeqFeature primer object with specified location on amplicon (optional)
+ Returns : A Bio::SeqFeature::Amplicon object
 
 =cut
 
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($fwd_primer, $rev_primer) = $self->_rearrange([qw(FWD_PRIMER REV_PRIMER)], @args);
+    my ($seq, $fwd_primer, $rev_primer) =
+        $self->_rearrange([qw(SEQ FWD_PRIMER REV_PRIMER)], @args);
+    if (defined $seq) {
+        # Set the amplicon sequence
+        if (not ref $seq) {
+            # Convert string to sequence object
+            $seq = Bio::PrimarySeq->new( -seq => $seq );
+        } else {
+            # Sanity check
+            if (not $seq->isa('Bio::PrimarySeqI')) {
+                $self->throw("Expected a sequence object but got a '".ref($seq)."'\n");
+            }
+        }
+        $self->seq($seq);
+    }
     $fwd_primer && $self->fwd_primer($fwd_primer);
     $rev_primer && $self->rev_primer($rev_primer);
     return $self;
 }  
+
+
+=head2 seq
+
+ Title   : seq()
+ Usage   : $seq = $amplicon->seq();
+ Function: Get or set the sequence object of this Amplicon. If no sequence was
+           provided, but the amplicon is located and attached to a sequence, get
+           the matching subsequence.
+ Returns : A sequence object
+ Args    : None.
+
+=cut
+
+sub seq {
+    my ($self, $value) = @_;
+    if (defined $value) {
+        if ( not(ref $value) || not $value->isa('Bio::PrimarySeqI') ) {
+            $self->throw("Expected a sequence object but got a '".ref($value)."'\n");
+        }
+        $self->{seq} = $value;
+    }
+    my $seq = $self->{seq};
+    if (not defined $seq) {
+        # the sequence is implied
+        if (not($self->start && $self->end)) {
+            $self->throw('Could not get amplicon sequence. Specify it explictly '.
+                'using seq(), or implicitly using start() and end().');
+        }
+        $seq = $self->SUPER::seq;
+    }
+    return $seq;
+}
+
+
+sub _primer {
+    my ($self, $type, $primer) = @_;
+    # type is either 'fwd' or 'rev'
+
+    if (defined $primer) {
+        if ( not(ref $primer) || not $primer->isa('Bio::SeqFeature::Primer') ) {
+            $self->throw("Expected a primer object but got a '".ref($primer)."'\n");
+        }
+
+        if ( not defined $self->location ) {
+            $self->throw("Location of $type primer on amplicon is not known. ".
+                "Use start(), end() or location() to set it.");
+        }
+
+        $primer->primary_tag($type.'_primer');
+
+        $self->add_SeqFeature($primer, 'EXPAND');
+    }
+    return (grep { $_->primary_tag eq $type.'_primer' } $self->get_SeqFeatures)[0];
+}    
 
 
 =head2 fwd_primer
@@ -113,24 +193,8 @@ sub new {
 =cut
 
 sub fwd_primer {
-    my ($self, $value) = @_;
-    if (defined $value) {
-        if (not $value->isa('Bio::SeqFeature::Primer')) {
-            $self->throw("Expected a Bio::SeqFeature::Primer as input but got a ".ref($value)."\n");
-        }
-        $value->primary_tag('fwd_primer');
-        $value->start(1) unless $value->start;
-        $value->end( $value->start + $value->length );
-
-        ####
-        #use Data::Dumper;
-        #print Dumper($value);
-        #print "start: ".$value->start." / end: ".$value->end."\n";
-        ####
-
-        $self->add_SeqFeature($value);
-    }
-    return (grep { $_->primary_tag eq 'fwd_primer' } $self->get_SeqFeatures)[0];
+    my ($self, $primer) = @_;
+    return $self->_primer('fwd', $primer);
 }
 
 
@@ -146,12 +210,8 @@ sub fwd_primer {
 =cut
 
 sub rev_primer {
-    my ($self, $value) = @_;
-    if ($value) {
-        $value->primary_tag('rev_primer');
-        $self->add_SeqFeature($value);
-    }
-    return (grep { $_->primary_tag eq 'rev_primer' } $self->get_SeqFeatures)[0];
+    my ($self, $primer) = @_;
+    return $self->_primer('rev', $primer);
 }
 
 
