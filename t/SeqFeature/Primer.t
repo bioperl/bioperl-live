@@ -7,7 +7,7 @@ use strict;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 45);
+    test_begin(-tests => 47);
     use_ok('Bio::SeqFeature::Primer');
     use_ok('Bio::PrimarySeq');
 }

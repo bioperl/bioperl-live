@@ -126,21 +126,24 @@ use base qw(Bio::SeqFeature::SubSeq);
 =cut
 
 sub new {
-    my ($class, @args) = @_;
-    my $self = $class->SUPER::new(@args);
+    my ($class, %args) = @_;
 
-    my ($id, $sequence) = $self->_rearrange([qw(ID SEQUENCE)], @args);
-    if (defined $sequence) {
+    # Legacy stuff
+    my $sequence = delete $args{-sequence};
+    if ($sequence) {
         Bio::Root::Root->deprecated(
             -message => 'Creating a Bio::SeqFeature::Primer with -sequence is deprecated. Use -seq instead.',
             -warn_version  => '1.006',
             -throw_version => '1.008',
         );
-        $self->seq($sequence);
+        $args{-seq} = $sequence;
     }
 
+    # Initialize Primer object
+    my $self = $class->SUPER::new(%args);
+    my ($id) = $self->_rearrange([qw(ID)], %args);
+    $id && $self->seq->id($id);
     $self->primary_tag('Primer');
-
     return $self;
 }
 
