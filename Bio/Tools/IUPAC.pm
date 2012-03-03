@@ -276,9 +276,8 @@ BEGIN {
  Usage   : Bio::Tools::IUPAC->new($seq);
  Function: Create a new IUPAC object, which acts as a sequence stream (akin to
            SeqIO)
- Args    : an ambiguously coded Bio::Seq object that has a specified 'alphabet'
- Returns : a Bio::Tools::IUPAC stream object that will produce unique
-           sequence objects on demand.
+ Args    : an ambiguously coded sequence object that has a specified 'alphabet'
+ Returns : a Bio::Tools::IUPAC object.
 
 =cut
 
@@ -293,7 +292,7 @@ sub new {
     }
 
     if (defined $seq) {
-        if (not $seq->isa('Bio::Seq')) {
+        if (not $seq->isa('Bio::PrimarySeqI')) {
             $self->throw('Must supply a Bio::Seq object');
         }
         if (length $seq->seq == 0) {

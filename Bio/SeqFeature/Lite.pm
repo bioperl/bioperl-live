@@ -128,7 +128,7 @@ An alias for sub_SeqFeature() (you don't want to know why!)
 
 use strict;
 
-use base qw(Bio::Root::Root Bio::SeqFeatureI Bio::LocationI Bio::SeqI Bio::RangeI);
+use base qw(Bio::Root::Root Bio::SeqFeatureI Bio::LocationI Bio::SeqI);
 
 *stop        = \&end;
 *info        = \&name;

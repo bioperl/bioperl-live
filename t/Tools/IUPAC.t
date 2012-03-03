@@ -7,10 +7,11 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 42);
+    test_begin(-tests => 45);
 
     use_ok('Bio::Tools::IUPAC');
     use_ok('Bio::Seq');
+    use_ok('Bio::PrimarySeq');
 }
 
 
@@ -21,7 +22,14 @@ my $ambiseq = Bio::Seq->new(
     -alphabet => 'dna',
 );
 
-my $iupac = Bio::Tools::IUPAC->new( -seq => $ambiseq );
+my $ambiprimaryseq = Bio::Seq->new(
+    -seq      => 'ARTCGTTGN',
+    -alphabet => 'dna',
+);
+
+ok my $iupac = Bio::Tools::IUPAC->new( -seq => $ambiprimaryseq );
+
+ok $iupac = Bio::Tools::IUPAC->new( -seq => $ambiseq );
 
 ok my $regexp = $iupac->regexp;
 
