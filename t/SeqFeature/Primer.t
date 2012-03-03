@@ -17,7 +17,7 @@ my ($primer, $primer_seq, $location, $start, $end, $strand, $id, $tm, $tme, $tem
 # Implied primer sequence
 $template = Bio::Seq->new( -seq => 'AAAAACCCCCGGGGGTTTTT' );
 ok $primer = Bio::SeqFeature::Primer->new( -start => 6, -end => 10 ), 'Implied primer sequence';
-ok $primer->attach_seq($template); # attach the primer to a template
+ok $template->add_SeqFeature($primer); # $primer->attach_seq($template);
 ok $primer_seq = $primer->seq;
 isa_ok $primer_seq, 'Bio::PrimarySeqI';
 is $primer_seq->seq, 'CCCCC';
@@ -27,7 +27,7 @@ is $primer_seq->seq, 'CCCCC';
 $template = Bio::Seq->new( -seq => 'AAAAACCCCCGGGGGTTTTT' );
 $seq = Bio::PrimarySeq->new(-seq => 'CTTTTCATTCTGACTGCAACG');
 ok $primer = Bio::SeqFeature::Primer->new(-seq => $seq), 'PrimarySeq primer';
-ok $primer->attach_seq($template);
+ok $template->add_SeqFeature($primer); # $primer->attach_seq($template);
 ok $primer_seq = $primer->seq;
 isa_ok $primer_seq, 'Bio::PrimarySeqI';
 is $primer_seq->seq, 'CTTTTCATTCTGACTGCAACG';

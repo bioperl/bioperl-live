@@ -30,36 +30,29 @@ Bio::SeqFeature::Primer - Primer Generic SeqFeature
 
 =head1 SYNOPSIS
 
- use Bio::SeqFeature::Primer;
+  use Bio::SeqFeature::Primer;
 
- # Initiate a primer with raw sequence
- my $primer = Bio::SeqFeature::Primer->new( -seq => 'CTTTTCATTCTGACTGCAACG' );
+  # Primer object with explicitly-defined sequence object or sequence string
+  my $primer = Bio::SeqFeature::Primer->new( -seq => 'ACGTAGCT' );
+  $primer->display_name('test_id');
+  print "These are the details of the primer:\n".
+        "Name:     ".$primer->display_name."\n".  
+        "Tag:      ".$primer->primary_tag."\n".   # always 'Primer'
+        "Sequence: ".$primer->seq->seq."\n".
+        "Tm:       ".$primer->Tm."\n\n";            # melting temperature
 
- # Get the primary tag for the primer. This is always 'Primer'.
- my $tag = $primer->primary_tag;
-
- # Set the start, end or strand of the primer on the template
- $primer->start(2);
- $primer->end(19);
- $primer->strand(-1);
-
- # Set the ID of the feature
- $primer->display_name('test_id');
-
- # Calculate the Tm (melting temperature) for the primer
- my $tm = $primer->Tm;
-
- print "These are the details of the primer:\n".
-       "Tag:    $tag\n".
-       "Start:  ".$primer->start."\n".
-       "End:    ".$primer->end."\n".
-       "Strand: ".$primer->strand."\n".
-       "Name:   ".$primer->display_name."\n".
-       "Tm:     $tm\n";
+  # Primer object with implicit sequence object
+  # It is a lighter approach for when the primer location on a template is known
+  use Bio::Seq;
+  my $template = Bio::Seq->new( -seq => 'ACGTAGCTCTTTTCATTCTGACTGCAACG' );
+  $primer   = Bio::SeqFeature::Primer->new( -start => 1, -end =>5, -strand => 1 );
+  $template->add_SeqFeature($primer);
+  print "Primer sequence is: ".$primer->seq->seq."\n";
+  # Primer sequence is 'ACGTA'
 
 =head1 DESCRIPTION
 
-This module handle PCR primer sequences. The L<Bio::SeqFeature::Primer> object
+This module handles PCR primer sequences. The L<Bio::SeqFeature::Primer> object
 is a L<Bio::SeqFeature::Generic> object that can additionally contain a primer
 sequence and its coordinates on a template sequence. The primary_tag() for this
 object is 'Primer'. A method is provided to calculate the melting temperature Tm
@@ -124,13 +117,11 @@ use base qw(Bio::SeqFeature::Generic);
 =head2 new()
 
  Title   : new()
- Usage   : $primer = Bio::SeqFeature::Primer(
-               -seq => $seq_object,
-           );
+ Usage   : my $primer = Bio::SeqFeature::Primer( -seq => $seq_object );
  Function: Instantiate a new Bio::SeqFeature::Primer object
  Returns : A Bio::SeqFeature::Primer object
- Args    : -seq , a sequence object (preferable) or a sequence string.
-           -id  , the ID to give to the primer sequence (not feature)
+ Args    : -seq , a sequence object or a sequence string (optional)
+           -id  , the ID to give to the primer sequence, not feature (optional)
 
 =cut
 
@@ -172,7 +163,7 @@ sub new {
 =head2 seq()
 
  Title   : seq()
- Usage   : $seq = $primer->seq();
+ Usage   : my $seq = $primer->seq();
  Function: Get or set the sequence object of this Primer. If no sequence was
            provided, but the primer is attached, get the matching subsequence.
  Returns : A sequence object
@@ -225,7 +216,7 @@ sub location {
 =head2 Tm()
 
  Title   : Tm()
- Usage   : $tm = $primer->Tm(-salt => 0.05, -oligo => 0.0000001);
+ Usage   : my $tm = $primer->Tm(-salt => 0.05, -oligo => 0.0000001);
  Function: Calculate the Tm (melting temperature) of the primer
  Returns : A scalar containing the Tm.
  Args    : -salt  : set the Na+ concentration on which to base the calculation
@@ -330,7 +321,7 @@ sub Tm {
 =head2 Tm_estimate
 
  Title   : Tm_estimate
- Usage   : $tm = $primer->Tm_estimate(-salt => 0.05);
+ Usage   : my $tm = $primer->Tm_estimate(-salt => 0.05);
  Function: Estimate the Tm (melting temperature) of the primer
  Returns : A scalar containing the Tm.
  Args    : -salt set the Na+ concentration on which to base the calculation.
