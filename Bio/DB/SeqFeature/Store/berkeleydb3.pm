@@ -498,7 +498,7 @@ sub build_summary_statistics {
     my $num_cmp_tre         = DB_File::BTREEINFO->new;
     $num_cmp_tree->{compare} = sub { $_[0] <=> $_[1] };
     $num_cmp_tree->{flags}   = R_DUP;
-    my $s = tie %sort, 'DB_File', $name, 0666, O_CREAT|O_RDWR, $num_cmp_tree 
+    my $s = tie %sort, 'DB_File', $name, O_CREAT|O_RDWR, 0666, $num_cmp_tree 
         or $self->throw("Could not create Berkeley DB in temporary file '$name': $!");
 
     my $index    = $self->index_db('locations');
