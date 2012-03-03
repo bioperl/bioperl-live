@@ -94,19 +94,19 @@ sub open_index_dbs {
     $numeric_cmp->{compare} = sub { $_[0] <=> $_[1] };
 
     for my $idx ($self->_index_files) {
-	my $path    = $self->_qualify("$idx.idx");
-	my %db;
-	my $dbtype  = $idx eq 'locations' ? $numeric_cmp
-	             :$idx eq 'summary'   ? $numeric_cmp
+        my $path    = $self->_qualify("$idx.idx");
+        my %db;
+        my $dbtype  = $idx eq 'locations' ? $numeric_cmp
+                     :$idx eq 'summary'   ? $numeric_cmp
                      :$idx eq 'types'     ? $numeric_cmp
                      :$idx eq 'seqids'    ? $DB_HASH
                      :$idx eq 'typeids'   ? $DB_HASH
                      :$string_cmp;
 
-	tie(%db,'DB_File',$path,$flags,0666,$dbtype)
-	    or $self->throw("Couldn't tie $path: $!");
-	%db = () if $create;
-	$self->index_db($idx=>\%db);
+        tie(%db,'DB_File',$path,$flags,0666,$dbtype)
+            or $self->throw("Couldn't tie $path: $!");
+        %db = () if $create;
+        $self->index_db($idx=>\%db);
     }
 
 }
@@ -160,9 +160,9 @@ sub add_typeid {
 sub _seq_ids {
     my $self = shift;
     if (my $fa = $self->{fasta_db}) {
-	if (my @s = eval {$fa->ids}) {
-	    return @s;
-	}
+        if (my @s = eval {$fa->ids}) {
+            return @s;
+        }
     } 
     my $l = $self->seqid_db or return;
     return grep {!/^\./} keys %$l;
@@ -188,14 +188,14 @@ sub _update_seqid_index {
 }
 
 sub _update_type_index {
-  my $self = shift;
-  my ($obj,$id,$delete) = @_;
-  my $db = $self->index_db('types')
-    or $self->throw("Couldn't find 'types' index file");
+    my $self = shift;
+    my ($obj,$id,$delete) = @_;
+    my $db = $self->index_db('types')
+        or $self->throw("Couldn't find 'types' index file");
 
-  my $key         = $self->_obj_to_type($obj);
-  my $typeid      = $self->add_typeid($key);
-  $self->update_or_delete($delete,$db,$typeid,$id);
+    my $key    = $self->_obj_to_type($obj);
+    my $typeid = $self->add_typeid($key);
+    $self->update_or_delete($delete,$db,$typeid,$id);
 }
 
 sub _obj_to_type {
@@ -212,7 +212,7 @@ sub _obj_to_type {
 sub types {
     my $self = shift;
     eval "require Bio::DB::GFF::Typename" 
-	unless Bio::DB::GFF::Typename->can('new');
+        unless Bio::DB::GFF::Typename->can('new');
     my $db   = $self->typeid_db;
     return grep {!/^\./} map {Bio::DB::GFF::Typename->new($_)} keys %$db;
 }
@@ -223,8 +223,8 @@ sub _id2type {
 
     my $db = $self->typeid_db;
     while (my($key,$id) = each %$db) {
-	next if $key =~ /^\./;
-	return $key if $id == $wanted_id;
+        next if $key =~ /^\./;
+        return $key if $id == $wanted_id;
     }
     return;
 }
@@ -240,235 +240,236 @@ sub _matching_types {
     my @all_types;
 
     for my $type (@types) {
-	my ($primary_tag,$source_tag);
-	if (ref $type && $type->isa('Bio::DB::GFF::Typename')) {
-	    $primary_tag = $type->method;
-	    $source_tag  = $type->source;
-	} else {
-	    ($primary_tag,$source_tag) = split ':',$type,2;
-	}
-	if (defined $source_tag) {
-	    my $id = $db->{lc "$primary_tag:$source_tag"};
-	    $result{$id}++ if defined $id;
-	} else {
-	    @all_types  = $self->types unless @all_types;
-	    $result{$db->{$_}}++ foreach grep {/^$primary_tag:/} @all_types;
-	}
+        my ($primary_tag,$source_tag);
+        if (ref $type && $type->isa('Bio::DB::GFF::Typename')) {
+            $primary_tag = $type->method;
+            $source_tag  = $type->source;
+        } else {
+            ($primary_tag,$source_tag) = split ':',$type,2;
+        }
+        if (defined $source_tag) {
+            my $id = $db->{lc "$primary_tag:$source_tag"};
+            $result{$id}++ if defined $id;
+        } else {
+            @all_types  = $self->types unless @all_types;
+            $result{$db->{$_}}++ foreach grep {/^$primary_tag:/} @all_types;
+        }
     }
     return \%result;
 }
 
 sub _update_location_index {
-  my $self = shift;
-  my ($obj,$id,$delete) = @_;
+    my $self = shift;
+    my ($obj,$id,$delete) = @_;
 
-  my $db = $self->index_db('locations')
-    or $self->throw("Couldn't find 'locations' index file");
+    my $db = $self->index_db('locations')
+        or $self->throw("Couldn't find 'locations' index file");
 
-  my $seq_id      = $obj->seq_id || '';
-  my $start       = $obj->start  || '';
-  my $end         = $obj->end    || '';
-  my $strand      = $obj->strand;
-  my $bin_min     = int $start/BINSIZE;
-  my $bin_max     = int $end/BINSIZE;
+    my $seq_id      = $obj->seq_id || '';
+    my $start       = $obj->start  || '';
+    my $end         = $obj->end    || '';
+    my $strand      = $obj->strand;
+    my $bin_min     = int $start/BINSIZE;
+    my $bin_max     = int $end/BINSIZE;
 
-  my $typeid      = $self->add_typeid($self->_obj_to_type($obj));
-  my $seq_no      = $self->add_seqid($seq_id);
+    my $typeid      = $self->add_typeid($self->_obj_to_type($obj));
+    my $seq_no      = $self->add_seqid($seq_id);
 
-  for (my $bin = $bin_min; $bin <= $bin_max; $bin++ ) {
-    my $key = $seq_no * MAX_SEQUENCES + $bin;
-    $self->update_or_delete($delete,$db,$key,pack("i5",$id,$start,$end,$strand,$typeid));
-  }
+    for (my $bin = $bin_min; $bin <= $bin_max; $bin++ ) {
+        my $key = $seq_no * MAX_SEQUENCES + $bin;
+        $self->update_or_delete($delete,$db,$key,pack("i5",$id,$start,$end,$strand,$typeid));
+    }
 
 }
 
 sub _features {
-  my $self = shift;
-  my ($seq_id,$start,$end,$strand,
-      $name,$class,$allow_aliases,
-      $types,
-      $attributes,
-      $range_type,
-      $iterator
-     ) = rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],'STRAND',
-		    'NAME','CLASS','ALIASES',
-		    ['TYPES','TYPE','PRIMARY_TAG'],
-		    ['ATTRIBUTES','ATTRIBUTE'],
-		    'RANGE_TYPE',
-		    'ITERATOR',
-		   ],@_);
+    my $self = shift;
+    my ($seq_id,$start,$end,$strand,
+        $name,$class,$allow_aliases,
+        $types,
+        $attributes,
+        $range_type,
+        $iterator
+       ) = rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],'STRAND',
+                      'NAME','CLASS','ALIASES',
+                      ['TYPES','TYPE','PRIMARY_TAG'],
+                      ['ATTRIBUTES','ATTRIBUTE'],
+                      'RANGE_TYPE',
+                      'ITERATOR',
+                     ],@_);
 
-  my (@from,@where,@args,@group);
-  $range_type ||= 'overlaps';
+    my (@from,@where,@args,@group);
+    $range_type ||= 'overlaps';
 
-  my @result;
-  unless (defined $name or defined $seq_id or defined $types or defined $attributes) {
-      my $is_indexed = $self->index_db('is_indexed');
-      @result = $is_indexed ? grep {$is_indexed->{$_}} keys %{$self->db}
-                            : grep { !/^\./ }keys %{$self->db};
-  }
+    my @result;
+    unless (defined $name or defined $seq_id or defined $types or defined $attributes) {
+        my $is_indexed = $self->index_db('is_indexed');
+        @result = $is_indexed ? grep {$is_indexed->{$_}} keys %{$self->db}
+                              : grep { !/^\./ }keys %{$self->db};
+    }
 
-  my %found = ();
-  my $result = 1;
+    my %found = ();
+    my $result = 1;
 
-  if (defined($name)) {
-    # hacky backward compatibility workaround
-    undef $class if $class && $class eq 'Sequence';
-    $name     = "$class:$name" if defined $class && length $class > 0;
-    $result &&= $self->filter_by_name($name,$allow_aliases,\%found);
-  }
+    if (defined($name)) {
+        # hacky backward compatibility workaround
+        undef $class if $class && $class eq 'Sequence';
+        $name     = "$class:$name" if defined $class && length $class > 0;
+        $result &&= $self->filter_by_name($name,$allow_aliases,\%found);
+    }
 
-  if (defined $seq_id) { # location with or without types
-      my $typelist = defined $types ? $self->_matching_types($types) : undef;
-      $result &&= $self->filter_by_type_and_location($seq_id,$start,$end,$strand,$range_type,
-						     $typelist, \%found);
-  }
+    if (defined $seq_id) { # location with or without types
+        my $typelist = defined $types ? $self->_matching_types($types) : undef;
+        $result &&= $self->filter_by_type_and_location(
+            $seq_id, $start, $end, $strand, $range_type, $typelist, \%found
+        );
+    }
 
-  elsif (defined $types) { # types without location
-      $result &&= $self->filter_by_type($types,\%found);
-  }
+    elsif (defined $types) { # types without location
+        $result &&= $self->filter_by_type($types,\%found);
+    }
 
-  if (defined $attributes) {
-    $result &&= $self->filter_by_attribute($attributes,\%found);
-  }
+    if (defined $attributes) {
+      $result &&= $self->filter_by_attribute($attributes,\%found);
+    }
 
-  push @result,keys %found if $result;
-  return $iterator ? Bio::DB::SeqFeature::Store::berkeleydb::Iterator->new($self,\@result)
-                   : map {$self->fetch($_)} @result;
+    push @result,keys %found if $result;
+    return $iterator ? Bio::DB::SeqFeature::Store::berkeleydb::Iterator->new($self,\@result)
+                     : map {$self->fetch($_)} @result;
 }
 
 sub filter_by_type {
-  my $self = shift;
-  my ($types,$filter) = @_;
-  my @types = ref $types eq 'ARRAY' ?  @$types : $types;
+    my $self = shift;
+    my ($types,$filter) = @_;
+    my @types = ref $types eq 'ARRAY' ?  @$types : $types;
 
-  my $index = $self->index_db('types');
-  my $db    = tied(%$index);
+    my $index = $self->index_db('types');
+    my $db    = tied(%$index);
 
-  my @results;
+    my @results;
 
-  for my $type (@types) {
-    my ($primary_tag,$source_tag);
-    if (ref $type && $type->isa('Bio::DB::GFF::Typename')) {
-      $primary_tag = $type->method;
-      $source_tag  = $type->source;
-    } else {
-      ($primary_tag,$source_tag) = split ':',$type,2;
+    for my $type (@types) {
+        my ($primary_tag,$source_tag);
+        if (ref $type && $type->isa('Bio::DB::GFF::Typename')) {
+            $primary_tag = $type->method;
+            $source_tag  = $type->source;
+        } else {
+            ($primary_tag,$source_tag) = split ':',$type,2;
+        }
+        $source_tag ||= '';
+        $primary_tag  = quotemeta($primary_tag);
+        $source_tag    = quotemeta($source_tag);
+        my $match = length $source_tag ? "^$primary_tag:$source_tag\$" : "^$primary_tag:";
+        my $key      = lc "$primary_tag:$source_tag";
+        my $value;
+
+        # If filter is already provided, then it is usually faster to
+        # fetch each object.
+        if (%$filter) {  
+            for my $id (keys %$filter) {
+                my $obj = $self->_fetch($id) or next;
+                push @results,$id if $obj->type =~ /$match/i;
+            }
+
+        }
+
+        else {
+            my $types   = $self->typeid_db;
+            my @typeids = map {$types->{$_}} grep {/$match/} keys %$types;
+            for my $t (@typeids) {
+                my $k = $t;
+                for (my $status = $db->seq($k,$value,R_CURSOR);
+                    $status == 0 && $k == $t;
+                    $status = $db->seq($k,$value,R_NEXT)) {
+                    next if %$filter && !$filter->{$value};  # don't even bother
+                    push @results,$value;
+                }
+            }
+        }
     }
-    $source_tag ||= '';
-    $primary_tag  = quotemeta($primary_tag);
-    $source_tag    = quotemeta($source_tag);
-    my $match = length $source_tag ? "^$primary_tag:$source_tag\$" : "^$primary_tag:";
-    my $key      = lc "$primary_tag:$source_tag";
-    my $value;
-
-    # If filter is already provided, then it is usually faster to
-    # fetch each object.
-    if (%$filter) {  
-	for my $id (keys %$filter) {
-	    my $obj = $self->_fetch($id) or next;
-	    push @results,$id if $obj->type =~ /$match/i;
-	}
-
-    }
-
-    else {
-	my $types   = $self->typeid_db;
-	my @typeids = map {$types->{$_}} grep {/$match/} keys %$types;
-	for my $t (@typeids) {
-	    my $k = $t;
-	    for (my $status = $db->seq($k,$value,R_CURSOR);
-		 $status == 0 && $k == $t;
-		 $status = $db->seq($k,$value,R_NEXT)) {
-		next if %$filter && !$filter->{$value};  # don't even bother
-		push @results,$value;
-	    }
-	}
-    }
-  }
-  $self->update_filter($filter,\@results);
+    $self->update_filter($filter,\@results);
 }
 
 sub filter_by_type_and_location {
-  my $self = shift;
-  my ($seq_id,$start,$end,$strand,$range_type,$typelist,$filter) = @_;
-  $strand ||= 0;
+    my $self = shift;
+    my ($seq_id,$start,$end,$strand,$range_type,$typelist,$filter) = @_;
+    $strand ||= 0;
 
-  my $index    = $self->index_db('locations');
-  my $db       = tied(%$index);
+    my $index    = $self->index_db('locations');
+    my $db       = tied(%$index);
 
-  my $binstart = defined $start ? int $start/BINSIZE : 0;
-  my $binend   = defined $end   ? int $end/BINSIZE   : MAX_SEQUENCES-1;
+    my $binstart = defined $start ? int $start/BINSIZE : 0;
+    my $binend   = defined $end   ? int $end/BINSIZE   : MAX_SEQUENCES-1;
 
-  my %seenit;
-  my @results;
+    my %seenit;
+    my @results;
 
-  $start = MININT  if !defined $start;
-  $end   = MAXINT  if !defined $end;
+    $start = MININT  if !defined $start;
+    $end   = MAXINT  if !defined $end;
 
-  my $seq_no = $self->seqid_id($seq_id);
-  return unless defined $seq_no;
+    my $seq_no = $self->seqid_id($seq_id);
+    return unless defined $seq_no;
 
-  if ($range_type eq 'overlaps' or $range_type eq 'contains') {
-    my $keystart = $seq_no * MAX_SEQUENCES + $binstart;
-    my $keystop  = $seq_no * MAX_SEQUENCES + $binend;
-    my $value;
+    if ($range_type eq 'overlaps' or $range_type eq 'contains') {
+        my $keystart = $seq_no * MAX_SEQUENCES + $binstart;
+        my $keystop  = $seq_no * MAX_SEQUENCES + $binend;
+        my $value;
 
-    for (my $status = $db->seq($keystart,$value,R_CURSOR);
-	 $status == 0 && $keystart <= $keystop;
-	 $status = $db->seq($keystart,$value,R_NEXT)) {
-      my ($id,$fstart,$fend,$fstrand,$ftype) = unpack("i5",$value);
-      next if $seenit{$id}++;
-      next if $strand   && $fstrand != $strand;
-      next if $typelist && !$typelist->{$ftype};
-      if ($range_type eq 'overlaps') {
-	next unless $fend >= $start && $fstart <= $end;
-      }
-      elsif ($range_type eq 'contains') {
-	next unless $fstart >= $start && $fend <= $end;
-      }
-      next if %$filter && !$filter->{$id};  # don't bother
-      push @results,$id;
-    }
-  }
-
-  # for contained in, we look for features originating and terminating outside the specified range
-  # this is incredibly inefficient, but fortunately the query is rare (?)
-  elsif ($range_type eq 'contained_in') {
-    my $keystart = $seq_no * MAX_SEQUENCES;
-    my $keystop  = $seq_no * MAX_SEQUENCES + $binstart;
-    my $value;
-
-    # do the left part of the range
-    for (my $status = $db->seq($keystart,$value,R_CURSOR);
-	 $status == 0 && $keystart <= $keystop;
-	 $status = $db->seq($keystart,$value,R_NEXT)) {
-      my ($id,$fstart,$fend,$fstrand,$ftype) = unpack("i5",$value);
-      next if $seenit{$id}++;
-      next if $strand && $fstrand != $strand;
-      next if $typelist && !$typelist->{$ftype};
-      next unless $fstart <= $start && $fend >= $end;
-      next if %$filter && !$filter->{$id};  # don't bother
-      push @results,$id;
+        for (my $status = $db->seq($keystart,$value,R_CURSOR);
+             $status == 0 && $keystart <= $keystop;
+             $status = $db->seq($keystart,$value,R_NEXT)) {
+            my ($id,$fstart,$fend,$fstrand,$ftype) = unpack("i5",$value);
+            next if $seenit{$id}++;
+            next if $strand   && $fstrand != $strand;
+            next if $typelist && !$typelist->{$ftype};
+            if ($range_type eq 'overlaps') {
+                next unless $fend >= $start && $fstart <= $end;
+            }
+            elsif ($range_type eq 'contains') {
+                next unless $fstart >= $start && $fend <= $end;
+            }
+            next if %$filter && !$filter->{$id};  # don't bother
+            push @results,$id;
+        }
     }
 
-    # do the right part of the range
-    $keystart = $seq_no*MAX_SEQUENCES+$binend;
-    for (my $status = $db->seq($keystart,$value,R_CURSOR);
-	 $status == 0;
-	 $status = $db->seq($keystart,$value,R_NEXT)) {
-      my ($id,$fstart,$fend,$fstrand,$ftype) = unpack("i5",$value);
-      next if $seenit{$id}++;
-      next if $strand && $fstrand != $strand;
-      next unless $fstart <= $start && $fend >= $end;
-      next if $typelist && !$typelist->{$ftype};
-      next if %$filter && !$filter->{$id};  # don't bother
-      push @results,$id;
+    # for contained in, we look for features originating and terminating outside the specified range
+    # this is incredibly inefficient, but fortunately the query is rare (?)
+    elsif ($range_type eq 'contained_in') {
+        my $keystart = $seq_no * MAX_SEQUENCES;
+        my $keystop  = $seq_no * MAX_SEQUENCES + $binstart;
+        my $value;
+
+        # do the left part of the range
+        for (my $status = $db->seq($keystart,$value,R_CURSOR);
+             $status == 0 && $keystart <= $keystop;
+             $status = $db->seq($keystart,$value,R_NEXT)) {
+            my ($id,$fstart,$fend,$fstrand,$ftype) = unpack("i5",$value);
+            next if $seenit{$id}++;
+            next if $strand && $fstrand != $strand;
+            next if $typelist && !$typelist->{$ftype};
+            next unless $fstart <= $start && $fend >= $end;
+            next if %$filter && !$filter->{$id};  # don't bother
+            push @results,$id;
+        }
+
+        # do the right part of the range
+        $keystart = $seq_no*MAX_SEQUENCES+$binend;
+        for (my $status = $db->seq($keystart,$value,R_CURSOR);
+             $status == 0;
+             $status = $db->seq($keystart,$value,R_NEXT)) {
+            my ($id,$fstart,$fend,$fstrand,$ftype) = unpack("i5",$value);
+            next if $seenit{$id}++;
+            next if $strand && $fstrand != $strand;
+            next unless $fstart <= $start && $fend >= $end;
+            next if $typelist && !$typelist->{$ftype};
+            next if %$filter && !$filter->{$id};  # don't bother
+            push @results,$id;
+        }
+
     }
 
-  }
-
-  $self->update_filter($filter,\@results);
+    $self->update_filter($filter,\@results);
 }
 
 sub build_summary_statistics {
@@ -491,14 +492,14 @@ sub build_summary_statistics {
     # features by typeid,seqid,start. In the second step, we read through
     # this sorted list. To avoid running out of memory, we use a db_file
     # temporary database
-    my $fh   = File::Temp->new() or $self->throw("Couldn't create temporary file for sorting: $!");
+    my $fh   = File::Temp->new() or $self->throw("Could not create temporary file '$name' for sorting: $!");
     my $name = $fh->filename;
     my %sort;
-    my $numeric_cmp         = DB_File::BTREEINFO->new;
-    $numeric_cmp->{compare} = sub { $_[0] <=> $_[1] };
-    $numeric_cmp->{flags}   = R_DUP;
-    my $s = tie %sort,'DB_File',$name,0666,O_CREAT|O_RDWR,$numeric_cmp 
-	or $self->throw("Couldn't create temporary file for sorting: $!");
+    my $num_cmp_tre         = DB_File::BTREEINFO->new;
+    $num_cmp_tree->{compare} = sub { $_[0] <=> $_[1] };
+    $num_cmp_tree->{flags}   = R_DUP;
+    my $s = tie %sort, 'DB_File', $name, 0666, O_CREAT|O_RDWR, $num_cmp_tree 
+        or $self->throw("Could not create Berkeley DB in temporary file '$name': $!");
 
     my $index    = $self->index_db('locations');
     my $db       = tied(%$index);
@@ -507,15 +508,15 @@ sub build_summary_statistics {
     my %seenit;
 
     for (my $status = $db->seq($keystart,$value,R_CURSOR);
-	 $status == 0;
-	 $status  = $db->seq($keystart,$value,R_NEXT)) {
-	my ($id,$start,$end,$strand,$typeid) = unpack('i5',$value);
-	next if $seenit{$id}++;
+         $status == 0;
+         $status  = $db->seq($keystart,$value,R_NEXT)) {
+        my ($id,$start,$end,$strand,$typeid) = unpack('i5',$value);
+        next if $seenit{$id}++;
 
-	print STDERR $count," features sorted$le" if ++$count % 1000 == 0;
-	my $seqid = int($keystart / MAX_SEQUENCES);
-	my $key   = $self->_encode_summary_key($typeid,$seqid,$start-1);
-	$sort{$key}=$end;
+        print STDERR $count," features sorted$le" if ++$count % 1000 == 0;
+        my $seqid = int($keystart / MAX_SEQUENCES);
+        my $key   = $self->_encode_summary_key($typeid,$seqid,$start-1);
+        $sort{$key}=$end;
     }
     print STDERR "COUNT = $count\n";
     
@@ -527,40 +528,40 @@ sub build_summary_statistics {
 
     # the second step allows us to iterate through this
     for (my $status = $s->seq($keystart,$end,R_CURSOR);
-	 $status == 0;
-	 $status  = $s->seq($keystart,$end,R_NEXT)) {
+         $status == 0;
+         $status  = $s->seq($keystart,$end,R_NEXT)) {
 
-	print STDERR $count," features processed$le" if ++$count % 1000 == 0;
-	my ($typeid,$seqid,$start) = $self->_decode_summary_key($keystart);
+        print STDERR $count," features processed$le" if ++$count % 1000 == 0;
+        my ($typeid,$seqid,$start) = $self->_decode_summary_key($keystart);
 
-	my $bin   = int($start/$sbs);
-	
-	# because the input is sorted by start, no more features will contribute to the 
-	# current bin so we can dispose of it
-	if ($bin != $current_bin) {
-	    if ($seqid != $current_seqid or $typeid != $current_type) {
-		# load all bins left over
-		$self->_load_bins($insert,\%residuals,\$cum_count,$current_type,$current_seqid);
-		%residuals = () ;
-		$cum_count = 0;
-	    } else {
-		# load all up to current one
-		$self->_load_bins($insert,\%residuals,\$cum_count,$current_type,$current_seqid,$current_bin); 
-	    }
-	}
+        my $bin   = int($start/$sbs);
+        
+        # because the input is sorted by start, no more features will contribute to the 
+        # current bin so we can dispose of it
+        if ($bin != $current_bin) {
+            if ($seqid != $current_seqid or $typeid != $current_type) {
+                # load all bins left over
+                $self->_load_bins($insert,\%residuals,\$cum_count,$current_type,$current_seqid);
+                %residuals = () ;
+                $cum_count = 0;
+            } else {
+                # load all up to current one
+                $self->_load_bins($insert,\%residuals,\$cum_count,$current_type,$current_seqid,$current_bin); 
+            }
+        }
 
-	$last_bin = $current_bin;
-	($current_seqid,$current_type,$current_bin) = ($seqid,$typeid,$bin);
+        $last_bin = $current_bin;
+        ($current_seqid,$current_type,$current_bin) = ($seqid,$typeid,$bin);
 
-	# summarize across entire spanned region
-	my $last_bin = int(($end-1)/$sbs);
-	for (my $b=$bin;$b<=$last_bin;$b++) {
-	    $residuals{$b}++;
-	}
+        # summarize across entire spanned region
+        my $last_bin = int(($end-1)/$sbs);
+        for (my $b=$bin;$b<=$last_bin;$b++) {
+            $residuals{$b}++;
+        }
     }
 
     # handle tail case
-    # load all bins left over	
+    # load all bins left over
     $self->_load_bins($insert,\%residuals,\$cum_count,$current_type,$current_seqid);
 
     undef %sort;
@@ -571,25 +572,25 @@ sub _load_bins {
     my $self = shift;
     my ($insert,$residuals,$cum_count,$typeid,$seqid,$stop_after) = @_;
     for my $b (sort {$a<=>$b} keys %$residuals) {
-	last if defined $stop_after and $b > $stop_after;
-	$$cum_count += $residuals->{$b};
-	my $key         = $self->_encode_summary_key($typeid,$seqid,$b);
-	$insert->{$key} = $$cum_count;
-	delete $residuals->{$b}; # no longer needed
+        last if defined $stop_after and $b > $stop_after;
+        $$cum_count += $residuals->{$b};
+        my $key         = $self->_encode_summary_key($typeid,$seqid,$b);
+        $insert->{$key} = $$cum_count;
+        delete $residuals->{$b}; # no longer needed
     }
 }
 
 sub coverage_array {
     my $self = shift;
     my ($seq_name,$start,$end,$types,$bins) = 
-	rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],
-		   ['TYPES','TYPE','PRIMARY_TAG'],'BINS'],@_);
+        rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],
+                   ['TYPES','TYPE','PRIMARY_TAG'],'BINS'],@_);
 
     $bins  ||= 1000;
     $start ||= 1;
     unless ($end) {
-	my $segment = $self->segment($seq_name) or $self->throw("unknown seq_id $seq_name");
-	$end        = $segment->end;
+        my $segment = $self->segment($seq_name) or $self->throw("unknown seq_id $seq_name");
+        $end        = $segment->end;
     }
 
     my $binsize = ($end-$start+1)/$bins;
@@ -607,33 +608,33 @@ sub coverage_array {
 
     my (%bins,$report_tag);
     for my $typeid (sort keys %$t) {
-	$report_tag ||= $typeid;
+        $report_tag ||= $typeid;
 
-	for (my $i=0;$i<@sum_bin_array;$i++) {
-	    my $cum_count;
-	    my $bin = $sum_bin_array[$i];
-	    my $key = $self->_encode_summary_key($typeid,$seqid,$bin);
-	    my $status = $db->seq($key,$cum_count,R_CURSOR);
-	    next unless $status == 0;
-	    push @{$bins{$typeid}},[$bin,$cum_count];
-	}
+        for (my $i=0;$i<@sum_bin_array;$i++) {
+            my $cum_count;
+            my $bin = $sum_bin_array[$i];
+            my $key = $self->_encode_summary_key($typeid,$seqid,$bin);
+            my $status = $db->seq($key,$cum_count,R_CURSOR);
+            next unless $status == 0;
+            push @{$bins{$typeid}},[$bin,$cum_count];
+        }
     }
     
     my @merged_bins;
     my $firstbin = int(($start-1)/$binsize);
     for my $type (keys %bins) {
-	my $arry       = $bins{$type};
-	my $last_count = $arry->[0][1]-1;
-	my $last_bin   = -1;
-	my $i          = 0;
-	my $delta;
-	for my $b (@$arry) {
-	    my ($bin,$count) = @$b;
-	    $delta              = $count - $last_count if $bin > $last_bin;
-	    $merged_bins[$i++]  = $delta;
-	    $last_count         = $count;
-	    $last_bin           = $bin;
-	}
+        my $arry       = $bins{$type};
+        my $last_count = $arry->[0][1]-1;
+        my $last_bin   = -1;
+        my $i          = 0;
+        my $delta;
+        for my $b (@$arry) {
+            my ($bin,$count) = @$b;
+            $delta              = $count - $last_count if $bin > $last_bin;
+            $merged_bins[$i++]  = $delta;
+            $last_count         = $count;
+            $last_bin           = $bin;
+        }
     }
     my $returned_type = $self->_id2type($report_tag);
     return wantarray ? (\@merged_bins,$returned_type) : \@merged_bins;
@@ -644,7 +645,7 @@ sub _encode_summary_key {
     my $self                 = shift;
     my ($typeid,$seqid,$bin) = @_;
     $self->throw('Cannot index chromosomes larger than '.C1*SUMMARY_BIN_SIZE/1e6.' megabases')
-	if $bin > C1;
+        if $bin > C1;
     return ($typeid-1)*C2 + ($seqid-1)*C1 + $bin;
 }
 
