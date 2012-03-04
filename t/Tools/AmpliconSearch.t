@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 44);
+    test_begin(-tests => 57);
 
     use_ok 'Bio::Tools::AmpliconSearch';
     use_ok 'Bio::PrimarySeq';
@@ -108,6 +108,34 @@ is $amplicon->seq->seq, 'CCCCCaaaaaTTTTT';
 
 
 # Amplicon on reverse strand
+
+$seq = Bio::PrimarySeq->new(
+   # Reverse-complement of previous sequence... should have same amplicons
+   -seq => 'ttttttttttAAAAAtttttGGGGGtttttAAAAAttttttttttGGGGGttttt',
+);
+$forward = Bio::PrimarySeq->new(
+   -seq => 'CCCCC',
+);
+$reverse = Bio::PrimarySeq->new(
+   -seq => 'AAAAA',
+);
+ok $search = Bio::Tools::AmpliconSearch->new(
+   -template       => $seq,
+   -forward_primer => $forward,
+   -reverse_primer => $reverse,
+);
+ok $amplicon = $search->next_amplicon;
+isa_ok $amplicon, 'Bio::SeqFeature::Amplicon';
+is $amplicon->start, 31;
+is $amplicon->end, 50;
+is $amplicon->strand, -1;
+is $amplicon->seq->seq, 'CCCCCaaaaaaaaaaTTTTT';
+ok $amplicon = $search->next_amplicon;
+isa_ok $amplicon, 'Bio::SeqFeature::Amplicon';
+is $amplicon->start, 11;
+is $amplicon->end, 25;
+is $amplicon->strand, -1;
+is $amplicon->seq->seq, 'CCCCCaaaaaTTTTT';
 
 
 # Multiple amplicons on muliple strands
