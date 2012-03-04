@@ -16,6 +16,8 @@ use Bio::SeqFeature::Amplicon;
 
 use base qw(Bio::Root::Root);
 
+my $template_str;
+
 
 =head1 NAME
 
@@ -148,6 +150,7 @@ sub _set_template {
       $template->primary_seq($primary_seq);
    }
    $self->{template} = $template;
+   $template_str = $self->template->seq;
    return $self->template;
 }
 
@@ -280,7 +283,6 @@ sub next_amplicon {
 
    my $amplicon;
 
-   my $seqstr = $self->template->seq;
    my $fwd_regexp = $self->forward_regexp;
    my $rev_regexp = $self->reverse_regexp;
  
@@ -289,31 +291,19 @@ sub next_amplicon {
 
    if ( defined($fwd_regexp) && not(defined $rev_regexp) ) {
       # From forward primer to end of template
-      if ($seqstr  =~ m/($fwd_regexp)/g) {
-         my $start = pos($seqstr) - length($1) + 1;
-         my $end   = length($seqstr);
+      if ($template_str  =~ m/($fwd_regexp)/g) {
+         my $start = pos($template_str) - length($1) + 1;
+         my $end   = length($template_str);
          $amplicon = $self->_create_amplicon($start, $end, $strand);
       }
 
    } elsif ( defined($fwd_regexp) && defined($rev_regexp) ) {
       # From forward to reverse primer
-#  while ( $seqstr =~ m/($fwd_regexp.*?$rev_regexp)/g ) {
-#      if ($seqstr  =~ m/($fwd_regexp.*?$rev_regexp)/g) {
-      if ($seqstr  =~ m/\G.*?($fwd_regexp.*?$rev_regexp)/g) {
- 
-         #####
-         print "match: '$1'\n";
-         #####
-
-         my $end   = pos($seqstr);
+      if ($template_str  =~ m/($fwd_regexp.*?$rev_regexp)/g) {
+         my $end   = pos($template_str);
          my $start = $end - length($1) + 1;
-
-         ####
-         pos($seqstr) = $start + 2;
-         ####
-
          # Now trim the left end to obtain the shortest amplicon
-         my $ampliconstr = substr $seqstr, $start - 1, $end - $start + 1;
+         my $ampliconstr = substr $template_str, $start - 1, $end - $start + 1;
          if ($ampliconstr =~ m/$fwd_regexp.*($fwd_regexp)/g) {
             $start += pos($ampliconstr) - length($1);
          }
