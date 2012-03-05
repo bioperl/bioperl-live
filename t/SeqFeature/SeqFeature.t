@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 249);
+    test_begin(-tests => 256);
 	
 	use_ok('Bio::Seq');
 	use_ok('Bio::SeqIO');
@@ -27,11 +27,20 @@ my ($feat,$str,$feat2,$pair,$comp_obj1,$comp_obj2,@sft);
 
 my $DEBUG = test_debug();
 
-$feat = Bio::SeqFeature::Generic->new( -start => 40,
+ok $feat = Bio::SeqFeature::Generic->new( -start => 40,
+				       -end => 80,
+				       -strand => 1,
+				       );
+is $feat->primary_tag, '';
+is $feat->source_tag, '';
+is $feat->display_name, '';
+
+ok $feat = Bio::SeqFeature::Generic->new( -start => 40,
 				       -end => 80,
 				       -strand => 1,
 				       -primary => 'exon',
 				       -source  => 'internal',
+				       -display_name => 'my exon feature',
 				       -tag => {
 					   silly => 20,
 					   new => 1
@@ -42,11 +51,12 @@ is $feat->start, 40, 'start of feature location';
 is $feat->end, 80, 'end of feature location';
 is $feat->primary_tag, 'exon', 'primary tag';
 is $feat->source_tag, 'internal', 'source tag';
+is $feat->display_name, 'my exon feature', 'display name';
 is $feat->phase, undef, 'undef phase by default';
 is $feat->phase(1), 1, 'phase accessor returns';
 is $feat->phase, 1, 'phase is persistent';
 
-$str = $feat->gff_string() || ""; # placate -w
+ok $feat->gff_string();
 
 $pair = Bio::SeqFeature::FeaturePair->new();
 ok defined $pair;
