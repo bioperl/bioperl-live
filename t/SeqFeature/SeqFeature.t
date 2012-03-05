@@ -7,13 +7,12 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 256);
+    test_begin(-tests => 245);
 	
 	use_ok('Bio::Seq');
 	use_ok('Bio::SeqIO');
 	use_ok('Bio::SeqFeature::Generic');
 	use_ok('Bio::SeqFeature::FeaturePair');
-	use_ok('Bio::SeqFeature::Computation');
 	use_ok('Bio::SeqFeature::Gene::Transcript');
 	use_ok('Bio::SeqFeature::Gene::UTR');
 	use_ok('Bio::SeqFeature::Gene::Exon');
@@ -23,7 +22,7 @@ BEGIN {
 }
 
 # predeclare variables for strict
-my ($feat,$str,$feat2,$pair,$comp_obj1,$comp_obj2,@sft); 
+my ($feat, $str, $feat2, $pair, @sft);
 
 my $DEBUG = test_debug();
 
@@ -134,36 +133,6 @@ is $pair->end, 440, 'inverted end';
     is $sf_seq2, 'acccct', 'sf2';
 }
 
-#Do some tests for computation.pm
-
-ok defined ( $comp_obj1 = Bio::SeqFeature::Computation->new('-start' => 1,
-							    '-end'   => 10) );
-is($comp_obj1->computation_id(332),332, 'computation id');
-ok( $comp_obj1->add_score_value('P', 33), 'score value');
-{
-    $comp_obj2 = Bio::SeqFeature::Computation->new('-start' => 2,
-						   '-end'   => 10);
-    ok ($comp_obj1->add_sub_SeqFeature($comp_obj2, 'exon') );
-    ok (@sft = $comp_obj1->all_sub_SeqFeature_types() );
-    is($sft[0], 'exon', 'sft[0] is exon');
-}
-
-ok defined ( $comp_obj1 = Bio::SeqFeature::Computation->new 
-	     (
-	      -start => 10, -end => 100,
-	      -strand => -1, -primary => 'repeat',
-	      -program_name => 'GeneMark',
-	      -program_date => '12-5-2000',
-	      -program_version => 'x.y',
-	      -database_name => 'Arabidopsis',
-	      -database_date => '12-dec-2000',
-	      -computation_id => 2231,
-	      -score    => { no_score => 334 } )
-	     );
-
-is ( $comp_obj1->computation_id, 2231, 'computation id' );
-ok ( $comp_obj1->add_score_value('P', 33) );
-is ( ($comp_obj1->each_score_value('no_score'))[0], '334', 'score value');
 
 # some tests for bug #947
 
