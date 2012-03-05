@@ -92,11 +92,13 @@ methods. Internal methods are usually preceded with a _
  Title    : new
  Usage    : my $search = Bio::Tools::AmpliconSearch->new( );
  Function : 
- Args     : -template        Sequence object. Note that the template sequence will be converted to Bio::Seq if needed. Features (amplicons and primers will be added to this object).
-            -fwd_primer     A sequence object representing the primer
-            -rev_primer     A sequence object representing the primer
-            -primer_file    replaces -fwd_primer and -rev_primer (optional)
-            -attach_primers whether or not to attach primers to Amplicon objects. Default: 0 (off)
+ Args     : -template       Sequence object for the template sequence. This object
+                            will be converted to Bio::Seq if needed since features
+                            (amplicons and primers) will be added to this object.
+            -fwd_primer     A sequence object representing the forward primer
+            -rev_primer     A sequence object representing the reverse primer
+            -primer_file    Read primers from a sequence file. It replaces -fwd_primer and -rev_primer (optional)
+            -attach_primers Whether or not to attach primers to Amplicon objects. Default: 0 (off)
  Returns  : A Bio::Tools::AmpliconSearch object
 
 =cut
@@ -148,7 +150,6 @@ sub _set_template {
       # Not a Bio::Seq or Bio::PrimarySeq
       $self->throw("Expected a sequence object as input but got a '".ref($template)."'\n");
    }
-   #if ($self->attach_primer && not $template->isa('Bio::SeqI')) {
    if (not $template->isa('Bio::SeqI')) {
       # Convert sequence object to Bio::Seq Seq so that features can be added
       my $primary_seq = $template;
@@ -318,7 +319,7 @@ sub _set_strand {
 =cut
 
 sub next_amplicon {
-   my ($self, @args) = @_;
+   my ($self) = @_;
    my $amplicon;
 
    my $strand = $self->_cur_strand;
@@ -333,20 +334,25 @@ sub next_amplicon {
       if ($ampliconstr =~ m/$fwd_regexp.*($fwd_regexp)/g) {
          $start += pos($ampliconstr) - length($1);
       }
-      $amplicon = $self->_create_amplicon($start, $end, $strand);
+      $amplicon = $self->_attach_amplicon($start, $end, $strand);
    }
 
-   if ( ($strand == 1) && not($amplicon) ) {
-      # No more matches in the forward strand. Search the reverse-complement.
-      $template_str = $self->template->revcom->seq;
-      $self->_set_strand(-1);
-      $amplicon = $self->next_amplicon;
+   if ( not $amplicon ) {
+      if ( $strand == 1 ) {
+         # Exhausted all matches in forward strand. Search in the reverse strand.
+         $template_str = $self->template->revcom->seq;
+         $self->_set_strand(-1);
+         $amplicon = $self->next_amplicon;
+      } else {
+         # No more matches. Make sure calls to next_amplicon() will return undef.
+         $template_str = '';
+      }
    }
 
 #  # Get amplicons from forward and reverse strand
-#  my $fwd_amplicons = database_extract_amplicons_from_strand($seq, $fwd_regexp, $rev_regexp, 1);
-#  my $rev_amplicons = database_extract_amplicons_from_strand($seq, $fwd_regexp, $rev_regexp, -1);
-
+#  my $fwd_amplicons = _extract_amplicons_from_strand($seq, $fwd_regexp, $rev_regexp, 1);
+#  my $rev_amplicons = _extract_amplicons_from_strand($seq, $fwd_regexp, $rev_regexp, -1);
+#
 #  # Deal with nested amplicons by removing the longest of the two
 #  my $re = qr/(\d+)\.\.(\d+)/;
 #  for (my $rev = 0; $rev < scalar @$rev_amplicons; $rev++) {
@@ -371,8 +377,8 @@ sub next_amplicon {
 }
 
 
-sub _create_amplicon {
-   # Create an amplicon sequence and register its coordinates
+sub _attach_amplicon {
+   # Create an amplicon object and attach it to template
    my ($self, $start, $end, $strand) = @_;
 
    if ($strand == -1) {
@@ -396,25 +402,24 @@ sub _create_amplicon {
    # Create Bio::SeqFeature::Primer feature and attach them to the amplicon
    if ($self->attach_primers) {
       for my $type ('fwd', 'rev') {
-         my ($pstart, $pend, $pstrand);
-
+         my ($pstart, $pend, $pstrand, $primer_seq);
          if ($type eq 'fwd') {
             # Forward primer
+            $primer_seq = $self->fwd_primer;
+            next if not defined $primer_seq;
             $pstart  = 1;
-            $pend    = $self->fwd_primer->length;
+            $pend    = $primer_seq->length;
             $pstrand = $amplicon->strand;
-         }
-         
-         else {
+         } else {
             # Optional reverse primer
-            my $primer_seq = $self->rev_primer;
+            $primer_seq = $self->rev_primer;
             next if not defined $primer_seq;
             $pstart  = $end - $primer_seq->length + 1;
             $pend    = $end;
             $pstrand = -1 * $amplicon->strand;
          }
 
-         my $primer = Bio::SeqFeature::Primer->new(
+         Bio::SeqFeature::Primer->new(
             -start    => $pstart,
             -end      => $pend,
             -strand   => $pstrand,
@@ -426,5 +431,27 @@ sub _create_amplicon {
    return $amplicon;
 }
 
+
+=head2 annotate_template
+
+ Title    : annotate_template
+ Usage    : my $template = $search->annotate_template;
+ Function : Search for all amplicons and attach them to the template.
+            This is equivalent to running:
+               XXX
+               
+ Args     : None
+ Returns  : A Bio::Seq object with attached Bio::SeqFeature::Amplicons (and
+            Bio::SeqFeature::Primers if you set -attach_primers to 1).
+
+=cut
+
+sub annotate_template {
+   my ($self) = @_;
+   # Search all amplicons and attach them to template
+   1 while $self->next_amplicon;
+   # Return annotated template
+   return $self->template;
+}
 
 1;

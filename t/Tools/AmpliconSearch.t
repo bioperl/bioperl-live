@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 109);
+    test_begin(-tests => 118);
 
     use_ok 'Bio::Tools::AmpliconSearch';
     use_ok 'Bio::PrimarySeq';
@@ -11,7 +11,8 @@ BEGIN {
 
 
 
-my ($search, $amplicon, $seq, $forward, $reverse);
+my ($search, $amplicon, $seq, $forward, $reverse, $primer, $primer_seq,
+    $annotated, $num_feats);
 
 
 # Basic object
@@ -29,8 +30,9 @@ $forward = Bio::PrimarySeq->new(
    -seq => 'AAACTTAAAGGAATTGACGG',
 );
 ok $search = Bio::Tools::AmpliconSearch->new(
-   -template   => $seq,
-   -fwd_primer => $forward,
+   -template       => $seq,
+   -fwd_primer     => $forward,
+###   -attach_primers => 1,
 ), 'Forward primer only';
 is $search->fwd_primer->seq, 'AAACTTAAAGGAATTGACGG';
 is $search->rev_primer, undef;
@@ -41,6 +43,12 @@ is $amplicon->start, 4;
 is $amplicon->end, 56;
 is $amplicon->strand, 1;
 is $amplicon->seq->seq, 'AAACTTAAAGGAATTGACGGaaaaaaaaaaaaGTACACACCGCCCGTaaaaaa';
+###ok $primer = $amplicon->fwd_primer;
+###ok $primer_seq = $primer->seq;
+###is $primer_seq->seq, 'AAACTTAAAGGAATTGACGG';
+###is $primer_seq->start, 1;
+###is $primer_seq->end, 20;
+###is $primer_seq->strand, 1;
 is $amplicon = $search->next_amplicon, undef;
 
 
@@ -56,8 +64,9 @@ $reverse = Bio::SeqFeature::Primer->new(
    -seq => 'ACGGGCGGTGTGTAC',
 );
 ok $search = Bio::Tools::AmpliconSearch->new(
-   -template   => $seq,
-   -rev_primer => $reverse,
+   -template       => $seq,
+   -rev_primer     => $reverse,
+   -attach_primers => 0,
 ), 'Reverse primer only';
 is $search->fwd_primer, undef;
 is $search->rev_primer->seq->seq, 'ACGGGCGGTGTGTAC';
@@ -68,6 +77,8 @@ is $amplicon->start, 1;
 is $amplicon->end, 50;
 is $amplicon->strand, 1;
 is $amplicon->seq->seq, 'aaaAAACTTAAAGGAATTGACGGaaaaaaaaaaaaGTACACACCGCCCGT';
+is $amplicon->fwd_primer, undef;
+is $amplicon->rev_primer, undef;
 is $search->next_amplicon, undef;
 
 
@@ -307,9 +318,29 @@ is $search->next_amplicon, undef;
 #is $amplicon->seq->seq, 'CCCCaaggAAAAAATTTTTT';
 #is $search->next_amplicon, undef;
 
+# Annotate template
 
-# attach_primers
+$seq = Bio::PrimarySeq->new(
+   -seq => 'aaaaaCCCCaaaaaaaaaaTTTTTTccAAAAAAttGGGGaaaaaaaaaa',
+);
+$forward = Bio::PrimarySeq->new(
+   -seq => 'CCCC',
+);
+$reverse = Bio::PrimarySeq->new(
+   -seq => 'AAAAAA',
+);
+ok $search = Bio::Tools::AmpliconSearch->new(
+   -template   => $seq,
+   -fwd_primer => $forward,
+   -rev_primer => $reverse,
+), 'Annotated template';
+ok $annotated = $search->annotate_template;
+isa_ok $annotated, 'Bio::Seq';
+$num_feats = 0;
+for my $feat ( $annotated->get_SeqFeatures ) {
+   $num_feats++;
+   isa_ok $feat, 'Bio::SeqFeature::Amplicon';
+}
+is $num_feats, 2;
 
-# annotated_template
-
-# bio::seqfeature::primer as input
+is $search->next_amplicon, undef;
