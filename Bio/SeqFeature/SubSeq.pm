@@ -124,7 +124,15 @@ sub new {
         if ( not($self->start) || not($self->end) ) {
             $self->throw('Could not attach SubSeq feature to template sequence because the SubSeq location was unknown.');
         }
-        $template->add_SeqFeature($self);
+
+        if ($template->isa('Bio::Seq')) {
+           ### Workaround for Bio::Seq's lack of compliance with Bio::FeatureHolderI
+           ### We should not have to use this :(
+           $template->add_SeqFeature($self);
+        } else {
+           $template->add_SeqFeature($self, 'EXPAND');
+        }
+
     }
     return $self;
 }  
