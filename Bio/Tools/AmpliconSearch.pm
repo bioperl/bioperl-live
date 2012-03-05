@@ -40,10 +40,13 @@ the template sequence, i.e. the amplicons, are returned as L<Bio::Seq::PrimedSeq
 objects.
 
 AmpliconSearch will look for amplicons on both strands (forward and reverse-
-complement) of the specified template sequence When two amplicons overlap, an
-option allows to discard the longest one to more accurately represent the biases
-of PCR. Future improvements may include modelling the effects of the number of
-PCR cycles or temperature on the PCR products.
+complement) of the specified template sequence. If the reverse primer is not
+provided, an amplicon will be returned and span a match of the forward primer to
+the end of the template. Similarly, when no forward primer is given, match from
+the beginning of the template sequence. When several amplicons overlap, only the
+shortest one to more accurately represent the biases of PCR. Future improvements
+may include modelling the effects of the number of PCR cycles or temperature on
+the PCR products.
 
 =head1 FEEDBACK
 
@@ -90,9 +93,9 @@ methods. Internal methods are usually preceded with a _
  Usage    : my $search = Bio::Tools::AmpliconSearch->new( );
  Function : 
  Args     : -template        Sequence object. Note that the template sequence will be converted to Bio::Seq if needed. Features (amplicons and primers will be added to this object).
-            -forward_primer
-            -reverse_primer
-            -primer_file    replaces -forward_primer and -reverse_primer (optional)
+            -fwd_primer
+            -rev_primer
+            -primer_file    replaces -fwd_primer and -rev_primer (optional)
             -attach_primers whether or not to attach primers to Amplicon objects. Default: 0 (off)
  Returns  : A Bio::Tools::AmpliconSearch object
 
@@ -101,20 +104,22 @@ methods. Internal methods are usually preceded with a _
 sub new {
    my ($class, @args) = @_;
    my $self = $class->SUPER::new(@args);
-   my ($template, $primer_file, $forward_primer, $reverse_primer,
-       $attach_primers) = $self->_rearrange([qw(TEMPLATE PRIMER_FILE
-       FORWARD_PRIMER REVERSE_PRIMER ATTACH_PRIMERS)], @args);
+   my ($template, $primer_file, $fwd_primer, $rev_primer, $attach_primers) =
+      $self->_rearrange([qw(TEMPLATE PRIMER_FILE FWD_PRIMER REV_PRIMER ATTACH_PRIMERS)],
+      @args);
 
    # Get primers
    if (defined $primer_file) {
-      ($forward_primer, $reverse_primer) = $self->_get_primers_from_file($primer_file);
+      ($fwd_primer, $rev_primer) = $self->_get_primers_from_file($primer_file);
    }
-
-   $self->_set_forward_primer($forward_primer) if defined $forward_primer; ###
-   $self->_set_reverse_primer($reverse_primer);
+   $self->_set_fwd_primer($fwd_primer);
+   $self->_set_rev_primer($rev_primer);
 
    # Get template sequence
    $self->_set_template($template) if defined $template;
+   if ( $template && not($fwd_primer) && not($rev_primer) ) {
+      $self->throw('Need to provide at least a primer');
+   }
 
    $self->_set_attach_primers($attach_primers) if defined $attach_primers;
 
@@ -169,49 +174,54 @@ sub _set_strand {
 }
 
 
-sub forward_primer {
+sub fwd_primer {
    my ($self) = @_;
-   return $self->{forward_primer};
+   return $self->{fwd_primer};
 }
 
-sub _set_forward_primer {
+sub _set_fwd_primer {
    my ($self, $primer) = @_;
-   if (not(ref $primer) || not $primer->isa('Bio::PrimarySeqI') || not $primer->isa('Bio::SeqFeature::Primer') ) { 
-      # Not a sequence or a primer object
-      $self->throw("Expected a sequence or primer object as input but got a ".ref($primer)."\n");
-   }
-   $self->{forward_primer} = $primer;
-   $self->_set_forward_regexp( Bio::Tools::IUPAC->new( -seq => $primer )->regexp );
-   return $self->forward_primer;
+   return $self->_set_primer('fwd', $primer);
 }
 
 
-sub reverse_primer {
+sub rev_primer {
    my ($self) = @_;
-   return $self->{reverse_primer};
+   return $self->{rev_primer};
 }
 
-sub _set_reverse_primer {
+sub _set_rev_primer {
    my ($self, $primer) = @_;
+   return $self->_set_primer('rev', $primer);
+}
+
+
+sub _set_primer {
+   my ($self, $type, $primer) = @_;
+   # Save a primer sequence and convert it to regexp. Type is 'fwd' or 'rev'.
+
    my $re;
 
-   # Set the reverse primer
+   # Convert the given primer sequence to a regexp
    if (defined $primer) {
-      if (not(ref $primer) || not $primer->isa('Bio::PrimarySeqI') || not $primer->isa('Bio::SeqFeature::Primer') ) { 
-         # Not a sequence or a primer object
+      if ( not(ref $primer) || not $primer->isa('Bio::PrimarySeqI') ||
+           not $primer->isa('Bio::SeqFeature::Primer') ) { 
+         # Not an object, sequence or primer
          $self->throw("Expected a sequence or primer object as input but got a ".ref($primer)."\n");
       }
-      $self->{reverse_primer} = $primer;
-      $re = Bio::Tools::IUPAC->new( -seq => $primer->revcom )->regexp;
+      $self->{$type.'_primer'} = $primer;
+      $re = Bio::Tools::IUPAC->new(
+         -seq => $type eq 'fwd' ? $primer : $primer->revcom,
+      )->regexp;
    }
 
-   # No reverse primer given, match end of string
+   # No primer sequence given, match end of string
    else {
-      $re = qr/$/;
+      $re = $type eq 'fwd' ? qr/^/ : qr/$/;
    }
 
-   $self->_set_reverse_regexp($re);
-   return $self->reverse_primer;
+   $self->{$type.'_regexp'} = $re;
+   return $self->{$type.'_primer'};
 }
 
 
@@ -247,29 +257,15 @@ sub _get_primers_from_file {
 }
 
 
-sub forward_regexp {
+sub fwd_regexp {
    my ($self) = @_;
-   return $self->{forward_regexp};
+   return $self->{fwd_regexp};
 }
 
 
-sub _set_forward_regexp {
-   my ($self, $regexp) = @_;
-   $self->{forward_regexp} = $regexp;
-   return $self->forward_regexp;
-}
-
-
-sub reverse_regexp {
+sub rev_regexp {
    my ($self) = @_;
-   return $self->{reverse_regexp};
-}
-
-
-sub _set_reverse_regexp {
-   my ($self, $regexp) = @_;
-   $self->{reverse_regexp} = $regexp;
-   return $self->reverse_regexp;
+   return $self->{rev_regexp};
 }
 
 
@@ -312,9 +308,8 @@ sub next_amplicon {
    my $amplicon;
 
    my $strand = $self->strand;
-   my $fwd_regexp = $self->forward_regexp ||
-      $self->throw("Need to provide at least a primer\n");
-   my $rev_regexp = $self->reverse_regexp;
+   my $fwd_regexp = $self->fwd_regexp;
+   my $rev_regexp = $self->rev_regexp;
 
    if ($template_str  =~ m/($fwd_regexp.*?$rev_regexp)/g) {
       my $end   = pos($template_str);
@@ -368,13 +363,13 @@ sub _create_amplicon {
          if ($type eq 'fwd') {
             # Forward primer
             $pstart  = 1;
-            $pend    = $self->forward_primer->length;
+            $pend    = $self->fwd_primer->length;
             $pstrand = $amplicon->strand;
          }
          
          else {
             # Optional reverse primer
-            my $primer_seq = $self->reverse_primer;
+            my $primer_seq = $self->rev_primer;
             next if not defined $primer_seq;
             $pstart  = $end - $primer_seq->length + 1;
             $pend    = $end;
