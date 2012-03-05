@@ -130,7 +130,10 @@ sub new {
            ### We should not have to use this :(
            $template->add_SeqFeature($self);
         } else {
-           $template->add_SeqFeature($self, 'EXPAND');
+           ####
+           #$template->add_SeqFeature($self, 'EXPAND');
+           $template->add_SeqFeature($self);
+           ####
         }
 
     }

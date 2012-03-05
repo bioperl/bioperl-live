@@ -349,6 +349,8 @@ sub next_amplicon {
       }
    }
 
+#  # May want to use Bio::Range intersection() to check for overlap
+
 #  # Get amplicons from forward and reverse strand
 #  my $fwd_amplicons = _extract_amplicons_from_strand($seq, $fwd_regexp, $rev_regexp, 1);
 #  my $rev_amplicons = _extract_amplicons_from_strand($seq, $fwd_regexp, $rev_regexp, -1);
@@ -399,6 +401,12 @@ sub _attach_amplicon {
       -template => $self->template,
    );
 
+   ####
+   use Data::Dumper;
+   print "Amplicon: ".$amplicon->start." .. ".$amplicon->end." -> ".$amplicon->seq->seq."\n";
+   print "AMPLICON: ".Dumper($amplicon);
+   ####
+
    # Create Bio::SeqFeature::Primer feature and attach them to the amplicon
    if ($self->attach_primers) {
       for my $type ('fwd', 'rev') {
@@ -419,6 +427,11 @@ sub _attach_amplicon {
             $pstrand = -1 * $amplicon->strand;
          }
 
+         ####
+         $pstart += $start - 1;
+         $pend   += $start - 1;
+         ####
+
          Bio::SeqFeature::Primer->new(
             -start    => $pstart,
             -end      => $pend,
@@ -427,6 +440,12 @@ sub _attach_amplicon {
          );
       }
    }
+
+   ####
+   use Data::Dumper;
+   print "Amplicon: ".$amplicon->start." .. ".$amplicon->end." -> ".$amplicon->seq->seq."\n";
+   print "AMPLICON: ".Dumper($amplicon);
+   ####
 
    return $amplicon;
 }
