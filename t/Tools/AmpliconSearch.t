@@ -340,7 +340,12 @@ $num_feats = 0;
 for my $feat ( $annotated->get_SeqFeatures ) {
    $num_feats++;
    isa_ok $feat, 'Bio::SeqFeature::Amplicon';
+
+   ####
+   print $feat->gff_string;
+   ####
+
 }
 is $num_feats, 2;
-
 is $search->next_amplicon, undef;
+
