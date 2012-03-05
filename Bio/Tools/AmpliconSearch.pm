@@ -39,10 +39,11 @@ into regular expressions using L<Bio::Tools::IUPAC> and the matching regions of
 the template sequence, i.e. the amplicons, are returned as L<Bio::Seq::PrimedSeq>
 objects.
 
-When two amplicons overlap, an option allows to discard the longest one to more
-accurately represent the biases of PCR. Future improvements may include
-modelling the effects of the number of PCR cycles or temperature on the PCR
-products.
+AmpliconSearch will look for amplicons on both strands (forward and reverse-
+complement) of the specified template sequence When two amplicons overlap, an
+option allows to discard the longest one to more accurately represent the biases
+of PCR. Future improvements may include modelling the effects of the number of
+PCR cycles or temperature on the PCR products.
 
 =head1 FEEDBACK
 
@@ -106,11 +107,11 @@ sub new {
 
    # Get primers
    if (defined $primer_file) {
-      $self->_set_primers_from_file($primer_file);
-   } else {
-      $self->_set_forward_primer($forward_primer) if defined $forward_primer;
-      $self->_set_reverse_primer($reverse_primer) if defined $reverse_primer;
+      ($forward_primer, $reverse_primer) = $self->_get_primers_from_file($primer_file);
    }
+
+   $self->_set_forward_primer($forward_primer) if defined $forward_primer; ###
+   $self->_set_reverse_primer($reverse_primer);
 
    # Get template sequence
    $self->_set_template($template) if defined $template;
@@ -151,17 +152,27 @@ sub _set_template {
    }
    $self->{template} = $template;
    $template_str = $self->template->seq;
+   $self->_set_strand(1);
    return $self->template;
 }
 
 
+sub strand {
+   my ($self) = @_;
+   return $self->{strand};
+}
+
+sub _set_strand {
+   my ($self, $strand) = @_;
+   $self->{strand} = $strand;
+   return $self->strand;
+}
 
 
 sub forward_primer {
    my ($self) = @_;
    return $self->{forward_primer};
 }
-
 
 sub _set_forward_primer {
    my ($self, $primer) = @_;
@@ -180,20 +191,31 @@ sub reverse_primer {
    return $self->{reverse_primer};
 }
 
-
 sub _set_reverse_primer {
    my ($self, $primer) = @_;
-   if (not(ref $primer) || not $primer->isa('Bio::PrimarySeqI') || not $primer->isa('Bio::SeqFeature::Primer') ) { 
-      # Not a sequence or a primer object
-      $self->throw("Expected a sequence or primer object as input but got a ".ref($primer)."\n");
+   my $re;
+
+   # Set the reverse primer
+   if (defined $primer) {
+      if (not(ref $primer) || not $primer->isa('Bio::PrimarySeqI') || not $primer->isa('Bio::SeqFeature::Primer') ) { 
+         # Not a sequence or a primer object
+         $self->throw("Expected a sequence or primer object as input but got a ".ref($primer)."\n");
+      }
+      $self->{reverse_primer} = $primer;
+      $re = Bio::Tools::IUPAC->new( -seq => $primer->revcom )->regexp;
    }
-   $self->{reverse_primer} = $primer;
-   $self->_set_reverse_regexp( Bio::Tools::IUPAC->new( -seq => $primer->revcom )->regexp );
+
+   # No reverse primer given, match end of string
+   else {
+      $re = qr/$/;
+   }
+
+   $self->_set_reverse_regexp($re);
    return $self->reverse_primer;
 }
 
 
-sub _set_primers_from_file {
+sub _get_primers_from_file {
    my ($self, $primer_file) = @_;
    # Read primer file and convert primers into regular expressions to catch
    # amplicons present in the database
@@ -205,26 +227,23 @@ sub _set_primers_from_file {
    # Mandatory first primer
    require Bio::SeqIO;
    my $in = Bio::SeqIO->newFh( -file => $primer_file );
-   my $primer = <$in>;
-   if (not defined $primer) {
+   my $fwd_primer = <$in>;
+   if (not defined $fwd_primer) {
       $self->throw("The file '$primer_file' contains no primers\n");
    }
-   $primer->alphabet('dna'); # Force the alphabet since degenerate primers can look like protein sequences
-   $self->_set_forward_primer($primer);
+   $fwd_primer->alphabet('dna'); # Force the alphabet since degenerate primers can look like protein sequences
 
    # Optional reverse primers
-   $primer = undef;
-   $primer = <$in>;
-   if (defined $primer) {
-      $primer->alphabet('dna');
-      $self->_set_reverse_primer($primer);
+   my $rev_primer = <$in>;
+   if (defined $rev_primer) {
+      $rev_primer->alphabet('dna');
    }
    
    #### $in->close;
    #### close $in;
    undef $in;
 
-   return 1;
+   return ($fwd_primer, $rev_primer);
 }
 
 
@@ -254,11 +273,21 @@ sub _set_reverse_regexp {
 }
 
 
+=head2 attach_primers
+
+ Title    : attach_primers
+ Usage    : my $primers_attached = $search->attach_primers;
+ Function : Get whether or not primer objects will be attached to the amplicon
+            objects.
+ Args     : None
+ Returns  : Integer (1 for yes, 0 for no)
+
+=cut
+
 sub attach_primers {
    my ($self) = @_;
    return $self->{attach_primers} || 0;
 }
-
 
 sub _set_attach_primers {
    my ($self, $val) = @_;
@@ -271,47 +300,38 @@ sub _set_attach_primers {
 =head2 next_amplicon
 
  Title    : next_amplicon
- Usage    : my $amplicon = $search->
+ Usage    : my $amplicon = $search->next_amplicon;
  Function : Get the next amplicon
- Args     :
- Returns  : an amplicon object
+ Args     : None
+ Returns  : A Bio::SeqFeature::Amplicon object
 
 =cut
 
 sub next_amplicon {
    my ($self, @args) = @_;
-
    my $amplicon;
 
-   my $fwd_regexp = $self->forward_regexp;
+   my $strand = $self->strand;
+   my $fwd_regexp = $self->forward_regexp ||
+      $self->throw("Need to provide at least a primer\n");
    my $rev_regexp = $self->reverse_regexp;
- 
-   #### orientation? need to revcom the template if we have exhausted the fwd orientation
-   my $strand = 1;
 
-   if ( defined($fwd_regexp) && not(defined $rev_regexp) ) {
-      # From forward primer to end of template
-      if ($template_str  =~ m/($fwd_regexp)/g) {
-         my $start = pos($template_str) - length($1) + 1;
-         my $end   = length($template_str);
-         $amplicon = $self->_create_amplicon($start, $end, $strand);
+   if ($template_str  =~ m/($fwd_regexp.*?$rev_regexp)/g) {
+      my $end   = pos($template_str);
+      my $start = $end - length($1) + 1;
+      # Now trim the left end to obtain the shortest amplicon
+      my $ampliconstr = substr $template_str, $start - 1, $end - $start + 1;
+      if ($ampliconstr =~ m/$fwd_regexp.*($fwd_regexp)/g) {
+         $start += pos($ampliconstr) - length($1);
       }
+      $amplicon = $self->_create_amplicon($start, $end, $strand);
+   }
 
-   } elsif ( defined($fwd_regexp) && defined($rev_regexp) ) {
-      # From forward to reverse primer
-      if ($template_str  =~ m/($fwd_regexp.*?$rev_regexp)/g) {
-         my $end   = pos($template_str);
-         my $start = $end - length($1) + 1;
-         # Now trim the left end to obtain the shortest amplicon
-         my $ampliconstr = substr $template_str, $start - 1, $end - $start + 1;
-         if ($ampliconstr =~ m/$fwd_regexp.*($fwd_regexp)/g) {
-            $start += pos($ampliconstr) - length($1);
-         }
-         $amplicon = $self->_create_amplicon($start, $end, $strand);
-      }
-
-   } else {
-      $self->throw("Need to provide at least a forward primer\n");
+   if ( ($strand == 1) && not($amplicon) ) {
+      # No more matches in the forward strand. Search the reverse-complement.
+      $template_str = $self->template->revcom->seq;
+      $self->_set_strand(-1);
+      $amplicon = $self->next_amplicon;
    }
 
    return $amplicon;
@@ -321,6 +341,16 @@ sub next_amplicon {
 sub _create_amplicon {
    # Create an amplicon sequence and register its coordinates
    my ($self, $start, $end, $strand) = @_;
+
+   if ($strand == -1) {
+      # Calculate coordinates relative to forward strand. For example, given a
+      # read starting at 10 and ending at 23 on the reverse complement of a 100
+      # bp, give a strand or 77 and end of 90 on forward strand.
+      my $length = length $template_str;
+      $start = $length - $start + 1;
+      $end   = $length - $end + 1;
+      ($start, $end) = ($end, $start);
+   }
 
    # Create Bio::SeqFeature::Amplicon feature and attach it to the template
    my $amplicon = Bio::SeqFeature::Amplicon->new(
@@ -360,69 +390,7 @@ sub _create_amplicon {
       }
    }
 
-#   my $coord;
-
-#   if ($want_a eq 'Bio::PrimarySeq') {
-#      require Bio::PrimarySeq;
-#      $amplicon = Bio::PrimarySeq->new( -seq => XXX );
-#   } elsif ($want_a eq 'Bio::LocatableSeq') {
-#      require Bio::LocatableSeq;
-#      $amplicon = Bio::PrimarySeq->new( -seq => XXX );
-#   } elsif ($want_a eq 'Bio::SeqFeature::Amplicon') {
-#      require Bio::SeqFeature::Primer;
-#      $amplicon = Bio::PrimarySeq->new( -start => , -end => , -strand => );
-#   } else {
-#      $self->throw("'$want_a' is not a valid class to use to return amplicons.");
-#   }
-
-   #$amplicon = $want_a->new( -seq => );
-#   if (not $want_a eq 'Bio::PrimarySeq') {
-#      # add coordinates
-#      $amplicon->start( XXX );
-#      $amplicon->end( XXX );
-#      $amplicon->strand( XXX );
-#      if ( ($want_a eq 'Bio::SeqFeature::Amplicon') && ($self->attach_primers) ) {
-#         # add primers to
-#         $amplicon->fwd_primer( XXX );
-#         $amplicon->rev_primer( XXX );
-#      }
-#   }
-
-  
-  #my $fwd_primer = Bio::SeqFeature::Primer(
-  #    -seq      => $seq_object,
-  #    -location =>
-  #    -strand   =>
-  #);
-  #my $rev_primer = Bio::SeqFeature::Primer(
-  #    -seq      => $seq_object,
-  #    -location =>
-  #    -strand   =>
-  #);
-
-  # Should be able to give a Bio::SeqFeature::Primer or simply a Bio::Seq (but
-  # may need to ensure that reverse primer has reverse orientation??)
-  #my $primedseq = Bio::Seq::PrimedSeq->new(-seq => $template, 
-  #                                         -left_primer => $fwd_primer,
-  #                                         -right_primer => $rev_primer);
-
-  #if ($orientation == -1) {
-  #  # Calculate coordinates relative to forward strand. For example, given a
-  #  # read starting at 10 and ending at 23 on the reverse complement of a 100 bp
-  #  # sequence, return complement(77..90).
-  #  $amplicon = $seq->revcom->trunc($start, $end);
-  #  my $seq_len = $seq->length;
-  #  $start = $seq_len - $start + 1;
-  #  $end   = $seq_len - $end + 1;
-  #  ($start, $end) = ($end, $start);
-  #  $coord = "complement($start..$end)";
-  #} else {
-  #  $amplicon = $seq->trunc($start, $end);
-  #  $coord = "$start..$end";
-  #}
-  #$amplicon->{_amplicon} = $coord;
-
-  return $amplicon;
+   return $amplicon;
 }
 
 

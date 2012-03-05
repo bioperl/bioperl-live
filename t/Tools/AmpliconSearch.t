@@ -31,6 +31,7 @@ ok $search = Bio::Tools::AmpliconSearch->new(
    -template       => $seq,
    -forward_primer => $forward,
 ), 'Forward primer only';
+
 is $search->forward_primer->seq, 'AAACTTAAAGGAATTGACGG';
 is $search->reverse_primer, undef;
 is $search->template->seq, 'AAACTTAAAGGAATTGACGGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaGTACACACCGCCCGT';
