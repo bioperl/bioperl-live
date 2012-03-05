@@ -444,7 +444,7 @@ sub frame {
 sub primary_tag {
     my $self = shift;
     return $self->{'_primary_tag'} = shift if @_;
-    return $self->{'_primary_tag'};
+    return $self->{'_primary_tag'} || '';
 }
 
 
@@ -463,7 +463,7 @@ sub primary_tag {
 sub source_tag {
     my $self = shift;
     return $self->{'_source_tag'} = shift if @_;
-    return $self->{'_source_tag'};
+    return $self->{'_source_tag'} || '';
 }
 
 
@@ -693,7 +693,7 @@ sub seq_id {
 sub display_name{
     my $self = shift;
     return $self->{'display_name'} = shift if @_;
-    return $self->{'display_name'};
+    return $self->{'display_name'} || '';
 }
 
 
