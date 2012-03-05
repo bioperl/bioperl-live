@@ -805,10 +805,9 @@ sub _gff2_string{
 
    if( $feat->can('seqname') ) {
        $name = $feat->seq_id();
-       $name ||= 'SEQ';
-   } else {
-       $name = 'SEQ';
    }
+   $name ||= 'SEQ';
+
    $str1 = join("\t",
                  $name,
 		 $feat->source_tag(),
