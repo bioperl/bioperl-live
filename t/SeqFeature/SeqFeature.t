@@ -7,12 +7,11 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 245);
+    test_begin(-tests => 232);
 	
 	use_ok('Bio::Seq');
 	use_ok('Bio::SeqIO');
 	use_ok('Bio::SeqFeature::Generic');
-	use_ok('Bio::SeqFeature::FeaturePair');
 	use_ok('Bio::SeqFeature::Gene::Transcript');
 	use_ok('Bio::SeqFeature::Gene::UTR');
 	use_ok('Bio::SeqFeature::Gene::Exon');
@@ -22,7 +21,7 @@ BEGIN {
 }
 
 # predeclare variables for strict
-my ($feat, $str, $feat2, $pair, @sft);
+my ($feat, $str, $feat2, $pair, @sft); 
 
 my $DEBUG = test_debug();
 
@@ -57,10 +56,7 @@ is $feat->phase, 1, 'phase is persistent';
 
 ok $feat->gff_string();
 
-$pair = Bio::SeqFeature::FeaturePair->new();
-ok defined $pair;
-
-$feat2 = Bio::SeqFeature::Generic->new( -start => 400,
+ok $feat2 = Bio::SeqFeature::Generic->new(-start => 400,
 				       -end => 440,
 				       -strand => 1,
 				       -primary => 'other',
@@ -73,23 +69,6 @@ $feat2 = Bio::SeqFeature::Generic->new( -start => 400,
 				       );
 is $feat2->phase, 1, 'set phase from constructor';
 
-ok defined $feat2;
-$pair->feature1($feat);
-$pair->feature2($feat2);
-
-is $pair->feature1, $feat, 'feature1 of pair stored';
-is $pair->feature2, $feat2, 'feature2 of pair stored';
-is $pair->start, 40, 'feature start';
-is $pair->end, 80, 'feature end';
-is $pair->primary_tag, 'exon', 'primary tag';
-is $pair->source_tag, 'internal', 'source tag';
-is $pair->hstart, 400, 'hstart';
-is $pair->hend, 440, 'hend';
-is $pair->hprimary_tag, 'other', 'hprimary tag';
-is $pair->hsource_tag, 'program_a', 'hsource tag';
-
-$pair->invert;
-is $pair->end, 440, 'inverted end';
 
 # Test attaching a SeqFeature::Generic to a Bio::Seq
 {
