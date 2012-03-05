@@ -7,23 +7,15 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 256);
-	
-	use_ok('Bio::Seq');
-	use_ok('Bio::SeqIO');
-	use_ok('Bio::SeqFeature::Generic');
-	use_ok('Bio::SeqFeature::FeaturePair');
-	use_ok('Bio::SeqFeature::Computation');
-	use_ok('Bio::SeqFeature::Gene::Transcript');
-	use_ok('Bio::SeqFeature::Gene::UTR');
-	use_ok('Bio::SeqFeature::Gene::Exon');
-	use_ok('Bio::SeqFeature::Gene::Poly_A_site');
-	use_ok('Bio::SeqFeature::Gene::GeneStructure');
-	use_ok('Bio::Location::Fuzzy');
+    test_begin(-tests => 205);
+
+    use_ok('Bio::Seq');
+    use_ok('Bio::SeqIO');
+    use_ok('Bio::SeqFeature::Generic');
 }
 
 # predeclare variables for strict
-my ($feat,$str,$feat2,$pair,$comp_obj1,$comp_obj2,@sft); 
+my ($feat, $str, $feat2, $pair, @sft); 
 
 my $DEBUG = test_debug();
 
@@ -58,10 +50,7 @@ is $feat->phase, 1, 'phase is persistent';
 
 ok $feat->gff_string();
 
-$pair = Bio::SeqFeature::FeaturePair->new();
-ok defined $pair;
-
-$feat2 = Bio::SeqFeature::Generic->new( -start => 400,
+ok $feat2 = Bio::SeqFeature::Generic->new(-start => 400,
 				       -end => 440,
 				       -strand => 1,
 				       -primary => 'other',
@@ -74,23 +63,6 @@ $feat2 = Bio::SeqFeature::Generic->new( -start => 400,
 				       );
 is $feat2->phase, 1, 'set phase from constructor';
 
-ok defined $feat2;
-$pair->feature1($feat);
-$pair->feature2($feat2);
-
-is $pair->feature1, $feat, 'feature1 of pair stored';
-is $pair->feature2, $feat2, 'feature2 of pair stored';
-is $pair->start, 40, 'feature start';
-is $pair->end, 80, 'feature end';
-is $pair->primary_tag, 'exon', 'primary tag';
-is $pair->source_tag, 'internal', 'source tag';
-is $pair->hstart, 400, 'hstart';
-is $pair->hend, 440, 'hend';
-is $pair->hprimary_tag, 'other', 'hprimary tag';
-is $pair->hsource_tag, 'program_a', 'hsource tag';
-
-$pair->invert;
-is $pair->end, 440, 'inverted end';
 
 # Test attaching a SeqFeature::Generic to a Bio::Seq
 {
@@ -134,36 +106,6 @@ is $pair->end, 440, 'inverted end';
     is $sf_seq2, 'acccct', 'sf2';
 }
 
-#Do some tests for computation.pm
-
-ok defined ( $comp_obj1 = Bio::SeqFeature::Computation->new('-start' => 1,
-							    '-end'   => 10) );
-is($comp_obj1->computation_id(332),332, 'computation id');
-ok( $comp_obj1->add_score_value('P', 33), 'score value');
-{
-    $comp_obj2 = Bio::SeqFeature::Computation->new('-start' => 2,
-						   '-end'   => 10);
-    ok ($comp_obj1->add_sub_SeqFeature($comp_obj2, 'exon') );
-    ok (@sft = $comp_obj1->all_sub_SeqFeature_types() );
-    is($sft[0], 'exon', 'sft[0] is exon');
-}
-
-ok defined ( $comp_obj1 = Bio::SeqFeature::Computation->new 
-	     (
-	      -start => 10, -end => 100,
-	      -strand => -1, -primary => 'repeat',
-	      -program_name => 'GeneMark',
-	      -program_date => '12-5-2000',
-	      -program_version => 'x.y',
-	      -database_name => 'Arabidopsis',
-	      -database_date => '12-dec-2000',
-	      -computation_id => 2231,
-	      -score    => { no_score => 334 } )
-	     );
-
-is ( $comp_obj1->computation_id, 2231, 'computation id' );
-ok ( $comp_obj1->add_score_value('P', 33) );
-is ( ($comp_obj1->each_score_value('no_score'))[0], '334', 'score value');
 
 # some tests for bug #947
 
@@ -191,83 +133,6 @@ ok(defined $sfeat->end);
 is($sfeat->end,0,'can create feature starting and ending at 0');
 
 
-# tests for Bio::SeqFeature::Gene::* objects
-# using information from acc: AB077698 as a guide
-
-ok my $seqio = Bio::SeqIO->new(-format => 'genbank',
-			 -file   => test_input_file('AB077698.gb'));
-ok my $geneseq = $seqio->next_seq();
-
-ok my $gene = Bio::SeqFeature::Gene::GeneStructure->new(-primary => 'gene',
-						    -start   => 1,
-						       -end     => 2701,
-						       -strand  => 1);
-
-ok my $transcript = Bio::SeqFeature::Gene::Transcript->new(-primary => 'CDS',
-							  -start   => 80,
-							  -end     => 1144,
-							  -tag     => { 
-							      'gene' => "CHCR",
-							      'note' => "Cys3His CCG1-Required Encoded on BAC clone RP5-842K24 (AL050310) The human CHCR (Cys3His CCG1-Required) protein is highly related to EXP/MBNL (Y13829, NM_021038, AF401998) and MBLL (NM_005757,AF061261), which together comprise the human Muscleblind family",
-							      'codon_start' => 1,
-							      'protein_id'  => 'BAB85648.1',
-							  });
-
-ok my $poly_A_site1 = Bio::SeqFeature::Gene::Poly_A_site->new
-    (-primary => 'polyA_site',
-     -start => 2660,
-     -end   => 2660,
-     -tag   => { 
-	 'note' => "Encoded on BAC clone RP5-842K24 (AL050310); PolyA_site#2 used by CHCR EST clone DKFZp434G2222 (AL133625)"
-	 });
-
-ok my $poly_A_site2 = Bio::SeqFeature::Gene::Poly_A_site->new
-    (-primary => 'polyA_site',
-     -start => 1606,
-     -end   => 1606,
-     -tag   => { 
-	 'note' => "Encoded on BAC clone RP5-842K24 (AL050310); PolyA_site#1 used by CHCR EST clone PLACE1010202 (AK002178)",
-     });
-
-ok my $fiveprimeUTR = Bio::SeqFeature::Gene::UTR->new(-primary => "utr5prime");
-ok $fiveprimeUTR->location(Bio::Location::Fuzzy->new(-start => "<1",
-						    -end   => 79));
-ok my $threeprimeUTR = Bio::SeqFeature::Gene::UTR->new(-primary => "utr3prime",
-						      -start   => 1145,
-						      -end     => 2659);
-
-# Did a quick est2genome against genomic DNA (this is on Chr X) to
-# get the gene structure by hand since it is not in the file
-# --Jason
-
-ok my $exon1 = Bio::SeqFeature::Gene::Exon->new(-primary => 'exon',
-					       -start => 80,
-					       -end   => 177);
-ok $geneseq->add_SeqFeature($exon1);
-
-ok $geneseq->add_SeqFeature($fiveprimeUTR);
-ok $geneseq->add_SeqFeature($threeprimeUTR);
-ok $geneseq->add_SeqFeature($poly_A_site1);
-ok $geneseq->add_SeqFeature($poly_A_site2);
-
-ok $transcript->add_utr($fiveprimeUTR, 'utr5prime');
-ok $transcript->add_utr($threeprimeUTR, 'utr3prime');
-
-ok $transcript->add_exon($exon1);
-
-# API only supports a single poly-A site per transcript at this point 
-$transcript->poly_A_site($poly_A_site2);
-$geneseq->add_SeqFeature($transcript);
-$gene->add_transcript($transcript);
-$geneseq->add_SeqFeature($gene);
-
-my ($t) = $gene->transcripts(); # get 1st transcript
-ok(defined $t); 
-is($t->mrna->length, 1693, 'mRNA spliced length');
-is($gene->utrs, 2, 'has 2 UTRs');
-
-
-
 # Test for bug when Locations are not created explicitly
 
 my $feat1 = Bio::SeqFeature::Generic->new(-start => 1,
@@ -288,6 +153,8 @@ is($intersect->end,   15);
 
 
 # now let's test spliced_seq
+my $seqio;
+my $geneseq;
 
 isa_ok(  $seqio = Bio::SeqIO->new(-file => test_input_file('AY095303S1.gbk'),
 				 -format  => 'genbank'), "Bio::SeqIO");

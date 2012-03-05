@@ -312,6 +312,7 @@ sub from_feature {
             $self->add_Annotation($key,$val)
         }
     }
+    return 1;
 }
 #given a key and its values, make the values into
 #Bio::Annotation::\w+ objects
