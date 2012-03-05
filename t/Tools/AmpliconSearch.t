@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 68);
+    test_begin(-tests => 94);
 
     use_ok 'Bio::Tools::AmpliconSearch';
     use_ok 'Bio::PrimarySeq';
@@ -28,7 +28,7 @@ $forward = Bio::PrimarySeq->new(
    -seq => 'AAACTTAAAGGAATTGACGG',
 );
 ok $search = Bio::Tools::AmpliconSearch->new(
-   -template       => $seq,
+   -template   => $seq,
    -fwd_primer => $forward,
 ), 'Forward primer only';
 is $search->fwd_primer->seq, 'AAACTTAAAGGAATTGACGG';
@@ -52,7 +52,7 @@ $reverse = Bio::PrimarySeq->new(
    -seq => 'ACGGGCGGTGTGTAC',
 );
 ok $search = Bio::Tools::AmpliconSearch->new(
-   -template       => $seq,
+   -template   => $seq,
    -rev_primer => $reverse,
 ), 'Reverse primer only';
 is $search->fwd_primer, undef;
@@ -64,7 +64,7 @@ is $amplicon->start, 1;
 is $amplicon->end, 50;
 is $amplicon->strand, 1;
 is $amplicon->seq->seq, 'aaaAAACTTAAAGGAATTGACGGaaaaaaaaaaaaGTACACACCGCCCGT';
-is $amplicon = $search->next_amplicon, undef;
+is $search->next_amplicon, undef;
 
 
 # Forward and reverse primers, no amplicon
@@ -73,14 +73,14 @@ $reverse = Bio::PrimarySeq->new(
    -seq => 'CCCCCCCCCC',
 );
 ok $search = Bio::Tools::AmpliconSearch->new(
-   -template       => $seq,
+   -template   => $seq,
    -fwd_primer => $forward,
    -rev_primer => $reverse,
 ), 'Two primers, no match';
 is $search->fwd_primer->seq, 'AAACTTAAAGGAATTGACGG';
 is $search->rev_primer->seq, 'CCCCCCCCCC';
 is $search->template->seq, 'aaaAAACTTAAAGGAATTGACGGaaaaaaaaaaaaGTACACACCGCCCGTaaaaaa';
-is $amplicon = $search->next_amplicon, undef;
+is $search->next_amplicon, undef;
 
 
 # Degenerate forward and reverse primers from file, single amplicon
@@ -98,7 +98,7 @@ is $amplicon->start, 4;
 is $amplicon->end, 50;
 is $amplicon->strand, 1;
 is $amplicon->seq->seq, 'AAACTTAAAGGAATTGACGGaaaaaaaaaaaaGTACACACCGCCCGT';
-is $amplicon = $search->next_amplicon, undef;
+is $search->next_amplicon, undef;
 
 
 # Multiple amplicons
@@ -113,10 +113,10 @@ $reverse = Bio::PrimarySeq->new(
    -seq => 'AAAAAA',
 );
 ok $search = Bio::Tools::AmpliconSearch->new(
-   -template       => $seq,
+   -template   => $seq,
    -fwd_primer => $forward,
    -rev_primer => $reverse,
-);
+), 'Multiple amplicons';
 ok $amplicon = $search->next_amplicon;
 isa_ok $amplicon, 'Bio::SeqFeature::Amplicon';
 is $amplicon->start, 6;
@@ -129,6 +129,7 @@ is $amplicon->start, 31;
 is $amplicon->end, 45;
 is $amplicon->strand, 1;
 is $amplicon->seq->seq, 'CCCCaaaaaTTTTTT';
+is $search->next_amplicon, undef;
 
 
 # Amplicon on reverse strand
@@ -144,10 +145,10 @@ $reverse = Bio::PrimarySeq->new(
    -seq => 'AAAAAA',
 );
 ok $search = Bio::Tools::AmpliconSearch->new(
-   -template       => $seq,
+   -template   => $seq,
    -fwd_primer => $forward,
    -rev_primer => $reverse,
-);
+), 'Amplicon on reverse strand';
 ok $amplicon = $search->next_amplicon;
 isa_ok $amplicon, 'Bio::SeqFeature::Amplicon';
 is $amplicon->start, 31;
@@ -160,9 +161,86 @@ is $amplicon->start, 11;
 is $amplicon->end, 25;
 is $amplicon->strand, -1;
 is $amplicon->seq->seq, 'CCCCaaaaaTTTTTT';
+is $search->next_amplicon, undef;
 
 
-# Multiple amplicons on muliple strands
+# Overlapping amplicons (1)
 
-# Overlap
+$seq = Bio::PrimarySeq->new(
+   -seq => 'aaaaaCCCCaaaaaaaaaaaaaaaCCCCaaaaaTTTTTTaaaaaaaaaa',
+);
+$forward = Bio::PrimarySeq->new(
+   -seq => 'CCCC',
+);
+$reverse = Bio::PrimarySeq->new(
+   -seq => 'AAAAAA',
+);
+ok $search = Bio::Tools::AmpliconSearch->new(
+   -template   => $seq,
+   -fwd_primer => $forward,
+   -rev_primer => $reverse,
+), 'Overlapping amplicons (1)';
+ok $amplicon = $search->next_amplicon;
+isa_ok $amplicon, 'Bio::SeqFeature::Amplicon';
+is $amplicon->start, 25;
+is $amplicon->end, 39;
+is $amplicon->strand, 1;
+is $amplicon->seq->seq, 'CCCCaaaaaTTTTTT';
+is $search->next_amplicon, undef;
 
+
+# Overlapping amplicons (2)
+
+$seq = Bio::PrimarySeq->new(
+   -seq => 'aaaaaCCCCaaaaaaaaaaaaaaaTTTTTTaaaaaTTTTTTaaaaaaaaaa',
+);
+$forward = Bio::PrimarySeq->new(
+   -seq => 'CCCC',
+);
+$reverse = Bio::PrimarySeq->new(
+   -seq => 'AAAAAA',
+);
+ok $search = Bio::Tools::AmpliconSearch->new(
+   -template   => $seq,
+   -fwd_primer => $forward,
+   -rev_primer => $reverse,
+), 'Overlapping amplicons (2)';
+ok $amplicon = $search->next_amplicon;
+isa_ok $amplicon, 'Bio::SeqFeature::Amplicon';
+is $amplicon->start, 6;
+is $amplicon->end, 30;
+is $amplicon->strand, 1;
+is $amplicon->seq->seq, 'CCCCaaaaaaaaaaaaaaaTTTTTT';
+is $search->next_amplicon, undef;
+
+
+# Overlapping amplicons (3)
+
+$seq = Bio::PrimarySeq->new(
+   -seq => 'aaaaaCCCCaaaaaaaCCCCaaaaaaaaTTTTTTaaaaaTTTTTTaaaaaaaaaa',
+);
+$forward = Bio::PrimarySeq->new(
+   -seq => 'CCCC',
+);
+$reverse = Bio::PrimarySeq->new(
+   -seq => 'AAAAAA',
+);
+ok $search = Bio::Tools::AmpliconSearch->new(
+   -template   => $seq,
+   -fwd_primer => $forward,
+   -rev_primer => $reverse,
+), 'Overlapping amplicons (3)';
+ok $amplicon = $search->next_amplicon;
+isa_ok $amplicon, 'Bio::SeqFeature::Amplicon';
+is $amplicon->start, 17;
+is $amplicon->end, 34;
+is $amplicon->strand, 1;
+is $amplicon->seq->seq, 'CCCCaaaaaaaaTTTTTT';
+is $search->next_amplicon, undef;
+
+
+# Overlapping amplicons on muliple strands
+
+# attach_primers
+
+# annotated_template
