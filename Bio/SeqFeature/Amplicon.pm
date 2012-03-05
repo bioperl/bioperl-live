@@ -112,21 +112,17 @@ sub new {
 
 
 sub _primer {
+    # Get or set a primer. Type is either 'fwd' or 'rev'.
     my ($self, $type, $primer) = @_;
-    # type is either 'fwd' or 'rev'
-
     if (defined $primer) {
         if ( not(ref $primer) || not $primer->isa('Bio::SeqFeature::Primer') ) {
             $self->throw("Expected a primer object but got a '".ref($primer)."'\n");
         }
-
         if ( not defined $self->location ) {
             $self->throw("Location of $type primer on amplicon is not known. ".
                 "Use start(), end() or location() to set it.");
         }
-
         $primer->primary_tag($type.'_primer');
-
         $self->add_SeqFeature($primer, 'EXPAND');
     }
     return (grep { $_->primary_tag eq $type.'_primer' } $self->get_SeqFeatures)[0];
