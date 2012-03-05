@@ -93,8 +93,8 @@ methods. Internal methods are usually preceded with a _
  Usage    : my $search = Bio::Tools::AmpliconSearch->new( );
  Function : 
  Args     : -template        Sequence object. Note that the template sequence will be converted to Bio::Seq if needed. Features (amplicons and primers will be added to this object).
-            -fwd_primer
-            -rev_primer
+            -fwd_primer     A sequence object representing the primer
+            -rev_primer     A sequence object representing the primer
             -primer_file    replaces -fwd_primer and -rev_primer (optional)
             -attach_primers whether or not to attach primers to Amplicon objects. Default: 0 (off)
  Returns  : A Bio::Tools::AmpliconSearch object
@@ -132,7 +132,7 @@ sub new {
  Title    : template
  Usage    : my $template = $search->template;
  Function : Get the template sequence
- Args     :                   
+ Args     : None
  Returns  : A Bio::Seq object
 
 =cut
@@ -162,17 +162,15 @@ sub _set_template {
 }
 
 
-sub strand {
-   my ($self) = @_;
-   return $self->{strand};
-}
+=head2 fwd_primer
 
-sub _set_strand {
-   my ($self, $strand) = @_;
-   $self->{strand} = $strand;
-   return $self->strand;
-}
+ Title    : fwd_primer
+ Usage    : my $primer = $search->fwd_primer;
+ Function : Get the forward primer.
+ Args     : None
+ Returns  : A sequence object or primer object or undef
 
+=cut
 
 sub fwd_primer {
    my ($self) = @_;
@@ -184,6 +182,16 @@ sub _set_fwd_primer {
    return $self->_set_primer('fwd', $primer);
 }
 
+
+=head2 rev_primer
+
+ Title    : rev_primer
+ Usage    : my $primer = $search->rev_primer;
+ Function : Get the reverse primer.
+ Args     : None
+ Returns  : A sequence object or primer object or undef
+
+=cut
 
 sub rev_primer {
    my ($self) = @_;
@@ -197,29 +205,23 @@ sub _set_rev_primer {
 
 
 sub _set_primer {
+   # Save a primer (sequence object) and convert it to regexp. Type is 'fwd' or 'rev'.
    my ($self, $type, $primer) = @_;
-   # Save a primer sequence and convert it to regexp. Type is 'fwd' or 'rev'.
-
    my $re;
-
-   # Convert the given primer sequence to a regexp
    if (defined $primer) {
-      if ( not(ref $primer) || not $primer->isa('Bio::PrimarySeqI') ||
-           not $primer->isa('Bio::SeqFeature::Primer') ) { 
-         # Not an object, sequence or primer
-         $self->throw("Expected a sequence or primer object as input but got a ".ref($primer)."\n");
+      if ( not(ref $primer) || (
+           not($primer->isa('Bio::PrimarySeqI')) &&
+           not($primer->isa('Bio::SeqFeature::Primer')) ) ) {
+         $self->throw('Expected a sequence or primer object as input but got a '.ref($primer)."\n");
       }
       $self->{$type.'_primer'} = $primer;
+      my $seq = $primer->isa('Bio::SeqFeature::Primer') ? $primer->seq : $primer;
       $re = Bio::Tools::IUPAC->new(
-         -seq => $type eq 'fwd' ? $primer : $primer->revcom,
+         -seq => $type eq 'fwd' ? $seq : $seq->revcom,
       )->regexp;
-   }
-
-   # No primer sequence given, match end of string
-   else {
+   } else {
       $re = $type eq 'fwd' ? qr/^/ : qr/$/;
    }
-
    $self->{$type.'_regexp'} = $re;
    return $self->{$type.'_primer'};
 }
@@ -293,6 +295,18 @@ sub _set_attach_primers {
 }
 
 
+sub _cur_strand {
+   my ($self) = @_;
+   return $self->{cur_strand};
+}
+
+sub _set_strand {
+   my ($self, $strand) = @_;
+   $self->{cur_strand} = $strand;
+   return $self->_cur_strand;
+}
+
+
 =head2 next_amplicon
 
  Title    : next_amplicon
@@ -307,7 +321,7 @@ sub next_amplicon {
    my ($self, @args) = @_;
    my $amplicon;
 
-   my $strand = $self->strand;
+   my $strand = $self->_cur_strand;
    my $fwd_regexp = $self->fwd_regexp;
    my $rev_regexp = $self->rev_regexp;
 
@@ -328,6 +342,30 @@ sub next_amplicon {
       $self->_set_strand(-1);
       $amplicon = $self->next_amplicon;
    }
+
+#  # Get amplicons from forward and reverse strand
+#  my $fwd_amplicons = database_extract_amplicons_from_strand($seq, $fwd_regexp, $rev_regexp, 1);
+#  my $rev_amplicons = database_extract_amplicons_from_strand($seq, $fwd_regexp, $rev_regexp, -1);
+
+#  # Deal with nested amplicons by removing the longest of the two
+#  my $re = qr/(\d+)\.\.(\d+)/;
+#  for (my $rev = 0; $rev < scalar @$rev_amplicons; $rev++) {
+#    my ($rev_start, $rev_end) = ( $rev_amplicons->[$rev]->{_amplicon} =~ m/$re/ );
+#    for (my $fwd = 0; $fwd < scalar @$fwd_amplicons; $fwd++) {
+#      my ($fwd_start, $fwd_end) = ( $fwd_amplicons->[$fwd]->{_amplicon} =~ m/$re/ );
+#      if ( ($fwd_start < $rev_start) && ($rev_end < $fwd_end) ) {
+#        splice @$fwd_amplicons, $fwd, 1; # Remove forward amplicon
+#        $fwd--;
+#        next;
+#      }
+#      if ( ($rev_start < $fwd_start) && ($fwd_end < $rev_end) ) {
+#        splice @$rev_amplicons, $rev, 1; # Remove reverse amplicon
+#        $rev--;
+#      }
+#    }
+#  }
+#  
+#  my $amplicons = [ @$fwd_amplicons, @$rev_amplicons ];
 
    return $amplicon;
 }
