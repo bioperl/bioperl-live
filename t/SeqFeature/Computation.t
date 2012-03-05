@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 11);
+    test_begin(-tests => 12);
 
     use_ok('Bio::SeqFeature::Computation');
 }
@@ -28,8 +28,8 @@ ok $comp_obj2 = Bio::SeqFeature::Computation->new(
     -end   => 10,
 );
 
-ok $comp_obj1->add_sub_SeqFeature($comp_obj2, 'exon');
-ok @sft = $comp_obj1->all_sub_SeqFeature_types();
+ok $comp_obj1->add_SeqFeature($comp_obj2, 'exon');
+ok @sft = $comp_obj1->get_all_SeqFeature_types();
 
 is $sft[0], 'exon', 'sft[0] is exon';
 
