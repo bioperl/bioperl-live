@@ -123,7 +123,7 @@ sub _primer {
                 "Use start(), end() or location() to set it.");
         }
         $primer->primary_tag($type.'_primer');
-        $self->add_SeqFeature($primer, 'EXPAND');
+        $self->add_SeqFeature($primer);
     }
     return (grep { $_->primary_tag eq $type.'_primer' } $self->get_SeqFeatures)[0];
 }    

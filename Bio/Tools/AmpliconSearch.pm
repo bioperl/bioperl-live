@@ -401,16 +401,12 @@ sub _attach_amplicon {
       -template => $self->template,
    );
 
-   ####
-   use Data::Dumper;
-   print "Amplicon: ".$amplicon->start." .. ".$amplicon->end." -> ".$amplicon->seq->seq."\n";
-   print "AMPLICON: ".Dumper($amplicon);
-   ####
-
    # Create Bio::SeqFeature::Primer feature and attach them to the amplicon
    if ($self->attach_primers) {
       for my $type ('fwd', 'rev') {
          my ($pstart, $pend, $pstrand, $primer_seq);
+
+         # Coordinates relative to amplicon
          if ($type eq 'fwd') {
             # Forward primer
             $primer_seq = $self->fwd_primer;
@@ -427,25 +423,27 @@ sub _attach_amplicon {
             $pstrand = -1 * $amplicon->strand;
          }
 
-         ####
+         #### Absolute coordinates
          $pstart += $start - 1;
          $pend   += $start - 1;
          ####
 
-         Bio::SeqFeature::Primer->new(
+         my $primer = Bio::SeqFeature::Primer->new(
             -start    => $pstart,
             -end      => $pend,
             -strand   => $pstrand,
             -template => $amplicon,
          );
+
+         # Attach primer to amplicon
+         if ($type eq 'fwd') {
+            $amplicon->fwd_primer($primer);
+         } else {
+            $amplicon->rev_primer($primer);
+         }
+
       }
    }
-
-   ####
-   use Data::Dumper;
-   print "Amplicon: ".$amplicon->start." .. ".$amplicon->end." -> ".$amplicon->seq->seq."\n";
-   print "AMPLICON: ".Dumper($amplicon);
-   ####
 
    return $amplicon;
 }

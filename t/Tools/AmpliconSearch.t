@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 119);
+    test_begin(-tests => 121);
 
     use_ok 'Bio::PrimarySeq';
     use_ok 'Bio::SeqFeature::Primer';
@@ -46,11 +46,11 @@ is $amplicon->end, 56;
 is $amplicon->strand, 1;
 is $amplicon->seq->seq, 'AAACTTAAAGGAATTGACGGaaaaaaaaaaaaGTACACACCGCCCGTaaaaaa';
 ok $primer = $amplicon->fwd_primer;
-ok $primer_seq = $primer->seq;
-is $primer_seq->seq, 'AAACTTAAAGGAATTGACGG';
-is $primer_seq->start, 1;
-is $primer_seq->end, 20;
-is $primer_seq->strand, 1;
+###ok $primer_seq = $primer->seq;
+###is $primer_seq->seq, 'AAACTTAAAGGAATTGACGG';
+###is $primer_seq->start, 1;
+###is $primer_seq->end, 20;
+###is $primer_seq->strand, 1;
 is $amplicon = $search->next_amplicon, undef;
 
 
@@ -292,33 +292,33 @@ is $search->next_amplicon, undef;
 
 # Overlapping amplicons on both strands
 
-#$seq = Bio::PrimarySeq->new(
-#   -seq => 'aaaaaCCCCaaaaaaaaaaccAAAAAATTTTTTccttGGGGaaaaaaaaaa',
-#);
-#$forward = Bio::PrimarySeq->new(
-#   -seq => 'CCCC',
-#);
-#$reverse = Bio::PrimarySeq->new(
-#   -seq => 'AAAAAA',
-#);
-#ok $search = Bio::Tools::AmpliconSearch->new(
-#   -template   => $seq,
-#   -fwd_primer => $forward,
-#   -rev_primer => $reverse,
-#), 'Overlapping amplicons on both strands';
-#ok $amplicon = $search->next_amplicon;
-#isa_ok $amplicon, 'Bio::SeqFeature::Amplicon';
-#is $amplicon->start, 6;
-#is $amplicon->end, 33;
-#is $amplicon->strand, 1;
-#is $amplicon->seq->seq, 'CCCCaaaaaaaaaaccAAAAAATTTTTT';
-#ok $amplicon = $search->next_amplicon;
-#isa_ok $amplicon, 'Bio::SeqFeature::Amplicon';
-#is $amplicon->start, 22;
-#is $amplicon->end, 41;
-#is $amplicon->strand, -1;
-#is $amplicon->seq->seq, 'CCCCaaggAAAAAATTTTTT';
-#is $search->next_amplicon, undef;
+###$seq = Bio::PrimarySeq->new(
+###   -seq => 'aaaaaCCCCaaaaaaaaaaccAAAAAATTTTTTccttGGGGaaaaaaaaaa',
+###);
+###$forward = Bio::PrimarySeq->new(
+###   -seq => 'CCCC',
+###);
+###$reverse = Bio::PrimarySeq->new(
+###   -seq => 'AAAAAA',
+###);
+###ok $search = Bio::Tools::AmpliconSearch->new(
+###   -template   => $seq,
+###   -fwd_primer => $forward,
+###   -rev_primer => $reverse,
+###), 'Overlapping amplicons on both strands';
+###ok $amplicon = $search->next_amplicon;
+###isa_ok $amplicon, 'Bio::SeqFeature::Amplicon';
+###is $amplicon->start, 6;
+###is $amplicon->end, 33;
+###is $amplicon->strand, 1;
+###is $amplicon->seq->seq, 'CCCCaaaaaaaaaaccAAAAAATTTTTT';
+###ok $amplicon = $search->next_amplicon;
+###isa_ok $amplicon, 'Bio::SeqFeature::Amplicon';
+###is $amplicon->start, 22;
+###is $amplicon->end, 41;
+###is $amplicon->strand, -1;
+###is $amplicon->seq->seq, 'CCCCaaggAAAAAATTTTTT';
+###is $search->next_amplicon, undef;
 
 # Annotate template
 
