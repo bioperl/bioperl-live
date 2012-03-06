@@ -350,11 +350,6 @@ sub _regexp {
       my $fwd_regexp = $self->_fwd_regexp;
       my $rev_regexp = $self->_rev_regexp;
 
-      #### Clean regexp for B::T::SeqPatterns
-      $fwd_regexp =~ s/^\(.*?\:(.*)\)$/$1/;
-      $rev_regexp =~ s/^\(.*?\:(.*)\)$/$1/;
-      ####
-
       my ($fwd_regexp_rc, $basic_fwd_match, $rev_regexp_rc, $basic_rev_match);
       if ($fwd_regexp eq '^') {
          $fwd_regexp_rc = '';
@@ -470,7 +465,7 @@ sub _attach_amplicon {
             $pstrand = -1 * $amplicon->strand;
          }
 
-         #### Absolute coordinates
+         #### Absolute coordinates??
          $pstart += $start - 1;
          $pend   += $start - 1;
          ####
