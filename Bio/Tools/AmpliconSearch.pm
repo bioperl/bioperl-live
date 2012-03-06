@@ -113,13 +113,14 @@ methods. Internal methods are usually preceded with a _
 
  Title    : new
  Usage    : my $search = Bio::Tools::AmpliconSearch->new( );
- Function : 
+ Function : Initialize an amplicon search
  Args     : -template       Sequence object for the template sequence. This object
-                            will be converted to Bio::Seq if needed since features
+                            will be converted to Bio::Seq if needed in since features
                             (amplicons and primers) will be added to this object.
             -fwd_primer     A sequence object representing the forward primer
             -rev_primer     A sequence object representing the reverse primer
-            -primer_file    Read primers from a sequence file. It replaces -fwd_primer and -rev_primer (optional)
+            -primer_file    Read primers from a sequence file. It replaces
+                            -fwd_primer and -rev_primer (optional)
             -attach_primers Whether or not to attach primers to Amplicon objects. Default: 0 (off)
  Returns  : A Bio::Tools::AmpliconSearch object
 
@@ -226,7 +227,6 @@ sub _set_rev_primer {
    return $self->_set_primer('rev', $primer);
 }
 
-
 sub _set_primer {
    # Save a primer (sequence object) and convert it to regexp. Type is 'fwd' or 'rev'.
    my ($self, $type, $primer) = @_;
@@ -248,7 +248,6 @@ sub _set_primer {
    $self->{$type.'_regexp'} = $re;
    return $self->{$type.'_primer'};
 }
-
 
 sub _get_primers_from_file {
    my ($self, $primer_file) = @_;
@@ -282,22 +281,10 @@ sub _get_primers_from_file {
 }
 
 
-sub fwd_regexp {
-   my ($self) = @_;
-   return $self->{fwd_regexp};
-}
-
-
-sub rev_regexp {
-   my ($self) = @_;
-   return $self->{rev_regexp};
-}
-
-
 =head2 attach_primers
 
  Title    : attach_primers
- Usage    : my $primers_attached = $search->attach_primers;
+ Usage    : my $attached = $search->attach_primers;
  Function : Get whether or not primer objects will be attached to the amplicon
             objects.
  Args     : None
@@ -318,18 +305,6 @@ sub _set_attach_primers {
 }
 
 
-sub _cur_strand {
-   my ($self) = @_;
-   return $self->{cur_strand};
-}
-
-sub _set_strand {
-   my ($self, $strand) = @_;
-   $self->{cur_strand} = $strand;
-   return $self->_cur_strand;
-}
-
-
 =head2 next_amplicon
 
  Title    : next_amplicon
@@ -345,8 +320,8 @@ sub next_amplicon {
    my $amplicon;
 
    my $strand = $self->_cur_strand;
-   my $fwd_regexp = $self->fwd_regexp;
-   my $rev_regexp = $self->rev_regexp;
+   my $fwd_regexp = $self->_fwd_regexp;
+   my $rev_regexp = $self->_rev_regexp;
 
    if ($template_str  =~ m/($fwd_regexp.*?$rev_regexp)/g) {
       my $end   = pos($template_str);
@@ -398,6 +373,55 @@ sub next_amplicon {
 #  my $amplicons = [ @$fwd_amplicons, @$rev_amplicons ];
 
    return $amplicon;
+}
+
+
+=head2 annotate_template
+
+ Title    : annotate_template
+ Usage    : my $template = $search->annotate_template;
+ Function : Search for all amplicons and attach them to the template.
+            This is equivalent to running:
+               while (my $amplicon = $self->next_amplicon) {
+                  # do something
+               }
+               my $annotated = $self->template;
+ Args     : None
+ Returns  : A Bio::Seq object with attached Bio::SeqFeature::Amplicons (and
+            Bio::SeqFeature::Primers if you set -attach_primers to 1).
+
+=cut
+
+sub annotate_template {
+   my ($self) = @_;
+   # Search all amplicons and attach them to template
+   1 while $self->next_amplicon;
+   # Return annotated template
+   return $self->template;
+}
+
+
+sub _fwd_regexp {
+   my ($self) = @_;
+   return $self->{fwd_regexp};
+}
+
+
+sub _rev_regexp {
+   my ($self) = @_;
+   return $self->{rev_regexp};
+}
+
+
+sub _cur_strand {
+   my ($self) = @_;
+   return $self->{cur_strand};
+}
+
+sub _set_strand {
+   my ($self, $strand) = @_;
+   $self->{cur_strand} = $strand;
+   return $self->_cur_strand;
 }
 
 
@@ -470,27 +494,5 @@ sub _attach_amplicon {
    return $amplicon;
 }
 
-
-=head2 annotate_template
-
- Title    : annotate_template
- Usage    : my $template = $search->annotate_template;
- Function : Search for all amplicons and attach them to the template.
-            This is equivalent to running:
-               XXX
-               
- Args     : None
- Returns  : A Bio::Seq object with attached Bio::SeqFeature::Amplicons (and
-            Bio::SeqFeature::Primers if you set -attach_primers to 1).
-
-=cut
-
-sub annotate_template {
-   my ($self) = @_;
-   # Search all amplicons and attach them to template
-   1 while $self->next_amplicon;
-   # Return annotated template
-   return $self->template;
-}
 
 1;
