@@ -11,6 +11,7 @@ use strict;
 use warnings;
 use Bio::Tools::IUPAC;
 use Bio::SeqFeature::Amplicon;
+use Bio::Tools::SeqPattern;
 # we require Bio::SeqIO
 # and Bio::SeqFeature::Primer
 
@@ -243,7 +244,8 @@ sub _set_primer {
          -seq => $type eq 'fwd' ? $seq : $seq->revcom,
       )->regexp;
    } else {
-      $re = $type eq 'fwd' ? qr/^/ : qr/$/;
+      ###$re = $type eq 'fwd' ? qr/^/ : qr/$/;
+      $re = $type eq 'fwd' ? '^' : '$';
    }
    $self->{$type.'_regexp'} = $re;
    return $self->{$type.'_primer'};
@@ -319,60 +321,69 @@ sub next_amplicon {
    my ($self) = @_;
    my $amplicon;
 
-   my $strand = $self->_cur_strand;
-   my $fwd_regexp = $self->_fwd_regexp;
-   my $rev_regexp = $self->_rev_regexp;
+   my $re = $self->_regexp;
 
-   if ($template_str  =~ m/($fwd_regexp.*?$rev_regexp)/g) {
+   if ($template_str  =~ m/$re/g) {
+      my ($match, $rev_match) = ($1, $2);
+      my $strand = $rev_match ? -1 : 1;
+      $match = $match || $rev_match;
       my $end   = pos($template_str);
-      my $start = $end - length($1) + 1;
-      # Now trim the left end to obtain the shortest amplicon
-      my $ampliconstr = substr $template_str, $start - 1, $end - $start + 1;
-      if ($ampliconstr =~ m/$fwd_regexp.*($fwd_regexp)/g) {
-         $start += pos($ampliconstr) - length($1);
-      }
+      my $start = $end - length($match) + 1;
       $amplicon = $self->_attach_amplicon($start, $end, $strand);
    }
 
-   if ( not $amplicon ) {
-      if ( $strand == 1 ) {
-         # Exhausted all matches in forward strand. Search in the reverse strand.
-         $template_str = $self->template->revcom->seq;
-         $self->_set_strand(-1);
-         $amplicon = $self->next_amplicon;
-      } else {
-         # No more matches. Make sure calls to next_amplicon() will return undef.
-         $template_str = '';
-      }
+   # If no more matches. Make sure calls to next_amplicon() will return undef.
+   if (not $amplicon) {
+      $template_str = '';
    }
 
-#  # May want to use Bio::Range intersection() to check for overlap
-
-#  # Get amplicons from forward and reverse strand
-#  my $fwd_amplicons = _extract_amplicons_from_strand($seq, $fwd_regexp, $rev_regexp, 1);
-#  my $rev_amplicons = _extract_amplicons_from_strand($seq, $fwd_regexp, $rev_regexp, -1);
-#
-#  # Deal with nested amplicons by removing the longest of the two
-#  my $re = qr/(\d+)\.\.(\d+)/;
-#  for (my $rev = 0; $rev < scalar @$rev_amplicons; $rev++) {
-#    my ($rev_start, $rev_end) = ( $rev_amplicons->[$rev]->{_amplicon} =~ m/$re/ );
-#    for (my $fwd = 0; $fwd < scalar @$fwd_amplicons; $fwd++) {
-#      my ($fwd_start, $fwd_end) = ( $fwd_amplicons->[$fwd]->{_amplicon} =~ m/$re/ );
-#      if ( ($fwd_start < $rev_start) && ($rev_end < $fwd_end) ) {
-#        splice @$fwd_amplicons, $fwd, 1; # Remove forward amplicon
-#        $fwd--;
-#        next;
-#      }
-#      if ( ($rev_start < $fwd_start) && ($fwd_end < $rev_end) ) {
-#        splice @$rev_amplicons, $rev, 1; # Remove reverse amplicon
-#        $rev--;
-#      }
-#    }
-#  }
-#  
-#  my $amplicons = [ @$fwd_amplicons, @$rev_amplicons ];
-
    return $amplicon;
+}
+
+
+sub _regexp {
+   my ($self) = @_;
+   if (not defined $self->{regexp}) {
+      # Build regexp that matches amplicons on both strands and reports shortest
+      # amplicon when there are several overlapping amplicons
+
+      my $fwd_regexp = $self->_fwd_regexp;
+      my $rev_regexp = $self->_rev_regexp;
+
+      #### Clean regexp for B::T::SeqPatterns
+      $fwd_regexp =~ s/^\(.*?\:(.*)\)$/$1/;
+      $rev_regexp =~ s/^\(.*?\:(.*)\)$/$1/;
+      ####
+
+      my ($fwd_regexp_rc, $basic_fwd_match, $rev_regexp_rc, $basic_rev_match);
+      if ($fwd_regexp eq '^') {
+         $fwd_regexp_rc = '';
+         $basic_fwd_match = "(?:.*?$rev_regexp)";
+      } else {
+         $fwd_regexp_rc = Bio::Tools::SeqPattern->new( -seq => $fwd_regexp, -type => 'dna' )->revcom->str;
+         $basic_fwd_match = "(?:$fwd_regexp.*?$rev_regexp)";
+      }
+
+      if ($rev_regexp eq '$') {
+         $rev_regexp_rc = '';
+         $basic_rev_match = "(?:.*?$fwd_regexp_rc)";
+      } else {
+         $rev_regexp_rc = Bio::Tools::SeqPattern->new( -seq => $rev_regexp, -type => 'dna' )->revcom->str;
+         $basic_rev_match = "(?:$rev_regexp_rc.*?$fwd_regexp_rc)";
+      }
+
+      my $fwd_exclude     = "(?!$basic_rev_match".
+                            ($fwd_regexp eq '^' ? '' : "|$fwd_regexp").
+                            ")";
+
+      my $rev_exclude     = "(?!$basic_fwd_match".
+                            ($rev_regexp eq '$' ? '' : "|$rev_regexp_rc").
+                            ')';
+
+      $self->{regexp} = qr/($fwd_regexp(?:$fwd_exclude.)*?$rev_regexp)|($rev_regexp_rc(?:$rev_exclude.)*?$fwd_regexp_rc)/i;
+
+   }
+   return $self->{regexp};
 }
 
 
@@ -428,16 +439,6 @@ sub _set_strand {
 sub _attach_amplicon {
    # Create an amplicon object and attach it to template
    my ($self, $start, $end, $strand) = @_;
-
-   if ($strand == -1) {
-      # Calculate coordinates relative to forward strand. For example, given a
-      # read starting at 10 and ending at 23 on the reverse complement of a 100
-      # bp, give a strand or 77 and end of 90 on forward strand.
-      my $length = length $template_str;
-      $start = $length - $start + 1;
-      $end   = $length - $end + 1;
-      ($start, $end) = ($end, $start);
-   }
 
    # Create Bio::SeqFeature::Amplicon feature and attach it to the template
    my $amplicon = Bio::SeqFeature::Amplicon->new(
