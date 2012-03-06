@@ -33,7 +33,7 @@ ok $iupac = Bio::Tools::IUPAC->new( -seq => $ambiseq );
 
 ok my $regexp = $iupac->regexp;
 
-like $regexp, qr/A\[AGR\]TCGTTG\[ACGTBDHKMNRSVWY\]/, 'Regexp';
+is $regexp, 'A[AGR]TCGTTG[ACGTBDHKMNRSVWY]', 'Regexp';
 
 is $iupac->count(), 8, 'Count';
 
@@ -41,15 +41,15 @@ my @seqs;
 while (my $uniqueseq = $iupac->next_seq()) {
     push @seqs, $uniqueseq->seq;
     is $uniqueseq->isa('Bio::PrimarySeqI'), 1;
-    like $uniqueseq->seq, $regexp;
+    like $uniqueseq->seq, qr/$regexp/i;
 }
 
 @seqs = sort @seqs;
 is_deeply \@seqs, [ 'AATCGTTGA', 'AATCGTTGC', 'AATCGTTGG', 'AATCGTTGT',
                     'AGTCGTTGA', 'AGTCGTTGC', 'AGTCGTTGG', 'AGTCGTTGT' ];
 
-like $ambiseq->seq, $regexp, 'Regexp matches ambiguous sequences';
-like 'ARTCGTTGW', $regexp;
+like $ambiseq->seq, qr/$regexp/i, 'Regexp matches ambiguous sequences';
+like 'ARTCGTTGW', qr/$regexp/i;
 
 
 # IUPAC code methods
