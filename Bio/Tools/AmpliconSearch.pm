@@ -21,11 +21,33 @@ my $template_str;
 
 =head1 NAME
 
-Bio::Tools::AmpliconSearch - Use PCR primers to identify amplicons in a template sequence
+Bio::Tools::AmpliconSearch - Find amplicons in a template using degenerate PCR primers
 
 =head1 SYNOPSIS
 
-XXX
+   use Bio::PrimarySeq;
+   use Bio::Tools::AmpliconSearch;
+
+   my $template = Bio::PrimarySeq->new(
+      -seq => 'aaaaaCCCCaaaaaaaaaaTTTTTTaaaaaCCACaaaaaTTTTTTaaaaaaaaaa',
+   );
+   my $fwd_primer = Bio::PrimarySeq->new(
+      -seq => 'CCNC',
+   );
+   my $rev_primer = Bio::PrimarySeq->new(
+      -seq => 'AAAAA',
+   );
+
+   my $search = Bio::Tools::AmpliconSearch->new(
+      -template   => $template,
+      -fwd_primer => $fwd_primer,
+      -rev_primer => $rev_primer,
+   );
+   
+   while (my $amplicon = $search->next_amplicon) {
+      print "Found amplicon at position ".$amplicon->start.'..'.$amplicon->end.":\n";
+      print $amplicon->seq->seq."\n\n";
+   }
 
 =head1 DESCRIPTION
 
