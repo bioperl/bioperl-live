@@ -65,6 +65,10 @@ you can also retrieve information about melting temperatures and what not on eac
 of the primers and the amplicon. The L<Bio::Tools::Primer3> module uses PrimedSeq
 objects extensively.
 
+Note that this module does not simulate PCR. It assumes that the primers
+will match in a single location on the target sequence and does not understand
+degenerate primers.
+
 =over
 
 =item *
@@ -75,18 +79,16 @@ If the primers are specified as sequence objects, e.g. L<Bio::PrimarySeq> or
 L<Bio::Seq>, they are first converted to L<Bio::SeqFeature::Primer> objects.
 Their location on the target sequence is then calculated and added to the
 L<Bio::SeqFeature::Primer> objects, which you can retrieve using the get_primer()
-method. Note that this module does not simulate PCR. It assumes that the primers
-will match in a single location on the target sequence and does not understand
-degenerate primers. 
+method.
 
 =item *
 
 Providing primers as primer objects
 
 Because of the limitations of specifying primers as sequence objects, the
-recommended method is to provide L<Bio::SeqFeature::Primer> objects. Make sure
-that the location of the primers on the target sequence is recorded in the
-objects, or else, it will have be calculated.
+recommended method is to provide L<Bio::SeqFeature::Primer> objects. If you did
+not record the location of the primers in the primer object, it will be
+calculated.
 
 =back
 
@@ -194,21 +196,12 @@ package Bio::Seq::PrimedSeq;
 use strict;
 use Bio::SeqFeature::Primer;
 
-###use base qw(Bio::Root::Root Bio::SeqFeature::Generic);
-use base qw(Bio::Root::Root Bio::SeqI Bio::SeqFeature::Generic);
-###use base qw(Bio::Root::Root Bio::SeqFeature::Generic);
+use base qw(Bio::Root::Root Bio::SeqFeature::Generic);
+# Since this module occupies the Bio::Seq::* namespace, it should probably
+# inherit from Bio::Seq before it inherits from Bio::SeqFeature::Generic. But
+# then, Bio::SeqI and Bio::SeqFeatureI both request a seq() method that return
+# different things. So, being Bio::SeqI is incompatible with being Bio::SeqFeatureI
 
-#### need to be a bio::seqfeature::xxx because Bio::Tools::Primer3 calls the method add_tag_value on it
-#### if we store features, can we do it like Bio::Assembly::Contig : use Bio::DB::SeqFeature::Store; # isa Bio::SeqFeature::CollectionI
-### 3/ test using sequence object as primers, then let coordinates be calculated
-###    then test using primers returned and make sure results are the same
-### 4/ make sure that the case where primers match partially is handled well
-### 5/ call $self->get_primer instead of $self->{'left'} and $self->seq instead of $self->{'seq'}
-### 6/ for consistency, have an get_primer() be aliased to primer()
-### 7/ anything to do about orientation of reverse primer?
-### 8/ when asking for amplicon and primers match the beginning and end of the
-###    target sequence, avoid creating a new object and link to $self->seq
-### 9/ Bio::SeqI compliance... and should this be a Bio::Seq base instead?
 
 =head2 new
 
@@ -318,9 +311,6 @@ sub get_primer {
 
 sub annotated_sequence {
     my $self = shift;
-    ####
-    # update doc
-    ####
     my $seq = $self->{'seq'}; ### clone??
     $seq->add_SeqFeature($self->{'left'});
     $seq->add_SeqFeature($self->{'right'});
@@ -446,71 +436,5 @@ sub _place_primers {
 
 }
 
-
-#=head2 _set_seqfeature
-
-# Title   : _set_seqfeature
-# Usage   : $self->_set_seqfeature()
-# Function: An internal method to create Bio::SeqFeature::Generic objects
-#           for the primed seq
-# Returns : Nothing
-# Args    : None
-# Note    : Internal use only. Should only call this once left and right 
-#           primers have been placed on the sequence. This will then set 
-#           them as sequence features so hopefully we can get a nice output 
-#           with write_seq.
-
-#=cut
-
-#sub _set_seqfeature {
-#    my $self = shift;
-
-##    my $left = $self->{left};
-##    my $right = $self->{right};
-
-##    ###unless ($self->{left}->{PRIMER_LEFT} && 
-##    ###          $self->{right}->{PRIMER_RIGHT}) {
-
-##    if ( not( $left->location && $right->location ) ) {
-##        $self->throw('Could not make an annotated sequence because primer location was missing from Bio::SeqFeature::Primer object.');
-##    }
-
-##    ###my ($start, $length) = split /,/, $self->{left}->{PRIMER_LEFT};
-
-##    my $start = $left->location + $left->start - 1;
-##    my $length = $left->end - $left->start + 1;
-##    my $strand = $left->strand;
-
-##    my $tm = $left->{PRIMER_LEFT_TM} || $left->Tm || 0;
-
-##    my $seqfeatureL = Bio::SeqFeature::Generic->new(
-##        -start       => $start, ### + 1,
-##        -end         => $start + $length,
-##        -strand      => $strand,
-##        -primary_tag => 'left_primer',
-##        -source      => 'primer3',
-##        -tag         => {new => 1, author => 'Bio::Seq::PrimedSeq', Tm => $tm},
-##    );
-## 
-##    ###($start, $length) = split /,/, $self->{right}->{PRIMER_RIGHT};
-##    $start = $right->location + $right_location->start - 1;
-##    $strand = $right->strand;
-##    $tm = $right->{PRIMER_RIGHT_TM} || $right->Tm || 0;
-## 
-##    my $seqfeatureR = Bio::SeqFeature::Generic->new(
-##        -start       => $start - $length + 2,
-##        -end         => $start + 1,
-##        -strand      => -1,
-##        -primary_tag => 'right_primer',
-##        -source      => 'primer3',
-##        -tag         => {new => 1, author => 'Bio::Seq::PrimedSeq', Tm => $tm},
-##    );
-
-##    # Now add the sequences to an annotated sequence
-##    $self->{annotated_sequence} = $self->{seq}; #### clone?
-##    $self->{annotated_sequence}->add_SeqFeature($seqfeatureL);
-##    $self->{annotated_sequence}->add_SeqFeature($seqfeatureR);
-
-#}
 
 1;
