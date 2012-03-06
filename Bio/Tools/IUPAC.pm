@@ -515,7 +515,10 @@ sub count {
  Function: Converts the ambiguous sequence into a regular expression that
            matches all of the corresponding ambiguous and non-ambiguous sequences.
            You can further manipulate the resulting regular expression with the
-           Bio::Tools::SeqPattern module.
+           Bio::Tools::SeqPattern module. After you are done building your
+           regular expression, you might want to compile it and make it case-
+           insensitive:
+              $re = qr/$re/i;
  Args    : none
  Return  : regular expression
 
@@ -541,7 +544,6 @@ sub regexp {
             $re .= $$iupacs[0];
         }
     }
-    $re = qr/$re/i;
     return $re;
 }
 
