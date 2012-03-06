@@ -46,8 +46,12 @@ $rev_primer = Bio::SeqFeature::Primer->new(
     -strand => -1
 );
 
+
+$template = Bio::PrimarySeq->new( -seq => 'CCCCCAAAAAGGGGGTTTTT' );
 ok $amplicon = Bio::SeqFeature::Amplicon->new(
-    -seq        => Bio::PrimarySeq->new( -seq => 'CCCCCAAAAAGGGGGTTTTT' ),
+    -start      => 1,
+    -end        => 20,
+    -seq        => $template,
     -fwd_primer => $fwd_primer,
 );
 
