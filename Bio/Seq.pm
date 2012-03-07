@@ -32,7 +32,7 @@ Bio::Seq - Sequence object, with features
 
     # make from strings in script
     $seqobj = Bio::Seq->new( -display_id => 'my_id',
-			     -seq => $sequence_as_string);
+                             -seq => $sequence_as_string);
 
     # gets sequence as a string from sequence object
     $seqstr   = $seqobj->seq(); # actual sequence as a string
@@ -43,8 +43,8 @@ Bio::Seq - Sequence object, with features
 
     @features = $seqobj->get_SeqFeatures(); # just top level
     foreach my $feat ( @features ) {
-	print "Feature ",$feat->primary_tag," starts ",$feat->start," ends ",
-	$feat->end," strand ",$feat->strand,"\n";
+        print "Feature ",$feat->primary_tag," starts ",$feat->start," ends ",
+            $feat->end," strand ",$feat->strand,"\n";
 
         # features retain link to underlying sequence object
         print "Feature sequence is ",$feat->seq->seq(),"\n"
@@ -53,7 +53,7 @@ Bio::Seq - Sequence object, with features
     # sequences may have a species
 
     if( defined $seq->species ) {
-	print "Sequence is from ",$species->binomial," [",$species->common_name,"]\n";
+        print "Sequence is from ",$species->binomial," [",$species->common_name,"]\n";
     }
 
     # annotation objects are Bio::AnnotationCollectionI's
@@ -64,7 +64,7 @@ Bio::Seq - Sequence object, with features
     # more information
 
     foreach my $ref ( $ann->get_Annotations('reference') ) {
-	print "Reference ",$ref->title,"\n";
+        print "Reference ",$ref->title,"\n";
     }
 
     # you can get truncations, translations and reverse complements, these
@@ -136,8 +136,8 @@ exons it finds as sequence features in Genbank Flat File format.
       print "Seen sequence ",$seqobj->display_id,", start of seq ",
             substr($seqobj->seq,1,10),"\n";
       if( $seqobj->alphabet eq 'dna') {
-	    $rev = $seqobj->revcom;
-	    $id  = $seqobj->display_id();
+            $rev = $seqobj->revcom;
+            $id  = $seqobj->display_id();
             $id  = "$id.rev";
             $rev->display_id($id);
             $seqout->write_seq($rev);
@@ -147,7 +147,7 @@ exons it finds as sequence features in Genbank Flat File format.
            if( $feat->primary_tag eq 'exon' ) {
               print STDOUT "Location ",$feat->start,":",
                     $feat->end," GFF[",$feat->gff_string,"]\n";
-	   }
+           }
       }
   }
 
@@ -375,7 +375,7 @@ in order to retrieve the coordinates inside the Genbank or EMBL join()
 statements (e.g. "CDS    join(51..142,273..495,1346..1474)"):
 
   if ( $feat->location->isa('Bio::Location::SplitLocationI') &&
-	       $feat->primary_tag eq 'CDS' )  {
+               $feat->primary_tag eq 'CDS' )  {
     foreach $loc ( $feat->location->sub_Location ) {
       print $loc->start . ".." . $loc->end . "\n";
     }
@@ -469,8 +469,8 @@ use base qw(Bio::Root::Root Bio::SeqI Bio::IdentifiableI Bio::DescribableI Bio::
  Title   : new
  Usage   : $seq = Bio::Seq->new( -seq => 'ATGGGGGTGGTGGTACCCT',
                                  -id  => 'human_id',
-				 -accession_number => 'AL000012',
-			       );
+                                 -accession_number => 'AL000012',
+                               );
 
  Function: Returns a new Seq object from
            basic constructors, being a string for the sequence
@@ -483,7 +483,7 @@ sub new {
     my($caller,@args) = @_;
 
     if( $caller ne 'Bio::Seq') {
-	$caller = ref($caller) if ref($caller);
+        $caller = ref($caller) if ref($caller);
     }
 
     # we know our inherietance hierarchy
@@ -512,23 +512,23 @@ sub new {
     # gives a quick optimisation around testing things later on
 
     if( defined $ann || defined $pid || defined $feat || defined $species ) {
-	$pid && $self->primary_id($pid);
-	$species && $self->species($species);
-	$ann && $self->annotation($ann);
-	
-	if( defined $feat ) {
-	    if( ref($feat) !~ /ARRAY/i ) {
-		if( ref($feat) && $feat->isa('Bio::SeqFeatureI') ) {
-		    $self->add_SeqFeature($feat);
-		} else {
-		    $self->warn("Must specify a valid Bio::SeqFeatureI or ArrayRef of Bio::SeqFeatureI's with the -features init parameter for ".ref($self));
-		}
-	    } else {
-		foreach my $feature ( @$feat ) {
-		    $self->add_SeqFeature($feature);
-		}	
-	    }
-	}
+        $pid && $self->primary_id($pid);
+        $species && $self->species($species);
+        $ann && $self->annotation($ann);
+        
+        if( defined $feat ) {
+            if( ref($feat) !~ /ARRAY/i ) {
+                if( ref($feat) && $feat->isa('Bio::SeqFeatureI') ) {
+                    $self->add_SeqFeature($feat);
+                } else {
+                    $self->warn("Must specify a valid Bio::SeqFeatureI or ArrayRef of Bio::SeqFeatureI's with the -features init parameter for ".ref($self));
+                }
+            } else {
+                foreach my $feature ( @$feat ) {
+                    $self->add_SeqFeature($feature);
+                }
+            }
+        }
     }
 
     return $self;
@@ -574,9 +574,9 @@ sub seq {
 
  Title   : validate_seq
  Usage   : if(! $seq->validate_seq($seq_str) ) {
-                print "sequence $seq_str is not valid for an object of type ",
-		      ref($seq), "\n";
-	   }
+               print "sequence $seq_str is not valid for an object of type ",
+                      ref($seq), "\n";
+           }
  Function: Validates a given sequence string. A validating sequence string
            must be accepted by seq(). A string that does not validate will
            lead to an exception if passed to seq().
@@ -752,8 +752,8 @@ sub primary_id {
 
  Title   : can_call_new
  Usage   : if ( $obj->can_call_new ) {
-             $newobj = $obj->new( %param );
-	   }
+               $newobj = $obj->new( %param );
+           }
  Function: can_call_new returns 1 or 0 depending
            on whether an implementation allows new
            constructor to be called. If a new constructor
@@ -761,10 +761,10 @@ sub primary_id {
            constructor list.
 
            $myobject->new( -seq => $sequence_as_string,
-			   -display_id  => $id
-			   -accession_number => $accession
-			   -alphabet => 'dna',
-			 );
+                           -display_id  => $id
+                           -accession_number => $accession
+                           -alphabet => 'dna',
+                         );
  Example :
  Returns : 1 or 0
  Args    : None
@@ -952,12 +952,12 @@ for more information
 sub annotation {
     my ($obj,$value) = @_;
     if( defined $value ) {
-	$obj->throw("object of class ".ref($value)." does not implement ".
-		    "Bio::AnnotationCollectionI. Too bad.")
-	    unless $value->isa("Bio::AnnotationCollectionI");
-	$obj->{'_annotation'} = $value;
+        $obj->throw("object of class ".ref($value)." does not implement ".
+                    "Bio::AnnotationCollectionI. Too bad.")
+            unless $value->isa("Bio::AnnotationCollectionI");
+        $obj->{'_annotation'} = $value;
     } elsif( ! defined $obj->{'_annotation'}) {
-	$obj->{'_annotation'} = Bio::Annotation::Collection->new();
+        $obj->{'_annotation'} = Bio::Annotation::Collection->new();
     }
     return $obj->{'_annotation'};
 }
@@ -1112,9 +1112,9 @@ sub feature_count {
     my ($self) = @_;
 
     if (defined($self->{'_as_feat'})) {
-	return ($#{$self->{'_as_feat'}} + 1);
+        return ($#{$self->{'_as_feat'}} + 1);
     } else {
-	return 0;
+        return 0;
     }
 }
 
@@ -1140,7 +1140,7 @@ sub add_SeqFeature {
 
    foreach my $feat ( @feat ) {
        if( !$feat->isa("Bio::SeqFeatureI") ) {
-	   $self->throw("$feat is not a SeqFeatureI and that's what we expect...");
+           $self->throw("$feat is not a SeqFeatureI and that's what we expect...");
        }
 
        # make sure we attach ourselves to the feature if the feature wants it
@@ -1268,7 +1268,7 @@ sub primary_seq {
 
    if( defined $value) {
        if( ! ref $value || ! $value->isa('Bio::PrimarySeqI') ) {
-	   $obj->throw("$value is not a Bio::PrimarySeq compliant object");
+           $obj->throw("$value is not a Bio::PrimarySeq compliant object");
        }
 
        $obj->{'primary_seq'} = $value;
@@ -1276,7 +1276,7 @@ sub primary_seq {
        # want an attached seq.
 
        foreach my $sf ( $obj->get_SeqFeatures() ) {
-	   $sf->attach_seq($value);
+           $sf->attach_seq($value);
        }
 
    }
@@ -1332,7 +1332,7 @@ sub all_SeqFeatures{
 sub accession {
     my $self = shift;
     $self->warn(ref($self)."::accession is deprecated, ".
-		"use accession_number() instead");
+                "use accession_number() instead");
     return $self->accession_number(@_);
 }
 
