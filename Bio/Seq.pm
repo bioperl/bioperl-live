@@ -353,7 +353,6 @@ See L<Bio::PrimarySeq> for more details on PrimarySeq objects.
   # one can also add features
 
   $seqobj->add_SeqFeature($feat)     # returns 1 if successful
-  $seqobj->add_SeqFeature(@features) # returns 1 if successful
 
   # sub features. For complex join() statements, the feature
   # is one sequence feature with many sub SeqFeatures
@@ -534,6 +533,7 @@ sub new {
     return $self;
 }
 
+
 =head1 PrimarySeq interface
 
 
@@ -589,12 +589,12 @@ sub seq {
            0 otherwise.
  Args    : The sequence string to be validated.
 
-
 =cut
 
 sub validate_seq {
     return shift->primary_seq()->validate_seq(@_);
 }
+
 
 =head2 length
 
@@ -611,9 +611,8 @@ sub length {
     return shift->primary_seq()->length(@_);
 }
 
-=head1 Methods from the Bio::PrimarySeqI interface
 
-=cut
+=head1 Methods from the Bio::PrimarySeqI interface
 
 =head2 subseq
 
@@ -634,6 +633,7 @@ sub length {
 sub subseq {
     return shift->primary_seq()->subseq(@_);
 }
+
 
 =head2 display_id
 
@@ -658,13 +658,11 @@ sub subseq {
  Returns : A string
  Args    : None or a new id
 
-
 =cut
 
 sub display_id {
    return shift->primary_seq->display_id(@_);
 }
-
 
 
 =head2 accession_number
@@ -686,12 +684,12 @@ sub display_id {
  Returns : A string
  Args    : None or an accession number
 
-
 =cut
 
 sub accession_number {
    return shift->primary_seq->accession_number(@_);
 }
+
 
 =head2 desc
 
@@ -702,12 +700,12 @@ sub accession_number {
  Returns : The description
  Args    : The description or none
 
-
 =cut
 
 sub desc {
    return shift->primary_seq->desc(@_);
 }
+
 
 =head2 primary_id
 
@@ -729,7 +727,6 @@ sub desc {
  Returns : A string
  Args    : None or an id, or undef to unset the primary id.
 
-
 =cut
 
 sub primary_id {
@@ -747,6 +744,7 @@ sub primary_id {
 
     return shift->primary_seq->primary_id(@_);
 }
+
 
 =head2 can_call_new
 
@@ -769,12 +767,12 @@ sub primary_id {
  Returns : 1 or 0
  Args    : None
 
-
 =cut
 
 sub can_call_new {
     return 1;
 }
+
 
 =head2 alphabet
 
@@ -791,7 +789,6 @@ sub can_call_new {
            has to guess.
  Args    : optional string to set : 'dna' | 'rna' | 'protein'
 
-
 =cut
 
 sub alphabet {
@@ -799,6 +796,7 @@ sub alphabet {
    return $self->primary_seq->alphabet(@_) if @_ && defined $_[0];
    return $self->primary_seq->alphabet();
 }
+
 
 =head2 is_circular
 
@@ -817,8 +815,6 @@ sub is_circular {
 
 =head1 Methods for Bio::IdentifiableI compliance
 
-=cut
-
 =head2 object_id
 
  Title   : object_id
@@ -830,12 +826,12 @@ sub is_circular {
            This is aliased to accession_number().
  Returns : A scalar
 
-
 =cut
 
 sub object_id {
     return shift->accession_number(@_);
 }
+
 
 =head2 version
 
@@ -871,6 +867,7 @@ sub authority {
     return shift->primary_seq()->authority(@_);
 }
 
+
 =head2 namespace
 
  Title   : namespace
@@ -881,16 +878,14 @@ sub authority {
 
  Returns : A scalar
 
-
 =cut
 
 sub namespace{
     return shift->primary_seq()->namespace(@_);
 }
 
-=head1 Methods for Bio::DescribableI compliance
 
-=cut
+=head1 Methods for Bio::DescribableI compliance
 
 =head2 display_name
 
@@ -931,9 +926,8 @@ sub description {
     return shift->desc(@_);
 }
 
-=head1 Methods for implementing Bio::AnnotatableI
 
-=cut
+=head1 Methods for implementing Bio::AnnotatableI
 
 =head2 annotation
 
@@ -962,6 +956,7 @@ sub annotation {
     return $obj->{'_annotation'};
 }
 
+
 =head1 Methods for delegating Bio::AnnotationCollectionI
 
 =head2 get_Annotations()
@@ -975,6 +970,7 @@ sub annotation {
 =cut
 
 sub get_Annotations { shift->annotation->get_Annotations(@_); }
+
 
 =head2 add_Annotation()
 
@@ -1001,6 +997,7 @@ sub get_Annotations { shift->annotation->get_Annotations(@_); }
 
 sub add_Annotation { shift->annotation->add_Annotation(@_) }
 
+
 =head2 remove_Annotations()
 
  Usage   : $seq->remove_Annotations()
@@ -1016,6 +1013,7 @@ sub add_Annotation { shift->annotation->add_Annotation(@_) }
 
 sub remove_Annotations { shift->annotation->remove_Annotations(@_) }
 
+
 =head2 get_num_of_annotations()
 
  Usage   : my $count = $seq->get_num_of_annotations()
@@ -1029,6 +1027,7 @@ sub remove_Annotations { shift->annotation->remove_Annotations(@_) }
 
 sub get_num_of_annotations { shift->annotation->get_num_of_annotations(@_) }
 sub num_Annotations { shift->get_num_of_annotations }; #DWYM
+
 
 =head1 Methods to implement Bio::FeatureHolderI
 
@@ -1058,7 +1057,6 @@ This includes methods for retrieving, adding, and removing features.
  Returns : an array of Bio::SeqFeatureI implementing objects
  Args    : [optional] scalar string (feature tag)
 
-
 =cut
 
 sub get_SeqFeatures{
@@ -1076,6 +1074,7 @@ sub get_SeqFeatures{
    }
 }
 
+
 =head2 get_all_SeqFeatures
 
  Title   : get_all_SeqFeatures
@@ -1092,7 +1091,6 @@ sub get_SeqFeatures{
  Returns : An array of Bio::SeqFeatureI implementing objects.
  Args    : None
 
-
 =cut
 
 # this implementation is inherited from FeatureHolderI
@@ -1104,7 +1102,6 @@ sub get_SeqFeatures{
  Function: Return the number of SeqFeatures attached to a sequence
  Returns : integer representing the number of SeqFeatures
  Args    : None
-
 
 =cut
 
@@ -1118,18 +1115,16 @@ sub feature_count {
     }
 }
 
+
 =head2 add_SeqFeature
 
  Title   : add_SeqFeature
  Usage   : $seq->add_SeqFeature($feat);
-           $seq->add_SeqFeature(@feat);
- Function: Adds the given feature object (or each of an array of feature
-           objects to the feature array of this
+ Function: Adds the given feature object to the feature array of this
            sequence. The object passed is required to implement the
            Bio::SeqFeatureI interface.
  Returns : 1 on success
  Args    : A Bio::SeqFeatureI implementing object, or an array of such objects.
-
 
 =cut
 
@@ -1152,6 +1147,7 @@ sub add_SeqFeature {
    return 1;
 }
 
+
 =head2 remove_SeqFeatures
 
  Title   : remove_SeqFeatures
@@ -1164,7 +1160,6 @@ sub add_SeqFeature {
  Returns : The array of Bio::SeqFeatureI objects removed from this seq.
  Args    : None
 
-
 =cut
 
 sub remove_SeqFeatures {
@@ -1176,8 +1171,8 @@ sub remove_SeqFeatures {
     return @feats;
 }
 
-=head1 Methods provided in the Bio::PrimarySeqI interface
 
+=head1 Methods provided in the Bio::PrimarySeqI interface
 
 These methods are inherited from the PrimarySeq interface
 and work as one expects, building new Bio::Seq objects
@@ -1213,9 +1208,6 @@ dealing with this is welcome to give it a go.
  Returns : A new (fresh) Bio::Seq object
  Args    : None
 
-
-=cut
-
 =head2 trunc
 
  Title   : trunc
@@ -1226,9 +1218,6 @@ dealing with this is welcome to give it a go.
  Returns : A fresh Seq object
  Args    : A Seq object
 
-
-=cut
-
 =head2 id
 
  Title   : id
@@ -1236,7 +1225,6 @@ dealing with this is welcome to give it a go.
  Function: This is mapped on display_id
  Returns : value of display_id()
  Args    : [optional] value to update display_id
-
 
 =cut
 
@@ -1246,7 +1234,6 @@ sub  id {
 
 
 =head1 Seq only methods
-
 
 These methods are specific to the Bio::Seq object, and not
 found on the Bio::PrimarySeq object
@@ -1259,7 +1246,6 @@ found on the Bio::PrimarySeq object
  Example :
  Returns : PrimarySeq object
  Args    : None or PrimarySeq object
-
 
 =cut
 
@@ -1284,6 +1270,7 @@ sub primary_seq {
 
 }
 
+
 =head2 species
 
  Title   : species
@@ -1305,9 +1292,8 @@ sub species {
     }
 }
 
-=head1 Internal methods
 
-=cut
+# Internal methods follow...
 
 # keep AUTOLOAD happy
 sub DESTROY { }
