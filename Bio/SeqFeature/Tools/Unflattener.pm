@@ -1518,7 +1518,7 @@ sub unflatten_seq{
    # modify the original Seq object - the top seqfeatures are now
    # the top features from each group
    $seq->remove_SeqFeatures;
-   $seq->add_SeqFeature(@top_sfs);
+   $seq->add_SeqFeature($_) foreach @top_sfs;
 
    # --------- FINISHED UNFLATTENING -------------
 

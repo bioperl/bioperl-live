@@ -1059,8 +1059,8 @@ sub filter {
         my $m = $f->primary_tag;
         push @sources, $f if ($m eq 'source'); # dgg? but leave in @feats ?
         push @feats, $f unless $filter =~ /$m/i;
-        }
-      $seq->add_SeqFeature(@feats) if @feats;
+      }
+      $seq->add_SeqFeature($_) foreach @feats;
     } else {
       for my $f ( $seq->get_SeqFeatures ){
         my $m = $f->primary_tag;

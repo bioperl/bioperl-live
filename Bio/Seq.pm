@@ -1123,19 +1123,34 @@ sub feature_count {
  Function: Adds the given feature object to the feature array of this
            sequence. The object passed is required to implement the
            Bio::SeqFeatureI interface.
+           The 'EXPAND' qualifier (see L<Bio::FeatureHolderI>) is supported, but
+           has no effect,
  Returns : 1 on success
- Args    : A Bio::SeqFeatureI implementing object, or an array of such objects.
+ Args    : A Bio::SeqFeatureI implementing object.
 
 =cut
 
 sub add_SeqFeature {
-   my ($self,@feat) = @_;
+   my ($self, @feat) = @_;
 
    $self->{'_as_feat'} = [] unless $self->{'_as_feat'};
 
-   foreach my $feat ( @feat ) {
+   if (scalar @feat > 1) {
+      $self->deprecated(
+         -message => 'Providing an array of features to Bio::Seq add_SeqFeature()'.
+                     ' is deprecated and will be removed in a future version. '.
+                     'Add a single feature at a time instead.',
+         -warn_version    => 1.007,
+         -throw_version   => 1.009,
+      );
+   }
+
+   for my $feat ( @feat ) {
+
+       next if $feat eq 'EXPAND'; # Need to support it for FeatureHolderI compliance
+
        if( !$feat->isa("Bio::SeqFeatureI") ) {
-           $self->throw("$feat is not a SeqFeatureI and that's what we expect...");
+           $self->throw("Expected a Bio::SeqFeatureI object, but got a $feat.");
        }
 
        # make sure we attach ourselves to the feature if the feature wants it
@@ -1179,7 +1194,7 @@ and work as one expects, building new Bio::Seq objects
 or other information as expected. See L<Bio::PrimarySeq>
 for more information.
 
-Sequence Features are B<not> transfered to the new objects.
+Sequence Features are B<not> transferred to the new objects.
 This is possibly a mistake. Anyone who feels the urge in
 dealing with this is welcome to give it a go.
 
