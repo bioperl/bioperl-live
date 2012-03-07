@@ -244,7 +244,6 @@ sub _set_primer {
          -seq => $type eq 'fwd' ? $seq : $seq->revcom,
       )->regexp;
    } else {
-      ###$re = $type eq 'fwd' ? qr/^/ : qr/$/;
       $re = $type eq 'fwd' ? '^' : '$';
    }
    $self->{$type.'_regexp'} = $re;
@@ -465,10 +464,9 @@ sub _attach_amplicon {
             $pstrand = -1 * $amplicon->strand;
          }
 
-         #### Absolute coordinates??
+         # Absolute coordinates needed
          $pstart += $start - 1;
          $pend   += $start - 1;
-         ####
 
          my $primer = Bio::SeqFeature::Primer->new(
             -start    => $pstart,
