@@ -3068,9 +3068,8 @@ sub add_SeqFeature {
          -message => 'Providing an array of features to Bio::SimpleAlign add_SeqFeature()'.
                      ' is deprecated and will be removed in a future version. '.
                      'Add a single feature at a time instead.',
-      ###   -warn_version    => 1.007,
-      ###   -throw_version   => 1.009,
-          -throw_version   => 1.005,
+         -warn_version    => 1.007,
+         -throw_version   => 1.009,
       );
    }
 
