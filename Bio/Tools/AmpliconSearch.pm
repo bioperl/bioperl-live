@@ -50,7 +50,8 @@ Bio::Tools::AmpliconSearch - Find amplicons in a template using degenerate PCR p
       print $amplicon->seq->seq."\n\n";
    }
 
-   # Now change the template (or primers) and look again for amplicons
+   # Now change the template (but you could change the primers instead) and look
+   # for amplicons again
 
    $template = Bio::PrimarySeq->new(
       -seq => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -189,7 +190,7 @@ sub template {
       }
       $self->{template} = $template;
       # Reset search in progress
-      $self->_reset;
+      $template_str = undef;
    }
    return $self->{template};
 }
@@ -258,7 +259,8 @@ sub _set_primer {
    }
    $self->{$type.'_regexp'} = $re;
    # Reset search in progress
-   $self->_reset;
+   $template_str = undef;
+   $self->{regexp} = undef;
    return $self->{$type.'_primer'};
 }
 
@@ -286,22 +288,20 @@ sub primer_file {
 
    # Mandatory first primer
    require Bio::SeqIO;
-   my $in = Bio::SeqIO->newFh( -file => $primer_file );
-   my $fwd_primer = <$in>;
+   my $in = Bio::SeqIO->new( -file => $primer_file );
+   my $fwd_primer = $in->next_seq;
    if (not defined $fwd_primer) {
       $self->throw("The file '$primer_file' contains no primers\n");
    }
    $fwd_primer->alphabet('dna'); # Force the alphabet since degenerate primers can look like protein sequences
 
    # Optional reverse primers
-   my $rev_primer = <$in>;
+   my $rev_primer = $in->next_seq;
    if (defined $rev_primer) {
       $rev_primer->alphabet('dna');
    }
    
-   #### $in->close;
-   #### close $in;
-   undef $in;
+   $in->close;
 
    $self->fwd_primer($fwd_primer);
    $self->rev_primer($rev_primer);
@@ -388,64 +388,54 @@ sub _init {
 }
 
 
-sub _reset {
-   my ($self) = @_;
-   $template_str = undef;
-   $self->_regexp('');
-   return 1;
-}
-
-
 sub _regexp {
+   # Get the regexp to match amplicon. If the regexp is not set, initialize it.
    my ($self, $regexp) = @_;
-   if (defined $regexp) {
-      # Set the regexp
-      $self->{regexp} = $regexp;
-   } else {
-      if ( not $self->{regexp} ) {
-         # Build regexp that matches amplicons on both strands and reports shortest
-         # amplicon when there are several overlapping amplicons
 
-         my $fwd_regexp = $self->_fwd_regexp;
-         my $rev_regexp = $self->_rev_regexp;
+   if ( not defined $self->{regexp} ) {
+      # Build regexp that matches amplicons on both strands and reports shortest
+      # amplicon when there are several overlapping amplicons
 
-         my ($fwd_regexp_rc, $basic_fwd_match, $rev_regexp_rc, $basic_rev_match);
-         if ($fwd_regexp eq '^') {
-            $fwd_regexp_rc = '';
-            $basic_fwd_match = "(?:.*?$rev_regexp)";
-         } else {
-            $fwd_regexp_rc = Bio::Tools::SeqPattern->new(
-               -seq  => $fwd_regexp,
-               -type => 'dna',
-            )->revcom->str;
-            $basic_fwd_match = "(?:$fwd_regexp.*?$rev_regexp)";
-         }
+      my $fwd_regexp = $self->_fwd_regexp;
+      my $rev_regexp = $self->_rev_regexp;
 
-         if ($rev_regexp eq '$') {
-            $rev_regexp_rc = '';
-            $basic_rev_match = "(?:.*?$fwd_regexp_rc)";
-         } else {
-            $rev_regexp_rc = Bio::Tools::SeqPattern->new(
-               -seq  => $rev_regexp,
-               -type => 'dna',
-            )->revcom->str;
-            $basic_rev_match = "(?:$rev_regexp_rc.*?$fwd_regexp_rc)";
-         }
-
-         my $fwd_exclude     = "(?!$basic_rev_match".
-                               ($fwd_regexp eq '^' ? '' : "|$fwd_regexp").
-                               ")";
-
-         my $rev_exclude     = "(?!$basic_fwd_match".
-                               ($rev_regexp eq '$' ? '' : "|$rev_regexp_rc").
-                               ')';
-
-         $self->{regexp} = qr/
-                         ( $fwd_regexp    (?:$fwd_exclude.)*? $rev_regexp    ) |
-                         ( $rev_regexp_rc (?:$rev_exclude.)*? $fwd_regexp_rc )
-         /xi;
+      my ($fwd_regexp_rc, $basic_fwd_match, $rev_regexp_rc, $basic_rev_match);
+      if ($fwd_regexp eq '^') {
+         $fwd_regexp_rc = '';
+         $basic_fwd_match = "(?:.*?$rev_regexp)";
+      } else {
+         $fwd_regexp_rc = Bio::Tools::SeqPattern->new(
+            -seq  => $fwd_regexp,
+            -type => 'dna',
+         )->revcom->str;
+         $basic_fwd_match = "(?:$fwd_regexp.*?$rev_regexp)";
       }
+
+      if ($rev_regexp eq '$') {
+         $rev_regexp_rc = '';
+         $basic_rev_match = "(?:.*?$fwd_regexp_rc)";
+      } else {
+         $rev_regexp_rc = Bio::Tools::SeqPattern->new(
+            -seq  => $rev_regexp,
+            -type => 'dna',
+         )->revcom->str;
+         $basic_rev_match = "(?:$rev_regexp_rc.*?$fwd_regexp_rc)";
+      }
+
+      my $fwd_exclude     = "(?!$basic_rev_match".
+                            ($fwd_regexp eq '^' ? '' : "|$fwd_regexp").
+                            ")";
+
+      my $rev_exclude     = "(?!$basic_fwd_match".
+                            ($rev_regexp eq '$' ? '' : "|$rev_regexp_rc").
+                            ')';
+
+      $self->{regexp} = qr/
+                      ( $fwd_regexp    (?:$fwd_exclude.)*? $rev_regexp    ) |
+                      ( $rev_regexp_rc (?:$rev_exclude.)*? $fwd_regexp_rc )
+      /xi;
    }
+
    return $self->{regexp};
 }
 

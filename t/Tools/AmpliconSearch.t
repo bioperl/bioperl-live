@@ -402,7 +402,7 @@ ok $amplicon = $search->next_amplicon;
 is $amplicon->seq->seq, 'CCCCacgtacgtacTTTTTT';
 is $search->next_amplicon, undef;
 ok $search->template($seq2);
-ok $search->template->seq, 'aCCCCgaTTTTTTgacgtacgtac';
+is $search->template->seq, 'aCCCCgaTTTTTTgacgtacgtac';
 ok $amplicon = $search->next_amplicon;
 is $amplicon->seq->seq, 'CCCCgaTTTTTT';
 is $search->next_amplicon, undef;
