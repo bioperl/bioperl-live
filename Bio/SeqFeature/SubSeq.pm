@@ -20,7 +20,7 @@ Bio::SeqFeature::SubSeq - Feature representing a subsequence
   $subseq = Bio::SeqFeature::Amplicon->new(
       -start    => 6,
       -end      => 15,
-      -template => $subseq,
+      -template => $template,
   );
   print "Subsequence is: ".$amplicon->seq->seq."\n"; # Should be 'CCCCCGGGGG'
 
