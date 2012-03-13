@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 147);
+    test_begin(-tests => 158);
 
     use_ok 'Bio::PrimarySeq';
     use_ok 'Bio::SeqFeature::Primer';
@@ -10,9 +10,8 @@ BEGIN {
 }
 
 
-
-my ($search, $amplicon, $seq, $forward, $forward2, $reverse, $reverse2, $primer,
-    $primer_seq, $annotated, $num_feats, $template_seq);
+my ($search, $amplicon, $seq, $seq2, $forward, $forward2, $reverse, $reverse2,
+    $primer, $primer_seq, $annotated, $num_feats, $template_seq);
 
 
 # Basic object
@@ -376,4 +375,34 @@ is $search->fwd_primer->seq, 'CCCC';
 is $search->rev_primer->seq, 'AAAAAA';
 ok $amplicon = $search->next_amplicon;
 is $amplicon->seq->seq, 'CCCCacgtacgtacTTTTTT';
-is $search->next_amplicon, undef;               
+is $search->next_amplicon, undef;
+
+
+# Update template
+
+$seq = Bio::PrimarySeq->new(
+   -seq => 'acgtaCCCCacgtacgtacTTTTTTa',
+);
+$seq2 = Bio::PrimarySeq->new(
+   -seq => 'aCCCCgaTTTTTTgacgtacgtac',
+);
+$forward = Bio::PrimarySeq->new(
+   -seq => 'CCCC',
+);
+$reverse = Bio::PrimarySeq->new(
+   -seq => 'AAAAAA',
+);
+ok $search = Bio::Tools::AmpliconSearch->new(
+   -fwd_primer => $forward,
+   -rev_primer => $reverse,
+), 'Update template';
+ok $search->template($seq);
+is $search->template->seq, 'acgtaCCCCacgtacgtacTTTTTTa';
+ok $amplicon = $search->next_amplicon;
+is $amplicon->seq->seq, 'CCCCacgtacgtacTTTTTT';
+is $search->next_amplicon, undef;
+ok $search->template($seq2);
+ok $search->template->seq, 'aCCCCgaTTTTTTgacgtacgtac';
+ok $amplicon = $search->next_amplicon;
+is $amplicon->seq->seq, 'CCCCgaTTTTTT';
+is $search->next_amplicon, undef;

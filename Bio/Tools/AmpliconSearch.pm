@@ -349,14 +349,9 @@ sub next_amplicon {
       $self->_init;
    }
 
-   ####
-   #print "TEMPLATE_STR: '$template_str'\n";
-   ####
-
-   my $amplicon;
-
    my $re = $self->_regexp;
 
+   my $amplicon;
    if ($template_str  =~ m/$re/g) {
       my ($match, $rev_match) = ($1, $2);
       my $strand = $rev_match ? -1 : 1;
