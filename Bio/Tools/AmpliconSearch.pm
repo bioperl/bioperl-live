@@ -50,6 +50,18 @@ Bio::Tools::AmpliconSearch - Find amplicons in a template using degenerate PCR p
       print $amplicon->seq->seq."\n\n";
    }
 
+   # Now change the template (or primers) and look again for amplicons
+
+   $template = Bio::PrimarySeq->new(
+      -seq => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+   );
+   $search->template($template);
+
+   while (my $amplicon = $search->next_amplicon) {
+      print "Found amplicon at position ".$amplicon->start.'..'.$amplicon->end.":\n";
+      print $amplicon->seq->seq."\n\n";
+   }
+
 =head1 DESCRIPTION
 
 Perform an in silico PCR reaction, i.e. search for amplicons in a given template
@@ -155,7 +167,8 @@ sub new {
 
  Title    : template
  Usage    : my $template = $search->template;
- Function : Get/set the template sequence
+ Function : Get/set the template sequence. Setting a new template resets any
+            search in progress.
  Args     : Optional Bio::Seq object
  Returns  : A Bio::Seq object
 
@@ -175,7 +188,8 @@ sub template {
          $template->primary_seq($primary_seq);
       }
       $self->{template} = $template;
-      $template_str = $template->seq;
+      # Reset search in progress
+      $self->_reset;
    }
    return $self->{template};
 }
@@ -185,9 +199,10 @@ sub template {
 
  Title    : fwd_primer
  Usage    : my $primer = $search->fwd_primer;
- Function : Get/set the forward primer.
+ Function : Get/set the forward primer. Setting a new forward primer resets any
+            search in progress.
  Args     : Optional sequence object or primer object or '' to match beginning
-            of sequence.
+            of sequence.            
  Returns  : A sequence object or primer object or undef
 
 =cut
@@ -205,9 +220,10 @@ sub fwd_primer {
 
  Title    : rev_primer
  Usage    : my $primer = $search->rev_primer;
- Function : Get/set the reverse primer.
+ Function : Get/set the reverse primer. Setting a new reverse primer resets any
+            search in progress.
  Args     : Optional sequence object or primer object or '' to match end of
-            sequence.
+            sequence. 
  Returns  : A sequence object or primer object or undef
 
 =cut
@@ -222,7 +238,8 @@ sub rev_primer {
 
 
 sub _set_primer {
-   # Save a primer (sequence object) and convert it to regexp. Type is 'fwd' or 'rev'.
+   # Save a primer (sequence object) and convert it to regexp. Type is 'fwd' for
+   # the forward primer or 'rev' for the reverse primer.
    my ($self, $type, $primer) = @_;
    my $re;
    if ($primer eq '') {
@@ -240,6 +257,8 @@ sub _set_primer {
       )->regexp;
    }
    $self->{$type.'_regexp'} = $re;
+   # Reset search in progress
+   $self->_reset;
    return $self->{$type.'_primer'};
 }
 
@@ -325,15 +344,14 @@ sub attach_primers {
 sub next_amplicon {
    my ($self) = @_;
 
-   ####
-   if ( not $self->template ) {
-      $self->throw('Need to provide a template sequence');
+   # Initialize search
+   if (not defined $template_str) {
+      $self->_init;
    }
-   if ( not($self->fwd_primer) && not($self->rev_primer) ) {
-      $self->throw('Need to provide at least a primer');
-   }
-   ####
 
+   ####
+   #print "TEMPLATE_STR: '$template_str'\n";
+   ####
 
    my $amplicon;
 
@@ -357,42 +375,81 @@ sub next_amplicon {
 }
 
 
-sub _regexp {
+sub _init {
    my ($self) = @_;
-   if (not defined $self->{regexp}) {
-      # Build regexp that matches amplicons on both strands and reports shortest
-      # amplicon when there are several overlapping amplicons
+   # Sanity checks
+   if ( not $self->template ) {
+      $self->throw('Need to provide a template sequence');
+   }
+   if ( not($self->fwd_primer) && not($self->rev_primer) ) {
+      $self->throw('Need to provide at least a primer');
+   }
+   # Set the template sequence string
+   $template_str = $self->template->seq;
+   # Set the regular expression to match amplicons
+   $self->_regexp;
 
-      my $fwd_regexp = $self->_fwd_regexp;
-      my $rev_regexp = $self->_rev_regexp;
+   return 1;
+}
 
-      my ($fwd_regexp_rc, $basic_fwd_match, $rev_regexp_rc, $basic_rev_match);
-      if ($fwd_regexp eq '^') {
-         $fwd_regexp_rc = '';
-         $basic_fwd_match = "(?:.*?$rev_regexp)";
-      } else {
-         $fwd_regexp_rc = Bio::Tools::SeqPattern->new( -seq => $fwd_regexp, -type => 'dna' )->revcom->str;
-         $basic_fwd_match = "(?:$fwd_regexp.*?$rev_regexp)";
+
+sub _reset {
+   my ($self) = @_;
+   $template_str = undef;
+   $self->_regexp('');
+   return 1;
+}
+
+
+sub _regexp {
+   my ($self, $regexp) = @_;
+   if (defined $regexp) {
+      # Set the regexp
+      $self->{regexp} = $regexp;
+   } else {
+      if ( not $self->{regexp} ) {
+         # Build regexp that matches amplicons on both strands and reports shortest
+         # amplicon when there are several overlapping amplicons
+
+         my $fwd_regexp = $self->_fwd_regexp;
+         my $rev_regexp = $self->_rev_regexp;
+
+         my ($fwd_regexp_rc, $basic_fwd_match, $rev_regexp_rc, $basic_rev_match);
+         if ($fwd_regexp eq '^') {
+            $fwd_regexp_rc = '';
+            $basic_fwd_match = "(?:.*?$rev_regexp)";
+         } else {
+            $fwd_regexp_rc = Bio::Tools::SeqPattern->new(
+               -seq  => $fwd_regexp,
+               -type => 'dna',
+            )->revcom->str;
+            $basic_fwd_match = "(?:$fwd_regexp.*?$rev_regexp)";
+         }
+
+         if ($rev_regexp eq '$') {
+            $rev_regexp_rc = '';
+            $basic_rev_match = "(?:.*?$fwd_regexp_rc)";
+         } else {
+            $rev_regexp_rc = Bio::Tools::SeqPattern->new(
+               -seq  => $rev_regexp,
+               -type => 'dna',
+            )->revcom->str;
+            $basic_rev_match = "(?:$rev_regexp_rc.*?$fwd_regexp_rc)";
+         }
+
+         my $fwd_exclude     = "(?!$basic_rev_match".
+                               ($fwd_regexp eq '^' ? '' : "|$fwd_regexp").
+                               ")";
+
+         my $rev_exclude     = "(?!$basic_fwd_match".
+                               ($rev_regexp eq '$' ? '' : "|$rev_regexp_rc").
+                               ')';
+
+         $self->{regexp} = qr/
+                         ( $fwd_regexp    (?:$fwd_exclude.)*? $rev_regexp    ) |
+                         ( $rev_regexp_rc (?:$rev_exclude.)*? $fwd_regexp_rc )
+         /xi;
       }
-
-      if ($rev_regexp eq '$') {
-         $rev_regexp_rc = '';
-         $basic_rev_match = "(?:.*?$fwd_regexp_rc)";
-      } else {
-         $rev_regexp_rc = Bio::Tools::SeqPattern->new( -seq => $rev_regexp, -type => 'dna' )->revcom->str;
-         $basic_rev_match = "(?:$rev_regexp_rc.*?$fwd_regexp_rc)";
-      }
-
-      my $fwd_exclude     = "(?!$basic_rev_match".
-                            ($fwd_regexp eq '^' ? '' : "|$fwd_regexp").
-                            ")";
-
-      my $rev_exclude     = "(?!$basic_fwd_match".
-                            ($rev_regexp eq '$' ? '' : "|$rev_regexp_rc").
-                            ')';
-
-      $self->{regexp} = qr/($fwd_regexp(?:$fwd_exclude.)*?$rev_regexp)|($rev_regexp_rc(?:$rev_exclude.)*?$fwd_regexp_rc)/i;
-
    }
    return $self->{regexp};
 }

@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 129);
+    test_begin(-tests => 147);
 
     use_ok 'Bio::PrimarySeq';
     use_ok 'Bio::SeqFeature::Primer';
@@ -11,8 +11,8 @@ BEGIN {
 
 
 
-my ($search, $amplicon, $seq, $forward, $reverse, $primer, $primer_seq,
-    $annotated, $num_feats, $template_seq);
+my ($search, $amplicon, $seq, $forward, $forward2, $reverse, $reverse2, $primer,
+    $primer_seq, $annotated, $num_feats, $template_seq);
 
 
 # Basic object
@@ -47,11 +47,11 @@ is $amplicon->end, 56;
 is $amplicon->strand, 1;
 is $amplicon->seq->seq, 'AAACTTAAAGGAATTGACGGacgtacgtacgtGTACACACCGCCCGTacgtac';
 ok $primer = $amplicon->fwd_primer;
-##ok $primer_seq = $primer->seq;
-##is $primer_seq->seq, 'AAACTTAAAGGAATTGACGG';
-##is $primer_seq->start, 1;
-##is $primer_seq->end, 20;
-##is $primer_seq->strand, 1;
+###ok $primer_seq = $primer->seq;
+###is $primer_seq->seq, 'AAACTTAAAGGAATTGACGG';
+is $primer->start, 4;
+is $primer->end, 23;
+is $primer->strand, 1;
 is $amplicon = $search->next_amplicon, undef;
 
 
@@ -342,3 +342,38 @@ for my $feat ( $annotated->get_SeqFeatures ) {
 is $num_feats, 2;
 is $search->next_amplicon, undef;
 
+
+# Update primers
+
+$seq = Bio::PrimarySeq->new(
+   -seq => 'acgtaCCCCacgtacgtacTTTTTTacCTCTCTgtTGTGTGacgtacgtac',
+);
+$forward = Bio::PrimarySeq->new(
+   -seq => 'CTCTCT',
+);
+$reverse = Bio::PrimarySeq->new(
+   -seq => 'CACACA',
+);
+$forward2 = Bio::PrimarySeq->new(
+   -seq => 'CCCC',
+);
+$reverse2 = Bio::PrimarySeq->new(
+   -seq => 'AAAAAA',
+);
+ok $search = Bio::Tools::AmpliconSearch->new(
+   -template   => $seq,
+), 'Update primers';
+ok $search->fwd_primer($forward);
+is $search->fwd_primer->seq, 'CTCTCT';
+ok $search->rev_primer($reverse);
+is $search->rev_primer->seq, 'CACACA';
+ok $amplicon = $search->next_amplicon;
+is $amplicon->seq->seq, 'CTCTCTgtTGTGTG';
+is $search->next_amplicon, undef;
+ok $search->fwd_primer($forward2);
+ok $search->rev_primer($reverse2);
+is $search->fwd_primer->seq, 'CCCC';
+is $search->rev_primer->seq, 'AAAAAA';
+ok $amplicon = $search->next_amplicon;
+is $amplicon->seq->seq, 'CCCCacgtacgtacTTTTTT';
+is $search->next_amplicon, undef;               
