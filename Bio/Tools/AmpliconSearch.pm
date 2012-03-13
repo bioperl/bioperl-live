@@ -136,18 +136,16 @@ sub new {
 
    # Get primers
    if (defined $primer_file) {
-      ($fwd_primer, $rev_primer) = $self->_get_primers_from_file($primer_file);
+      $self->primer_file($primer_file);
+   } else {
+      $self->fwd_primer($fwd_primer || '');
+      $self->rev_primer($rev_primer || '');
    }
-   $self->_set_fwd_primer($fwd_primer);
-   $self->_set_rev_primer($rev_primer);
 
    # Get template sequence
-   $self->_set_template($template) if defined $template;
-   if ( $template && not($fwd_primer) && not($rev_primer) ) {
-      $self->throw('Need to provide at least a primer');
-   }
+   $self->template($template) if defined $template;
 
-   $self->_set_attach_primers($attach_primers) if defined $attach_primers;
+   $self->attach_primers($attach_primers) if defined $attach_primers;
 
    return $self;
 }
@@ -157,32 +155,29 @@ sub new {
 
  Title    : template
  Usage    : my $template = $search->template;
- Function : Get the template sequence
- Args     : None
+ Function : Get/set the template sequence
+ Args     : Optional Bio::Seq object
  Returns  : A Bio::Seq object
 
 =cut
 
 sub template {
-   my ($self) = @_;
-   return $self->{template};
-}
-
-sub _set_template {
    my ($self, $template) = @_;
-   if ( not(ref $template) || not $template->isa('Bio::PrimarySeqI')) {
-      # Not a Bio::Seq or Bio::PrimarySeq
-      $self->throw("Expected a sequence object as input but got a '".ref($template)."'\n");
+   if (defined $template) {
+      if ( not(ref $template) || not $template->isa('Bio::PrimarySeqI') ) {
+         # Not a Bio::Seq or Bio::PrimarySeq
+         $self->throw("Expected a sequence object as input but got a '".ref($template)."'\n");
+      }
+      if (not $template->isa('Bio::SeqI')) {
+         # Convert sequence object to Bio::Seq Seq so that features can be added
+         my $primary_seq = $template;
+         $template = Bio::Seq->new();
+         $template->primary_seq($primary_seq);
+      }
+      $self->{template} = $template;
+      $template_str = $template->seq;
    }
-   if (not $template->isa('Bio::SeqI')) {
-      # Convert sequence object to Bio::Seq Seq so that features can be added
-      my $primary_seq = $template;
-      $template = Bio::Seq->new();
-      $template->primary_seq($primary_seq);
-   }
-   $self->{template} = $template;
-   $template_str = $self->template->seq;
-   return $self->template;
+   return $self->{template};
 }
 
 
@@ -190,20 +185,19 @@ sub _set_template {
 
  Title    : fwd_primer
  Usage    : my $primer = $search->fwd_primer;
- Function : Get the forward primer.
- Args     : None
+ Function : Get/set the forward primer.
+ Args     : Optional sequence object or primer object or '' to match beginning
+            of sequence.
  Returns  : A sequence object or primer object or undef
 
 =cut
 
 sub fwd_primer {
-   my ($self) = @_;
-   return $self->{fwd_primer};
-}
-
-sub _set_fwd_primer {
    my ($self, $primer) = @_;
-   return $self->_set_primer('fwd', $primer);
+   if (defined $primer) {
+      $self->_set_primer('fwd', $primer);
+   }
+   return $self->{fwd_primer};
 }
 
 
@@ -211,27 +205,29 @@ sub _set_fwd_primer {
 
  Title    : rev_primer
  Usage    : my $primer = $search->rev_primer;
- Function : Get the reverse primer.
- Args     : None
+ Function : Get/set the reverse primer.
+ Args     : Optional sequence object or primer object or '' to match end of
+            sequence.
  Returns  : A sequence object or primer object or undef
 
 =cut
 
 sub rev_primer {
-   my ($self) = @_;
+   my ($self, $primer) = @_;
+   if (defined $primer) {
+      $self->_set_primer('rev', $primer);
+   }
    return $self->{rev_primer};
 }
 
-sub _set_rev_primer {
-   my ($self, $primer) = @_;
-   return $self->_set_primer('rev', $primer);
-}
 
 sub _set_primer {
    # Save a primer (sequence object) and convert it to regexp. Type is 'fwd' or 'rev'.
    my ($self, $type, $primer) = @_;
    my $re;
-   if (defined $primer) {
+   if ($primer eq '') {
+      $re = $type eq 'fwd' ? '^' : '$';
+   } else {
       if ( not(ref $primer) || (
            not($primer->isa('Bio::PrimarySeqI')) &&
            not($primer->isa('Bio::SeqFeature::Primer')) ) ) {
@@ -242,14 +238,25 @@ sub _set_primer {
       $re = Bio::Tools::IUPAC->new(
          -seq => $type eq 'fwd' ? $seq : $seq->revcom,
       )->regexp;
-   } else {
-      $re = $type eq 'fwd' ? '^' : '$';
    }
    $self->{$type.'_regexp'} = $re;
    return $self->{$type.'_primer'};
 }
 
-sub _get_primers_from_file {
+
+=head2 primer_file
+
+ Title    : primer_file
+ Usage    : my ($fwd, $rev) = $search->primer_file;
+ Function : Get/set a sequence file to read the primer from. After reading the
+            file, the primers are set using fwd_primer() and rev_primer() and
+            returned.
+ Args     : Sequence file
+ Returns  : Array containing forward and reverse primers as sequence objects.
+
+=cut
+
+sub primer_file {
    my ($self, $primer_file) = @_;
    # Read primer file and convert primers into regular expressions to catch
    # amplicons present in the database
@@ -277,6 +284,9 @@ sub _get_primers_from_file {
    #### close $in;
    undef $in;
 
+   $self->fwd_primer($fwd_primer);
+   $self->rev_primer($rev_primer);
+
    return ($fwd_primer, $rev_primer);
 }
 
@@ -285,23 +295,20 @@ sub _get_primers_from_file {
 
  Title    : attach_primers
  Usage    : my $attached = $search->attach_primers;
- Function : Get whether or not primer objects will be attached to the amplicon
+ Function : Get/set whether or not to attach primer objects to the amplicon
             objects.
- Args     : None
+ Args     : Optional integer (1 for yes, 0 for no)
  Returns  : Integer (1 for yes, 0 for no)
 
 =cut
 
 sub attach_primers {
-   my ($self) = @_;
+   my ($self, $attach) = @_;
+   if (defined $attach) {
+      $self->{attach_primers} = $attach;
+      require Bio::SeqFeature::Primer;
+   }
    return $self->{attach_primers} || 0;
-}
-
-sub _set_attach_primers {
-   my ($self, $val) = @_;
-   $self->{attach_primers} = $val;
-   require Bio::SeqFeature::Primer;
-   return $self->attach_primers;
 }
 
 
@@ -317,6 +324,17 @@ sub _set_attach_primers {
 
 sub next_amplicon {
    my ($self) = @_;
+
+   ####
+   if ( not $self->template ) {
+      $self->throw('Need to provide a template sequence');
+   }
+   if ( not($self->fwd_primer) && not($self->rev_primer) ) {
+      $self->throw('Need to provide at least a primer');
+   }
+   ####
+
+
    my $amplicon;
 
    my $re = $self->_regexp;
