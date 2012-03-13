@@ -2,7 +2,7 @@
 #
 # BioPerl Graph adaptor for Bio::Ontology::SimpleGOEngine
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Nat Goodman <natg at shore.net>
 #
@@ -86,15 +86,15 @@ Bioperl mailing lists  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -131,7 +131,6 @@ package Bio::Ontology::SimpleGOEngine::GraphAdaptor;
 use Graph::Directed;
 
 use strict;
-use Bio::Ontology::SimpleGOEngine::GraphAdaptor02;
 
 use base qw(Bio::Root::Root);
 
@@ -140,8 +139,8 @@ use base qw(Bio::Root::Root);
  Title   : new
  Usage   : $graph = Bio::Ontology::SimpleGOEngine::GraphAdaptor->new()
  Function: Creates a new graph
- Returns : Bio::Ontology::SimpleGOEngine::GraphAdaptor02 or 
-           Bio::Ontology::SimpleGOEngine::GraphAdaptor05 object, 
+ Returns : Bio::Ontology::SimpleGOEngine::GraphAdaptor02 or
+           Bio::Ontology::SimpleGOEngine::GraphAdaptor05 object,
            depending on which Graph version is available
  Args    : none
 
@@ -151,11 +150,8 @@ sub new {
   my( $class ) = @_;
   $class = ref $class || $class;
 
-  my $self=
-    ( defined $Graph::VERSION && $Graph::VERSION >= 0.5 ) ?
-      bless ( {}, $class ) :
-	bless ( {}, 'Bio::Ontology::SimpleGOEngine::GraphAdaptor02' );
-  $self->{_graph}=new Graph::Directed;
+  my $self= bless( {}, $class );
+  $self->{_graph}=Graph::Directed->new();
   $self->{_vertex_attributes}={};
   $self->{_edge_attributes}={};
   return $self;
@@ -194,7 +190,7 @@ sub edges_at {
 sub predecessors {
   my $self=shift;
   $self->_graph->predecessors(@_);
-} 
+}
 sub successors {
   my $self=shift;
   $self->_graph->successors(@_);
@@ -207,7 +203,7 @@ sub sink_vertices {
   my $self=shift;
   $self->_graph->sink_vertices();
 }
-# The following methods workaround a performance problem in Graph v0.5x 
+# The following methods workaround a performance problem in Graph v0.5x
 # when attributes are attached to the graph
 sub set_vertex_attribute {
   my($self,$v,$attribute,$value)=@_;
@@ -231,7 +227,7 @@ sub get_edge_attribute {
  Title   : _graph
  Usage   : $self->_graph();
  Function: Internal method to access 'real' graph
- Returns : Graph::Directed object 
+ Returns : Graph::Directed object
  Args    : none
 
 =cut
@@ -243,7 +239,7 @@ sub _graph {$_[0]->{_graph}; }
  Title   : _vertex_attributes
  Usage   : $self->vertex_attributes();
  Function: Internal method to access HASH used to store vertex attributes
- Returns : Graph::Directed object 
+ Returns : Graph::Directed object
  Args    : none
 
 =cut
@@ -255,7 +251,7 @@ sub _vertex_attributes {$_[0]->{_vertex_attributes}; }
  Title   : _edge_attributes
  Usage   : $self->edge_attributes();
  Function: Internal method to access HASH used to store edge attributes
- Returns : Graph::Directed object 
+ Returns : Graph::Directed object
  Args    : none
 
 =cut

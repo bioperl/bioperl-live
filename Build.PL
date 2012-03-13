@@ -76,7 +76,7 @@ my %recommends = (
     'GD'                        => [0,
         'Alignment graphic output/Bio::Align::Graphics'],
 
-    'Graph'                     => [0,
+    'Graph'                     => [0.50,
         'Phylogenetic Networks, ontology engine implementation, contig analysis'.
         '/Bio::PhyloNetwork,Bio::Ontology::SimpleGOEngine::GraphAdaptor,'.
         'Bio::Assembly::Tools::ContigSpectrum'],
