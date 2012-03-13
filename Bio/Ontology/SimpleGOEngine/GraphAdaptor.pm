@@ -35,25 +35,19 @@ Bio::Ontology::SimpleGOEngine
 
 =head1 DESCRIPTION
 
-This is a think adaptor to simplify use of the old and new versions of
-the standard CPAN Graph module (old is versions 0.2x; new is 0.5x and
-beyond) within Bio::Ontology::SimpleGOEngine.
+This is an adaptor to simplify use of versions of the standard CPAN Graph module
+(old is versions 0.2x; new is 0.5x and beyond) within
+Bio::Ontology::SimpleGOEngine. Prior versions of this module supported Graph
+version older than 0.5, however we are removing support for these older version
+post BioPerl 1.6.901. If you absolutely require an old version of Graph, please
+use an older version of BioPerl.
 
-This module implements only those Graph methods used by
-SimpleGOEngine.  It is far from a complete compatibility layer!  It
-also implements workarounds for cerain performance problems in the
-current versions of Graph v0.5x.
+This module implements only those Graph methods used by SimpleGOEngine. It is
+far from a complete compatibility layer! It also implements workarounds for
+certain performance problems in the current versions of Graph v0.5x.
 
-This class provides a 'new' method that determines which version of
-Graph is available.  The object returned by 'new' is blessed into this
-class if the new version of Graph is available, else into the subclass
-
-  Bio::Ontology::SimpleGOEngine::GraphAdaptor02
-
-This class provides implementations for the required graph methods
-using the new version of Graph.  In most cases, these are simple
-pass-throughs.  Methods that differ in v0.2x are implemented in the
-subclass.
+This class provides implementations for the required graph methods using the new
+version of Graph. In most cases, these are simple pass-throughs
 
 The methods implemented here or in the subclasses are listed below.
 In all cases, we implemented the Graph v0.5x interface.  Consult the
