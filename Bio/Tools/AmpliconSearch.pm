@@ -182,7 +182,6 @@ sub _set_template {
    }
    $self->{template} = $template;
    $template_str = $self->template->seq;
-   $self->_set_strand(1);
    return $self->template;
 }
 
@@ -415,18 +414,6 @@ sub _fwd_regexp {
 sub _rev_regexp {
    my ($self) = @_;
    return $self->{rev_regexp};
-}
-
-
-sub _cur_strand {
-   my ($self) = @_;
-   return $self->{cur_strand};
-}
-
-sub _set_strand {
-   my ($self, $strand) = @_;
-   $self->{cur_strand} = $strand;
-   return $self->_cur_strand;
 }
 
 
