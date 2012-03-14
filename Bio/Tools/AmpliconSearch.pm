@@ -269,9 +269,10 @@ sub _set_primer {
 
  Title    : primer_file
  Usage    : my ($fwd, $rev) = $search->primer_file;
- Function : Get/set a sequence file to read the primer from. After reading the
-            file, the primers are set using fwd_primer() and rev_primer() and
-            returned.
+ Function : Get/set a sequence file to read the primer from. The first sequence
+            must be the forward primer, and the second is the optional reverse
+            primer. After reading the file, the primers are set using fwd_primer()
+            and rev_primer() and returned.
  Args     : Sequence file
  Returns  : Array containing forward and reverse primers as sequence objects.
 
@@ -299,6 +300,8 @@ sub primer_file {
    my $rev_primer = $in->next_seq;
    if (defined $rev_primer) {
       $rev_primer->alphabet('dna');
+   } else {
+      $rev_primer = '';
    }
    
    $in->close;

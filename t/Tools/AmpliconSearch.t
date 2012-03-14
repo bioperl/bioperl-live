@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 160);
+    test_begin(-tests => 174);
 
     use_ok 'Bio::PrimarySeq';
     use_ok 'Bio::SeqFeature::Primer';
@@ -103,7 +103,7 @@ is $search->template->seq, 'acgAAACTTAAAGGAATTGACGGacgtacgtacgtGTACACACCGCCCGTac
 is $search->next_amplicon, undef;
 
 
-## Degenerate forward and reverse primers from file, single amplicon
+# Degenerate forward and reverse primers from file, single amplicon
 
 ok $search = Bio::Tools::AmpliconSearch->new(
    -template    => $seq,
@@ -119,6 +119,26 @@ is $amplicon->end, 50;
 is $amplicon->strand, 1;
 is $amplicon->seq->seq, 'AAACTTAAAGGAATTGACGGacgtacgtacgtGTACACACCGCCCGT';
 is $search->next_amplicon, undef;
+
+
+# Forward primer only, in sequence file
+
+ok $search = Bio::Tools::AmpliconSearch->new(
+   -primer_file => test_input_file('forward_primer.fa'),
+), 'Forward primer from file';
+ok $search->template($seq);
+is $search->fwd_primer->seq, 'AAACTTAAAGGAATTGACGG';
+is $search->rev_primer, undef;
+ok $template_seq = $search->template;
+isa_ok $template_seq, 'Bio::Seq';
+is $template_seq->seq, 'acgAAACTTAAAGGAATTGACGGacgtacgtacgtGTACACACCGCCCGTacgtac';
+ok $amplicon = $search->next_amplicon;
+isa_ok $amplicon, 'Bio::SeqFeature::Amplicon';
+is $amplicon->start, 4;
+is $amplicon->end, 56;
+is $amplicon->strand, 1;
+is $amplicon->seq->seq, 'AAACTTAAAGGAATTGACGGacgtacgtacgtGTACACACCGCCCGTacgtac';
+is $amplicon = $search->next_amplicon, undef;
 
 
 # Multiple amplicons
@@ -406,3 +426,4 @@ is $search->template->seq, 'aCCCCgaTTTTTTgacgtacgtac';
 ok $amplicon = $search->next_amplicon;
 is $amplicon->seq->seq, 'CCCCgaTTTTTT';
 is $search->next_amplicon, undef;
+
