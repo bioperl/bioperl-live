@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 158);
+    test_begin(-tests => 160);
 
     use_ok 'Bio::PrimarySeq';
     use_ok 'Bio::SeqFeature::Primer';
@@ -46,8 +46,8 @@ is $amplicon->end, 56;
 is $amplicon->strand, 1;
 is $amplicon->seq->seq, 'AAACTTAAAGGAATTGACGGacgtacgtacgtGTACACACCGCCCGTacgtac';
 ok $primer = $amplicon->fwd_primer;
-###ok $primer_seq = $primer->seq;
-###is $primer_seq->seq, 'AAACTTAAAGGAATTGACGG';
+ok $primer_seq = $primer->seq;
+is $primer_seq->seq, 'AAACTTAAAGGAATTGACGG';
 is $primer->start, 4;
 is $primer->end, 23;
 is $primer->strand, 1;

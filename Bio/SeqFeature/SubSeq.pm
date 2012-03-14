@@ -97,7 +97,8 @@ use base qw(Bio::SeqFeature::Generic);
  Usage   : my $subseq = Bio::SeqFeature::SubSeq( -start => 1, -end => 10, -strand => -1);
  Function: Instantiate a new Bio::SeqFeature::SubSeq feature object
  Args    : -seq      , the sequence object or sequence string of the feature (optional)
-           -template , attach the feature to the provided template (parent) sequence (optional). Note that you must specify the feature location to do this.
+           -template , attach the feature to the provided parent template sequence or feature (optional).
+                       Note that you must specify the feature location to do this.
            -start, -end, -location, -strand and all other L<Bio::SeqFeature::Generic> argument can be used.
  Returns : A Bio::SeqFeature::SubSeq object
 
@@ -122,9 +123,21 @@ sub new {
     }
     if ($template) {
         if ( not($self->start) || not($self->end) ) {
-            $self->throw('Could not attach SubSeq feature to template sequence because the SubSeq location was unknown.');
+            $self->throw('Could not attach feature to template $template because'.
+                         ' the feature location was not specified.');
         }
 
+        # Need to attach to parent sequence and then add sequence feature
+        my $template_seq;
+        if ($template->isa('Bio::SeqFeature::Generic')) {
+           $template_seq = $template->entire_seq;
+        } elsif ($template->isa('Bio::SeqI')) {
+           $template_seq = $template;
+        } else {
+           $self->throw("Expected a Bio::SeqFeature::Generic or Bio::SeqI object".
+                        " as template, but got '$template'.");
+        }
+        $self->attach_seq($template_seq);
         $template->add_SeqFeature($self);
 
     }

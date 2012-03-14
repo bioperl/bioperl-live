@@ -4,13 +4,13 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 32);
+    test_begin(-tests => 37);
 
     use_ok 'Bio::PrimarySeq';
     use_ok 'Bio::SeqFeature::SubSeq';
 }
 
-my ($subseq, $subseq_seq, $template);
+my ($subseq, $subseq_seq, $subsubseq, $subsubseq_seq, $template);
 
 
 # Basic SubSeq object
@@ -88,5 +88,22 @@ is $subseq->length, 20;
 ok $subseq_seq = $subseq->seq;
 isa_ok $subseq_seq, 'Bio::PrimarySeq';
 is $subseq_seq->seq, 'AAAAACCCCCTTTTTGGGGG';
+
+
+# Sub SubSeq
+
+ok $subsubseq = Bio::SeqFeature::SubSeq->new(
+    -start    => 11,
+    -end      => 15,
+    -strand   => 1,
+    -template => $subseq,
+);
+is $subsubseq->length, 5;
+ok $subsubseq_seq = $subsubseq->seq;
+isa_ok $subsubseq_seq, 'Bio::PrimarySeq';
+is $subsubseq_seq->seq, 'CCCCC';
+
+
+# One-liner
 
 is( Bio::SeqFeature::SubSeq->new(-start=>11,-end=>30,-strand=>1,-template=>$template)->seq->seq, 'CCCCCAAAAAGGGGGTTTTT' );
