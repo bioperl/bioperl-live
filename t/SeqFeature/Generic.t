@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 358);
+    test_begin(-tests => 362);
 
     use_ok 'Bio::Seq';
     use_ok 'Bio::SeqIO';
@@ -67,45 +67,49 @@ ok $feat2 = Bio::SeqFeature::Generic->new(
 is $feat2->phase, 1, 'Set phase from constructor';
 
 
-# Test attaching a SeqFeature::Generic to a Bio::Seq
+# Test attaching a SeqFeature::Generic to a Bio::Seq or SeqFeature::Generic
 {
     # Make the parent sequence object
     my $seq = Bio::Seq->new(
-        -seq          => 'aaaaggggtttt',
-        -display_id   => 'test',
-        -alphabet     => 'dna',
+        -seq        => 'aaaaggggtttt',
+        -display_id => 'test',
+        -alphabet   => 'dna',
     );
     
     # Make a SeqFeature
     ok my $sf1 = Bio::SeqFeature::Generic->new(
-        -start    => 4,
-        -end      => 9,
-        -strand   => 1,
+        -start  => 4,
+        -end    => 9,
+        -strand => 1,
     );
     
     # Add the SeqFeature to the parent
-    ok ($seq->add_SeqFeature($sf1));
+    ok $seq->add_SeqFeature($sf1);
     
     # Test that it gives the correct sequence
-    ok my $sf_seq1 = $sf1->seq->seq;
-    is $sf_seq1, 'aggggt', 'seq string';
-    is $sf1->end,9, 'sf1 end';
-    is $sf1->start,4, 'sf1 start';
+    is $sf1->start, 4, 'Start of first seqfeature';
+    is $sf1->end, 9, 'End of first seqfeature';
+    is $sf1->strand, 1, 'Strand of first seqfeature';
+    ok my $sf_seq1 = $sf1->seq;
+    is $sf_seq1->seq, 'aggggt', 'Sequence of first seqfeature';
 
     # Make a second seqfeature on the opposite strand
     ok my $sf2 = Bio::SeqFeature::Generic->new(
-        -start    => 4,
-        -end      => 9,
-        -strand   => -1,
+        -start  => 4,
+        -end    => 9,
+        -strand => -1,
     );
     
     # Now add the PrimarySeq to the seqfeature before adding it to the parent
-    ok ($sf2->attach_seq($seq->primary_seq));
+    ok $sf2->attach_seq($seq->primary_seq);
     ok $seq->add_SeqFeature($sf2);
     
     # Test again that we have the correct sequence
-    ok my $sf_seq2 = $sf2->seq->seq;
-    is $sf_seq2, 'acccct', 'sf2';
+    is $sf2->start, 4, 'Start of second seqfeature';
+    is $sf2->end, 9, 'End of second seqfeature';
+    is $sf2->strand, -1, 'Strand of second seqfeature';
+    ok my $sf_seq2 = $sf2->seq;
+    is $sf_seq2->seq, 'acccct', 'Sequence of second seqfeature';
 }
 
 
