@@ -3046,29 +3046,42 @@ sub get_SeqFeatures {
     return @{$self->{'_as_feat'}};
 }
 
+
 =head2 add_SeqFeature
 
  Usage   : $aln->add_SeqFeature($subfeat);
- Function: adds a SeqFeature into the SeqFeature array.
+ Function: Adds a SeqFeature into the SeqFeature array. The 'EXPAND' qualifier
+           (see L<Bio::FeatureHolderI>) is supported, but has no effect.
  Example :
  Returns : true on success
  Args    : a Bio::SeqFeatureI object
- Note    : This implementation is not compliant
-           with Bio::FeatureHolderI
 
 =cut
 
 sub add_SeqFeature {
-   my ($self,@feat) = @_;
+   my ($self, @feat) = @_;
 
    $self->{'_as_feat'} = [] unless $self->{'_as_feat'};
 
-   foreach my $feat ( @feat ) {
+   if (scalar @feat > 1) {
+      $self->deprecated(
+         -message => 'Providing an array of features to Bio::SimpleAlign add_SeqFeature()'.
+                     ' is deprecated and will be removed in a future version. '.
+                     'Add a single feature at a time instead.',
+         -warn_version    => 1.007,
+         -throw_version   => 1.009,
+      );
+   }
+
+   for my $feat ( @feat ) {
+
+       next if $feat eq 'EXPAND'; # Need to support it for FeatureHolderI compliance
+
        if( !$feat->isa("Bio::SeqFeatureI") ) {
-           $self->throw("$feat is not a SeqFeatureI and that's what we expect...");
+           $self->throw("Expected a Bio::SeqFeatureI object, but got a $feat.");
        }
 
-       push(@{$self->{'_as_feat'}},$feat);
+       push @{$self->{'_as_feat'}}, $feat;
    }
    return 1;
 }

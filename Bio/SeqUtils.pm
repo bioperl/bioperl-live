@@ -535,15 +535,19 @@ sub trunc_with_features{
     unless $seq->isa('Bio::SeqI');
     my $trunc=$seq->trunc($start, $end);
     my $truncrange=Bio::Range->new(-start=>$start, -end=>$end, -strand=>0);
-    #move annotations
+    # move annotations
     foreach my $key ( $seq->annotation->get_all_annotation_keys() ) {
 	foreach my $value ( $seq->annotation->get_Annotations($key) ) {
 	    $trunc->annotation->add_Annotation($key, $value);
 	}
     }
 
-    #move features
-    $trunc->add_SeqFeature(grep {$_=$self->_coord_adjust($_, 1-$start, $end+1-$start) if $_->overlaps($truncrange)} $seq->get_SeqFeatures);
+    # move features
+    foreach ( grep
+              { $_=$self->_coord_adjust($_, 1-$start, $end+1-$start) if $_->overlaps($truncrange) }
+              $seq->get_SeqFeatures ) {
+        $trunc->add_SeqFeature($_);   
+    }
     return $trunc;
 }
 
@@ -1316,7 +1320,9 @@ sub revcom_with_features{
     }
 
     #move features
-    $revcom->add_SeqFeature(map {$self->_feature_revcom($_, $seq->length)} reverse $seq->get_SeqFeatures);
+    for (map {$self->_feature_revcom($_, $seq->length)} reverse $seq->get_SeqFeatures) {
+        $revcom->add_SeqFeature($_);
+    }
     return $revcom;
 }
 

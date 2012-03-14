@@ -166,6 +166,8 @@ sub next_seq {
                   -seq_id => $protein_node->getAttribute('id') ),
 					} @locNodes;
 			foreach my $seqFeature (@seqFeatures){
+				$bioSeq->add_SeqFeature($seqFeature);
+
 				my $annotation1 = Bio::Annotation::DBLink->new;
 				$annotation1->database($matchNodes[$match]->getAttribute('dbname'));
 				$annotation1->primary_id($matchNodes[$match]->getAttribute('id'));
@@ -195,7 +197,6 @@ sub next_seq {
                                      $seqFeature->annotation->add_Annotation('dblink', $go_annotation);
                                  }
 			}
-			$bioSeq->add_SeqFeature(@seqFeatures);
 		}
 	}
 	my $accession = $protein_node->getAttribute('id');

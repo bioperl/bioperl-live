@@ -362,7 +362,10 @@ my $feature5 = Bio::SeqFeature::Generic->new(
   -start       => 11,
   -end         => 20
 );
-$seq_obj->add_SeqFeature( $composite_feat1, $feature1, $feature2, $feature3, $feature4, $feature5);
+
+for ($composite_feat1, $feature1, $feature2, $feature3, $feature4, $feature5) {
+   $seq_obj->add_SeqFeature( $_ );
+}
 
 my $coll = Bio::Annotation::Collection->new;
 $coll->add_Annotation(
@@ -560,8 +563,10 @@ my $foo_seq_obj = Bio::Seq::Foo->new(
   -seq =>'aaaaaaaaaaccccccccccggggggggggtttttttttt',
   -display_id => 'seq1',
   -desc       => 'some sequence for testing'
-); 
-$foo_seq_obj->add_SeqFeature( $composite_feat1, $feature1, $feature2, $feature3, $feature4, $feature5);
+);
+for ($composite_feat1, $feature1, $feature2, $feature3, $feature4, $feature5) {
+    $foo_seq_obj->add_SeqFeature( $_ );
+}
 $foo_seq_obj->annotation($coll);
 
 dies_ok(

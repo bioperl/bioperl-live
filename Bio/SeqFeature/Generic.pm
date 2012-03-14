@@ -759,6 +759,11 @@ sub get_SeqFeatures {
            If EXPAND is used, the parent's start/end/strand will
            be adjusted so that it grows to accommodate the new
            subFeature
+
+           !IMPORTANT! The coordinates of the subfeature should not be relative
+           to the parent feature it is attached to, but relative to the sequence
+           the parent feature is located on.
+
  Returns : nothing
  Args    : An object which has the SeqFeatureI interface
 

@@ -765,7 +765,11 @@ sub introns {
   return;
 }
 
-sub has_tag { exists shift->{attributes}{shift()} }
+sub has_tag { 
+    my $self = shift;
+    my $tag  = shift;
+    return exists $self->{attributes}{$tag};
+}
 
 sub escape {
   my $self     = shift;
