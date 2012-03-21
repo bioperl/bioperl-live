@@ -84,6 +84,27 @@ shortest one to more accurately represent the biases of PCR. Future improvements
 may include modelling the effects of the number of PCR cycles or temperature on
 the PCR products.
 
+=head1 TODO
+
+Future improvements may include:
+
+=over
+
+=item *
+
+Allowing a small number of primer mismatches
+
+=item *
+
+Reporting all amplicons, including overlapping ones
+
+=item *
+
+Putting a limit on the length of amplicons, in accordance with the processivity
+of the polymerase used
+
+=back
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
