@@ -1,7 +1,7 @@
 #
 # bioperl module for Bio::Coordinate::Collection
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 #
@@ -65,15 +65,15 @@ Bioperl mailing lists  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -141,7 +141,7 @@ sub new {
  Usage   : $obj->add_mapper($mapper)
  Function: Pushes one Bio::Coordinate::MapperI into the list of mappers.
            Sets _is_sorted() to false.
- Example : 
+ Example :
  Returns : 1 when succeeds, 0 for failure.
  Args    : mapper object
 
@@ -152,7 +152,7 @@ sub add_mapper {
 
   $self->throw("Is not a Bio::Coordinate::MapperI but a [$self]")
       unless defined $value && $value->isa('Bio::Coordinate::MapperI');
-  
+
   # test pair range lengths
   $self->warn("Coordinates in pair [". $value . ":" .
 	      $value->in->seq_id . "/". $value->out->seq_id .
@@ -168,23 +168,25 @@ sub add_mapper {
  Title   : mappers
  Usage   : $obj->mappers();
  Function: Returns or sets a list of mappers.
- Example : 
+ Example :
  Returns : array of mappers
  Args    : array of mappers
 
 =cut
 
 sub mappers{
-   my ($self,@args) = @_;
+	my ($self,@args) = @_;
 
-   if (@args) {
+	if (@args) {
+		if (@args == 1 && ref $args[0] eq 'ARRAY') {
+			@args = @{$args[0]};
+		}
+		$self->throw("Is not a Bio::Coordinate::MapperI but a [$self]")
+			unless defined $args[0] && $args[0]->isa('Bio::Coordinate::MapperI');
+		push(@{$self->{'_mappers'}}, @args);
+	}
 
-       $self->throw("Is not a Bio::Coordinate::MapperI but a [$self]")
-	   unless defined $args[0] && $args[0]->isa('Bio::Coordinate::MapperI');
-       push(@{$self->{'_mappers'}}, @args);
-   }
-
-   return @{$self->{'_mappers'}};
+	return @{$self->{'_mappers'}};
 }
 
 
@@ -193,7 +195,7 @@ sub mappers{
  Title   : each_mapper
  Usage   : $obj->each_mapper();
  Function: Returns a list of mappers.
- Example : 
+ Example :
  Returns : list of mappers
  Args    : none
 
@@ -208,7 +210,7 @@ sub each_mapper{
 
  Title   : mapper_count
  Usage   : my $count = $collection->mapper_count;
- Function: Get the count of the number of mappers stored 
+ Function: Get the count of the number of mappers stored
            in this collection
  Example :
  Returns : integer
@@ -230,7 +232,7 @@ sub mapper_count{
  Function: Swap the direction of mapping;input <-> output
  Example :
  Returns : 1
- Args    : 
+ Args    :
 
 =cut
 
@@ -266,7 +268,7 @@ sub test {
        unless( $mapper->test ) {
 	   $self->warn("Coordinates in pair [". $mapper . ":" .
 		       $mapper->in->seq_id . "/". $mapper->out->seq_id .
-		       "] are not right."); 
+		       "] are not right.");
 	   $res = 0;
        }
    }
@@ -338,9 +340,9 @@ sub _map {
 
 IDMATCH: {
 
-       # bail out now we if are forcing the use of an ID 
+       # bail out now we if are forcing the use of an ID
        # and it is not in this collection
-       last IDMATCH if defined $value->seq_id && 
+       last IDMATCH if defined $value->seq_id &&
 	   ! $self->{'_in_ids'}->{$value->seq_id};
 
        foreach my $pair ($self->each_mapper) {
@@ -383,7 +385,7 @@ IDMATCH: {
            input coordinate start
  Example :
  Returns : 1
- Args    : 
+ Args    :
 
 =cut
 
@@ -392,7 +394,7 @@ sub sort{
 
    @{$self->{'_mappers'}} = map { $_->[0] }
                             sort { $a->[1] <=> $b->[1] }
-                            map { [ $_, $_->in->start] } 
+                            map { [ $_, $_->in->start] }
                             @{$self->{'_mappers'}};
 
    #create hashes for sequence ids
@@ -425,4 +427,3 @@ sub _is_sorted{
 }
 
 1;
-
