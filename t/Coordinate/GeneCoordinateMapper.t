@@ -3,12 +3,12 @@
 
 use strict;
 
-BEGIN { 
+BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    
+
     test_begin(-tests => 116);
-	
+
     use_ok('Bio::Location::Simple');
     use_ok('Bio::Coordinate::Pair');
     use_ok('Bio::Coordinate::ExtrapolatingPair');
@@ -32,7 +32,7 @@ ok my $pairr = Bio::Coordinate::ExtrapolatingPair->
 	-out => $outr
        );
 
-my $posr = Bio::Location::Simple->new 
+my $posr = Bio::Location::Simple->new
     (-start => 3, -end => 4, -strand=> 1 );
 my $resr = $pairr->map($posr);
 is $resr->start, 11;
@@ -42,7 +42,7 @@ is $resr->strand, -1;
 
 
 # propepide
-my $match1 = Bio::Location::Simple->new 
+my $match1 = Bio::Location::Simple->new
     (-seq_id => 'propeptide', -start => 21, -end => 40, -strand=>1 );
 # peptide
 my $match2 = Bio::Location::Simple->new
@@ -62,7 +62,7 @@ is $pair->strict(), 1;
 my ($count, $pos, $pos2, $res, $match, $res2);
 
 # match within
-$pos = Bio::Location::Simple->new 
+$pos = Bio::Location::Simple->new
     (-start => 25, -end => 25, -strand=> -1 );
 $res = $pair->map($pos);
 
@@ -114,7 +114,7 @@ is $res->end, 20;
 #
 
 # chr
-$match1 = Bio::Location::Simple->new 
+$match1 = Bio::Location::Simple->new
     (-seq_id => 'chr', -start => 21, -end => 40, -strand=>1 );
 # gene
 $match2 = Bio::Location::Simple->new
@@ -127,14 +127,14 @@ $match2 = Bio::Location::Simple->new
 	-strict => 0
        );
 
-$pos = Bio::Location::Simple->new 
+$pos = Bio::Location::Simple->new
     (-start => 38, -end => 40, -strand=> 1 );
 $res = $pair->map($pos);
 is $res->start, 1;
 is $res->end, 3;
 is $res->strand, -1;
 
-$pos = Bio::Location::Simple->new 
+$pos = Bio::Location::Simple->new
     (-start => 1, -end => 3, -strand=> 1 );
 $res = $pair->map($pos);
 is $res->start, 38;
@@ -156,7 +156,7 @@ is $m->peptide_offset(5), 5;
 
 
 # match within
-$pos = Bio::Location::Simple->new 
+$pos = Bio::Location::Simple->new
     (-start => 25, -end => 25, -strand=> 1 );
 $res = $m->map($pos);
 
@@ -171,7 +171,7 @@ is $res->seq_id, 'peptide';
 #
 
 # match within
-$pos = Bio::Location::Simple->new 
+$pos = Bio::Location::Simple->new
     (-start => 4, -end => 5, -strand=> 1 );
 $res = $m->map($pos);
 is $res->start, -1;
@@ -186,7 +186,7 @@ is $m->nozero(0), 0;
 
 
 ok $m->swap;
-$pos = Bio::Location::Simple->new 
+$pos = Bio::Location::Simple->new
     (-start => 5, -end => 5, -strand=> 1 );
 $res = $m->map($pos);
 is $res->start, 10;
@@ -203,7 +203,7 @@ ok $res = $m->_reverse_translate($pos);
 is $res->start, 13;
 is $res->end, 15;
 
-$pos = Bio::Location::Simple->new 
+$pos = Bio::Location::Simple->new
     (-start => 26, -end => 26, -strand=> 1 );
 $m->out('peptide');
 $res = $m->map($pos);
@@ -214,7 +214,7 @@ is $res->start, 4;
 # frame
 #
 
-$pos = Bio::Location::Simple->new 
+$pos = Bio::Location::Simple->new
     (-start => 1, -end => 3, -strand=> 1 );
 $res = $m->_frame($pos);
 is $res->start, 1;
@@ -232,11 +232,11 @@ is $res->end, 3;
 #         pair1     pair2     pair3
 
 # gene
-my $e1 = Bio::Location::Simple->new 
+my $e1 = Bio::Location::Simple->new
     (-seq_id => 'gene', -start => 5, -end => 9, -strand=>1 );
-my $e2 = Bio::Location::Simple->new 
+my $e2 = Bio::Location::Simple->new
     (-seq_id => 'gene', -start => 15, -end => 19, -strand=>1 );
-my $e3 = Bio::Location::Simple->new 
+my $e3 = Bio::Location::Simple->new
     (-seq_id => 'gene', -start => 25, -end => 29, -strand=>1 );
 my @cexons = ($e1, $e2, $e3);
 
@@ -257,7 +257,7 @@ is $res->start, 2;
 is $res->end, 3;
 
 $m->out('negative_intron');
-$pos = Bio::Location::Simple->new 
+$pos = Bio::Location::Simple->new
     (-start => 12, -end => 14, -strand=> 1 );
 $res = $m->map($pos);
 is $res->start, -3;
@@ -427,7 +427,7 @@ $g2->exons(@exons);
 #map_snps($g2, @snp_dump);
 
 
-$match1 = Bio::Location::Simple->new 
+$match1 = Bio::Location::Simple->new
     (-seq_id => 'a', -start => 5, -end => 17, -strand=>1 );
 $match2 = Bio::Location::Simple->new
     (-seq_id => 'b', -start => 1, -end => 13, -strand=>-1 );
@@ -472,7 +472,7 @@ is $sublocs[1]->end, 12;
 # gene
 $e1 = Bio::Location::Simple->new
     (-seq_id => 'gene', -start => 5, -end => 9, -strand=>-1 );
-$e2 = Bio::Location::Simple->new 
+$e2 = Bio::Location::Simple->new
     (-seq_id => 'gene', -start => 15, -end => 19, -strand=>-1 );
 @cexons = ($e1, $e2);
 my $cds= Bio::Location::Simple->new
@@ -502,7 +502,7 @@ is $sublocs[1]->end, 16;
 $m->in('gene');
 $m->out('inex');
 
-$pos = Bio::Location::Simple->new 
+$pos = Bio::Location::Simple->new
     (-seq_id => 'gene', -start => 2, -end => 10, -strand=> 1 );
 
 $res = $m->map($pos);

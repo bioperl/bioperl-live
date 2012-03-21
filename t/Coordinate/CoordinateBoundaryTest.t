@@ -7,9 +7,9 @@ use Data::Dumper;
 BEGIN {
   use lib '.';
   use Bio::Root::Test;
-  
+
   test_begin( -tests => 174 );
-  
+
   use_ok('Bio::Location::Simple');
   use_ok('Bio::Coordinate::Pair');
 }

@@ -3,12 +3,12 @@
 
 use strict;
 
-BEGIN { 
+BEGIN {
     use lib '.';
 	use Bio::Root::Test;
-	
+
 	test_begin(-tests => 7);
-    
+
 	use_ok('Bio::Coordinate::Graph');
 }
 
