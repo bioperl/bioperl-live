@@ -11,7 +11,7 @@ Bio::SeqFeature::Lite - Lightweight Bio::SeqFeatureI class
                                   -stop  => 2000,
                                   -type  => 'transcript',
                                   -name  => 'alpha-1 antitrypsin',
-				  -desc  => 'an enzyme inhibitor',
+                                  -desc  => 'an enzyme inhibitor',
                                  );
 
  # create a feature composed of multiple segments, all of type "similarity"
@@ -507,7 +507,7 @@ sub desc {
 sub attributes {
   my $self = shift;
   if (@_) {
-    return $self->each_tag_value(@_);
+    return $self->get_tag_values(@_);
   } else {
     return $self->{attributes} ? %{$self->{attributes}} : ();
   }
@@ -817,13 +817,13 @@ sub format_attributes {
   my $parent      = shift;
   my $fallback_id = shift;
 
-  my @tags = $self->all_tags;
+  my @tags = $self->get_all_tags;
   my @result;
   for my $t (@tags) {
-    my @values = $self->each_tag_value($t);
+    my @values = $self->get_tag_values($t);
     push @result,join '=',$self->escape($t),join(',', map {$self->escape($_)} @values) if @values;
   }
-#  my $id        = $self->escape($self->_real_or_dummy_id) || $fallback_id;
+  #my $id        = $self->escape($self->_real_or_dummy_id) || $fallback_id;
   my $id        = $fallback_id || $self->escape($self->_real_or_dummy_id);
 
   my $parent_id;
