@@ -8,7 +8,7 @@ BEGIN {
 #    use List::MoreUtils qw(uniq);
     use Bio::Root::Test;
     
-    test_begin(-tests => 125);
+    test_begin(-tests => 128);
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::SeqUtils');
@@ -260,14 +260,22 @@ $ft3 = Bio::SeqFeature::Generic->new( -start => 5,
                                       -tag     => {note => ['note3a','note3b'], 
                                                    comment => 'c1'},
                                     );
+
+my $ft4 = Bio::SeqFeature::Generic->new(-primary => 'CDS');
+$ft4->location(Bio::Location::Fuzzy->new(-start=>'<1',
+					 -end=>5,
+					 -strand=>-1));
+
 $seq2->add_SeqFeature($ft2);
 $seq2->add_SeqFeature($ft3);
+$seq2->add_SeqFeature($ft4);
 
 my $trunc=Bio::SeqUtils->trunc_with_features($seq2, 2, 7);
 is $trunc->seq, 'gttaaa';
 my @feat=$trunc->get_SeqFeatures;
 is $feat[0]->location->to_FTstring, '<1..3';
 is $feat[1]->location->to_FTstring, 'complement(4..>6)';
+is $feat[2]->location->to_FTstring, 'complement(<1..4)';
 is_deeply([uniq_sort(map{$_->get_all_tags}$trunc->get_SeqFeatures)], [sort qw(note comment)], 'trunc_with_features - has expected tags');
 is_deeply([sort map{$_->get_tagset_values('note')}$trunc->get_SeqFeatures], [sort qw(note2 note3a note3b)], 'trunc_with_features - has expected tag values');
 
@@ -280,6 +288,10 @@ is $rf1->location->to_FTstring, '1..4', 'but tagged sf is now revcom';
 my ($rf2) = $revcom->get_SeqFeatures('source');
 is $rf2->primary_tag, $ft2->primary_tag, 'primary_tag matches original feature...';
 is $rf2->location->to_FTstring, 'complement(5..8)', 'but tagged sf is now revcom';
+
+my ($rf3) = $revcom->get_SeqFeatures('CDS');
+is $rf3->primary_tag, $ft4->primary_tag, 'primary_tag matches original feature...';
+is $rf3->location->to_FTstring, '4..>8', 'but tagged sf is now revcom';
 
 is_deeply([uniq_sort(map{$_->get_all_tags}$revcom->get_SeqFeatures)], [sort qw(note comment)], 'revcom_with_features - has expected tags');
 is_deeply([sort map{$_->get_tagset_values('note')}$revcom->get_SeqFeatures], [sort qw(note2 note3a note3b)], 'revcom_with_features - has expected tag values');

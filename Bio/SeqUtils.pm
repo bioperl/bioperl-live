@@ -1,4 +1,3 @@
-#
 # BioPerl module for Bio::SeqUtils
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org>
@@ -1271,8 +1270,10 @@ sub _coord_adjust {
         my @coords=($_->start, $_->end);
         my $strand=$_->strand;
 	my $type=$_->location_type;
-        map s/(-?\d+)/if ($add+$1<1) {'<1'} elsif (defined $length and $add+$1>$length) {">$length"} else {$add+$1}/ge, @coords;
-
+        map s/[<>]?(-?\d+)/if ($add+$1<1) {'<1'} elsif (defined $length and $add+$1>$length) {">$length"} else {$add+$1}/ge, @coords;
+        push @coords, $_->start_pos_type, $_->end_pos_type;
+        $coords[2]='BEFORE' if substr($coords[0],0,1) eq '<';
+        $coords[3]='AFTER' if substr($coords[1],0,1) eq '>';
         push @loc, $self->_location_objects_from_coordinate_list(
           [\@coords], $strand, $type
         );
@@ -1363,8 +1364,14 @@ sub _feature_revcom {
 	my $newstart=$self->_coord_revcom($_->end,
 					  $_->end_pos_type,
 					  $length);
+        my $newstart_type=$_->end_pos_type;
+        $newstart_type='BEFORE' if $_->end_pos_type eq 'AFTER';
+        $newstart_type='AFTER' if $_->end_pos_type eq 'BEFORE';
+        my $newend_type=$_->start_pos_type;
+        $newend_type='BEFORE' if $_->start_pos_type eq 'AFTER';
+        $newend_type='AFTER' if $_->start_pos_type eq 'BEFORE';
         push @loc, $self->_location_objects_from_coordinate_list(
-          [[$newstart, $newend]], $strand, $type
+          [[$newstart, $newend, $newstart_type, $newend_type]], $strand, $type
         );
     }
     my $newfeat=Bio::SeqFeature::Generic->new(-primary=>$feat->primary_tag);
@@ -1387,11 +1394,12 @@ sub _feature_revcom {
 sub _coord_revcom {
     my ($self, $coord, $type, $length)=@_;
     if ($type eq 'BETWEEN' or $type eq 'WITHIN') {
-	$coord=~s/(\d+)(.*)(\d+)/$length+1-$3.$2.$length+1-$1/ge;
+	$coord=~s/(\d+)(\D*)(\d+)/$length+1-$3.$2.$length+1-$1/ge;
     } else {
 	$coord=~s/(\d+)/$length+1-$1/ge;
-	$coord='>'.$coord if $type eq 'BEFORE';
-	$coord='<'.$coord if $type eq 'AFTER';
+        $coord=~tr/<>/></;
+	$coord='>'.$coord if $type eq 'BEFORE' and substr($coord,0,1) ne '>';
+	$coord='<'.$coord if $type eq 'AFTER' and substr($coord,0,1) ne '<';
     }
     return $coord;
 }
