@@ -345,9 +345,9 @@ sub _build_index {
         unlink $nodeindex;
         unlink $parent2childindex;
         my $nh = tie ( @nodes, 'DB_File', $nodeindex, O_RDWR|O_CREAT, 0644, $DB_RECNO) || 
-            $self->throw("Cannot open file '$nodeindex': $!");	
+            $self->throw("Cannot open file '$nodeindex': $!");
         my $btree = tie( %parent2children, 'DB_File', $parent2childindex, O_RDWR|O_CREAT, 0644, $DB_BTREE) || 
-            $self->throw("Cannot open file '$parent2childindex': $!");	
+            $self->throw("Cannot tie to file '$parent2childindex': $!");
         
         while (<NODES>) {
             chomp;
@@ -377,9 +377,9 @@ sub _build_index {
         unlink $id2nameindex;
         my (@id2name,%name2id);
         my $idh = tie (@id2name, 'DB_File', $id2nameindex, O_RDWR|O_CREAT, 0644, $DB_RECNO) || 
-            $self->throw("Cannot open file '$id2nameindex': $!");
+            $self->throw("Cannot tie to file '$id2nameindex': $!");
         my $nameh = tie ( %name2id, 'DB_File', $name2idindex, O_RDWR|O_CREAT, 0644, $DB_HASH) || 
-            $self->throw("Cannot open file '$name2idindex': $!");
+            $self->throw("Cannot tie to file '$name2idindex': $!");
         
         while (<NAMES>) {
             chomp;	    
