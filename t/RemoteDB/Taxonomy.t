@@ -73,8 +73,8 @@ foreach my $db ($db_entrez, $db_flatfile) {
         is $ancestor->scientific_name, 'Homo';
         # unless set explicitly, Bio::Taxon doesn't return anything for
         # each_Descendent; must ask the database directly
-        ok my @children = $ancestor->db_handle->each_Descendent($ancestor); 
-        ok @children > 0;
+        ok my @children = $ancestor->db_handle->each_Descendent($ancestor);
+        cmp_ok @children, '>', 0;
         
         sleep(3) if $db eq $db_entrez;
         
