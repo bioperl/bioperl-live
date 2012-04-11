@@ -3,9 +3,7 @@ use strict;
 BEGIN { 
     use lib '.';
     use Bio::Root::Test;
-    
-    test_begin( -tests => 103 );
-
+    test_begin( -tests => 38 );
     use_ok('Bio::DB::Taxonomy');
     use_ok('Bio::Tree::Tree');
 }
@@ -27,36 +25,21 @@ ok $db = Bio::DB::Taxonomy->new(
    -taxofile => test_input_file('taxonomy', 'greengenes_taxonomy_16S_candiv_gg_2011_1.txt'),
 );
 
-
-####
-use Data::Dumper;
-print Dumper($db);
-####
+@ids = $db->get_taxonid('Homo sapiens');
+is scalar @ids, 0;
 
 @ids = $db->get_taxonid('s__Bacteroides uniformis');
 is scalar @ids, 1;
 $id = $ids[0];
 
-@ids = $db->get_taxonid('Homo sapiens');
-is scalar @ids, 0;
-
 ok $node = $db->get_taxon($id);
 is $node->id, $id;
 is $node->object_id, $node->id;
-
 is $node->ncbi_taxid, undef;
-### record otu_id??
-
 is $node->rank, 'species';
-
-###print "parent id: ".$node->parent_id."\n";
-###is $node->parent_id, 9605;
-
-        
+is $node->parent_id, 'gg6';
 is $node->node_name, 's__Bacteroides uniformis';
-
 is $node->scientific_name, $node->node_name;
-### remove 'x__' from scientific names?
 
 is ${$node->name('scientific')}[0], $node->node_name;
 
@@ -77,7 +60,7 @@ ok @children = $ancestor->db_handle->each_Descendent($ancestor);
 is scalar @children, 2;
 
 # do some trickier things...
-ok $node2 = $db->get_taxon('list112');
+ok $node2 = $db->get_taxon('gg112');
 is $node2->scientific_name, 'o__Synergistales';
 
 # briefly check that we can use some Tree methods
@@ -86,30 +69,16 @@ is $tree->get_lca($node, $node2)->scientific_name, 'k__Bacteria';
 
 # can we actually form a Tree and use other Tree methods?
 ok $tree = Bio::Tree::Tree->new(-node => $node);
-#is $tree->number_nodes, 30;
-#is $tree->get_nodes, 30;
+is $tree->number_nodes, 7;
+is $tree->get_nodes, 7;
 is $tree->find_node(-rank => 'genus')->scientific_name, 'g__Bacteroides';
+is $tree->find_node(-rank => 'class')->scientific_name, 'c__Bacteroidia';
 
 # check that getting the ancestor still works now we have explitly set the
 # ancestor by making a Tree
 is $node->ancestor->scientific_name, 'g__Bacteroides';
 
-
-## entrez isn't as good at searching as flatfile, so we have to special-case
-#my @ids = $db->get_taxonids('Chloroflexi');
-#$db eq $db_entrez ? (is @ids, 1) : (is @ids, 2);
-#$id = $db->get_taxonids('Chloroflexi (class)');
-#is $id, 32061;
-#
-#@ids = $db->get_taxonids('Rhodotorula');
-#cmp_ok @ids, '>=' , 8;
-#@ids = $db->get_taxonids('Rhodotorula <Microbotryomycetidae>');
-#is @ids, 1;
-#is $ids[0], 231509;
-
-
 # we can recursively fetch all descendents of a taxon
-
 my $lca = $db->get_taxon( -name => 'f__Enterobacteriaceae' );
 ok @descs = $db->each_Descendent($lca);
 is scalar @descs, 2;

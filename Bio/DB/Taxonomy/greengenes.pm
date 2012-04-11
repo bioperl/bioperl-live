@@ -30,7 +30,7 @@ This is an implementation of Bio::DB::Taxonomy which stores and accesses the
 Greengenes taxonomy. Internally, Bio::DB::Taxonomy::greengenes keeps the taxonomy
 into memory by using Bio::DB::Taxonomy::list.
 
-The required taxonomy files, taxonomy_16S_candiv_gg_2011_1.txt, can be obtained
+The required taxonomy file, taxonomy_16S_candiv_gg_2011_1.txt, can be obtained
 from L<http://secondgenome1.s3.amazonaws.com/greengenes_reference_files/taxonomy_16S_candiv_gg_2011_1.txt.gz?AWSAccessKeyId=AKIAICKIGPBXNLBSJV7Q&Expires=1334123836&Signature=Hay3Trr76Xlp390UyH4ZpZuvODU%3D>.
 
 =head1 FEEDBACK
@@ -82,6 +82,9 @@ use strict;
 use Bio::DB::Taxonomy::list;
 
 use base qw(Bio::DB::Taxonomy Bio::DB::Taxonomy::list);
+
+
+$Bio::DB::Taxonomy::list::prefix = 'gg';
 
 
 =head2 new

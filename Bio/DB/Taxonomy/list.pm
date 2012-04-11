@@ -11,6 +11,7 @@
 
 # POD documentation - main docs before the code
 
+
 =head1 NAME
 
 Bio::DB::Taxonomy::list - An implementation of Bio::DB::Taxonomy
@@ -23,7 +24,7 @@ that accepts lists of words to build a database
   my @names = ('Eukaryota', 'Mammalia', 'Homo', 'Homo sapiens');
   my @ranks = qw(superkingdom class genus species);
   my $db = Bio::DB::Taxonomy->new(-source => 'list', -names => \@names,
-                                                    -ranks => \@ranks);
+                                                     -ranks => \@ranks);
 
   @names = ('Eukaryota', 'Mammalia', 'Mus', 'Mus musculus');
   $db->add_lineage(-names => \@names, -ranks => \@ranks);
@@ -83,11 +84,16 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
+
 package Bio::DB::Taxonomy::list;
+
 use strict;
 use Bio::Taxon;
 
 use base qw(Bio::DB::Taxonomy);
+
+our $prefix = 'list';
+
 
 =head2 new
 
@@ -107,6 +113,7 @@ sub new {
     
     return $self;
 }
+
 
 =head2 add_lineage
 
@@ -239,8 +246,8 @@ sub add_lineage {
         
         if ($is_new) {
             my $next_num = ++$self->{db}->{node_ids};
-            # 'list' so definitely not confused with ncbi taxonomy ids
-            $node_id = 'list'.$next_num;
+            # Add prefix 'list' to distinguish from with ncbi taxonomy ids
+            $node_id = $prefix.$next_num;
             push(@{$self->{db}->{name_to_id}->{$name}}, $node_id);
         }
         
@@ -277,9 +284,8 @@ sub add_lineage {
     }
 }
 
-=head2 Bio::DB::Taxonomy Interface implementation
 
-=cut
+=head2 Bio::DB::Taxonomy Interface implementation
 
 =head2 get_taxon
 
@@ -329,6 +335,7 @@ sub get_taxon {
 
 *get_Taxonomy_Node = \&get_taxon;
 
+
 =head2 get_taxonids
 
  Title   : get_taxonids
@@ -347,6 +354,7 @@ sub get_taxonids {
 }
 
 *get_taxonid = \&get_taxonids;
+
 
 =head2 ancestor
 
@@ -369,6 +377,7 @@ sub ancestor {
     my $ancestor_id = $self->{db}->{ancestors}->{$id} || return;
     return $self->get_taxon($ancestor_id);
 }
+
 
 =head2 each_Descendent
 
@@ -395,5 +404,6 @@ sub each_Descendent {
     
     return @children;
 }
+
 
 1;
