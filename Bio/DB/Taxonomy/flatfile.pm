@@ -80,13 +80,16 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::DB::Taxonomy::flatfile;
+
 use vars qw($DEFAULT_INDEX_DIR $DEFAULT_NODE_INDEX
             $DEFAULT_NAME2ID_INDEX $DEFAULT_ID2NAME_INDEX
             $NCBI_TAXONOMY_HOSTNAME $DEFAULT_PARENT_INDEX
             $NCBI_TAXONOMY_FILE @DIVISIONS);
+
 use strict;
-use Bio::Taxon;
 use DB_File;
+use Bio::Taxon;
+use File::Spec::Functions;
 
 use constant SEPARATOR => ':';
 
@@ -324,14 +327,14 @@ sub each_Descendent {
 sub _build_index {
     my ($self,$nodesfile,$namesfile,$force) = @_;
     
-    my ($dir) = ($self->index_directory);
-    my $nodeindex = "$dir/$DEFAULT_NODE_INDEX";
-    my $name2idindex = "$dir/$DEFAULT_NAME2ID_INDEX";
-    my $id2nameindex = "$dir/$DEFAULT_ID2NAME_INDEX";
-    my $parent2childindex = "$dir/$DEFAULT_PARENT_INDEX";
-    $self->{'_nodes'}    = [];
-    $self->{'_id2name'} = [];
-    $self->{'_name2id'} = {};
+    my $dir = $self->index_directory;
+    my $nodeindex         = catfile($dir, $DEFAULT_NODE_INDEX);
+    my $name2idindex      = catfile($dir, $DEFAULT_NAME2ID_INDEX);
+    my $id2nameindex      = catfile($dir, $DEFAULT_ID2NAME_INDEX);
+    my $parent2childindex = catfile($dir, $DEFAULT_PARENT_INDEX);
+    $self->{'_nodes'}           = [];
+    $self->{'_id2name'}         = [];
+    $self->{'_name2id'}         = {};
     $self->{'_parent2children'} = {};
     
     if (! -e $nodeindex || $force) {
@@ -439,16 +442,16 @@ sub _build_index {
 sub _db_connect {
     my $self = shift;
     return if $self->{'_initialized'};
-    
-    $self->{'_nodes'}   = [];
-    $self->{'_id2name'} = [];
-    $self->{'_name2id'} = {};
-    
-    my ($dir) = ($self->index_directory);
-    my $nodeindex = "$dir/$DEFAULT_NODE_INDEX";
-    my $name2idindex = "$dir/$DEFAULT_NAME2ID_INDEX";
-    my $id2nameindex = "$dir/$DEFAULT_ID2NAME_INDEX";
-    my $parent2childindex = "$dir/$DEFAULT_PARENT_INDEX";
+
+    my $dir = $self->index_directory;
+    my $nodeindex         = catfile($dir, $DEFAULT_NODE_INDEX);
+    my $name2idindex      = catfile($dir, $DEFAULT_NAME2ID_INDEX);
+    my $id2nameindex      = catfile($dir, $DEFAULT_ID2NAME_INDEX);
+    my $parent2childindex = catfile($dir, $DEFAULT_PARENT_INDEX);
+    $self->{'_nodes'}           = [];
+    $self->{'_id2name'}         = [];
+    $self->{'_name2id'}         = {};
+    $self->{'_parent2children'} = {};
     
     if( ! -e $nodeindex ||
         ! -e $name2idindex || 
@@ -466,7 +469,7 @@ sub _db_connect {
     $self->{'_parentbtree'} = tie( %{$self->{'_parent2children'}},
                                    'DB_File', $parent2childindex, 
                                    O_RDWR, 0644, $DB_BTREE);
-    $self->{'_initialized'}  = 1;
+    $self->{'_initialized'} = 1;
 }
 
 
