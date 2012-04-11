@@ -32,7 +32,6 @@ DB_File module RECNO data structure for fast retrieval.
 The required database files, nodes.dmp and names.dmp can be obtained from
 ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
 
-
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -91,7 +90,7 @@ use DB_File;
 
 use constant SEPARATOR => ':';
 
-$DEFAULT_INDEX_DIR = '/tmp';
+$DEFAULT_INDEX_DIR = $Bio::Root::IO::TEMPDIR; # /tmp
 $DEFAULT_NODE_INDEX = 'nodes';
 $DEFAULT_NAME2ID_INDEX = 'names2id';
 $DEFAULT_ID2NAME_INDEX = 'id2names';
@@ -134,11 +133,11 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
   my ($dir,$nodesfile,$namesfile,$force) = $self->_rearrange([qw
-	  (DIRECTORY NODESFILE NAMESFILE FORCE)], @args);
+          (DIRECTORY NODESFILE NAMESFILE FORCE)], @args);
   
   $self->index_directory($dir || $DEFAULT_INDEX_DIR);
   if ( $nodesfile ) {
-	  $self->_build_index($nodesfile,$namesfile,$force);
+          $self->_build_index($nodesfile,$namesfile,$force);
   }
 
   $self->_db_connect;
@@ -253,12 +252,12 @@ sub get_Children_Taxids {
    my $id;
    if( ref($node) ) {
        if( $node->can('object_id') ) {
-	   $id = $node->object_id;
+           $id = $node->object_id;
        } elsif( $node->can('ncbi_taxid') ) {
-	   $id = $node->ncbi_taxid;
+           $id = $node->ncbi_taxid;
        } else { 
-	   $self->warn("Don't know how to extract a taxon id from the object of type ".ref($node)."\n");
-	   return;
+           $self->warn("Don't know how to extract a taxon id from the object of type ".ref($node)."\n");
+           return;
        }
    } else { $id = $node }
    my @vals = $self->{'_parentbtree'}->get_dup($id);
@@ -286,7 +285,7 @@ sub ancestor {
     if (length($node)) {
         my (undef, $parent_id) = split(SEPARATOR,$node);
         $parent_id || return;
-		$parent_id eq $id && return; # one of the roots
+        $parent_id eq $id && return; # one of the roots
         return $self->get_taxon($parent_id);
     }
     return;
@@ -308,13 +307,13 @@ sub each_Descendent {
     $self->throw("Must supply a Bio::Taxon") unless ref($taxon) && $taxon->isa('Bio::Taxon');
     $self->throw("The supplied Taxon must belong to this database") unless $taxon->db_handle && $taxon->db_handle eq $self;
     my $id = $taxon->id || $self->throw("The supplied Taxon is missing its id!");
-	
+
     my @desc_ids = $self->{'_parentbtree'}->get_dup($id);
     my @descs;
     foreach my $desc_id (@desc_ids) {
         push(@descs, $self->get_taxon($desc_id) || next);
     }
-	return @descs;
+    return @descs;
 }
 
 =head2 Helper methods 
@@ -350,12 +349,12 @@ sub _build_index {
         while (<NODES>) {
             chomp;
             my ($taxid,$parent,$rank,$code,$divid,undef,$gen_code,undef,$mito) = split(/\t\|\t/,$_);
-			# don't include the fake root node 'root' with id 1; we essentially have multiple roots here
-			next if $taxid == 1;
-			if ($parent == 1) {
-				$parent = $taxid;
-			}
-			
+            # don't include the fake root node 'root' with id 1; we essentially have multiple roots here
+            next if $taxid == 1;
+            if ($parent == 1) {
+                $parent = $taxid;
+            }
+
             # keep this stringified
             $nodes[$taxid] = join(SEPARATOR, ($taxid,$parent,$rank,$code,$divid,$gen_code,$mito));
             $btree->put($parent,$taxid);
@@ -382,9 +381,9 @@ sub _build_index {
         while (<NAMES>) {
             chomp;	    
             my ($taxid, $name, $unique_name, $class) = split(/\t\|\t/,$_);
-			# don't include the fake root node 'root' or 'all' with id 1
-			next if $taxid == 1;
-			
+            # don't include the fake root node 'root' or 'all' with id 1
+            next if $taxid == 1;
+
             $class =~ s/\s+\|\s*$//;
             my $lc_name = lc($name);
             my $orig_name = $name;
@@ -452,21 +451,21 @@ sub _db_connect {
     my $parent2childindex = "$dir/$DEFAULT_PARENT_INDEX";
     
     if( ! -e $nodeindex ||
-	! -e $name2idindex || 
-	! -e $id2nameindex ) {
-	$self->warn("Index files have not been created");
-	return 0;
+        ! -e $name2idindex || 
+        ! -e $id2nameindex ) {
+        $self->warn("Index files have not been created");
+        return 0;
     }
     tie ( @{$self->{'_nodes'}}, 'DB_File', $nodeindex, O_RDWR,undef, $DB_RECNO) 
-	|| $self->throw("$! $nodeindex");
+        || $self->throw("$! $nodeindex");
     tie (@{$self->{'_id2name'}}, 'DB_File', $id2nameindex,O_RDWR, undef, 
-	 $DB_RECNO) || $self->throw("$! $id2nameindex");
+        $DB_RECNO) || $self->throw("$! $id2nameindex");
     
     tie ( %{$self->{'_name2id'}}, 'DB_File', $name2idindex, O_RDWR,undef, 
-	  $DB_HASH) || $self->throw("$! $name2idindex");
+        $DB_HASH) || $self->throw("$! $name2idindex");
     $self->{'_parentbtree'} = tie( %{$self->{'_parent2children'}},
-				   'DB_File', $parent2childindex, 
-				   O_RDWR, 0644, $DB_BTREE);
+                                   'DB_File', $parent2childindex, 
+                                   O_RDWR, 0644, $DB_BTREE);
     $self->{'_initialized'}  = 1;
 }
 

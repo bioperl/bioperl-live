@@ -7,11 +7,11 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 103,
-			   -requires_module => 'XML::Twig');
-	
-	use_ok('Bio::DB::Taxonomy');
-	use_ok('Bio::Tree::Tree');
+    test_begin(-tests => 104,
+        -requires_module => 'XML::Twig');
+
+    use_ok('Bio::DB::Taxonomy');
+    use_ok('Bio::Tree::Tree');
 }
 
 my $temp_dir = test_output_dir();
@@ -22,6 +22,10 @@ my $temp_dir = test_output_dir();
 ok my $db_entrez = Bio::DB::Taxonomy->new(-source => 'entrez');
 
 ok my $db_flatfile = Bio::DB::Taxonomy->new(-source => 'flatfile',
+                               -nodesfile => test_input_file('taxdump', 'nodes.dmp'),
+                               -namesfile => test_input_file('taxdump','names.dmp') );
+
+ok $db_flatfile = Bio::DB::Taxonomy->new(-source => 'flatfile',
                                -directory => $temp_dir,
                                -nodesfile => test_input_file('taxdump', 'nodes.dmp'),
                                -namesfile => test_input_file('taxdump','names.dmp'),
@@ -30,7 +34,7 @@ ok my $db_flatfile = Bio::DB::Taxonomy->new(-source => 'flatfile',
 my $n;
 foreach my $db ($db_entrez, $db_flatfile) {
     SKIP: {
-		test_skip(-tests => 38, -requires_networking => 1) if $db eq $db_entrez;
+        test_skip(-tests => 38, -requires_networking => 1) if $db eq $db_entrez;
         my $id;
         eval { $id = $db->get_taxonid('Homo sapiens');};
         skip "Unable to connect to entrez database; no network or server busy?", 38 if $@;
@@ -191,10 +195,10 @@ for my $name ('Human', 'Hominidae') {
     my $node = $db_flatfile->get_taxon(-taxonid => $ncbi_id);
     
     if ($tree) {
-		$tree->merge_lineage($node);
+        $tree->merge_lineage($node);
     }
     else {
-		ok $tree = Bio::Tree::Tree->new(-node => $node);
+        ok $tree = Bio::Tree::Tree->new(-node => $node);
     }
   }
 }
@@ -216,7 +220,7 @@ SKIP: {
 
 # bug 2461
 $db_list = Bio::DB::Taxonomy->new(-source => 'list',
-								  -names => [
+                                  -names => [
 (split(/,\s+/, "cellular organisms, Eukaryota, Fungi/Metazoa group,
 Metazoa, Eumetazoa, Bilateria, Coelomata, Protostomia, Panarthropoda,
 Arthropoda, Mandibulata, Pancrustacea, Hexapoda, Insecta, Dicondylia,
