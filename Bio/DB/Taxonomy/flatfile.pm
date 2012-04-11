@@ -81,10 +81,8 @@ Internal methods are usually preceded with a _
 
 package Bio::DB::Taxonomy::flatfile;
 
-use vars qw($DEFAULT_INDEX_DIR $DEFAULT_NODE_INDEX
-            $DEFAULT_NAME2ID_INDEX $DEFAULT_ID2NAME_INDEX
-            $NCBI_TAXONOMY_HOSTNAME $DEFAULT_PARENT_INDEX
-            $NCBI_TAXONOMY_FILE @DIVISIONS);
+use vars qw($DEFAULT_INDEX_DIR $DEFAULT_NODE_INDEX $DEFAULT_NAME2ID_INDEX
+            $DEFAULT_ID2NAME_INDEX $DEFAULT_PARENT_INDEX @DIVISIONS);
 
 use strict;
 use DB_File;
@@ -98,8 +96,6 @@ $DEFAULT_NODE_INDEX = 'nodes';
 $DEFAULT_NAME2ID_INDEX = 'names2id';
 $DEFAULT_ID2NAME_INDEX = 'id2names';
 $DEFAULT_PARENT_INDEX = 'parents';
-$NCBI_TAXONOMY_HOSTNAME = 'ftp.ncbi.nih.gov';
-$NCBI_TAXONOMY_FILE = '/pub/taxonomy/taxdump.tar.gz';
 
 $DB_BTREE->{'flags'} = R_DUP; # allow duplicate values in DB_File BTREEs
 
@@ -147,9 +143,8 @@ sub new {
   return $self;
 }
 
-=head2 Bio::DB::Taxonomy Interface implementation
 
-=cut
+=head2 Bio::DB::Taxonomy interface implementation
 
 =head2 get_taxon
 
@@ -209,6 +204,7 @@ sub get_taxon {
 
 *get_Taxonomy_Node = \&get_taxon;
 
+
 =head2 get_taxonids
 
  Title   : get_taxonids
@@ -237,6 +233,7 @@ sub get_taxonids {
 }
 
 *get_taxonid = \&get_taxonids;
+
 
 =head2 get_Children_Taxids
 
@@ -267,6 +264,7 @@ sub get_Children_Taxids {
    return @vals;
 }
 
+
 =head2 ancestor
 
  Title   : ancestor
@@ -294,6 +292,7 @@ sub ancestor {
     return;
 }
 
+
 =head2 each_Descendent
 
  Title   : each_Descendent
@@ -318,6 +317,7 @@ sub each_Descendent {
     }
     return @descs;
 }
+
 
 =head2 Helper methods 
 
@@ -438,6 +438,7 @@ sub _build_index {
     }
 }
 
+
 # connect the internal db handle
 sub _db_connect {
     my $self = shift;
@@ -484,10 +485,12 @@ sub _db_connect {
 
 =cut
 
+
 sub index_directory {
     my $self = shift;
     return $self->{'index_directory'} = shift if @_;
     return $self->{'index_directory'};
 }
+
 
 1;
