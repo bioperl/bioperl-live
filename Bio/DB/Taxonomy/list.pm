@@ -132,13 +132,16 @@ sub new {
 sub add_lineage {
     my $self = shift;
     my ($names, $ranks) = $self->_rearrange([qw (NAMES RANKS)], @_);
-    $self->throw("-names must be supplied and its value must be an array reference") unless $names && ref($names) eq 'ARRAY';
+    $self->throw("-names must be supplied and its value must be an array reference")
+        unless $names && ref($names) eq 'ARRAY';
     my @names = @{$names};
     
     my @ranks;
     if ($ranks) {
-        $self->throw("-ranks must be an array reference") unless ref($ranks) eq 'ARRAY';
-        $self->throw("The -names and -ranks lists must be of equal length") unless @{$names} == @{$ranks};
+        $self->throw("-ranks must be an array reference")
+            unless ref($ranks) eq 'ARRAY';
+        $self->throw("The -names and -ranks lists must be of equal length")
+            unless @{$names} == @{$ranks};
         @ranks = @{$ranks};
     }
     else {
@@ -263,7 +266,9 @@ sub add_lineage {
         
         if ($ancestor_node_id) {
             if ($db->{ancestors}->{$node_id} && $db->{ancestors}->{$node_id} ne $ancestor_node_id) {
-                $self->throw("This lineage (".join(', ', @names).") and a previously computed lineage share a node name but have different ancestries for that node. Can't cope!");
+                $self->throw("This lineage (".join(', ', @names).") and a ".
+                    "previously computed lineage share a node name but have ".
+                    "different ancestries for that node. Can't cope!");
             }
             $db->{ancestors}->{$node_id} = $ancestor_node_id;
         }
@@ -311,7 +316,8 @@ sub get_taxon {
         ($taxonid, $name) = $self->_rearrange([qw(TAXONID NAME)],@_);
         if ($name) {
             ($taxonid, my @others) = $self->get_taxonids($name);
-            $self->warn("There were multiple ids ($taxonid @others) matching '$name', using '$taxonid'") if @others > 0;
+            $self->warn("There were multiple ids ($taxonid @others) matching ".
+                "'$name', using '$taxonid'") if @others > 0;
         }
     }
     else {
@@ -372,7 +378,8 @@ sub ancestor {
     my ($self, $taxon) = @_;
     $taxon || return; # for bug 2092, or something similar to it at least: shouldn't need this!
     $self->throw("Must supply a Bio::Taxon") unless ref($taxon) && $taxon->isa('Bio::Taxon');
-    $self->throw("The supplied Taxon must belong to this database") unless $taxon->db_handle && $taxon->db_handle eq $self;
+    $self->throw("The supplied Taxon must belong to this database")
+        unless $taxon->db_handle && $taxon->db_handle eq $self;
     my $id = $taxon->id || $self->throw("The supplied Taxon is missing its id!");
     
     my $ancestor_id = $self->{db}->{ancestors}->{$id} || return;
@@ -394,7 +401,8 @@ sub ancestor {
 sub each_Descendent {
     my ($self, $taxon) = @_;
     $self->throw("Must supply a Bio::Taxon") unless ref($taxon) && $taxon->isa('Bio::Taxon');
-    $self->throw("The supplied Taxon must belong to this database") unless $taxon->db_handle && $taxon->db_handle eq $self;
+    $self->throw("The supplied Taxon must belong to this database")
+        unless $taxon->db_handle && $taxon->db_handle eq $self;
     my $id = $taxon->id || $self->throw("The supplied Taxon is missing its id!");
     
     my @children;

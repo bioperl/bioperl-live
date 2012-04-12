@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 104,
+    test_begin(-tests => 106,
         -requires_module => 'XML::Twig');
 
     use_ok('Bio::DB::Taxonomy');
@@ -32,10 +32,11 @@ ok $db_flatfile = Bio::DB::Taxonomy->new(-source => 'flatfile',
                                -force => 1);
 
 my $n;
-foreach my $db ($db_entrez, $db_flatfile) {
+for my $db ($db_entrez, $db_flatfile) {
     SKIP: {
-        test_skip(-tests => 38, -requires_networking => 1) if $db eq $db_entrez;
+        test_skip(-tests => 39, -requires_networking => 1) if $db eq $db_entrez;
         my $id;
+
         eval { $id = $db->get_taxonid('Homo sapiens');};
         skip "Unable to connect to entrez database; no network or server busy?", 38 if $@;
         
@@ -104,10 +105,12 @@ foreach my $db ($db_entrez, $db_flatfile) {
         sleep(3) if $db eq $db_entrez;
         
         # entrez isn't as good at searching as flatfile, so we have to special-case
-        my @ids = $db->get_taxonids('Chloroflexi');
-        $db eq $db_entrez ? (is @ids, 1) : (is @ids, 2);
+        my @ids = sort $db->get_taxonids('Chloroflexi');
+        is scalar @ids, 2;
+        is_deeply \@ids, [200795, 32061];
+
         $id = $db->get_taxonids('Chloroflexi (class)');
-        is $id, 32061;
+        $db eq $db_entrez ? is($id, undef) : is($id, 32061);
         
         @ids = $db->get_taxonids('Rhodotorula');
         cmp_ok @ids, '>=' , 8;
@@ -256,4 +259,7 @@ $node = $db_list->get_taxon(-name => 'Anopheles melanoon');
 is $node->ancestor->ancestor->ancestor->ancestor->scientific_name, 'Angusticorn';
 
 @taxonids = $db_list->get_taxonids('Anopheles');
-is @taxonids, 3;
+is scalar @taxonids, 3;
+
+
+
