@@ -28,7 +28,9 @@ Bio::DB::Taxonomy::greengenes - Use the Greengenes taxonomy
 
 This is an implementation of Bio::DB::Taxonomy which stores and accesses the
 Greengenes taxonomy. Internally, Bio::DB::Taxonomy::greengenes keeps the taxonomy
-into memory by using Bio::DB::Taxonomy::list.
+into memory by using Bio::DB::Taxonomy::list. As a consequence, note that the
+IDs assigned to the taxonomy nodes, e.g. gg123, are arbitrary, contrary to the
+pre-defined IDs that NCBI assignes to taxons.
 
 The required taxonomy file, taxonomy_16S_candiv_gg_2011_1.txt, can be obtained
 from L<http://secondgenome1.s3.amazonaws.com/greengenes_reference_files/taxonomy_16S_candiv_gg_2011_1.txt.gz?AWSAccessKeyId=AKIAICKIGPBXNLBSJV7Q&Expires=1334123836&Signature=Hay3Trr76Xlp390UyH4ZpZuvODU%3D>.
@@ -121,14 +123,19 @@ sub _build_taxonomy {
 
    open my $fh, '<', $taxofile or $self->throw("Could not read file $taxofile: $!");
 
-   # Skip the first line. It contains the headers: prokMSA_id	taxonomy
-   my $line = <$fh>;
- 
+   # Will skip header line: prokMSA_id	taxonomy
+   my $prev_taxo_string = 'taxonomy'; 
+
    # Parse taxonomy lines. Example:
    # 348902	k__Bacteria; p__Bacteroidetes; c__Bacteroidia; o__Bacteroidales; f__Bacteroidaceae; g__Bacteroides; s__Bacteroides plebeius
-   while ($line = <$fh>) {
+   while (my $line = <$fh>) {
       chomp $line;
       my ($prokmsa_id, $taxo_string) = split "\t", $line;
+
+      # Skip taxonomy string already seen on previous line (much faster!)
+      next if $taxo_string eq $prev_taxo_string;
+      $prev_taxo_string = $taxo_string;
+
       my $names = [split /;\s*/, $taxo_string];
 
       # Remove ambiguous taxons, i.e. go from:
