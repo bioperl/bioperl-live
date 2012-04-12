@@ -143,7 +143,7 @@ sub add_lineage {
     }
     else {
         for (0..$#names) {
-            push(@ranks, 'no rank');
+            push @ranks, 'no rank';
         }
     }
     
@@ -169,8 +169,9 @@ sub add_lineage {
     # All that said, let's just do the trivial implementation now and see how
     # bad it is! (assumes ranks are unique except for 'no rank')
     
+    my $db = $self->{db};
     
-    my $first_lineage = $self->{db}->{node_ids} ? 0 : 1;
+    my $first_lineage = $db->{node_ids} ? 0 : 1;
     
     my $ancestor_node_id;
     my @node_ids;
@@ -192,19 +193,19 @@ sub add_lineage {
         # but still need the 'tree' to be correct
         
         my $is_new = 0;
-        if ($first_lineage || ! exists $self->{db}->{name_to_id}->{$name}) {
+        if ($first_lineage || ! exists $db->{name_to_id}->{$name}) {
             $is_new = 1;
         }
         
         my $node_id;
         unless ($is_new) {
-            my @same_named = @{$self->{db}->{name_to_id}->{$name}};
+            my @same_named = @{$db->{name_to_id}->{$name}};
             
             # look for the node that is consistent with this lineage
-            SAME_NAMED: foreach my $s_id (@same_named) {
+            SAME_NAMED: for my $s_id (@same_named) {
                 my $this_ancestor_id;
                 if ($ancestor_node_id) {
-                    $this_ancestor_id = $self->{db}->{ancestors}->{$s_id};
+                    $this_ancestor_id = $db->{ancestors}->{$s_id};
                     if ($ancestor_node_id eq $this_ancestor_id) {
                         $node_id = $s_id;
                         last SAME_NAMED;
@@ -213,21 +214,21 @@ sub add_lineage {
                 
                 if ($names[$i + 1]) {
                     my $my_child_name = $names[$i + 1];
-                    my @children_ids = keys %{$self->{db}->{children}->{$s_id} || {}};
-                    foreach my $c_id (@children_ids) {
-                        my $this_child_name = $self->{db}->{node_data}->{$c_id}->[0];
+                    my @children_ids = keys %{$db->{children}->{$s_id} || {}};
+                    for my $c_id (@children_ids) {
+                        my $this_child_name = $db->{node_data}->{$c_id}->[0];
                         if ($my_child_name eq $this_child_name) {
                             
                             if ($ancestor_node_id) {
                                 my @s_ancestors;
-                                while ($this_ancestor_id = $self->{db}->{ancestors}->{$this_ancestor_id}) {
+                                while ($this_ancestor_id = $db->{ancestors}->{$this_ancestor_id}) {
                                     if ($ancestor_node_id eq $this_ancestor_id) {
                                         $node_id = $s_id;
-                                        $ancestor_node_id = $self->{db}->{ancestors}->{$s_id};
-                                        push(@node_ids, @s_ancestors, $ancestor_node_id);
+                                        $ancestor_node_id = $db->{ancestors}->{$s_id};
+                                        push @node_ids, @s_ancestors, $ancestor_node_id;
                                         last SAME_NAMED;
                                     }
-                                    unshift(@s_ancestors, $this_ancestor_id);
+                                    unshift @s_ancestors, $this_ancestor_id;
                                 }
                             }
                             else {
@@ -245,41 +246,41 @@ sub add_lineage {
         }
         
         if ($is_new) {
-            my $next_num = ++$self->{db}->{node_ids};
+            my $next_num = ++$db->{node_ids};
             # Add prefix 'list' to distinguish from with ncbi taxonomy ids
             $node_id = $prefix.$next_num;
-            push(@{$self->{db}->{name_to_id}->{$name}}, $node_id);
+            push @{$db->{name_to_id}->{$name}}, $node_id;
         }
         
-        unless (exists $self->{db}->{node_data}->{$node_id}) {
-            $self->{db}->{node_data}->{$node_id} = [($name, '')];
+        unless (exists $db->{node_data}->{$node_id}) {
+            $db->{node_data}->{$node_id} = [($name, '')];
         }
-        my $node_data = $self->{db}->{node_data}->{$node_id};
+        my $node_data = $db->{node_data}->{$node_id};
         
         if (!$node_data->[1] || ($node_data->[1] eq 'no rank' && $rank ne 'no rank')) {
             $node_data->[1] = $rank;
         }
         
         if ($ancestor_node_id) {
-            if ($self->{db}->{ancestors}->{$node_id} && $self->{db}->{ancestors}->{$node_id} ne $ancestor_node_id) {
+            if ($db->{ancestors}->{$node_id} && $db->{ancestors}->{$node_id} ne $ancestor_node_id) {
                 $self->throw("This lineage (".join(', ', @names).") and a previously computed lineage share a node name but have different ancestries for that node. Can't cope!");
             }
-            $self->{db}->{ancestors}->{$node_id} = $ancestor_node_id;
+            $db->{ancestors}->{$node_id} = $ancestor_node_id;
         }
         
         $ancestor_node_id = $node_id;
-        push(@node_ids, $node_id);
+        push @node_ids, $node_id;
     }
     
     # go through the lineage in reverse so we can remember the children
     my $child_id;
-    foreach my $node_id (reverse @node_ids) {
+    for my $node_id (reverse @node_ids) {
         unless ($child_id) {
             $child_id = $node_id;
             next;
         }
         
-        $self->{db}->{children}->{$node_id}->{$child_id} = 1;
+        $db->{children}->{$node_id}->{$child_id} = 1;
         $child_id = $node_id;
     }
 }
@@ -396,10 +397,9 @@ sub each_Descendent {
     $self->throw("The supplied Taxon must belong to this database") unless $taxon->db_handle && $taxon->db_handle eq $self;
     my $id = $taxon->id || $self->throw("The supplied Taxon is missing its id!");
     
-    my @children_ids = keys %{$self->{db}->{children}->{$id} || {}};
     my @children;
-    foreach my $child_id (@children_ids) {
-        push(@children, $self->get_taxon($child_id) || next);
+    while ( my ($child_id, undef) = each %{$self->{db}->{children}->{$id}} ) {
+        push @children, ($self->get_taxon($child_id) || next);
     }
     
     return @children;
