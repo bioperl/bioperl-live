@@ -261,5 +261,13 @@ is $node->ancestor->ancestor->ancestor->ancestor->scientific_name, 'Angusticorn'
 @taxonids = $db_list->get_taxonids('Anopheles');
 is scalar @taxonids, 3;
 
+# bug: duplicate topmost taxa
+$db_list = Bio::DB::Taxonomy->new( -source => 'list',
+                                   -names => ['Bacteria', 'Tenericutes'] );
+$db_list->add_lineage( -names => ['Bacteria'] );
+@taxonids = $db_list->get_taxonids('Bacteria');
+is scalar @taxonids, 1;
 
+use Data::Dumper;
+print Dumper(\@taxonids);
 

@@ -201,18 +201,18 @@ sub add_lineage {
         }
         
         my $node_id;
-        unless ($is_new) {
+        if (not $is_new) {
             my @same_named = @{$db->{name_to_id}->{$name}};
             
             # look for the node that is consistent with this lineage
             SAME_NAMED: for my $s_id (@same_named) {
                 my $this_ancestor_id;
-                if ($ancestor_node_id) {
-                    $this_ancestor_id = $db->{ancestors}->{$s_id};
-                    if ($ancestor_node_id eq $this_ancestor_id) {
-                        $node_id = $s_id;
-                        last SAME_NAMED;
-                    }
+
+                # Taxa are the same if it they have the same ancestor or none
+                $this_ancestor_id = $db->{ancestors}->{$s_id};
+                if ($ancestor_node_id eq $this_ancestor_id) {
+                    $node_id = $s_id;
+                    last SAME_NAMED;
                 }
                 
                 if ($names[$i + 1]) {
