@@ -145,7 +145,7 @@ sub _build_taxonomy {
       # to:
       #    k__Archaea; p__pMC2A384
       my $names = [split /;\s*/, $taxo_string];
-      while ($names->[-1] =~ m/__$/) {
+      while ( ($names->[-1] || '') =~ m/__$/) {
          pop @$names;
       }
 
