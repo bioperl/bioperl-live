@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 106,
+    test_begin(-tests => 107,
         -requires_module => 'XML::Twig');
 
     use_ok('Bio::DB::Taxonomy');
@@ -268,6 +268,4 @@ $db_list->add_lineage( -names => ['Bacteria'] );
 @taxonids = $db_list->get_taxonids('Bacteria');
 is scalar @taxonids, 1;
 
-use Data::Dumper;
-print Dumper(\@taxonids);
 

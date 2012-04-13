@@ -60,7 +60,7 @@ ok @children = $ancestor->db_handle->each_Descendent($ancestor);
 is scalar @children, 2;
 
 # do some trickier things...
-ok $node2 = $db->get_taxon('gg112');
+ok $node2 = $db->get_taxon('gg104');
 is $node2->scientific_name, 'o__Synergistales';
 
 # briefly check that we can use some Tree methods
