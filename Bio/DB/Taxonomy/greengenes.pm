@@ -26,14 +26,19 @@ Bio::DB::Taxonomy::greengenes - Use the Greengenes taxonomy
 
 =head1 DESCRIPTION
 
-This is an implementation of Bio::DB::Taxonomy which stores and accesses the
-Greengenes taxonomy. Internally, Bio::DB::Taxonomy::greengenes keeps the taxonomy
-into memory by using Bio::DB::Taxonomy::list. As a consequence, note that the
-IDs assigned to the taxonomy nodes, e.g. gg123, are arbitrary, contrary to the
-pre-defined IDs that NCBI assignes to taxons.
+I<This module is in beta. Its interface or its results may change in a future update.>
 
-The required taxonomy file, taxonomy_16S_candiv_gg_2011_1.txt, can be obtained
-from L<http://secondgenome1.s3.amazonaws.com/greengenes_reference_files/taxonomy_16S_candiv_gg_2011_1.txt.gz?AWSAccessKeyId=AKIAICKIGPBXNLBSJV7Q&Expires=1334123836&Signature=Hay3Trr76Xlp390UyH4ZpZuvODU%3D>.
+Bio::DB::Taxonomy::greengenes is an implementation of Bio::DB::Taxonomy which
+stores and accesses the Greengenes taxonomy of Bacteria and Archaea. Internally,
+it keeps the taxonomy into memory by using Bio::DB::Taxonomy::list. As a
+consequence, note that the IDs assigned to the taxonomy nodes, e.g. gg123, are
+arbitrary, contrary to the pre-defined IDs that NCBI assigns to taxons.
+
+The latest release of the Greengene taxonomy (2011) contains about 4,600 taxa
+and occupies about 4MB of memory once parsed into a Bio::DB::Taxonomy::greengenes
+object. The taxonomy files taxonomy_16S_all_gg_2011_1.txt and
+taxonomy_16S_candiv_gg_2011_1.txt that this module can use are available from
+L<http://www.secondgenome.com/go/2011-greengenes-taxonomy/>.
 
 =head1 FEEDBACK
 
@@ -81,10 +86,7 @@ Internal methods are usually preceded with a _
 package Bio::DB::Taxonomy::greengenes;
 
 use strict;
-use Bio::DB::Taxonomy::list;
-
 use base qw(Bio::DB::Taxonomy Bio::DB::Taxonomy::list);
-
 
 $Bio::DB::Taxonomy::list::prefix = 'gg';
 
@@ -126,9 +128,11 @@ sub _build_taxonomy {
    # Will skip header line: prokMSA_id	taxonomy
    my $prev_taxo_string = 'taxonomy'; 
 
+   my $line;
+
    # Parse taxonomy lines. Example:
    # 348902	k__Bacteria; p__Bacteroidetes; c__Bacteroidia; o__Bacteroidales; f__Bacteroidaceae; g__Bacteroides; s__Bacteroides plebeius
-   while (my $line = <$fh>) {
+   while ($line = <$fh>) {
       chomp $line;
       my ($prokmsa_id, $taxo_string) = split "\t", $line;
 
@@ -136,13 +140,12 @@ sub _build_taxonomy {
       next if $taxo_string eq $prev_taxo_string;
       $prev_taxo_string = $taxo_string;
 
-      my $names = [split /;\s*/, $taxo_string];
-
       # Remove ambiguous taxons, i.e. go from:
       #    k__Archaea; p__pMC2A384; c__; o__; f__; g__; s__
       # to:
       #    k__Archaea; p__pMC2A384
-      while ($names->[-1] =~ m/^.__$/) {
+      my $names = [split /;\s*/, $taxo_string];
+      while ($names->[-1] =~ m/__$/) {
          pop @$names;
       }
 
@@ -153,6 +156,7 @@ sub _build_taxonomy {
          -ranks => [ @{$all_ranks}[0..$nof_ranks-1] ],
          -names => $names,
       );
+
    }
 
    close $fh;
