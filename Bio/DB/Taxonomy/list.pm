@@ -176,7 +176,7 @@ sub add_lineage {
     
     my $first_lineage = $db->{node_ids} ? 0 : 1;
     
-    my $ancestor_node_id;
+    my $ancestor_node_id = '';
     my @node_ids;
     for my $i (0..$#names) {
         my $name = $names[$i];
@@ -188,11 +188,10 @@ sub add_lineage {
         #
         # We need to handle, however, situations in the future where we try to
         # merge in a new lineage but we have non-unique names in the lineage
-        # and possible missing classes in some lineages
-        # (eg.
-        # '... Anophelinae, Anopheles, Anopheles, Angusticorn, Anopheles...'
+        # and possible missing classes in some lineages, e.g.
+        #    '... Anophelinae, Anopheles, Anopheles, Angusticorn, Anopheles...'
         # merged with
-        # '... Anophelinae, Anopheles, Angusticorn, Anopheles...'),
+        #    '... Anophelinae, Anopheles, Angusticorn, Anopheles...'),
         # but still need the 'tree' to be correct
         
         my $is_new = 0;
@@ -200,16 +199,15 @@ sub add_lineage {
             $is_new = 1;
         }
         
-        my $node_id;
+        my $node_id = '';
         if (not $is_new) {
             my @same_named = @{$db->{name_to_id}->{$name}};
             
             # look for the node that is consistent with this lineage
             SAME_NAMED: for my $s_id (@same_named) {
-                my $this_ancestor_id;
 
                 # Taxa are the same if it they have the same ancestor or none
-                $this_ancestor_id = $db->{ancestors}->{$s_id};
+                my $this_ancestor_id = $db->{ancestors}->{$s_id} || '';
                 if ($ancestor_node_id eq $this_ancestor_id) {
                     $node_id = $s_id;
                     last SAME_NAMED;
@@ -217,11 +215,10 @@ sub add_lineage {
                 
                 if ($names[$i + 1]) {
                     my $my_child_name = $names[$i + 1];
-                    my @children_ids = keys %{$db->{children}->{$s_id} || {}};
+                    my @children_ids = keys %{$db->{children}->{$s_id}};
                     for my $c_id (@children_ids) {
                         my $this_child_name = $db->{node_data}->{$c_id}->[0];
                         if ($my_child_name eq $this_child_name) {
-                            
                             if ($ancestor_node_id) {
                                 my @s_ancestors;
                                 while ($this_ancestor_id = $db->{ancestors}->{$this_ancestor_id}) {
@@ -233,10 +230,10 @@ sub add_lineage {
                                     }
                                     unshift @s_ancestors, $this_ancestor_id;
                                 }
-                            }
-                            else {
-                                #$self->warn("This new lineage (@names) doesn't start at the same root as the existing lineages.".
-                                #            "\nI'm assuming '$name' corresponds to node $s_id");
+                            } else {
+                                # This new lineage (@names) doesn't start at the
+                                # same root as the existing lineages. Assuming
+                                # '$name' corresponds to node $s_id");
                                 $node_id = $s_id;
                                 last SAME_NAMED;
                             }
@@ -255,7 +252,7 @@ sub add_lineage {
             push @{$db->{name_to_id}->{$name}}, $node_id;
         }
         
-        unless (exists $db->{node_data}->{$node_id}) {
+        if (not exists $db->{node_data}->{$node_id}) {
             $db->{node_data}->{$node_id} = [($name, '')];
         }
         my $node_data = $db->{node_data}->{$node_id};
