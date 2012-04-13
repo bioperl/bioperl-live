@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 107,
+    test_begin(-tests => 119,
         -requires_module => 'XML::Twig');
 
     use_ok('Bio::DB::Taxonomy');
@@ -34,7 +34,7 @@ ok $db_flatfile = Bio::DB::Taxonomy->new(-source => 'flatfile',
 my $n;
 for my $db ($db_entrez, $db_flatfile) {
     SKIP: {
-        test_skip(-tests => 39, -requires_networking => 1) if $db eq $db_entrez;
+        test_skip(-tests => 45, -requires_networking => 1) if $db eq $db_entrez;
         my $id;
 
         eval { $id = $db->get_taxonid('Homo sapiens');};
@@ -86,6 +86,26 @@ for my $db ($db_entrez, $db_flatfile) {
         # briefly check we can use some Tree methods
         my $tree = Bio::Tree::Tree->new();
         is $tree->get_lca($n, $n2)->scientific_name, 'Craniata';
+
+        # get lineage_nodes
+        my @nodes = $tree->get_nodes;
+        is scalar(@nodes), 0;
+        my @lineage_nodes;
+        @lineage_nodes = $tree->get_lineage_nodes($n->id); # read ID, only works if nodes have been added to tree
+        is scalar @lineage_nodes, 0;
+        @lineage_nodes = $tree->get_lineage_nodes($n);     # node object always works
+        is scalar @lineage_nodes, 29;
+
+        # get lineage string
+        is $tree->get_lineage_string($n), ($db eq $db_entrez) ?
+           'cellular organisms;Eukaryota;Opisthokonta;Metazoa;Eumetazoa;Bilateria;Coelomata;Deuterostomia;Chordata;Craniata;Vertebrata;Gnathostomata;Teleostomi;Euteleostomi;Sarcopterygii;Tetrapoda;Amniota;Mammalia;Theria;Eutheria;Euarchontoglires;Primates;Haplorrhini;Simiiformes;Catarrhini;Hominoidea;Hominidae;Homininae;Homo;Homo sapiens' :
+           'cellular organisms;Eukaryota;Fungi/Metazoa group;Metazoa;Eumetazoa;Bilateria;Coelomata;Deuterostomia;Chordata;Craniata;Vertebrata;Gnathostomata;Teleostomi;Euteleostomi;Sarcopterygii;Tetrapoda;Amniota;Mammalia;Theria;Eutheria;Euarchontoglires;Primates;Haplorrhini;Simiiformes;Catarrhini;Hominoidea;Hominidae;Homo/Pan/Gorilla group;Homo;Homo sapiens';
+        is $tree->get_lineage_string($n,'-'), ($db eq $db_entrez) ?
+           'cellular organisms-Eukaryota-Opisthokonta-Metazoa-Eumetazoa-Bilateria-Coelomata-Deuterostomia-Chordata-Craniata-Vertebrata-Gnathostomata-Teleostomi-Euteleostomi-Sarcopterygii-Tetrapoda-Amniota-Mammalia-Theria-Eutheria-Euarchontoglires-Primates-Haplorrhini-Simiiformes-Catarrhini-Hominoidea-Hominidae-Homininae-Homo-Homo sapiens' :
+           'cellular organisms-Eukaryota-Fungi/Metazoa group-Metazoa-Eumetazoa-Bilateria-Coelomata-Deuterostomia-Chordata-Craniata-Vertebrata-Gnathostomata-Teleostomi-Euteleostomi-Sarcopterygii-Tetrapoda-Amniota-Mammalia-Theria-Eutheria-Euarchontoglires-Primates-Haplorrhini-Simiiformes-Catarrhini-Hominoidea-Hominidae-Homo/Pan/Gorilla group-Homo-Homo sapiens';
+        is $tree->get_lineage_string($n2), ($db eq $db_entrez) ?
+            'cellular organisms;Eukaryota;Opisthokonta;Metazoa;Eumetazoa;Bilateria;Coelomata;Deuterostomia;Chordata;Craniata' : 
+            'cellular organisms;Eukaryota;Fungi/Metazoa group;Metazoa;Eumetazoa;Bilateria;Coelomata;Deuterostomia;Chordata;Craniata';
         
         # can we actually form a Tree and use other Tree methods?
         ok $tree = Bio::Tree::Tree->new(-node => $n);

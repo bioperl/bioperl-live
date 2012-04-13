@@ -238,7 +238,6 @@ is($DFSorder, '0,1,2,A,B,C,D,3,E,F,G,H', 'DFS travfersal order');
 $tree->remove_Node('H');
 $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
 is($DFSorder, '0,1,2,A,B,C,D,3,E,F,G', 'DFS traversal after removing H');
-#get_lineage_nodes tested during get_lca
 $tree->splice(-remove_id => 'G');
 $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
 is($DFSorder, '0,1,2,A,B,C,D,3,E,F', 'DFS traversal after removing G');
@@ -251,7 +250,7 @@ is($DFSorder, '0,1,2,A,B,C,D,3,F', 'DFS traversal after removing E');
 $tree->splice(-keep_id => [qw(0 1 2 A B C D)]);
 $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
 is($DFSorder, '0,1,2,A,B,C,D', 'DFS after removing all but 0,1,2,A,B,C,D');
-#get_lca, merge_lineage, contract_linear_paths tested in in Taxonomy.t
+#get_lineage_nodes, get_lineage_string, get_lca, merge_lineage, contract_linear_paths tested in Taxonomy.t
 
 
 # try out the id to bootstrap copy method
