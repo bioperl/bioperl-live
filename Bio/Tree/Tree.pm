@@ -247,7 +247,7 @@ sub nodelete{
 =head2 root
 
  Title   : root
- Usage   : $tree->root->find('a');
+ Usage   : $tree->root($root) OR my $root = $tree->root;
  Function: Get / set the root node of the tree. Note that setting a
            new root node does not perform a whole re-root operation,
            it merely changes the pointer to the root node of the tree.
