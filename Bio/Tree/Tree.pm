@@ -204,7 +204,7 @@ sub get_nodes{
    my @children;
    my $node = $self->get_root_node || return undef;
    
-   if ($order =~ m/^b$/oi) {
+   if ($order =~ m/^b/oi) { # breadth-first
        @children = ($node);
        my @to_process = ($node);
        while( @to_process ) { 
@@ -213,7 +213,7 @@ sub get_nodes{
 	push @children, @c;
 	push @to_process, @c;
        }
-   } elsif ($order =~ m/^d$/oi) {
+   } elsif ($order =~ m/^d/oi) { # depth-first
        # this is depth-first search I believe
        @children = ($node,$node->get_all_Descendents($sortby));
    } else {
