@@ -191,29 +191,37 @@ Function: Return list of Bio::Tree::NodeI objects
 Returns : array of Bio::Tree::NodeI objects
 Args    : (named values) hash with one value 
            order => 'b|breadth' first order or 'd|depth' first order
+	   sortby => $sortby [optional] "height", "creation", "alpha", "revalpha",
+           or coderef to be used to sort the order of children nodes. See L<Bio::Tree::Node> for details
 
 =cut
 
 sub get_nodes{
    my ($self, @args) = @_;
-   
+  warn("args are @args\n"); 
    my ($order, $sortby) = $self->_rearrange([qw(ORDER SORTBY)],@args);
    $order ||= 'depth';
    $sortby ||= 'none';
-   my $node = $self->get_root_node || return;
-   if ($order =~ m/^b|(breadth)$/oi) {
-       my @children = ($node);
-       for (@children) {
-        push @children, $_->each_Descendent($sortby);
+   my @children;
+   my $node = $self->get_root_node || return undef;
+   
+   if ($order =~ m/^b$/oi) {
+       @children = ($node);
+       my @to_process = ($node);
+       while( @to_process ) { 
+	my $n = shift @to_process;
+        my @c  = $n->each_Descendent($sortby);
+	push @children, @c;
+	push @to_process, @c;
        }
-       return @children;
-   }
-
-   if ($order =~ m/^d|(depth)$/oi) {
+   } elsif ($order =~ m/^d$/oi) {
        # this is depth-first search I believe
-       my @children = ($node,$node->get_all_Descendents($sortby));
-       return @children;
+       @children = ($node,$node->get_all_Descendents($sortby));
+   } else {
+	$self->verbose(1);
+	$self->warn("specified an order '$order' which I don't understan\n");
    }
+   @children;
 }
 
 =head2 get_root_node
