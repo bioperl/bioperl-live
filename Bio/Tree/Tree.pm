@@ -198,7 +198,6 @@ Args    : (named values) hash with one value
 
 sub get_nodes{
    my ($self, @args) = @_;
-  warn("args are @args\n"); 
    my ($order, $sortby) = $self->_rearrange([qw(ORDER SORTBY)],@args);
    $order ||= 'depth';
    $sortby ||= 'none';
