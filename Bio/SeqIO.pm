@@ -757,7 +757,8 @@ sub object_factory{
  Title   : sequence_builder
  Usage   : $seqio->sequence_builder($seqfactory)
  Function: Get/Set the Bio::Factory::ObjectBuilderI used to build sequence
-           objects.
+           objects. This applies to rich sequence formats only, e.g. genbank
+           but not fasta.
 
            If you do not set the sequence object builder yourself, it
            will in fact be an instance of L<Bio::Seq::SeqBuilder>, and

@@ -13,19 +13,17 @@
 
 =head1 NAME
 
-Bio::Seq::SeqFactory - Instantiates a new Bio::PrimarySeqI (or derived class) through a factory
+Bio::Seq::SeqFactory - Instantiation of generic Bio::PrimarySeqI (or derived) objects through a factory
 
 =head1 SYNOPSIS
 
     use Bio::Seq::SeqFactory;
     my $factory = Bio::Seq::SeqFactory->new();
-    my $seq = $factory->create(-seq => 'WYRAVLC',
-			       -id  => 'name');
+    my $primaryseq = $factory->create( -seq => 'WYRAVLC',
+                                       -id  => 'name'     );
 
-    # If you want the factory to create Bio::Seq objects instead
-    # of the default Bio::PrimarySeq objects, use the -type parameter:
-
-    my $factory = Bio::Seq::SeqFactory->new(-type => 'Bio::Seq');
+    # Create Bio::Seq instead of Bio::PrimarySeq objects:
+    my $factory = Bio::Seq::SeqFactory->new( -type => 'Bio::Seq' );
 
 
 =head1 DESCRIPTION
@@ -139,18 +137,18 @@ sub create {
 
 =cut
 
-sub type{
-   my ($self,$value) = @_;
-   if( defined $value) {
+sub type {
+   my ($self, $value) = @_;
+   if (defined $value) {
        eval "require $value";
        if( $@ ) { $self->throw("$@: Unrecognized Sequence type for SeqFactory '$value'");}
        
        my $a = bless {},$value;
        unless( $a->isa('Bio::PrimarySeqI') ||
-	       $a->isa('Bio::Seq::QualI') ) {
-	   $self->throw("Must provide a valid Bio::PrimarySeqI or Bio::Seq::QualI or child class to SeqFactory Not $value");
+               $a->isa('Bio::Seq::QualI' ) ) {
+           $self->throw("Must provide a valid Bio::PrimarySeqI or Bio::Seq::QualI or child class to SeqFactory Not $value");
        }
-      $self->{'type'} = $value;
+       $self->{'type'} = $value;
     }
     return $self->{'type'};
 }
