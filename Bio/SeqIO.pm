@@ -131,7 +131,7 @@ This makes the simplest ever reformatter
    $seqIO = Bio::SeqIO->new(-fh   => \*FILEHANDLE, -format=>$format);
    $seqIO = Bio::SeqIO->new(-format => $format);
 
-The new() class method constructs a new Bio::SeqIO object.  The
+The new() class method constructs a new Bio::SeqIO object. The
 returned object can be used to retrieve or print Seq objects. new()
 accepts the following parameters:
 
@@ -227,6 +227,17 @@ evaluates as defined but false:
                            -flush  => 0); # go as fast as we can!
   while($seq = $gb->next_seq) { $fa->write_seq($seq) }
 
+=item -seqfactory
+
+Provide a Bio::Factory::SequenceFactoryI object. See the sequence_factory() method.
+
+=item -locfactory
+
+Provide a Bio::Factory::LocationFactoryI object. See the location_factory() method.
+
+=item -objbuilder
+
+Provide a Bio::Factory::ObjectBuilderI object. See the object_builder() method.
 
 =back
 
@@ -322,24 +333,26 @@ use base qw(Bio::Root::Root Bio::Root::IO Bio::Factory::SequenceStreamI);
 
 my %valid_alphabet_cache;
 
+
 =head2 new
 
  Title   : new
- Usage   : $stream = Bio::SeqIO->new(-file => $filename,
-                                     -format => 'Format')
+ Usage   : $stream = Bio::SeqIO->new(-file => 'sequences.fasta',
+                                     -format => 'fasta');
  Function: Returns a new sequence stream
  Returns : A Bio::SeqIO stream initialised with the appropriate format
  Args    : Named parameters:
-             -file => $filename
-             -fh => filehandle to attach to
+             -file   => filename
+             -fh     => filehandle to attach to
              -format => format
 
-           Additional arguments may be used to set factories and
-           builders involved in the sequence object creation. None of
-           these must be provided, they all have reasonable defaults.
-             -seqfactory   the Bio::Factory::SequenceFactoryI object
-             -locfactory   the Bio::Factory::LocationFactoryI object
-             -objbuilder   the Bio::Factory::ObjectBuilderI object
+           Additional arguments may be used. They all have reasonable defaults
+           and are thus optional.
+             -alphabet   => 'dna', 'rna', or 'protein'
+             -flush      => 0 or 1 (default, flush filehandles after each write)
+             -seqfactory => sequence factory
+             -locfactory => location factory
+             -objbuilder => object builder
 
 See L<Bio::SeqIO::Handler>
 
@@ -405,7 +418,7 @@ sub new {
 
  Title   : newFh
  Usage   : $fh = Bio::SeqIO->newFh(-file=>$filename,-format=>'Format')
- Function: does a new() followed by an fh()
+ Function: Does a new() followed by an fh()
  Example : $fh = Bio::SeqIO->newFh(-file=>$filename,-format=>'Format')
            $sequence = <$fh>;   # read a sequence object
            print $fh $sequence; # write a sequence object
@@ -427,7 +440,7 @@ sub newFh {
 
  Title   : fh
  Usage   : $obj->fh
- Function:
+ Function: Get or set the IO filehandle
  Example : $fh = $obj->fh;      # make a tied filehandle
            $sequence = <$fh>;   # read a sequence object
            print $fh $sequence; # write a sequence object
@@ -526,6 +539,7 @@ sub write_seq {
     $self->throw("Sorry, you cannot write to a generic Bio::SeqIO object.");
 }
 
+
 =head2 format
 
  Title   : format
@@ -574,6 +588,7 @@ sub alphabet {
    return $self->{'alphabet'};
 }
 
+
 =head2 _load_format_module
 
  Title   : _load_format_module
@@ -605,6 +620,7 @@ END
     return $ok;
 }
 
+
 =head2 _concatenate_lines
 
  Title   : _concatenate_lines
@@ -622,10 +638,10 @@ END
 
 sub _concatenate_lines {
     my ($self, $s1, $s2) = @_;
-
     $s1 .= " " if($s1 && ($s1 !~ /-$/) && $s2);
     return ($s1 ? $s1 : "") . ($s2 ? $s2 : "");
 }
+
 
 =head2 _filehandle
 
@@ -642,6 +658,7 @@ sub _filehandle {
     my ($self,@args) = @_;
     return $self->_fh(@args);
 }
+
 
 =head2 _guess_format
 
@@ -688,15 +705,18 @@ sub _guess_format {
    return 'ztr'        if /\.ztr$/i;
 }
 
+
 sub DESTROY {
     my $self = shift;
     $self->close();
 }
 
+
 sub TIEHANDLE {
     my ($class,$val) = @_;
     return bless {'seqio' => $val}, $class;
 }
+
 
 sub READLINE {
     my $self = shift;
@@ -706,10 +726,12 @@ sub READLINE {
     return @list;
 }
 
+
 sub PRINT {
     my $self = shift;
     $self->{'seqio'}->write_seq(@_);
 }
+
 
 =head2 sequence_factory
 
@@ -721,8 +743,8 @@ sub PRINT {
 
 =cut
 
-sub sequence_factory{
-   my ($self,$obj) = @_;
+sub sequence_factory {
+   my ($self, $obj) = @_;
    if( defined $obj ) {
         if( ! ref($obj) || ! $obj->isa('Bio::Factory::SequenceFactoryI') ) {
             $self->throw("Must provide a valid Bio::Factory::SequenceFactoryI object to ".ref($self)."::sequence_factory()");
@@ -736,6 +758,7 @@ sub sequence_factory{
    }
    $self->{'_seqio_seqfactory'};
 }
+
 
 =head2 object_factory
 
@@ -751,6 +774,7 @@ sub sequence_factory{
 sub object_factory{
     return shift->sequence_factory(@_);
 }
+
 
 =head2 sequence_builder
 
@@ -769,8 +793,8 @@ sub object_factory{
 
 =cut
 
-sub sequence_builder{
-    my ($self,$obj) = @_;
+sub sequence_builder {
+    my ($self, $obj) = @_;
     if( defined $obj ) {
         if( ! ref($obj) || ! $obj->isa('Bio::Factory::ObjectBuilderI') ) {
             $self->throw("Must provide a valid Bio::Factory::ObjectBuilderI object to ".ref($self)."::sequence_builder()");
@@ -779,6 +803,7 @@ sub sequence_builder{
     }
     $self->{'_object_builder'};
 }
+
 
 =head2 location_factory
 
@@ -792,7 +817,7 @@ sub sequence_builder{
 
 =cut
 
-sub location_factory{
+sub location_factory {
     my ($self,$obj) = @_;
     if( defined $obj ) {
         if( ! ref($obj) || ! $obj->isa('Bio::Factory::LocationFactoryI') ) {
