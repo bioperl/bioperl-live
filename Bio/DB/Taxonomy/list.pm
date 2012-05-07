@@ -170,11 +170,7 @@ sub add_lineage {
     my @node_ids;
     for my $i (0..$#$names) {
         my $name = $names->[$i];
-
-        ####
-        my $rank = $ranks->[$i] || 'no rank';
-        #my $rank = $ranks->[$i]; # if undef, this node has 'no rank'
-        ####
+        my $rank = $ranks->[$i]; # if undef, this node has 'no rank'
         
         # This is a new node with a new id if we haven't seen this name before.
         # It's also always a new node if this is the first lineage going into
@@ -236,7 +232,7 @@ sub add_lineage {
                 }
             }
             
-            $same_node_id || $is_new++;
+            $is_new++ if not defined $same_node_id;
         }
         
         if ($is_new) {
@@ -247,13 +243,13 @@ sub add_lineage {
         }
         
         if (not exists $db->{node_data}->{$same_node_id}) {
-            $db->{node_data}->{$same_node_id} = [$name, ''];
+            $db->{node_data}->{$same_node_id} = [$name];
         }
 
-        my $node_data_id = $node_data->{$same_node_id};        
-        if (!$node_data_id->[1] || ( ($node_data_id->[1] eq 'no rank') && ($rank ne 'no rank') ) ) {
-            # if node does not have a rank 
-            $node_data_id->[1] = $rank;
+        my $same_node_rank = \$node_data->{$same_node_id}->[1];
+        if ( (not defined $$same_node_rank) || ( (defined $rank) && (not defined $$same_node_rank) ) ) {
+            # Save rank if existing node has no rank but the node we add has one
+            $$same_node_rank = $rank;
         }
         
         if ($ancestor_node_id) {
@@ -269,7 +265,7 @@ sub add_lineage {
         push @node_ids, $same_node_id;
     }
     
-    # go through the lineage in reverse so we can remember the children
+    # Go through the lineage in reverse so we can remember the children
     my $child_id;
     for my $node_id (reverse @node_ids) {
         unless ($child_id) {
@@ -320,9 +316,10 @@ sub get_taxon {
     my ($sci_name, $rank) = @{$node};
     
     my $taxon = Bio::Taxon->new(
-                        -name         => $sci_name,
-                        -object_id    => $taxonid, # since this is NOT a real ncbi taxid, set it as simply the object id
-                        -rank         => $rank );
+        -name      => $sci_name,
+        -object_id => $taxonid, # since this is NOT a real ncbi taxid, set it as simply the object id
+        -rank      => $rank,
+    );
     # we can't use -dbh or the db_handle() method ourselves or we'll go
     # infinite on the merge attempt
     $taxon->{'db_handle'} = $self;
