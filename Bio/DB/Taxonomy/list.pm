@@ -171,7 +171,7 @@ sub add_lineage {
     for my $i (0..$#$names) {
         my $name = $names->[$i];
         my $rank = $ranks->[$i]; # if undef, this node has 'no rank'
-        
+
         # This is a new node with a new id if we haven't seen this name before.
         # It's also always a new node if this is the first lineage going into
         # the db.
@@ -204,8 +204,8 @@ sub add_lineage {
                     last SAME_NAMED;
                 }
                 
-                if ($names->[$i + 1]) {
-                    my $my_child_name = $names->[$i + 1];
+                my $my_child_name = $names->[$i + 1];
+                if ($my_child_name) {
                     for my $child_id (keys %{$db->{children}->{$s_id}}) {
                         my $this_child_name = $node_data->{$child_id}->[0];
                         if ($my_child_name eq $this_child_name) {
@@ -246,12 +246,11 @@ sub add_lineage {
             $db->{node_data}->{$same_node_id} = [$name];
         }
 
-        my $same_node_rank = \$node_data->{$same_node_id}->[1];
-        if ( (not defined $$same_node_rank) || ( (defined $rank) && (not defined $$same_node_rank) ) ) {
+        if ( (defined $rank) && (not defined $node_data->{$same_node_id}->[1]) ) {
             # Save rank if existing node has no rank but the node we add has one
-            $$same_node_rank = $rank;
+            $node_data->{$same_node_id}->[1] = $rank;
         }
-        
+
         if ($ancestor_node_id) {
             if ($db->{ancestors}->{$same_node_id} && $db->{ancestors}->{$same_node_id} ne $ancestor_node_id) {
                 $self->throw("This lineage (".join(', ', @$names).") and a ".
