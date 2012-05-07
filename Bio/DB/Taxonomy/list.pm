@@ -297,35 +297,40 @@ sub add_lineage {
 =cut
 
 sub get_taxon {
-    my $self = shift;
-    my ($taxonid, $name);
-    
-    if (@_ > 1) {
-        ($taxonid, $name) = $self->_rearrange([qw(TAXONID NAME)],@_);
+    my ($self, @args) = @_;
+
+    my $taxonid;
+    if (scalar @args == 1) {
+        $taxonid = $args[0];
+    } else {
+        ($taxonid, my $name) = $self->_rearrange([qw(TAXONID NAME)], @args);
         if ($name) {
             ($taxonid, my @others) = $self->get_taxonids($name);
             $self->warn("There were multiple ids ($taxonid @others) matching ".
-                "'$name', using '$taxonid'") if @others > 0;
+                "'$name', using '$taxonid'") if scalar @others > 0;
         }
     }
-    else {
-        $taxonid = shift;
+    
+    my $taxon;
+    my $node = $self->{db}->{node_data}->{$taxonid};
+    if ($node) {
+        my ($sci_name, $rank) = @$node;
+        $taxon = Bio::Taxon->new(
+            -name      => $sci_name,
+            -object_id => $taxonid, # not an ncbi taxid, simply an object id
+        );
+
+        if ($rank) {
+            $taxon->rank($rank);
+        }
+
+        # we can't use -dbh or the db_handle() method ourselves or we'll go
+        # infinite on the merge attempt
+        $taxon->{'db_handle'} = $self;
+    
+        $self->_handle_internal_id($taxon, 1);
     }
-    
-    my $node = $self->{db}->{node_data}->{$taxonid} || return;
-    my ($sci_name, $rank) = @{$node};
-    
-    my $taxon = Bio::Taxon->new(
-        -name      => $sci_name,
-        -object_id => $taxonid, # since this is NOT a real ncbi taxid, set it as simply the object id
-        -rank      => $rank,
-    );
-    # we can't use -dbh or the db_handle() method ourselves or we'll go
-    # infinite on the merge attempt
-    $taxon->{'db_handle'} = $self;
-    
-    $self->_handle_internal_id($taxon, 1);
-    
+
     return $taxon;
 }
 
