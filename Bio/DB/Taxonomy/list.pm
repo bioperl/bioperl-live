@@ -159,9 +159,6 @@ sub add_lineage {
     # and see how bad it is! (assumes ranks are unique except for 'no rank')
     
     my $db = $self->{db};
-    
-    my $first_lineage = $db->{node_ids} ? 0 : 1;
-    
     my $ancestors  = $db->{ancestors};
     my $node_data  = $db->{node_data};
     my $name_to_id = $db->{name_to_id};
@@ -184,84 +181,72 @@ sub add_lineage {
         #    '... Anophelinae, Anopheles, Angusticorn, Anopheles...'),
         # but still need the 'tree' to be correct
         
-        my $same_named = $name_to_id->{$name};
 
-        my $is_new = 0;
-        if ($first_lineage || ! $same_named) {
-            $is_new = 1;
-        }
-        
-        my $same_node_id;
-        if (not $is_new) {
+        # Look for a node that is consistent with this lineage
+        my $node_id;
+        SAME_NAMED: for my $same_id (@{$name_to_id->{$name}}) {
 
-            # look for the node that is consistent with this lineage
-            SAME_NAMED: for my $s_id (@$same_named) {
-
-                # Taxa are the same if it they have the same ancestor or none
-                my $this_ancestor_id = $ancestors->{$s_id} || '';
-                if ($ancestor_node_id eq $this_ancestor_id) {
-                    $same_node_id = $s_id;
-                    last SAME_NAMED;
-                }
+            # Taxa are the same if it they have the same ancestor or none
+            my $this_ancestor_id = $ancestors->{$same_id} || '';
+            if ($ancestor_node_id eq $this_ancestor_id) {
+                $node_id = $same_id;
+                last SAME_NAMED;
+            }
                 
-                my $my_child_name = $names->[$i + 1];
-                if ($my_child_name) {
-                    for my $child_id (keys %{$db->{children}->{$s_id}}) {
-                        my $this_child_name = $node_data->{$child_id}->[0];
-                        if ($my_child_name eq $this_child_name) {
-                            if ($ancestor_node_id) {
-                                my @s_ancestors;
-                                while ($this_ancestor_id = $ancestors->{$this_ancestor_id}) {
-                                    if ($ancestor_node_id eq $this_ancestor_id) {
-                                        $same_node_id = $s_id;
-                                        $ancestor_node_id = $ancestors->{$s_id};
-                                        push @node_ids, @s_ancestors, $ancestor_node_id;
-                                        last SAME_NAMED;
-                                    }
-                                    unshift @s_ancestors, $this_ancestor_id;
+            my $my_child_name = $names->[$i + 1];
+            if ($my_child_name) {
+                for my $child_id (keys %{$db->{children}->{$same_id}}) {
+                    my $this_child_name = $node_data->{$child_id}->[0];
+                    if ($my_child_name eq $this_child_name) {
+                        if ($ancestor_node_id) {
+                            my @s_ancestors;
+                            while ($this_ancestor_id = $ancestors->{$this_ancestor_id}) {
+                                if ($ancestor_node_id eq $this_ancestor_id) {
+                                    $node_id = $same_id;
+                                    $ancestor_node_id = $ancestors->{$same_id};
+                                    push @node_ids, @s_ancestors, $ancestor_node_id;
+                                    last SAME_NAMED;
                                 }
-                            } else {
-                                # This new lineage (@$names) doesn't start at the
-                                # same root as the existing lineages. Assuming
-                                # '$name' corresponds to node $s_id");
-                                $same_node_id = $s_id;
-                                last SAME_NAMED;
+                                unshift @s_ancestors, $this_ancestor_id;
                             }
+                        } else {
+                            # This new lineage (@$names) doesn't start at the
+                            # same root as the existing lineages. Assuming
+                            # '$name' corresponds to node $same_id");
+                            $node_id = $same_id;
+                            last SAME_NAMED;
                         }
                     }
                 }
             }
-            
-            $is_new++ if not defined $same_node_id;
         }
         
-        if ($is_new) {
+        if (not defined $node_id) {
+            # This is a new node. Add it to the database, using the prefix 'list'
+            # for its ID to distinguish it from the IDs from other taxonomies.
             my $next_num = ++$db->{node_ids};
-            # Add prefix 'list' to distinguish from with ncbi taxonomy ids
-            $same_node_id = $prefix.$next_num;
-            push @{$db->{name_to_id}->{$name}}, $same_node_id;
+            $node_id = $prefix.$next_num;
+            push @{$db->{name_to_id}->{$name}}, $node_id;
+            $db->{node_data}->{$node_id} = [$name];
         }
         
-        if (not exists $db->{node_data}->{$same_node_id}) {
-            $db->{node_data}->{$same_node_id} = [$name];
-        }
 
-        if ( (defined $rank) && (not defined $node_data->{$same_node_id}->[1]) ) {
+        if ( (defined $rank) && (not defined $node_data->{$node_id}->[1]) ) {
             # Save rank if existing node has no rank but the node we add has one
-            $node_data->{$same_node_id}->[1] = $rank;
+            $node_data->{$node_id}->[1] = $rank;
         }
 
         if ($ancestor_node_id) {
-            if ($db->{ancestors}->{$same_node_id} && $db->{ancestors}->{$same_node_id} ne $ancestor_node_id) {
-                $self->throw("This lineage (".join(', ', @$names).") and a ".
-                    "previously computed lineage share a node name but have ".
+            if ($db->{ancestors}->{$node_id} && $db->{ancestors}->{$node_id} ne $ancestor_node_id) {
+                $self->throw("The lineage '".join(', ', @$names)."' and a ".
+                    "previously stored lineage share a node name but have ".
                     "different ancestries for that node. Can't cope!");
             }
-            $db->{ancestors}->{$same_node_id} = $ancestor_node_id;
+            $db->{ancestors}->{$node_id} = $ancestor_node_id;
         }
         
-        $ancestor_node_id = $same_node_id;
-        push @node_ids, $same_node_id;
+        $ancestor_node_id = $node_id;
+        push @node_ids, $node_id;
     }
     
     # Go through the lineage in reverse so we can remember the children
@@ -271,7 +256,6 @@ sub add_lineage {
             $child_id = $node_id;
             next;
         }
-        
         $db->{children}->{$node_id}->{$child_id} = undef;
         $child_id = $node_id;
     }
