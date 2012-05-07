@@ -130,8 +130,8 @@ sub new {
 =cut
 
 sub add_lineage {
-    my $self = shift;
-    my ($names, $ranks) = $self->_rearrange([qw (NAMES RANKS)], @_);
+    my ($self, @args) = @_;
+    my ($names, $ranks) = $self->_rearrange([qw (NAMES RANKS)], @args);
     $self->throw("-names must be supplied and its value must be an array reference")
         unless $names && ref($names) eq 'ARRAY';
     my @names = @{$names};
@@ -141,13 +141,11 @@ sub add_lineage {
         $self->throw("-ranks must be an array reference")
             unless ref($ranks) eq 'ARRAY';
         $self->throw("The -names and -ranks lists must be of equal length")
-            unless @{$names} == @{$ranks};
+            unless scalar @$names == scalar @$ranks;
         @ranks = @{$ranks};
     }
     else {
-        for (0..$#names) {
-            push @ranks, 'no rank';
-        }
+        push @ranks, ('no rank') x scalar @names;
     }
     
     # This is non-trivial because names are not guaranteed unique in a taxonomy,
