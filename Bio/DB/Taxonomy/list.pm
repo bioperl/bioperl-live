@@ -176,6 +176,10 @@ sub add_lineage {
     
     my $first_lineage = $db->{node_ids} ? 0 : 1;
     
+    my $ancestors  = $db->{ancestors};
+    my $node_data  = $db->{node_data};
+    my $name_to_id = $db->{name_to_id};
+
     my $ancestor_node_id = '';
     my @node_ids;
     for my $i (0..$#names) {
@@ -194,20 +198,21 @@ sub add_lineage {
         #    '... Anophelinae, Anopheles, Angusticorn, Anopheles...'),
         # but still need the 'tree' to be correct
         
+        my $same_named = $name_to_id->{$name};
+
         my $is_new = 0;
-        if ($first_lineage || ! exists $db->{name_to_id}->{$name}) {
+        if ($first_lineage || ! $same_named) {
             $is_new = 1;
         }
         
         my $node_id = '';
         if (not $is_new) {
-            my @same_named = @{$db->{name_to_id}->{$name}};
-            
+
             # look for the node that is consistent with this lineage
-            SAME_NAMED: for my $s_id (@same_named) {
+            SAME_NAMED: for my $s_id (@$same_named) {
 
                 # Taxa are the same if it they have the same ancestor or none
-                my $this_ancestor_id = $db->{ancestors}->{$s_id} || '';
+                my $this_ancestor_id = $ancestors->{$s_id} || '';
                 if ($ancestor_node_id eq $this_ancestor_id) {
                     $node_id = $s_id;
                     last SAME_NAMED;
@@ -215,16 +220,15 @@ sub add_lineage {
                 
                 if ($names[$i + 1]) {
                     my $my_child_name = $names[$i + 1];
-                    my @children_ids = keys %{$db->{children}->{$s_id}};
-                    for my $c_id (@children_ids) {
-                        my $this_child_name = $db->{node_data}->{$c_id}->[0];
+                    for my $child_id (keys %{$db->{children}->{$s_id}}) {
+                        my $this_child_name = $node_data->{$child_id}->[0];
                         if ($my_child_name eq $this_child_name) {
                             if ($ancestor_node_id) {
                                 my @s_ancestors;
-                                while ($this_ancestor_id = $db->{ancestors}->{$this_ancestor_id}) {
+                                while ($this_ancestor_id = $ancestors->{$this_ancestor_id}) {
                                     if ($ancestor_node_id eq $this_ancestor_id) {
                                         $node_id = $s_id;
-                                        $ancestor_node_id = $db->{ancestors}->{$s_id};
+                                        $ancestor_node_id = $ancestors->{$s_id};
                                         push @node_ids, @s_ancestors, $ancestor_node_id;
                                         last SAME_NAMED;
                                     }
@@ -253,12 +257,12 @@ sub add_lineage {
         }
         
         if (not exists $db->{node_data}->{$node_id}) {
-            $db->{node_data}->{$node_id} = [($name, '')];
+            $db->{node_data}->{$node_id} = [$name, ''];
         }
-        my $node_data = $db->{node_data}->{$node_id};
-        
-        if (!$node_data->[1] || ($node_data->[1] eq 'no rank' && $rank ne 'no rank')) {
-            $node_data->[1] = $rank;
+
+        my $node_data_id = $node_data->{$node_id};        
+        if (!$node_data_id->[1] || ($node_data_id->[1] eq 'no rank' && $rank ne 'no rank')) {
+            $node_data_id->[1] = $rank;
         }
         
         if ($ancestor_node_id) {
@@ -282,7 +286,7 @@ sub add_lineage {
             next;
         }
         
-        $db->{children}->{$node_id}->{$child_id} = 1;
+        $db->{children}->{$node_id}->{$child_id} = undef;
         $child_id = $node_id;
     }
 }

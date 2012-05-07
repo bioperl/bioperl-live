@@ -21,15 +21,19 @@ my $temp_dir = test_output_dir();
 
 ok my $db_entrez = Bio::DB::Taxonomy->new(-source => 'entrez');
 
-ok my $db_flatfile = Bio::DB::Taxonomy->new(-source => 'flatfile',
-                               -nodesfile => test_input_file('taxdump', 'nodes.dmp'),
-                               -namesfile => test_input_file('taxdump','names.dmp') );
+ok my $db_flatfile = Bio::DB::Taxonomy->new(
+    -source    => 'flatfile',
+    -nodesfile => test_input_file('taxdump', 'nodes.dmp'),
+    -namesfile => test_input_file('taxdump','names.dmp'),
+ );
 
-ok $db_flatfile = Bio::DB::Taxonomy->new(-source => 'flatfile',
-                               -directory => $temp_dir,
-                               -nodesfile => test_input_file('taxdump', 'nodes.dmp'),
-                               -namesfile => test_input_file('taxdump','names.dmp'),
-                               -force => 1);
+ok $db_flatfile = Bio::DB::Taxonomy->new(
+    -source    => 'flatfile',
+    -directory => $temp_dir,
+    -nodesfile => test_input_file('taxdump', 'nodes.dmp'),
+    -namesfile => test_input_file('taxdump','names.dmp'),
+    -force     => 1,
+);
 
 my $n;
 for my $db ($db_entrez, $db_flatfile) {
