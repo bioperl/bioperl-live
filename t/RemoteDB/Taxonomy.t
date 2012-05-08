@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 119,
+    test_begin(-tests => 122,
         -requires_module => 'XML::Twig');
 
     use_ok('Bio::DB::Taxonomy');
@@ -25,7 +25,7 @@ ok my $db_flatfile = Bio::DB::Taxonomy->new(
     -source    => 'flatfile',
     -nodesfile => test_input_file('taxdump', 'nodes.dmp'),
     -namesfile => test_input_file('taxdump','names.dmp'),
- );
+);
 
 ok $db_flatfile = Bio::DB::Taxonomy->new(
     -source    => 'flatfile',
@@ -38,8 +38,14 @@ ok $db_flatfile = Bio::DB::Taxonomy->new(
 my $n;
 for my $db ($db_entrez, $db_flatfile) {
     SKIP: {
-        test_skip(-tests => 45, -requires_networking => 1) if $db eq $db_entrez;
+        test_skip(-tests => 46, -requires_networking => 1) if $db eq $db_entrez;
         my $id;
+
+        if ($db eq $db_entrez) {
+           cmp_ok $db->get_num_taxa, '>', 880_000; # 886,907 as of 08-May-2012
+        } else {
+           is $db->get_num_taxa, 189;
+        }
 
         eval { $id = $db->get_taxonid('Homo sapiens');};
         skip "Unable to connect to entrez database; no network or server busy?", 38 if $@;
@@ -147,9 +153,9 @@ for my $db ($db_entrez, $db_flatfile) {
 # Test the list database
 my @ranks = qw(superkingdom class genus species);
 my @h_lineage = ('Eukaryota', 'Mammalia', 'Homo', 'Homo sapiens');
-my $db_list = Bio::DB::Taxonomy->new(-source => 'list', -names => \@h_lineage,
+ok my $db_list = Bio::DB::Taxonomy->new(-source => 'list', -names => \@h_lineage,
                                                         -ranks => \@ranks);
-ok $db_list;
+is $db_list->get_num_taxa, 4;
 
 ok my $h_list = $db_list->get_taxon(-name => 'Homo sapiens');
 ok my $h_flat = $db_flatfile->get_taxon(-name => 'Homo sapiens');

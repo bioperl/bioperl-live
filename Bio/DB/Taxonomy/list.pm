@@ -259,6 +259,22 @@ sub add_lineage {
 
 =head2 Bio::DB::Taxonomy Interface implementation
 
+=head2 get_num_taxa
+
+ Title   : get_num_taxa
+ Usage   : my $num = $db->get_num_taxa();
+ Function: Get the number of taxa stored in the database.
+ Returns : A number
+ Args    : None
+
+=cut
+
+sub get_num_taxa {
+    my ($self) = @_;
+    return $self->{db}->{node_ids} || 0;
+}
+
+
 =head2 get_taxon
 
  Title   : get_taxon

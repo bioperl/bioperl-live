@@ -91,11 +91,11 @@ use File::Spec::Functions;
 
 use constant SEPARATOR => ':';
 
-$DEFAULT_INDEX_DIR = $Bio::Root::IO::TEMPDIR; # /tmp
-$DEFAULT_NODE_INDEX = 'nodes';
+$DEFAULT_INDEX_DIR     = $Bio::Root::IO::TEMPDIR; # /tmp
+$DEFAULT_NODE_INDEX    = 'nodes';
 $DEFAULT_NAME2ID_INDEX = 'names2id';
 $DEFAULT_ID2NAME_INDEX = 'id2names';
-$DEFAULT_PARENT_INDEX = 'parents';
+$DEFAULT_PARENT_INDEX  = 'parents';
 
 $DB_BTREE->{'flags'} = R_DUP; # allow duplicate values in DB_File BTREEs
 
@@ -123,16 +123,16 @@ use base qw(Bio::DB::Taxonomy);
  Args    : -directory => name of directory where index files should be created
            -nodesfile => name of file containing nodes (nodes.dmp from NCBI)
            -namesfile => name of the file containing names(names.dmp from NCBI)
-           -force     => 1 replace current indexes even if they exist
+           -force     => 1 to replace current indexes even if they exist
 
 =cut
 
 sub new {
-  my($class,@args) = @_;
+  my($class, @args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($dir,$nodesfile,$namesfile,$force) = $self->_rearrange([qw
-          (DIRECTORY NODESFILE NAMESFILE FORCE)], @args);
+  my ($dir,$nodesfile,$namesfile,$force) =
+      $self->_rearrange([qw(DIRECTORY NODESFILE NAMESFILE FORCE)], @args);
   
   $self->index_directory($dir || $DEFAULT_INDEX_DIR);
   if ( $nodesfile ) {
@@ -145,6 +145,29 @@ sub new {
 
 
 =head2 Bio::DB::Taxonomy interface implementation
+
+=head2 get_num_taxa
+
+ Title   : get_num_taxa
+ Usage   : my $num = $db->get_num_taxa();
+ Function: Get the number of taxa stored in the database.
+ Returns : A number
+ Args    : None
+
+=cut
+
+sub get_num_taxa {
+    my ($self) = @_;
+    if (not exists $self->{_num_taxa}) {
+        my $num = 0;
+        while ( my ($parent, undef) = each %{$self->{_parent2children}} ) {
+           $num++;
+        }
+        $self->{_num_taxa} = $num;
+    }
+    return $self->{_num_taxa};
+}
+
 
 =head2 get_taxon
 
@@ -247,7 +270,7 @@ sub get_taxonids {
 =cut
 
 sub get_Children_Taxids {
-   my ($self,$node) = @_;
+   my ($self, $node) = @_;
    $self->warn("get_Children_Taxids is deprecated, use each_Descendent instead");
    my $id;
    if( ref($node) ) {
@@ -325,7 +348,7 @@ sub each_Descendent {
 
 # internal method which does the indexing
 sub _build_index {
-    my ($self,$nodesfile,$namesfile,$force) = @_;
+    my ($self, $nodesfile, $namesfile, $force) = @_;
     
     my $dir = $self->index_directory;
     my $nodeindex         = catfile($dir, $DEFAULT_NODE_INDEX);
@@ -382,7 +405,7 @@ sub _build_index {
             $self->throw("Cannot tie to file '$name2idindex': $!");
         
         while (<NAMES>) {
-            chomp;	    
+            chomp; 
             my ($taxid, $name, $unique_name, $class) = split(/\t\|\t/,$_);
             # don't include the fake root node 'root' or 'all' with id 1
             next if $taxid == 1;
@@ -470,6 +493,7 @@ sub _db_connect {
     $self->{'_parentbtree'} = tie( %{$self->{'_parent2children'}},
                                    'DB_File', $parent2childindex, 
                                    O_RDWR, 0644, $DB_BTREE);
+
     $self->{'_initialized'} = 1;
 }
 
