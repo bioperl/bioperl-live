@@ -640,8 +640,8 @@ sub _build_url {
     # Given a eutility (esearch.fcgi, efetch.fcgi or esummary.fcgi) and a
     # hashref or parameters, build a url suitable for eutil query
     my ($self, $eutility, $p) = @_;
-    my $params = join($UrlParamSeparatorValue, map { "$_=".$p->{$_} } keys %$p);
-    my $url = sprintf("%s%s?%s",$self->entrez_url,$EntrezGet,$params);
+    my $params = join($UrlParamSeparatorValue, map { $_.'='.$p->{$_} } keys %$p);
+    my $url = $self->entrez_url.$eutility.'?'.$params;
     $self->debug("url is $url\n");
     return $url;
 }
