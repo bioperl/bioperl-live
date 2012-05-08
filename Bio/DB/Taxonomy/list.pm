@@ -23,8 +23,9 @@ that accepts lists of words to build a database
 
   my @names = ('Eukaryota', 'Mammalia', 'Homo', 'Homo sapiens');
   my @ranks = qw(superkingdom class genus species);
-  my $db = Bio::DB::Taxonomy->new(-source => 'list', -names => \@names,
-                                                     -ranks => \@ranks);
+  my $db = Bio::DB::Taxonomy->new( -source => 'list',
+                                   -names  => \@names,
+                                   -ranks  => \@ranks);
 
   @names = ('Eukaryota', 'Mammalia', 'Mus', 'Mus musculus');
   $db->add_lineage(-names => \@names, -ranks => \@ranks);
@@ -108,8 +109,10 @@ our $prefix = 'list';
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    $self->{db} = {};
-    $self->add_lineage(@args) if @args;
+    my %args = @args;
+    delete $args{'-source'};
+
+    $self->add_lineage(%args) if %args;
     
     return $self;
 }
@@ -160,11 +163,10 @@ sub add_lineage {
     # and do a reasonable one. So, let's just do the trivial implementation now
     # and see how bad it is! (assumes ranks are unique except for 'no rank')
     
-    my $db = $self->{db};
-    my $ancestors  = $db->{ancestors};
-    my $node_data  = $db->{node_data};
-    my $name_to_id = $db->{name_to_id};
-    my $children   = $db->{children};
+    my $ancestors  = $self->{ancestors};
+    my $node_data  = $self->{node_data};
+    my $name_to_id = $self->{name_to_id};
+    my $children   = $self->{children};
 
     my $my_ancestor_id = '';
     my @node_ids;
@@ -226,10 +228,10 @@ sub add_lineage {
         if (not defined $node_id) {
             # This is a new node. Add it to the database, using the prefix 'list'
             # for its ID to distinguish it from the IDs from other taxonomies.
-            my $next_num = ++$db->{node_ids};
+            my $next_num = ++$self->{node_ids};
             $node_id = $prefix.$next_num;
-            push @{$db->{name_to_id}->{$name}}, $node_id;
-            $db->{node_data}->{$node_id} = [$name];
+            push @{$self->{name_to_id}->{$name}}, $node_id;
+            $self->{node_data}->{$node_id} = [$name];
         }
 
         if ( (defined $rank) && (not defined $node_data->{$node_id}->[1]) ) {
@@ -238,12 +240,12 @@ sub add_lineage {
         }
 
         if ($my_ancestor_id) {
-            if ($db->{ancestors}->{$node_id} && $db->{ancestors}->{$node_id} ne $my_ancestor_id) {
+            if ($self->{ancestors}->{$node_id} && $self->{ancestors}->{$node_id} ne $my_ancestor_id) {
                 $self->throw("The lineage '".join(', ', @$names)."' and a ".
                     "previously stored lineage share a node name but have ".
                     "different ancestries for that node. Can't cope!");
             }
-            $db->{ancestors}->{$node_id} = $my_ancestor_id;
+            $self->{ancestors}->{$node_id} = $my_ancestor_id;
         }
         
         $my_ancestor_id = $node_id;
@@ -252,7 +254,7 @@ sub add_lineage {
     
     # Go through the lineage in reverse so we can remember the children
     for (my $i = $names_idx - 1; $i >= 0; $i--) {
-        $db->{children}->{$node_ids[$i]}->{$node_ids[$i+1]} = undef;
+        $self->{children}->{$node_ids[$i]}->{$node_ids[$i+1]} = undef;
     }
 }
 
@@ -271,7 +273,7 @@ sub add_lineage {
 
 sub get_num_taxa {
     my ($self) = @_;
-    return $self->{db}->{node_ids} || 0;
+    return $self->{node_ids} || 0;
 }
 
 
@@ -306,7 +308,7 @@ sub get_taxon {
     }
     
     my $taxon;
-    my $node = $self->{db}->{node_data}->{$taxonid};
+    my $node = $self->{node_data}->{$taxonid};
     if ($node) {
         my ($sci_name, $rank) = @$node;
         $taxon = Bio::Taxon->new(
@@ -345,7 +347,7 @@ sub get_taxon {
 
 sub get_taxonids {
     my ($self, $name) = @_;
-    return @{$self->{db}->{name_to_id}->{$name} || []};
+    return @{$self->{name_to_id}->{$name} || []};
 }
 
 *get_taxonid = \&get_taxonids;
@@ -370,7 +372,7 @@ sub ancestor {
         unless $taxon->db_handle && $taxon->db_handle eq $self;
     my $id = $taxon->id || $self->throw("The supplied Taxon is missing its id!");
     
-    my $ancestor_id = $self->{db}->{ancestors}->{$id} || return;
+    my $ancestor_id = $self->{ancestors}->{$id} || return;
     return $self->get_taxon($ancestor_id);
 }
 
@@ -394,7 +396,7 @@ sub each_Descendent {
     my $id = $taxon->id || $self->throw("The supplied Taxon is missing its id!");
     
     my @children;
-    while ( my ($child_id, undef) = each %{$self->{db}->{children}->{$id}} ) {
+    while ( my ($child_id, undef) = each %{$self->{children}->{$id}} ) {
         push @children, ($self->get_taxon($child_id) || next);
     }
     

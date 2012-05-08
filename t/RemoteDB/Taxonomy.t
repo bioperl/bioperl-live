@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 122,
+    test_begin(-tests => 129,
         -requires_module => 'XML::Twig');
 
     use_ok('Bio::DB::Taxonomy');
@@ -20,12 +20,16 @@ my $temp_dir = test_output_dir();
 # Bio::Taxonomy
 
 ok my $db_entrez = Bio::DB::Taxonomy->new(-source => 'entrez');
+isa_ok $db_entrez, 'Bio::DB::Taxonomy::entrez';
+isa_ok $db_entrez, 'Bio::DB::Taxonomy';
 
 ok my $db_flatfile = Bio::DB::Taxonomy->new(
     -source    => 'flatfile',
     -nodesfile => test_input_file('taxdump', 'nodes.dmp'),
     -namesfile => test_input_file('taxdump','names.dmp'),
 );
+isa_ok $db_flatfile, 'Bio::DB::Taxonomy::flatfile';
+isa_ok $db_flatfile, 'Bio::DB::Taxonomy';
 
 ok $db_flatfile = Bio::DB::Taxonomy->new(
     -source    => 'flatfile',
@@ -150,11 +154,20 @@ for my $db ($db_entrez, $db_flatfile) {
     }
 }
 
+
 # Test the list database
+
+ok my $db_list = Bio::DB::Taxonomy->new(-source => 'list');
+isa_ok $db_list, 'Bio::DB::Taxonomy::list';
+isa_ok $db_list, 'Bio::DB::Taxonomy';
+
 my @ranks = qw(superkingdom class genus species);
 my @h_lineage = ('Eukaryota', 'Mammalia', 'Homo', 'Homo sapiens');
-ok my $db_list = Bio::DB::Taxonomy->new(-source => 'list', -names => \@h_lineage,
-                                                        -ranks => \@ranks);
+ok $db_list = Bio::DB::Taxonomy->new(
+    -source => 'list',
+    -names  => \@h_lineage,
+    -ranks  => \@ranks,
+);
 is $db_list->get_num_taxa, 4;
 
 ok my $h_list = $db_list->get_taxon(-name => 'Homo sapiens');
