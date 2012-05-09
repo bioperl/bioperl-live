@@ -88,6 +88,10 @@ is(length($db->seq('CEESC13F')), 389);
 is($db->subseq('CEESC39F', 51, 60), 'acatatganc', 'subseq is correct');
 is($db->subseq('CEESC13F', 146, 155), 'ggctctccct', 'subseq is correct');
 
+# Remove temporary test file
+my $outfile = test_input_file('spaced_fasta.fa').'.index';
+unlink $outfile;
+
 exit;
 
 }
