@@ -42,7 +42,7 @@ or Fungi gets grouped into the general superkingdom Eukaryota. for
 simplicity.  There are comments in the code directing you to where
 changes can be made if you wanted to display hits by phylum for
 example.  Note that you must wipe out the cache file 'gi2class' that
-is craeed in your directory after making these changes.
+is created in your directory after making these changes.
 
 =head2 AUTHOR
 
@@ -68,16 +68,15 @@ my $prefix = File::Spec->catfile($HOME,'taxonomy');
 my $gi2taxidfile = "$prefix/gi_taxid_prot.dmp.gz";
 my $force = 0; # don't use the cached gi2taxid file
 GetOptions(
-	   'v|verbose|debug' => \$DEBUG,
-	   'force!'          => \$force,
-	   'z|zcat:s'    => \$zcat,
-	   'i|in:s'      => \@files,
-	   'e|evalue:f'  => \$evalue_filter,
-	   't|taxonomy:s'=> \$prefix,
-	   'g|gi|gi2taxid:s' => \$gi2taxidfile,
-	   'h|help'      => sub { system('perldoc', $0);
-				  exit },
-	   );
+       'v|verbose|debug' => \$DEBUG,
+       'force!'          => \$force,
+       'z|zcat:s'        => \$zcat,
+       'i|in:s'          => \@files,
+       'e|evalue:f'      => \$evalue_filter,
+       't|taxonomy:s'    => \$prefix,
+       'g|gi|gi2taxid:s' => \$gi2taxidfile,
+       'h|help'          => sub { system('perldoc', $0); exit },
+       );
 
 # insure idx location is created
 mkdir(File::Spec->catfile($prefix,'idx')) 
@@ -98,30 +97,30 @@ my $dbh = tie(%gi2node, 'DB_File', 'gi2class');
 my $giidxfile = File::Spec->catfile($prefix,'idx','gi2taxid');
 my $done = -e $giidxfile;
 $done = 0 if $force;
-my $dbh2 = my $dbh = DBI->connect("dbi:SQLite:dbname=$giidxfile","","");
+my $dbh2 = $dbh = DBI->connect("dbi:SQLite:dbname=$giidxfile","","");
 if( ! $done ) {
-   $dbh2->do("CREATE TABLE gi2taxid ( gi integer PRIMARY KEY,
-				      taxid integer NOT NULL)");
-   $dbh2->{AutoCommit} = 0;
+    $dbh2->do("CREATE TABLE gi2taxid ( gi integer PRIMARY KEY,
+                      taxid integer NOT NULL)");
+    $dbh2->{AutoCommit} = 0;
     my $fh;
     # this file came from ftp://ftp.ncbi.nih.gov/pub/taxonomy
     # I'm interested in protein hits therefor _prot file.
     if( $gi2taxidfile =~ /\.gz$/ ) {
-	open($fh, "$zcat $gi2taxidfile |" ) || die "$zcat $gi2taxidfile: $!";
+        open($fh, "$zcat $gi2taxidfile |" ) || die "$zcat $gi2taxidfile: $!";
     } else {
-	open($fh, $gi2taxidfile ) || die $!;
+        open($fh, $gi2taxidfile ) || die $!;
     }
     my $i = 0;
-   my $sth = $dbh2->prepare("INSERT INTO gi2taxid (gi,taxid) VALUES (?,?)");
+    my $sth = $dbh2->prepare("INSERT INTO gi2taxid (gi,taxid) VALUES (?,?)");
 
     while(<$fh>) {
-	my ($gi,$taxid) = split;
-	$sth->execute($gi,$taxid);
-	$i++;
-	if( $i % 500000 == 0 ) {
-		$dbh->commit;
-		warn("$i\n") if $DEBUG;
-	} 
+        my ($gi,$taxid) = split;
+        $sth->execute($gi,$taxid);
+        $i++;
+        if( $i % 500000 == 0 ) {
+            $dbh->commit;
+            warn("$i\n") if $DEBUG;
+        } 
     }
     $dbh->commit;
     $sth->finish;
@@ -131,76 +130,76 @@ for my $file ( @files ) {
     warn("$file\n");
     my $gz;
     if( $file =~ /\.gz$/) {
-	$gz = 1;
+        $gz = 1;
     }
     my ($spname) = split(/\./,$file); 
     my ($fh,$i);
     if( $gz ) {
-	open($fh, "$zcat $file |")  || die "$zcat $file: $!";
+        open($fh, "$zcat $file |")  || die "$zcat $file: $!";
     } else {
-	open($fh, $file) || die "$file: $!";
+        open($fh, $file) || die "$file: $!";
     }
     my $sth = $dbh->prepare("SELECT taxid from gi2taxid WHERE gi=?");
     while(<$fh>) {
         next if /^\#/;
-	my ($qname,$hname,$pid,$qaln,$mismatch,$gaps,
-	    $qstart,$qend,$hstart,$hend,
-	    $evalue,$bits,$score) = split(/\t/,$_);	
-	next if( $evalue > $evalue_filter );
-	if( ! exists $query{$spname}->{$qname} ) {
-	    $query{$spname}->{$qname} = {};
-	}
-	
-	if( $hname =~ /gi\|(\d+)/) {		
-	    my $gi = $1;	    
-	    if( ! $gi2node{$gi} ){ # see if we cached the results from before
-		$sth->execute($gi);
-		my $taxid;
-		$sth->bind_columns(\$taxid);
-		if( ! $sth->fetch ) {
-		    warn("no taxid for $gi\n");
-		    next;
-		}
-		my $node = $taxdb->get_Taxonomy_Node($taxid);
-		if( ! $node ) {
-		    warn("cannot find node for gi=$gi ($hname) (taxid=$taxid)\n");
-		    next;
-		}
-		my $parent = $taxdb->get_Taxonomy_Node($node->parent_id);
+        my ($qname,$hname,$pid,$qaln,$mismatch,$gaps,
+            $qstart,$qend,$hstart,$hend,
+            $evalue,$bits,$score) = split(/\t/,$_);        
+        next if( $evalue > $evalue_filter );
+        if( ! exists $query{$spname}->{$qname} ) {
+            $query{$spname}->{$qname} = {};
+        }
+        
+        if( $hname =~ /gi\|(\d+)/) {
+            my $gi = $1;
+            if( ! $gi2node{$gi} ){ # see if we cached the results from before
+                $sth->execute($gi);
+                my $taxid;
+                $sth->bind_columns(\$taxid);
+                if( ! $sth->fetch ) {
+                    warn("no taxid for $gi\n");
+                    next;
+                }
+                my $node = $taxdb->get_Taxonomy_Node($taxid);
+                if( ! $node ) {
+                    warn("cannot find node for gi=$gi ($hname) (taxid=$taxid)\n");
+                    next;
+                }
+                my $parent = $taxdb->get_Taxonomy_Node($node->parent_id);
 
-		# THIS IS WHERE THE KINGDOM DECISION IS MADE
-		# DON'T FORGET TO WIPE OUT YOUR CACHE FILE
-		# gi2class after you make changes here
-		while( defined $parent && $parent->node_name ne 'root' ) { 
-		    # this is walking up the taxonomy hierarchy
-		    # can be a little slow, but works...
-		    #warn( "\t",$parent->rank, " ", $parent->node_name, "\n");
-		    # deal with Eubacteria, Archea separate from 
-		    # Metazoa, Fungi, Viriplantae differently
-		    # (everything else Eukaryotic goes in Eukaryota)
-		    if( $parent->rank eq 'kingdom') {
-			# caching in ... 
-			($gi2node{$gi}) = $parent->node_name;
-			last;
-		    } elsif( $parent->rank eq 'superkingdom' ) {
-			# caching in ... 
-			($gi2node{$gi}) = $parent->node_name;
-			$gi2node{$gi} =~ s/ \<(bacteria|archaea)\>//g;
-			last;
-		    }
-		    $parent = $taxdb->get_Taxonomy_Node($parent->parent_id);
-		}		
-	    } 
-	    my ($kingdom) = $gi2node{$gi};
-#		warn("$gi2node{$gi}\n");
-	    unless( defined $kingdom && length($kingdom) ) {
-#		    warn("no kingdom for $hname\n");
-	    } else {
-		$query{$spname}->{$qname}->{$kingdom}++;		
-	    }	
-	} else {
-	    warn("no GI in $hname\n");
-	}
+                # THIS IS WHERE THE KINGDOM DECISION IS MADE
+                # DON'T FORGET TO WIPE OUT YOUR CACHE FILE
+                # gi2class after you make changes here
+                while( defined $parent && $parent->node_name ne 'root' ) { 
+                    # this is walking up the taxonomy hierarchy
+                    # can be a little slow, but works...
+                    #warn( "\t",$parent->rank, " ", $parent->node_name, "\n");
+                    # deal with Eubacteria, Archea separate from 
+                    # Metazoa, Fungi, Viriplantae differently
+                    # (everything else Eukaryotic goes in Eukaryota)
+                    if( $parent->rank eq 'kingdom') {
+                        # caching in ... 
+                        ($gi2node{$gi}) = $parent->node_name;
+                        last;
+                    } elsif( $parent->rank eq 'superkingdom' ) {
+                        # caching in ... 
+                        ($gi2node{$gi}) = $parent->node_name;
+                        $gi2node{$gi} =~ s/ \<(bacteria|archaea)\>//g;
+                        last;
+                    }
+                    $parent = $taxdb->get_Taxonomy_Node($parent->parent_id);
+                }
+            } 
+            my ($kingdom) = $gi2node{$gi};
+            #warn("$gi2node{$gi}\n");
+            unless( defined $kingdom && length($kingdom) ) {
+                #warn("no kingdom for $hname\n");
+            } else {
+                $query{$spname}->{$qname}->{$kingdom}++;
+            }
+        } else {
+            warn("no GI in $hname\n");
+        }
     }
     last if ( $DEBUG && $i++ > 10000);
     $sth->finish;
@@ -212,12 +211,12 @@ while( my ($sp,$d) = each %query ) {
     print "$sp total=$total\n";
     my %seen;
     for my $v ( values %$d ) {
-	my $tag = join(",",sort keys %$v );
-	$seen{$tag}++;
+        my $tag = join(",",sort keys %$v );
+        $seen{$tag}++;
     }
     for my $t ( sort { $seen{$a} <=> $seen{$b} } keys %seen ) {
-	printf " %-20s\t%d\t%.2f%%\n",
-	$t,$seen{$t}, 100 * $seen{$t} / $total;
+        printf " %-20s\t%d\t%.2f%%\n",
+        $t,$seen{$t}, 100 * $seen{$t} / $total;
     }
     print "\n\n";
 }
