@@ -102,10 +102,13 @@ if( ! $done ) {
     my $fh;
     # this file came from ftp://ftp.ncbi.nih.gov/pub/taxonomy
     # I'm interested in protein hits therefor _prot file.
+    if (not -f $gi2taxidfile) {
+        die "Error: File $gi2taxidfile does not exist\n";
+    }
     if( $gi2taxidfile =~ /\.gz$/ ) {
         open($fh, "$zcat $gi2taxidfile |" ) || die "$zcat $gi2taxidfile: $!";
     } else {
-        open($fh, $gi2taxidfile ) || die $!;
+        open($fh, $gi2taxidfile ) || die "Error: could not read file $gi2taxidfile: $!";
     }
     my $i = 0;
     my $sth = $dbh2->prepare("INSERT INTO gi2taxid (gi,taxid) VALUES (?,?)");
