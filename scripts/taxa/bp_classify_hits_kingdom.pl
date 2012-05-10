@@ -13,36 +13,33 @@ bp_classify_hits_kingdom [-i tab_file] [-i second_BLAST_file] [-e evalue_cutoff]
 =head2 DESCRIPTION
 
 Will print out the taxonomic distribution (at the kingdom level) for a
-set of hits against the NR database.  This script assumes you've done
-a search against the protein database, you'll have to make minor
-changes in the gi_taxid part to point to the gi_taxid_nuc.dump file.
+set of hits against the NR database.  By default, this script assumes you
+did a search against the protein database (gi_taxid_nuc.dump file).
 
 This expects BLAST files in tabbed -m9 or -m8 format.  Output with -m
 8 or use blast2table.pl to convert (or fastam9_to_table.PLS if using
 FASTA).
 
   Input values:
-   -t/--taxonomy  directory where the taxonomy .dmp files are (from NCBI)
-   -g/--gi        Location of gi_taxid_prot.dmp (or gi_taxid_nucl.dmp if 
-                  the search was against a NT db)
-   -i/--in        The name of the tab delimited -m8/-m9 output files to 
-                  process.
-
+    -t/--taxonomy Directory where the taxonomy .dmp files are (from NCBI)
+    -g/--gi       File path of the gi2taxid file (gi_taxid_prot.dmp for proteins
+                  or gi_taxid_nucl.dmp if the search was against a nucleid database)
+    -i/--in       The name of the tab delimited -m8/-m9 output files to process
     -e/--evalue   Provide an E-value cutoff for hits to be considered
     -z/--zcat     Path to the 'zcat' executable, can also be 'gunzip -c'
                   if no zcat on your system.
-   Flags
+  Flags:
     -v/--verbose  To turn on verbose messages
     -h/--help     Display this helpful information
 
 This is intended to be useful starting script, but users may want to
-customize the output and parameters.  Note that I am summarizing the
-kingdoms here and Eukaryota not falling into Metazoa, Viridiplantae,
-or Fungi gets grouped into the general superkingdom Eukaryota. for
-simplicity.  There are comments in the code directing you to where
-changes can be made if you wanted to display hits by phylum for
-example.  Note that you must wipe out the cache file 'gi2class' that
-is created in your directory after making these changes.
+customize the output and parameters. Note that I am summarizing the
+kingdoms here and Eukaryota not falling into Metazoa, Viridiplantae, or
+Fungi gets grouped into the general superkingdom Eukaryota for simplicity.
+There are comments in the code directing you to where changes can be made
+if you wanted to display hits by phylum for example.  Note that you must
+wipe out the cache file 'gi2class' that is created in your directory after
+making these changes.
 
 =head2 AUTHOR
 
@@ -95,7 +92,7 @@ my %query;
 my (%taxid4gi,%gi2node);
 my $dbh = tie(%gi2node, 'DB_File', 'gi2class');
 my $giidxfile = File::Spec->catfile($prefix,'idx','gi2taxid');
-my $done = -e $giidxfile;
+my $done = -f $giidxfile;
 $done = 0 if $force;
 my $dbh2 = $dbh = DBI->connect("dbi:SQLite:dbname=$giidxfile","","");
 if( ! $done ) {
