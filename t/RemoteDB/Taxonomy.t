@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 129,
+    test_begin(-tests => 138,
         -requires_module => 'XML::Twig');
 
     use_ok('Bio::DB::Taxonomy');
@@ -311,4 +311,17 @@ $db_list->add_lineage( -names => ['Bacteria'] );
 @taxonids = $db_list->get_taxonids('Bacteria');
 is scalar @taxonids, 1;
 
+# Disambiguate between taxa with same name using -names
+ok $db_list = Bio::DB::Taxonomy->new( -source => 'list' ), 'DB with ambiguous names';
+ok $db_list->add_lineage( -names => ['c__Gammaproteobacteria', 'o__Oceanospirillales', 'f__Alteromonadaceae', 'g__Spongiibacter'] );
+ok $db_list->add_lineage( -names => ['c__Gammaproteobacteria', 'o__Alteromonadales'  , 'f__Alteromonadaceae', 'g__Alteromonas'  ] );
+
+ok @taxonids = $db_list->get_taxonids('f__Alteromonadaceae');
+is scalar @taxonids, 2; # multiple taxa would match using $db_list->get_taxon(-name => 'f__Alteromonadaceae')
+
+ok $node = $db_list->get_taxon( -names => ['c__Gammaproteobacteria', 'o__Alteromonadales'  , 'f__Alteromonadaceae'] );
+is $node->ancestor->node_name, 'o__Alteromonadales';
+
+ok $node = $db_list->get_taxon( -names => ['c__Gammaproteobacteria', 'o__Oceanospirillales'  , 'f__Alteromonadaceae'] );
+is $node->ancestor->node_name, 'o__Oceanospirillales';
 

@@ -21,11 +21,11 @@ that accepts lists of words to build a database
 
   use Bio::DB::Taxonomy;
 
+  my $db = Bio::DB::Taxonomy->new( -source => 'list' );
+
+  my @ranks = ('superkingdom', 'class', 'genus', 'species');
   my @names = ('Eukaryota', 'Mammalia', 'Homo', 'Homo sapiens');
-  my @ranks = qw(superkingdom class genus species);
-  my $db = Bio::DB::Taxonomy->new( -source => 'list',
-                                   -names  => \@names,
-                                   -ranks  => \@ranks);
+  $db->add_lineage(-names => \@names, -ranks => \@ranks);
 
   @names = ('Eukaryota', 'Mammalia', 'Mus', 'Mus musculus');
   $db->add_lineage(-names => \@names, -ranks => \@ranks);
@@ -121,12 +121,14 @@ sub new {
 =head2 add_lineage
 
  Title   : add_lineage
- Usage   : $db->add_lineage(-names => \@names)
+ Usage   : my @names = ('Eukaryota', 'Mammalia', 'Homo', 'Homo sapiens');
+           my @ranks = ('superkingdom', 'class', 'genus', 'species');
+           $db->add_lineage( -names => \@names, -ranks => \@ranks );
  Function: Add a lineage to the database, where the lineage is described by
            a list of scientific names in the order root->leaf. The rank of each
            name can optionally be described by supplying an additional list
            of rank names in the same order (eg. superkingdom->species).
- Returns : n/a
+ Returns : 1 for success
  Args    : -names => [] : array ref of scientific names, REQUIRED
            -ranks => [] : array ref of rank names, same order as above, OPTIONAL
 
@@ -256,6 +258,7 @@ sub add_lineage {
     for (my $i = $names_idx - 1; $i >= 0; $i--) {
         $self->{children}->{$node_ids[$i]}->{$node_ids[$i+1]} = undef;
     }
+    return 1;
 }
 
 
@@ -283,12 +286,21 @@ sub get_num_taxa {
  Usage   : my $taxon = $db->get_taxon(-taxonid => $taxonid)
  Function: Get a Bio::Taxon object from the database.
  Returns : Bio::Taxon object
- Args    : just a single value which is the database id, OR named args:
-           -taxonid => taxonomy id (to query by taxonid; NB: these are not
-                       NCBI taxonomy ids but 'list' pre-fixed ids unique to the
-                       list database)
-            OR
-           -name    => string (to query by a taxonomy name)
+ Args    : A single value which is the ID of the taxon to retrieve
+             OR named args, as follows:
+           -taxonid => Taxonomy ID (NB: these are not NCBI taxonomy ids but
+                       'list' pre-fixed ids unique to the list database).
+             OR
+           -name    => String (to query by a taxonomy name). A given taxon name
+                       can match different taxonomy objects. When that is the
+                       case, a warning is displayed and the first matching taxon
+                       is reported. See get_taxonids() to get all matching taxon
+                       IDs.
+             OR
+           -names   => Array ref of lineage names, like in add_lineage(). To
+                       overcome the limitations of -name, you can use -names to
+                       provide the full lineage of the taxon you want and get a
+                       unique, unambiguous taxon object.
 
 =cut
 
@@ -297,16 +309,56 @@ sub get_taxon {
 
     my $taxonid;
     if (scalar @args == 1) {
+        # Argument is a taxon ID
         $taxonid = $args[0];
     } else {
-        ($taxonid, my $name) = $self->_rearrange([qw(TAXONID NAME)], @args);
+        # Got named arguments
+        my ($name, $names);
+        ($taxonid, $name, $names) = $self->_rearrange([qw(TAXONID NAME NAMES)], @args);
         if ($name) {
-            ($taxonid, my @others) = $self->get_taxonids($name);
-            $self->warn("There were multiple ids ($taxonid @others) matching ".
-                "'$name', using '$taxonid'") if scalar @others > 0;
+            $names = [$name];
+        }
+        if ($names) {
+            $name = $names->[-1];
+
+            my @taxonids = $self->get_taxonids($name);
+            $taxonid = $taxonids[0];
+
+            # Use provided lineage to find correct ID amongst several matching IDs
+            if ( (scalar @taxonids > 1) && (scalar @$names > 1) ) {
+                for my $query_taxonid (@taxonids) {
+                    my $matched = 1;
+                    my $db_ancestor = $self->get_taxon($query_taxonid);
+                    for (my $i = $#$names-1; $i >= 0; $i--) {
+                        my $query_ancestor_name = $names->[$i];
+                        $db_ancestor = $db_ancestor->ancestor;
+                        my $db_ancestor_name = '';
+                        if ($db_ancestor) {
+                            $db_ancestor_name = $db_ancestor->node_name;
+                        }
+                        if (not ($query_ancestor_name eq $db_ancestor_name) ) {
+                            $matched = 0;
+                            last; # done testing this taxonid
+                        }
+                    }
+                    if ($matched == 1) {
+                       @taxonids = [$query_taxonid];
+                       $taxonid  =  $query_taxonid;
+                       last; # done testing all taxonids
+                    }
+                }
+            }
+
+            # Warn if several taxon IDs matched
+            if (scalar @taxonids > 1) {
+                $self->warn("There were multiple ids (@taxonids) matching '$name',".
+                    " using '$taxonid'") if scalar @taxonids > 1;
+            }
+
         }
     }
     
+    # Now that we have the taxon ID, retrieve the corresponding Taxon object
     my $taxon;
     my $node = $self->{node_data}->{$taxonid};
     if ($node) {
