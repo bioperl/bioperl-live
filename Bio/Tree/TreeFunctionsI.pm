@@ -1123,21 +1123,21 @@ sub move_id_to_bootstrap{
 
 =head2 add_trait
 
-  Example    : $key = $tree->add_trait($trait_file, 3);
-  Description: Add traits to a Bio::Tree:Tree nodes
-               of a tree from a file.
-  Returns    : trait name
-  Exceptions : log an error if a node has no value in the file
-  Args       : name of trait file (scalar string), 
-               index of trait file column (scalar int)
-  Caller     : main()
-
-The trait file is a tab-delimited text file and needs to have a header
-line giving names to traits. The first column contains the leaf node
-ids. Subsequent columns contain different trait value sets. Columns
-numbering starts from 0. The default trait column is the second
-(1). The returned hashref has one special key, my_trait_name, that
-holds the trait name. Single or double quotes are removed.
+ Title   : add_trait
+ Usage   : my $key = $tree->add_trait($trait_file, 3);
+ Function: Add traits to the leaf nodes of a Bio::Tree:Tree from a file.
+           The trait file is a tab-delimited text file and needs to have a
+           header line giving names to traits. The first column contains the
+           leaf node ids. Subsequent columns contain different trait value sets.
+           Single or double quotes are removed from the trait values. Traits
+           are added to leaf nodes as a tag named $key using the add_tag_value()
+           method. This means that you can retrieve the trait values using the
+           get_tag_values() method (see the documentation for Bio::Tree::Node).
+           If a leaf node has no value in the trait file, an exception is thrown.
+ Returns : Trait name (a scalar)
+ Args    : Name of trait file (scalar string)
+           Index of trait file column (scalar int). Note that numbering starts
+               at 0. Default: 1 (second column)
 
 =cut
 
@@ -1147,7 +1147,7 @@ sub _read_trait_file {
     my $column = shift || 1;
 
     my $traits;
-    open my $TRAIT, "<", $file or $self->("Can't find file $file: $!\n");
+    open my $TRAIT, "<", $file or $self->("Could not open file $file: $!\n");
 
     my $first_line = 1;
     while (<$TRAIT>) {
@@ -1163,6 +1163,8 @@ sub _read_trait_file {
         last unless $line[0];
         $traits->{$line[0]} = $line[$column];
     }
+
+    close $TRAIT;
     return $traits;
 }
 
@@ -1173,7 +1175,6 @@ sub add_trait {
 
     my $traits = $self->_read_trait_file($file, $column); # filename, trait column
     my $key = $traits->{'my_trait_name'};
-    #use YAML; print Dump $traits; exit;
     foreach my $node ($self->get_leaf_nodes) {
         # strip quotes from the node id
         $node->id($1) if $node->id =~ /^['"]+(.*)['"]+$/;
@@ -1181,8 +1182,7 @@ sub add_trait {
             $node->verbose(2);
             $node->add_tag_value($key, $traits->{ $node->id } );
         };
-        $self->throw("ERROR: No trait for node [".
-                     $node->id. "/".  $node->internal_id. "]")
+        $self->throw("No trait for node [".$node->id."/".$node->internal_id."]")
             if $@;
     }
     return $key;
