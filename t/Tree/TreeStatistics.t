@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 41);
+    test_begin(-tests => 42);
 
     use_ok('Bio::TreeIO');
     use_ok('Bio::Tree::Statistics');
@@ -28,6 +28,9 @@ is $stats->cherries($tree, $node), 4, 'cherries';
 # traits
 my $key = $tree->add_trait(test_input_file('traits.tab'), 4);
 is $key, undef, 'read traits'; # exceeded column number
+
+$key = $tree->add_trait(test_input_file('traits.tab'), 2, 1);
+is $key, 'disp'; # one leaf has a missing trait value, but ignore it
 
 $key = $tree->add_trait(test_input_file('traits.tab'), 3);
 is $key, 'intermediate';

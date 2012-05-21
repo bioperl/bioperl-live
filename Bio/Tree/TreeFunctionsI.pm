@@ -1133,12 +1133,14 @@ sub move_id_to_bootstrap{
            are added to leaf nodes as a tag named $key using the add_tag_value()
            method. This means that you can retrieve the trait values using the
            get_tag_values() method (see the documentation for Bio::Tree::Node).
-           If a leaf node has no value in the trait file, an exception is thrown.
  Returns : Trait name (a scalar) on success, undef on failure (for example, if
            the column index requested was too large).
- Args    : Name of trait file (scalar string)
-           Index of trait file column (scalar int). Note that numbering starts
-           at 0. Default: 1 (second column)
+ Args    : * Name of trait file (scalar string).
+           * Index of trait file column (scalar int). Note that numbering starts
+             at 0. Default: 1 (second column).
+           * Ignore missing values. Typically, if a leaf node has no value in
+             the trait file, an exception is thrown. If you set this option to
+             1, then no trait will be given to the node (no exception thrown).
 
 =cut
 
@@ -1148,32 +1150,32 @@ sub _read_trait_file {
     my $column = shift || 1;
 
     my $trait_name;
-    my $traits;
+    my $trait_values;
     open my $TRAIT, "<", $file or $self->("Could not open file $file: $!\n");
 
     my $first_line = 1;
     while (<$TRAIT>) {
+        chomp;
         s/['"]//g;
-        my @line = split;
+        my @line = split /\t/;
         if ($first_line) {
             $first_line = 0;
             $trait_name = $line[$column];
             next;
         }
         last unless $line[0];
-        $traits->{$line[0]} = $line[$column];
+        $trait_values->{$line[0]} = $line[$column];
     }
 
     close $TRAIT;
-    return $trait_name, $traits;
+    return $trait_name, $trait_values;
 }
 
 sub add_trait {
-    my $self = shift;
-    my $file = shift;
-    my $column = shift;
+    my ($self, $file, $column, $ignore) = @_;
+    $ignore = 0 if not defined $ignore;
 
-    my ($trait_name, $traits) = $self->_read_trait_file($file, $column);
+    my ($trait_name, $trait_values) = $self->_read_trait_file($file, $column);
 
     if (defined $trait_name) {
         for my $node ($self->get_leaf_nodes) {
@@ -1181,10 +1183,11 @@ sub add_trait {
             $node->id($1) if $node->id =~ /^['"]+(.*)['"]+$/;
             eval {
                 $node->verbose(2);
-                $node->add_tag_value($trait_name, $traits->{ $node->id } );
+                $node->add_tag_value($trait_name, $trait_values->{ $node->id } );
             };
-            $self->throw("No trait for node [".$node->id."/".$node->internal_id."]")
-               if $@;
+            if ($@ && (not $ignore)) {
+                $self->throw("No trait for node [".$node->id."/".$node->internal_id."]")
+            }
         }
     }
     return $trait_name;
