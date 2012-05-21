@@ -25,8 +25,7 @@ This should be where Tree statistics are calculated.  It was
 previously where statistics from a Coalescent simulation.
 
 It now contains several methods for calculating L<Tree-Trait
-statistics>.
-
+statistics>. 
 
 =head1 FEEDBACK
 
@@ -91,10 +90,6 @@ use base qw(Bio::Root::Root);
  Returns : Bio::Tree::Statistics
  Args    :
 
-
-=cut
-
-
 =head2 assess_bootstrap
 
  Title   : assess_bootstrap
@@ -102,7 +97,6 @@ use base qw(Bio::Root::Root);
  Function: Calculates the bootstrap for internal nodes based on
  Returns : L<Bio::Tree::TreeI>
  Args    : Arrayref of L<Bio::Tree::TreeI>s
-
 
 =cut
 
@@ -122,27 +116,26 @@ sub assess_bootstrap{
        my @allnodes = $tree->get_nodes;
        my @internalnodes = grep { ! $_->is_Leaf } @allnodes;
        for my $node ( @internalnodes ) {
-	   my @tips = sort map { $_->id } 
-	              grep { $_->is_Leaf() } $node->get_all_Descendents;
-	   my $id = "(".join(",", @tips).")";
-	   if( $i == 0 ) {
-	       $internal{$id} = $node->internal_id;
-	   } else { 
-	       $lookup{$id}++;
-	   }
+           my @tips = sort map { $_->id } 
+                      grep { $_->is_Leaf() } $node->get_all_Descendents;
+           my $id = "(".join(",", @tips).")";
+           if( $i == 0 ) {
+               $internal{$id} = $node->internal_id;
+           } else { 
+               $lookup{$id}++;
+           }
        }
        $i++;
    }
    my @save;
    for my $l ( keys %lookup ) {
        if( defined $internal{$l} ) {#&& $lookup{$l} > $min_seen ) {
-	   my $intnode = $guide_tree->find_node(-internal_id => $internal{$l});
-	   $intnode->bootstrap(sprintf("%d",100 * $lookup{$l} / $i));
+           my $intnode = $guide_tree->find_node(-internal_id => $internal{$l});
+           $intnode->bootstrap(sprintf("%d",100 * $lookup{$l} / $i));
        }
    }
    return $guide_tree;
 }
-
 
 
 =head2 cherries
@@ -169,30 +162,31 @@ sub cherries ($;$) {
     my @descs = $node->each_Descendent;
 
     if ($descs[0]->is_Leaf and $descs[1]->is_Leaf) {
-	if ($descs[3]) { #polytomy at leaf level
-	    $cherries = 0;
-	} else {
-	    $cherries = 1;
-	}
+        if ($descs[3]) { #polytomy at leaf level
+            $cherries = 0;
+        } else {
+            $cherries = 1;
+        }
     } else {
-	# recurse
-	foreach my $desc (@descs) {
-	    $cherries += $self->cherries($tree, $desc);
-	}
+        # recurse
+        foreach my $desc (@descs) {
+            $cherries += $self->cherries($tree, $desc);
+        }
     }
     return $cherries;
 }
 
+
 =head2 Tree-Trait statistics
 
-The following methods produce desciptors of trait distribution among
+The following methods produce descriptors of trait distribution among
 leaf nodes within the trees. They require that a trait has been set
 for each leaf node. The tag methods of Bio::Tree::Node are used to
 store them as key/value pairs. In this way, one tree can store more
 than one trait.
 
-Trees have method add_traits() to set trait values from a file.
-
+Trees have method add_traits() to set trait values from a file. See the
+add_trait() method in L<Bio::Tree::TreeFunctionsI>.
 
 =head2 fitch
 
@@ -239,7 +233,6 @@ sub fitch {
 }
 
 
-
 =head2 ps
 
   Example    : ps($tree, $key, $node);
@@ -262,6 +255,7 @@ L<fitch_down>.
 =cut
 
 sub ps { shift->fitch_up(@_) }
+
 
 =head2 fitch_up
 
@@ -292,14 +286,14 @@ sub fitch_up {
 
     if ($node->is_Leaf) {
         $self->throw ("ERROR: ". $node->internal_id. " needs a value for trait $key")
-	    unless $node->has_tag($key);
-	$node->set_tag_value('ps_trait', $node->get_tag_values($key) );
-	$node->set_tag_value('ps_score', 0 );
-	return; # end of recursion
+            unless $node->has_tag($key);
+        $node->set_tag_value('ps_trait', $node->get_tag_values($key) );
+        $node->set_tag_value('ps_score', 0 );
+        return; # end of recursion
     }
 
     foreach my $child ($node->each_Descendent) {
-	$self->fitch_up($tree, $key, $child);
+        $self->fitch_up($tree, $key, $child);
     }
 
     my %intersection;
@@ -307,26 +301,26 @@ sub fitch_up {
     my $score;
 
     foreach my $child ($node->each_Descendent) {
-	foreach my $trait ($child->get_tag_values('ps_trait') ) {
-	    $intersection{$trait}++ if $union{$trait};
-	    $union{$trait}++;
-	}
-	$score += $child->get_tag_values('ps_score');
+        foreach my $trait ($child->get_tag_values('ps_trait') ) {
+            $intersection{$trait}++ if $union{$trait};
+            $union{$trait}++;
+        }
+        $score += $child->get_tag_values('ps_score');
     }
 
     if (keys %intersection) {
-	$node->set_tag_value('ps_trait', keys %intersection);
-	$node->set_tag_value('ps_score', $score);
+        $node->set_tag_value('ps_trait', keys %intersection);
+        $node->set_tag_value('ps_score', $score);
     } else {
-	$node->set_tag_value('ps_trait', keys %union);
-	$node->set_tag_value('ps_score', $score+1);
+        $node->set_tag_value('ps_trait', keys %union);
+        $node->set_tag_value('ps_score', $score+1);
     }
 
     if ($self->verbose) {
-	print "-- node --------------------------\n";
-	print "iID: ", $node->internal_id, " (", $node->id, ")\n";
-	print "Trait: ", join (', ', $node->get_tag_values('ps_trait') ), "\n";
-	print "length :", scalar($node->get_tag_values('ps_score')) , "\n";
+        print "-- node --------------------------\n";
+        print "iID: ", $node->internal_id, " (", $node->id, ")\n";
+        print "Trait: ", join (', ', $node->get_tag_values('ps_trait') ), "\n";
+        print "length :", scalar($node->get_tag_values('ps_score')) , "\n";
     }
     return scalar $node->get_tag_values('ps_score');
 }
@@ -351,7 +345,6 @@ resolved.
 
 =cut
 
-
 sub fitch_down {
     my $self = shift;
     my $tree = shift;
@@ -363,19 +356,19 @@ sub fitch_down {
 
     my $nodev;
     foreach my $trait ($node->get_tag_values($key) ) {
-	$nodev->{$trait}++;
+        $nodev->{$trait}++;
     }
 
     foreach my $child ($node->each_Descendent) {
-	next if $child->is_Leaf;  # end of recursion
+        next if $child->is_Leaf;  # end of recursion
 
-	my $intersection;
-	foreach my $trait ($child->get_tag_values($key) ) {
-	    $intersection->{$trait}++ if $nodev->{$trait};
-	}
+        my $intersection;
+        foreach my $trait ($child->get_tag_values($key) ) {
+            $intersection->{$trait}++ if $nodev->{$trait};
+        }
 
-	$self->fitch_down($tree, $child);
-	$child->set_tag_value($key, keys %$intersection);
+        $self->fitch_down($tree, $child);
+        $child->set_tag_value($key, keys %$intersection);
     }
     return 1;  # success
 }
@@ -418,8 +411,8 @@ sub _persistence {
 
     my $persistence = 10000000; # an arbitrarily large number
     foreach my $child ($node->each_Descendent) {
-	my $pers = $self->_persistence($tree, $child, $value);
-	$persistence = $pers if $pers < $persistence;
+        my $pers = $self->_persistence($tree, $child, $value);
+        $persistence = $pers if $pers < $persistence;
     }
     return $persistence + 1;
 }
@@ -467,15 +460,15 @@ sub _count_subclusters {
         unless $node->has_tag($key);
 
     if ($node->get_tag_values($key) eq $value) {
-	if ($node->get_tag_values('ps_score') == 0) {
-	    return 0;
-	} else {
-	    my $count = 0;
-	    foreach my $child ($node->each_Descendent) {
-		$count += $self->_count_subclusters($tree, $child, $value);
-	    }
-	    return $count;
-	}
+        if ($node->get_tag_values('ps_score') == 0) {
+            return 0;
+        } else {
+            my $count = 0;
+            foreach my $child ($node->each_Descendent) {
+                $count += $self->_count_subclusters($tree, $child, $value);
+            }
+            return $count;
+        }
     }
     return 1;
 }
@@ -491,6 +484,7 @@ sub count_subclusters {
 
     return $self->_count_subclusters($tree, $node, $value);
 }
+
 
 =head2 count_leaves
 
@@ -520,14 +514,14 @@ sub _count_leaves {
         unless $node->has_tag($key);
 
     if ($node->get_tag_values($key) eq $value) {
-	#print $node->id, ": ", $node->get_tag_values($key), "\n";
-	return 1 if $node->is_Leaf; # end of recursion
+        #print $node->id, ": ", $node->get_tag_values($key), "\n";
+        return 1 if $node->is_Leaf; # end of recursion
 
-	    my $count = 0;
-	    foreach my $child ($node->each_Descendent) {
-		$count += $self->_count_leaves($tree, $child, $value);
-	    }
-	    return $count;
+            my $count = 0;
+            foreach my $child ($node->each_Descendent) {
+                $count += $self->_count_leaves($tree, $child, $value);
+            }
+            return $count;
     }
     return 0;
 }
@@ -543,6 +537,7 @@ sub count_leaves {
 
     return $self->_count_leaves($tree, $node, $value);
 }
+
 
 =head2 phylotype_length
 
@@ -575,13 +570,12 @@ sub _phylotype_length {
 
     my $length = 0;
     foreach my $child ($node->each_Descendent) {
-	my $sub_len = $self->_phylotype_length($tree, $child, $value);
-	$length += $sub_len;
-	$length += $child->branch_length if not $child->is_Leaf and $sub_len;
+        my $sub_len = $self->_phylotype_length($tree, $child, $value);
+        $length += $sub_len;
+        $length += $child->branch_length if not $child->is_Leaf and $sub_len;
     }
     return $length;
 }
-
 
 sub phylotype_length {
     my $self = shift;
@@ -593,6 +587,7 @@ sub phylotype_length {
 
     return $self->_phylotype_length($tree, $node, $value);
 }
+
 
 =head2 sum_of_leaf_distances
 
@@ -625,8 +620,8 @@ sub _sum_of_leaf_distances {
 
     my $length = 0;
     foreach my $child ($node->each_Descendent) {
-	$length += $self->_count_leaves($tree, $child, $value) * $child->branch_length +
-	$self->_sum_of_leaf_distances($tree, $child, $value);
+        $length += $self->_count_leaves($tree, $child, $value) * $child->branch_length +
+        $self->_sum_of_leaf_distances($tree, $child, $value);
     }
     return $length;
 }
@@ -641,6 +636,7 @@ sub sum_of_leaf_distances {
 
     return $self->_sum_of_leaf_distances($tree, $node, $value);
 }
+
 
 =head2 genetic_diversity
 
@@ -665,6 +661,7 @@ sub genetic_diversity {
     return $self->sum_of_leaf_distances($tree, $node) /
         $self->count_leaves($tree, $node);
 }
+
 
 =head2 statratio
 
@@ -725,16 +722,16 @@ sub _node_ai {
     my $traits;
     my $leaf_count = 0;
     for my $desc ( $node->get_all_Descendents ) {
-	next unless $desc->is_Leaf;
-	$leaf_count++;
+        next unless $desc->is_Leaf;
+        $leaf_count++;
         $self->throw ("Node ". $desc->id. " needs a value for trait [$key]")
-	    unless $desc->has_tag($key);
-	my $trait = $desc->get_tag_values($key);
-	$traits->{$trait}++;
+            unless $desc->has_tag($key);
+        my $trait = $desc->get_tag_values($key);
+        $traits->{$trait}++;
     }
     my $most_common = 0;
     foreach ( keys %$traits) {
-	$most_common = $traits->{$_} if $traits->{$_} > $most_common;
+        $most_common = $traits->{$_} if $traits->{$_} > $most_common;
     }
     return sprintf "%1.6f", (1 - ($most_common/$leaf_count) ) / (2**($leaf_count-1) );
 }
@@ -748,8 +745,8 @@ sub ai {
 
     my $sum = 0;
     for my $node ( $start_node->get_all_Descendents ) {
-	next if $node->is_Leaf;
-	$sum += $self->_node_ai($node, $key);
+        next if $node->is_Leaf;
+        $sum += $self->_node_ai($node, $key);
     }
     return $sum;
 }
@@ -795,14 +792,13 @@ sub _node_mc  {
     my $traits;
     my $leaf_count = 0;
     for my $node2 ( $node->get_all_Descendents ) {
-	next unless $node2->is_Leaf;
-	$leaf_count++;
-	my $trait = $node2->get_tag_values($key);
-	$traits->{$trait}++;
+        next unless $node2->is_Leaf;
+        $leaf_count++;
+        my $trait = $node2->get_tag_values($key);
+        $traits->{$trait}++;
     }
     return $traits;
 }
-
 
 sub mc {
     my $self = shift;
@@ -814,24 +810,23 @@ sub mc {
     my $sum; # hashref, keys are trait values
     my $keys; # hashref, keys are trait values
     foreach my $node ( $start_node->get_all_Descendents ) {
-	next if $node->is_Leaf;
-	my $traits = $self->_node_mc($node, $key);
-	if (scalar keys %$traits == 1) {
-	    my ($value) = keys %$traits;
-	    no warnings;
-	    $sum->{$value} = $traits->{$value}
-	        if $sum->{$value} < $traits->{$value};
-	} else {
-	    map { $keys->{$_} = 1 } keys %$traits;
-	}
+        next if $node->is_Leaf;
+        my $traits = $self->_node_mc($node, $key);
+        if (scalar keys %$traits == 1) {
+            my ($value) = keys %$traits;
+            no warnings;
+            $sum->{$value} = $traits->{$value}
+                if $sum->{$value} < $traits->{$value};
+        } else {
+            map { $keys->{$_} = 1 } keys %$traits;
+        }
     }
     # check for cases where there are no clusters
     foreach my $value (keys %$keys) {
-	$sum->{$value} = 1 unless defined $sum->{$value};
+        $sum->{$value} = 1 unless defined $sum->{$value};
     }
     return $sum;
 }
-
 
 
 1;
