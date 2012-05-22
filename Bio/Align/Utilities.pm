@@ -101,7 +101,7 @@ require Exporter;
 use base qw(Exporter);
 
 @EXPORT = qw();
-@EXPORT_OK = qw(aa_to_dna_aln bootstrap_replicates cat);
+@EXPORT_OK = qw(aa_to_dna_aln bootstrap_replicates cat bootstrap_replicates_codons);
 %EXPORT_TAGS = (all =>[@EXPORT, @EXPORT_OK]);
 BEGIN {
     use constant CODONSIZE => 3;
@@ -225,6 +225,58 @@ sub bootstrap_replicates {
    }
    return \@alns;
 }
+
+=head2 bootstrap_replicates_codons
+
+ Title   : bootstrap_replicates_codons
+ Usage   : my $alns = &bootstrap_replicates_codons($aln,100);
+ Function: Generate a pseudo-replicate of the data by randomly
+           sampling, with replacement, the columns from a codon alignment for
+           the non-parametric bootstrap. The alignment is assumed to start on
+		   the first position of a codon.
+ Returns : Arrayref of L<Bio::SimpleAlign> objects
+ Args    : L<Bio::SimpleAlign> object
+           Number of replicates to generate
+
+=cut
+
+sub bootstrap_replicates_codons {
+   my ($aln,$count) = @_;
+   $count ||= 1;
+   my $alen = $aln->length;
+   my $ncodon = int($alen/3);
+   my (@seqs,@nm);
+   $aln->set_displayname_flat(1);
+   for my $s ( $aln->each_seq ) {
+       push @seqs, $s->seq();
+       push @nm, $s->id;
+   }
+   my (@alns,$i);
+   while( $count-- > 0 ) {
+       my @newseqs;
+       for($i =0; $i < $ncodon; $i++ ) {
+			my $index = int(rand($ncodon));
+			my $seqpos = $index * 3;
+			my $c = 0;
+			for ( @seqs ) {
+				$newseqs[$c++] .= substr($_,$seqpos,3);
+			}
+       }
+       my $newaln = Bio::SimpleAlign->new();
+       my $i = 0;
+       for my $s ( @newseqs ) {
+			(my $tmp = $s) =~ s{[$Bio::LocatableSeq::GAP_SYMBOLS]+}{}g;
+			$newaln->add_seq( Bio::LocatableSeq->new
+						(-start         => 1,
+						-end           => length($tmp),
+						-display_id    => $nm[$i++],
+						-seq           => $s));
+       }
+       push @alns, $newaln;
+   }
+   return \@alns;
+}
+
 
 =head2 cat
 
