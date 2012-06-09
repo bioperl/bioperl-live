@@ -1164,7 +1164,7 @@ sub _read_trait_file {
         }
 
         my $id = $line[0];
-        last unless $id;
+        last if (not defined $id) or ($id eq '');
 
         # Skip empty trait values
         my $value = $line[$column];
