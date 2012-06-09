@@ -1145,13 +1145,12 @@ sub move_id_to_bootstrap{
 =cut
 
 sub _read_trait_file {
-    my $self = shift;
-    my $file = shift;
-    my $column = shift || 1;
+    my ($self, $file, $column) = @_;
+    $column ||= 1;
 
     my $trait_name;
     my $trait_values;
-    open my $TRAIT, "<", $file or $self->("Could not open file $file: $!\n");
+    open my $TRAIT, '<', $file or $self->throw("Could not open file $file: $!\n");
 
     my $first_line = 1;
     while (<$TRAIT>) {
@@ -1163,8 +1162,15 @@ sub _read_trait_file {
             $trait_name = $line[$column];
             next;
         }
-        last unless $line[0];
-        $trait_values->{$line[0]} = $line[$column];
+
+        my $id = $line[0];
+        last unless $id;
+
+        # Skip empty trait values
+        my $value = $line[$column];
+        next if (not defined $value) or ($value eq '');
+
+        $trait_values->{$id} = $value;
     }
 
     close $TRAIT;
@@ -1178,16 +1184,22 @@ sub add_trait {
     my ($trait_name, $trait_values) = $self->_read_trait_file($file, $column);
 
     if (defined $trait_name) {
+
         for my $node ($self->get_leaf_nodes) {
+
             # strip quotes from the node id
             $node->id($1) if $node->id =~ /^['"]+(.*)['"]+$/;
-            eval {
-                $node->verbose(2);
-                $node->add_tag_value($trait_name, $trait_values->{ $node->id } );
-            };
-            if ($@ && (not $ignore)) {
-                $self->throw("No trait for node [".$node->id."/".$node->internal_id."]")
+
+            if ( not exists $trait_values->{$node->id} ) {
+                if ($ignore) {
+                    next;
+                } else {
+                    $self->throw("No trait for node [".$node->id."/".$node->internal_id."]");
+                }
             }
+
+            $node->add_tag_value($trait_name, $trait_values->{ $node->id } );
+
         }
     }
     return $trait_name;
