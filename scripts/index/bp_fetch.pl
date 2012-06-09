@@ -4,7 +4,7 @@
 
 bp_fetch.pl - fetches sequences from bioperl indexed databases
 
-=head1 SYNOPSIS 
+=head1 SYNOPSIS
 
   bp_fetch.pl swiss:ROA1_HUMAN
 
@@ -45,13 +45,13 @@ db information
   -fmt  <format> - Output format
                    Fasta (default), EMBL, Raw, swiss or GCG
   -acc           - string is an accession number, not an
-                   id. 
+                   id.
 
 options only for expert use
 
   -dir  <dir>    - directory to find the index files
                   (overrides BIOPERL_INDEX environment varaible)
-  -type <type>   - type of DBM file to open 
+  -type <type>   - type of DBM file to open
                   (overrides BIOPERL_INDEX_TYPE environment variable)
 
 =head1 ENVIRONMENT
@@ -59,12 +59,12 @@ options only for expert use
 bp_index and bp_fetch coordinate where the databases lie using the
 environment variable BIOPERL_INDEX. This can be overridden using the
 -dir option. The index type (SDBM or DB_File or another index file)
-is controlled by the BIOPERL_INDEX_TYPE variable. This defaults to 
-SDBM_File 
+is controlled by the BIOPERL_INDEX_TYPE variable. This defaults to
+SDBM_File
 
 =head1 USING IT YOURSELF
 
-bp_fetch is a wrapper around the bioperl modules which support 
+bp_fetch is a wrapper around the bioperl modules which support
 the Bio::DB::BioSeqI abstract interface. These include:
 
   Author          Code
@@ -94,7 +94,7 @@ obviously).
 
 =head1 FEEDBACK
 
-=head2 Mailing Lists 
+=head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to
@@ -176,7 +176,7 @@ my $dir = $ENV{'BIOPERL_INDEX'};
 my $type = $ENV{'BIOPERL_INDEX_TYPE'};
 my $fmt = 'Fasta';
 my $useacc = 0;
-my $ret = GetOptions('f|dir=s' => \$dir,
+my $ret = GetOptions('d|dir=s' => \$dir,
 		     'f|fmt=s' => \$fmt ,
 		     't|type=s' => \$type ,
 		     'acc!' => \$useacc);
@@ -218,7 +218,7 @@ for my $arg ( @ARGV ) {
     $meta = 'local';
   }
 
-  # parse to db:id 
+  # parse to db:id
 
   /^(\S+)\:(\S+)$/ || do { warn "$_ is not parsed as db:name\n"; next; };
   ($db,$id) = split/:/,$_,2;
