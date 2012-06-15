@@ -501,6 +501,9 @@ sub _parse_summary {
               if $self->{'_summary'}->{'seqtype'} eq 'AAMODEL';
             last;
         }
+        elsif ((m/\s+?\d+?\s+?\d+?/) && ( $self->{'_already_parsed_seqs'} != 1 )) {
+			$self->_parse_seqs;
+		}
         elsif (m/^Data set \d$/) {
             $self->{'_summary'} = {};
             $self->{'_summary'}->{'multidata'}++;
@@ -943,24 +946,32 @@ sub _parse_PairwiseCodon {
         # t= 0.1904  S=     5.8  N=   135.2  dN/dS= 0.1094  dN= 0.0476  dS= 0.4353
         # OR lines like (note last field; this includes a fix for bug #3040)
         # t= 0.0439  S=     0.0  N=   141.0  dN/dS= 0.1626  dN= 0.0146  dS=    nan
-        elsif (
-            m/^t\=\s*(\d+(\.\d+)?)\s+
-		 S\=\s*(\d+(\.\d+)?)\s+
-		 N\=\s*(\d+(\.\d+)?)\s+
-		 dN\/dS\=\s*(\d+(\.\d+)?)\s+
-		 dN\=\s*(\d+(\.\d+)?)\s+
-		 dS\=\s*(\d+(\.\d+)?|nan)/ox
-          )
+		elsif (m/^t\=\s*(\d+(\.\d+)?)\s+/)
         {
+        	# Breaking out each piece individually so that you can see
+        	# what each regexp actually looks for
+        	my $parse_string = $_;
+        	$parse_string =~ m/.*t\s*\=\s*(\d+?\.\d+?)\s/;
+        	my $temp_t = $1;
+        	$parse_string =~ m/\sS\s*\=\s*(\d+?\.\d+?)\s/;
+        	my $temp_S = $1;
+         	$parse_string =~ m/\sN\s*\=\s*(\d+?\.\d+?)\s/;
+        	my $temp_N = $1;
+         	$parse_string =~ m/\sdN\/dS\s*\=\s*(\d+?\.\d+?)\s/;
+        	my $temp_omega = $1;
+         	$parse_string =~ m/\sdN\s*\=\s*(\d+?\.\d+?)\s/;
+        	my $temp_dN = $1;
+         	$parse_string =~ m/\sdS\s*\=\s*(.+)\s/;
+        	my $temp_dS = $1;
             $result[ $b - 1 ]->[ $a - 1 ] = {
                 'lnL'   => $log,
-                't'     => defined $t && length($t) ? $t : $1,
-                'S'     => $3,
-                'N'     => $5,
+                't'     => defined $t && length($t) ? $t : $temp_t,
+                'S'     => $temp_S,
+                'N'     => $temp_N,
                 'kappa' => $kappa,
-                'omega' => defined $omega && length($omega) ? $omega : $7,
-                'dN'    => $9,
-                'dS'    => $11
+                'omega' => defined $omega && length($omega) ? $omega : $temp_omega,
+                'dN'    => $temp_dN,
+                'dS'    => $temp_dS
             };
         }
         # 4th line of a pair block (which is blank)
