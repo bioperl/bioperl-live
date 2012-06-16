@@ -861,6 +861,7 @@ sub _parse_distmat {
     my ($self) = @_;
     my @results;
     my $ver = 3.14;
+	my $firstseq, my $secondseq;
 
     while ( defined( $_ = $self->_readline ) ) {
         next if /^\s+$/;
@@ -868,18 +869,21 @@ sub _parse_distmat {
         # Bypass the reference information (4 lines)
         if (/^\(A\)\sNei-Gojobori\s\(1986\)\smethod/) {
             $ver = 3.15;
-            $_   = $self->_readline;
-            $_   = $self->_readline;
-            $_   = $self->_readline;
-            $_   = $self->_readline;
+			while ( defined( $_ = $self->_readline ) ) {
+				if ($_ =~ m/.*\d+?\.\d+?\s*\(.*/) {
+					$secondseq = $_;
+					last;
+				}
+				$firstseq = $_;
+			}
         }
         last;
     }
 
-    return unless (/^Nei\s*\&\s*Gojobori/);
+    #return unless (/^Nei\s*\&\s*Gojobori/);
 
     # skip the next line is ver > 3.15
-    $self->_readline if ( $ver > 3.14 );
+    #$self->_readline if ( $ver > 3.14 );
 
     # skip the next 3 lines
     if ( $self->{'_summary'}->{'seqtype'} eq 'CODONML' ) {
@@ -889,6 +893,17 @@ sub _parse_distmat {
     }
     my $seqct = 0;
     my @seqs;
+    if ($firstseq) {
+        if ( $self->{'_summary'}->{'seqtype'} eq 'YN00' ) {
+			$firstseq =~ s/(.+?)\s+.*/$1/;
+			$secondseq =~ s/(.+?)\s+.*/$1/;
+			chomp $firstseq;
+			chomp $secondseq;
+			push @seqs, Bio::PrimarySeq->new( -display_id => $firstseq );
+			push @seqs, Bio::PrimarySeq->new( -display_id => $secondseq );
+
+        }
+    }
     while ( defined( $_ = $self->_readline ) ) {
         last if ( /^\s+$/ && exists $self->{'_summary'}->{'ngmatrix'} );
         next if ( /^\s+$/ || /^NOTE:/i );
