@@ -965,26 +965,25 @@ sub branch_length_or_one {
  Function: Return a representation of this tree as ASCII text. Shamelessly
            copied / ported from PyCogent code. http://pycogent.sourceforge.net/
  Returns : A multi-line String, suitable for printing to the console
- Args    : show_internal - 0 to hide internal nodes, 1 to show them (default 1)
+ Args    : [optional] $params object, containing any of the following keys:
+           show_internal - 0 to hide internal nodes, 1 to show them (default 1)
            compact - 1 to use a 'compact' mode with exactly 1 line per node. (default 0)
-           ignore_branchlengths - 0 to ignore branch lengths, 1 to use them. (default 0)
+           ignore_branchlengths - 1 to ignore branch lengths, 0 to use them. (default 1)
 =cut
 
 sub ascii {
     my $self = shift;
-    my $show_internal = shift;
-    my $compact = shift;
-    my $ignore_branchlengths = shift;
+    my $params = shift || {};
 
     my $max_bl = $self->max_distance_to_leaf;
     if ($max_bl == 0) {
-	$max_bl = $self->max_depth_to_leaf;
+      $max_bl = $self->max_depth_to_leaf;
     }
 
     my $width = 120;
     my $char_per_bl = int($width / $max_bl);
 
-    my ($lines_arrayref,$mid) = $self->_ascii_art($self,'',$char_per_bl,$show_internal,$compact,$ignore_branchlengths);
+    my ($lines_arrayref,$mid) = $self->_ascii_art($self,'',$char_per_bl,$params);
     my @lines = @{$lines_arrayref};
     return join("\n",@lines)."\n";
 }
@@ -995,9 +994,11 @@ sub _ascii_art {
     my $node = shift;
     my $char1 = shift;
     my $char_per_bl = shift;
-    my $show_internal = shift;
-    my $compact = shift;
-    my $ignore_branchlengths = shift;
+    my $params = shift;
+
+    my $show_internal = $params->{show_internal};
+    my $compact = $params->{compact};
+    my $ignore_branchlengths = $params->{ignore_branchlengths};
 
     $char1 = '-' unless (defined $char1);
     $show_internal = 1 unless (defined $show_internal);
@@ -1037,7 +1038,7 @@ sub _ascii_art {
 		# Middle child.
 		$char2 = '-';
 	    }
-	    my ($clines_arrayref, $mid) = $self->_ascii_art($child,$char2,$char_per_bl,$show_internal,$compact,$ignore_branchlengths);
+	    my ($clines_arrayref, $mid) = $self->_ascii_art($child,$char2,$char_per_bl,$params);
 	    push @mids,($mid+scalar(@results));
 	    my @clines = @$clines_arrayref;
 	    foreach my $line (@clines) {

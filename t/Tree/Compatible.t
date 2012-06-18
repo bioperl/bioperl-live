@@ -7,7 +7,7 @@ BEGIN {
   use lib '.';
   use Bio::Root::Test;
   
-  test_begin(-tests => 5,
+  test_begin(
 			 -requires_module => 'Set::Scalar');
   
   use_ok('Bio::Tree::Compatible');
@@ -25,6 +25,7 @@ my $in = Bio::TreeIO->new(-format => 'newick',
 # are [A,B,E,G]
 
 my $t1 = $in->next_tree;
+#print STDERR "\n".$t1->ascii;
 my $t2 = $in->next_tree;
 my $common = Bio::Tree::Compatible::common_labels($t1,$t2);
 my $labels = Set::Scalar->new(qw(A B E G));
@@ -54,6 +55,8 @@ my $t5 = $in->next_tree;
 my $t6 = $in->next_tree;
 ($incompat, $ilabels, $inodes) = Bio::Tree::Compatible::is_compatible($t5,$t6);
 ok($incompat);
+
+done_testing();
 
 __DATA__
 (((A,B)C,D),(E,F,G));

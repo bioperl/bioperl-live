@@ -228,8 +228,8 @@ sub cluster_representation {
   my ($tree) = @_;
   my %cluster;
   my @postorder = @{ postorder_traversal($tree) };
-  foreach my $node ( @postorder ) {
-    my @labeled = map { $_->id } grep { $_->id } $node->get_Descendents;
+  foreach my $node ( $tree->nodes_depth_first ) {
+    my @labeled = map { $_->id } grep { $_->id } $node->nodes;
     push @labeled, $node->id if $node->id;
     $cluster{$node} = \@labeled;
   }
@@ -303,7 +303,7 @@ sub topological_restriction {
   my ($tree, $labels) = @_;
   for my $node ( @{ postorder_traversal($tree) } ) {
     unless (ref($node)) { # skip $node if already removed
-      my @cluster = map { $_->id } grep { $_->id } $node->get_Descendents;
+      my @cluster = map { $_->id } grep { $_->id } $node->nodes;
       push @cluster, $node->id if $node->id;
       my $cluster = Set::Scalar->new(@cluster);
       if ($cluster->is_disjoint($labels)) {
@@ -394,10 +394,10 @@ sub is_compatible {
   my $incompat = 0; # false
   my @labels;
   foreach my $label ( $common->elements ) {
-    my $node1 = $tree1->find_node(-id => $label);
+    my $node1 = $tree1->find($label);
     my @labels1 = @{ $cluster1{$node1} };
     my $cluster1 = Set::Scalar->new(@labels1);
-    my $node2 = $tree2->find_node(-id => $label);
+    my $node2 = $tree2->find($label);
     my @labels2 = @{ $cluster2{$node2} };
     my $cluster2 = Set::Scalar->new(@labels2);
     unless ( $cluster1->is_equal($cluster2) ) {
