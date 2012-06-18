@@ -68,7 +68,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Hilmar Lapp
 
@@ -116,14 +116,14 @@ sub get_SeqFeatures {
 
  Usage   : $feat->add_SeqFeature($subfeat);
            $feat->add_SeqFeature($subfeat,'EXPAND')
- Function: adds a SeqFeature into the subSeqFeature array.
+ Function: Add a SeqFeature into the subSeqFeature array.
            with no 'EXPAND' qualifer, subfeat will be tested
            as to whether it lies inside the parent, and throw
            an exception if not.
 
-           If EXPAND is used, the parent''s start/end/strand will
-           be adjusted so that it grows to accommodate the new
-           subFeature
+           If EXPAND is used and the object implements Bio::RangeI
+           (which is not guaranteed), the parent''s start/end/strand
+           will be extended so that the new subFeature can be accomodated.
  Example :
  Returns : nothing
  Args    : a Bio::SeqFeatureI object

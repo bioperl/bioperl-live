@@ -1,5 +1,3 @@
-# $Id$
-
 Installing BioPerl for Unix
 
      * 1 BIOPERL INSTALLATION
@@ -146,7 +144,7 @@ INSTALLING BIOPERL THE EASY WAY USING CPAN
 You can use the CPAN shell to install BioPerl. For example:
 
  >perl -MCPAN -e shell
- 
+
 Or you might have the cpan alias installed:
 
  >cpan
@@ -157,9 +155,9 @@ Then find the name of the BioPerl version you want:
  CPAN: Storable loaded ok
  Going to read /home/bosborne/.cpan/Metadata
  Database was generated on Mon, 20 Nov 2006 05:24:36 GMT
- 
+
  ....
- 
+
  Distribution B/BI/BIRNEY/bioperl-1.2.tar.gz
  Distribution B/BI/BIRNEY/bioperl-1.4.tar.gz
  Distribution C/CJ/CJFIELDS/BioPerl-1.6.1.tar.gz
@@ -195,7 +193,7 @@ Previously, when using Makefile.PL (no longer covered in this
 documentation), we had to disable the automatic creation of man pages
 because this step was triggering a "line too long" error on some OSs
 due to shell constraints. If you want man pages installed use the
-Build.PL installation process discussed above. 
+Build.PL installation process discussed above.
 
 EXTERNAL PROGRAMS
 
@@ -208,7 +206,7 @@ all the programs in the EMBOSS suite (Bio::Factory::EMBOSS).  Most
 of the modules which 'wrap' these programs are located in the separate
 bioperl-run distribution; however, two commonly-used modules are still
 distributed with the BioPerl core (Bio::Tools::Run::StandAloneBlast,
-Bio::Tools::Run::RemoteBlast).  
+Bio::Tools::Run::RemoteBlast).
 
     Environment Variables
 
@@ -281,7 +279,7 @@ The installation directory can be specified by:
 
  perl Build.PL
  ./Build install --install_path script=/foo/scripts
- 
+
 By default they install to /usr/bin or similar, depending on platform.
 
 INSTALLING BIOPERL IN A PERSONAL MODULE AREA
@@ -385,12 +383,12 @@ The BioPerl test system is located in the t/ directory and is
 automatically run whenever you execute the './Build test' command
 (having previously run 'Perl Build.PL'; if you have already installed
 BioPerl answer 'no' to script installation to get nicer test output
-later). 
+later).
 
 For the 1.6 release and beyond, tests have been organized into groups
-based upon the specific task or class the module ibeing tested belongs
+based upon the specific task or class the module being tested belongs
 to. If you want to investigate the behavior of a specific test such as
-the Seq test you would type: 
+the Seq test you would type:
 
  >./Build test --test_files t/Seq/Seq.t --verbose
 

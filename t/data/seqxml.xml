@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<seqXML source="Ensembl" sourceVersion="56" xmlns="http://seqXML.org/0.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://seqXML.org/0.3 http://www.seqxml.org/0.3/seqxml.xsd" seqXMLversion="0.3">
+<seqXML source="Ensembl" sourceVersion="56" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.seqxml.org/0.3/seqxml.xsd" seqXMLversion="0.3">
     <entry id="ENST00000308775" source="Ensembl">
         <species name="Homo sapiens" ncbiTaxID="9606"/>
         <description>dystroglycan 1</description>

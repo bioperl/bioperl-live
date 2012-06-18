@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::Tools::Analysis::Protein::ELM
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Richard Adams <richard.adams@ed.ac.uk>
 #
@@ -20,7 +20,7 @@ Bio::Tools::Analysis::Protein::ELM - a wrapper around the ELM server which predi
   # get a Bio::Seq object to start with, or a Bio::PrimaryI object.
 
   my $tool = Bio::Tools::Analysis::Protein::ELM->
-      new(seq => $seqobj->primary_seq() );	
+      new(seq => $seqobj->primary_seq() );
   $tool->compartment(['ER', 'Golgi']);
   $tool->species(9606);
   $tool->run;
@@ -30,7 +30,7 @@ Bio::Tools::Analysis::Protein::ELM - a wrapper around the ELM server which predi
 =head1    DESCRIPTION
 
 This module is a wrapper around the ELM server L<http://elm.eu.org/>
-which predicts short functional motifs on amino acid sequences. 
+which predicts short functional motifs on amino acid sequences.
 
 False positives can be limited by providing values for the species
 and cellular compartment of the protein. To set the species attribute,
@@ -43,7 +43,7 @@ data structure, or as Bio::SeqFeature::Generic objects.
 
 =head1 SEE ALSO
 
-L<Bio::SimpleAnalysisI>, 
+L<Bio::SimpleAnalysisI>,
 L<Bio::WebAgent>
 
 =head1 FEEDBACK
@@ -57,15 +57,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -74,11 +74,11 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHORS
 
-Richard Adams, Richard.Adams@ed.ac.uk, 
+Richard Adams, Richard.Adams@ed.ac.uk,
 
 =head1 APPENDIX
 
@@ -112,7 +112,7 @@ use base qw(Bio::Tools::Analysis::SimpleAnalysisBase);
       plasma_membrane=> 'GO:0005886',
 		);
 
-my $URL           = 'http://elm.eu.org/basicELM/cgimodel.py';
+my $URL           = 'http://elm.eu.org/cgimodel.py';
 my $ANALYSIS_NAME = 'ELM';
 my $INPUT_SPEC    =
     [
@@ -184,7 +184,7 @@ sub compartment {
 	if (ref ($arg) ne 'ARRAY') {
             $arg = [$arg];
 	}
- 
+
         ## now add params if valid
 	for my $param (@$arg) {
             if (exists($cc{lc($param)})) {
@@ -194,7 +194,7 @@ sub compartment {
                             join "\n", keys %cc );
             }
         }                       #end of for loop
-			
+
     }                           #endif $arg
     return defined($self->{'_compartment'})? $self->{'_compartment'}
         : $self->input_spec()->[2]{'default'};
@@ -220,13 +220,13 @@ sub species {
         } elsif ($arg =~ /^\d+$/) {
             $self->{'_species'} = $arg;
         } else {
-            $self->warn("Argument must be a Bio::Species object or ". 
+            $self->warn("Argument must be a Bio::Species object or ".
                         " an integer NCBI taxon id. ");
         }
     }                           #end if $arg
     return defined($self->{'_species'})?$self->{'_species'}
         :$self->input_spec()->[1]{'default'};
-	
+
 }
 
 sub  _run {
@@ -235,7 +235,7 @@ sub  _run {
     # delay repeated calls by default by 3 sec, set delay() to change
     #$self->sleep;
     $self->status('TERMINATED_BY_ERROR');
-	
+
     #### this deals with being able to submit multiple checkboxed
     #### slections
 
@@ -252,7 +252,7 @@ sub  _run {
              fun              => "Submit");
     splice (@cc_str, @cc_str,0, ( map{$_, $h{$_}} keys %h));
 
-		
+
     my $request = POST $self->url(),
         Content_Type => 'form-data',
             Content  => \@cc_str;
@@ -264,7 +264,7 @@ sub  _run {
     }
 
     my $text = $r1->content;
-    my ($url) = $text =~ /URL=\S+(fun=\S+r=\d)/s; 
+    my ($url) = $text =~ /URL=\S+(fun=\S+r=\d)/s;
     #$url =~ s/amp;//g ;
     my ($resp2);
     $url = $URL . "?" .$url;
@@ -272,11 +272,11 @@ sub  _run {
 	my $req2 = HTTP::Request->new(GET=>$url);
 	my $r2 = $self->request ($req2);
 	if ( $r2->is_error ) {
-	    $self->warn(ref($self)." Request Error:\n".$r2->as_string);	    
+	    $self->warn(ref($self)." Request Error:\n".$r2->as_string);
 	    return;
-	} 
+	}
 	$resp2 = $r2->content();
-	
+
 	if ($resp2 !~ /patient/s) {
 	    $self->status('COMPLETED');
 	    $resp2=~ s/<[^>]+>/ /sg;
@@ -300,7 +300,7 @@ sub  _run {
                 tag names are : {method => 'ELM', motif => motifname,
                                  peptide => seqeunce of match,
                                  concensus => regexp of match}.
- returns   : see arguments. 
+ returns   : see arguments.
 
 =cut
 
@@ -315,7 +315,7 @@ sub result {
             for my $motif (keys %{$self->{'_parsed'}}) {
                 for (my $i = 0; $i< scalar @{$self->{'_parsed'}{$motif}{'locus'}};$i++) {
                     my ($st, $end) = split /\-/, $self->{'_parsed'}{$motif}{'locus'}[$i];
-                    push @fts, Bio::SeqFeature::Generic->new 
+                    push @fts, Bio::SeqFeature::Generic->new
                         (
                          -start       => $st,
                          -end         => $end,

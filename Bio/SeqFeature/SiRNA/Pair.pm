@@ -30,7 +30,7 @@ Bio::SeqFeature::SiRNA::Pair - Perl object for small inhibitory RNA
 	   -fxgc	=> 0.5,
 	   -tag		=> { note => 'a note' } );
 
-  $target_sequence->add_SeqFeature($pair);					
+  $target_sequence->add_SeqFeature($pair);
 
 =head1 DESCRIPTION
 
@@ -72,7 +72,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR
 
@@ -180,7 +180,7 @@ sub rank {
     }
     else {
 	if ($self->has_tag('rank')) {
-	    my @ranks = $self->each_tag_value('rank');
+	    my @ranks = $self->get_tag_values('rank');
 	    return shift @ranks;
 	}
 	else {
@@ -226,7 +226,7 @@ sub fxGC {
     }
     else {
 	if ($self->has_tag('fxGC')) {
-	    my @fxGCs = $self->each_tag_value('fxGC');
+	    my @fxGCs = $self->get_tag_values('fxGC');
 	    return shift @fxGCs;
 	}
 	else {

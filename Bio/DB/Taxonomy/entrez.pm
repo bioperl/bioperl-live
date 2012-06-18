@@ -81,7 +81,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -102,8 +102,8 @@ Internal methods are usually preceded with a _
 
 package Bio::DB::Taxonomy::entrez;
 use vars qw($EntrezLocation $UrlParamSeparatorValue %EntrezParams
-	    $EntrezGet $EntrezSummary $EntrezFetch %SequenceParams
-	    $XMLTWIG $DATA_CACHE $RELATIONS);
+            $EntrezGet $EntrezSummary $EntrezFetch %SequenceParams
+            $XMLTWIG $DATA_CACHE $RELATIONS);
 use strict;
 
 use Bio::Taxon;
@@ -132,10 +132,11 @@ $RELATIONS  = {};
                   'tool'   => 'Bioperl');
 
 %SequenceParams = ( 'db'      => 'nucleotide', # or protein
-		            'retmode' => 'xml',
-		            'tool'    => 'Bioperl');
+                    'retmode' => 'xml',
+                    'tool'    => 'Bioperl');
 
 $UrlParamSeparatorValue = '&';
+
 
 =head2 new
 
@@ -150,15 +151,16 @@ $UrlParamSeparatorValue = '&';
 =cut
 
 sub new {
-	my ($class, @args) = @_;
-	
-	# need to initialise Bio::WebAgent...
-	my ($self) = $class->SUPER::new(@args);
-	
-	# ... as well as our normal Bio::DB::Taxonomy selves:
-	$self->_initialize(@args);
-	return $self;
+    my ($class, @args) = @_;
+    
+    # need to initialise Bio::WebAgent...
+    my ($self) = $class->SUPER::new(@args);
+    
+    # ... as well as our normal Bio::DB::Taxonomy selves:
+    $self->_initialize(@args);
+    return $self;
 }
+
 
 sub _initialize {
   my($self) = shift;
@@ -169,8 +171,8 @@ sub _initialize {
 
   if( $params ) {
       if( ref($params) !~ /HASH/i ) {
-	  $self->warn("Must have provided a valid HASHref for -params");
-	  $params = \%EntrezParams;
+          $self->warn("Must have provided a valid HASHref for -params");
+          $params = \%EntrezParams;
       }
   } else {
       $params = \%EntrezParams;
@@ -178,6 +180,32 @@ sub _initialize {
   $self->entrez_params($params);
   $self->entrez_url($location || $EntrezLocation );
 }
+
+
+=head2 get_num_taxa
+
+ Title   : get_num_taxa
+ Usage   : my $num = $db->get_num_taxa();
+ Function: Get the number of taxa stored in the database.
+ Returns : A number
+ Args    : None
+
+=cut
+
+sub get_num_taxa {
+    my ($self) = @_;
+    # Use this URL query to get the ID of all the taxa in the NCBI Taxonomy database:
+    # http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=taxonomy&term=all[Filter]
+    # Only the first 20 taxa IDs are returned (good because the list is long),
+    # and the total number is reported as well (which is what we are interested
+    # in).
+    my %p = $self->entrez_params;
+    $p{'term'} = 'all[Filter]'; 
+    my $twig = $self->_run_query($self->_build_url($EntrezGet, \%p));
+    my $count = $twig->root->first_child('Count')->first_child->text;
+    return $count;
+}
+
 
 =head2 get_taxon
 
@@ -224,34 +252,20 @@ sub get_taxon {
             # the call based on the TaxId
             my %p = %SequenceParams;
             my %items;
-            if( ref($params{'-gi'}) =~ /ARRAY/i ) {	       
+            if( ref($params{'-gi'}) =~ /ARRAY/i ) {     
                 $p{'id'} = join(',', @{$params{'-gi'}});
             } else { 
                 $p{'id'} = $params{'-gi'}; 
             }
             $p{'db'} = $db if defined $db;
-            my $params = join($UrlParamSeparatorValue, map { "$_=".$p{$_} } keys %p);
-            my $url = sprintf("%s%s?%s",$self->entrez_url,$EntrezSummary,$params);
-            $self->debug("url is $url\n");
-            
+            my $url = $self->_build_url($EntrezSummary, \%p);
             my @ids;
             if (exists $DATA_CACHE->{gi_to_ids}->{$url}) {
                 @ids = @{$DATA_CACHE->{gi_to_ids}->{$url}};
             }
             else {
-                my $response = $self->get($url);
-				if ($response->is_success) {
-					$response = $response->content;
-				}
-				else {
-					$self->throw("Can't query website: ".$response->status_line);
-				}
-				
-                $self->debug("resp is $response\n");
-                my $twig = XML::Twig->new;
-                $twig->parse($response);
-                my $root = $twig->root;
-                
+                my $twig = $self->_run_query($url);
+                my $root = $twig->root;                
                 for my $topnode ( $root->children('DocSum') ) {
                     for my $child ( $topnode->children('Item') ) {
                         if( uc($child->{att}->{'Name'}) eq 'TAXID' ) {
@@ -306,24 +320,10 @@ sub get_taxon {
     if (@uncached > 0) {
         $taxonid = join(',', @uncached);
         
-        $p{'id'}      = $taxonid;
+        $p{'id'} = $taxonid;
         $self->debug("id is $taxonid\n");
-        my $params = join($UrlParamSeparatorValue, map { "$_=".$p{$_} } keys %p);
-        
-        my $url = sprintf("%s%s?%s",$self->entrez_url,$EntrezFetch,$params);
-        $self->debug("url is $url\n");
-        my $response = $self->get($url);
-		if ($response->is_success) {
-			$response = $response->content;
-		}
-		else {
-			$self->throw("Can't query website: ".$response->status_line);
-		}
-        $self->debug("resp is $response\n");
-        
-        my $twig = XML::Twig->new;
-        $twig->parse($response);
-        
+
+        my $twig = $self->_run_query($self->_build_url($EntrezFetch, \%p));
         my $root = $twig->root;
         for my $taxon ( $root->children('Taxon') ) {
             my $taxid = $taxon->first_child_text('TaxId');
@@ -397,6 +397,7 @@ sub get_taxon {
 
 *get_Taxonomy_Node = \&get_taxon;
 
+
 =head2 get_taxonids
 
  Title   : get_taxonids
@@ -431,11 +432,11 @@ sub get_taxonids {
                 my $parent_sci_name = $parent_node->scientific_name || next ID;
                 my @parent_common_names = $parent_node->common_names;
                 unless (@parent_common_names) {
-					# ensure we're not using a minimal-info cached version
-					$parent_node = $self->get_taxon(-taxonid => $parent_node->id, -full => 1);
-					@parent_common_names = $parent_node->common_names;
-				}
-				
+                    # ensure we're not using a minimal-info cached version
+                    $parent_node = $self->get_taxon(-taxonid => $parent_node->id, -full => 1);
+                    @parent_common_names = $parent_node->common_names;
+                }
+                
                 foreach my $name ($parent_sci_name, @parent_common_names) {
                     if (lc($name) eq $desired_parent_name) {
                         return wantarray() ? ($start_id) : $start_id;
@@ -462,18 +463,8 @@ sub get_taxonids {
     }
     else {
         $p{'term'} = $query;
-        my $params = join($UrlParamSeparatorValue, map { "$_=".$p{$_} } keys %p);
-        my $url = sprintf("%s%s?%s",$self->entrez_url,$EntrezGet,$params);
-        my $response = $self->get($url);
-		if ($response->is_success) {
-			$response = $response->content;
-		}
-		else {
-			$self->throw("Can't query website: ".$response->status_line);
-		}
-        $self->debug("response is $response\n");
-        my $twig = XML::Twig->new;
-        $twig->parse($response);
+
+        my $twig = $self->_run_query($self->_build_url($EntrezGet, \%p));
         my $root = $twig->root;
         my $list = $root->first_child('IdList');
         @data = map { $_->text } $list->children('Id');
@@ -485,6 +476,7 @@ sub get_taxonids {
 }
 
 *get_taxonid = \&get_taxonids;
+
 
 =head2 ancestor
 
@@ -510,6 +502,7 @@ sub ancestor {
     my $ancestor_id = $RELATIONS->{ancestors}->{$id} || return;
     return $self->_make_taxon($DATA_CACHE->{full_info}->{$ancestor_id} || $DATA_CACHE->{minimal_info}->{$ancestor_id});
 }
+
 
 =head2 each_Descendent
 
@@ -542,9 +535,8 @@ sub each_Descendent {
     return @children;
 }
 
-=head2 Some Get/Setter methods
 
-=cut
+=head2 Some Get/Setter methods
 
 =head2 entrez_url
 
@@ -563,6 +555,7 @@ sub entrez_url{
     return $self->{'_entrez_url'};
 }
 
+
 =head2 entrez_params
 
  Title   : entrez_params
@@ -577,16 +570,15 @@ sub entrez_params{
     my $self = shift;
     my $f;
     if( @_ ) {
-	$f = $self->{'_entrez_params'} = shift;
+        $f = $self->{'_entrez_params'} = shift;
     } else {
-	$f = $self->{'_entrez_params'};
+        $f = $self->{'_entrez_params'};
     }
     return %$f;
 }
 
-=head2 Bio::DB::WebBase methods
 
-=cut
+=head2 Bio::DB::WebBase methods
 
 =head2 proxy_string
 
@@ -618,6 +610,7 @@ sub entrez_params{
 
 =cut
 
+
 # make a Taxon object from data hash ref
 sub _make_taxon {
     my ($self, $data) = @_;
@@ -641,5 +634,34 @@ sub _make_taxon {
     
     return $taxon;
 }
+
+
+sub _build_url {
+    # Given a eutility (esearch.fcgi, efetch.fcgi or esummary.fcgi) and a
+    # hashref or parameters, build a url suitable for eutil query
+    my ($self, $eutility, $p) = @_;
+    my $params = join($UrlParamSeparatorValue, map { $_.'='.$p->{$_} } keys %$p);
+    my $url = $self->entrez_url.$eutility.'?'.$params;
+    $self->debug("url is $url\n");
+    return $url;
+}
+
+
+sub _run_query {
+    # Given an eutil url, run the eutil query and parse the response into an
+    # XML Twig object
+    my ($self, $url) = @_;
+    my $response = $self->get($url);
+    if ($response->is_success) {
+        $response = $response->content;
+    }else {
+        $self->throw("Can't query website: ".$response->status_line);
+    }
+    $self->debug("response is $response\n");
+    my $twig = XML::Twig->new;
+    $twig->parse($response);
+    return $twig;
+}
+
 
 1;

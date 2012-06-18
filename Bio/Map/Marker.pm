@@ -1,12 +1,12 @@
 #
 # BioPerl module for Bio::Map::Marker
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Sendu Bala <bix@sendu.me.uk>
 #
 # Copyright Chad Matsalla
-# 
+#
 # You may distribute this module under the same terms as perl itself
 
 # POD documentation - main docs before the code
@@ -22,15 +22,15 @@ that can have multiple location in several maps.
 
   # a marker with complex localisation
   $o_usat = Bio::Map::Marker->new(-name=>'Chad Super Marker 2',
-				  -positions => [ [$map1, $position1], 
-                                                  [$map1, $position2] 
+				  -positions => [ [$map1, $position1],
+                                                  [$map1, $position2]
 						] );
 
   # The markers deal with Bio::Map::Position objects which can also
-  # be explicitely created and passed on to markers as an array ref:
+  # be explicitly created and passed on to markers as an array ref:
   $o_usat2 = Bio::Map::Marker->new(-name=>'Chad Super Marker 3',
 				  -positions => [ $pos1, 
-                                                  $pos2 
+                                                  $pos2
 						] );
 
   # a marker with unique position in a map
@@ -39,14 +39,14 @@ that can have multiple location in several maps.
 				   -position => 100
 				   );
 
-  # an other way of creating a marker with unique position in a map:
+  # another way of creating a marker with unique position in a map:
   $marker2 = Bio::Map::Marker->new(-name=>'hypervariable2');
   $map1->add_element($marker2);
   $marker2->position(100);
 
   # position method is a short cut for get/setting unique positions
   # which overwrites previous values
-  # to place a marker to other maps or to have multiple positions 
+  # to place a marker to other maps or to have multiple positions
   # for a map within the same map use add_position()
 
   $marker2->add_position(200);	# new position in the same map
@@ -85,15 +85,15 @@ Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -102,7 +102,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Chad Matsalla
 
@@ -138,7 +138,7 @@ use base qw(Bio::Map::Mappable Bio::Map::MarkerI);
  Function: Builds a new Bio::Map::Marker object
  Returns : Bio::Map::Marker
  Args    :
-           -name    => name of this microsatellite 
+           -name    => name of this microsatellite
                        [optional], string,default 'Unknown'
            -default_map => the default map for this marker, a Bio::Map::MapI
            -position => map position for this marker, a Bio::Map::PositionI
@@ -153,23 +153,23 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 	bless($self, ref $class || $class);
-	
-    my ($name, $default_map, $map, $position, $positions) = 
+
+    my ($name, $default_map, $map, $position, $positions) =
 	$self->_rearrange([qw(NAME
 				  DEFAULT_MAP
 			      MAP
 			      POSITION
 			      POSITIONS
 			      )], @args);
-    
-    if ($name) { $self->name($name); } 
+
+    if ($name) { $self->name($name); }
     else {$self->name('Unnamed marker'); }
-    
+
     $map         && $self->default_map($map);
 	$default_map && $self->default_map($default_map);
-    $position    && $self->position($position); 
+    $position    && $self->position($position);
     $positions   && $self->positions($positions);
- 
+
     return $self;
 }
 
@@ -226,7 +226,7 @@ sub get_position_object {
 	if ($value) {
 		$self->throw("Value better be scalar, not [$value]") unless ref($value) eq '';
 	}
-	
+
 	my $pos = Bio::Map::Position->new();
 	$pos->map($map) if $map;
     $pos->value($value) if defined($value);
@@ -253,12 +253,12 @@ sub get_position_object {
 
 sub position {
     my ($self, $pos, $pos_actual) = @_;
-    
+
 	if ($pos) {
 		$self->purge_positions;
 		$self->add_position($pos, $pos_actual);
 	}
-    
+
     my @positions = $self->each_position;
     $self->warn('This marker has more than one Position, returning the most recently added') if scalar @positions > 1;
     return pop(@positions);
@@ -282,7 +282,7 @@ sub position {
 sub add_position  {
     my ($self, $pos, $pos_actual) = @_;
     $self->throw("Must give a Position") unless defined $pos;
-    
+
     my $map = $self->default_map;
 	my $pos_map;
 	if (ref($pos)) {
@@ -292,7 +292,7 @@ sub add_position  {
 				$self->throw("Supplied an array ref but did not contain two values, the first an object");
 			}
 		}
-		
+
 		if ($pos->isa('Bio::Map::PositionI')) {
 			$pos_map = $pos->map;
 			$self->default_map($pos_map) unless $map;
@@ -307,9 +307,9 @@ sub add_position  {
 			$self->throw("This is [$pos], not a Bio::Map::PositionI or Bio::Map::MapI object");
 		}
 	}
-	
+
 	$self->throw("You need to give a marker a default map before you can set positions without explicit map!" ) unless $map;
-	
+
 	if (ref($pos) && $pos->isa('Bio::Map::PositionI')) {
 		$pos->map($map) unless $pos_map;
 		$self->SUPER::add_position($pos);
@@ -331,7 +331,7 @@ sub add_position  {
 
 sub positions {
     my ($self, $args_ref) = @_;
-    
+
     foreach my $arg (@{$args_ref}) {
         if (ref($arg) eq 'ARRAY') {
             $self->add_position(@{$arg});
@@ -355,7 +355,7 @@ sub positions {
 sub in_map {
 	my ($self, $query) = @_;
 	$self->throw("Must supply an argument") unless defined($query);
-    
+
 	if (ref($query) eq '') {
 		foreach my $map ($self->known_maps) {
 			my $uid = $map->unique_id;
@@ -367,7 +367,7 @@ sub in_map {
     else {
 		return $self->SUPER::in_map($query);
 	}
-    
+
     return 0;
 }
 

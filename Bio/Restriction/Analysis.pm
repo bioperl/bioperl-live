@@ -120,7 +120,7 @@ by the enzyme(s).  However, this will change the start of the
 sequence!
 
 There are two separate algorithms used depending on whether your
-enzyme has ambiguity. The non-ambiguous algoritm is a lot faster,
+enzyme has ambiguity. The non-ambiguous algorithm is a lot faster,
 and if you are using very large sequences you should try and use
 this algorithm. If you have a large sequence (e.g. genome) and 
 want to use ambgiuous enzymes you may want to make separate
@@ -165,7 +165,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR
 
@@ -204,8 +204,8 @@ use Bio::Restriction::EnzymeCollection;
 use strict;
 use Data::Dumper;
 
-use vars qw ();
 use base qw(Bio::Root::Root);
+use Scalar::Util qw(blessed);
 
 =head1 new
 
@@ -218,7 +218,7 @@ use base qw(Bio::Root::Root);
                  -enzymes=>Restriction::EnzymeCollection object)
 	     -seq requires a Bio::PrimarySeq object
 	     -enzymes is optional.
-              If ommitted it will use the default set of enzymes
+              If omitted it will use the default set of enzymes
 
 This is the place to start. Pass in a sequence, and you will be able
 to get the fragments back out.  Several other things are available
@@ -520,9 +520,9 @@ sub fragment_maps {
     # for every enzyme this should cut down on the amount of
     # duplicated data we are trying to save in memory and make this
     # faster and easier for large sequences, e.g. genome analysis
-
+    
     my @cut_positions;
-    if (ref $enz eq '') {
+    if (ref $enz eq '' && exists $self->{'_cut_positions'}->{$enz}) {
         @cut_positions=@{$self->{'_cut_positions'}->{$enz}};
     } elsif ($enz->isa("Bio::Restriction::EnzymeI")) {
         @cut_positions=@{$self->{'_cut_positions'}->{$enz->name}};
@@ -531,7 +531,7 @@ sub fragment_maps {
         @cut_positions=@{$self->{'_cut_positions'}->{'multiple_digest'}};
     }
 
-    unless ($cut_positions[0]) {
+    unless (defined($cut_positions[0])) {
         # it doesn't cut
         # return the whole sequence
         # this should probably have the is_circular command
@@ -553,6 +553,7 @@ sub fragment_maps {
 
     my $start=1; my $stop; my %seq; my %stop;
     foreach $stop (@cuts) {
+        next if !$stop; # cuts at beginning of sequence
         $seq{$start}=$self->{'_seq'}->subseq($start, $stop);
         $stop{$start}=$stop;
         $start=$stop+1;
@@ -606,11 +607,11 @@ on a gel!
 You should be able to do these:
 
   # to see all the fragment sizes,
-  print join "\n", @{$re->sizes($enz)}, "\n";
+  print join "\n", $re->sizes($enz), "\n";
   # to see all the fragment sizes sorted
-  print join "\n", @{$re->sizes($enz, 0, 1)}, "\n";
+  print join "\n", $re->sizes($enz, 0, 1), "\n";
   # to see all the fragment sizes in kb sorted
-  print join "\n", @{$re->sizes($enz, 1, 1)}, "\n";
+  print join "\n", $re->sizes($enz, 1, 1), "\n";
 
 =cut
 
@@ -618,8 +619,15 @@ sub sizes {
     my ($self, $enz, $kb, $sort) = @_;
     $self->throw('no enzyme selected to get fragments for')
         unless $enz;
+    
+    if (blessed($enz)) {
+        $self->throw("Enzyme must be enzyme name or a Bio::Restriction::EnzymeI, not ".ref($enz))
+            if !$enz->isa('Bio::Restriction::EnzymeI');
+        $enz = $enz->name;
+    }
     $self->cut unless $self->{'_cut'};
     my @frag; my $lastsite=0;
+
     foreach my $site (@{$self->{'_cut_positions'}->{$enz}}) {
       $kb ? push (@frag, (int($site-($lastsite))/100)/10)
           : push (@frag, $site-($lastsite));

@@ -102,11 +102,11 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - James Gilbert, Mark Johnson
 
-Email - jgrg@sanger.ac.uk, mjohnson@watson.wustl.edu
+Email - jgrg@sanger.ac.uk, johnsonm-at-gmail-dot-com 
 
 =head1 APPENDIX
 

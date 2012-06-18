@@ -12,16 +12,72 @@ Some of that history is also highlighted on our wiki:
 
 Bugs and requested features list:
 
-   http://bugzilla.open-bio.org
+   https://redmine.open-bio.org/projects/bioperl
 
 CPAN releases are branched from 'master'.
 ---------------------------------------------------------
- 
-1.6.1_1 RELEASE_DATE_HERE (first 1.6.2 alpha)
+
+1.?.?
+
+    [Bug fixes]
+
+    * [3240] Bio::AlignIO::stockholm now parses simple sequences [Bernd Web,
+      cjfields]
+    * [3237] Bio::DB::Fasta now allows blank lines between sequences, catches
+      instances where blank lines are within sequences [cjfields]
+    * [3238] Fixes for Bio::DB::SeqFeature::Store::DBI::Pg [Thomas Burkhard,
+      cjfields]
+    * Various fixes for Stockholm file indexing and processing [bosborne]
+    * Fix edge case in FASTQ parsing where sequence of length 1 and qual of 0
+      breaks parsing [cjfields]
+
+1.6.901 May 18, 2011
+
+    [Notes]
+
+    * Use of AcePerl is deprecated; Ace.pm isn't actively maintained, and
+      modules using Ace will also be deprecated [lds, cjfields]
+    * Minor bug fix release
+    * Bio::SeqIO::gbxml tests require XML::SAX [hartzell]
+    * Address Build.PL issues when DBI is not present [hartzell]
+    * Skip gbxml.t and Interpro tests when modules not installed [cjfields]
+    * Remove deprecated code for perl 5.14.0 compat [cjfields]
+    * Due to schema changes and lack of support for older versions, support
+      for NeXML 0.9 is only (very) partially implemented.
+      See: https://redmine.open-bio.org/issues/3207
+
+    [Bug fixes]
+
+    * [3205] - small fix to Bio::Perl blast_sequence() to make compliant with
+      docs [genehack, cjfields]
+    * $VERSION for CPAN/cpanm-based installs was broken; force setting of
+      module version from dist_version (probably not the best way to do this,
+      but it seems to work) [rbuels, cjfields]
+
+
+1.6.900 April 14, 201
+
+    [Notes]
+
+    * This will probably be the last release to add significant features to
+      core modules; subsequent releases will be for bug fixes alone.
+      We are planning on a restructuring of core for summer 2011, potentially
+      as part of the Google Summer of Code.  This may become BioPerl 2.0.
+    * Version bump represents 'just prior to v 1.7'.  We may have point
+      releases to deal with bugs, with increments of 1.6.901, 1.6.902, etc.
+      This code essentially is what is on the github master branch.
+
     [New features]
+
     * Core code updated for perl 5.12.x [cjfields, Charle Tilford]
+    * Bio::Tree refactor
+        - major overhaul of Bio::Tree code by Greg Jordan, fixes several bugs
+        - removal of Scalar::Util::weaken code, which was causing odd headaches
+          with premature GC, memory leaks with perl 5.10.0, etc [cjfields]
+    * Bio::DB::SeqFeature bug fixes for GBrowse2 compatibility [lds, scottcain,
+          many others]
     * Bio::SeqIO::msout, Bio::SeqIO::mbsout - parsers for ms and mbs
-      [Warren Kretzschmar]
+          [Warren Kretzschmar]
     * Bio::SeqIO::gbxml
         - bug 2515 - new contribution [Ryan Golhar, jhannah]
     * Bio::Assembly::IO
@@ -34,29 +90,126 @@ CPAN releases are branched from 'master'.
     * Bio::OntologyIO
         - Added parsing of xrefs to OBO files, which are stored as secondary
             dbxrefs of the cvterm [Naama Menda]
+        - General Interpro-related code refactors [dukeleto, rbuels, cjfields]
+    * PAML code updated to work with PAML 4.4d [DaveMessina]
 
     [Bug fixes]
-    * bug 3077 - Bio::SimpleAlign slice() now correctly computes seq coordinates
-      for alignment slices [Ha X. Dang, cjfields]
-    * bug 3116, 3117 - perl 5.12.x warnings fixed [cjfields, Charles Tilford]
-    * bug 3120 - bp_seqfeature_gff3.pl round-trip fixes [genehack, jhannah]
-    * bug 3122 - Catch instances where non-seekable filehandles were being
-      seek'd w/o checking for status [Stefan Kirov, Roy Chaudhuri]
-    * bug 3120 - bp_seqfeature_gff3.pl '-y' option [genehack, David Breimann]
-    * bug 3126 - catch description [Toshihiko Akiba]
-    * bug 2983 - fix score/percent ID mixup [Alexie Papanicolaou]
-    * bug 2984 - let LocatableSeq decide on length of phylip aln [Adam Witney, 
-                 cjfields]
+
+    * [3198] - sort tabular BLAST hits by score [DaveMessina]
+    * [3196] - fix invalid metadata produced by latest Module::Build [cjfields]
+    * [3190] - RemoteBlast GAPCOSTS regex fix [Ali Walsh, cjfields]
+    * [3185] - Bio::Tools::SeqStats->get_mol_wt now gives correct MW
+               [cjfields]
+    * [3178] - fix tr/// issue in Bio::Range [Andrew Conley, cjfields]
+    * [3172] - Bio::DB::Fasta - catch possibly bad FASTA files [cjfields]
+    * [3164] - TreeFunctionsI syntax  bug [gjuggler]
+    * [3163] - AssemblyIO speedup [fangly]
+    * [3160] - Bio::SearchIO::Writer::TextResultWriter output [Paul Cantalupo,
+               hyphaltip]
+    * [3159] - add SwissPfam support to bp_index.PLS [hyphaltip]
+    * [3158] - fix EMBL file mis-parsing [cjfields]
+    * [3157] - Bio::Restriction::Analysis 'sizes' method fixed [Marc Perry,
+               cjfields]
+    * [3153] - fix SeqIO::swiss TagTree issues [Charles Tilford, cjfields]
+    * [3148] - URL change for UniProt [cjfields]
+    * [3145] - AXT off-by-1 error [Aaron Goodman, cjfields]
+    * [3136] - HMMer3 parser fixes [kblin]
+    * [3126] - catch description [Toshihiko Akiba]
+    * [3122] - Catch instances where non-seekable filehandles were being
+               seek'd w/o checking for status [Stefan Kirov, Roy Chaudhuri]
+    * [3121] - Bio::OntologyIO cannot parse the full InterPro XML file
+               [dukeleto, rbuels, cjfields]
+    * [3120] - bp_seqfeature_gff3.pl round-trip fixes [genehack, David Breimann,
+               jhannah]
+    * [3116,3117] - perl 5.12.x warnings fixed [cjfields, Charles Tilford]
+    * [3110] - Better 'namespace' support for bp_seqfeature_load.PLS [dbolser,
+               cjfields]
+    * [3107] - BLAST alignment column_from_residue_number() [cjfields]
+    * [3104] - Bio::Species single node hierarchies [Charles Tilford, cjfields]
+    * [3092, 3090] - parsing of BLAST HSP stats [Razi Khaja, cjfields]
+    * [3089] - HSPTableWriter missing methods [Robson de Souza, cjfields]
+    * [3086] - EMBL misparsing long tags [kblin, cjfields]
+    * [3085] - CommandExts and array of files [maj, hyphaltip]
+    * [3077] - Bio::SimpleAlign slice() now correctly computes seq coordinates
+               for alignment slices [Ha X. Dang, cjfields]
+    * [3076] - XMFA alignment strand wrong [Ha X., cjfields]
+    * [3073] - fix parsing of GenBank files from RDP [cjfields]
+    * [3068] - FASTQ parse failure with trailing 0 [cjfields]
+    * [3064] - All-gap midline BLAST report issues [cjfields]
+    * [3063] - BLASt report RID [Razi Khaja, cjfields]
+    * [3058] - SearchIO::fasta parsing [DaveMessina, cjfields]
+    * [3053] - LOCUS line formatting [M. Wayne, cjfields]
+    * [3039] - correct Newick output root node branch length [gjuggler,
+               DaveMessina]
+    * [3038] - SELEX alignment error [Bernd, cjfields]
+    * [3033] - PrimarySeq ID setting [Bernd, maj]
+    * [3032] - Fgenesh errors [Wes Barris, hyphaltip]
+    * [3034] - AlignIO::clustal output [Bernd, DaveMessina]
+    * [3031] - Parse algorithm ref for BLAST [Razi Khaja, cjfields]
+    * [3028] - Bio::TreeIO::nexus and FigTree compat [Kevin Balbi, cjfields]
+    * [3025] - Bio::SeqIO::embl infinite loop [Adam Sjøgren, cjfields]
+    * [3040, 3023, 2974, 2921, 2753, 2636, 2482] - PAML parser fixed, works with
+               PAML 4.4d [DaveMessina]
+    * [3015, 3022] - Bio::Restriction withrefm regexp [Emmanuel Quevillon,
+               DaveMessina]
+    * [3020] - GFF3Loader alias attribute [Nathan Weeks, cjfields]
+    * [3018, 3019, 3021] - gmap_f9 parsing [Kiran Mukhyala, cjfields]
+    * [3017] - using threads with Bio::DB::GenBank [cjfields]
+    * [3012] - Bio::Root::HTTPget fixes [maj, cjfields]
+    * [3011] - namespace support for SF::Store::DBI::Pg [Adam Witney, cjfields]
+    * [3002] - Bio::DB::EUtilities NCBI policy updates [cjfields]
+    * [3001] - seq identifier '0' dropped with FASTA [Michael Kuhn, maj]
+    * [2984] - let LocatableSeq decide on length of phylip aln [Adam Witney,
+               cjfields]
+    * [2983] - fix score/percent ID mixup [Alexie Papanicolaou]
+    * [2977] - TreeIO issues [DaveMessina]
+    * [2959] - Bio::SeqUtils->revcom_with_features [Roy Chaudhuri, maj]
+    * [2944] - Bio::Tools::GFF score [cjfields]
+    * [2942] - correct MapTiling output [maj]
+    * [2939] - PDB residue insertion codes [John May, maj]
+    * [2930] - PrimarySeqI term symbol [Adam Sjøgren, maj]
+    * [2928] - GuessSeqFormat raw [maj]
+    * [2926] - Bio:Tools::TandemRepeatsFinder seq_id [takadonet, cjfields]
+    * [2922] - open() directive issue [cjfields]
+    * [2915] - GenBank parser infinite loop [Francisco Ossandon, cjfields]
+    * [2901] - DNAStatistics div by zero error [Janet Young, cjfields]
+    * [2899] - SeqFeature::Store host issues [lstein, dbolser]
+    * [2897] - Add a "mask_below_threshold" method to Seq::Quality [dbolser,
+               cjfields]
+    * [2881] - .scf files don't' roundtrip [Adam Sjøgren, cjfields]
+    * [2876] - CDD search with RemoteBlast [Malcolm Cook]
+    * [2863] - Root::IO::_initialize_io causes crash [rbuels, maj, DaveMessina]
+    * [2845] - Bio::Seq::Quality gives seq with no ID [Tristan Lefebure, cjfields]
+    * [2843] - FeatureIO BED to GFF fails w/ no phase [cassjm cjfields]
+    * [2773] - Bio::Tree::Node premature GC [Morgan Price, cjfields]
+    * [2764] - add ID Tracker helper for SwissProt [heikki, cjfields]
+    * [2758] - Bio::AssemblyIO ace problems [fangly]
+    * [2744] - Bio::LocatableSeq::end [Bernd, cjfields]
+    * [2726] - ace file IO [Josh, fangly]
+    * [2700] - Refactor Build.PL [cjfields]
+    * [2673] - addition of simple Root-based clone() method [cjfields]
+    * [2648] - Bio::Assembly::Scaffold->get_all_seq_ids [dbolser, fangly]
+    * [2599] - support for DBLINK annotation in GenBank files [cjfields]
+    * [2594] - Bio::Species memory leak [cjfields]
+    * [2515] - GenBank XML parser [jhannah]
+    * [2499] - Method "pi" in package Bio::PopGen::Statistics [hyphaltip]
+    * [2483] - Bio::Assembly::IO::ace write_assembly implemented [fangly]
+    * [2350] - ID consistency btwn Bio::SeqI, Bio::Align::AlignI [fangly,
+               cjfields]
+    * [1572] - no docs Bio::Location::Simple/Atomic::trunc [hyphaltip]
 
     [Deprecated]
+
     * Bio::Expression modules - these were originally designed to go with the
       bioperl-microarray suite of tools, however they have never been completed
       and so have been removed from the distribution.  The original code has
       been moved into the inactive bioperl-microarray suite. [cjfields]
-      
+
     [Other]
+
     * Repository moved from Subversion (SVN) to
       http://github.com/bioperl/bioperl-live [cjfields]
+    * Bug database has moved to Redmine (https://redmine.open-bio.org)
     * Bio::Micrarray - the tools developed for ReSeq chip analysis by Marian
       Thieme have been moved to their own distribution (Bio-Microarray).
       [cjfields]
@@ -236,7 +389,7 @@ CPAN releases are branched from 'master'.
           in favor of num_* [cjfields]
         - lots of new tests for the above bugs and refactors [everyone!]
         - new template for Komodo text editor [cjfields]
-    
+
 1.6.0 Winter 2009
     * Feature/Annotation rollback
         - Problematic changes introduced prior to the 1.5 release have been
@@ -278,37 +431,37 @@ CPAN releases are branched from 'master'.
       - Overhaul. Brand new system fully allows markers to have multiple
         positions on multiple maps, and to have relative positions. Should be
         backward compatible.
-    
+
     o Bio::Taxonomy
       - This module and all the modules in the Taxonomy directory now
         deprecated in favour of Bio::Taxon and Bio::Tree::Tree
-    
+
     o Bio::DB::Taxonomy
-      
+
       - Taxonomy.pm
         * get_Taxonomy_Node() eventually to be deprecated, renamed get_taxon().
-        
+
         * New methods ancestor(), each_Descendent() and _handle_internal_id().
-        
+
         * Allows for different database modules to create Bio::Taxon objects
           with the same internal id when the same taxon is requested from each.
-    
+
       - flatfile.pm
         * get_Children_Taxids() is deprecated, superceded by each_Descendent().
-        
+
         * No longer includes the fake root node 'root'; there are multiple roots
           now (10239, 12884, 12908, 29384 and 131567). Consistent with entrez.pm
-    
+
       - entrez.pm
         * get_node() has new option -full
-        
+
         * Caches data retrieved from website
-    
+
     o Bio::Species
       - Now a Bio::Taxon. Carries out the species name -> specific name munging
         that Bio::DB::Taxonomy modules and SeqIO modules used to do, for
         backward compatability in species() method.
-    
+
     o Bio::Search and Bio::SearchIO
       - Overhaul. The existing system has been sped up via some minor changes
         (mostly gain-of-function to the API). Bio::PullParserI is introduced
@@ -332,7 +485,7 @@ CPAN releases are branched from 'master'.
        * Treat multi-line SOURCE sections correctly, this defect broke
          both common_name() and classification()
 
-       * parse swissprot fields in genpept file 
+       * parse swissprot fields in genpept file
 
        * parse WGS genbank records
 
@@ -348,7 +501,7 @@ CPAN releases are branched from 'master'.
           it. Like: "genomic DNA"
 
      - swiss.pm: bugs  #1727, #1734
-     
+
      - entrezgene.pm
         * Added parser for entrezgene ASN1 (text format) files.
           Uses Bio::ASN1::EntrezGene as a low level parser (get it from CPAN)
@@ -356,18 +509,18 @@ CPAN releases are branched from 'master'.
     o Bio::AlignIO
 
      -  maf.pm coordinate problem fixed
-      
+
     o Bio::Taxonomy and Bio::DB::Taxonomy
 
-     - Parse NCBI XML now so that nearly all the taxonomy up-and-down 
+     - Parse NCBI XML now so that nearly all the taxonomy up-and-down
        can be done via Web without downloading all the sequence.
- 
+
     o Bio::Tools::Run::RemoteBlast supports more options and complies
       to changes to the NCBI interface. It is reccomended that you
       retrieve the data in XML instead of plain-text BLAST report to
       insure proper parsing and retrieval of all information as NCBI
       fully expects to change things in the future.
- 
+
     o Bio::Tree and Bio::TreeIO
 
       - Fixes so that re-rooting a tree works properly
@@ -383,18 +536,18 @@ CPAN releases are branched from 'master'.
         LF.
 
       - Cladogram drawing module in Bio::Tree::Draw
-      
+
       - Node height and depth now properly calculated
 
       - fix tree pruning algorithm so that node with 1 child gets merged
 
     o Graphics tweaks.  Glyph::xyplot improved.  Many other small-medium sized
-      bugs and improvements were added, see Gbrowse mailing list for most of 
+      bugs and improvements were added, see Gbrowse mailing list for most of
       these.
 
-    o Bio::DB::GFF partially supports GFF3.  See information about 
+    o Bio::DB::GFF partially supports GFF3.  See information about
       gff3_munge flag in scripts/Bio-DB-GFF/bulk_load_gff.pl.
-         
+
     o Better location parsing in Bio::Factory::FTLocationFactory -
       this is part of the engine for parsing EMBL/GenBank feature table
       locations.  Nested join/order-by/complement are allowed now
@@ -402,23 +555,23 @@ CPAN releases are branched from 'master'.
     o Bio::PrimarySeqI->translate now takes named parameters
 
     o Bio::Tools::Phylo::PAML - parsing RST (ancestral sequence
-      reconstruction) is now supported.  Parsing different models and 
+      reconstruction) is now supported.  Parsing different models and
       branch specific parametes are now supported.
 
-    o Bio::Factory::FTLocationFactory - parse hierarchical locations 
+    o Bio::Factory::FTLocationFactory - parse hierarchical locations
       (joins of joins)
 
     o Bio::Matrix::DistanceMatrix returns arrayrefs instead of arrays
       for getter/setter functions
 
     o Bio::SearchIO
-      
-      - blast bug #1739; match scientific notation in score 
-        and possible e+ values 
+
+      - blast bug #1739; match scientific notation in score
+        and possible e+ values
 
       - blast.pm reads more WU-BLAST parameters and parameters, match
-        a full database pathname, 
-   
+        a full database pathname,
+
       - Handle NCBI WEB and newer BLAST formats specifically
         (Query|Sbjct:) match in alignment blocks can now be (Query|Sbjct).
 
@@ -435,7 +588,7 @@ CPAN releases are branched from 'master'.
 
       - Writer::GbrowseGFF more customizeable.
 
-    o Bio::Tools::Hmmpfam 
+    o Bio::Tools::Hmmpfam
       make e-value default score displayed in gff, rather than raw score
       allow parse of multiple records
 
@@ -526,7 +679,7 @@ CPAN releases are branched from 'master'.
       Bio::Search::StatisticsI objects that encapsulate any
       statistical parameters associated with the search (e.g. Karlin's
       lambda for BLAST/FASTA).
- 
+
     o Bio::Seq::LargeLocatableSeq combines the functionality already
       found in Bio::Seq::LargeSeq and Bio::LocatableSeq.
 
@@ -565,17 +718,17 @@ CPAN releases are branched from 'master'.
     o Bio::Tree::Statistics provides an assess_bootstrap() method to
       calculate bootstrap support values on a guide tree topology,
       based on provided bootstrap tree topologies.
-  
+
     o Bio::TreeIO now supports the Pagel (PAG) tree format.
-  
+
 1.4 branch
 
-1.4.1 
+1.4.1
 
   o Improvements to Bio::AlignIO::nexus for parsing TreeBase nexus files
-  
+
   o Bio::Graphics will work with gd1 or gd2
-   
+
   o Bio::SearchIO
    - hmmer.pm Better hmmpfam parsing, fix bug for small number of alignment outputs
      (RF lines alone)
@@ -589,7 +742,7 @@ CPAN releases are branched from 'master'.
 
 1.4. Stable major release
 
-Since initial 1.2.0, 3000 separate changes have been made to make this release. 
+Since initial 1.2.0, 3000 separate changes have been made to make this release.
 
    o installable scripts
 
@@ -599,7 +752,7 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
       - major improvements; SVG support
 
    o Bio::Popgen
-     - population genetics 
+     - population genetics
      - support several population genetics types of questions.
      - Tests for statistical neutrality of mutations
        (Fu and Li's D/F, Tajima's D) are in Bio::PopGen::Statistics.
@@ -671,7 +824,7 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
      stream
 
    o new parsers in Bio::Tools:
-      Blat, Geneid, Lagan, Mdust, Promoterwise, PrositeScan,  
+      Blat, Geneid, Lagan, Mdust, Promoterwise, PrositeScan,
 
    o Bio::DB::Registry bugs fixed
      - BerkeleyDB-indexed flat files can be used by the OBDA system
@@ -682,10 +835,10 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
      - SimpleWebAnalysis, Trees, Feature Annotation, OBDA Access, Flat
        Databases
 
-   o hundreds of new and improved files 
+   o hundreds of new and improved files
 
 
-   o 
+   o
    o Bio::Tree::AlleleNode has been updated to be a container of
      an Bio::PopGen::Individual object for use in the Coalescent simulations.
 
@@ -696,7 +849,7 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
     o Bug #1475 - Fix and add speedup to spliced_seq for remote location
                   handling.
     o Bug #1477 - Sel --> Sec abbreviation fixed
-    o Fix bug #1487 where paring in-between locations when 
+    o Fix bug #1487 where paring in-between locations when
       end < start caused the FTLocationFactory logic to fail.
     o Fix bug #1489 which was not dealing with keywords as an
       arrayref properly (this is fixed on the main trunk because
@@ -710,14 +863,14 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
        this was only present on the branch for the 1.2.1 and 1.2.2 series
        - Also merged main trunk changes to the branch which make
          newick -> nhx round tripping more effective (storing branch length
-         and bootstrap values in same locate for NodeNHX and Node 
+         and bootstrap values in same locate for NodeNHX and Node
          implementations.)  Fixes to TreeIO parsing for labeled internal
          also required small changes to TreeIO::nhx.  Improved
          tests for this module as well.
     o Bio::SearchIO
       - Fixed bugs in BLAST parsing which couldn't parse NCBI
         gapped blast properly (was losing hit significance values due to
-        the extra unexpeted column).    
+        the extra unexpeted column).
       - Parsing of blastcl3 (netblast from NCBI) now can handle case of
         integer overflow (# of letters in nt seq dbs is > MAX_INT)
         although doesn't try to correct it - will get the negative
@@ -725,9 +878,9 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
       - Fixed HMMER parsing bug which prevented parsing when a hmmpfam report
         has no top-level family classification scores but does have scores and
         alignments for individual domains.
-      - Parsing FASTA reports where ungapped percent ID is < 10 and the 
+      - Parsing FASTA reports where ungapped percent ID is < 10 and the
         regular expression to match the line was missing the possibility of
-        an extra space.  This is rare, which is why we probably did not 
+        an extra space.  This is rare, which is why we probably did not
         catch it before.
       - BLAST parsing picks up more of the statistics/parameter fields
         at the bottom of reports.  Still not fully complete.
@@ -743,16 +896,16 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
       - Added a 1.2003 version number.
      o SeqIO::swiss Bug #1504 fixed with swiss writing which was not
        properly writing keywords out.
-     o Bio::SeqIO::genbank 
+     o Bio::SeqIO::genbank
       - Fixed bug/enhancement #1513 where dates of
         the form D-MMM-YYYY were not parsed.  Even though this is
         invalid format we can handle it - and also cleanup the date
         string so it is properly formatted.
-      - Bug/enhancement #1517 fixed so that SEGMENT line can be parsed 
+      - Bug/enhancement #1517 fixed so that SEGMENT line can be parsed
         and written with Genbank format.  Similarly bug #1515 is fixed to
         parse in the ORIGIN text.
      o Bio::SeqIO::fasta, a new method called preferred_id_type allows you
-       to specify the ID type, one of (accession accession.version 
+       to specify the ID type, one of (accession accession.version
        display primary).  See Bio::SeqIO::preferred_id_type method
        documentation for more information.
      o Unigene parsing updated to handle file format changes by NCBI
@@ -763,12 +916,12 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
       - auto-discover ontology name
       - bug in parsing relationships when certain characters are in the term
       - fixed hard-coded prefix for term identifiers
-      - various smaller issues 
+      - various smaller issues
 
     o Fixed bug in Bio::Annotation::OntologyTerm of not implementing all
       of Bio::Ontology::TermI
 
-    o brought the OBDA Registry code up to latest specs 
+    o brought the OBDA Registry code up to latest specs
 
     o Bio::DB::GenBank
       - eutils URL change
@@ -776,13 +929,13 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
 
     o Bio::SearchIO::blast - fix bug #1443 (missing last hits), parse megablast
 
-    o Bio::SearchIO::Writer::(HTML|Text)ResultWriter fix bugs #1458, 
+    o Bio::SearchIO::Writer::(HTML|Text)ResultWriter fix bugs #1458,
       #1459 which now properly report alignment start/end info
       for translated BLAST/FASTA searches.
-    
+
     o Bio::TreeIO::newick can parse labeled internal nodes
 
-    o Bio::Tools::BPbl2seq can properly report strand info for HSPs 
+    o Bio::Tools::BPbl2seq can properly report strand info for HSPs
       for BLASTX if if you provide -report_type => 'BLASTX' when
       initializing a BPbl2seq object.  Bioperl 1.3 will have better
       support for bl2seq in the SearchIO system.
@@ -794,7 +947,7 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
 
     o Bio::Tools::Genemark bug #1435 fixed which was missing last prediction
 
-    o Bio::SeqIO::genbank 
+    o Bio::SeqIO::genbank
       - bug #1456 fixed which generated extra sequence lines
       - write moltype correctly for genpept
 
@@ -809,13 +962,13 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
 
     o A fix to Bio::Index::EMBL allowing  retrieval of entries using
       the primary accession number
- 
+
     o Other bug fixes, including bpindex GenBank fix
-   
+
     o Bio::SeqIO::genbank bug #1389 fixed
 
 1.2  Stable major release
- 
+
     o More functionality added to Bio::Perl, the newbie module
 
     o Bug fixes in Bio::TreeIO::newick fixes bug introduced in 1.0.2
@@ -834,12 +987,12 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
 
     o Bio::Assembly added for representing phrap and ace assembly clusters.
 
-    o Rudimentary support for writing Chado XML (see 
-      GMOD project: www.gmod.org for more information) 
+    o Rudimentary support for writing Chado XML (see
+      GMOD project: www.gmod.org for more information)
 
-    o Bio::Coordinate for mapping between different coordinate systems such 
+    o Bio::Coordinate for mapping between different coordinate systems such
       as protein -> cDNA -> Exon -> DNA and back.  Useful for mapping
-      features into different coordinate systems.  
+      features into different coordinate systems.
 
     o Bio::DB::GenBank/Bio::DB::GenPept now support Entrez queries
       with the get_Stream_by_query method and supports the latest
@@ -853,13 +1006,13 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
 
     o Deprecated modules are now listed in the DEPRECATED file
 
-    o New HowTo documents located in doc/howto describing 
+    o New HowTo documents located in doc/howto describing
       a domain of Bioperl.
 
-    o Note that bugs are now stored at bugzilla.bioperl.org
+    o Note that bugs are now stored at redmine.open-bio.org/projects/bioperl/
       and all old bugs are searchable through the bugzilla interface.
 
-    o Several reported bugs in Bio::Tools::Sigcleave and Bio::SimpleAlign 
+    o Several reported bugs in Bio::Tools::Sigcleave and Bio::SimpleAlign
       have been addressed.
 
     o Support for Genewise parsing in Bio::Tools::Genewise
@@ -882,7 +1035,7 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
 
     o Numerous fixes to Bio::SearchIO and sequence parsing (swissprot)
 
-1.1 Developer release 
+1.1 Developer release
 
     o Bio::Tools::Run has been broken off into a new pkg bioperl-run,
       this separation removes some of the complexity in our test suite
@@ -892,9 +1045,9 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
     o With latest ExtUtils::MakeMaker module installed SGI/IRIX should
       not run into trouble running the makefile
 
-    o Bio::Location and Bio::SeqIO::FTHelper are fixed to properly 
+    o Bio::Location and Bio::SeqIO::FTHelper are fixed to properly
       read,create,and write locations for grouped/split locations
-      (like mRNA features on genomic sequence).  
+      (like mRNA features on genomic sequence).
 
     o Bio::Tools::Phlyo added for wrappers for parsing Molphy (protml)
       and PAML (codeml,aaml, etc) parsing.
@@ -902,7 +1055,7 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
     o Bio::Tree:: objects expanded to handle testing monophyly,
       paraphyly, least common ancestor, etc.
 
-    o Bio::Coordinate for mapping locations from different coordinate spaces 
+    o Bio::Coordinate for mapping locations from different coordinate spaces
 
     o Bio::SearchIO::waba added for parsing WABA, Bio::SearchIO::hmmer
       added for parsing hmmpfam and hmmsearch output.
@@ -919,73 +1072,73 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
       on our main development branch and the functionality will be
       available in the next stable bioperl release (1.2) slated for
       Fall 2002.
- 
-    o Numerous parsing bugs in Bio::SearchIO::fasta found through 
+
+    o Numerous parsing bugs in Bio::SearchIO::fasta found through
       testset by Robin Emig.  These were fixed as was the get_aln
-      method in Bio::Search::HSP::GenericHSP to handle the extra 
+      method in Bio::Search::HSP::GenericHSP to handle the extra
       context sequence that is provided with a FastA alignment.
-    
-    o Migrating differences between Bio::Search::XX::BlastXX to 
+
+    o Migrating differences between Bio::Search::XX::BlastXX to
       Bio::Search::XX::GenericXX objects.  This included mechanism
-      to retrieve whole list of HSPs from Hits and whole list of Hits from 
+      to retrieve whole list of HSPs from Hits and whole list of Hits from
       Results in addition to the current next_XX iterator methods that
       are available.  Added seq_inds() method to GenericHSP which identifies
-      indexes in the query or hit sequences where conserved,identical,gaps, 
-      or mismatch residues are located (adapted from Steve Chervitz's 
+      indexes in the query or hit sequences where conserved,identical,gaps,
+      or mismatch residues are located (adapted from Steve Chervitz's
       implementation in BlastHSP).
 
     o Bio::DB::GFF bugs fixed and are necessary for latest GBrowse release.
       Bio::DB::GFF::RelSegment is now Bio::SeqI compliant.
-      
+
     o Bio::Graphics glyph set improved and extended for GBrowse release
 
     o Bio::Tree::Tree get_nodes implementation improvement thanks
-      to Howard Ross notice performance problem when writing out 
+      to Howard Ross notice performance problem when writing out
       unbalanced trees.
 
     o Bio::Location::Fuzzy::new named parameter -loc_type became
       -location_type, Bio::Location::Simple::new named parameter
       -seqid becamse -seq_id.
-   
+
     o Fixed major Bio::AlignIO::emboss parsing bug on needle output,
       was mis-detecting that gaps should be placed at the beginning of
       the alignment when the best alignment starts internally in the
       sequence.
 
 1.0.1 Bug fix release
-	
+
     o Minor bug fixes to Bio::DB:GFF.  Glyph sets improved.
- 
-    o Parser fixes in SearchIO blast, fasta for more complete WU BLAST 
+
+    o Parser fixes in SearchIO blast, fasta for more complete WU BLAST
       and mixed (3.3 - 3.4) versions of FASTA.
 
-    o Small API change to add methods for completeness across 
+    o Small API change to add methods for completeness across
       implementations of Bio::Search objects.  These new methods
-      in the interface are implemented by the GenericXX object as well 	
+      in the interface are implemented by the GenericXX object as well
       as the BlastXX objects.
-	* Bio::Search::Result::ResultI 
-	 - hits() method returns list of all Hits (next_hit is an 
+	* Bio::Search::Result::ResultI
+	 - hits() method returns list of all Hits (next_hit is an
 	   iterator method)
-	 	
+
 	* Bio::Search::Hit::HitI
-	 - hsps() method returns list of all HSPs (next_hsp is an 
+	 - hsps() method returns list of all HSPs (next_hsp is an
            iterator method)
-	
-    o The Bio::SearchIO::Writer classes have been fixed to handle results 
-       created from either psiblast (Search::BlastXX objects) or 
-       blast|fasta|blastxml objects (Search::GenericXX objects).  More work 
-       has to be done here to make it work properly and will nee major 
+
+    o The Bio::SearchIO::Writer classes have been fixed to handle results
+       created from either psiblast (Search::BlastXX objects) or
+       blast|fasta|blastxml objects (Search::GenericXX objects).  More work
+       has to be done here to make it work properly and will nee major
        API changes.
 
     o Bugs in Bio::Tools::HMMER fixed, including
        * #1178 - Root::IO destructor wasn't being called
        * #1034 - filter_on_cutoff now behaves properly
- 
-    o Bio::SeqFeature::Computation initialization args fixed and 
+
+    o Bio::SeqFeature::Computation initialization args fixed and
       tests added.
 
     o Tests are somewhat cleaner, flat.t now properly cleans up after itsself,
-      
+
     o Updated FAQ with more example based answers to typical questions
 
     o Bug #1202 was fixed which would improperly join together qual values
@@ -995,7 +1148,7 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
 1.0.0 Major Stable Release
 
   This represents a major release of bioperl with significant
-  improvements over the 0.7.x series of releases.   
+  improvements over the 0.7.x series of releases.
 
     o Bio::Tools::Blast is officially deprecated.  Please see
       Bio::SearchIO for BLAST and FastA parsing.
@@ -1003,16 +1156,16 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
     o The methods trunc() and subseq() in Bio::PrimarySeqI now accepts
       Bio::LocationI objects as well as start/end.
 
-    o Bio::Biblio contains modules for Bibliographic data. 
+    o Bio::Biblio contains modules for Bibliographic data.
       Bio::DB::Biblio contains the query modules.  Additionally one can
       parse medlinexml from the ebi bibliographic query service (BQS)
       system and Pubmed xml from NCBI.  See Martin Senger's
       documentation in Bio::Biblio for more information.
-    
-    o Bio::DB::Registry is a sequence database registry part of 
+
+    o Bio::DB::Registry is a sequence database registry part of
       Open Bioinformatics Database Access.  See
       http://obda.open-bio.org for more information.
-    
+
     o File-based and In-Memory Sequence caching is provided by
       Bio::DB::InMemoryCache and Bio::DB::FileCache which acts like a
       local database.
@@ -1026,9 +1179,9 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
       a starting point for frequent questions and issues.
 
 0.9.3 Developer's release
-    
+
     o Event based parsing system improved (SearchIO).  With parsers for
-      XML Blast (blastxml), Text Blast (blast), and FASTA results (fasta).  
+      XML Blast (blastxml), Text Blast (blast), and FASTA results (fasta).
       Additionally a lazy parsing system for text and html blast reports was
       added and is called psiblast (name subject to change in future releases).
 
@@ -1037,8 +1190,8 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
       "hit" consistently and the use of "subject" was deprecated in all active
       modules.
 
-    o Bio::Structure added (since 0.9.1) for Protein structure objects 
-      and PDB parser to retrieve and write these structures from data files. 
+    o Bio::Structure added (since 0.9.1) for Protein structure objects
+      and PDB parser to retrieve and write these structures from data files.
 
     o Several important Bio::DB::GFF bug fixes for handling features that
       are mapped to multiple reference points.  Updated mysql adaptor
@@ -1054,25 +1207,25 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
     o Bio::Tree and Bio::TreeIO for phylogenetic trees.  A Random tree
       generator is included in Bio::TreeIO::RandomTrees and a
       statistics module for evaluating.
-      
+
     o Bio::DB::GFF, Lincoln Stein's GFF database suitable as a DB
       server for DAS servers.
 
     o Bio::Tools::BPlite is provides more robust parsing of BLAST
       files.  The entire BPlite system migrated to using Bio::Root::IO
       for the data stream.
-	
+
     o Bio::Tools::Alignment for Consed and sequence Trimming
       functionality.
- 
+
     o Bio::Structure for Protein structure information and parsing
 
     o Bio::DB::GenBank/Bio::DB::GenPept updated to new NCBI Entrez
       cgi-bin entry point which should be more reliable.
-   
+
     o Bio::Map and Bio::MapIO for biological map navigation and a
       framework afor parsing them in.  Only preliminary work here.
- 
+
     o Interface for executing EMBOSS programs locally in Bio::Factory::EMBOSS
       Future work will integrate Pise and allow submission of analysis on
       remote servers.
@@ -1081,7 +1234,7 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
       introduced as new objects for handling Sequence Annotation
       information (dblinks, references, etc) and is more robust that
       previous system.
- 
+
     o Bio::Tools::FASTAParser introduced.
 
     o Scripts from the bioperl script submission project and new
@@ -1089,7 +1242,7 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
 
     o Factory objects and interfaces are being introduced and are more
       strictly enforced.
-	
+
     o Bio::Root::Root introduced as the base object while
       Bio::Root::RootI is now simply an interface.
 
@@ -1100,61 +1253,61 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
 
     o perl version at least 5.005 is now required instead of perl 5.004
 
-    o Bio::Tools::Run::RemoteBlast is available for running remote 
+    o Bio::Tools::Run::RemoteBlast is available for running remote
       blast jobs at NCBI.
 
     o Bio::Tools::BPbl2seq was fixed to handle multiple HSPs.
 
     o Bio::SeqFeature::GeneStructure migrated to Bio::SeqFeature::Gene.
-      Also added are related modules UTR3, UTR5, Exon, Intron, 
+      Also added are related modules UTR3, UTR5, Exon, Intron,
       Promotor, PolyA and Transcript.
 
-    o Speedup of translate method in PrimarySeq     
+    o Speedup of translate method in PrimarySeq
 
     o Bio::SimpleAlign has new methods: location_from_column(), slice(),
       select(), dot(), get_seq_by_pos(), column_from_residue_number()
 
     o Various fixes to Variation toolkit
-    
+
     o Bio::DB::EMBL provides database access to EMBL sequence data.
       Bio::DB::Universal provides a central way to point to indexes
       and dbs in a single interface.
 
     o Bio::DB::GFF - a database suitable for running DAS servers locally.
 
-    o Bio::Factory::EMBOSS is still in design phase as is  
+    o Bio::Factory::EMBOSS is still in design phase as is
       Bio::Factory::ApplicationFactoryI
 
     o Dia models for bioperl design are provided in the models/ directory
 
 0.7.2 Bug fix release
 
-    o documentation fixes in many modules - SYNOPSIS code verified 
+    o documentation fixes in many modules - SYNOPSIS code verified
       to be runnable in many (but not all modules)
 
     o corrected MANIFEST file from 0.7.1 release
-   
+
     o Bug fix in Bio::SeqIO::FTHelper to properly handle
       split locations
 
-    o Bio::SeqIO::genbank 
+    o Bio::SeqIO::genbank
 	* Correct parsing and writing of genbank format with protein data
-	* moltype and molecule separation	                   
+	* moltype and molecule separation
 
     o Bio::SeqIO::largefasta fix to avoid inifinite loops
-	
-    o Bio::SimpleAlign fixed to correctly handle consensus 
+
+    o Bio::SimpleAlign fixed to correctly handle consensus
       sequence calculation
 
     o Bio::Tools::HMMER supports hmmer 2.2g
 
-    o Bio::Tools::BPlite to support report type specific parsing.  Most 
+    o Bio::Tools::BPlite to support report type specific parsing.  Most
       major changes are not on the 0.7 branch.
-   
-    o Bio::Tools::Run::StandAloneBlast exists_blast() fixed and works 
-      with File::Spec 
 
-    o Bio::Variation::AAChange/RNAChange corrected labels and mutated alleles 
+    o Bio::Tools::Run::StandAloneBlast exists_blast() fixed and works
+      with File::Spec
+
+    o Bio::Variation::AAChange/RNAChange corrected labels and mutated alleles
 	in several types of mutations:
         1.) AA level: deletion, complex
         2.) AA level: complex, inframe
@@ -1166,7 +1319,7 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
        way to test if report was empty is to see if
        $report->query->seqname is undefined.
 
-0.7.1 Bug fix release 
+0.7.1 Bug fix release
 
     o Better parsing of genbank/EMBL files especially fixing bugs
       related to Feature table parsing and locations on remote
@@ -1180,7 +1333,7 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
 
     o Bio::Tools::BPlite can better parse BLASTX reports - see BUGS
       for related BPlite BUGS that are unresolved in this release.
-  
+
     o Bio::DB::GenBank, Bio::DB::GenPept have less problems
       downloading sequences from NCBI via HTTP.  Bio::DB::SwissProt can
       use expasy mirrors or EBI dbfetch cgi-script.
@@ -1208,7 +1361,7 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
        feature tables for complex locations.
 
      o Moved special support for databanks etc to specialized modules under
-       Bio/Seq/. One of these supports very large sequences through 
+       Bio/Seq/. One of these supports very large sequences through
        a temporary file as a backend.
 
      o Explicit Gene, Transcript and Exon SeqFeature objects, supporting
@@ -1242,26 +1395,26 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
        maintainability benefit a lot.
 
      o A total of 957 automatic tests
-    
 
-0.6.2  
+
+0.6.2
 
    There are very few functionality changes but a large
    number of software improvements/bug fixes across the package.
 
    o The EMBL/GenBank parsing are improved.
- 
+
    o The Swissprot reading is improved. Swissprot writing
      is disabled as it doesn't work at all. This needs to
      wait for 0.7 release
- 
+
    o BLAST reports with no hits are correctly parsed.
- 
+
    o Several other bugs of the BLAST parser (regular expressions, ...)
      fixed.
 
    o Old syntax calls have been replaced with more modern syntax
- 
+
    o Modules that did not work at all, in particular the Sim4
      set have been removed
 
@@ -1294,22 +1447,22 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
    o The Blast parsing has been improved, with better PSI-BLAST
      support and better overall behaviour.
 
-   o Flat file indexed databases provide both random access 
+   o Flat file indexed databases provide both random access
      and sequential access to their component sequences.
 
-   o A CodonTable object has been written with all known 
+   o A CodonTable object has been written with all known
      CodonTables accessible.
 
    o A number of new lightweight analysis tools have been
      added, such as molecular weight determination.
 
     The 0.6 release also has improved software engineering
-  
+
    o The sequence objects have been rewritten, providing more
      maintainable and easier to implement objects. These
      objects are backwardly compatible with the 0.05.1 objects
 
-   o Many objects are defined in terms of interfaces and then  
+   o Many objects are defined in terms of interfaces and then
      a Perl implementation has been provided. The interfaces
      are found in the 'I' files (module names ending in 'I').
 
@@ -1328,15 +1481,15 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
 
 0.05.1 Tue Jun 29 05:30:44 1999
         - Central distribution now requires Perl 5.004. This was
-          done to get around 5.003-based problems in Bio/Index/* 
+          done to get around 5.003-based problems in Bio/Index/*
           and SimpleAlign.
         - Various bug fixes in the Bio::Tools::Blast modules
-          including better exception handling and PSI-Blast 
+          including better exception handling and PSI-Blast
           support. See Bio/Tools/Blast/CHANGES for more.
         - Fixed the Parse mechanism in Seq.pm to use readseq.
 	  Follow the instructions in README for how to install
 	  it (basically, you have to edit Parse.pm).
-        - Improved documentation of Seq.pm, indicating where 
+        - Improved documentation of Seq.pm, indicating where
           objects are returned and where strings are returned.
         - Fixed uninitialized warnings in Bio::Root::Object.pm
           and Bio::Tools::SeqPattern.pm.
@@ -1350,9 +1503,9 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
           sequence reformatting code out of the sequence object
         - The Bio::Index:: system has been started, providing
           generic index capabilities and specifically works for
-          Fasta formatted databases and EMBL .dat formatted 
+          Fasta formatted databases and EMBL .dat formatted
 	  databases
-        - The Bio::DB:: system started, providing access to 
+        - The Bio::DB:: system started, providing access to
           databases, both via flat file + index (see above) and
           via http to NCBI
         - The scripts/ directory, where industrial strength scripts
@@ -1365,7 +1518,7 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
         - Fixed a bug in Bio::Tools::Fasta::num_seqs().
         - Beefed up the t/Fasta.t test script.
         - Small fix in Bio::Seq::type() (now always returns a string).
-        - Changed Bio::Root::Utilities::get_newline_char() to 
+        - Changed Bio::Root::Utilities::get_newline_char() to
           get_newline() since it could return more than one char.
         - Added $NEWLINE and $TIMEOUT_SECS to Bio::Root::Global.
         - Changed default timeout to 20 seconds (was 3).
@@ -1380,15 +1533,15 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
         - Bio::Root::Err::_set_context() adds name of script ($0).
         - Added comments in Bio::Tools::WWW.pm and Bio::Root::Utilities.pm
           regarding the use of the static objects via the qw(:obj) tag.
-        - Fixed the ambiguous reverse calls in Seq.pm and UnivAln.pm to 
+        - Fixed the ambiguous reverse calls in Seq.pm and UnivAln.pm to
           CORE::reverse, avoiding Perl warnings.
-        - Bug fixes in Bio::Tools::Blast modules (version 0.074) and 
+        - Bug fixes in Bio::Tools::Blast modules (version 0.074) and
           example scripts (see Bio::Tools::Blast::CHANGES).
-        - examples/seq/seqtools.pl no longer always warns about using 
-          -prot or -nucl command-line arguments; only when using the 
+        - examples/seq/seqtools.pl no longer always warns about using
+          -prot or -nucl command-line arguments; only when using the
           -debug argument.
-        - Methods added to Bio::Root::Utilities: create_filehandle(), 
-          get_newline_char(), and taste_file() to generalize filehandle 
+        - Methods added to Bio::Root::Utilities: create_filehandle(),
+          get_newline_char(), and taste_file() to generalize filehandle
           creation and autodetect newline characters in files/streams
           (see bug report #19).
         - Bio::Root::IOManager::read() now handles timeouts and uses
@@ -1412,7 +1565,7 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
 0.04.1  Wed Dec 16 05:39:15 1998
         - Bug fixes in Bio::Tools::Blast modules, version 0.072
           (see Bio::Tools::Blast::CHANGES).
-        - Compile/SW/Makefile.PL now removes *.o and *.a files 
+        - Compile/SW/Makefile.PL now removes *.o and *.a files
           with make clean.
 
 0.04  Tue Dec  8 07:49:19 1998
@@ -1427,7 +1580,6 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
         - For changes specific to the Blast-related modules prior to
           incorporation in this central distribution, see the CHANGES
           file in the Bio/Tools/Blast directory.
-     
+
 0.01  Tue Sep  8 14:23:22 1998
         - original version from central CVS tree; created by h2xs 1.18
-

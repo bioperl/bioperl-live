@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 # Author: cckim@stanford.edu
 
 # Description: This program designs primers for constructing knockouts

@@ -77,7 +77,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Aaron Mackey
 
@@ -97,7 +97,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Root::Version;
 use strict;
 
-our $VERSION = '1.006900'; # pre-1.7
+our $VERSION = '1.006902'; # pre-1.7
 $VERSION = eval $VERSION;
 
 sub import {

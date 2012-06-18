@@ -28,7 +28,8 @@ my $alnio = Bio::AlignIO->new(-format => 'fasta',
 my $aln = $alnio->next_aln;
 isa_ok($aln,'Bio::SimpleAlign');
 my $population = Bio::PopGen::Utilities->aln_to_population(-alignment => $aln,
-							-site_model=> 'codon');
+							   -site_model => 'codon',
+							   -include_monomorphic => 1);
 isa_ok($population,'Bio::PopGen::Population');
 
 my @marker_names = $population->get_marker_names;
@@ -116,7 +117,8 @@ $alnio = Bio::AlignIO->new(-format => 'fasta',
 $aln = $alnio->next_aln;
 isa_ok($aln,'Bio::SimpleAlign');
 $population = Bio::PopGen::Utilities->aln_to_population(-alignment => $aln,
-							-site_model=> 'codon');
+							-site_model => 'codon',
+							-include_monomorphic => 1);
 isa_ok($population,'Bio::PopGen::Population');
 
 @marker_names = $population->get_marker_names;

@@ -146,7 +146,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Mark A. Jensen
 
@@ -187,10 +187,10 @@ our $HAVE_IO_UNCOMPRESS;
 BEGIN {
 # check requirements
     unless ( eval "require Bio::DB::Sam; 1" ) {
-	Bio::Root::Root->throw("__PACKAGE__ requires installation of samtools (libbam) and Bio::DB::Sam (available on CPAN; not part of BioPerl)");
+        Bio::Root::Root->throw(__PACKAGE__.' requires installation of samtools (libbam) and Bio::DB::Sam (available on CPAN; not part of BioPerl)');
     }
     unless ( eval "require IO::Uncompress::Gunzip; \$HAVE_IO_UNCOMPRESS = 1") {
-	Bio::Root::Root->warn("IO::Uncompress::Gunzip is not available; you'll have to do your decompression by hand.");
+        Bio::Root::Root->warn("IO::Uncompress::Gunzip is not available; you'll have to do your decompression by hand.");
     }
 }
 
@@ -231,17 +231,17 @@ sub next_assembly {
     my $assembly = Bio::Assembly::Scaffold->new( -progname => $progname );
 
     foreach my $id (@refseq_ids) {
-    #### this is choice 1: all refseqs into one assy...###
-	$self->_current_refseq_id( $id );
-	# Load contigs and singlets in the scaffold
-	while ( my $obj = $self->next_contig()) {
-	    # Add contig /singlet to assembly
-	    if ($obj->isa('Bio::Assembly::Singlet')) { # a singlet
-		$assembly->add_singlet($obj);
-	    } else { # a contig
-		$assembly->add_contig($obj);
-	    }
-	}
+        #### this is choice 1: all refseqs into one assy...###
+        $self->_current_refseq_id( $id );
+        # Load contigs and singlets in the scaffold
+        while ( my $obj = $self->next_contig()) {
+            # Add contig /singlet to assembly
+            if ($obj->isa('Bio::Assembly::Singlet')) { # a singlet
+                $assembly->add_singlet($obj);
+            } else { # a contig
+                $assembly->add_contig($obj);
+            }
+        }
     }
     return $assembly;
 }
@@ -259,17 +259,17 @@ sub next_assembly {
 sub next_contig {
     my $self = shift;
     if (!defined $self->_current_contig_seg_idx) {
-	$self->_current_contig_seg_idx(0);
+        $self->_current_contig_seg_idx(0);
     }
     else {
-	$self->_current_contig_seg_idx( 1+$self->_current_contig_seg_idx );
+        $self->_current_contig_seg_idx( 1+$self->_current_contig_seg_idx );
     }
     unless ($self->_current_refseq_id) {
-	croak("No current refseq id set");
+        croak("No current refseq id set");
     }
     my $contig_segs = $self->_segset($self->_current_refseq_id);
     unless ($contig_segs && @$contig_segs) {
-	croak("No contig segset for current id '".$self->_current_refseq_id."'")
+        croak("No contig segset for current id '".$self->_current_refseq_id."'")
     }
     # each segment in @$contig_segs represents a contig within the
     # current refseq
@@ -285,16 +285,15 @@ sub next_contig {
     my $numseq = 0;
 
     while ( my $read = $seqio->next_seq ) {
-	if ($self->{_assigned}->{$read->name}) {
-	    1;
-	    next;
-	}
-	$self->{_assigned}->{$read->name}=1;
-	$self->_store_read($read, $contigobj);
-	$numseq++;
+        if ($self->{_assigned}->{$read->name}) {
+            next;
+        }
+        $self->{_assigned}->{$read->name}=1;
+        $self->_store_read($read, $contigobj);
+        $numseq++;
     }
     if ($numseq == 1) { # ooh! a singlet!
-	$contigobj = $self->_store_singlet($contigobj);
+        $contigobj = $self->_store_singlet($contigobj);
     }
     return $contigobj;
 }
@@ -350,18 +349,19 @@ sub _store_contig {
     $contigobj->set_consensus_quality($consensus_qual);
 
     # Add other misc contig information as subsequence feature
-#     my @other = grep !/asmbl_id|end|qualobj|start/, keys %$contiginfo;
-#     my %other;
-#     @other{@other} = @$contiginfo{@other};
-#     my $contigtags = Bio::SeqFeature::Generic->new(
-#         -primary_tag => "_main_contig_feature:$$contiginfo{'asmbl_id'}",
-#         -start       => 1,
-#         -end         => $contig_seg->length,
-#         -strand      => 1,
-#         # dumping ground:
-#         -tag         => \%other
-#     );
-#     $contigobj->add_features([ $contigtags ], 1);
+    #my @other = grep !/asmbl_id|end|qualobj|start/, keys %$contiginfo;
+    #my %other;
+    #@other{@other} = @$contiginfo{@other};
+    #my $contigtags = Bio::SeqFeature::Generic->new(
+    #    -primary     => '_main_contig_feature',
+    #    -source      => $$contiginfo{'asmbl_id'},
+    #    -start       => 1,
+    #    -end         => $contig_seg->length,
+    #    -strand      => 1,
+    #    # dumping ground:
+    #    -tag         => \%other
+    #);
+    #$contigobj->add_features([ $contigtags ], 1);
 
     return $contigobj;
 }
@@ -380,57 +380,58 @@ sub _store_read {
     my $self = shift;
     my ($read, $contigobj) = @_;
     my $readseq = Bio::LocatableSeq->new(
-	-display_id => $read->name,
-	-primary_id => $read->name,
-	-seq        => $read->dna,
-	-start      => 1,
-	-strand     => $read->strand,
-	-alphabet   => 'dna'
-	);
+        -display_id => $read->name,
+        -primary_id => $read->name,
+        -seq        => $read->dna,
+        -start      => 1,
+        -strand     => $read->strand,
+        -alphabet   => 'dna'
+    );
     my $qual = Bio::Seq::PrimaryQual->new(
-	-id         => $read->name."_qual",
-	-qual       => [$read->qscore]
-	);
+        -id         => $read->name."_qual",
+        -qual       => [$read->qscore]
+    );
 
     # add pair information
     my @pair_info;
     if ($read->proper_pair) { # mate also aligned
-	@pair_info = (
-	    mate_start => $read->mate_start,
-	    mate_len   => $read->mate_len,
-	    mate_strand => $read->mstrand,
-	    insert_size => $read->isize
-	    );
+        @pair_info = (
+            mate_start => $read->mate_start,
+            mate_len   => $read->mate_len,
+            mate_strand => $read->mstrand,
+            insert_size => $read->isize
+        );
     }
-	    
+
     my $alncoord = Bio::SeqFeature::Generic->new(
-	-primary_tag => $read->name,
-	-start      => $read->start,
-	-end        => $read->end,
-	-strand     => $read->strand,
-	-qual       => join(' ',$read->qscore),
-	-tag        => { 'contig' => $contigobj->id,
-			 'cigar'  => $read->cigar_str,
-			 @pair_info }
-	
-	);
+        -primary    => $read->name,
+        -start      => $read->start,
+        -end        => $read->end,
+        -strand     => $read->strand,
+        -qual       => join(' ',$read->qscore),
+        -tag        => { 'contig' => $contigobj->id,
+                         'cigar'  => $read->cigar_str,
+                         @pair_info }
+    );
 
     $contigobj->set_seq_coord($alncoord, $readseq);
     $contigobj->set_seq_qual( $readseq, $qual );
 
-#add other misc read info as subsequence feature:
-#    my @other = grep !/aln_(?:end|start)|seq(?:str)?|strand/, keys %$readinfo;
-#    my %other;
-#    @other{@other} = @$readinfo{@other};
-#    my $readtags = Bio::SeqFeature::Generic->new(
-#        -primary_tag => '_main_read_feature:'.$readobj->id,
-#        -start       => $$readinfo{'aln_start'},
-#        -end         => $$readinfo{'aln_end'},
-#        -strand      => $$readinfo{'strand'},
-#        # dumping ground:
-#        -tag         => \%other
-#    );
-#    $alncoord->add_sub_SeqFeature($readtags);
+    #add other misc read info as subsequence feature:
+    #my @other = grep !/aln_(?:end|start)|seq(?:str)?|strand/, keys %$readinfo;
+    #my %other;
+    #@other{@other} = @$readinfo{@other};
+    #my $readtags = Bio::SeqFeature::Generic->new(
+    #    -primary     => '_main_read_feature',
+    #    -source      => $readobj->id,
+    #    -start       => $$readinfo{'aln_start'},
+    #    -end         => $$readinfo{'aln_end'},
+    #    -strand      => $$readinfo{'strand'},
+    #    # dumping ground:
+    #    -tag         => \%other
+    #);
+    #$contigobj->get_features_collection->add_features([$readtags]);
+    #$contigobj->get_features_collection->add_SeqFeature($alncoord, $readtags);
 
     return $readseq;
 }
@@ -453,7 +454,7 @@ sub _store_singlet {
     my ($readseq) = $contigobj->each_seq;
 
     my $singletobj = Bio::Assembly::Singlet->new( -id => $contigobj->id,
-						  -seqref => $readseq );
+                                                  -seqref => $readseq );
 
 # may want to attach this someday
 #    my $qual = $contigobj->get_qual_by_name($readseq->id);    
@@ -486,62 +487,61 @@ sub _init_sam {
     $file =~ s/^[<>+]*//; # byebye parasitic mode chars
     my ($fname, $dir, $suf) = fileparse($file, ".sam", ".bam");
     $self->_set_from_args({ '_basename' => $fname }, 
-			  -methods => [qw( _basename)],
-			  -create => 1);
+                          -methods => [qw( _basename)],
+                          -create => 1);
     if (!defined $fasfile) {
-	for (qw( fas fa fasta fas.gz fa.gz fasta.gz )) {
-	    $fasfile = File::Spec->catdir($dir, $self->_basename.$_);
-	    last if -e $fasfile;
-	    undef $fasfile;
-	}
+        for (qw( fas fa fasta fas.gz fa.gz fasta.gz )) {
+            $fasfile = File::Spec->catdir($dir, $self->_basename.$_);
+            last if -e $fasfile;
+            undef $fasfile;
+        }
     }
     unless (-e $fasfile) {
-	croak( "Can't find associated reference fasta db" );
+        croak( "Can't find associated reference fasta db" );
     }
     !$self->refdb && $self->refdb($fasfile);
     # compression
     if ($fasfile =~ /\.gz[^.]*$/) {
-	unless ($HAVE_IO_UNCOMPRESS) {
-	    croak( "IO::Uncompress::Gunzip not available; can't decompress on the fly");
-	}
-	my ($tfh, $tf) = tempfile( UNLINK => 1);
-	my $z = IO::Uncompress::Gunzip->new($fasfile) or croak("Can't expand: $@");
-	while (<$z>) { print $tfh $_ }
-	close $tfh;
-	$fasfile = $tf;
+        unless ($HAVE_IO_UNCOMPRESS) {
+            croak( "IO::Uncompress::Gunzip not available; can't decompress on the fly");
+        }
+        my ($tfh, $tf) = tempfile( UNLINK => 1);
+        my $z = IO::Uncompress::Gunzip->new($fasfile) or croak("Can't expand: $@");
+        while (<$z>) { print $tfh $_ }
+        close $tfh;
+        $fasfile = $tf;
     }
     if ($file =~ /\.gz[^.]*$/) {
-	unless ($HAVE_IO_UNCOMPRESS) {
-	    croak( "IO::Uncompress::Gunzip not available; can't decompress on the fly");
-	}
-	my ($tfh, $tf) = tempfile( UNLINK => 1);
-	my $z = IO::Uncompress::Gunzip->new($file) or croak("Can't expand: $@");
-	while (<$z>) { 
-	    print $tfh $_;
-	    1;
-	}
-	close $tfh;
-	$file = $tf;
+        unless ($HAVE_IO_UNCOMPRESS) {
+            croak( "IO::Uncompress::Gunzip not available; can't decompress on the fly");
+        }
+        my ($tfh, $tf) = tempfile( UNLINK => 1);
+        my $z = IO::Uncompress::Gunzip->new($file) or croak("Can't expand: $@");
+        while (<$z>) { 
+            print $tfh $_;
+        }
+        close $tfh;
+        $file = $tf;
     }
     # sam conversion : just barf for now
     if (-T $file) {
-	my $bam = $file;
-	$bam =~ s/\.sam/\.bam/;
-	croak( "'$file' looks like a text file.\n\tTo convert to the required .bam (binary SAM) format, run\n\t\$ samtools view -Sb $file > $bam\n");
+        my $bam = $file;
+        $bam =~ s/\.sam/\.bam/;
+        croak( "'$file' looks like a text file.\n\tTo convert to the required .bam (binary SAM) format, run\n\t\$ samtools view -Sb $file > $bam\n");
     }
 
     $sam = Bio::DB::Sam->new( -bam => $file, 
-			      -fasta => $fasfile,
-                  -autoindex  => 1,
-			      -expand_flags => 1);
+                              -fasta => $fasfile,
+                              -autoindex  => 1,
+                              -expand_flags => 1);
     unless (defined $sam) {
-	croak( "Couldn't create the Bio::DB::Sam object" );
+        croak( "Couldn't create the Bio::DB::Sam object" );
     }
     $self->{sam} = $sam;
     # now produce the contig segments for each seq_id...
     for ($sam->seq_ids) {
-	my $seg = $sam->segment(-seq_id=>$_, -start=>1, -end=>$sam->length($_));
-	${$self->{_segset}}{$_} = [$self->_get_contig_segs_from_coverage($seg)];
+        my $seg = $sam->segment(-seq_id=>$_, -start=>1, -end=>$sam->length($_));
+        ${$self->{_segset}}{$_} = [$self->_get_contig_segs_from_coverage($seg)];
     }
  
     return 1;
@@ -564,15 +564,15 @@ sub _get_contig_segs_from_coverage {
     my $self = shift;
     my $segment = shift;
     unless ($self->sam) {
-	croak("Sam object not yet initialized (call _init_sam)");
+        croak("Sam object not yet initialized (call _init_sam)");
     }
     unless ( ref($segment) =~ /Bio::DB::Sam::Segment/ ) {
-	croak("Requires Bio::DB::Sam::Segment object at arg 1");
+        croak("Requires Bio::DB::Sam::Segment object at arg 1");
     }
     my ($cov, @covdata, @rngs, @segs);
     ($cov) = $segment->features('coverage');
     unless ($cov) {
-	croak("No coverage data!");
+        croak("No coverage data!");
     }
     @covdata = $cov->coverage;
     
@@ -580,37 +580,36 @@ sub _get_contig_segs_from_coverage {
     my $in_contig;
     my ($lf_end,$rt_end);
     for (0..$#covdata) {
-	if ($covdata[$_]) {
-	    if ($in_contig) {
-		$rt_end = $_+1;
-		next;
-	    }
-	    else {
-		$in_contig = 1;
-		# push previous range
-		if (defined $lf_end && defined $rt_end) {
-		    push @rngs, [$lf_end, $rt_end];
-		}
-		$lf_end = $_+1;
-	    }
-	    
-	}
-	else {
-	    $in_contig = 0;
-	}
+        if ($covdata[$_]) {
+            if ($in_contig) {
+                $rt_end = $_+1;
+                next;
+            }
+            else {
+                $in_contig = 1;
+                # push previous range
+                if (defined $lf_end && defined $rt_end) {
+                    push @rngs, [$lf_end, $rt_end];
+                }
+                $lf_end = $_+1;
+            } 
+        }
+        else {
+            $in_contig = 0;
+        }
     }
     # last one
     push @rngs, [$lf_end, $rt_end] if (defined $lf_end and 
-				       defined $rt_end and
-				       $lf_end <= $rt_end);
+                                       defined $rt_end and
+                                       $lf_end <= $rt_end);
     unless (@rngs) {
-	carp ("No coverage for this segment!");
-	return;
+        carp ("No coverage for this segment!");
+        return;
     }
     for (@rngs) {
-	push @segs, $self->sam->segment(-seq_id=>$segment->seq_id,
-					-start=>$$_[0], 
-					-end=>$$_[1]);
+        push @segs, $self->sam->segment(-seq_id=>$segment->seq_id,
+                                        -start=>$$_[0], 
+                                        -end=>$$_[1]);
     }
     return @segs;
 }
@@ -635,16 +634,16 @@ sub _calc_consensus_quality {
     my @quals;
     my $region = $seg->seq_id.':'.$seg->start.'..'.$seg->end;
     my $qual_averager = sub {
-	my ($seqid, $pos, $p) = @_;
+        my ($seqid, $pos, $p) = @_;
         return unless ($seg->start <= $pos and $pos <= $seg->end);
-	my $acc = 0;
-	my $n = 0;
-	for my $pileup (@$p) {
-	    my $b = $pileup->alignment;
-	    $acc += $b->qscore->[$pileup->qpos];
-	    $n++;
-	}
-	push @quals, int($acc/$n);
+        my $acc = 0;
+        my $n = 0;
+        for my $pileup (@$p) {
+            my $b = $pileup->alignment;
+            $acc += $b->qscore->[$pileup->qpos];
+            $n++;
+        }
+        push @quals, int($acc/$n);
     };
     $self->sam->pileup($region, $qual_averager);
     return @quals;
@@ -671,30 +670,29 @@ sub _calc_consensus {
     my $region = $seg->seq_id.':'.$seg->start.'-'.$seg->end;
 
     my $weighted_consensus = sub {
-	my ($seqid, $pos, $p) = @_;
+        my ($seqid, $pos, $p) = @_;
         return unless ($seg->start <= $pos and $pos <= $seg->end);
-	my %wt_tbl;
-	my %n;
-	for my $pileup (@$p) {
-	    my $b = $pileup->alignment;
-	    my $res = substr($b->qseq,$pileup->qpos,1);
-	    $wt_tbl{$res} += $b->qscore->[$pileup->qpos] || 0;
-	    $n{$res} ||= 0;
-	    $n{$res}++;
-	}
-	# really simple
-	my $c = (sort { $wt_tbl{$b}<=>$wt_tbl{$a} } keys %wt_tbl)[0];
-	$conseq .= $c;
-	push @quals, int($wt_tbl{$c}/$n{$c});
-
+        my %wt_tbl;
+        my %n;
+        for my $pileup (@$p) {
+            my $b = $pileup->alignment;
+            my $res = substr($b->qseq,$pileup->qpos,1);
+            $wt_tbl{$res} += $b->qscore->[$pileup->qpos] || 0;
+            $n{$res} ||= 0;
+            $n{$res}++;
+        }
+        # really simple
+        my $c = (sort { $wt_tbl{$b}<=>$wt_tbl{$a} } keys %wt_tbl)[0];
+        $conseq .= $c;
+        push @quals, int($wt_tbl{$c}/$n{$c});
     };
 
     $self->sam->pileup($region, $weighted_consensus);
     return Bio::Seq::Quality->new(
-	-qual => join(' ', @quals ),
-	-seq => $conseq,
-	-id => $region
-	);
+        -qual => join(' ', @quals ),
+        -seq => $conseq,
+        -id => $region
+    );
 }
 
 =head2 refdb()

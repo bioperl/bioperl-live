@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/local/bin/perl
 #
 # How to retrieve GenBank entries over the Web
 #

@@ -8,7 +8,7 @@ BEGIN {
     use Bio::Root::Test;
     
     test_begin(-tests => 8);
-	
+
     use_ok('Bio::SeqFeature::Primer');
 }
 
@@ -19,8 +19,8 @@ print("Checking to see if a BSFP object can be created:\n") if $DEBUG;
 my $seqsequence = "gcatcgatctagctagcta";
 my $primersequence = "aaaaaacgatcgatcgtagctagct";
 
-my $seqname = "chads_nifty_sequence";
-my $primername = "chads_nifty_primer";
+my $seqname = 'chads_nifty_sequence';
+my $primername = 'chads_nifty_primer';
 # ok, and what about variables governing where the feature is located?
 # check the primer3docs, luke...
 # TARGET=513,26
@@ -29,20 +29,21 @@ my $primername = "chads_nifty_primer";
 
 
 print("Checking to see if the BSFP object can be constructed with a bio::seq object\n") if $DEBUG;
-my $seq = Bio::Seq->new( -seq => $seqsequence, -id =>$seqname);
+my $seq = Bio::Seq->new( -seq => $seqsequence, -id => $seqname );
 my $bsfp_seq = Bio::SeqFeature::Primer->new( -sequence => $seq,
                                              -TARGET => '5,3' );
-isa_ok $bsfp_seq, "Bio::SeqFeature::Primer";
+
+isa_ok $bsfp_seq, 'Bio::SeqFeature::Primer';
 
 print("Checking to see if the BSFP object can be constructed with scalars\n") if $DEBUG;
 
 my $bsfp_scalar = Bio::SeqFeature::Primer->new( -sequence => $primersequence,
-                                        -id => $primername,
-                                             -TARGET => '5,3' );
-isa_ok $bsfp_scalar, "Bio::SeqFeature::Primer";
+                                                -id => $primername,
+                                                -TARGET => '5,3' );
+isa_ok $bsfp_scalar, 'Bio::SeqFeature::Primer';
 
-print("Checking to see that seq() returns a Bio::Seq object and that the object is the right one.\n") if $DEBUG;
-isa_ok $bsfp_scalar->seq(), "Bio::Seq";
+print("Checking to see that seq() returns a Bio::Seq object and that the object is of the right type.\n") if $DEBUG;
+isa_ok $bsfp_scalar->seq(), 'Bio::Seq';
 print("First for the scalar-ily created one.\n") if $DEBUG;
 print("id ok?\n") if $DEBUG;
 is $bsfp_scalar->seq()->id(), $primername;

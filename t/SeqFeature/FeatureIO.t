@@ -7,8 +7,8 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 45,
-	       -requires_module => 'Graph');
+    test_begin(-tests => 50,
+               -requires_module => 'Graph');
 
     use_ok('Bio::FeatureIO');
 }
@@ -34,6 +34,7 @@ while($f = $io->next_feature()){
     $fcount++;
 }
 is($fcount, 0);
+
 
 #then try to read sequences again.  should get seqs now
 while($s = $io->next_seq()){
@@ -84,6 +85,7 @@ $scount = 0;
 ok( $io = Bio::FeatureIO->new( -file => test_input_file('hybrid1.gff3') ) );
 
 #try to read sequences first.  should be undef
+is $io->seqio, undef;
 while($s = $io->next_seq()){
     $scount++;
 }
@@ -96,8 +98,10 @@ while($f = $io->next_feature()){
 is($fcount , 6);
 
 #then try to read sequences again.
+isa_ok $io->seqio, 'Bio::SeqIO';
 while($s = $io->next_seq()){
     $scount++;
+    isa_ok $s, 'Bio::Seq';
     TODO: {
 	local $TODO = 'How did this ever work?!?';
 	if ($scount == 1) {
@@ -203,7 +207,7 @@ is($f->seq_id, "chr1");
 
 ################################################################################
 #
-# use FeatureIO::gff to read a PTT file.
+# use FeatureIO::ptt to read a PTT file.
 #
 $fcount = 0;
 
@@ -341,3 +345,19 @@ is($fcount , 367);
 
     is_deeply(\@vs_features,\@expected_features,'vecscreen_simple gets the correct features');
 }
+
+###############################################################################
+#
+# use FeatureIO to get some attributes from a GFF file
+#
+
+ok( $io = Bio::FeatureIO->new( -file => test_input_file('knownGene.gff3') ) );
+
+while($f = $io->next_feature()){
+    if ($f->get_Annotations('Target')) {
+        # the last feature in the file should have a Target attribute
+        my $value_obj = $f->get_Annotations('Target');
+        is($value_obj->target_id, "BC046356.1%20space%20test"); 
+    }
+}
+

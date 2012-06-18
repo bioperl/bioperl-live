@@ -55,7 +55,7 @@ with code and data examples if at all possible.
 Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Kris Boulez
 
@@ -707,7 +707,7 @@ sub master {
  Usage   : $seqobj = $structure->seqres("A");
  Function: Gets a sequence object containing the sequence from the SEQRES record.
  	        if a chain-ID is given, the sequence for this chain is given, if none
-	        is provided the first chain is choosen
+	        is provided the first chain is chosen
  Returns : A Bio::PrimarySeq
  Args    : The chain-ID of the chain you want the sequence from
 

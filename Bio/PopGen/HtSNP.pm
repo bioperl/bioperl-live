@@ -290,7 +290,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Pedro M. Gomez-Fabre
 
@@ -1217,7 +1217,7 @@ sub _find_silent_snps{
  Title   : _find_indet
  Usage   :
  Function: find column (SNP) with invalid or degenerated values
-           and store this values into the second parameter suplied.
+           and store this values into the second parameter supplied.
  Returns : nothing
  Args    : ref to AoA and ref to an array
  Status  : internal

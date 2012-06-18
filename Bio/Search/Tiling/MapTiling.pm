@@ -152,7 +152,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Mark A. Jensen
 
@@ -223,7 +223,7 @@ sub new {
     }
     
     # identify available contexts
-    for my $t qw( query hit ) {
+    for my $t (qw( query hit )) {
 	my %contexts;
 	for my $i (0..$#hsps) {
 	    my $ctxt = $self->_context(

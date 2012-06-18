@@ -52,7 +52,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Thomas Sharpton
 
@@ -128,24 +128,6 @@ BEGIN {
         'HMMER_seqfile'   => 'RESULT-sequence_file',
         'HMMER_db'        => 'RESULT-database_name',
     );
-}
-
-=head2 new
-
- Title   : new
- Usage   : my $obj = new Bio::SearchIO::Hmmer3->new();
- Function: Builds a new Bio::SearchIO::Hmmer3 object
- Returns : an instance of Bio::SearchIO::Hmmer3
- Args    : -fh/-file => HMMER filename
-           -format   => 'hmmer3'
-
-=cut
-
-sub _initialize {
-  my( $self,@args ) = @_;
-  $self->SUPER::_initialize(@args);
-  $self->{'_hmmidline'} = 'HMMER 3.0b placeholder';
-  $self->{'_alnreport'} = 1; #does report include alignments
 }
 
 =head2 next_result

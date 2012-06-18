@@ -100,7 +100,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Ewan Birney
 
@@ -215,26 +215,26 @@ sub next_seq {
         # ID   DQ299383; SV 1; linear; mRNA; STD; MAM; 431 BP.
         # This regexp comes from the new2old.pl conversion script, from EBI
         if ($line =~ m/^ID   (\w+);\s+SV (\d+); (\w+); ([^;]+); (\w{3}); (\w{3}); (\d+) BP./) {
-        ($name, $sv, $topology, $mol, $div) = ($1, $2, $3, $4, $6);
+            ($name, $sv, $topology, $mol, $div) = ($1, $2, $3, $4, $6);
         }
-        if (defined($sv)) {
-        $params{'-seq_version'} = $sv;
-        $params{'-version'} = $sv;
+        if (defined $sv) {
+            $params{'-seq_version'} = $sv;
+            $params{'-version'} = $sv;
         }
 
-        if ($topology eq "circular") {
-        $params{'-is_circular'} = 1;
+        if (defined $topology && $topology eq 'circular') {
+            $params{'-is_circular'} = 1;
         }
     
-    if (defined $mol ) {
-        if ($mol =~ /DNA/) {
-        $alphabet='dna';
-        } elsif ($mol =~ /RNA/) {
-        $alphabet='rna';
-        } elsif ($mol =~ /AA/) {
-        $alphabet='protein';
+        if (defined $mol ) {
+            if ($mol =~ /DNA/) {
+                $alphabet = 'dna';
+            } elsif ($mol =~ /RNA/) {
+                $alphabet = 'rna';
+            } elsif ($mol =~ /AA/) {
+                $alphabet = 'protein';
+            }
         }
-    }
     } else {
     
         # Old style header (EMBL Release < 87, before June 2006)
@@ -505,11 +505,11 @@ sub _write_ID_line {
 
         # The sequence name is supposed to be the primary accession number,
         my $name = $seq->accession_number();
-        if (!$name) {
-            # but if it is not present, use the sequence ID.
-            $name = $seq->id();
+        if ( not(defined $name) || $name eq 'unknown') {
+            # but if it is not present, use the sequence ID or the empty string
+            $name = $seq->id() || '';
         }
-
+ 
         $self->warn("No whitespace allowed in EMBL id [". $name. "]") if $name =~ /\s/;
 
         # Use the sequence version, or default to 1.
@@ -1171,9 +1171,12 @@ sub _read_EMBL_Species {
     foreach my $i (0..$#class) {
         my $name = $class[$i];
         $names{$name}++;
-        if ($names{$name} > 1 && $name ne $class[$i - 1]) {
-            $self->throw("$acc seems to have an invalid species classification.");
-        }
+        # this code breaks examples like: Xenopus (Silurana) tropicalis
+        # commenting out, see bug 3158
+        
+        #if ($names{$name} > 1 && ($name ne $class[$i - 1])) {
+        #    $self->warn("$acc seems to have an invalid species classification:$name ne $class[$i - 1]");
+        #}
     }
     my $make = Bio::Species->new();
     $make->scientific_name($sci_name);

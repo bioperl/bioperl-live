@@ -332,7 +332,7 @@ END
   id    integer not null,
   child integer not null
 );
-create index index_parent2child_id_child on parent2child(id,child);
+create unique index index_parent2child_id_child on parent2child(id,child);
 END
 
 	  meta => <<END,
@@ -417,7 +417,7 @@ sub _finish_bulk_update {
   my $dbh  = $self->dbh;
   my $dir = $self->{dumpdir} || '.';
 
-  $dbh->begin_work; # making this a transaction greatly improves performance
+  $self->begin_work; # making this a transaction greatly improves performance
   
   for my $table ('feature', $self->index_tables) {
     my $fh = $self->dump_filehandle($table);
@@ -461,7 +461,7 @@ sub _finish_bulk_update {
     $fh->close();
     unlink $path;
   }
-  $dbh->commit; # commit the transaction
+  $self->commit; # commit the transaction
   delete $self->{bulk_update_in_progress};
   delete $self->{filehandles};
 }
@@ -766,7 +766,7 @@ sub _name_sql {
   my $from  = "$name_table as n";
   my ($match,$string) = $self->_match_sql($name);
 
-  my $where = "n.id=$join AND n.name $match";
+  my $where = "n.id=$join AND lower(n.name) $match";
   $where   .= " AND n.display_name>0" unless $allow_aliases;
   return ($from,$where,'',$string);
 }
@@ -882,7 +882,7 @@ sub _types_sql {
       ($primary_tag,$source_tag) = split ':',$type,2;
     }
 
-    if (defined $source_tag) {
+    if (length $source_tag) {
       push @matches,"lower(tl.tag)=lower(?)";
       push @args,"$primary_tag:$source_tag";
     } else {
@@ -981,7 +981,7 @@ sub bulk_replace {
 sub _get_location_and_bin {
     my $self = shift;
     my $obj  = shift;
-    my $seqid   = $self->_locationid($obj->seq_id);
+    my $seqid   = $self->_locationid($obj->seq_id||'');
     my $start   = $obj->start;
     my $end     = $obj->end;
     my $strand  = $obj->strand;

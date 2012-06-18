@@ -220,7 +220,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Heikki Lehvaslaiho
 
@@ -240,7 +240,7 @@ package Bio::Variation::IO;
 use strict;
 
 
-use base qw(Bio::SeqIO);
+use base qw(Bio::SeqIO Bio::Root::IO);
 
 =head2 new
 
@@ -268,6 +268,19 @@ sub new {
    return unless $class->_load_format_module($format);
    return "Bio::Variation::IO::$format"->new(%param);
 }
+
+
+=head2 format
+
+ Title   : format
+ Usage   : $format = $stream->format()
+ Function: Get the variation format
+ Returns : variation format
+ Args    : none
+
+=cut
+
+# format() method inherited from Bio::Root::IO
 
 
 sub _load_format_module {

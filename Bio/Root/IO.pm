@@ -91,7 +91,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Hilmar Lapp
 
@@ -257,7 +257,7 @@ sub new {
               -fh       file handle (mutually exclusive with -file)
               -flush    boolean flag to autoflush after each write
               -noclose  boolean flag, when set to true will not close a
-                        filehandle (must explictly call close($io->_fh)
+                        filehandle (must explicitly call close($io->_fh)
               -retries  number of times to try a web fetch before failure
                         
               -ua_parms hashref of key => value parameters to pass 
@@ -374,6 +374,7 @@ sub _initialize_io {
     return 1;
 }
 
+
 =head2 _fh
 
  Title   : _fh
@@ -393,6 +394,7 @@ sub _fh {
     return $obj->{'_filehandle'};
 }
 
+
 =head2 mode
 
  Title   : mode
@@ -401,7 +403,7 @@ sub _fh {
  Example :
  Returns : mode of filehandle:
            'r' for readable
-           'w' for writeable
+           'w' for writable
            '?' if mode could not be determined
  Args    : -force (optional), see notes.
  Notes   : once mode() has been called, the filehandle's mode is cached
@@ -441,6 +443,7 @@ sub mode {
     return $obj->{'_mode'};
 }
 
+
 =head2 file
 
  Title   : file
@@ -459,6 +462,60 @@ sub file {
     }
     return $obj->{'_file'};
 }
+
+
+=head2 format
+
+ Title   : format
+ Usage   : $self->format($newval)
+ Function: Get the format of a Bio::Root::IO sequence file or filehandle. Every
+           object inheriting Bio::Root::IO is guaranteed to have a format.
+ Returns : format of the file or filehandle, e.g. fasta, fastq, genbank, embl.
+ Args    : none
+
+=cut
+
+sub format {
+    my ($self) = @_;
+    my $format = (split '::', ref($self))[-1];
+    return $format;
+}
+
+
+=head2 variant
+
+ Title   : format
+ Usage   : $self->format($newval)
+ Function: Get the variant of a Bio::Root::IO sequence file or filehandle.
+           The format variant depends on the specific format used. Note that not
+           all formats have variants
+ Returns : variant of the file or filehandle, e.g. sanger, solexa or illumina for
+           the fastq format, or undef for formats that do not have variants.
+ Args    : none
+ Note    : The Bio::Root::IO-implementing modules that require access to variants
+           need to define a global hash that has the allowed variants as its keys.
+
+=cut
+
+sub variant {
+    my ($self, $variant) = @_;
+    if (defined $variant) {
+        $variant = lc $variant;
+        my $var_name = '%'.ref($self).'::variant';
+        my %ok_variants = eval $var_name; # e.g. %Bio::Assembly::IO::ace::variant
+        if (scalar keys %ok_variants == 0) {
+            $self->throw('Cannot check for validity of variant because global '.
+                "variant $var_name is not set or is empty\n");
+        }
+        if (not exists $ok_variants{$variant}) {
+            $self->throw($variant.' is not a valid variant of the '.$self->format.
+                ' format');
+        }
+        $self->{variant} = $variant;
+    }
+    return $self->{variant};
+}
+
 
 =head2 _print
 
@@ -610,7 +667,7 @@ sub _readline {
 sub _pushback {
     my ($obj, $value) = @_;
     return unless $value;
-    push @{$obj->{'_readbuffer'}}, $value;
+    unshift @{$obj->{'_readbuffer'}}, $value;
 }
 
 =head2 close
@@ -627,7 +684,7 @@ sub _pushback {
 sub close {
    my ($self) = @_;
 
-   # don't close if we explictly asked not to
+   # don't close if we explicitly asked not to
    return if $self->noclose;
 
    if( defined( my $fh = $self->{'_filehandle'} )) {
@@ -960,7 +1017,7 @@ sub rmtree {
     return File::Path::rmtree ($roots, $verbose, $safe);
     }
 
-    my $force_writeable = ($^O eq 'os2' || $^O eq 'dos' || $^O eq 'MSWin32'
+    my $force_writable = ($^O eq 'os2' || $^O eq 'dos' || $^O eq 'MSWin32'
                || $^O eq 'amigaos' || $^O eq 'cygwin');
     my $Is_VMS = $^O eq 'VMS';
 
@@ -986,7 +1043,7 @@ sub rmtree {
         # to recurse in which case we are better than rm -rf for 
         # subtrees with strange permissions
         chmod(0777, ($Is_VMS ? VMS::Filespec::fileify($root) : $root))
-          or $self->warn("Can't make directory $root read+writeable: $!")
+          or $self->warn("Can't make directory $root read+writable: $!")
         unless $safe;
         if (opendir(DIR, $root) ){
         @files = readdir DIR;
@@ -1008,8 +1065,8 @@ sub rmtree {
         next;
         }
         chmod 0777, $root
-          or $self->warn( "Can't make directory $root writeable: $!")
-        if $force_writeable;
+          or $self->warn( "Can't make directory $root writable: $!")
+        if $force_writable;
         print "rmdir $root\n" if $verbose;
         if (rmdir $root) {
         ++$count;
@@ -1031,14 +1088,14 @@ sub rmtree {
         next;
         }
         chmod 0666, $root
-          or $self->warn( "Can't make file $root writeable: $!")
-        if $force_writeable;
+          or $self->warn( "Can't make file $root writable: $!")
+        if $force_writable;
         warn "unlink $root\n" if $verbose;
         # delete all versions under VMS
         for (;;) {
         unless (unlink $root) {
             $self->warn( "Can't unlink file $root: $!");
-            if ($force_writeable) {
+            if ($force_writable) {
             chmod $rp, $root
                 or $self->warn("and can't restore permissions to "
                         . sprintf("0%o",$rp) . "\n");

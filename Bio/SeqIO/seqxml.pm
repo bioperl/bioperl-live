@@ -92,7 +92,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHORS - Dave Messina
 
@@ -128,7 +128,7 @@ use base qw(Bio::SeqIO);
 # define seqXML header stuff
 # there's no API for XMLNS XMLNS_XSI; you must set them here.
 use constant SEQXML_VERSION => 0.3;
-use constant SCHEMA_LOCATION => 'http://seqXML.org/0.3 http://www.seqxml.org/0.3/seqxml.xsd';
+use constant SCHEMA_LOCATION => 'http://www.seqxml.org/0.3/seqxml.xsd';
 use constant XMLNS_XSI => 'http://www.w3.org/2001/XMLSchema-instance';
 
 =head2 _initialize
@@ -216,7 +216,7 @@ sub _initialize {
                     'seqXML',
                     'seqXMLversion' => $self->seqXMLversion(SEQXML_VERSION),
                     'xmlns:xsi'     => XMLNS_XSI,
-                    'xsi:schemaLocation' => $self->schemaLocation(SCHEMA_LOCATION),
+                    'xsi:noNamespaceSchemaLocation' => $self->schemaLocation(SCHEMA_LOCATION),
                     'source'        => $self->source,
                     'sourceVersion' => $self->sourceVersion,
                 );                
@@ -226,7 +226,7 @@ sub _initialize {
                     'seqXML',
                     'seqXMLversion' => $self->seqXMLversion(SEQXML_VERSION),
                     'xmlns:xsi'     => XMLNS_XSI,
-                    'xsi:schemaLocation' => $self->schemaLocation(SCHEMA_LOCATION),
+                    'xsi:noNamespaceSchemaLocation' => $self->schemaLocation(SCHEMA_LOCATION),
                 );
             }
         }
@@ -1085,7 +1085,7 @@ sub DESTROY {
 
 sub close {
     my $self = shift;
-    if ( $self->mode eq 'w' ) {
+    if ( $self->mode eq 'w' && $self->{'_writer'}->within_element('seqXML') ) {
         $self->{'_writer'}->endTag("seqXML");
         $self->{'_writer'}->end();
     }

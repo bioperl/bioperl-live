@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 886,
+    test_begin( -tests => 890,
                 -requires_module => 'DB_File' );
 
     use_ok('Bio::Seq');
@@ -93,42 +93,45 @@ ok my $aio = Bio::Assembly::IO->new(
     -file   => test_input_file('assembly_with_singlets.ace'),
     -format => 'ace-consed',
 );
-is( $aio->variant, 'consed'  );
+is $aio->variant, 'consed', 'consed';
 ok $aio = Bio::Assembly::IO->new(
     -file   => test_input_file('assembly_with_singlets.ace'),
     -format => 'ace',
 );
-is( $aio->variant, 'consed'  );
-ok( $aio->variant('454')     );
-is( $aio->variant, '454'     );
+is $aio->variant, 'consed';
+ok $aio->variant('454');
+is $aio->variant, '454';
 
 #
 # Some PHRAP input
 #
 
 my $in = Bio::Assembly::IO->new
-    (-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'));
-isa_ok($in, 'Bio::Assembly::IO');
+    (-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'),
+     -verbose => -1);
+isa_ok $in, 'Bio::Assembly::IO';
 while (my $contig = $in->next_contig) {
     isa_ok($contig, 'Bio::Assembly::Contig');
 }
 
 $in = Bio::Assembly::IO->new
-    (-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'));
-isa_ok($in, 'Bio::Assembly::IO');
+    (-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'),
+     -verbose => -1);
+isa_ok $in, 'Bio::Assembly::IO';
 my $sc;
 TODO: {
     local $TODO = "phrap parser doesn't include the sequence string in the sequence objects.";
     $in->verbose(2);
     eval {$sc = $in->next_assembly};
-    ok(!$@);
+    ok !$@;
 }
 
 $in->verbose(-1);
 $in = Bio::Assembly::IO->new
-    (-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'));
-ok($sc = $in->next_assembly);
-isa_ok($sc, 'Bio::Assembly::Scaffold');
+    (-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'),
+     -verbose => -1);
+ok $sc = $in->next_assembly;
+isa_ok $sc, 'Bio::Assembly::Scaffold';
 
 
 #
@@ -142,10 +145,10 @@ isa_ok($sc->annotation, 'Bio::AnnotationCollectionI');
 is $sc->annotation->get_all_annotation_keys, 0,"no annotations in Annotation collection?";
 is $sc->get_nof_contigs, 1;
 is $sc->get_nof_sequences_in_contigs, 2;
-is($sc->get_nof_singlets, 2, "get_nof_singlets");
-is($sc->get_contig_seq_ids, 2, "get_contig_seq_ids");
-is($sc->get_contig_ids, 1, "get_contig_ids");
-is($sc->get_singlet_ids, 2, "get_singlet_ids");
+is $sc->get_nof_singlets, 2, "get_nof_singlets";
+is $sc->get_contig_seq_ids, 2, "get_contig_seq_ids";
+is $sc->get_contig_ids, 1, "get_contig_ids";
+is $sc->get_singlet_ids, 2, "get_singlet_ids";
 
 my @phrap_contigs = $sc->all_contigs();
 isa_ok $phrap_contigs[0], "Bio::Assembly::Contig",'the contig is a Bio::Assembly::Contig';
@@ -154,29 +157,29 @@ isa_ok $singlets[0], "Bio::Assembly::Contig", 'the singlet is a Bio::Assembly::C
 isa_ok $singlets[0], "Bio::Assembly::Singlet", 'the singlet is a Bio::Assembly::Singlet';
 
 my @contig_seq_ids;
-ok(@contig_seq_ids = $sc->get_contig_seq_ids, "get_contig_seq_ids");
-is(@contig_seq_ids, 2);
+ok @contig_seq_ids = $sc->get_contig_seq_ids, "get_contig_seq_ids";
+is @contig_seq_ids, 2;
 for my $contig_seq_id (@contig_seq_ids) {
-  ok (not $contig_seq_id =~ m/contig/i);
+  ok not $contig_seq_id =~ m/contig/i;
 }
 my @contig_ids;
-ok(@contig_ids = $sc->get_contig_ids, "get_contig_ids");
-is(@contig_ids, 1);
+ok @contig_ids = $sc->get_contig_ids, "get_contig_ids";
+is @contig_ids, 1;
 for my $contig_id (@contig_ids) {
-  ok (not $contig_id =~ m/contig/i);
+  ok not $contig_id =~ m/contig/i;
 }
 my @singlet_ids;
-ok(@singlet_ids = $sc->get_singlet_ids, "get_singlet_ids");
-is(@singlet_ids, 2);
+ok @singlet_ids = $sc->get_singlet_ids, "get_singlet_ids";
+is @singlet_ids, 2;
 for my $singlet_id (@singlet_ids) {
-  ok (not $singlet_id =~ m/contig/i);
+  ok not $singlet_id =~ m/contig/i;
 }
 my @all_seq_ids;
-ok(@all_seq_ids = $sc->get_all_seq_ids, "get_all_seq_ids");
+ok @all_seq_ids = $sc->get_all_seq_ids, "get_all_seq_ids";
 for my $seq_id (@all_seq_ids) {
-  ok (not $seq_id =~ m/contig/i);
+  ok not $seq_id =~ m/contig/i;
 }
-is(@all_seq_ids, 4);
+is @all_seq_ids, 4;
 
 #
 # Testing ContigAnalysis
@@ -188,8 +191,8 @@ is(@all_seq_ids, 4);
 
 # ACE Consed variant (default)
 $aio = Bio::Assembly::IO->new(
-    -file=>test_input_file('consed_project','edit_dir','test_project.fasta.screen.ace.2'),
-    -format=>'ace'
+    -file   => test_input_file('consed_project','edit_dir','test_project.fasta.screen.ace.2'),
+    -format => 'ace'
 );
 
 my $assembly = $aio->next_assembly();
@@ -200,11 +203,13 @@ my $direction = $contigs[0]->strand;
 is $direction, 1;
 
 my $features =  $contigs[0]->get_features_collection;
-my @contig_features = $features->get_all_features;
-is @contig_features, 59, 'contig features';
 
-my @annotations = grep {$_->primary_tag eq 'Annotation'} @contig_features;
+my @contig_features = $features->features;
+is @contig_features, 61, 'contig features'; # 59 contig features + 2 seqfeatures
+
+my @annotations = $features->get_features_by_type('Annotation');
 is @annotations, 2;
+
 my $had_tag = 0;
 foreach my $an (@annotations) {
     if ($an->has_tag('extra_info')) {
@@ -220,10 +225,10 @@ is $had_tag, 2;
 
 is $assembly->get_nof_contigs, 1;
 is $assembly->get_nof_sequences_in_contigs, 2;
-is($assembly->get_nof_singlets, 0, "get_nof_singlets");
-is($assembly->get_contig_seq_ids, 2, "get_contig_seq_ids");
-is($assembly->get_contig_ids, 1, "get_contig_ids");
-is($assembly->get_singlet_ids, 0, "get_singlet_ids");
+is $assembly->get_nof_singlets, 0, "get_nof_singlets";
+is $assembly->get_contig_seq_ids, 2, "get_contig_seq_ids";
+is $assembly->get_contig_ids, 1, "get_contig_ids";
+is $assembly->get_singlet_ids, 0, "get_singlet_ids";
 
 $aio = Bio::Assembly::IO->new(
     -file   => test_input_file('assembly_with_singlets.ace'),
@@ -242,38 +247,45 @@ $aio = Bio::Assembly::IO->new(
 $assembly = $aio->next_assembly();
 is $assembly->get_nof_contigs, 3;
 my @ace_contigs = $assembly->all_contigs();
-isa_ok $ace_contigs[0], "Bio::Assembly::Contig",'the contig is a Bio::Assembly::Contig';
+my $ace_contig = $ace_contigs[0];
+isa_ok $ace_contig, "Bio::Assembly::Contig",'the contig is a Bio::Assembly::Contig';
+
+ok my @test_reads = $ace_contig->get_seq_ids();
+is scalar @test_reads, 2;
+is $test_reads[0], '5704073';
+is $test_reads[1], '5762101';
+
 is $assembly->get_nof_sequences_in_contigs, 6;
-is($assembly->get_nof_singlets, 33, "get_nof_singlets");
+is $assembly->get_nof_singlets, 33, "get_nof_singlets";
 @singlets = $assembly->all_singlets();
 isa_ok $singlets[0], "Bio::Assembly::Contig", 'the singlet is a Bio::Assembly::Contig';
 isa_ok $singlets[0], "Bio::Assembly::Singlet", 'the singlet is a Bio::Assembly::Singlet';
-ok(@contig_seq_ids = $assembly->get_contig_seq_ids, "get_contig_seq_ids");
-is(@contig_seq_ids, 6);
+ok @contig_seq_ids = $assembly->get_contig_seq_ids, "get_contig_seq_ids";
+is @contig_seq_ids, 6;
 for my $contig_seq_id (@contig_seq_ids) {
-  ok (not $contig_seq_id =~ m/contig/i);
+  ok not $contig_seq_id =~ m/contig/i;
 }
-ok(@contig_ids = $assembly->get_contig_ids, "get_contig_ids");
-is(@contig_ids, 3);
+ok @contig_ids = $assembly->get_contig_ids, "get_contig_ids";
+is @contig_ids, 3;
 for my $contig_id (@contig_ids) {
-  ok ($contig_id =~ m/contig/i);
+  ok $contig_id =~ m/contig/i;
 }
-ok(@singlet_ids = $assembly->get_singlet_ids, "get_singlet_ids");
-is(@singlet_ids, 33);
+ok @singlet_ids = $assembly->get_singlet_ids, "get_singlet_ids";
+is @singlet_ids, 33;
 for my $singlet_id (@singlet_ids) {
-  ok ($singlet_id =~ m/contig/i);
+  ok $singlet_id =~ m/contig/i;
 }
-ok(@all_seq_ids = $assembly->get_all_seq_ids, "get_all_seq_ids");
+ok @all_seq_ids = $assembly->get_all_seq_ids, "get_all_seq_ids";
 for my $seq_id (@all_seq_ids) {
-  ok (not $seq_id =~ m/contig/i);
+  ok not $seq_id =~ m/contig/i;
 }
 is(@all_seq_ids, 39);
 
 # bug 2758
-ok( $aio = Bio::Assembly::IO->new(
+ok $aio = Bio::Assembly::IO->new(
     -file=>test_input_file('singlet_w_CT.ace'),
     -format=>'ace'
-));
+);
 
 # ACE 454 variant
 $aio = Bio::Assembly::IO->new(
@@ -286,10 +298,8 @@ $assembly = $aio->next_assembly();
 my $contig = $contigs[0];
 my $min_aln_coord = undef;
 for my $read ($contig->each_seq) {
-   my $aln_coord_start  = (grep
-      { $_->primary_tag eq "_aligned_coord:".$read->id}
-      $contig->get_features_collection->get_all_features
-      )[0]->location->start;
+   my ($feat) = $contig->get_features_collection->get_features_by_type("_aligned_coord:".$read->id);
+   my $aln_coord_start = $feat->location->start;
    if ( (not defined $min_aln_coord) or ($aln_coord_start < $min_aln_coord) ) {
       $min_aln_coord = $aln_coord_start;
    }
@@ -301,18 +311,18 @@ my $sequence_length  = 203;
 my $right_pad_length = 81;
 my $consensus_length = $left_pad_length + $sequence_length + $right_pad_length;
 my $cons_seq  = $contig->get_consensus_sequence->seq;
-is( length $cons_seq, $consensus_length );
+is length $cons_seq, $consensus_length;
 $cons_seq =~ m/^(-*).*?(-*)$/;
-is( length $1, $left_pad_length, '454 ACE variant consensus check' );
-is( length $2, $right_pad_length );
+is length $1, $left_pad_length, '454 ACE variant consensus check';
+is length $2, $right_pad_length;
 my $cons_qual = $contig->get_consensus_quality->qual;
-is( scalar @$cons_qual, $consensus_length );
+is scalar @$cons_qual, $consensus_length;
 $cons_qual = join ' ', @{$contig->get_consensus_quality->qual};
 my $lpad = $left_pad_length x '0 ';
 my $rpad = $right_pad_length x '0 ';
 $cons_qual =~ m/^($lpad).*($rpad)$/;
-ok( defined $1 );
-ok( defined $2 );
+ok defined $1;
+ok defined $2;
 
 # Writing ACE files
 my $asm_infile  = '27-contig_Newbler.ace';
@@ -364,11 +374,11 @@ $asm_in = Bio::Assembly::IO->new(
 );
 
 my $scaf_in = $asm_in->next_assembly;
-isa_ok($scaf_in, 'Bio::Assembly::Scaffold');
-is($scaf_in->id, 'NoName');
-is($scaf_in->get_nof_contigs, 13);
-is($scaf_in->get_nof_sequences_in_contigs, 36);
-is($scaf_in->get_nof_singlets, 1);
+isa_ok $scaf_in, 'Bio::Assembly::Scaffold';
+is $scaf_in->id, 'NoName';
+is $scaf_in->get_nof_contigs, 13;
+is $scaf_in->get_nof_sequences_in_contigs, 36;
+is $scaf_in->get_nof_singlets, 1;
 my @contigseqids = sort qw(sdsu|SDSU1_RFPERU_001_A09.x01.phd.1
 sdsu|SDSU1_RFPERU_001_B03.x01.phd.1 sdsu|SDSU1_RFPERU_001_B04.x01.phd.1
 sdsu|SDSU1_RFPERU_001_E04.x01.phd.1 sdsu|SDSU_RFPERU_002_A01.x01.phd.1
@@ -391,23 +401,21 @@ sdsu|SDSU_RFPERU_015_H03.x01.phd.1);
 my @contigids     = sort qw(106 144 148 17 185 2 210 36 453 500 613 668 93);
 my @singletids    = sort qw(123);
 my @singletseqids = sort qw(asdf);
-is_deeply([sort $scaf_in->get_contig_seq_ids], \@contigseqids);
-is_deeply([sort $scaf_in->get_contig_ids],     \@contigids   );
-is_deeply([sort $scaf_in->get_singlet_ids],    \@singletids  );
-isa_ok($scaf_in->get_seq_by_id('sdsu|SDSU1_RFPERU_001_A09.x01.phd.1'),'Bio::LocatableSeq');
+is_deeply [sort $scaf_in->get_contig_seq_ids], \@contigseqids;
+is_deeply [sort $scaf_in->get_contig_ids],     \@contigids   ;
+is_deeply [sort $scaf_in->get_singlet_ids],    \@singletids  ;
+isa_ok $scaf_in->get_seq_by_id('sdsu|SDSU1_RFPERU_001_A09.x01.phd.1'),'Bio::LocatableSeq';
 $contig = $scaf_in->get_contig_by_id('106');
-isa_ok($contig,'Bio::Assembly::Contig');
+isa_ok $contig,'Bio::Assembly::Contig';
 
 # check Contig object SeqFeature::Collection
 # should add more specific Contig tests...
-my @sfs = $contig->get_features_collection->get_all_features;
-is(scalar(@sfs), 5);
-my %primary_tags = map { $_->primary_tag => 1 } @sfs;
-ok exists $primary_tags{'_aligned_coord:sdsu|SDSU_RFPERU_006_E04.x01.phd.1'};
-is($sfs[1]->seq_id(), undef); # should this be undef?
-
-isa_ok($scaf_in->annotation, 'Bio::AnnotationCollectionI');
-is($scaf_in->annotation->get_all_annotation_keys, 0, "no annotations in Annotation collection?");
+my @sfs = $contig->get_features_collection->features; # 5 contig features + 2 seqfeatures
+is scalar @sfs, 7;
+is $sfs[1]->seq_id(), undef; # should this be undef?
+ok $contig->get_features_collection->get_features_by_type('_aligned_coord:sdsu|SDSU_RFPERU_006_E04.x01.phd.1');
+isa_ok $scaf_in->annotation, 'Bio::AnnotationCollectionI';
+is $scaf_in->annotation->get_all_annotation_keys, 0, "no annotations in Annotation collection?";
 
 
 # Exporting an assembly
@@ -427,17 +435,17 @@ my $file = 'test.maq';
 ok $aio = Bio::Assembly::IO->new( -file => test_input_file($file),
                                   -format => 'maq' ), "init maq IO object";
 ok $assembly = $aio->next_assembly, "get maq assy";
-is( $assembly->get_nof_contigs, 11, "got all contigs");
+is $assembly->get_nof_contigs, 11, "got all contigs";
 ok open(my $tf, test_input_file($file)), "read test file as text";
 my @lines = <$tf>;
-is( $assembly->get_nof_contig_seqs, scalar @lines, "recorded all maq reads");
+is $assembly->get_nof_contig_seqs, scalar @lines, "recorded all maq reads";
 ok !$assembly->get_nof_singlets, "no singlets";
 
 ok $aio = Bio::Assembly::IO->new( -file => test_input_file($file),
                                   -format => 'maq' );
-isa_ok($aio, 'Bio::Assembly::IO');
+isa_ok $aio, 'Bio::Assembly::IO';
 while (my $contig = $aio->next_contig) {
-    isa_ok($contig, 'Bio::Assembly::Contig');
+    isa_ok $contig, 'Bio::Assembly::Contig';
 }
 
 #
@@ -447,37 +455,37 @@ $file = 'test_singlets.maq';
 ok $aio = Bio::Assembly::IO->new( -file => test_input_file($file),
                                   -format => 'maq' );
 ok $assembly = $aio->next_assembly, "get maq assy";
-isa_ok($aio, 'Bio::Assembly::IO');
+isa_ok $aio, 'Bio::Assembly::IO';
 
 
-ok(@contig_seq_ids = $assembly->get_contig_seq_ids, "get_contig_seq_ids");
-is(@contig_seq_ids, 246);
+ok @contig_seq_ids = $assembly->get_contig_seq_ids, "get_contig_seq_ids";
+is @contig_seq_ids, 246;
 for my $contig_seq_id (@contig_seq_ids) {
-  ok (not $contig_seq_id =~ m/maq_assy/i);
+  ok not $contig_seq_id =~ m/maq_assy/i;
 }
 
-ok(@contig_ids = $assembly->get_contig_ids, "get_contig_ids");
-is(@contig_ids, 37);
+ok @contig_ids = $assembly->get_contig_ids, "get_contig_ids";
+is @contig_ids, 37;
 for my $contig_id (@contig_ids) {
-  ok ($contig_id =~ m/maq_assy/i);
+  ok $contig_id =~ m/maq_assy/i;
 }
 
-ok(@singlet_ids = $assembly->get_singlet_ids, "get_singlet_ids");
-is(@singlet_ids, 4);
+ok @singlet_ids = $assembly->get_singlet_ids, "get_singlet_ids";
+is @singlet_ids, 4;
 for my $singlet_id (@singlet_ids) {
-  ok ($singlet_id =~ m/maq_assy/i);
+  ok $singlet_id =~ m/maq_assy/i;
 }
 
-ok(@all_seq_ids = $assembly->get_all_seq_ids, "get_all_seq_ids");
+ok @all_seq_ids = $assembly->get_all_seq_ids, "get_all_seq_ids";
 for my $seq_id (@all_seq_ids) {
-  ok (not $seq_id =~ m/maq_assy/i);
+  ok not $seq_id =~ m/maq_assy/i;
 }
-is(@all_seq_ids, 250);
+is @all_seq_ids, 250;
 
 ok $aio = Bio::Assembly::IO->new( -file => test_input_file($file),
                                   -format => 'maq' );
 while (my $contig = $aio->next_contig) {
-    isa_ok($contig, 'Bio::Assembly::Contig');
+    isa_ok $contig, 'Bio::Assembly::Contig';
 }
 
 exit;

@@ -21,7 +21,7 @@ Bio::LiveSeq::Transcript - Transcript class for LiveSeq
 
 =head1 DESCRIPTION
 
-This stores informations about coding sequences (CDS).
+This stores information about coding sequences (CDS).
 The implementation is that a Transcript object accesses a collection of
 Exon objects, inferring from them the nucleotide structure and sequence.
 

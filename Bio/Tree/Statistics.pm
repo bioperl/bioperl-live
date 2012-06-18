@@ -94,52 +94,88 @@ use base qw(Bio::Root::Root);
 
 =cut
 
-sub _read_trait_file {
-    my $self = shift;
-    my $file = shift;
-    my $column = shift || 1;
+=head2 add_trait
 
-    my $traits;
-    open my $TRAIT, "<", $file or $self->("Can't find file $file: $!\n");
+ Title   : add_trait
+ Usage   : my $key = $tree->add_trait($trait_file, 3);
+ Function: Add traits to the leaf nodes of a Bio::Tree:Tree from a file.
+           The trait file is a tab-delimited text file and needs to have a
+           header line giving names to traits. The first column contains the
+           leaf node ids. Subsequent columns contain different trait value sets.
+           Single or double quotes are removed from the trait values. Traits
+           are added to leaf nodes as a tag named $key using the add_tag_value()
+           method. This means that you can retrieve the trait values using the
+           get_tag_values() method (see the documentation for Bio::Tree::Node).
+ Returns : Trait name (a scalar) on success, undef on failure (for example, if
+           the column index requested was too large).
+ Args    : * Name of trait file (scalar string).
+           * Index of trait file column (scalar int). Note that numbering starts
+             at 0. Default: 1 (second column).
+           * Ignore missing values. Typically, if a leaf node has no value in
+             the trait file, an exception is thrown. If you set this option to
+             1, then no trait will be given to the node (no exception thrown).
+
+=cut
+
+sub _read_trait_file {
+    my ($self, $file, $column) = @_;
+    $column ||= 1;
+
+    my $trait_name;
+    my $trait_values;
+    open my $TRAIT, '<', $file or $self->throw("Could not open file $file: $!\n");
 
     my $first_line = 1;
     while (<$TRAIT>) {
-	if ($first_line) {
-	    $first_line = 0;
-	        s/['"]//g;
-    my @line = split;
-	    $traits->{'my_trait_name'} = $line[$column];
-	    next;
-	}
-	s/['"]//g;
-my @line = split;
-	last unless $line[0];
-	$traits->{$line[0]} = $line[$column];
+        chomp;
+        s/['"]//g;
+        my @line = split /\t/;
+        if ($first_line) {
+            $first_line = 0;
+            $trait_name = $line[$column];
+            next;
+        }
+
+        my $id = $line[0];
+        last if (not defined $id) or ($id eq '');
+
+        # Skip empty trait values
+        my $value = $line[$column];
+        next if (not defined $value) or ($value eq '');
+
+        $trait_values->{$id} = $value;
     }
-    return $traits;
+
+    close $TRAIT;
+    return $trait_name, $trait_values;
 }
 
 sub add_trait {
-    my $self = shift;
-    my $tree = shift;
-    my $file = shift;
-    my $column = shift;
+    my ($self, $node, $file, $column, $ignore) = @_;
+    $ignore = 0 if not defined $ignore;
 
-    my $traits = $self->_read_trait_file($file, $column); # filename, trait column
-    my $key = $traits->{'my_trait_name'};
-    #use YAML; print Dump $traits; exit;
-    foreach my $node ($tree->get_leaf_nodes) {
-	# strip quotes from the node id
-	$node->id($1) if $node->id =~ /^['"]+(.*)['"]+$/;
-eval {
-    $node->verbose(2);
-    $node->add_tag_value($key, $traits->{ $node->id } );
-};
-	$self->throw("ERROR: No trait for node [".
-		          $node->id. "/".  $node->internal_id. "]")
-	    if $@;
+    my ($trait_name, $trait_values) = $self->_read_trait_file($file, $column);
+
+    use Data::Dumper;
+    if (defined $trait_name) {
+
+        for my $node ($node->get_leaf_nodes) {
+            # strip quotes from the node id
+            $node->id($1) if $node->id =~ /^['"]+(.*)['"]+$/;
+
+            if ( not exists $trait_values->{$node->id} ) {
+                if ($ignore) {
+                    next;
+                } else {
+                    $self->throw("No trait for node [".$node->id."/".$node->internal_id."]");
+                }
+            }
+
+            $node->add_tag_value($trait_name, $trait_values->{ $node->id } );
+
+        }
     }
-    return $key;
+    return $trait_name;
 }
 
 
@@ -339,14 +375,14 @@ sub fitch_up {
     my $node = shift || $tree->get_root_node;
 
     if ($node->is_Leaf) {
-        $self->throw ("ERROR: ". $node->internal_id. " needs a value for trait $key")
+        $self->throw ("ERROR: Node [id=". $node->id."] needs a value for trait $key")
 	    unless $node->has_tag($key);
 	$node->set_tag_value('ps_trait', $node->get_tag_values($key) );
 	$node->set_tag_value('ps_score', 0 );
 	return; # end of recursion
     }
 
-    foreach my $child ($node->each_Descendent) {
+    foreach my $child ($node->children) {
 	$self->fitch_up($tree, $key, $child);
     }
 
@@ -354,7 +390,7 @@ sub fitch_up {
     my %union;
     my $score;
 
-    foreach my $child ($node->each_Descendent) {
+    foreach my $child ($node->children) {
 	foreach my $trait ($child->get_tag_values('ps_trait') ) {
 	    $intersection{$trait}++ if $union{$trait};
 	    $union{$trait}++;
@@ -772,7 +808,7 @@ sub _node_ai {
 
     my $traits;
     my $leaf_count = 0;
-    for my $desc ( $node->get_all_Descendents ) {
+    for my $desc ( $node->nodes ) {
 	next unless $desc->is_Leaf;
 	$leaf_count++;
         $self->throw ("Node ". $desc->id. " needs a value for trait [$key]")
@@ -795,8 +831,10 @@ sub ai {
     return unless $start_node;
 
     my $sum = 0;
-    for my $node ( $start_node->get_all_Descendents ) {
+    for my $node ( $start_node->nodes ) {
 	next if $node->is_Leaf;
+  # Don't want to include the "self" node in the calculation...
+  next if ($node == $start_node);
 	$sum += $self->_node_ai($node, $key);
     }
     return $sum;

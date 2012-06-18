@@ -2,34 +2,22 @@
 # $Id$
 
 
-BEGIN {     
+BEGIN {
     use lib '.';
-	use Bio::Root::Test;
-	
-    test_begin(-tests => 18,
-	       -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
-	use_ok('Bio::Root::IO');
-	use_ok('File::Copy');
-}
+    use Bio::Root::Test;
 
+    test_begin(-tests => 23,
+               -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
+}
+use strict;
+use warnings;
+use Bio::Root::Root;
+use File::Copy;
 my $DEBUG = test_debug();
 
-# this obfuscation is to deal with lockfiles by GDBM_File which can
-# only be created on local filesystems apparently so will cause test
-# to block and then fail when the testdir is on an NFS mounted system
+{
 
-my $io = Bio::Root::IO->new(-verbose => $DEBUG);
-my $tempdir = test_output_dir();
-my $test_dbdir = $io->catfile($tempdir, 'dbfa');
-mkdir($test_dbdir); # make the directory
-my $indir = test_input_file('dbfa');
-opendir(my $INDIR,$indir) || die("cannot open dir $indir");
-# effectively do a cp -r but only copy the files that are in there, no subdirs
-for my $file ( map { $io->catfile($indir,$_) } readdir($INDIR) ) {
-	next unless (-f $file );
-	copy($file, $test_dbdir);
-}
-closedir($INDIR);
+my $test_dbdir = setup_temp_dir('dbfa');
 
 # now use this temporary dir for the db file
 my $db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1);
@@ -60,18 +48,72 @@ is($dna2, $revcom);
 
 $db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1);
 my $out = Bio::SeqIO->new(-format => 'genbank',
-			  -file  => '>'.test_output_file());
+              -file  => '>'.test_output_file());
 $primary_seq = Bio::Seq->new(-primary_seq => $db->get_Seq_by_acc('AW057119'));
 eval {
-    #warn(ref($primary_seq),"\n");
-    $out->write_seq($primary_seq) 
+    $out->write_seq($primary_seq)
 };
 ok(!$@);
 
 $out = Bio::SeqIO->new(-format => 'embl', -file  => '>'.test_output_file());
 
 eval {
-    $out->write_seq($primary_seq) 
+    $out->write_seq($primary_seq)
 };
 ok(!$@);
 
+{
+    # squash warnings locally
+    local $SIG{__WARN__} = sub {};
+
+    # Issue 3172
+    $test_dbdir = setup_temp_dir('bad_dbfa');
+    throws_ok {$db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1)}
+        qr/FASTA header doesn't match/;
+
+    # Issue 3237
+
+    # Empty lines within a sequence is bad...
+    throws_ok {$db = Bio::DB::Fasta->new(test_input_file('badfasta.fa'), -reindex => 1)}
+        qr/Blank lines can only precede header lines/;
+}
+
+# again, Issue 3237
+
+# but empty lines preceding headers are okay, but let's check the seqs just in case
+lives_ok {$db = Bio::DB::Fasta->new(test_input_file('spaced_fasta.fa'), -reindex => 1)};
+is(length($db->seq('CEESC39F')), 375, 'length is correct in sequences past spaces');
+is(length($db->seq('CEESC13F')), 389);
+
+is($db->subseq('CEESC39F', 51, 60), 'acatatganc', 'subseq is correct');
+is($db->subseq('CEESC13F', 146, 155), 'ggctctccct', 'subseq is correct');
+
+# Remove temporary test file
+my $outfile = test_input_file('spaced_fasta.fa').'.index';
+unlink $outfile;
+
+exit;
+
+}
+
+sub setup_temp_dir {
+    # this obfuscation is to deal with lockfiles by GDBM_File which can
+    # only be created on local filesystems apparently so will cause test
+    # to block and then fail when the testdir is on an NFS mounted system
+
+    my $data_dir = shift;
+
+    my $io = Bio::Root::IO->new();
+    my $tempdir = test_output_dir();
+    my $test_dbdir = $io->catfile($tempdir, $data_dir);
+    mkdir($test_dbdir); # make the directory
+    my $indir = test_input_file($data_dir);
+    opendir(my $INDIR,$indir) || die("cannot open dir $indir");
+    # effectively do a cp -r but only copy the files that are in there, no subdirs
+    for my $file ( map { $io->catfile($indir,$_) } readdir($INDIR) ) {
+        next unless (-f $file );
+        copy($file, $test_dbdir);
+    }
+    closedir($INDIR);
+    return $test_dbdir
+}

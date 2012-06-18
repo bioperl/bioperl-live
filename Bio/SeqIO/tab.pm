@@ -69,15 +69,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -86,7 +86,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.
 Bug reports can be submitted via the web:
 
-  http://bugzilla.bioperl.org
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHORS
 
@@ -130,7 +130,7 @@ sub next_seq{
    return unless defined $nextline;
    if ($nextline =~ /^([^\t]*)\t(.*)/) {
        my ($id, $seq)=($1, uc($2));
-       $seq =~ s/\W//g;
+       $seq =~ s/\s+//g;
        return  Bio::Seq->new(-display_id=> $id, -seq => $seq);
    }  else {
        $self->throw("Can't parse tabbed sequence entry:'$nextline' around line $.");
@@ -156,7 +156,7 @@ sub write_seq {
        }
        $self->_print($_->display_id(), "\t",$_->seq, "\n") or return;
    }
-   
+
    $self->flush if $self->_flush_on_write && defined $self->_fh;
    return 1;
 }

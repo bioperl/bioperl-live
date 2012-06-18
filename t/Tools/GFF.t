@@ -53,7 +53,7 @@ is($feat2->start, $feat->start);
 is($feat2->end, $feat->end);
 is($feat2->primary_tag, $feat->primary_tag);
 is($feat2->score, $feat->score);
-is(($feat2->each_tag_value('sillytag'))[0], 'this is silly!;breakfast');
+is(($feat2->get_tag_values('sillytag'))[0], 'this is silly!;breakfast');
 
 #test sequence-region parsing
 $gff2in = Bio::Tools::GFF->new(-gff_version => 2, -file => test_input_file('hg16_chroms.gff'));

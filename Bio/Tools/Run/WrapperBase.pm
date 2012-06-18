@@ -63,7 +63,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track of
 the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -178,7 +178,7 @@ sub no_param_checks{
  Usage   : $obj->save_tempfiles($newval)
  Function: Get/set the choice of if tempfiles in the temp dir (see tempdir())
            are kept or cleaned up. Default is '0', ie. delete temp files.
-           NB:ÊThis must be set to the desired value PRIOR to first creating
+           NB: This must be set to the desired value PRIOR to first creating
            a temp dir with tempdir().
  Returns : boolean
  Args    : none to get, boolean to set
@@ -330,6 +330,12 @@ sub executable {
                 $self->{'_pathtoexe'} = undef;
             }
         }
+    }
+    
+    # bail if we never found the executable
+    unless ( defined $self->{'_pathtoexe'}) {
+        $self->throw("Cannot find executable for ".$self->program_name .
+            ". path=\"".$self->program_path."\"");
     }
     return $self->{'_pathtoexe'};
 }

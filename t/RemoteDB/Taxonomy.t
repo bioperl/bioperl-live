@@ -7,11 +7,11 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 103,
-			   -requires_module => 'XML::Twig');
-	
-	use_ok('Bio::DB::Taxonomy');
-	use_ok('Bio::Tree::Tree');
+    test_begin(-tests => 138,
+        -requires_module => 'XML::Twig');
+
+    use_ok('Bio::DB::Taxonomy');
+    use_ok('Bio::Tree::Tree');
 }
 
 my $temp_dir = test_output_dir();
@@ -20,18 +20,37 @@ my $temp_dir = test_output_dir();
 # Bio::Taxonomy
 
 ok my $db_entrez = Bio::DB::Taxonomy->new(-source => 'entrez');
+isa_ok $db_entrez, 'Bio::DB::Taxonomy::entrez';
+isa_ok $db_entrez, 'Bio::DB::Taxonomy';
 
-ok my $db_flatfile = Bio::DB::Taxonomy->new(-source => 'flatfile',
-                               -directory => $temp_dir,
-                               -nodesfile => test_input_file('taxdump', 'nodes.dmp'),
-                               -namesfile => test_input_file('taxdump','names.dmp'),
-                               -force => 1);
+ok my $db_flatfile = Bio::DB::Taxonomy->new(
+    -source    => 'flatfile',
+    -nodesfile => test_input_file('taxdump', 'nodes.dmp'),
+    -namesfile => test_input_file('taxdump','names.dmp'),
+);
+isa_ok $db_flatfile, 'Bio::DB::Taxonomy::flatfile';
+isa_ok $db_flatfile, 'Bio::DB::Taxonomy';
+
+ok $db_flatfile = Bio::DB::Taxonomy->new(
+    -source    => 'flatfile',
+    -directory => $temp_dir,
+    -nodesfile => test_input_file('taxdump', 'nodes.dmp'),
+    -namesfile => test_input_file('taxdump','names.dmp'),
+    -force     => 1,
+);
 
 my $n;
-foreach my $db ($db_entrez, $db_flatfile) {
+for my $db ($db_entrez, $db_flatfile) {
     SKIP: {
-		test_skip(-tests => 38, -requires_networking => 1) if $db eq $db_entrez;
+        test_skip(-tests => 46, -requires_networking => 1) if $db eq $db_entrez;
         my $id;
+
+        if ($db eq $db_entrez) {
+           cmp_ok $db->get_num_taxa, '>', 880_000; # 886,907 as of 08-May-2012
+        } else {
+           is $db->get_num_taxa, 189;
+        }
+
         eval { $id = $db->get_taxonid('Homo sapiens');};
         skip "Unable to connect to entrez database; no network or server busy?", 38 if $@;
         
@@ -69,8 +88,8 @@ foreach my $db ($db_entrez, $db_flatfile) {
         is $ancestor->scientific_name, 'Homo';
         # unless set explicitly, Bio::Taxon doesn't return anything for
         # each_Descendent; must ask the database directly
-        ok my @children = $ancestor->db_handle->each_Descendent($ancestor); 
-        ok @children > 0;
+        ok my @children = $ancestor->db_handle->each_Descendent($ancestor);
+        cmp_ok @children, '>', 0;
         
         sleep(3) if $db eq $db_entrez;
         
@@ -81,6 +100,26 @@ foreach my $db ($db_entrez, $db_flatfile) {
         # briefly check we can use some Tree methods
         my $tree = Bio::Tree::Tree->new();
         is $tree->get_lca($n, $n2)->scientific_name, 'Craniata';
+
+        # get lineage_nodes
+        my @nodes = $tree->get_nodes;
+        is scalar(@nodes), 0;
+        my @lineage_nodes;
+        @lineage_nodes = $tree->get_lineage_nodes($n->id); # read ID, only works if nodes have been added to tree
+        is scalar @lineage_nodes, 0;
+        @lineage_nodes = $tree->get_lineage_nodes($n);     # node object always works
+        is scalar @lineage_nodes, 29;
+
+        # get lineage string
+        is $tree->get_lineage_string($n), ($db eq $db_entrez) ?
+           'cellular organisms;Eukaryota;Opisthokonta;Metazoa;Eumetazoa;Bilateria;Coelomata;Deuterostomia;Chordata;Craniata;Vertebrata;Gnathostomata;Teleostomi;Euteleostomi;Sarcopterygii;Tetrapoda;Amniota;Mammalia;Theria;Eutheria;Euarchontoglires;Primates;Haplorrhini;Simiiformes;Catarrhini;Hominoidea;Hominidae;Homininae;Homo;Homo sapiens' :
+           'cellular organisms;Eukaryota;Fungi/Metazoa group;Metazoa;Eumetazoa;Bilateria;Coelomata;Deuterostomia;Chordata;Craniata;Vertebrata;Gnathostomata;Teleostomi;Euteleostomi;Sarcopterygii;Tetrapoda;Amniota;Mammalia;Theria;Eutheria;Euarchontoglires;Primates;Haplorrhini;Simiiformes;Catarrhini;Hominoidea;Hominidae;Homo/Pan/Gorilla group;Homo;Homo sapiens';
+        is $tree->get_lineage_string($n,'-'), ($db eq $db_entrez) ?
+           'cellular organisms-Eukaryota-Opisthokonta-Metazoa-Eumetazoa-Bilateria-Coelomata-Deuterostomia-Chordata-Craniata-Vertebrata-Gnathostomata-Teleostomi-Euteleostomi-Sarcopterygii-Tetrapoda-Amniota-Mammalia-Theria-Eutheria-Euarchontoglires-Primates-Haplorrhini-Simiiformes-Catarrhini-Hominoidea-Hominidae-Homininae-Homo-Homo sapiens' :
+           'cellular organisms-Eukaryota-Fungi/Metazoa group-Metazoa-Eumetazoa-Bilateria-Coelomata-Deuterostomia-Chordata-Craniata-Vertebrata-Gnathostomata-Teleostomi-Euteleostomi-Sarcopterygii-Tetrapoda-Amniota-Mammalia-Theria-Eutheria-Euarchontoglires-Primates-Haplorrhini-Simiiformes-Catarrhini-Hominoidea-Hominidae-Homo/Pan/Gorilla group-Homo-Homo sapiens';
+        is $tree->get_lineage_string($n2), ($db eq $db_entrez) ?
+            'cellular organisms;Eukaryota;Opisthokonta;Metazoa;Eumetazoa;Bilateria;Coelomata;Deuterostomia;Chordata;Craniata' : 
+            'cellular organisms;Eukaryota;Fungi/Metazoa group;Metazoa;Eumetazoa;Bilateria;Coelomata;Deuterostomia;Chordata;Craniata';
         
         # can we actually form a Tree and use other Tree methods?
         ok $tree = Bio::Tree::Tree->new(-node => $n);
@@ -100,10 +139,12 @@ foreach my $db ($db_entrez, $db_flatfile) {
         sleep(3) if $db eq $db_entrez;
         
         # entrez isn't as good at searching as flatfile, so we have to special-case
-        my @ids = $db->get_taxonids('Chloroflexi');
-        $db eq $db_entrez ? (is @ids, 1) : (is @ids, 2);
+        my @ids = sort $db->get_taxonids('Chloroflexi');
+        is scalar @ids, 2;
+        is_deeply \@ids, [200795, 32061];
+
         $id = $db->get_taxonids('Chloroflexi (class)');
-        is $id, 32061;
+        $db eq $db_entrez ? is($id, undef) : is($id, 32061);
         
         @ids = $db->get_taxonids('Rhodotorula');
         cmp_ok @ids, '>=' , 8;
@@ -113,12 +154,21 @@ foreach my $db ($db_entrez, $db_flatfile) {
     }
 }
 
+
 # Test the list database
+
+ok my $db_list = Bio::DB::Taxonomy->new(-source => 'list');
+isa_ok $db_list, 'Bio::DB::Taxonomy::list';
+isa_ok $db_list, 'Bio::DB::Taxonomy';
+
 my @ranks = qw(superkingdom class genus species);
 my @h_lineage = ('Eukaryota', 'Mammalia', 'Homo', 'Homo sapiens');
-my $db_list = Bio::DB::Taxonomy->new(-source => 'list', -names => \@h_lineage,
-                                                        -ranks => \@ranks);
-ok $db_list;
+ok $db_list = Bio::DB::Taxonomy->new(
+    -source => 'list',
+    -names  => \@h_lineage,
+    -ranks  => \@ranks,
+);
+is $db_list->get_num_taxa, 4;
 
 ok my $h_list = $db_list->get_taxon(-name => 'Homo sapiens');
 ok my $h_flat = $db_flatfile->get_taxon(-name => 'Homo sapiens');
@@ -191,10 +241,10 @@ for my $name ('Human', 'Hominidae') {
     my $node = $db_flatfile->get_taxon(-taxonid => $ncbi_id);
     
     if ($tree) {
-		$tree->merge_lineage($node);
+        $tree->merge_lineage($node);
     }
     else {
-		ok $tree = Bio::Tree::Tree->new(-node => $node);
+        ok $tree = Bio::Tree::Tree->new(-node => $node);
     }
   }
 }
@@ -216,7 +266,7 @@ SKIP: {
 
 # bug 2461
 $db_list = Bio::DB::Taxonomy->new(-source => 'list',
-								  -names => [
+                                  -names => [
 (split(/,\s+/, "cellular organisms, Eukaryota, Fungi/Metazoa group,
 Metazoa, Eumetazoa, Bilateria, Coelomata, Protostomia, Panarthropoda,
 Arthropoda, Mandibulata, Pancrustacea, Hexapoda, Insecta, Dicondylia,
@@ -252,4 +302,26 @@ $node = $db_list->get_taxon(-name => 'Anopheles melanoon');
 is $node->ancestor->ancestor->ancestor->ancestor->scientific_name, 'Angusticorn';
 
 @taxonids = $db_list->get_taxonids('Anopheles');
-is @taxonids, 3;
+is scalar @taxonids, 3;
+
+# bug: duplicate topmost taxa
+$db_list = Bio::DB::Taxonomy->new( -source => 'list',
+                                   -names => ['Bacteria', 'Tenericutes'] );
+$db_list->add_lineage( -names => ['Bacteria'] );
+@taxonids = $db_list->get_taxonids('Bacteria');
+is scalar @taxonids, 1;
+
+# Disambiguate between taxa with same name using -names
+ok $db_list = Bio::DB::Taxonomy->new( -source => 'list' ), 'DB with ambiguous names';
+ok $db_list->add_lineage( -names => ['c__Gammaproteobacteria', 'o__Oceanospirillales', 'f__Alteromonadaceae', 'g__Spongiibacter'] );
+ok $db_list->add_lineage( -names => ['c__Gammaproteobacteria', 'o__Alteromonadales'  , 'f__Alteromonadaceae', 'g__Alteromonas'  ] );
+
+ok @taxonids = $db_list->get_taxonids('f__Alteromonadaceae');
+is scalar @taxonids, 2; # multiple taxa would match using $db_list->get_taxon(-name => 'f__Alteromonadaceae')
+
+ok $node = $db_list->get_taxon( -names => ['c__Gammaproteobacteria', 'o__Alteromonadales'  , 'f__Alteromonadaceae'] );
+is $node->ancestor->node_name, 'o__Alteromonadales';
+
+ok $node = $db_list->get_taxon( -names => ['c__Gammaproteobacteria', 'o__Oceanospirillales'  , 'f__Alteromonadaceae'] );
+is $node->ancestor->node_name, 'o__Oceanospirillales';
+

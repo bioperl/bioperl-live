@@ -64,7 +64,7 @@ Report bugs to the Bioperl bug tracking system to
 help us keep track the bugs and their resolution.
 Bug reports can be submitted via the web.
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -164,7 +164,7 @@ sub get_Seq_by_id {
     }
     my @seqs;
     while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
-    $self->throw("id does not exist") unless @seqs;
+    $self->throw("id '$seqid' does not exist") unless @seqs;
     if( wantarray ) { return @seqs } else { return shift @seqs }
 }
 
@@ -183,7 +183,7 @@ sub get_Seq_by_acc {
    my ($self,$seqid) = @_;
    $self->_sleep;
    my $seqio = $self->get_Stream_by_acc($seqid);
-   $self->throw("acc $seqid does not exist") if( ! defined $seqio );
+   $self->throw("acc '$seqid' does not exist") if( ! defined $seqio );
     if ($self->can('complexity') &&  defined $self->complexity && $self->complexity==0) {
         $self->warn("When complexity is set to 0, use get_Stream_by_acc\n".
                     "Returning Bio::SeqIO object");
