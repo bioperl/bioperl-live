@@ -201,12 +201,12 @@ add_trait() method in L<Bio::Tree::TreeFunctionsI>.
                2. trait name string
                3. Bio::Tree::NodeI object within the tree, optional
 
-Runs first L<fitch_up> that calculats parsimony scores and then
+Runs first L<fitch_up> that calculates parsimony scores and then
 L<fitch_down> that should resolve most of the trait/character state
 ambiguities.
 
-Fitch, W.M., 1971. Toward deﬁning the course of evolution: minimal
-change for a speciﬁc tree topology. Syst. Zool. 20, 406-416.
+Fitch, W.M., 1971. Toward defining the course of evolution: minimal
+change for a specific tree topology. Syst. Zool. 20, 406-416.
 
 You can access calculated parsimony values using:
 
@@ -237,19 +237,18 @@ sub fitch {
 
   Example    : ps($tree, $key, $node);
   Description: Calculates Parsimony Score (PS) from Fitch 1971
-               parsimony algorithm for the subtree a defined
+               parsimony algorithm for the subtree as defined
                by the (internal) node.
                Node defaults to the root.
-  Returns    : integer, 1< PS < n, where n is number of branches
+  Returns    : integer, 1 < PS < n, where n is number of branches
   Exceptions : leaf nodes have to have the trait defined
   Args       : 1. Bio::Tree::TreeI object
                2. trait name string
                3. Bio::Tree::NodeI object within the tree, optional
 
-
 This is the first half of the Fitch algorithm that is enough for
 calculating the resolved parsimony values. The trait/chararacter
-states are commonly left in ambiguos state. To resolve them, run
+states are commonly left in ambiguous state. To resolve them, run
 L<fitch_down>.
 
 =cut
@@ -261,7 +260,7 @@ sub ps { shift->fitch_up(@_) }
 
   Example    : fitch_up($tree, $key, $node);
   Description: Calculates Parsimony Score (PS) from the Fitch 1971
-               parsimony algorithm for the subtree a defined
+               parsimony algorithm for the subtree as defined
                by the (internal) node.
                Node defaults to the root.
   Returns    : integer, 1< PS < n, where n is number of branches
@@ -340,7 +339,7 @@ sub fitch_up {
                2. Bio::Tree::NodeI object within the tree, optional
 
 Before running this method you should have ran L<fitch_up> (alias to
-L<ps> ). Note that it is not guarantied that all states are completely
+L<ps> ). Note that it is not guaranteed that all states are completely
 resolved.
 
 =cut
@@ -385,8 +384,7 @@ sub fitch_down {
   Args       : 1. Bio::Tree::TreeI object
                2. Bio::Tree::NodeI object within the tree, optional
 
-
-Persistence is a measure of the stability the trait value has in a
+Persistence measures the stability that the trait value has in a
 tree. It expresses the number of generations the trait value remains
 the same. All the decendants of the root in the same generation have
 to share the same value.
@@ -673,7 +671,7 @@ sub genetic_diversity {
   Args       : 1. Bio::Tree::TreeI object
                2. Bio::Tree::NodeI object within the tree, optional
 
-TStatratio gives a measure of separation and variability within the phylotype.
+Statratio gives a measure of separation and variability within the phylotype.
 Larger values identify more rapidly evolving and recent phylotypes.
 
 Depends on Fitch's parsimony score (PS).
@@ -708,7 +706,7 @@ sub statratio {
   the result is a real number. ~0 E<lt>= AI.
 
   Wang, T.H., Donaldson, Y.K., Brettle, R.P., Bell, J.E., Simmonds, P.,
-  2001.  Identiﬁcation of shared populations of human immunodeﬁciency
+  2001.  Identification of shared populations of human immunodeficiency
   Virus Type 1 infecting microglia and tissue macrophages outside the
   central nervous system. J. Virol. 75 (23), 11686-11699.
 
@@ -774,7 +772,7 @@ sub ai {
   MC was defined by Parker et al 2008.
 
   Salemi, M., Lamers, S.L., Yu, S., de Oliveira, T., Fitch, W.M., McGrath, M.S.,
-   2005. Phylodynamic analysis of Human Immunodeﬁciency Virus Type 1 in
+   2005. Phylodynamic analysis of Human Immunodeficiency Virus Type 1 in
    distinct brain compartments provides a model for the neuropathogenesis of
    AIDS. J. Virol. 79 (17), 11343-11352.
 
