@@ -419,11 +419,16 @@ sub distance {
 =head2 lca
 
  Title   : lca
- Usage   : my $lca = $node->lca($other_node);
+ Usage   : my $lca = $node->lca($other_node); # LCA of two nodes
+           my $lca = $a->lca($b, $c, $d);     # Find LCA of many nodes
+
  Function: Return the lowest common ancestor (aka most recent common
-           ancestor) between this node and another node in the tree.
+           ancestor) between this node and another node in the
+           tree. If multiple arguments are provided, the LCA between
+           all nodes will be returned (implemented by recursively
+           calling the LCA function).
  Returns : Bio::Tree::NodeI, the lowest common ancestor
- Args    : Bio::Tree::NodeI, the other node
+ Args    : Bio::Tree::NodeI, the other node(s)
 
 =cut
 
@@ -433,6 +438,7 @@ sub lca {
 
     my $other_node = shift @other_nodes;
     foreach my $other_other (@other_nodes) {
+      # Simple trick to recursively find LCA of many nodes.
       $other_node = $other_node->lca($other_other);
     }
 
@@ -610,7 +616,7 @@ sub lineage {
     }
     return @lineage;
 }
-
+ 
 =head2 change_child_to_parent
 
  Title   : change_child_to_parent
@@ -1130,6 +1136,10 @@ sub find_by_id {
     foreach my $node ($self->nodes) {
 	push @nodes, $node if ($node->isa("Bio::Tree::LabeledNodeI") && $node->id eq $value);
     }
+
+    if (scalar(@nodes) == 0) {
+        $self->warn("find_by_id: No node found with id [$value]!");
+    }
     
     if ( wantarray) {
 	return @nodes;
@@ -1216,6 +1226,15 @@ sub find_by_tag_regex {
     }
 }
 
+=head2 enclosed_leaves_string
+ Title   : enclosed_leaves_string
+ Usage   : my $str = $root_node->enclosed_leaves_string(' AND ');
+ Function: Constructs a string containing the IDs of all leaf nodes
+           enclosed by this node concatenated together, separated by a
+           delimiter (defaults to '|').
+ Returns : String, the concatenated string
+ Args    : [optional] $separator string, the string used to separate leaf node IDs
+=cut
 
 sub enclosed_leaves_string {
   my $self = shift;
@@ -1232,37 +1251,65 @@ sub enclosed_leaves_string {
   return $leaf_string;
 }
 
+=head2 lineage_string
+ Title   : lineage_string
+ Usage   : my $str = $node->lineage_string(', ');
+ Function: Constructs a string containing the IDs of this node and all
+           its parent nodes (up to the root node) concatenated
+           together, separated by a delimiter (defaults to ';').
+ Returns : String, the concatenated lineage string
+ Args    : [optional] $separator string, the string used to separate leaf node IDs
+=cut
 
-# Extracts the minimum spanning subtree defined by the given nodes. Nodes can either be 
-# leaf or internal nodes, and by default all 'elbow' nodes left after the subtree extraction
-# are spliced out of the tree. To keep the internal nodes, call the method
-# subtree_with_internals
-# Note: this CLONES the tree and returns a slice of the clone, so the original tree structure
-# is not modified!
-sub slice {
-    my $self = shift;
-    return $self->_slice(1, @_);
+sub lineage_string {
+  my $self = shift;
+  my $sep = shift;
+
+  $sep = ';' unless (defined $sep);
+
+  my @lineage = $self->lineage;
+  push @lineage, $self;
+
+  foreach my $node (@lineage) {
+      if ($node->id =~ m/$sep/) {
+          my $node_name = $node->id;
+          $self->warn("Separator [$sep] is not safe to use because the node ".
+                      "called '$node_name' contains it. Consider using another separator".
+                      " or sanitizing the node name.");
+      }
+  }
+
+  my @ids = map {$_->id} @lineage;
+  my $str = join($sep, @ids);
+  return $str;
 }
 
-sub slice_by_ids {
-    my $self = shift;
-    my @ids = @_;
+=head2 extract
+ Title   : extract
+ Usage   : my $str = $root_node->extract($a, $b, $c);
+ Function: Extracts a copy of the minimum spanning subtree defined by
+           the passed nodes (NOT including the node from which the
+           method is called). Nodes can either be leaf or internal
+           nodes, and by default all 'elbow' nodes left after the
+           subtree extraction are spliced out of the tree. To keep the
+           internal nodes, call the method
+           extract_with_internals. Note: this method CLONES the tree
+           and returns a subset of the clone, so the original tree
+           structure is not modified!
+ Returns : Bio::Tree::NodeI, a new tree built by extracting the passed
+           nodes from a cloned copy of the input tree
+ Args    : Array of Bio::Tree::NodeI objects or node ID string (or some
+           mixture of the two)
+=cut
 
-    my @nodes;
-    foreach my $id (@ids) {
-	my $node = $self->find($id);
-        if ($node) {
-          push @nodes, $node;
-        } else {
-          warn("Node $id not found during tree slice operation!");
-        }
-    }
-    return $self->slice(@nodes);
+sub extract {
+    my $self = shift;
+    return $self->_extract(1, @_);
 }
 
-sub slice_with_internals {
+sub extract_with_internals {
     my $self = shift;
-    return $self->_slice(0, @_);
+    return $self->_extract(0, @_);
 }
 
 sub _get_equivalent_nodes_in_cloned_tree {
@@ -1287,10 +1334,13 @@ sub _get_equivalent_nodes_in_cloned_tree {
     return @cloned_list;
 }
 
-sub _slice {
+# Internal helper method for the public-facing extract methods.
+sub _extract {
     my $self = shift;
     my $remove_internals = shift;
     my @nodes_to_keep = @_;
+
+    @nodes_to_keep = map {$self->_node_from_arg($_)} @nodes_to_keep;
 
     # Create a clone of the current tree, and match up the original nodes_to_keep
     # with their equivalent in the new tree.
@@ -1327,6 +1377,23 @@ sub _slice {
         $clone->branch_length(0);
     }
     return $clone;
+}
+
+sub _node_from_arg {
+    my $self = shift;
+    my $input = shift;
+
+    my $node;
+    if (ref $input) {
+        if (not $input->isa('Bio::Tree::NodeI')) {
+            $self->throw("Did not provide a valid Bio::Tree::NodeI object or ID string.");
+        }
+        $node = $input;
+    } else {
+        ## Allow a string argument for compatibility with master branch code
+        $node = $self->find_by_id($input);
+    }
+    return $node;
 }
 
 1;

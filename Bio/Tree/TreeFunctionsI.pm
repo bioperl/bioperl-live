@@ -88,11 +88,16 @@ Internal methods are usually preceded with a _
 package Bio::Tree::TreeFunctionsI;
 use strict;
 
-sub slice { 
-  return new Bio::Tree::Tree(-root => shift->root->slice(@_));
+sub lineage_string { shift->root->lineage_string(@_) }
+
+sub enclosed_leaves_string { shift->root->enclosed_leaves_string(@_) }
+
+sub extract { 
+  return new Bio::Tree::Tree(-root => shift->root->extract(@_));
 }
-sub slice_by_ids { 
-  return new Bio::Tree::Tree(-root => shift->root->slice_by_ids(@_));
+
+sub extract_with_internals { 
+  return new Bio::Tree::Tree(-root => shift->root->extract_with_internals(@_));
 }
 
 sub print_tree { print shift->ascii(@_) }
@@ -108,9 +113,21 @@ sub remove_internal_node_labels{ shift->root->remove_internal_node_labels(@_) }
 
 sub contract_linear_paths { shift->root->contract_linear_paths(@_) }
 
+# For API compatibility. Prefer calling $node->lineage_string instead.
+sub get_lineage_string {
+    my $self = shift;
+    my $input = shift;
+
+    my $node = $self->_node_from_arg($input);
+    return $node->lineage_string;
+}
+
+# For API compatibility. Prefer calling $node->lineage instead.
 sub get_lineage_nodes {
     my $self = shift;
-    my $node = shift;
+    my $input = shift;
+
+    my $node = $self->_node_from_arg($input);
     return $node->lineage;
 }
 
@@ -161,16 +178,11 @@ sub nodes_depth_first { shift->root->nodes_depth_first(@_) }
 
 sub remove_node {
     my $self = shift;
-    my $node = shift;
-    if (ref $node && $node->isa("Bio::Tree::NodeI")) {
-	$node->remove;
-    } else {
-	my $found_node = $self->find_node($node);
-	if ($found_node) {
-	    $found_node->remove;
-	} else {
-	    $self->warn("Could not find node to remove: [$node]\n");
-	}
+    my $input = shift;
+
+    my $node = $self->root->_node_from_arg($input);
+    if ($node) {
+        $node->remove;
     }
 }
 sub remove_Node { shift->remove_node(@_) }
@@ -264,10 +276,10 @@ sub merge_lineage {
 
     # see if any node in the supplied lineage is in our tree - that will be
     # our lca and we can merge at the node below
-    my @lineage = ($lineage_leaf, reverse($self->get_lineage_nodes($lineage_leaf)));
+    my @lineage = ($lineage_leaf, reverse($lineage_leaf->lineage));
     my $merged = 0;
     for my $i (0..$#lineage) {
-        my $lca = $self->find_node(-internal_id => $lineage[$i]->internal_id) || next;
+        my $lca = $self->find($lineage[$i]->id) || next;
 
         if ($i == 0) {
             # the supplied thing to merge is already in the tree, nothing to do
@@ -275,7 +287,7 @@ sub merge_lineage {
         }
         # $i is the lca, so the previous node is new to the tree and should
         # be merged on
-        $lca->add_Descendent($lineage[$i-1]);
+        $lca->add_Descendent($lineage[$i-1]->clone);
         $merged = 1;
         last;
     }

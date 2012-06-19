@@ -262,9 +262,6 @@ is($DFSorder, '0,1,2,A,B,C,D', 'DFS after removing all but 0,1,2,A,B,C,D');
 my $lca = $tree->find('A')->lca($tree->find('D'));
 is($lca->id,'1',"LCA of A and D");
 
-#get_lca, merge_lineage, contract_linear_paths tested in in Taxonomy.t
-
-
 # try out the id to bootstrap copy method
 $treeio = Bio::TreeIO->new(-format => 'newick',
                            -file   => test_input_file('bootstrap.tre'));
@@ -371,6 +368,45 @@ $tree = Bio::Tree::Tree->from_string("(a:1,b:2,c:3,d:4,e:5)root:2;");
 is($tree->distance($tree->find('a'),$tree->find('b')),3,"Distance betwen a and b");
 is($tree->distance($tree->find('a'),$tree->find('e')),6,"Distance betwen a and e");
 is($tree->distance($tree->find('d'),$tree->find('e')),9,"Distance betwen d and e");
+
+# Test tree extraction and leaves / lineages string convenience methods.
+my $t = Bio::Tree::Tree->from_string("(((a,b)I1, (c,d)I2)I3, ((e,f)I4, (g,h)I5)I6)I7;");
+
+my $a = $t->extract('a', 'c', 'f', 'g', 'h');
+is($a->enclosed_leaves_string, 'a|c|f|g|h', "Extracted tree contains the expected leaf nodes");
+
+# Extract using mixture of node IDs and node refs
+$a = $t->extract($t->find('a'), 'b', $t->find('d'), 'f');
+is($a->find('a')->lineage_string, 'I7;I3;I1;a', "Lineage from extracted tree");
+is($a->find('f')->lineage_string, 'I7;f', "Lineage (with removed elbow nodes) from extracted tree");
+
+isnt($a->find('a'), $t->find('a'), "Extracted tree is CLONED COPY of the original tree, so nodes will not be the same reference");
+
+# Extract, maintaining internal elbow nodes.
+$a = $t->extract_with_internals($t->find('a'), 'b', $t->find('d'), 'f');
+# 'f' lineage now has all internal parents.
+is($a->find('f')->lineage_string, 'I7;I6;I4;f', "Lineage (with kept elbow nodes) from extracted tree");
+
+# Translate IDs of nodes.
+my $t = Bio::Tree::Tree->from_string("(((a,b)i1,c)i2,d)i3;");
+$t->translate_ids({a => 'A', b => 'B', c => 'C', d => 'D'});
+is($t->enclosed_leaves_string, 'A|B|C|D', 'Translated leaf IDs');
+$t->translate_ids({'i1' => 'I1', 'i2' => 'I2', 'i3' => 'I3'});
+is($t->find('A')->lineage_string, 'I3;I2;I1;A', 'Translated node IDs');
+
+# Test lineage_string method.
+my $t = Bio::Tree::Tree->from_string("(((a,b)i1,c)i2,d)i3;");
+# The warning_like operator seems not to be working... any ideas?
+#warning_like {
+#    $t->find('a')->lineage_string('i'); 
+#} qr'is not safe to use',
+#  "Unsafe separator on lineage_string";
+
+# Test merge_lineage
+my $a = Bio::Tree::Tree->from_string('(b,(x,y)c)a;');
+my $b = Bio::Tree::Tree->from_string('((d)c)a;');
+$a->merge_lineage($b);
+is($a->find('c')->enclosed_leaves_string, 'd|x|y', "Merge lineage adds leaf 'd' to node 'c'");
 
 done_testing();
 
