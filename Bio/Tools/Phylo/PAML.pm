@@ -934,7 +934,11 @@ sub _parse_distmat {
 sub _parse_PairwiseCodon {
     my ($self) = @_;
     my @result;
-    my ( $a, $b, $log, $model, $t, $kappa, $omega );
+    my ( $a, $b, $log, $model, $t, $kappa, $omega, $fixedkappa );
+    # check to see if we have a fixed kappa:
+    if ( $self->{'_summary'}->{'model'} =~ /kappa = (\d+?\.\d+?) fixed/) {
+		$fixedkappa = $1;
+	}
     while ( defined( $_ = $self->_readline ) ) {
         if (/^pairwise comparison, codon frequencies\:\s*(\S+)\./) {
             $model = $1;
@@ -953,6 +957,11 @@ sub _parse_PairwiseCodon {
                 # 0.19045  2.92330  0.10941
                 s/^\s+//;
                 ( $t, $kappa, $omega ) = split;
+                # if there was a fixed kappa, there will only be two values here ($t, $omega) and $kappa = $fixedkappa.
+                if ($omega eq "") {
+                	$omega = $kappa;
+                	$kappa = $fixedkappa;
+                }
             }
         }
         # 5th line of a pair block, e.g.

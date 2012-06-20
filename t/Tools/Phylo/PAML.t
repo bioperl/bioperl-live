@@ -533,3 +533,30 @@ is($MLmat->[0]->[2]->{'lnL'}, -1512.583367);
 	my $omega2 = $result->get_NGmatrix()->[0]->[1]->{'omega'};
 	is($result->get_NGmatrix()->[0]->[1]->{'omega'}, '-1.0300', 'bug 3332');
 }
+
+# bug 3331
+{
+	use Bio::Tools::Run::Phylo::PAML::Codeml;
+	my $seq1 = Bio::LocatableSeq->new( -display_id=>"seq1",
+							  -seq=> "GTTACCGGTCTTGACATGAACATCAGCCAATTTCTAAAAAGCCTTGGCCTTGAACACCTTCGGGATATCTTTGAAACAGAACAGATTACACTAGATGTGTTGGCTGATATGGGTCATGAAGAGTTGAAAGAAATAGGCATCAATGCATATGGGCACCGCCACAAATTAATCAAAGGAGTAGAAAGACTTTTAGGT" );
+	my $seq2 = Bio::LocatableSeq->new( -display_id => "seq2",
+							  -seq => "GTTGCTGGTCTTGACATGAATATCAGCCAATTTCTAAAAAGCCTTGGCCTTGAACACCTTCGGGATATCTTTGAAACAGAACAGATTACACTAGATGTGTTGGCTGATATGGGTCATGAAGAGTTGAAAGAAATAGGCATCAATGCATATGGGCACCGCCACAAATTAATCAAAGGAGTAGAAAGACTCTTAGGT" );
+
+
+	my $dna_aln = Bio::SimpleAlign->new();
+	$dna_aln->add_seq($seq1);
+	$dna_aln->add_seq($seq2);
+
+	my $kaks_factory = Bio::Tools::Run::Phylo::PAML::Codeml->new
+					   ( -params => { 'runmode' => -2,
+									  'fix_kappa' => 1,
+									  'kappa' => 2
+									} );
+	$kaks_factory->alignment($dna_aln);
+
+	my ($rc,$parser) = $kaks_factory->run();
+	my $result = $parser->next_result;
+	my $MLmatrix = $result->get_MLmatrix();
+	my $kappa = $MLmatrix->[0]->[1]->{'kappa'};
+	is ($kappa, '2.000', 'bug 3331');
+}
