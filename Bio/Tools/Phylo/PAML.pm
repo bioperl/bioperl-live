@@ -904,7 +904,9 @@ sub _parse_distmat {
         last if ( /^\s+$/ && exists $self->{'_summary'}->{'ngmatrix'} );
         next if ( /^\s+$/ || /^NOTE:/i );
         chomp;
-        my ( $seq, $rest ) = split( /\s+/, $_, 2 );
+        $_ =~ m/(.+?)\s*(-*\d+?\.\d+?.*)/;
+ 		my $seq = $1;
+ 		my $rest = $2;
         $rest = '' unless defined $rest;    # get rid of empty messages
         my $j = 0;
         if ( $self->{'_summary'}->{'seqtype'} eq 'YN00' ) {
