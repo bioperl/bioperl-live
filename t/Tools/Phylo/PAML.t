@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 253,
+    test_begin(-tests => 254,
 			   -requires_module => 'IO::String');
 
 	use_ok('Bio::Tools::Phylo::PAML');
@@ -511,4 +511,15 @@ is($MLmat->[0]->[2]->{'lnL'}, -1512.583367);
 
 	my $MLmatrix = $result->get_MLmatrix();
 	is($MLmatrix->[1]->[2]->{dN},0.0103,'bug 3366');
+}
+
+#bug 3367
+{
+    my $parser = Bio::Tools::Phylo::PAML->new
+        (-file => test_input_file('yn00_45.mlc'));
+
+    my $result = $parser->next_result;
+
+	my @otus = $result->get_seqs();
+	is(scalar @otus, 9, 'bug 3367');
 }
