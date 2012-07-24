@@ -1,0 +1,16 @@
+language: perl
+perl:
+#  - "5.16"
+#  - "5.14"
+#  - "5.12"
+  - "5.10"
+
+# whitelist branches
+branches:
+  only:
+    - travis
+
+#The email defaults are too talkative while we're getting Travis working nicely.
+#TODO - send them to bioperl-guts-l
+notifications:
+  email: false
