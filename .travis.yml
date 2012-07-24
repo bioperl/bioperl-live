@@ -10,6 +10,7 @@ install:
     - "sudo apt-get install libdb-dev"
     - "perl ./Build.PL --accept"
     - "cpanm --installdeps --notest ."
+    - "cpanm HTML::TableExtract"
 
 script:
     - "./Build test"
