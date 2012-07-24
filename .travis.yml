@@ -8,9 +8,8 @@ perl:
 install:
     #This should solve problem installing Perl's DB_File
     - "sudo apt-get install libdb-dev"
+    - "cpanm --notest HTML::TableExtract DBD::mysql DBI Data::Stag DB_File"
     - "perl ./Build.PL --accept"
-    - "cpanm --installdeps --notest ."
-    - "cpanm --notest HTML::TableExtract"
 
 script:
     - "./Build test"
