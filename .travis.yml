@@ -8,7 +8,7 @@ perl:
 install:
     #This should solve problem installing Perl's DB_File
     - "sudo apt-get install libdb-dev"
-    = "cpanm --installdeps --notest ."
+    - "cpanm --installdeps --notest ."
 
 script:
     - "./Build test"
