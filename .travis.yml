@@ -10,7 +10,6 @@ branches:
   only:
     - travis
 
-#The email defaults are too talkative while we're getting Travis working nicely.
-#TODO - send them to bioperl-guts-l
+#TODO - send emails to bioperl-guts-l
 notifications:
   email: false
