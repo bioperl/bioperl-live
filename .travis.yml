@@ -11,7 +11,7 @@ install:
     - "cpanm --notest HTML::TableExtract DBI Data::Stag DB_File"
     - "cpanm --notest DBD::mysql DBD::Pg DBD::SQLite"
     - "cpanm --notest Algorithm::Munkres Array::Compare Convert::Binary::C Error"
-    - "cpanm --notest GD Graph SVG SVG::Graph"
+    - "cpanm --notest Graph SVG SVG::Graph"
     - "cpanm --notest XML::DOM::XPath XML::Parser XML::Parser::PerlSAX"
     - "cpanm --notest XML::SAX XML::SAX::Writer XML::Simple XML::Twig XML::Writer"
     - "perl ./Build.PL --accept"
