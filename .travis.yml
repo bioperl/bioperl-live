@@ -5,6 +5,10 @@ perl:
 #  - "5.12"
   - "5.10"
 
+install:
+    #This should solve problem installing Perl's DB_File
+    - "sudo apt-get install libdb4.6-dev"
+
 # whitelist branches
 branches:
   only:
