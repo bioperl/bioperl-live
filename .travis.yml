@@ -6,6 +6,7 @@ perl:
   - "5.10"
 
 install:
+    #I'm hoping this will become a non-issue at some point...
     #This should solve problem installing Perl's DB_File
     - "sudo apt-get install libdb-dev 2>&1 | tail"
     - "cpanm --notest HTML::TableExtract DBI Data::Stag DB_File"
