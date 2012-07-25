@@ -8,12 +8,14 @@ perl:
 install:
     #This should solve problem installing Perl's DB_File
     - "sudo apt-get install libdb-dev 2>&1 | tail"
-    - "cpanm --notest HTML::TableExtract DBI Data::Stag DB_File"
-    - "cpanm --notest DBD::mysql DBD::Pg DBD::SQLite"
-    - "cpanm --notest Algorithm::Munkres Array::Compare Convert::Binary::C Error"
-    - "cpanm --notest Graph SVG SVG::Graph"
-    - "cpanm --notest XML::DOM::XPath XML::Parser XML::Parser::PerlSAX"
-    - "cpanm --notest XML::SAX XML::SAX::Writer XML::Simple XML::Twig XML::Writer"
+    #These are recommended or required Perl libraries:
+    - "cpanm --notest HTML::TableExtract DBI Data::Stag DB_File 2>&1 | tail"
+    - "cpanm --notest DBD::mysql DBD::Pg DBD::SQLite 2>&1 | tail"
+    - "cpanm --notest Algorithm::Munkres Array::Compare Convert::Binary::C Error 2>&1 | tail"
+    - "cpanm --notest Graph SVG SVG::Graph 2>&1 | tail"
+    - "cpanm --notest XML::DOM::XPath XML::Parser XML::Parser::PerlSAX 2>&1 | tail"
+    - "cpanm --notest XML::SAX XML::SAX::Writer XML::Simple XML::Twig XML::Writer 2>&1 | tail"
+    #This installs BioPerl itself:
     - "perl ./Build.PL --accept"
 
 script:
