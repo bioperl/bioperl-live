@@ -23,11 +23,6 @@ install:
 script:
     - "./Build test"
 
-# whitelist branches
-branches:
-  only:
-    - travis
-
 #TODO - send emails to bioperl-guts-l
 notifications:
   email: false
