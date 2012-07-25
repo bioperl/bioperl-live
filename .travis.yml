@@ -15,7 +15,7 @@ install:
     - "cpanm --notest Graph SVG SVG::Graph 2>&1 | tail -n 1"
     - "cpanm --notest XML::DOM::XPath XML::Parser XML::Parser::PerlSAX 2>&1 | tail -n 1"
     - "cpanm --notest XML::SAX XML::SAX::Writer XML::Simple XML::Twig XML::Writer 2>&1 | tail -n 1"
-    - "cpanm --notest PostScript::TextBlock Set::Scalar Sort::Naturally YAML"
+    - "cpanm --notest PostScript::TextBlock Set::Scalar Sort::Naturally YAML | tail -n 1"
     #This installs BioPerl itself:
     - "perl ./Build.PL --accept"
 
