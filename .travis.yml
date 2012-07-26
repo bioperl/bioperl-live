@@ -6,25 +6,28 @@ perl:
   - "5.10"
 
 install:
-    #I'm hoping this will become a non-issue at some point...
-    #This should solve problem installing Perl's DB_File
-    - "sudo apt-get install libdb-dev 2>&1 | tail"
-    - "cpanm --notest HTML::TableExtract DBI Data::Stag DB_File"
-    - "cpanm --notest DBD::mysql DBD::Pg DBD::SQLite"
-    - "cpanm --notest Algorithm::Munkres Array::Compare Convert::Binary::C Error"
-    - "cpanm --notest Graph SVG SVG::Graph"
-    - "cpanm --notest XML::DOM::XPath XML::Parser XML::Parser::PerlSAX"
-    - "cpanm --notest XML::SAX XML::SAX::Writer XML::Simple XML::Twig XML::Writer"
-    - "perl ./Build.PL --accept"
-
-script:
-    - "./Build test"
-
+    #This should solve problem installing Perl's DB_File & GraphViz
+    - "sudo apt-get install libdb-dev graphviz 2>&1 | tail -n 4"
+    #These are recommended or required Perl libraries:
+    - "cpanm --notest HTML::TableExtract DBI Data::Stag DB_File 2>&1 | tail -n 1"
+    - "cpanm --notest DBD::mysql DBD::Pg DBD::SQLite 2>&1 | tail -n 1"
+    - "cpanm --notest Algorithm::Munkres Array::Compare Convert::Binary::C Error 2>&1 | tail -n 1"
+    - "cpanm --notest Graph SVG SVG::Graph GraphViz 2>&1 | tail -n 1"
+    - "cpanm --notest XML::DOM::XPath XML::Parser XML::Parser::PerlSAX 2>&1 | tail -n 1"
+    - "cpanm --notest XML::SAX XML::SAX::Writer XML::Simple XML::Twig XML::Writer 2>&1 | tail -n 1"
+    - "cpanm --notest PostScript::TextBlock Set::Scalar Sort::Naturally YAML | tail -n 1"
+    - "cpanm --notest Math::Random SOAP::Lite Spreadsheet::ParseExcel | tail -n 1"
+    #This installs BioPerl itself:
+     - "perl ./Build.PL --accept"
+ 
+ script:
+     - "./Build test"
+ 
 # whitelist branches
 branches:
   only:
     - travis
 
-#TODO - send emails to bioperl-guts-l
-notifications:
-  email: false
+ #TODO - send emails to bioperl-guts-l
+ notifications:
+   email: false
