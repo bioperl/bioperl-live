@@ -1,5 +1,4 @@
 language: perl
-
 perl:
   - "5.16"
   - "5.14"
@@ -19,16 +18,11 @@ install:
     - "cpanm --notest PostScript::TextBlock Set::Scalar Sort::Naturally YAML | tail -n 1"
     - "cpanm --notest Math::Random SOAP::Lite Spreadsheet::ParseExcel | tail -n 1"
     #This installs BioPerl itself:
-     - "perl ./Build.PL --accept"
- 
-script:
-     - "./Build test"
- 
-# whitelist branches
-branches:
-  only:
-    - travis
+    - "perl ./Build.PL --accept"
 
- #TODO - send emails to bioperl-guts-l
- notifications:
-   email: false
+script:
+    - "./Build test"
+
+#TODO - send emails to bioperl-guts-l
+notifications:
+  email: false
