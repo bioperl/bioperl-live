@@ -7,12 +7,12 @@ perl:
 
 install:
     #This should solve problem installing Perl's DB_File & GraphViz
-    - "sudo apt-get install libdb-dev graphviz | tail -n 4"
+    - "sudo apt-get install libdb-dev graphviz 2>&1 | tail -n 4"
     #These are recommended or required Perl libraries:
     - "cpanm --notest HTML::TableExtract DBI Data::Stag DB_File 2>&1 | tail -n 1"
     - "cpanm --notest DBD::mysql DBD::Pg DBD::SQLite 2>&1 | tail -n 1"
     - "cpanm --notest Algorithm::Munkres Array::Compare Convert::Binary::C Error 2>&1 | tail -n 1"
-    - "cpanm --notest Graph SVG SVG::Graph GraphViz | tail -n 1"
+    - "cpanm --notest Graph SVG SVG::Graph GraphViz 2>&1 | tail -n 1"
     - "cpanm --notest XML::DOM::XPath XML::Parser XML::Parser::PerlSAX 2>&1 | tail -n 1"
     - "cpanm --notest XML::SAX XML::SAX::Writer XML::Simple XML::Twig XML::Writer 2>&1 | tail -n 1"
     - "cpanm --notest PostScript::TextBlock Set::Scalar Sort::Naturally YAML | tail -n 1"
