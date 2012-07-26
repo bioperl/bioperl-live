@@ -1,4 +1,5 @@
 language: perl
+
 perl:
   - "5.16"
   - "5.14"
@@ -20,7 +21,7 @@ install:
     #This installs BioPerl itself:
      - "perl ./Build.PL --accept"
  
- script:
+script:
      - "./Build test"
  
 # whitelist branches
