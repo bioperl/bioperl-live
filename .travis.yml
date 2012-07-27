@@ -19,6 +19,8 @@ install:
     - "cpanm XML::SAX XML::SAX::Writer XML::Simple XML::LibXML XML::Twig XML::Writer 2>&1 | tail -n 1"
     - "cpanm PostScript::TextBlock Set::Scalar Sort::Naturally YAML | tail -n 1"
     - "cpanm Math::Random SOAP::Lite Spreadsheet::ParseExcel | tail -n 1"
+    - "cpanm Bio::ASN1::EntrezGene | tail -n 1"
+    - "cpanm Bio::Phylo | tail -n 1"
     #This installs BioPerl itself:
     - "perl ./Build.PL --accept"
 
