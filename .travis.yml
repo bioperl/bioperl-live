@@ -28,3 +28,8 @@ script:
 #TODO - send emails to bioperl-guts-l
 notifications:
   email: false
+
+# whitelist branches
+branches:
+  only:
+    - master
