@@ -138,11 +138,6 @@ my %recommends = (
     'Text::ParseWords'          => [0,
         'Test scripts/Bio::DB::SeqFeature::Store::FeatureFileLoader'],
 
-    'URI::Escape'               => [0,
-        'Dealing with web resources/Bio::FeatureIO::gff,Bio::FeatureIO::interpro,'.
-        'Bio::DB::Biblio::eutils,Bio::DB::EUtilParameters,'.
-        'Bio::DB::Query::GenBank,Bio::DB::NCBIHelper,Bio::SeqFeature::Annotated'],
-
     'XML::DOM::XPath'           => [0.13,
         'parsing interpro features/Bio::FeatureIO::interpro'],
 
@@ -198,10 +193,11 @@ my $build = Bio::Root::Build->new(
                            },
 
     build_requires      => {
-                            'Test::Most'                => 0,
+                            'CPAN'                      => 1.81,
                             'Module::Build'             => 0.2805,
                             'Test::Harness'             => 2.62,
-                            'CPAN'                      => 1.81
+                            'Test::Most'                => 0,
+                            'URI::Escape'               => 0
                            },
 
     recommends          => {
