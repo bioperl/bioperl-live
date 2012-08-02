@@ -489,7 +489,7 @@ for my $file ( @files ) {
 
         $FTSOmap->{'source'} = $source_type;
         ## $FTSOmap->{'CDS'}= $PROTEIN_TYPE; # handle this in gene_features
-        
+
         # construct a GFF header
         # add: get source_type from attributes of source feature? chromosome=X tag
         # also combine 1st ft line here with source ft from $seq ..
@@ -499,7 +499,6 @@ for my $file ( @files ) {
         
         # unflatten gene graphs, apply SO types, etc; this also does TypeMapper ..
         unflatten_seq($seq);
-
 
         # Note that we use our own get_all_SeqFeatures function 
         # to rescue cloned exons
@@ -991,19 +990,25 @@ sub gff_header {
     my ($name, $end, $source_type, $source_feat) = @_;
     $source_type ||= "region";
 
-    my $info= "$source_type:$name";
-    my $head= "##gff-version $GFF_VERSION\n##sequence-region $name 1 $end\n";
-    $head .= "# conversion-by bp_genbank2gff3.pl\n";
-    if($source_feat) {
-    ## dgg: these header comment fields are not useful when have multi-records, diff organisms
-    for my $key (qw(organism date Note)) {
-      my($value) = $source_feat->get_tag_values($key);
-      $head .= "# $key $value\n" if($value);
-      $info .= ", $value" if($value);
-      }
-      $head="" if($didheader);
+    my $info = "$source_type:$name";
+    my $head = "##gff-version $GFF_VERSION\n".
+               "##sequence-region $name 1 $end\n".
+               "# conversion-by bp_genbank2gff3.pl\n";
+    if ($source_feat) {
+        ## dgg: these header comment fields are not useful when have multi-records, diff organisms
+        for my $key (qw(organism Note date)) {
+            my $value;
+            if ($source_feat->has_tag($key)) { 
+                ($value) = $source_feat->get_tag_values($key);
+            }
+            if ($value) {
+                $head .= "# $key $value\n";
+                $info .= ", $value";
+            }
+        }
+        $head = "" if $didheader;
     } else {
-      $head .= "$name\t$SOURCEID\t$source_type\t1\t$end\t.\t.\t.\tID=$name\n";
+        $head .= "$name\t$SOURCEID\t$source_type\t1\t$end\t.\t.\t.\tID=$name\n";
     }
     $didheader++;
     return (wantarray) ? ($head,$info) : $head;
