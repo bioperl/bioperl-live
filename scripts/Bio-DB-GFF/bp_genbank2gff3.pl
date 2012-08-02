@@ -422,8 +422,6 @@ elsif ( !$outdir ) {
     $outdir = $dir || '.';
 }
 
-$outdir .= '/' unless $outdir =~ m|/$|;
-
 for my $file ( @files ) {
     # dgg ; allow 'stdin' / '-' input ?
     chomp $file;
@@ -437,10 +435,9 @@ for my $file ( @files ) {
       open $lumpfa_fh, ">$outfa" or die "Could not create a lump outfile called ($outfa) because ($!)\n";
 
     } elsif ( $lump ) {
-        # this is better, but still should use catfile
         my ($vol,$dirs,$fileonly) = File::Spec->splitpath($file); 
-        $lump   = $outdir . $fileonly . '.gff';
-        ($outfa= $lump) =~ s/\.gff/\.fa/;
+        $lump = File::Spec->catfile($outdir, $fileonly.'.gff');
+        ($outfa = $lump) =~ s/\.gff/\.fa/;
         open $lump_fh, ">$lump" or die "Could not create a lump outfile called ($lump) because ($!)\n";
         open $lumpfa_fh, ">$outfa" or die "Could not create a lump outfile called ($outfa) because ($!)\n";
 
@@ -465,7 +462,7 @@ for my $file ( @files ) {
         my @to_print;
 
         # arrange disposition of GFF output
-        $outfile = $lump || $outdir . $seq_name . ".gff";
+        $outfile = $lump || File::Spec->catfile($outdir, $seq_name.'.gff');
         my $out;
 
         if ( $lump ) {
@@ -473,7 +470,7 @@ for my $file ( @files ) {
             $out = $lump_fh;
         }
         else {
-            $outfile = $outdir . $seq_name . ".gff";
+            $outfile = File::Spec->catfile($outdir, $seq_name.'.gff');
             open $out, ">$outfile";
         }
 
@@ -490,7 +487,7 @@ for my $file ( @files ) {
             if !$seq->all_SeqFeatures;
 
 
-        $FTSOmap->{'source'}= $source_type;
+        $FTSOmap->{'source'} = $source_type;
         ## $FTSOmap->{'CDS'}= $PROTEIN_TYPE; # handle this in gene_features
         
         # construct a GFF header
