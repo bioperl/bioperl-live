@@ -646,21 +646,23 @@ for my $file ( @files ) {
     print "# GFF3 saved to $outfile\n" if( $verbose && $lump);
     if ( $summary ) {
         print "# Summary:\n# Feature\tCount\n# -------\t-----\n";
-    
         for ( keys %method ) {
             print "# $_  $method{$_}\n";
         }
         print "# \n";
     }
     
-     ## FIXME for piped output w/ split FA files ...
+    ## FIXME for piped output w/ split FA files ...
     close($lumpfa_fh) if $lumpfa_fh;
     if (!$split && $outfa && $lump_fh) {     
-      print $lump_fh "##FASTA\n"; # GFF3 spec
-      open $lumpfa_fh, $outfa or warn "reading FA $outfa: $!";
-      while( <$lumpfa_fh>) { print $lump_fh $_; } # is $lump_fh still open?
-      close($lumpfa_fh); unlink($outfa);
-      }
+        print $lump_fh "##FASTA\n"; # GFF3 spec
+        open $lumpfa_fh, $outfa or warn "reading FA $outfa: $!";
+        while( <$lumpfa_fh>) {
+            print $lump_fh $_;
+        } # is $lump_fh still open?
+        close($lumpfa_fh);
+        unlink($outfa);
+    }
         
 
     if ( $zip && $lump ) {
