@@ -79,6 +79,7 @@ CPAN releases are branched from 'master'.
     * Prevent passing a directory to the gi2taxid option (-g) of
       bp_classify_hits_kingdom.pl and remove an 'earlier declaration' warning
       [fangly]
+    * Fixed bp_genbank2gff3.pl crash when missing source feature date [fangly]
 
 
 1.6.901 May 18, 2011
