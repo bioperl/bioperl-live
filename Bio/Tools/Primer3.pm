@@ -129,7 +129,6 @@ use strict;
 use Bio::Seq;
 use Bio::Seq::PrimedSeq;
 use Bio::SeqFeature::Primer;
-use Clone qw(clone);
 
 use vars qw($AUTOLOAD @PRIMER3_PARAMS %OK_FIELD $ID);
 
@@ -338,9 +337,10 @@ sub next_primer {
         }
     }
 
-    my $primed_seq = Bio::Seq::PrimedSeq->new(-target_sequence => clone($self->{'seqobject'}),
-         -left_primer  => $left_seq,
-         -right_primer => $right_seq,
+    my $primed_seq = Bio::Seq::PrimedSeq->new(
+         -target_sequence => $self->{'seqobject'}->clone,
+         -left_primer     => $left_seq,
+         -right_primer    => $right_seq,
     );
 
     # add data to the the PrimedSeq object that's not specific to the Primers
