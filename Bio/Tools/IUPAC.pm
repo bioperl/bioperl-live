@@ -174,7 +174,7 @@ use base qw(Bio::Root::Root);
 use vars qw(%IUB %IUB_AMB %REV_IUB %IUP %IUP_AMB $AUTOLOAD);
 
 BEGIN {
-    # Ambigous nucleic residues are matched to unambiguous residues
+    # Ambiguous nucleic residues are matched to unambiguous residues
     %IUB = (
         A => [qw(A)],
         C => [qw(C)],
@@ -195,7 +195,7 @@ BEGIN {
         X => [qw(A C G T)],
     );
 
-    # Same as %IUB but ambigous residues are matched to ambiguous residues only
+    # Same as %IUB but ambiguous residues are matched to ambiguous residues only
     %IUB_AMB = (
         M => [qw(M)],
         R => [qw(R)],
