@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 174);
+    test_begin(-tests => 185);
 
     use_ok 'Bio::PrimarySeq';
     use_ok 'Bio::SeqFeature::Primer';
@@ -11,7 +11,7 @@ BEGIN {
 
 
 my ($search, $amplicon, $seq, $seq2, $forward, $forward2, $reverse, $reverse2,
-    $primer, $primer_seq, $annotated, $num_feats, $template_seq);
+    $primer, $primer_seq, $annotated, $num_feats, $template_seq, $rna);
 
 
 # Basic object
@@ -25,6 +25,11 @@ isa_ok $search, 'Bio::Tools::AmpliconSearch';
 $seq = Bio::PrimarySeq->new(
    -seq => 'acgAAACTTAAAGGAATTGACGGacgtacgtacgtGTACACACCGCCCGTacgtac',
 );
+
+$rna = Bio::PrimarySeq->new(
+   -seq => 'acgAAACUUAAAGGAAUUGACGGacguacguacguGUACACACCGCCCGUacguac',
+);
+
 
 $forward = Bio::PrimarySeq->new(
    -seq => 'AAACTTAAAGGAATTGACGG',
@@ -118,6 +123,24 @@ is $amplicon->start, 4;
 is $amplicon->end, 50;
 is $amplicon->strand, 1;
 is $amplicon->seq->seq, 'AAACTTAAAGGAATTGACGGacgtacgtacgtGTACACACCGCCCGT';
+is $search->next_amplicon, undef;
+
+
+# Same thing but with RNA template
+
+ok $search = Bio::Tools::AmpliconSearch->new(
+   -template    => $rna,
+   -primer_file => test_input_file('forward_reverse_primers.fa'),
+), 'RNA template';
+is $search->fwd_primer->seq, 'AAACTYAAAKGAATTGRCGG';
+is $search->rev_primer->seq, 'ACGGGCGGTGTGTRC';
+is $search->template->seq, 'acgAAACUUAAAGGAAUUGACGGacguacguacguGUACACACCGCCCGUacguac';
+ok $amplicon = $search->next_amplicon;
+isa_ok $amplicon, 'Bio::SeqFeature::Amplicon';
+is $amplicon->start, 4;
+is $amplicon->end, 50;
+is $amplicon->strand, 1;
+is $amplicon->seq->seq, 'AAACUUAAAGGAAUUGACGGacguacguacguGUACACACCGCCCGU';
 is $search->next_amplicon, undef;
 
 
