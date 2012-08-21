@@ -31,7 +31,7 @@ is ($t[0]->start, 4761);
 is ($t[0]->end, 6713);
 is ($e[0]->start,4761);
 is ($e[0]->end, 4874);
-my ($phase) = $e[0]->each_tag_value('phase');
+my ($phase) = $e[0]->get_tag_values('phase');
 is ($phase,0);
 
 open(FH,$inputfilename);
@@ -53,5 +53,5 @@ is ($t[0]->end, 10316);
 is ($e[1]->start,10024);
 is ($e[1]->end, 10211);
 
-($phase) = $e[2]->each_tag_value('phase');
+($phase) = $e[2]->get_tag_values('phase');
 is ($phase,2);

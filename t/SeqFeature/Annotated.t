@@ -35,7 +35,7 @@ ok $sfa = Bio::SeqFeature::Annotated->new(
 ok $loc = $sfa->location;
 ok $loc->isa('Bio::Location::Simple');
 ok $sfa->display_name eq 'test.annot';
-
+ok $sfa->gff_string;
 
 # Test bsfa::from_feature
 $sfg = Bio::SeqFeature::Generic->new (

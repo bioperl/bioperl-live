@@ -65,7 +65,10 @@ my %recommends = (
     #    'Parsing entrezgene/Bio::SeqIO::entrezgene [circular dependency!]'],
 
     'Clone'                     => [0,
-        'Cloning objects/Bio::Tools::Primer3'],
+        'Cloning objects/Bio::Root::Root,Bio::Tools::Primer3'],
+
+    'Clone::Fast'               => [0,
+        'Cloning objects/Bio::Root::Root,Bio::Tools::Primer3'],
 
     'Convert::Binary::C'        => [0,
         'Strider functionality/Bio::SeqIO::strider'],
@@ -127,7 +130,7 @@ my %recommends = (
     'Storable'                  => [2.05,
         'Storing sequence objects in local file cache/'.
         'Bio::DB::FileCache,Bio::SeqFeature::Collection,Bio::PopGen::HtSNP,'.
-        'Bio::PopGen::TagHaplotype,Bio::DB::GFF::Adaptor::berkeleydb'],
+        'Bio::PopGen::TagHaplotype,Bio::DB::GFF::Adaptor::berkeleydb,Bio::Root::Root'],
 
     'SVG'                       => [2.26,
         'Creating SVG images/Bio::Draw::Pictogram'],

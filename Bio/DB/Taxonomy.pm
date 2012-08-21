@@ -86,50 +86,71 @@ use base qw(Bio::Root::Root);
 $DefaultSource = 'entrez';
 $TAXON_IIDS = {};
 
+
 =head2 new
 
  Title   : new
  Usage   : my $obj = Bio::DB::Taxonomy->new(-source => 'entrez');
  Function: Builds a new Bio::DB::Taxonomy object.
  Returns : an instance of Bio::DB::Taxonomy
- Args    : -source => which database source 'entrez' or 'flatfile' or 'list'
+ Args    : -source => which database source 'entrez' (NCBI taxonomy online),
+                      'flatfile' (local NCBI taxonomy), 'greengenes' (local
+                      GreenGenes taxonomy), 'silva' (local Silva taxonomy), or
+                      'list' (Do-It-Yourself taxonomy)
 
 =cut
 
 sub new {
-  my($class,@args) = @_;
+    my($class,@args) = @_;
 
-  if( $class =~ /Bio::DB::Taxonomy::(\S+)/ ) {
-      my ($self) = $class->SUPER::new(@args);
-      $self->_initialize(@args);
-      return $self;
-  } else { 
-      my %param = @args;
-      @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
-      my $source = $param{'-source'} || $DefaultSource;
+    if( $class =~ /Bio::DB::Taxonomy::(\S+)/ ) {
+        my ($self) = $class->SUPER::new(@args);
+        $self->_initialize(@args);
+        return $self;
+    } else { 
+        my %param = @args;
+        @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
+        my $source = $param{'-source'} || $DefaultSource;
 
-      $source = "\L$source";	# normalize capitalization to lower case
+        $source = "\L$source"; # normalize capitalization to lower case
 
-      # normalize capitalization
-      return unless( $class->_load_tax_module($source) );
-      return "Bio::DB::Taxonomy::$source"->new(@args);
-  }
+        # normalize capitalization
+        return unless( $class->_load_tax_module($source) );
+        return "Bio::DB::Taxonomy::$source"->new(@args);
+    }
 }
+
 
 # empty for now
 sub _initialize { }
 
+
+=head2 get_num_taxa
+
+ Title   : get_num_taxa
+ Usage   : my $num = $db->get_num_taxa();
+ Function: Get the number of taxa stored in the database.
+ Returns : A number
+ Args    : None
+
+=cut
+
+sub get_num_taxa {
+    shift->throw_not_implemented();
+}
+
+
 =head2 get_taxon
 
  Title   : get_taxon
- Usage   : my $taxon = $db->get_taxon(-taxonid => $taxonid)
+ Usage   : my $taxon = $db->get_taxon(-taxonid => $taxonid);
  Function: Get a Bio::Taxon object from the database.
  Returns : Bio::Taxon object
  Args    : just a single value which is the database id, OR named args:
            -taxonid => taxonomy id (to query by taxonid)
-            OR
+             OR
            -name    => string (to query by a taxonomy name: common name, 
-                               scientific name, etc)
+                       scientific name, etc)
 
 =cut
 
@@ -138,6 +159,7 @@ sub get_taxon {
 }
 
 *get_Taxonomy_Node = \&get_taxon;
+
 
 =head2 get_taxonids
 
@@ -156,12 +178,13 @@ sub get_taxonids {
 }
 
 *get_taxonid = \&get_taxonids;
-*get_taxaid = \&get_taxonids;
+*get_taxaid  = \&get_taxonids;
+
 
 =head2 get_tree
 
  Title   : get_tree
- Usage   : my $tree = $db->get_tree(@species_names)
+ Usage   : my $tree = $db->get_tree(@species_names);
  Function: Generate a tree comprised of the full lineages of all the supplied
            species names. The nodes for the requested species are given
            name('supplied') values corresponding to the supplied name, such that
@@ -198,10 +221,11 @@ sub get_tree {
     return $tree;
 }
 
+
 =head2 ancestor
 
  Title   : ancestor
- Usage   : my $ancestor_taxon = $db->ancestor($taxon)
+ Usage   : my $ancestor_taxon = $db->ancestor($taxon);
  Function: Retrieve the full ancestor taxon of a supplied Taxon from the
            database. 
  Returns : Bio::Taxon
@@ -212,6 +236,7 @@ sub get_tree {
 sub ancestor {
     shift->throw_not_implemented();
 }
+
 
 =head2 each_Descendent
 
@@ -228,6 +253,7 @@ sub each_Descendent {
     shift->throw_not_implemented();
 }
 
+
 =head2 get_all_Descendents
 
  Title   : get_all_Descendents
@@ -242,10 +268,11 @@ sub get_all_Descendents {
     my ($self, $taxon) = @_;
     my @taxa;
     foreach my $desc_taxon ($self->each_Descendent($taxon)) {
-      push @taxa, ($desc_taxon, $self->get_all_Descendents($desc_taxon));
+        push @taxa, ($desc_taxon, $self->get_all_Descendents($desc_taxon));
     }
     return @taxa;
 }
+
 
 =head2 _load_tax_module
 
@@ -262,8 +289,8 @@ sub _load_tax_module {
 
     eval { $ok = $self->_load_module($module) };
     if ( $@ ) {
-	print STDERR $@;
-	print STDERR <<END;
+        print STDERR $@;
+        print STDERR <<END;
 $self: $source cannot be found
 Exception $@
 For more information about the Bio::DB::Taxonomy system please see
@@ -274,6 +301,7 @@ END
     }
     return $ok;
 }
+
 
 =head2 _handle_internal_id
 
@@ -315,5 +343,6 @@ sub _handle_internal_id {
         $TAXON_IIDS->{names}->{$sci_name}->{$rank} = $taxon->internal_id if $sci_name;
     }
 }
+
 
 1;

@@ -178,7 +178,7 @@ sub no_param_checks{
  Usage   : $obj->save_tempfiles($newval)
  Function: Get/set the choice of if tempfiles in the temp dir (see tempdir())
            are kept or cleaned up. Default is '0', ie. delete temp files.
-           NB:ÊThis must be set to the desired value PRIOR to first creating
+           NB: This must be set to the desired value PRIOR to first creating
            a temp dir with tempdir().
  Returns : boolean
  Args    : none to get, boolean to set

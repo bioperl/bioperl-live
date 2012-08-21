@@ -8,8 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 14,
-               -requires_module => 'Clone');
+    test_begin(-tests => 14);
 
     use_ok('Bio::Tools::Primer3');
 }

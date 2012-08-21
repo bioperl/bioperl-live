@@ -6,13 +6,17 @@ bp_taxonomy2tree - Building a taxonomic tree based on the full lineages of a set
 
 =head1 DESCRIPTION
 
-bp_taxonomy2tree.PLS: -s Orangutan -s Gorilla -s Chimpanzee -s Human
-bp_taxonomy2tree.PLS: -s Orangutan -s Gorilla -s Chimpanzee -s "Homo Sapiens"
+This scripts looks up the provided species names in the NCBI Taxonomy database,
+retrieves their full lineage and puts them in a Newick taxonomic tree displayed
+on screen.
 
-Can also provide -d to specific the directory to store index files in, -o to
-specific the location of your nodes file, and -a for the names file.
-Or the option -e to use the web-based entrez taxonomy database if you don't
-have the flatfiles installed.
+  bp_taxonomy2tree.pl -s Orangutan -s Gorilla -s Chimpanzee -s Human
+  bp_taxonomy2tree.pl -s Orangutan -s Gorilla -s Chimpanzee -s "Homo Sapiens"
+
+Can also provide -d to specify the directory to store index files in, -o to
+specify the location of your NCBI nodes file, and -a for the NCBI names file.
+Or the option -e to use the web-based Entrez taxonomy database if you do not
+have the NCBI flatfiles installed.
 
 This script requires that the bioperl-run pkg be also installed.
 
@@ -44,26 +48,28 @@ my $namesfile = "names.dmp";
 my $use_entrez = 0;
 
 # the input to the script is an array of species names
-GetOptions('s|species=s' => \@species, 'd|dir:s' => \$index_dir, 'o|nodesfile:s' => \$nodesfile, 'a|namesfile:s' => \$namesfile, 'e|entrez' => \$use_entrez);
+GetOptions( 's|species=s'   => \@species,
+            'd|dir:s'       => \$index_dir,
+            'o|nodesfile:s' => \$nodesfile,
+            'a|namesfile:s' => \$namesfile,
+            'e|entrez'      => \$use_entrez,
+            'h|help'        => sub { system('perldoc', $0); exit }, );
 
-
-my $db = new Bio::DB::Taxonomy(-source => $use_entrez ? 'entrez' : 'flatfile',
-                               -directory => $index_dir,
-                               -nodesfile => $nodesfile,
-                               -namesfile => $namesfile);
+my $db = Bio::DB::Taxonomy->new( -source    => $use_entrez ? 'entrez' : 'flatfile',
+                                 -directory => $index_dir,
+                                 -nodesfile => $nodesfile,
+                                 -namesfile => $namesfile );
 
 # the full lineages of the species are merged into a single tree
 my $tree;
 for my $name (@species) {
-  my $ncbi_id = $db->get_taxonid($name);
-  if ($ncbi_id) {
-    my $node = $db->get_taxon(-taxonid => $ncbi_id);
-    
+  my $node = $db->get_taxon(-name => $name);
+  if ($node) {
     if ($tree) {
       $tree->merge_lineage($node);
     }
     else {
-      $tree = new Bio::Tree::Tree(-node => $node);
+      $tree = Bio::Tree::Tree->new(-node => $node);
     }
   }
   else {
@@ -80,7 +86,8 @@ foreach my $node ($tree->get_nodes) {
 }
 
 # the tree is output in Newick format
-my $output = new Bio::TreeIO(-format => 'newick');
+my $output = Bio::TreeIO->new(-format => 'newick');
 $output->write_tree($tree);
+$output->close;
 
 1;

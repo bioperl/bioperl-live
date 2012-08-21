@@ -133,8 +133,8 @@ SKIP: {
    is ( lc($seq->seq()), 'ctccgcgccaactccccccaccccccccccacacccc');
 
    my ( $f1 ) = $seq->get_SeqFeatures();
-   is ( ($f1->each_tag_value('sex'))[0], 'female');
-   is ( ($f1->each_tag_value('lab_host'))[0], 'DH10B');
+   is ( ($f1->get_tag_values('sex'))[0], 'female');
+   is ( ($f1->get_tag_values('lab_host'))[0], 'DH10B');
    my $species = $seq->species;
    ok( $species );
    is( $species->binomial, 'Homo sapiens');
@@ -155,8 +155,8 @@ SKIP: {
    is ( lc($seq->seq()), 'ctccgcgccaactccccccaccccccccccacacccc');
 
    ( $f1 ) = $seq->get_SeqFeatures();
-   is ( ($f1->each_tag_value('sex'))[0], 'female');
-   is ( ($f1->each_tag_value('lab_host'))[0], 'DH10B');
+   is ( ($f1->get_tag_values('sex'))[0], 'female');
+   is ( ($f1->get_tag_values('lab_host'))[0], 'DH10B');
    $species = $seq->species;
    ok( $species );
    is( $species->binomial, 'Homo sapiens');
