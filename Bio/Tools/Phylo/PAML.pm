@@ -81,11 +81,11 @@ baseml, basemlg, codemlsites and yn00
   for my $node ($tree->get_nodes()) {
      # inspect the tree: the "t" (time) parameter is available via
      # $node->branch_length(); all other branch-specific parameters
-     # ("omega", "dN", etc.) are available via 
+     # ("omega", "dN", etc.) are available via
      # ($omega) = $node->get_tag_values('omega');
   }
 
-  # if you are using model based Codeml then trees are stored in each 
+  # if you are using model based Codeml then trees are stored in each
   # modelresult object
   for my $modelresult ( $result->get_NSSite_results ) {
     # model M0, M1, etc
@@ -94,7 +94,7 @@ baseml, basemlg, codemlsites and yn00
     for my $node ($tree->get_nodes()) {
      # inspect the tree: the "t" (time) parameter is available via
      # $node->branch_length(); all other branch-specific parameters
-     # ("omega", "dN", etc.) are available via 
+     # ("omega", "dN", etc.) are available via
      # ($omega) = $node->get_tag_values('omega');
    }
   }
@@ -121,8 +121,8 @@ Please report any problems to the mailing list (see FEEDBACK below).
 
 =head1 TO DO
 
-Implement get_posteriors(). For NSsites models, obtain arrayrefs of 
-posterior probabilities for membership in each class for every 
+Implement get_posteriors(). For NSsites models, obtain arrayrefs of
+posterior probabilities for membership in each class for every
 position; probabilities correspond to classes w0, w1, ... etc.
 
   my @probs = $result->get_posteriors();
@@ -149,15 +149,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -182,7 +182,7 @@ Dave Messina   dmessina@cpan.org
 =head1 TODO
 
 RST parsing -- done, Avilella contributions bug#1506, added by jason 1.29
-            -- still need to parse in joint probability and non-syn changes 
+            -- still need to parse in joint probability and non-syn changes
                at site table
 
 =head1 APPENDIX
@@ -224,7 +224,7 @@ use Bio::Tools::Phylo::PAML::ModelResult;
  Returns : Bio::Tools::Phylo::PAML
  Args    : Hash of options: -file, -fh, -dir
            -file (or -fh) should contain the contents of the PAML
-                 outfile; 
+                 outfile;
            -dir is the (optional) name of the directory in
                 which the PAML program was run (and includes other
                 PAML-generated files from which we can try to gather data)
@@ -299,7 +299,7 @@ sub next_result {
             elsif (
                 m/^Model\s+(\d+)/
                 || ( ( !$has_model_line && m/^TREE/ )
-                    && $seqtype eq 'CODONML' 
+                    && $seqtype eq 'CODONML'
                     && ($self->{'_summary'}->{'version'} !~ /4/))
                     # last bit to keep PAML >= 4 from being caught here
                     # bug 2482. Not sure this is the right fix, but tests
@@ -485,7 +485,7 @@ sub _parse_summary {
         {
             @{ $self->{'_summary'} }{qw(seqtype version seqfile model)} =
               ( $1, $2, $3, $4 );
-              
+
             # in 4.3, the model is on its own line
             if ( !defined $self->{'_summary'}->{'model'} ) {
                 my $model_line = $self->_readline;
@@ -494,13 +494,16 @@ sub _parse_summary {
                     $self->{'_summary'}->{'model'} = $model_line;
                 }
             }
-              
+
             defined $self->{'_summary'}->{'model'}
               && $self->{'_summary'}->{'model'} =~ s/Model:\s+//;
             $self->_pushback($_)
               if $self->{'_summary'}->{'seqtype'} eq 'AAMODEL';
             last;
         }
+        elsif ((m/\s+?\d+?\s+?\d+?/) && ( $self->{'_already_parsed_seqs'} != 1 )) {
+			$self->_parse_seqs;
+		}
         elsif (m/^Data set \d$/) {
             $self->{'_summary'} = {};
             $self->{'_summary'}->{'multidata'}++;
@@ -766,7 +769,7 @@ sub _parse_patterns {
     my ($self) = @_;
     my ( $patternct, @patterns, $ns, $ls );
     return if exists $self->{'_summary'}->{'patterns'};
-    
+
     while ( defined( $_ = $self->_readline ) ) {
         if ( /^Codon\s+(usage|position)/ || /Model/ ) {
             $self->_pushback($_);
@@ -943,24 +946,32 @@ sub _parse_PairwiseCodon {
         # t= 0.1904  S=     5.8  N=   135.2  dN/dS= 0.1094  dN= 0.0476  dS= 0.4353
         # OR lines like (note last field; this includes a fix for bug #3040)
         # t= 0.0439  S=     0.0  N=   141.0  dN/dS= 0.1626  dN= 0.0146  dS=    nan
-        elsif (
-            m/^t\=\s*(\d+(\.\d+)?)\s+
-		 S\=\s*(\d+(\.\d+)?)\s+
-		 N\=\s*(\d+(\.\d+)?)\s+
-		 dN\/dS\=\s*(\d+(\.\d+)?)\s+
-		 dN\=\s*(\d+(\.\d+)?)\s+
-		 dS\=\s*(\d+(\.\d+)?|nan)/ox
-          )
+		elsif (m/^t\=\s*(\d+(\.\d+)?)\s+/)
         {
+        	# Breaking out each piece individually so that you can see
+        	# what each regexp actually looks for
+        	my $parse_string = $_;
+        	$parse_string =~ m/.*t\s*\=\s*(\d+?\.\d+?)\s/;
+        	my $temp_t = $1;
+        	$parse_string =~ m/\sS\s*\=\s*(\d+?\.\d+?)\s/;
+        	my $temp_S = $1;
+         	$parse_string =~ m/\sN\s*\=\s*(\d+?\.\d+?)\s/;
+        	my $temp_N = $1;
+         	$parse_string =~ m/\sdN\/dS\s*\=\s*(\d+?\.\d+?)\s/;
+        	my $temp_omega = $1;
+         	$parse_string =~ m/\sdN\s*\=\s*(\d+?\.\d+?)\s/;
+        	my $temp_dN = $1;
+         	$parse_string =~ m/\sdS\s*\=\s*(.+)\s/;
+        	my $temp_dS = $1;
             $result[ $b - 1 ]->[ $a - 1 ] = {
                 'lnL'   => $log,
-                't'     => defined $t && length($t) ? $t : $1,
-                'S'     => $3,
-                'N'     => $5,
+                't'     => defined $t && length($t) ? $t : $temp_t,
+                'S'     => $temp_S,
+                'N'     => $temp_N,
                 'kappa' => $kappa,
-                'omega' => defined $omega && length($omega) ? $omega : $7,
-                'dN'    => $9,
-                'dS'    => $11
+                'omega' => defined $omega && length($omega) ? $omega : $temp_omega,
+                'dN'    => $temp_dN,
+                'dS'    => $temp_dS
             };
         }
         # 4th line of a pair block (which is blank)

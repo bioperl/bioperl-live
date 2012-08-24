@@ -3,13 +3,13 @@
 
 use strict;
 
-BEGIN { 
+BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    
-    test_begin(-tests => 251,
+
+    test_begin(-tests => 253,
 			   -requires_module => 'IO::String');
-	
+
 	use_ok('Bio::Tools::Phylo::PAML');
 }
 
@@ -174,13 +174,13 @@ my @tstr = ([qw(0 one-ratio 0
 	    [qw(1 neutral 2
 		4.29790 -902.503869    0.56529
 		)],
-	    [qw(2 selection 3 
+	    [qw(2 selection 3
 		5.12250 -900.076500    0.6032
 		)],
 	     );
 my $iter = 0;
 my $lastmodel;
-foreach my $model ( $result->get_NSSite_results ) {    
+foreach my $model ( $result->get_NSSite_results ) {
     my $i = 0;
     my $r = shift @tstr;
     is($model->model_num, $r->[$i++]);
@@ -226,7 +226,7 @@ is($class_m0->{q/w/}->[0],0.09213);
 
 is($nssite_m0->model_num, "0");
 @trees= $nssite_m0->get_trees;
-is (@trees , 1 ); 
+is (@trees , 1 );
 # model 0
 is($trees[0]->score, -30.819156);
 is($nssite_m1->model_num, "1");
@@ -253,13 +253,13 @@ is($ntfreq->{$otus[1]}->{'G'}, '0.2105');
 my $kappaM = $baseml->get_KappaMatrix;
 ok($kappaM);
 is($kappaM->get_entry($otus[1],$otus[0]), '0.3240');
-is($kappaM->get_entry($otus[0],$otus[1]), 
+is($kappaM->get_entry($otus[0],$otus[1]),
    $kappaM->get_entry($otus[1],$otus[0]));
 is($kappaM->get_entry($otus[1],$otus[2]), '0.1343');
 my $alphaM = $baseml->get_AlphaMatrix;
 ok($alphaM);
 is($alphaM->get_entry($otus[1],$otus[0]), '9.3595');
-is($alphaM->get_entry($otus[0],$otus[1]), 
+is($alphaM->get_entry($otus[0],$otus[1]),
    $alphaM->get_entry($otus[1],$otus[0]));
 is($alphaM->get_entry($otus[1],$otus[2]), '1.1101');
 is($alphaM->get_entry($otus[0],$otus[2]), '33.1197');
@@ -343,9 +343,9 @@ is($site->{'derived_prob'}, '0.998','derived AA');
 my $persite = $result->get_rst_persite;
 # minus 1 because we have shifted so that array index matches site number
 # there are 130 sites in this seq file
-is(scalar @$persite -1, $result->patterns->{'-ls'}); 
+is(scalar @$persite -1, $result->patterns->{'-ls'});
 # let's score site 1
-$site = $persite->[2]; 
+$site = $persite->[2];
 # so site 2, node 2 (extant)
 is($site->[2]->{'codon'}, 'GTC');
 is($site->[2]->{'aa'}, 'V');
@@ -422,7 +422,7 @@ is($MLmat->[0]->[2]->{'dN'}, '0.0842');
 is($MLmat->[0]->[2]->{'dS'}, 0.4247);
 is($MLmat->[0]->[2]->{'lnL'}, -1512.583367);
 
-## PAML 4.3a 
+## PAML 4.3a
 # codeml NSSites parsing (two NSSites models, 1 and 2)
 {
     my $codeml43_nssites = Bio::Tools::Phylo::PAML->new
@@ -450,7 +450,7 @@ is($MLmat->[0]->[2]->{'lnL'}, -1512.583367);
                 [qw(2 PositiveSelection 3 2.18136 -2965.809712 3.589 0:26)],);
     my $iter = 0;
     my $lastmodel;
-    foreach my $model ( $result->get_NSSite_results ) {    
+    foreach my $model ( $result->get_NSSite_results ) {
         my $i = 0;
         my $r = shift @tstr;
         is($model->model_num, $r->[$i++]);
@@ -492,9 +492,23 @@ is($MLmat->[0]->[2]->{'lnL'}, -1512.583367);
 
     my $result = $parser->next_result;
     ok($result);
-    
+
     my $MLmatrix = $result->get_MLmatrix();
     ok($MLmatrix);
-    
+
     is($MLmatrix->[1]->[2]->{'dS'}, 'nan', 'bug 3040');
+}
+
+# bugs 3365, 3366
+{
+    my $parser = Bio::Tools::Phylo::PAML->new
+        (-file => test_input_file('codeml45.mlc'));
+
+    my $result = $parser->next_result;
+
+	my @otus = $result->get_seqs();
+	is(scalar @otus, 9, 'bug 3365');
+
+	my $MLmatrix = $result->get_MLmatrix();
+	is($MLmatrix->[1]->[2]->{dN},0.0103,'bug 3366');
 }
