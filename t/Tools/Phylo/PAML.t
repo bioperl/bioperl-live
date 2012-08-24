@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 255,
+    test_begin(-tests => 256,
 			   -requires_module => 'IO::String');
 
 	use_ok('Bio::Tools::Phylo::PAML');
@@ -536,25 +536,8 @@ is($MLmat->[0]->[2]->{'lnL'}, -1512.583367);
 
 # bug 3331
 {
-	use Bio::Tools::Run::Phylo::PAML::Codeml;
-	my $seq1 = Bio::LocatableSeq->new( -display_id=>"seq1",
-							  -seq=> "GTTACCGGTCTTGACATGAACATCAGCCAATTTCTAAAAAGCCTTGGCCTTGAACACCTTCGGGATATCTTTGAAACAGAACAGATTACACTAGATGTGTTGGCTGATATGGGTCATGAAGAGTTGAAAGAAATAGGCATCAATGCATATGGGCACCGCCACAAATTAATCAAAGGAGTAGAAAGACTTTTAGGT" );
-	my $seq2 = Bio::LocatableSeq->new( -display_id => "seq2",
-							  -seq => "GTTGCTGGTCTTGACATGAATATCAGCCAATTTCTAAAAAGCCTTGGCCTTGAACACCTTCGGGATATCTTTGAAACAGAACAGATTACACTAGATGTGTTGGCTGATATGGGTCATGAAGAGTTGAAAGAAATAGGCATCAATGCATATGGGCACCGCCACAAATTAATCAAAGGAGTAGAAAGACTCTTAGGT" );
-
-
-	my $dna_aln = Bio::SimpleAlign->new();
-	$dna_aln->add_seq($seq1);
-	$dna_aln->add_seq($seq2);
-
-	my $kaks_factory = Bio::Tools::Run::Phylo::PAML::Codeml->new
-					   ( -params => { 'runmode' => -2,
-									  'fix_kappa' => 1,
-									  'kappa' => 2
-									} );
-	$kaks_factory->alignment($dna_aln);
-
-	my ($rc,$parser) = $kaks_factory->run();
+    my $parser = Bio::Tools::Phylo::PAML->new
+        (-file => test_input_file('bug3331.mlc'));
 	my $result = $parser->next_result;
 	my $MLmatrix = $result->get_MLmatrix();
 	my $kappa = $MLmatrix->[0]->[1]->{'kappa'};
