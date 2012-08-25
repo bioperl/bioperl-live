@@ -67,9 +67,6 @@ my %recommends = (
     'Clone'                     => [0,
         'Cloning objects/Bio::Root::Root,Bio::Tools::Primer3'],
 
-    'Clone::Fast'               => [0,
-        'Cloning objects/Bio::Root::Root,Bio::Tools::Primer3'],
-
     'Convert::Binary::C'        => [0,
         'Strider functionality/Bio::SeqIO::strider'],
 
