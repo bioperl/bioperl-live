@@ -410,7 +410,7 @@ use IO::File;
 use AnyDBM_File;
 use Fcntl;
 use File::Glob ':glob';
-use File::Spec::Functions;
+use File::Spec;
 use File::Basename qw(basename dirname);
 
 use base qw(Bio::DB::SeqI Bio::Root::Root);
@@ -556,7 +556,7 @@ sub index_dir {
   my $force_reindex = shift;
 
   # find all fasta files
-  my @files = glob( catfile($dir, $self->{glob}) );
+  my @files = glob( File::Spec->catfile($dir, $self->{glob}) );
   return unless @files;
 
   # get name of index
@@ -720,7 +720,7 @@ sub index_name {
     my $dir = $self->{dirname} or return;
     return $self->index_name($dir,-d $dir);
   }
-  return catfile($path, "directory.index") if $isdir;
+  return File::Spec->catfile($path, "directory.index") if $isdir;
   return "$path.index";
 }
 
@@ -963,7 +963,8 @@ sub fh {
   my $self = shift;
   my $id   = shift;
   my $file = $self->file($id) or return;
-  return $self->fhcache( catfile($self->{dirname},$file) ) or $self->throw( "Can't open file $file");
+  return $self->fhcache( File::Spec->catfile($self->{dirname},$file) ) or
+    $self->throw( "Can't open file $file");
 }
 
 sub header {
@@ -1191,10 +1192,16 @@ use base qw(Tie::Handle Bio::DB::SeqI);
 
 
 sub new {
-  my $class = shift;
-  my $db    = shift;
+  my ($class, $db) = @_;
   my $key = $db->FIRSTKEY;
-  return bless { db => $db, key => $key }, $class;
+
+  ####
+  #return    bless { db => $db, key => $key }, $class;
+  my $self = bless { db => $db, key => $key }, $class;
+  use Data::Dumper;
+  print Dumper($self);
+  return $self;
+  ####
 }
 
 sub next_seq {
