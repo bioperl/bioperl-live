@@ -20,7 +20,7 @@ Bio::DB::Fasta -- Fast indexed access to a directory of fasta files
   # simple access (for those without Bioperl)
   my $seq      = $db->seq('CHROMOSOME_I',4_000_000 => 4_100_000);
   my $revseq   = $db->seq('CHROMOSOME_I',4_100_000 => 4_000_000);
-  my @ids     = $db->ids;
+  my @ids      = $db->ids;
   my $length   = $db->length('CHROMOSOME_I');
   my $alphabet = $db->alphabet('CHROMOSOME_I');
   my $header   = $db->header('CHROMOSOME_I');
@@ -29,9 +29,9 @@ Bio::DB::Fasta -- Fast indexed access to a directory of fasta files
   my $db      = Bio::DB::Fasta->new('/path/to/fasta/files');
 
   my $obj     = $db->get_Seq_by_id('CHROMOSOME_I');
-  my $seq     = $obj->seq; # sequence string
+  my $seq     = $obj->seq;                            # sequence string
   my $subseq  = $obj->subseq(4_000_000 => 4_100_000); # string
-  my $trunc   = $obj->trunc(4_000_000 => 4_100_000); # seq object
+  my $trunc   = $obj->trunc(4_000_000 => 4_100_000);  # seq object
   my $length  = $obj->length;
   # (etc)
 
@@ -120,21 +120,21 @@ same name=E<gt>value pairs.  Valid options are:
 
  -glob         Glob expression to use    *.{fa,fasta,fast,FA,FASTA,FAST,dna}
                for searching for Fasta
-	            files in directories.
+               files in directories.
 
  -makeid       A code subroutine for     None
-	            transforming Fasta IDs.
+               transforming Fasta IDs.
 
- -maxopen      Maximum size of		     32
-	            filehandle cache.
+ -maxopen      Maximum size of           32
+               filehandle cache.
 
- -debug        Turn on status		        0
-	            messages.
+ -debug        Turn on status            0
+               messages.
 
  -reindex      Force the index to be     0
                rebuilt.
 
- -dbmargs      Additional arguments      none
+ -dbmargs      Additional arguments      None
                to pass to the DBM
                routines when tied
                (scalar or array ref).
@@ -163,7 +163,7 @@ take a scalar argument and return a scalar result, like this:
   sub make_my_id {
     my $description_line = shift;
     # get a different id from the fasta header, e.g.
-	 $description_line =~ /(\S+)$/;
+      $description_line =~ /(\S+)$/;
     return $1;
   }
 
@@ -418,11 +418,11 @@ use base qw(Bio::DB::SeqI Bio::Root::Root);
 *ids = \&get_all_ids;
 *get_seq_by_primary_id = *get_Seq_by_acc  = \&get_Seq_by_id;
 
-use constant STRUCT =>'NNnnCa*';
+use constant STRUCT    =>'NNnnCa*';
 use constant STRUCTBIG =>'QQnnCa*'; # 64-bit file offset and seq length
-use constant DNA     => 1;
-use constant RNA     => 2;
-use constant PROTEIN => 3;
+use constant DNA       => 1;
+use constant RNA       => 2;
+use constant PROTEIN   => 3;
 use constant DIE_ON_MISSMATCHED_LINES => 1; # if you want
 
 # Bio::DB-like object
@@ -440,21 +440,21 @@ These are optional arguments to pass in as well.
 
  -glob         Glob expression to use    *.{fa,fasta,fast,FA,FASTA,FAST}
                for searching for Fasta
-	             files in directories.
+               files in directories.
 
- -makeid       A code subroutine for     none
-	             transforming Fasta IDs.
+ -makeid       A code subroutine for     None
+               transforming Fasta IDs.
 
- -maxopen      Maximum size of		       32
-	             filehandle cache.
+ -maxopen      Maximum size of           32
+               filehandle cache.
 
- -debug        Turn on status		         0
-	             messages.
+ -debug        Turn on status            0
+               messages.
 
  -reindex      Force the index to be     0
                rebuilt.
 
- -dbmargs      Additional arguments      none
+ -dbmargs      Additional arguments      None
                to pass to the DBM
                routines when tied
                (scalar or array ref).
@@ -466,18 +466,19 @@ sub new {
   my $path  = shift;
   my %opts  = @_;
 
-  my $self = bless { debug      => $opts{-debug},
-	  makeid     => $opts{-makeid},
-	  glob       => $opts{-glob}    || '*.{fa,fasta,FA,FASTA,fast,FAST,dna,FNA,fna,FAA,faa,FSA,fsa}',
-	  maxopen    => $opts{-maxopen} || 32,
-	  dbmargs    => $opts{-dbmargs} || undef,
-	  fhcache    => {},
-	  cacheseq   => {},
-	  curopen    => 0,
-	  openseq    => 1,
-	  dirname    => undef,
-	  offsets    => undef,
-		   }, $class;
+  my $self = bless {
+    debug      => $opts{-debug},
+    makeid     => $opts{-makeid},
+    glob       => $opts{-glob}    || '*.{fa,fasta,FA,FASTA,fast,FAST,dna,FNA,fna,FAA,faa,FSA,fsa}',
+    maxopen    => $opts{-maxopen} || 32,
+    dbmargs    => $opts{-dbmargs} || undef,
+    fhcache    => {},
+    cacheseq   => {},
+    curopen    => 0,
+    openseq    => 1,
+    dirname    => undef,
+    offsets    => undef,
+                   }, $class;
   my ($offsets,$dirname);
 
   if (-d $path) {
@@ -525,7 +526,7 @@ sub _open_index {
   my @dbmargs = $self->dbmargs;
   eval {
       tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs
-	  or die "Can't open sequence index file $index: $!";
+        or die "Can't open sequence index file $index: $!";
   };
   warn $@ if $@;
   return \%offsets;
@@ -743,7 +744,7 @@ sub calculate_offsets {
       $termination_length,$seq_lines,$last_line,%offsets);
   my ($l3_len,$l2_len,$l_len, $blank_lines)=(0,0,0,0);
 
-  while (<$fh>) {		# don't try this at home
+  while (<$fh>) {  # don't try this at home
     $termination_length ||= /\r\n$/ ? 2 : 1; # account for crlf-terminated Windows files
     #next unless /\S/;
     if (index($_, ">") == 0) {
@@ -777,8 +778,8 @@ sub calculate_offsets {
       $l3_len= $l2_len; $l2_len= $l_len; $l_len= length($_); # need to check every line :(
       if (DIE_ON_MISSMATCHED_LINES) {
         if ($l3_len>0 && $l2_len>0 && $l3_len!=$l2_len) {
-	  my $fap= substr($_,0,20)."..";
-	  $self->throw(
+          my $fap= substr($_,0,20)."..";
+          $self->throw(
     "Each line of the fasta entry must be the same length except the last.\n".
     "Line above #$. '$fap' is $l2_len != $l3_len chars.");
         }
@@ -804,13 +805,13 @@ sub calculate_offsets {
       $seqlength = 0;
     } else {
       if ($last_line !~ /\s$/) {
-	$seq_lines--;
+        $seq_lines--;
       }
       $seqlength -= $termination_length * $seq_lines;
     };
     my $ppos = &{$self->{packmeth}}($offset,$seqlength,
-					   $linelength,$firstline,
-					   $type,$base);
+                                    $linelength,$firstline,
+                                    $type,$base);
     for my $id (@id) { $offsets->{$id}  = $ppos }
   }
   $offsets->{__termination_length} = $termination_length;
@@ -1023,7 +1024,7 @@ sub _type {
   local $_ = shift;
   return /^[gatcnGATCN*-]+$/   ? DNA
          : /^[gaucnGAUCN*-]+$/ ? RNA
-	 : PROTEIN;
+         : PROTEIN;
 }
 
 =head2 get_PrimarySeq_stream
@@ -1086,10 +1087,10 @@ sub new {
   $class = ref($class) if ref $class;
   my ($db,$id,$start,$stop) = @_;
   return bless { db    => $db,
-		 id    => $id,
-		 start => $start || 1,
-		 stop  => $stop  || $db->length($id)
-	       },$class;
+                 id    => $id,
+                 start => $start || 1,
+                 stop  => $stop  || $db->length($id)
+               },$class;
 }
 
 sub fetch_sequence { shift->seq(@_) }
@@ -1109,14 +1110,14 @@ sub trunc {
   my ($start,$stop) = @_;
   $self->throw("Stop cannot be smaller than start")  unless $start <= $stop;
   return $self->{start} <= $self->{stop} ?  $self->new($self->{db},
-						       $self->{id},
-						       $self->{start}+$start-1,
-						       $self->{start}+$stop-1)
+                                            $self->{id},
+                                            $self->{start}+$start-1,
+                                            $self->{start}+$stop-1)
                                          :  $self->new($self->{db},
-						       $self->{id},
-						       $self->{start}-($start-1),
-						       $self->{start}-($stop-1)
-						      );
+                                            $self->{id},
+                                            $self->{start}-($start-1),
+                                            $self->{start}-($stop-1)
+                                            );
 
 }
 
@@ -1179,7 +1180,7 @@ sub new {
   my $class = shift;
   my $db    = shift;
   my $key = $db->FIRSTKEY;
-  return bless { db=>$db,key=>$key },$class;
+  return bless { db => $db, key => $key }, $class;
 }
 
 sub next_seq {
