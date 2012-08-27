@@ -410,6 +410,7 @@ use IO::File;
 use AnyDBM_File;
 use Fcntl;
 use File::Glob ':glob';
+use File::Spec::Functions;
 use File::Basename qw(basename dirname);
 
 use base qw(Bio::DB::SeqI Bio::Root::Root);
@@ -555,7 +556,7 @@ sub index_dir {
   my $force_reindex = shift;
 
   # find all fasta files
-  my @files = glob("$dir/$self->{glob}");
+  my @files = glob( catfile($dir, $self->{glob}) );
   return unless @files;
 
   # get name of index
@@ -719,7 +720,7 @@ sub index_name {
     my $dir = $self->{dirname} or return;
     return $self->index_name($dir,-d $dir);
   }
-  return "$path/directory.index" if $isdir;
+  return catfile($path, "directory.index") if $isdir;
   return "$path.index";
 }
 
@@ -962,7 +963,7 @@ sub fh {
   my $self = shift;
   my $id   = shift;
   my $file = $self->file($id) or return;
-  return $self->fhcache($self->{dirname}.'/'.$file) or $self->throw( "Can't open file $file");
+  return $self->fhcache( catfile($self->{dirname},$file) ) or $self->throw( "Can't open file $file");
 }
 
 sub header {
