@@ -1194,14 +1194,7 @@ use base qw(Tie::Handle Bio::DB::SeqI);
 sub new {
   my ($class, $db) = @_;
   my $key = $db->FIRSTKEY;
-
-  ####
-  #return    bless { db => $db, key => $key }, $class;
-  my $self = bless { db => $db, key => $key }, $class;
-  use Data::Dumper;
-  print Dumper($self);
-  return $self;
-  ####
+  return bless { db => $db, key => $key }, $class;
 }
 
 sub next_seq {
