@@ -1171,6 +1171,7 @@ sub new {
 sub next_seq {
     my $self = shift;
     my ($key, $db) = @{$self}{'key', 'db'};
+    return if not defined $key;
     while ($key =~ /^__/) {
         $key = $db->NEXTKEY($key);
         return unless defined $key;

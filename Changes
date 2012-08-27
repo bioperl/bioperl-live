@@ -65,6 +65,7 @@ CPAN releases are branched from 'master'.
     * Fix Bio::PopGen::IO::phase: sort values lexically instead of numerically
       when unsure that values will be numerical [fangly]
     * Fix undef warnings in Bio::SeqIO::embl [fangly]
+    * Fix undef warnings in Bio::DB::Fasta and Bio::DB::Qual [fangly]
     * Fix Bio::Tools::IUPAC should accept any sequence object [fangly]
     * Fix for 'Inappropriate ioctl' in Bio::DB::Store::berkeleydb3 [Olivier
       Sallou]

@@ -15,7 +15,7 @@ Bio::DB::Fasta -- Fast indexed access to a directory of fasta files
   use Bio::DB::Fasta;
 
   # create database from directory of fasta files
-  my $db      = Bio::DB::Fasta->new('/path/to/fasta/files');
+  my $db       = Bio::DB::Fasta->new('/path/to/fasta/files');
 
   # simple access (for those without Bioperl)
   my $seq      = $db->seq('CHROMOSOME_I',4_000_000 => 4_100_000);
@@ -749,31 +749,28 @@ sub calculate_offsets {
 
   while (<$fh>) {  # don't try this at home
     $termination_length ||= /\r\n$/ ? 2 : 1; # account for crlf-terminated Windows files
-    #next unless /\S/;
     if (index($_, ">") == 0) {
-        if (/^>(\S+)/) {
-          print STDERR "indexed $count sequences...\n"
-        if $self->{debug} && (++$count%1000) == 0;
+      if (/^>(\S+)/) {
+        print STDERR "indexed $count sequences...\n"
+          if $self->{debug} && (++$count%1000) == 0;
 
-
-          my $pos = tell($fh);
-          if (@id) {
-        my $seqlength    = $pos - $offset - length($_);
-        $seqlength      -= $termination_length * $seq_lines;
-        my $ppos = &{$self->{packmeth}}($offset,$seqlength,
-                           $linelength,$firstline,
-                           $type,$base);
-        for my $id (@id) { $offsets->{$id}  = $ppos }
-          }
-          @id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
-          ($offset,$firstline,$linelength) = ($pos,length($_),0);
-          $self->_check_linelength($linelength);
-          ($l3_len,$l2_len,$l_len,$blank_lines)=(0,0,0,0);
-          $seq_lines = 0;
-        } else {
-          # catch bad header lines, bug 3172
-          $self->throw("FASTA header doesn't match '>(\\S+)': $_")
+        my $pos = tell($fh);
+        if (@id) {
+          my $seqlength    = $pos - $offset - length($_);
+          $seqlength      -= $termination_length * $seq_lines;
+          my $ppos = &{$self->{packmeth}}($offset,$seqlength,$linelength,
+                                          $firstline,$type,$base);
+          for my $id (@id) { $offsets->{$id} = $ppos }
         }
+        @id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
+        ($offset,$firstline,$linelength) = ($pos,length($_),0);
+        $self->_check_linelength($linelength);
+        ($l3_len,$l2_len,$l_len,$blank_lines) = (0,0,0,0);
+        $seq_lines = 0;
+      } else {
+        # catch bad header lines, bug 3172
+        $self->throw("FASTA header doesn't match '>(\\S+)': $_")
+      }
     } elsif ($_ !~ /\S/) { # blank line
         $blank_lines++;
         next;
@@ -783,12 +780,13 @@ sub calculate_offsets {
         if ($l3_len>0 && $l2_len>0 && $l3_len!=$l2_len) {
           my $fap= substr($_,0,20)."..";
           $self->throw(
-    "Each line of the fasta entry must be the same length except the last.\n".
-    "Line above #$. '$fap' is $l2_len != $l3_len chars.");
+            "Each line of the fasta entry must be the same length except the last.\n".
+            "Line above #$. '$fap' is $l2_len != $l3_len chars."
+          );
         }
         if ($blank_lines) {
-            # shouldn't see blank lines here, otherwise there is a problem...
-            $self->throw("Blank lines can only precede header lines, found ".
+          # shouldn't see blank lines here, otherwise there is a problem...
+          $self->throw("Blank lines can only precede header lines, found ".
                          "preceding line #$.");
         }
       }
@@ -811,7 +809,7 @@ sub calculate_offsets {
         $seq_lines--;
       }
       $seqlength -= $termination_length * $seq_lines;
-    };
+    }
     my $ppos = &{$self->{packmeth}}($offset,$seqlength,
                                     $linelength,$firstline,
                                     $type,$base);
@@ -825,7 +823,7 @@ sub calculate_offsets {
 
  Title   : get_all_ids
  Usage   : my @ids = $db->get_all_ids
- Function: gets all the stored ids in all indexes
+ Function: get the ids stored in all indexes
  Returns : list of ids
  Args    : none
 
@@ -1200,9 +1198,10 @@ sub new {
 sub next_seq {
   my $self = shift;
   my ($key,$db) = @{$self}{'key','db'};
+  return if not defined $key;
   while ($key =~ /^__/) {
     $key = $db->NEXTKEY($key);
-    return unless defined $key;
+    return if not defined $key;
   }
   my $value = $db->get_Seq_by_id($key);
   $self->{key} = $db->NEXTKEY($key);

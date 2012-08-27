@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 23,
+    test_begin(-tests => 30,
                -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -20,47 +20,63 @@ my $DEBUG = test_debug();
 my $test_dbdir = setup_temp_dir('dbfa');
 
 # now use this temporary dir for the db file
-my $db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1);
-ok($db);
-cmp_ok($db->length('CEESC13F'), '>', 0);
-is(length $db->seq('CEESC13F:1,10'), 10);
-is(length $db->seq('AW057119',1,10), 10);
-my $primary_seq = $db->get_Seq_by_id('AW057119');
-ok($primary_seq);
-cmp_ok(length($primary_seq->seq), '>', 0);
-is($primary_seq->trunc(1,10)->length, 10);
-is($primary_seq->description, 'test description', 'bug 3126');
-ok(!defined $db->get_Seq_by_id('foobarbaz'));
+ok my $db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1);
+isa_ok $db, 'Bio::DB::Fasta';
+cmp_ok $db->length('CEESC13F'), '>', 0;
+is length($db->seq('CEESC13F:1,10')), 10;
+is length($db->seq('AW057119',1,10)), 10;
+ok my $primary_seq = $db->get_Seq_by_id('AW057119');
+isa_ok $primary_seq, 'Bio::PrimarySeqI';
+cmp_ok length($primary_seq->seq), '>', 0;
+is $primary_seq->trunc(1,10)->length, 10;
+is $primary_seq->description, 'test description', 'bug 3126';
+is $db->get_Seq_by_id('foobarbaz'), undef;
 undef $db;
 undef $primary_seq;
 
 my (%h,$dna1,$dna2);
-ok(tie(%h,'Bio::DB::Fasta',$test_dbdir));
-ok($h{'AW057146'});
-ok($dna1 = $h{'AW057146:1,10'});
-ok($dna2 = $h{'AW057146:10,1'});
+ok tie(%h,'Bio::DB::Fasta',$test_dbdir);
+ok $h{'AW057146'};
+ok $dna1 = $h{'AW057146:1,10'};
+ok $dna2 = $h{'AW057146:10,1'};
 
 my $revcom = reverse $dna1;
 $revcom =~ tr/gatcGATC/ctagCTAG/;
-is($dna2, $revcom);
+is $dna2, $revcom;
 
 # test out writing the Bio::PrimarySeq::Fasta objects with SeqIO
 
-$db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1);
-my $out = Bio::SeqIO->new(-format => 'genbank',
-              -file  => '>'.test_output_file());
+ok $db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1);
+my $out = Bio::SeqIO->new(
+    -format => 'genbank',
+    -file   => '>'.test_output_file()
+);
 $primary_seq = Bio::Seq->new(-primary_seq => $db->get_Seq_by_acc('AW057119'));
 eval {
     $out->write_seq($primary_seq)
 };
-ok(!$@);
+ok !$@;
 
 $out = Bio::SeqIO->new(-format => 'embl', -file  => '>'.test_output_file());
 
 eval {
     $out->write_seq($primary_seq)
 };
-ok(!$@);
+is $@, '';
+
+
+# Loop
+my $test_file = test_input_file('bad_dbfa','shotdb.fa');
+ok $db = Bio::DB::Fasta->new( $test_file, -reindex => 1);
+ok my $stream = $db->get_PrimarySeq_stream;
+isa_ok $stream, 'Bio::DB::Fasta::Stream';
+my $count = 0;
+while (my $seq = $stream->next_seq) {
+    $count++;
+}
+is $count, 6;
+unlink "$test_file.index";
+
 
 {
     # squash warnings locally
@@ -82,11 +98,11 @@ ok(!$@);
 
 # but empty lines preceding headers are okay, but let's check the seqs just in case
 lives_ok {$db = Bio::DB::Fasta->new(test_input_file('spaced_fasta.fa'), -reindex => 1)};
-is(length($db->seq('CEESC39F')), 375, 'length is correct in sequences past spaces');
-is(length($db->seq('CEESC13F')), 389);
+is length($db->seq('CEESC39F')), 375, 'length is correct in sequences past spaces';
+is length($db->seq('CEESC13F')), 389;
 
-is($db->subseq('CEESC39F', 51, 60), 'acatatganc', 'subseq is correct');
-is($db->subseq('CEESC13F', 146, 155), 'ggctctccct', 'subseq is correct');
+is $db->subseq('CEESC39F', 51, 60), 'acatatganc', 'subseq is correct';
+is $db->subseq('CEESC13F', 146, 155), 'ggctctccct', 'subseq is correct';
 
 # Remove temporary test file
 my $outfile = test_input_file('spaced_fasta.fa').'.index';
@@ -95,6 +111,7 @@ unlink $outfile;
 exit;
 
 }
+
 
 sub setup_temp_dir {
     # this obfuscation is to deal with lockfiles by GDBM_File which can
