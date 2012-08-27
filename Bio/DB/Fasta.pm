@@ -209,17 +209,17 @@ Return the length of the indicated sequence.
 
 Return the header line for the ID, including the initial "E<gt>".
 
-=item $type  = $db-E<gt>alphabet($id)
+=item $type = $db-E<gt>alphabet($id)
 
 Return the molecular type of the indicated sequence.  One of "dna",
 "rna" or "protein".
 
-=item $filename  = $db-E<gt>file($id)
+=item $filename = $db-E<gt>file($id)
 
 Return the name of the file in which the indicated sequence can be
 found.
 
-=item $offset    = $db-E<gt>offset($id)
+=item $offset = $db-E<gt>offset($id)
 
 Return the offset of the indicated sequence from the beginning of the
 file in which it is located.  The offset points to the beginning of
@@ -234,7 +234,7 @@ Return the length of the header line for the indicated sequence.
 Return the offset of the header line for the indicated sequence from
 the beginning of the file in which it is located.
 
-=item $index_name  = $db-E<gt>index_name
+=item $index_name = $db-E<gt>index_name
 
 Return the path to the index file.
 
@@ -398,7 +398,7 @@ disclaimers of warranty.
 
 =cut
 
-#'
+
 package Bio::DB::Fasta;
 
 BEGIN {
@@ -496,26 +496,26 @@ sub new {
   }
   @{$self}{qw(dirname offsets)} = ($dirname,$offsets);
 
-  $self;
+  return $self;
 }
 
 =head2 newFh
 
  Title   : newFh
- Function: gets a new Fh for a file
- Example : internal method
+ Usage   : my $fh = Bio::DB::Fasta->newFh($fasta_path, %options)
+ Function: Get a new Fh for a file
  Returns : GLOB
- Args    :
+ Args    : Fasta filename and options
 
 =cut
 
 sub newFh {
   my $class = shift;
-  my $self  = $class->new(@_);
+  my $self = $class->new(@_);
   require Symbol;
   my $fh = Symbol::gensym or return;
   tie $$fh,'Bio::DB::Fasta::Stream',$self or return;
-  $fh;
+  return $fh;
 }
 
 sub _open_index {
@@ -536,6 +536,7 @@ sub _close_index {
   my $self = shift;
   my $index = shift;
   untie %$index;
+  return 1;
 }
 
 =head2 index_dir
@@ -624,7 +625,7 @@ sub get_Seq_by_id {
  Title   : set_pack_method
  Usage   : $db->set_pack_method( @files )
  Function: Determines whether data packing uses 32 or 64 bit integers
- Returns :
+ Returns : 1 for success
  Args    : one or more file paths
 
 =cut
@@ -643,6 +644,7 @@ sub set_pack_method {
       $self->{packmeth}   = \&_pack;
       $self->{unpackmeth} = \&_unpack;
   }
+  return 1;
 }
 
 =head2 index_file
@@ -828,34 +830,36 @@ sub calculate_offsets {
 
 =cut
 
-sub get_all_ids  { grep {!/^__/} keys %{shift->{offsets}} }
+sub get_all_ids  {
+  return grep {!/^__/} keys %{shift->{offsets}};
+}
 
 sub offset {
   my $self = shift;
   my $id   = shift;
   my $offset = $self->{offsets}{$id} or return;
-  (&{$self->{unpackmeth}}($offset))[0];
+  return (&{$self->{unpackmeth}}($offset))[0];
 }
 
 sub length {
   my $self = shift;
   my $id   = shift;
   my $offset = $self->{offsets}{$id} or return;
-  (&{$self->{unpackmeth}}($offset))[1];
+  return (&{$self->{unpackmeth}}($offset))[1];
 }
 
 sub linelen {
   my $self = shift;
   my $id   = shift;
   my $offset = $self->{offsets}{$id} or return;
-  (&{$self->{unpackmeth}}($offset))[2];
+  return (&{$self->{unpackmeth}}($offset))[2];
 }
 
 sub headerlen {
   my $self = shift;
   my $id   = shift;
   my $offset = $self->{offsets}{$id} or return;
-  (&{$self->{unpackmeth}}($offset))[3];
+  return (&{$self->{unpackmeth}}($offset))[3];
 }
 
 sub alphabet {
@@ -869,20 +873,22 @@ sub alphabet {
 
 }
 
-sub path { shift->{dirname} }
+sub path {
+  return shift->{dirname};
+}
 
 sub header_offset {
-    my $self = shift;
-    my $id   = shift;
-    return unless $self->{offsets}{$id};
-    return $self->offset($id) - $self->headerlen($id);
+  my $self = shift;
+  my $id   = shift;
+  return unless $self->{offsets}{$id};
+  return $self->offset($id) - $self->headerlen($id);
 }
 
 sub file {
   my $self = shift;
   my $id   = shift;
   my $offset = $self->{offsets}{$id} or return;
-  $self->fileno2path((&{$self->{unpackmeth}}($offset))[5]);
+  return $self->fileno2path((&{$self->{unpackmeth}}($offset))[5]);
 }
 
 sub fileno2path {
@@ -905,8 +911,8 @@ sub _check_linelength {
   my $self       = shift;
   my $linelength = shift;
   return unless defined $linelength;
-  $self->throw("Each line of the fasta file must be less than 65,536 characters.  Line $. is $linelength chars.")	if $linelength > 65535.
-
+  $self->throw("Each line of the fasta file must be less than 65,536 characters.".
+    " Line $. is $linelength chars.") if $linelength > 65535;
 }
 
 =head2 subseq
@@ -949,14 +955,14 @@ sub subseq {
     $data = reverse $data;
     $data =~ tr/gatcGATC/ctagCTAG/;
   }
-  $data;
+  return $data;
 }
 
 sub fh {
   my $self = shift;
   my $id   = shift;
   my $file = $self->file($id) or return;
-  $self->fhcache("$self->{dirname}/$file") or $self->throw( "Can't open file $file");
+  return $self->fhcache($self->{dirname}.'/'.$file) or $self->throw( "Can't open file $file");
 }
 
 sub header {
@@ -971,7 +977,7 @@ sub header {
   read($fh,$data,$firstline);
   chomp $data;
   substr($data,0,1) = '';
-  $data;
+  return $data;
 }
 
 sub caloffset {
@@ -982,7 +988,7 @@ sub caloffset {
   $a = 0            if $a < 0;
   $a = $seqlength-1 if $a >= $seqlength;
   my $tl = $self->{offsets}{__termination_length};
-  $offset + $linelength * int($a/($linelength-$tl)) + $a % ($linelength-$tl);
+  return $offset + $linelength * int($a/($linelength-$tl)) + $a % ($linelength-$tl);
 }
 
 sub fhcache {
@@ -1000,23 +1006,23 @@ sub fhcache {
     $self->{curopen}++;
   }
   $self->{cacheseq}{$path}++;
-  $self->{fhcache}{$path}
+  return $self->{fhcache}{$path};
 }
 
 sub _pack {
-  pack STRUCT,@_;
+  return pack STRUCT,@_;
 }
 
 sub _packBig {
-  pack STRUCTBIG,@_;
+  return pack STRUCTBIG,@_;
 }
 
 sub _unpack {
-  unpack STRUCT,shift;
+  return unpack STRUCT,shift;
 }
 
 sub _unpackBig {
-  unpack STRUCTBIG,shift;
+  return unpack STRUCTBIG,shift;
 }
 
 sub _type {
@@ -1030,11 +1036,10 @@ sub _type {
 =head2 get_PrimarySeq_stream
 
  Title   : get_PrimarySeq_stream
- Usage   :
- Function:
- Example :
- Returns :
- Args    :
+ Usage   : my $stream = $seqdb->get_PrimarySeq_stream();
+ Function: Get the database sequence stream
+ Returns : A Bio::DB::Fasta::Stream object
+ Args    : None
 
 =cut
 
@@ -1049,22 +1054,26 @@ sub TIEHASH {
 }
 
 sub FETCH {
-  shift->subseq(@_);
+  return shift->subseq(@_);
 }
 sub STORE {
-    shift->throw("Read-only database");
+  shift->throw("Read-only database");
 }
 sub DELETE {
-    shift->throw("Read-only database");
+  shift->throw("Read-only database");
 }
 sub CLEAR {
-    shift->throw("Read-only database");
+  shift->throw("Read-only database");
 }
 sub EXISTS {
-  defined shift->offset(@_);
+  return defined shift->offset(@_);
 }
-sub FIRSTKEY { tied(%{shift->{offsets}})->FIRSTKEY(@_); }
-sub NEXTKEY  { tied(%{shift->{offsets}})->NEXTKEY(@_);  }
+sub FIRSTKEY {
+  return tied(%{shift->{offsets}})->FIRSTKEY(@_);
+}
+sub NEXTKEY {
+  return tied(%{shift->{offsets}})->NEXTKEY(@_);
+}
 
 sub DESTROY {
   my $self = shift;
@@ -1072,6 +1081,7 @@ sub DESTROY {
     warn "indexing was interrupted, so unlinking $self->{indexing}";
     unlink $self->{indexing};
   }
+  return 1;
 }
 
 #-------------------------------------------------------------
@@ -1093,7 +1103,9 @@ sub new {
                },$class;
 }
 
-sub fetch_sequence { shift->seq(@_) }
+sub fetch_sequence {
+  return shift->seq(@_);
+}
 
 sub seq {
   my $self = shift;
@@ -1102,13 +1114,12 @@ sub seq {
 
 sub subseq {
   my $self = shift;
-  $self->trunc(@_)->seq();
+  return $self->trunc(@_)->seq();
 }
 
 sub trunc {
-  my $self = shift;
-  my ($start,$stop) = @_;
-  $self->throw("Stop cannot be smaller than start")  unless $start <= $stop;
+  my ($self, $start, $stop) = @_;
+  $self->throw("Stop cannot be smaller than start") unless $start <= $stop;
   return $self->{start} <= $self->{stop} ?  $self->new($self->{db},
                                             $self->{id},
                                             $self->{start}+$start-1,
@@ -1141,7 +1152,9 @@ sub primary_id {
   return overload::StrVal($self);
 }
 
-sub can_call_new { return 0 }
+sub can_call_new {
+  return 0;
+}
 
 sub alphabet {
   my $self = shift;
@@ -1161,10 +1174,10 @@ sub length {
 }
 
 sub description  {
-    my $self = shift;
-    my $header = $self->{'db'}->header($self->{id});
-    # remove the id from the header
-    return (split(/\s+/,$header,2))[1];
+  my $self = shift;
+  my $header = $self->{'db'}->header($self->{id});
+  # remove the id from the header
+  return (split(/\s+/,$header,2))[1];
 }
 
 *desc = \&description;
@@ -1192,7 +1205,7 @@ sub next_seq {
   }
   my $value = $db->get_Seq_by_id($key);
   $self->{key} = $db->NEXTKEY($key);
-  $value;
+  return $value;
 }
 
 sub TIEHANDLE {
@@ -1200,9 +1213,10 @@ sub TIEHANDLE {
   my $db    = shift;
   return $class->new($db);
 }
+
 sub READLINE {
   my $self = shift;
-  $self->next_seq;
+  return $self->next_seq;
 }
 
 1;
