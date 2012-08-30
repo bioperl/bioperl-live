@@ -175,6 +175,7 @@ sub next_aln {
 	@names,$seqname,$start,$end,$count,$seq);
 
     my $aln =  Bio::SimpleAlign->new(-source => 'phylip');
+
     # skip blank lines until we see header line
     # if we see a non-blank line that isn't the seqcount and residuecount line
     # then bail out of next_aln (return)
@@ -192,19 +193,10 @@ sub next_aln {
     my $idlen = $self->idlength;
     $count = 0;
     my $iter = 1;
-    #my $interleaved = $self->interleaved;
-    my $interleaved = 0;
+    my $interleaved = $self->interleaved;
     while( $entry = $self->_readline) {
-	if ($entry =~ /^\s?$/) {
-		if ($interleaved) {
-			if ($count <= $seqcount) {
-				my $msg = "Not a valid interleaved PHYLIP file! Expected " . $seqcount . " sequences, got " . ($count-1);
-				$self->throw($msg);
-			}
-		}
-		$count = 1;
-		next;
-	}
+	last if( $entry =~ /^\s?$/ && $interleaved );
+
     # we've hit the next entry.
 	if( $entry =~ /^\s+(\d+)\s+(\d+)\s*$/) {
 	    $self->_pushback($entry);
@@ -225,14 +217,14 @@ sub next_aln {
 
 	    push @names, $name;
 	    $str =~ s/\s//g;
-	    #$count = scalar @names;
+	    $count = scalar @names;
 	    $hash{$count} = $str;
 
 	} elsif( $entry =~ /^\s+(.+)$/ ) {
-	    #$interleaved = 0;
+	    $interleaved = 0;
 	    $str = $1;
 	    $str =~ s/\s//g;
-	    #$count = scalar @names;
+	    $count = scalar @names;
 	    $hash{$count} .= $str;
 	} elsif( $entry =~ /^(.{$idlen})\s*(.*)\s$/ ||
 		 $entry =~ /^(.{$idlen})(\S{$idlen}\s+.+)\s$/ # Handle weirdness when id is too long
@@ -244,13 +236,8 @@ sub next_aln {
 
 	    push @names, $name;
 	    $str =~ s/\s//g;
-	    #$count = scalar @names;
+	    $count = scalar @names;
 	    $hash{$count} = $str;
-		if (length($str) == $residuecount) {
-			$interleaved = 0;
-		} else {
-			$interleaved = 1;
-		}
 	} elsif( $interleaved ) {
 	    if( $entry =~ /^(\S+)\s+(.+)/ ||
 		$entry =~ /^(.{$idlen})(.*)\s$/ ) {
@@ -260,13 +247,13 @@ sub next_aln {
 		$name =~ s/_+$//; # remove any trailing _'s
 		push @names, $name;
 		$str =~ s/\s//g;
-		#$count = scalar @names;
+		$count = scalar @names;
 		$hash{$count} = $str;
 	    } else {
 		$self->debug("unmatched line: $entry");
 	    }
 	}
-	$count++;
+	$self->throw("Not a valid interleaved PHYLIP file!") if $count > $seqcount;
     }
 
     if( $interleaved ) {
@@ -278,7 +265,6 @@ sub next_aln {
 		$self->_pushback($entry);
 		last;
 	    }
-
 	    $count = 0, next if $entry =~ /^\s$/;
 	    $entry =~ /\s*(.*)$/ && do {
 		$str = $1;
