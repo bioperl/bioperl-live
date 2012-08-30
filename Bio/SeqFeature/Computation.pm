@@ -18,16 +18,18 @@ Bio::SeqFeature::Computation - Computation SeqFeature
 =head1 SYNOPSIS
 
    $feat = Bio::SeqFeature::Computation->new(
-                                -start => 10, -end => 100,
-				-strand => -1, -primary => 'repeat',
-				-program_name => 'GeneMark',
-				-program_date => '12-5-2000',
-				-program_version => 'x.y',
-				-database_name => 'Arabidopsis',
-				-database_date => '12-dec-2000',
-				-computation_id => 2231,
-				-score    => { no_score => 334 } );
-
+       -start => 10,
+       -end => 100,
+       -strand => -1,
+       -primary => 'repeat',
+       -program_name => 'GeneMark',
+       -program_date => '12-5-2000',
+       -program_version => 'x.y',
+       -database_name => 'Arabidopsis',
+       -database_date => '12-dec-2000',
+       -computation_id => 2231,
+       -score => { no_score => 334 }
+   );
 
 =head1 DESCRIPTION
 
@@ -41,10 +43,6 @@ Generic object. For storing sets of subseqfeatures the array containg the
 subseqfeatures is now a hash which contains arrays of seqfeatures
 Both the score and subSeqfeature methods can be called in exactly the same
 way, the value's will be stored as a 'default' score or subseqfeature.
-
-=cut
-
-#'
 
 =head1 FEEDBACK
 
@@ -74,11 +72,12 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Ewan Birney, Mark Fiers
 
 Ewan Birney E<lt>birney@sanger.ac.ukE<gt>
+
 Mark Fiers E<lt>m.w.e.j.fiers@plant.wag-ur.nlE<gt>
 
 =head1 DEVELOPERS
@@ -102,27 +101,25 @@ package Bio::SeqFeature::Computation;
 use strict;
 
 use base qw(Bio::SeqFeature::Generic);
-						     
+
 sub new {
     my ( $class, @args) = @_;
     
     my $self = $class->SUPER::new(@args);
 
 
-    my ( $computation_id, 
-	$program_name, $program_date, $program_version,
-	$database_name, $database_date, $database_version) =
-	    $self->_rearrange([qw(COMPUTATION_ID
-				  PROGRAM_NAME
-				  PROGRAM_DATE
-				  PROGRAM_VERSION
-				  DATABASE_NAME
-				  DATABASE_DATE
-				  DATABASE_VERSION
-				  )],@args);
+    my ( $computation_id, $program_name, $program_date, $program_version,
+         $database_name, $database_date, $database_version) =
+         $self->_rearrange([qw( COMPUTATION_ID
+                                 PROGRAM_NAME
+                                 PROGRAM_DATE
+                                 PROGRAM_VERSION
+                                 DATABASE_NAME
+                                 DATABASE_DATE
+                                 DATABASE_VERSION )],@args);
 
-    $program_name	    && $self->program_name($program_name);
-    $program_date	    && $self->program_date($program_date);
+    $program_name     && $self->program_name($program_name);
+    $program_date     && $self->program_date($program_date);
     $program_version  && $self->program_version($program_version);
     $database_name    && $self->database_name($database_name);
     $database_date    && $self->database_date($database_date);
@@ -179,7 +176,7 @@ sub add_score_value {
            $comp_obj->score($value)
  Function: Returns the 'default' score or sets the 'default' score
            This method exist for compatibility options           
-	   It would equal ($comp_obj->each_score_value('default'))[0];
+           It would equal ($comp_obj->each_score_value('default'))[0];
  Returns : A value
  Args    : (optional) a new value for the 'default' score 
 
@@ -190,17 +187,17 @@ sub score {
     my @v;
     if (defined $value) {
 
-	if( ref($value) =~ /HASH/i ) {
-	    while( my ($t,$val) = each %{ $value } ) {
-		$self->add_score_value($t,$val);
-	    }
-	} else {
-	    @v = $value;
-	    $self->add_score_value('default', $value);
-	}
-	
+        if( ref($value) =~ /HASH/i ) {
+            while( my ($t,$val) = each %{ $value } ) {
+                $self->add_score_value($t,$val);
+            }
+        } else {
+            @v = $value;
+            $self->add_score_value('default', $value);
+        }
+
     } else {       
-	@v = $self->each_score_value('default');
+        @v = $self->each_score_value('default');
     }
     return $v[0];
 }
@@ -424,19 +421,19 @@ sub database_version {
 
 }
 
-=head2 sub_SeqFeature_type
+=head2 get_SeqFeature_type
 
- Title   : sub_SeqFeature_type
- Usage   : $sub_SeqFeature_type = $feat->sub_SeqFeature_type()
-           $feat->sub_SeqFeature_type($sub_SeqFeature_type)
- Function: sub_SeqFeature_type is automatically set when adding
-           a sub_computation (sub_SeqFeature) to a computation object
- Returns : sub_SeqFeature_type (string)
+ Title   : get_SeqFeature_type
+ Usage   : $SeqFeature_type = $feat->get_SeqFeature_type()
+           $feat->get_SeqFeature_type($SeqFeature_type)
+ Function: Get SeqFeature type which is automatically set when adding
+           a computation (SeqFeature) to a computation object
+ Returns : SeqFeature_type (string)
  Args    : none if get, the new value if set
 
 =cut
 
-sub sub_SeqFeature_type {
+sub get_SeqFeature_type {
   my ($self, $value) = @_;
 
   if (defined($value)) {
@@ -445,58 +442,58 @@ sub sub_SeqFeature_type {
   return $self->{'_gsf_sub_SeqFeature_type'};
 }
 
-=head2 all_sub_SeqFeature_types
+=head2 get_all_SeqFeature_types
 
- Title   : all_Sub_SeqFeature_types
- Usage   : @all_sub_seqfeature_types = $comp->all_Sub_SeqFeature_types();
+ Title   : get_all_SeqFeature_types
+ Usage   : @all_SeqFeature_types = $comp->get_all_SeqFeature_types();
  Function: Returns an array with all subseqfeature types
  Returns : An array
  Args    : none
 
 =cut
 
-sub all_sub_SeqFeature_types {
+sub get_all_SeqFeature_types {
    my ($self) = @_;
    return keys ( %{$self->{'gsf_sub_hash'}} );
 }
 
-=head2 sub_SeqFeature
+=head2 get_SeqFeatures
 
- Title   : sub_SeqFeature('sub_feature_type')
- Usage   : @feats = $feat->sub_SeqFeature();
-           @feats = $feat->sub_SeqFeature('sub_feature_type');           
+ Title   : get_SeqFeatures('feature_type')
+ Usage   : @feats = $feat->get_SeqFeatures();
+           @feats = $feat->get_SeqFeatures('feature_type');           
  Function: Returns an array of sub Sequence Features of a specific
            type or, if the type is ommited, all sub Sequence Features
  Returns : An array
- Args    : (optional) a sub_SeqFeature type (ie exon, pattern)
+ Args    : (optional) a SeqFeature type (ie exon, pattern)
 
 =cut
 
-sub sub_SeqFeature {
+sub get_SeqFeatures {
    my ($self, $ssf_type) = @_;
    my (@return_array) = ();
    if ($ssf_type eq '') {
-       #return all sub_SeqFeatures
+       #return all SeqFeatures
        foreach (keys ( %{$self->{'gsf_sub_hash'}} )){
-	  push @return_array, @{$self->{'gsf_sub_hash'}->{$_}};	            
+           push @return_array, @{$self->{'gsf_sub_hash'}->{$_}};           
        }
        return @return_array;
    } else {
        if (defined ($self->{'gsf_sub_hash'}->{$ssf_type})) {
-           return @{$self->{'gsf_sub_hash'}->{$ssf_type}};	
+           return @{$self->{'gsf_sub_hash'}->{$ssf_type}};
        } else {
            $self->warn("$ssf_type is not a valid sub SeqFeature type");
        }
    }
 }
 
-=head2 add_sub_SeqFeature
+=head2 add_SeqFeature
 
- Title   : add_sub_SeqFeature
- Usage   : $feat->add_sub_SeqFeature($subfeat);
-           $feat->add_sub_SeqFeature($subfeat,'sub_seqfeature_type')
-           $feat->add_sub_SeqFeature($subfeat,'EXPAND')
-           $feat->add_sub_SeqFeature($subfeat,'EXPAND','sub_seqfeature_type')
+ Title   : add_SeqFeature
+ Usage   : $feat->add_SeqFeature($subfeat);
+           $feat->add_SeqFeature($subfeat,'seqfeature_type')
+           $feat->add_SeqFeature($subfeat,'EXPAND')
+           $feat->add_SeqFeature($subfeat,'EXPAND','seqfeature_type')
  Function: adds a SeqFeature into a specific subSeqFeature array.
            with no 'EXPAND' qualifer, subfeat will be tested
            as to whether it lies inside the parent, and throw
@@ -504,19 +501,19 @@ sub sub_SeqFeature {
            If EXPAND is used, the parents start/end/strand will
            be adjusted so that it grows to accommodate the new
            subFeature,
-	   optionally a sub_seqfeature type can be defined.
+           optionally a seqfeature type can be defined.
  Returns : nothing
  Args    : An object which has the SeqFeatureI interface
-         : (optional) 'EXPAND'
-	 : (optional) 'sub_SeqFeature_type'
+           (optional) 'EXPAND'
+           (optional) 'SeqFeature_type'
 
 =cut
 
-sub add_sub_SeqFeature{
+sub add_SeqFeature{
    my ($self,$feat,$var1, $var2) = @_;
    $var1 = '' unless( defined $var1);
    $var2 = '' unless( defined $var2);   
-   my ($expand, $ssf_type) = ('', $var1 . $var2);	
+   my ($expand, $ssf_type) = ('', $var1 . $var2);
    $expand = 'EXPAND' if ($ssf_type =~ s/EXPAND//);
 
    if ( !$feat->isa('Bio::SeqFeatureI') ) {
@@ -527,7 +524,7 @@ sub add_sub_SeqFeature{
        $self->_expand_region($feat);
    } else {
        if ( !$self->contains($feat) ) {
-	   $self->throw("$feat is not contained within parent feature, and expansion is not valid");
+           $self->throw("$feat is not contained within parent feature, and expansion is not valid");
        }
    }
 
@@ -536,20 +533,18 @@ sub add_sub_SeqFeature{
    if (!(defined ($self->{'gsf_sub_hash'}->{$ssf_type}))) {     
       @{$self->{'gsf_sub_hash'}->{$ssf_type}} = ();
    } 
-   $feat->sub_SeqFeature_type($ssf_type);
+   $feat->get_SeqFeature_type($ssf_type);
    push @{$self->{'gsf_sub_hash'}->{$ssf_type}}, $feat;
 }
 
-=head2 flush_sub_SeqFeature
+=head2 remove_SeqFeatures
 
- Title   : flush_sub_SeqFeature
- Usage   : $sf->flush_sub_SeqFeature
-           $sf->flush_sub_SeqFeature('sub_SeqFeature_type');	
- Function: Removes all sub SeqFeature or all sub SeqFeatures
- 	   of a specified type 
-           (if you want to remove a more specific subset, take
-	    an array of them all, flush them, and add
-            back only the guys you want)
+ Title   : remove_SeqFeatures
+ Usage   : $sf->remove_SeqFeatures
+           $sf->remove_SeqFeatures('SeqFeature_type');
+ Function: Removes all sub SeqFeature or all sub SeqFeatures of a specified type 
+           (if you want to remove a more specific subset, take an array of them
+           all, flush them, and add back only the guys you want)
  Example :
  Returns : none
  Args    : none
@@ -557,7 +552,7 @@ sub add_sub_SeqFeature{
 
 =cut
 
-sub flush_sub_SeqFeature {
+sub remove_SeqFeatures {
    my ($self, $ssf_type) = @_;
    if ($ssf_type) {
       if ((defined ($self->{'gsf_sub_hash'}->{$ssf_type}))) {   
@@ -568,8 +563,15 @@ sub flush_sub_SeqFeature {
    } else {
       $self->{'_gsf_sub_hash'} = {}; # zap the complete hash implicitly.
    }
-} 
+}
 
 
+# Aliases to better match Bio::SeqFeature function names
+*sub_SeqFeature_type = \&get_SeqFeature_type;
+*all_sub_SeqFeature_types = \&get_all_SeqFeature_types;
+*sub_SeqFeature = \&get_SeqFeatures;
+*add_sub_SeqFeature = \&add_SeqFeature;
+*flush_sub_SeqFeatures = \&remove_SeqFeatures;
+*flush_sub_SeqFeature = \&remove_SeqFeatures;
 
 1;

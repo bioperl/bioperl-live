@@ -70,7 +70,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -149,6 +149,21 @@ sub aln_to_population{
 					             INCLUDE_MONOMORPHIC
 					             CHECKISA)],
 					  @args);
+
+   my %ambig_code = ('?' => ['?','?'],
+		     'N' => ['?','?'],
+		     '-' => ['?','?'],
+                     'G' => ['G','G'],
+                     'A' => ['A','A'],
+                     'T' => ['T','T'],
+                     'C' => ['C','C'],
+                     'R' => ['A','G'],
+                     'Y' => ['C','T'],
+                     'W' => ['T','A'],
+                     'M' => ['C','A'],
+                     'S' => ['C','G'],
+                     'K' => ['G','T']);
+					  
    if( ! defined $aln ) { 
        $self->warn("Must provide a valid Bio::SimpleAlign object to run aln_to_population");
        return;
@@ -174,23 +189,22 @@ sub aln_to_population{
        }
 
        for( my $i = 0; $i < $alength; $i++ ) {
-	   my $nm = "Site-$i";
 	   my (@genotypes,%set);
 	   
            # do we skip indels?
 	   # slicing vertically
 	   for my $seq ( @seqs ) {
-	       my $site = substr($seq,$i,1);
+	       my $site = uc(substr($seq,$i,1));
+	       push @genotypes, $ambig_code{$site};
 	       $set{$site}++;
-	       push @genotypes, $site;
 	   }
 	   if( keys %set > 1 || $includefixed ) {
 	       my $genoct = scalar @genotypes;
 	       for( my $j = 0; $j < $genoct; $j++ ) {
 		   $inds[$j]->add_Genotype(Bio::PopGen::Genotype->new
-					   (-marker_name  => $nm,
+					   (-marker_name  => ($i+1),
 					    -individual_id=> $inds[$j]->unique_id,
-					    -alleles      => [$genotypes[$j]]));
+					    -alleles      => $genotypes[$j]));
 	       }
 	   }
        }
@@ -203,31 +217,37 @@ sub aln_to_population{
        }
        my $codonct = 0;
        for( my $i = $phase; $i < $alength; $i += CodonLen ) {
-	   my $nm = "Codon-$codonct-$i";
 	   my (@genotypes,%set,$genoct);
 	   
 	   for my $seq ( @seqs ) {
-	       my $site = substr($seq,$i,CodonLen);
+	       my @unambig_site;
+	       my $site = uc(substr($seq,$i,CodonLen));
 	       if( length($site) < CodonLen ) {
 		   # at end of alignment and this is not in phase
 		   $self->debug("phase was $phase, but got to end of alignment with overhang of $site");
 		   next;
 	       }
 	       # do we check for gaps/indels here?
-	       $set{$site}++;
-	       push @genotypes, $site;
+	       for (my $pos=0; $pos<CodonLen; $pos++)
+               {
+                    $unambig_site[0] .= $ambig_code{substr($site, $pos, 1)}[0];
+                    $unambig_site[1] .= $ambig_code{substr($site, $pos, 1)}[1];
+               }
+               push @genotypes, [@unambig_site];
+               $set{$site}++;
 	   }
 	   $genoct = scalar @genotypes;
 	   
-	   # do we include fixed sites? yes I think so since this is 
-	   # typically being used by MK	   
-	   for( my $j = 0; $j < $genoct; $j++ ) {
-	       $inds[$j]->add_Genotype(Bio::PopGen::Genotype->new
-				       (-marker_name  => $nm,
-					-individual_id=> $inds[$j]->unique_id,
-					-alleles      => [$genotypes[$j]]));
+	   # do we include fixed sites? I think we should leave it to the user.
+	   if( keys %set > 1 || $includefixed ) {
+	       for( my $j = 0; $j < $genoct; $j++ ) {
+		   $inds[$j]->add_Genotype(Bio::PopGen::Genotype->new
+					   (-marker_name  => ($i/CodonLen),
+					    -individual_id=> $inds[$j]->unique_id,
+					    -alleles      => $genotypes[$j]));
+	       }
+	       $codonct++;
 	   }
-	   $codonct++;
        }
    } else { 
        $self->throw("Can only build sites based on all the data right now!");

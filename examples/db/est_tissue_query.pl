@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # This script will report the names of the tissues which were seen
 # in a BLAST/FASTA report against an EST (or cDNA possibly) library.

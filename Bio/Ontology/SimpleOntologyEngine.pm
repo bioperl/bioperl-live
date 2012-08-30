@@ -60,7 +60,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Peter Dimitrov
 
@@ -404,12 +404,12 @@ sub _add_relationship_simple {
          && $store->{$parent_id}->{$child_id}->name ne $rel->predicate_term->name
      ) {
         $self->throw( "relationship "
-                . Dumper( $rel->predicate_term )
+                . $rel->predicate_term->name
                 . " between "
                 . $parent_id . " and "
                 . $child_id
                 . " already defined as "
-                . Dumper( $store->{$parent_id}->{$child_id} )
+                . $store->{$parent_id}->{$child_id}->name
                 . "\n" );
     }
 

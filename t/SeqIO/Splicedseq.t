@@ -25,7 +25,7 @@ ok ( $seq = $str->next_seq() );
 foreach my $ft ( grep { $_->primary_tag eq 'CDS'} 
 		 $seq->top_SeqFeatures ) {
     if( $ft->has_tag('translation') ) {
-	my ($translation) = $ft->each_tag_value('translation');
+	my ($translation) = $ft->get_tag_values('translation');
 	my $t = $ft->spliced_seq(-nosort => 1);
 	my $pepseq = $t->translate()->seq();
 	chop($pepseq);# chop is to remove stop codon

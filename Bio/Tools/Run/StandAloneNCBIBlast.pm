@@ -49,7 +49,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via 
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Peter Schattner
 
@@ -73,6 +73,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::Run::StandAloneNCBIBlast;
 
 use strict;
+use warnings;
 
 use base qw(Bio::Tools::Run::StandAloneBlast);
 
@@ -112,7 +113,7 @@ Some of the most commonly used parameters are listed below. All
 parameters have defaults and are optional except for -p in those programs that
 have it. For a complete listing of settable parameters, run the relevant
 executable BLAST program with the option "-" as in blastall -
-Note that the input paramters (-i, -j, -input) should not be set directly by
+Note that the input parameters (-i, -j, -input) should not be set directly by
 you: this module sets them when you call one of the executable methods.
 
 Blastall

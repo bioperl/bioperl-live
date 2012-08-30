@@ -386,7 +386,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Mark A. Jensen
 
@@ -1297,7 +1297,7 @@ sub parameters_changed {
  Usage   : @params = $pobj->available_parameters()
  Function: Returns a list of the available parameters
  Returns : Array of parameters
- Args    : 'params' for settable program paramters
+ Args    : 'params' for settable program parameters
            'switches' for boolean program switches
            default: all 
 

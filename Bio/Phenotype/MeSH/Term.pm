@@ -74,7 +74,7 @@ report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR
 
@@ -227,7 +227,7 @@ sub purge_synonyms {
 
 =head2 Twig management
 
-Each MeSH term belongs to a complex tree like hierachy of terms where
+Each MeSH term belongs to a complex tree like hierarchy of terms where
 each term can appear multiple times. The immediately surrounding nodes
 of the tree are modelled in twigs.
 

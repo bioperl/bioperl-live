@@ -55,7 +55,7 @@ with code and data examples if at all possible.
 Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Ewan Birney
 
@@ -207,12 +207,19 @@ sub from_SeqFeature {
   $fth->loc($locstr);
   $fth->key($key);
   $fth->field->{'note'} = [];
+  
+  # the lines below take specific tags (e.g. /score=23 ) and re-enter them as
+  # new tags like /note="score=25" - if the file is round-tripped this creates
+  # duplicate values
+
   #$sf->source_tag && do { push(@{$fth->field->{'note'}},"source=" . $sf->source_tag ); };
 
-  ($sf->can('score') && $sf->score) && do { push(@{$fth->field->{'note'}},
-                                                 "score=" . $sf->score ); };
-  ($sf->can('frame') && $sf->frame) && do { push(@{$fth->field->{'note'}},
-                                                 "frame=" . $sf->frame ); };
+  #($sf->can('score') && $sf->score) && do { push(@{$fth->field->{'note'}},
+  #                                               "score=" . $sf->score ); };
+  
+  #($sf->can('frame') && $sf->frame) && do { push(@{$fth->field->{'note'}},
+  #                                               "frame=" . $sf->frame ); };
+  
   #$sf->strand && do { push(@{$fth->field->{'note'}},"strand=" . $sf->strand ); };
 
   foreach my $tag ( $sf->get_all_tags ) {

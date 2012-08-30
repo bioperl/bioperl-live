@@ -30,7 +30,7 @@ databases. For certain combinations of SeqFeature classes and
 SeqFeature::Store databases it features a "fast load" mode which will
 greatly accelerate the loading of GFF3 databases by a factor of 5-10.
 
-The GFF3 file format has been extended very slightly to accomodate
+The GFF3 file format has been extended very slightly to accommodate
 Bio::DB::SeqFeature::Store. First, the loader recognizes is a new
 directive:
 
@@ -107,7 +107,7 @@ pairs as described in this table:
  Name               Value
  ----               -----
 
- -store             A writeable Bio::DB::SeqFeature::Store database handle.
+ -store             A writable Bio::DB::SeqFeature::Store database handle.
 
  -seqfeature_class  The name of the type of Bio::SeqFeatureI object to create
                       and store in the database (Bio::DB::SeqFeature by default)
@@ -403,8 +403,8 @@ sub load_line { #overridden
     }
 
     elsif ($line =~ /^>\s*(\S+)/) { # FASTA lines are coming
-      $load_data->{mode} = 'fasta';
-      $self->start_or_finish_sequence($1);
+	$load_data->{mode} = 'fasta';
+	$self->start_or_finish_sequence($1);
     }
 
     elsif ($load_data->{mode} eq 'fasta') {

@@ -95,7 +95,7 @@ with code and data examples if at all possible.
 Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Ewan Birney
 
@@ -355,7 +355,7 @@ sub new_sequence{
 =cut
 
 sub blast_sequence {
-    my ($seq,$verbose) = shift;
+    my ($seq,$verbose) = @_;
 
     if( !defined $verbose ) {
 	$verbose = 1;
@@ -369,7 +369,7 @@ sub blast_sequence {
 
     require Bio::Tools::Run::RemoteBlast;
 
-    my $prog = 'blastp';
+    my $prog = ( $seq->alphabet eq 'protein' ) ? 'blastp' : 'blastn';
     my $e_val= '1e-10';
 
     my @params = ( '-prog' => $prog,

@@ -57,7 +57,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -84,6 +84,7 @@ our $coord_policy = Bio::Location::WidestCoordPolicy->new();
 
 sub new { 
     my ($class, @args) = @_;
+    $class = ref $class || $class;
     my $self = {};
     # This is for the case when we've done something like this
     # get a 2 features from somewhere (like Bio::Tools::GFF)
@@ -91,13 +92,12 @@ sub new {
     # my $location = $f1->location->union($f2->location);
     # We get an error without the following code which 
     # explictly loads the Bio::Location::Simple class
-    eval {
-	($class) = ref($class) if ref($class);
-	Bio::Root::Root->_load_module($class);
-      };
-    if ( $@ ) {
-	Bio::Root::Root->throw("$class cannot be found\nException $@");
-      }
+    unless( $class->can('start') ) {
+        eval { Bio::Root::Root->_load_module($class) };
+        if ( $@ ) {
+            Bio::Root::Root->throw("$class cannot be found\nException $@");
+        }
+    }
     bless $self,$class;
 
     my ($v,$start,$end,$strand,$seqid) = $self->_rearrange([qw(VERBOSE

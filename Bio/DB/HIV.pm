@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::DB::HIV
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Mark A. Jensen <maj@fortinbras.us>
 #
@@ -54,15 +54,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -71,7 +71,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Mark A. Jensen
 
@@ -122,7 +122,7 @@ BEGIN {
 
  Title   : new
  Usage   : my $obj = new Bio::DB::HIV();
- Function: Builds a new Bio::DB::HIV object 
+ Function: Builds a new Bio::DB::HIV object
  Returns : an instance of Bio::DB::HIV
  Args    :
 
@@ -133,7 +133,7 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
   my ($lanl_base, $lanl_map_db, $lanl_make_search_if, $lanl_search) =
-      $self->_rearrange([qw( 
+      $self->_rearrange([qw(
                            LANL_BASE
                            LANL_MAP_DB
                            LANL_MAKE_SEARCH_IF
@@ -163,10 +163,10 @@ sub new {
  Title   : get_request
  Usage   : my $url = $self->get_request
  Function: returns a HTTP::Request object
- Returns : 
- Args    : %qualifiers = a hash of qualifiers with keys in 
+ Returns :
+ Args    : %qualifiers = a hash of qualifiers with keys in
             (-ids, -format, -mode, -query)
- Note    : Several layers of requests are performed to get to the sequence; 
+ Note    : Several layers of requests are performed to get to the sequence;
            see Bio::DB::Query::HIVQuery.
 
 =cut
@@ -275,7 +275,7 @@ sub get_request {
     }
     # web work
     eval { # capture web errors; throw below...
-	# negotiate a session with lanl db 
+	# negotiate a session with lanl db
 	if (!$self->_session_id) {
 	    $resp = $self->ua->get($self->_map_db_uri);
 	    $resp->is_success || die "Connect failed";
@@ -285,13 +285,13 @@ sub get_request {
 		$self->_session_id || die "Session not established";
 	    }
 	}
-	
+
 	# establish correct "interface" for this session id
 	$resp = $self->ua->post($self->_make_search_if_uri, [@interface, id=>$self->_session_id]);
 	$resp->is_success || die "Interface request failed (1)";
 	$self->_response($resp);
 	$resp->content =~ /$search_form_re/ || die "Interface request failed (2)";
-	
+
 	# interface successful, do the "pre-search"
 	$resp = $self->ua()->post($self->_search_uri, [(@query_parms, 'id' => $self->_session_id)] );
 	unless ($resp->is_success) {
@@ -325,12 +325,12 @@ sub get_request {
     $self->throw(-class=>'Bio::WebError::Exception',
 		 -text=>$@,
 		 -value=>$resp->content) if $@;
-	
+
     # "pre-search" successful, return request
 ###  check this post update
-    return POST $self->_search_uri, 
-    ['action Download.x' => 1, 
-     'action Download.y'=>1, 
+    return POST $self->_search_uri,
+    ['action Download.x' => 1,
+     'action Download.y'=>1,
      'id'=>$self->_session_id
     ];
 
@@ -345,7 +345,7 @@ sub get_request {
  Function: process downloaded data before loading into a Bio::SeqIO
  Returns : void
  Args    : hash with two keys - 'type' can be 'string' or 'file'
-                              - 'location' either file location or string 
+                              - 'location' either file location or string
                                            reference containing data
 
 =cut
@@ -366,7 +366,7 @@ sub postprocess_data {
 	    m/file/ && do {
 		local $/;
 		undef $/;
-		open (F, "<", $loc) or 
+		open (F, "<", $loc) or
 		    $self->throw(
 		    -class=>'Bio::Root::FileOpenException',
 		    -text=>"Error opening tempfile \"$loc\" for reading",
@@ -386,7 +386,7 @@ sub postprocess_data {
 	my $l;
 	do {
 	    $l = shift @data;
-	} while  ( $l !~ /Number/ ); # number-returned line
+	} while  ( defined $l && $l !~ /Number/ ); # number-returned line
 	@cols = split( /\t/, shift @data);
 
 	# if Accession column is present, get_Stream_by_acc was called
@@ -395,7 +395,7 @@ sub postprocess_data {
 	$self->throw(-class=>"Bio::ResponseProblem::Exception",
 		     -text=>"Trouble with column headers in LANL response",
 		     -value=>join(' ',@cols)) unless $idkey;
-	
+
  	foreach (@data) {
 	    chop;
 	    @rec{@cols} = split /\t/;
@@ -429,9 +429,9 @@ sub postprocess_data {
  Usage   : my $seqio = $self->get_seq_stream(%qualifiers)
  Function: builds a url and queries a web db
  Returns : a Bio::SeqIO stream capable of producing sequence
- Args    : %qualifiers = a hash qualifiers that the implementing class 
+ Args    : %qualifiers = a hash qualifiers that the implementing class
            will process to make a url suitable for web querying
- Note    : Some tightening up of the baseclass version 
+ Note    : Some tightening up of the baseclass version
 
 =cut
 
@@ -442,10 +442,10 @@ sub get_seq_stream {
     my ($key) = grep /format$/, keys %qualifiers;
     $qualifiers{'-format'} = ($key ? $qualifiers{$key} : $rformat);
     ($rformat, $ioformat) = $self->request_format($qualifiers{'format'});
-    
+
 # web work is here/maj
     my $request = $self->get_request(%qualifiers);
-    
+
 # authorization is here/maj
     $request->proxy_authorization_basic($self->authentication)
 	if ( $self->authentication);
@@ -453,18 +453,18 @@ sub get_seq_stream {
 
 # workaround for MSWin systems (no forking available/maj)
     $self->retrieval_type('io_string') if $self->retrieval_type =~ /pipeline/ && $^O =~ /^MSWin/;
-    
+
     if ($self->retrieval_type =~ /pipeline/) {
 	# Try to create a stream using POSIX fork-and-pipe facility.
 	# this is a *big* win when fetching thousands of sequences from
-	# a web database because we can return the first entry while 
+	# a web database because we can return the first entry while
 	# transmission is still in progress.
 	# Also, no need to keep sequence in memory or in a temporary file.
 	# If this fails (Windows, MacOS 9), we fall back to non-pipelined access.
 
 	# fork and pipe: _stream_request()=><STREAM>
 	my ($result,$stream) = $self->_open_pipe();
-	
+
 	if (defined $result) {
 	    $DB::fork_TTY = File::Spec->devnull; # prevents complaints from debugge
 	    if (!$result) { # in child process
@@ -481,34 +481,34 @@ sub get_seq_stream {
 	    $self->retrieval_type('io_string');
 	}
     }
-    
+
     if ($self->retrieval_type =~ /temp/i) {
 	my $dir = $self->io->tempdir( CLEANUP => 1);
 	my ( $fh, $tmpfile) = $self->io()->tempfile( DIR => $dir );
 	close $fh;
-	my $resp = $self->_request($request, $tmpfile);		
+	my $resp = $self->_request($request, $tmpfile);
 	if( ! -e $tmpfile || -z $tmpfile || ! $resp->is_success() ) {
 	    $self->throw("WebDBSeqI Error - check query sequences!\n");
 	}
-	$self->postprocess_data('type' => 'file','location' => $tmpfile);	
+	$self->postprocess_data('type' => 'file','location' => $tmpfile);
 	# this may get reset when requesting batch mode
 	($rformat,$ioformat) = $self->request_format();
 	if( $self->verbose > 0 ) {
 	    open(my $ERR, "<", $tmpfile);
 	    while(<$ERR>) { $self->debug($_);}
 	}
-	
+
 	return Bio::SeqIO->new('-verbose' => $self->verbose,
 			       '-format' => $ioformat,
 			       '-file'   => $tmpfile);
     }
-    
+
     if ($self->retrieval_type =~ /io_string/i ) {
 	my $resp = $self->_request($request);
 	my $content = $resp->content_ref;
 	$self->debug( "content is $$content\n");
 	if (!$resp->is_success() || length($$content) == 0) {
-	    $self->throw("WebDBSeqI Error - check query sequences!\n");	
+	    $self->throw("WebDBSeqI Error - check query sequences!\n");
 	}
 	($rformat,$ioformat) = $self->request_format();
 	$self->postprocess_data('type'=> 'string',
@@ -518,10 +518,10 @@ sub get_seq_stream {
 			       '-format' => $ioformat,
 			       '-fh'   => new IO::String($$content));
     }
-    
+
     # if we got here, we don't know how to handle the retrieval type
-    $self->throw("retrieval type " . 
-		 $self->retrieval_type . 
+    $self->throw("retrieval type " .
+		 $self->retrieval_type .
 		 " unsupported\n");
 }
 
@@ -548,7 +548,7 @@ sub get_Stream_by_acc {
   Usage   : $stream = $db->get_Stream_by_query($query);
   Function: Gets a series of Seq objects by way of a query string or oject
   Returns : a Bio::SeqIO stream object
-  Args    : $query : Currently, only a Bio::DB::Query::HIVQuery object.  
+  Args    : $query : Currently, only a Bio::DB::Query::HIVQuery object.
             It's a good idea to create the query object first and interrogate
             it for the entry count before you fetch a potentially large stream.
 
@@ -563,13 +563,13 @@ sub get_Stream_by_query {
 sub _request {
 	my ($self, $request,$tmpfile) = @_;
 	my ($resp);
-	
-	if( defined $tmpfile && $tmpfile ne '' ) { 
+
+	if( defined $tmpfile && $tmpfile ne '' ) {
 		$resp =  $self->ua->request($request, $tmpfile);
-	} else { 
-		$resp =  $self->ua->request($request); 
-	} 
-	
+	} else {
+		$resp =  $self->ua->request($request);
+	}
+
 	if( $resp->is_error  ) {
 		$self->throw("WebDBSeqI Request Error:\n".$resp->as_string);
 	}
@@ -583,7 +583,7 @@ sub _request {
  Title   : lanl_base
  Usage   : $obj->lanl_base($newval)
  Function: get/set the base url of the LANL HIV database
- Example : 
+ Example :
  Returns : value of lanl_base (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -601,7 +601,7 @@ sub lanl_base{
  Title   : map_db
  Usage   : $obj->map_db($newval)
  Function: get/set the cgi filename for map_db ("Database Map")
- Example : 
+ Example :
  Returns : value of map_db (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -619,7 +619,7 @@ sub map_db{
  Title   : make_search_if
  Usage   : $obj->make_search_if($newval)
  Function: get/set the cgi filename for make_search_if ("Make Search Interface")
- Example : 
+ Example :
  Returns : value of make_search_if (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -636,9 +636,9 @@ sub make_search_if{
 
  Title   : search_
  Usage   : $obj->search_($newval)
- Function: get/set the cgi filename for the search query page 
+ Function: get/set the cgi filename for the search query page
            ("Search Database")
- Example : 
+ Example :
  Returns : value of search_ (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -666,7 +666,7 @@ sub _map_db_uri{
     my $self = shift;
     return $self->url_base_address."/".$self->map_db;
 }
-  
+
 
 =head2 _make_search_if_uri
 
@@ -705,7 +705,7 @@ sub _search_uri{
  Title   : _session_id
  Usage   : $obj->_session_id($newval)
  Function: Contains HIV db session id (initialized in _do_lanl_request)
- Example : 
+ Example :
  Returns : value of _session_id (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -723,7 +723,7 @@ sub _session_id{
  Title   : _response
  Usage   : $obj->_response($newval)
  Function: hold the response to search post
- Example : 
+ Example :
  Returns : value of _response (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -742,7 +742,7 @@ sub _response{
  Usage   : $hiv->_sorry
  Function: Throws an exception for unsupported option or parameter
  Example :
- Returns : 
+ Returns :
  Args    : scalar string
 
 =cut

@@ -10,9 +10,9 @@ use_ok( 'Bio::Tree::Tree' );
 use_ok( 'Bio::TreeIO' );
 use_ok('Bio::TreeIO::nexml'); # checks that your module is there and loads ok
 
-
+diag("WARNING: NeXML parsing for NeXML v0.9 is currently very experimental support");
 #Read in Data
-ok( my $TreeStream = Bio::TreeIO->new(-file => test_input_file('trees.nexml.xml'), -format => 'nexml') );
+ok( my $TreeStream = Bio::TreeIO->new(-file => test_input_file('nexml','trees.nexml.xml'), -format => 'nexml') );
 
 	#checking first tree object
 	ok( my $tree_obj = $TreeStream->next_tree(), 'tree obj read' );

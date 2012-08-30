@@ -13,24 +13,21 @@
 
 =head1 NAME
 
-Bio::Seq::SeqFastaSpeedFactory - Instantiates a new Bio::PrimarySeqI (or derived class) through a factory
+Bio::Seq::SeqFastaSpeedFactory - Rapid creation of Bio::Seq objects through a factory
 
 =head1 SYNOPSIS
 
     use Bio::Seq::SeqFastaSpeedFactory;
     my $factory = Bio::Seq::SeqFastaSpeedFactory->new();
-    my $seq = $factory->create(-seq => 'WYRAVLC',
-			       -id  => 'name');
-
-    # If you want the factory to create Bio::Seq objects instead
-    # of the default Bio::PrimarySeq objects, use the -type parameter:
-
-    my $factory = Bio::Seq::SeqFastaSpeedFactory->new(-type => 'Bio::Seq');
-
+    my $seq = $factory->create( -seq => 'WYRAVLC',
+                                -id  => 'name'     );
 
 =head1 DESCRIPTION
 
-This object will build Bio::Seq objects generically.
+This factory was designed to build Bio::Seq objects as quickly as possible, but
+is not as generic as L<Bio::Seq::SeqFactory>. It can be used to create sequences
+from non-rich file formats. The L<Bio::SeqIO::fasta> sequence parser uses this
+factory.
 
 =head1 FEEDBACK
 
@@ -60,7 +57,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -91,8 +88,7 @@ use base qw(Bio::Root::Root Bio::Factory::SequenceFactoryI);
  Usage   : my $obj = Bio::Seq::SeqFastaSpeedFactory->new();
  Function: Builds a new Bio::Seq::SeqFastaSpeedFactory object 
  Returns : Bio::Seq::SeqFastaSpeedFactory
- Args    : -type => string, name of a PrimarySeqI derived class
-                    This is optional. Default=Bio::PrimarySeq.
+ Args    : None
 
 =cut
 
@@ -109,12 +105,14 @@ sub new {
  Usage   : my $seq = $seqbuilder->create(-seq => 'CAGT', -id => 'name');
  Function: Instantiates a new Bio::Seq object, correctly built but very
            fast, knowing stuff about Bio::PrimarySeq and Bio::Seq
- Returns : Bio::Seq
-
- Args    : initialization parameters specific to the type of sequence
-           object we want.  Typically 
-           -seq        => $str,
-           -id         => $name
+ Returns : A Bio::Seq object
+ Args    : Initialization parameters for the sequence object we want:
+              -id
+              -primary_id
+              -display_id
+              -desc
+              -seq
+              -alphabet
 
 =cut
 
@@ -129,15 +127,15 @@ sub create {
     my $id       = defined $param{'-id'} ? $param{'-id'} : $param{'-primary_id'};
     my $alphabet = $param{'-alphabet'};
 
-    my $seq = bless {}, "Bio::Seq";
-    my $t_pseq = $seq->{'primary_seq'} = bless {}, "Bio::PrimarySeq";
+    my $seq = bless {}, 'Bio::Seq';
+    my $t_pseq = $seq->{'primary_seq'} = bless {}, 'Bio::PrimarySeq';
     $t_pseq->{'seq'}  = $sequence;
     $t_pseq->{'desc'} = $fulldesc;
     $t_pseq->{'display_id'} = $id;
     $t_pseq->{'primary_id'} = $id;
     $seq->{'primary_id'} = $id; # currently Bio::Seq does not delegate this
     if( $sequence and !$alphabet ) {
-	$t_pseq->_guess_alphabet();
+        $t_pseq->_guess_alphabet();
     } elsif ( $sequence and $alphabet ) {
         $t_pseq->{'alphabet'} = $alphabet;
     }

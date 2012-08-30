@@ -85,7 +85,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Dan Kortschak
 
@@ -123,7 +123,7 @@ BEGIN {
 # check requirements
     eval "require Bio::Tools::Run::Bowtie; \$HAVE_BOWTIE = 1";
     unless ( eval "require IO::Uncompress::Gunzip; \$HAVE_IO_UNCOMPRESS = 1") {
-	Bio::Root::Root->warn("IO::Uncompress::Gunzip is not available; you'll have to do your decompression by hand.");
+        Bio::Root::Root->warn("IO::Uncompress::Gunzip is not available; you'll have to do your decompression by hand.");
     }
 }
 
@@ -145,188 +145,188 @@ BEGIN {
 =cut
 
 sub new {
-	my $class = shift;
-	my @args = @_;
-	my $self = $class->SUPER::new(@args);
-	$self->_initialize(@args);
-	$self->{'_tempdir'} = $self->tempdir(CLEANUP=>1);
-	my ($file, $index, $no_head, $no_sq) = $self->_rearrange([qw(FILE INDEX NO_HEAD NO_SQ)], @args);
-	$file =~ s/^<//;
-	$self->{'_no_head'} = $no_head;
-	$self->{'_no_sq'} = $no_sq;
+    my $class = shift;
+    my @args = @_;
+    my $self = $class->SUPER::new(@args);
+    $self->_initialize(@args);
+    $self->{'_tempdir'} = $self->tempdir(CLEANUP=>1);
+    my ($file, $index, $no_head, $no_sq) = $self->_rearrange([qw(FILE INDEX NO_HEAD NO_SQ)], @args);
+    $file =~ s/^<//;
+    $self->{'_no_head'} = $no_head;
+    $self->{'_no_sq'} = $no_sq;
 
-	# get the sequence so Bio::DB::Sam can work with it
-        my $refdb;
-        my $inspector;
-	if (-e $index && -r _ ) {
-		$refdb = ($index =~ m/\.gz[^.]*$/) ? $self->_uncompress($index) : $index;
-		my $guesser = Bio::Tools::GuessSeqFormat->new(-file=>$refdb);
-		$self->throw("'$index' is not a fasta file.")
-			unless $guesser->guess =~ m/^fasta$/;
-	} elsif ($HAVE_BOWTIE) {
-		$inspector = Bio::Tools::Run::Bowtie->new( -command => 'inspect' );
-		$refdb = $inspector->run($index);
-	} else {
-		$self->throw("Bio::Tools::Run::Bowtie is not available - cannot extract refdb from index.");
-	}
+    # get the sequence so Bio::DB::Sam can work with it
+    my $refdb;
+    my $inspector;
+    if (-e $index && -r _ ) {
+        $refdb = ($index =~ m/\.gz[^.]*$/) ? $self->_uncompress($index) : $index;
+        my $guesser = Bio::Tools::GuessSeqFormat->new(-file=>$refdb);
+        $self->throw("'$index' is not a fasta file.")
+            unless $guesser->guess =~ m/^fasta$/;
+    } elsif ($HAVE_BOWTIE) {
+        $inspector = Bio::Tools::Run::Bowtie->new( -command => 'inspect' );
+        $refdb = $inspector->run($index);
+    } else {
+        $self->throw("Bio::Tools::Run::Bowtie is not available - cannot extract refdb from index.");
+    }
 
-	my $bam_file = $self->_make_bam($self->_bowtie_to_sam($file, $refdb));
-	my $sam = Bio::Assembly::IO->new( -file => "<$bam_file", -refdb => $refdb , -format => 'sam' );
+    my $bam_file = $self->_make_bam($self->_bowtie_to_sam($file, $refdb));
+    my $sam = Bio::Assembly::IO->new( -file => "<$bam_file", -refdb => $refdb , -format => 'sam' );
 
-	return $sam;
+    return $sam;
 }
 
 sub _bowtie_to_sam {
-	my ($self, $file, $refdb) = @_;
+    my ($self, $file, $refdb) = @_;
 
-	$self->throw("'$file' does not exist or is not readable.")
-		unless ( -e $file && -r _ );
+    $self->throw("'$file' does not exist or is not readable.")
+        unless ( -e $file && -r _ );
 
-	if ($file =~ m/\.gz[^.]*$/) {
-		$file = $self->_uncompress($file);
-		$self->close;
-		open (my $fh,$file);
-		$self->file($file);
-		$self->_fh($fh);
-	}
+    if ($file =~ m/\.gz[^.]*$/) {
+        $file = $self->_uncompress($file);
+        $self->close;
+        open (my $fh,$file);
+        $self->file($file);
+        $self->_fh($fh);
+    }
 
-	my $guesser = Bio::Tools::GuessSeqFormat->new(-file=>$file);
-	$self->throw("'$file' is not a bowtie formatted file.") unless $guesser->guess =~ m/^bowtie$/;
+    my $guesser = Bio::Tools::GuessSeqFormat->new(-file=>$file);
+    $self->throw("'$file' is not a bowtie formatted file.") unless $guesser->guess =~ m/^bowtie$/;
 
-	my %SQ;
-	my $mapq = 255;
-	my $in_pair;
-	my @mate_line;
-	my $mlen;
+    my %SQ;
+    my $mapq = 255;
+    my $in_pair;
+    my @mate_line;
+    my $mlen;
 
-	# create temp file for working
-	my ($sam_tmp_h, $sam_tmp_f) = $self->tempfile( -dir => $self->{'_tempdir'}, -suffix => '.sam' );
-	
-	while (my $line = $self->_readline) {
-		chomp($line);
-		my ($qname,$strand,$rname,$pos,$seq,$qual,$m,$details)=split("\cI",$line);
-		$SQ{$rname} = 1;
-		
-		my $paired_f =  ($qname =~ m#/[12]#) ? 0x03 : 0;
-		my $strand_f = ($strand eq '-') ? 0x10 : 0;
-		my $op_strand_f = ($strand eq '+' && $paired_f) ? 0x20 : 0;
-		my $first_f =  ($qname =~ m#/1#) ? 0x40 : 0;
-		my $second_f = ($qname =~ m#/2#) ? 0x80 : 0;
-		my $flag = $paired_f | $strand_f | $op_strand_f | $first_f | $second_f;
+    # create temp file for working
+    my ($sam_tmp_h, $sam_tmp_f) = $self->tempfile( -dir => $self->{'_tempdir'}, -suffix => '.sam' );
+    
+    while (my $line = $self->_readline) {
+        chomp($line);
+        my ($qname,$strand,$rname,$pos,$seq,$qual,$m,$details)=split("\cI",$line);
+        $SQ{$rname} = 1;
+        
+        my $paired_f =  ($qname =~ m#/[12]#) ? 0x03 : 0;
+        my $strand_f = ($strand eq '-') ? 0x10 : 0;
+        my $op_strand_f = ($strand eq '+' && $paired_f) ? 0x20 : 0;
+        my $first_f =  ($qname =~ m#/1#) ? 0x40 : 0;
+        my $second_f = ($qname =~ m#/2#) ? 0x80 : 0;
+        my $flag = $paired_f | $strand_f | $op_strand_f | $first_f | $second_f;
 
-		$pos++;
-		my $len = length $seq;
-		die unless $len == length $qual;
-		my $cigar = $len.'M';
-		my @detail = split(',',$details);
-		my $dist = 'NM:i:'.scalar @detail;
-		
-		my @mismatch;
-		my $last_pos = 0;
-		for (@detail) {
-			m/(\d+):(\w)>\w/;
-			my $err = ($1-$last_pos);
-			$last_pos = $1+1;
-			push @mismatch,($err,$2);
-		}
-		push @mismatch, $len-$last_pos;
-		@mismatch = reverse @mismatch if $strand eq '-';
-		my $mismatch = join('',('MD:Z:',@mismatch));
+        $pos++;
+        my $len = length $seq;
+        die unless $len == length $qual;
+        my $cigar = $len.'M';
+        my @detail = split(',',$details);
+        my $dist = 'NM:i:'.scalar @detail;
 
-		if ($paired_f) {
-			my $mrnm = '=';
-			if ($in_pair) {
-				my $mpos = $mate_line[3];
-				$mate_line[7] = $pos;
-				my $isize = $mpos-$pos-$len;
-				$mate_line[8] = -$isize;
-				print $sam_tmp_h join("\t",@mate_line),"\n";
-				print $sam_tmp_h join("\t",$qname, $flag, $rname, $pos, $mapq, $cigar, $mrnm, $mpos, $isize, $seq, $qual, $mismatch, $dist),"\n";
-				$in_pair = 0;
-			} else {
-				$mlen = $len;
-				@mate_line = ($qname, $flag, $rname, $pos, $mapq, $cigar, $mrnm, undef, undef, $seq, $qual, $mismatch, $dist);
-				$in_pair = 1;
-			}
-		} else {
-			my $mrnm = '*';
-			my $mpos = 0;
-			my $isize = 0;
-			print $sam_tmp_h join("\t",$qname, $flag, $rname, $pos, $mapq, $cigar, $mrnm, $mpos, $isize, $seq, $qual, $mismatch, $dist),"\n";
-		}
-	}
+        my @mismatch;
+        my $last_pos = 0;
+        for (@detail) {
+            m/(\d+):(\w)>\w/;
+            my $err = ($1-$last_pos);
+            $last_pos = $1+1;
+            push @mismatch,($err,$2);
+        }
+        push @mismatch, $len-$last_pos;
+        @mismatch = reverse @mismatch if $strand eq '-';
+        my $mismatch = join('',('MD:Z:',@mismatch));
 
-	$sam_tmp_h->close;
-	
-	return $sam_tmp_f if $self->{'_no_head'};
+        if ($paired_f) {
+            my $mrnm = '=';
+            if ($in_pair) {
+                my $mpos = $mate_line[3];
+                $mate_line[7] = $pos;
+                my $isize = $mpos-$pos-$len;
+                $mate_line[8] = -$isize;
+                print $sam_tmp_h join("\t",@mate_line),"\n";
+                print $sam_tmp_h join("\t",$qname, $flag, $rname, $pos, $mapq, $cigar, $mrnm, $mpos, $isize, $seq, $qual, $mismatch, $dist),"\n";
+                $in_pair = 0;
+            } else {
+                $mlen = $len;
+                @mate_line = ($qname, $flag, $rname, $pos, $mapq, $cigar, $mrnm, undef, undef, $seq, $qual, $mismatch, $dist);
+                $in_pair = 1;
+            }
+        } else {
+            my $mrnm = '*';
+            my $mpos = 0;
+            my $isize = 0;
+            print $sam_tmp_h join("\t",$qname, $flag, $rname, $pos, $mapq, $cigar, $mrnm, $mpos, $isize, $seq, $qual, $mismatch, $dist),"\n";
+        }
+    }
 
-	my ($samh, $samf) = $self->tempfile( -dir => $self->{'_tempdir'}, -suffix => '.sam' );
+    $sam_tmp_h->close;
 
-	# print header
-	print $samh $HD;
-	
-	# print sequence dictionary
-	unless ($self->{'_no_sq'}) {
-		my $db  = Bio::SeqIO->new( -file => $refdb, -format => 'fasta' );
-		while ( my $seq = $db->next_seq() ) {
-			$SQ{$seq->id} = $seq->length if $SQ{$seq->id};
-		}
-	
-		map { print $samh join("\t", ('@SQ', "SN:$_", "LN:$SQ{$_}")), "\n" } keys %SQ;
-	}
-	
-	# print program
-	print $samh $PG;
-	
-	# print alignments
-	open($sam_tmp_h, $sam_tmp_f) or
-		$self->throw("Can not open '$sam_tmp_f' for reading: $!");
+    return $sam_tmp_f if $self->{'_no_head'};
 
-	print $samh $_ while (<$sam_tmp_h>);
-	
-	close($sam_tmp_h);
-	$samh->close;
-	
-	return $samf;
+    my ($samh, $samf) = $self->tempfile( -dir => $self->{'_tempdir'}, -suffix => '.sam' );
+
+    # print header
+    print $samh $HD;
+
+    # print sequence dictionary
+    unless ($self->{'_no_sq'}) {
+        my $db  = Bio::SeqIO->new( -file => $refdb, -format => 'fasta' );
+        while ( my $seq = $db->next_seq() ) {
+            $SQ{$seq->id} = $seq->length if $SQ{$seq->id};
+        }
+    
+        map { print $samh join("\t", ('@SQ', "SN:$_", "LN:$SQ{$_}")), "\n" } keys %SQ;
+    }
+    
+    # print program
+    print $samh $PG;
+    
+    # print alignments
+    open($sam_tmp_h, $sam_tmp_f) or
+        $self->throw("Can not open '$sam_tmp_f' for reading: $!");
+
+    print $samh $_ while (<$sam_tmp_h>);
+    
+    close($sam_tmp_h);
+    $samh->close;
+    
+    return $samf;
 }
 
 sub _uncompress {
-	my ($self, $file) = @_;
+    my ($self, $file) = @_;
 
-	unless ($HAVE_IO_UNCOMPRESS) {
-		croak( "IO::Uncompress::Gunzip not available, can't expand '$file'" );
-	}
-	my ($tfh, $tf) = $self->tempfile( -dir => $self->{'_tempdir'} );
-	my $z = IO::Uncompress::Gunzip->new($file);
-	while (my $block = $z->getline) { print $tfh $block }
-	close $tfh;
-	$file = $tf;
+    unless ($HAVE_IO_UNCOMPRESS) {
+        croak( "IO::Uncompress::Gunzip not available, can't expand '$file'" );
+    }
+    my ($tfh, $tf) = $self->tempfile( -dir => $self->{'_tempdir'} );
+    my $z = IO::Uncompress::Gunzip->new($file);
+    while (my $block = $z->getline) { print $tfh $block }
+    close $tfh;
+    $file = $tf;
 
-	return $file
+    return $file
 }
 
 sub _make_bam {
-	my ($self, $file) = @_;
-	
-	$self->throw("'$file' does not exist or is not readable")
-		unless ( -e $file && -r _ );
+    my ($self, $file) = @_;
+    
+    $self->throw("'$file' does not exist or is not readable")
+        unless ( -e $file && -r _ );
 
-	# make a sorted bam file from a sam file input
-	my ($bamh, $bamf) = $self->tempfile( -dir => $self->{'_tempdir'}, -suffix => '.bam' );
-	my ($srth, $srtf) = $self->tempfile( -dir => $self->{'_tempdir'}, -suffix => '.srt' );
-	$_->close for ($bamh, $srth);
-	
-	my $samt = Bio::Tools::Run::Samtools->new( -command => 'view',
-						   -sam_input => 1,
-						   -bam_output => 1 );
+    # make a sorted bam file from a sam file input
+    my ($bamh, $bamf) = $self->tempfile( -dir => $self->{'_tempdir'}, -suffix => '.bam' );
+    my ($srth, $srtf) = $self->tempfile( -dir => $self->{'_tempdir'}, -suffix => '.srt' );
+    $_->close for ($bamh, $srth);
+    
+    my $samt = Bio::Tools::Run::Samtools->new( -command => 'view',
+                                               -sam_input => 1,
+                                               -bam_output => 1 );
 
-	$samt->run( -bam => $file, -out => $bamf );
+    $samt->run( -bam => $file, -out => $bamf );
 
-	$samt = Bio::Tools::Run::Samtools->new( -command => 'sort' );
+    $samt = Bio::Tools::Run::Samtools->new( -command => 'sort' );
 
-	$samt->run( -bam => $bamf, -pfx => $srtf);
+    $samt->run( -bam => $bamf, -pfx => $srtf);
 
-	return $srtf.'.bam'
+    return $srtf.'.bam'
 }
 
 1;

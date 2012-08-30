@@ -95,7 +95,7 @@ with code and data examples if at all possible.
  the bugs and their resolution.
  Bug reports can be submitted via the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head2 Things Still to Do
 
@@ -516,7 +516,7 @@ sub STRIP {
            hash reference, those specific tags will be ignored.
 
            Skipping some or all tags and features can result in
-           noticable speed improvements.
+           noticeable speed improvements.
 
    -nodata If true, then <Seq-data> will not be included.  This may be
            useful if you just want annotations and do not care about

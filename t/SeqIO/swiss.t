@@ -7,10 +7,12 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 240);
+    test_begin(-tests => 247);
 	
     use_ok('Bio::SeqIO::swiss');
 }
+
+use Bio::Annotation::SimpleValue;
 
 my $verbose = test_debug();
 
@@ -395,3 +397,91 @@ while (my $seq = $seqio->next_seq) {
 		'Acetobacter;Acetobacteraceae;Rhodospirillales;Alphaproteobacteria;'.
 		'Proteobacteria;Bacteria');
 }
+
+# Test for roundtrippability swiss->fasta->swiss
+# 1. Swiss -> Fasta
+$seqio = Bio::SeqIO->new(
+    -verbose => $verbose,
+    -format  => 'swiss',
+    -file    => test_input_file('test.swiss'),
+);
+my $fasta_output = test_output_file();
+my $seqio_out = Bio::SeqIO->new(
+    -verbose => $verbose,
+    -format  => 'fasta',
+    -file    => ">$fasta_output",
+);
+
+my $seq_first = $seqio->next_seq();
+$seqio_out->write_seq( $seq_first );
+
+# 2. Fasta -> Swiss
+my $swiss_output = test_output_file();
+$seqio = Bio::SeqIO->new(
+    -verbose => $verbose,
+    -format  => 'fasta',
+    -file    => $fasta_output,
+);
+$seqio_out = Bio::SeqIO->new(
+    -verbose => $verbose,
+    -format  => 'swiss',
+    -file    => ">$swiss_output",
+);
+my $seq_second = $seqio->next_seq();
+is( $seq_second->id,  $seq_first->id,  'Converting to fasta seqids match');
+is( $seq_second->seq, $seq_first->seq, 'Converting to fasta sequences match');
+$seqio_out->write_seq( $seq_second );
+
+# 3. Check that we can open and read the resulting swiss-prot file
+
+$seqio = Bio::SeqIO->new(
+    -verbose => $verbose,
+    -format  => 'swiss',
+    -file    => $swiss_output,
+);
+my $seq_third;
+SKIP: {
+    skip "Can't parse generated swissprot file", 1
+        unless lives_ok( sub {$seq_third = $seqio->next_seq()}, 'Can parse generated swiss' );
+    is( $seq_third->id,  $seq_first->id,  'Roundtrip, seqids match');
+    is( $seq_third->seq, $seq_first->seq, 'Roundtrip, sequences match');
+};
+
+# bug 3153
+
+# the default type for gene_name is Bio::Annotation::TagTree, but we need to
+# allow Bio::Annotation::SimpleValue as well for output (even though we will not
+# support parsing it)
+
+$seqio = Bio::SeqIO->new(-format => 'swiss',
+                         -file =>  test_input_file('test.swiss'));
+
+$seq = $seqio->next_seq;
+
+$seq->annotation->remove_Annotations('gene_name');
+
+$seq->add_Annotation('gene_name',
+        Bio::Annotation::SimpleValue->new(-name   => 'foo', -value  => 'bar'));
+
+$outfile = test_output_file();
+
+my $seqout = Bio::SeqIO->new(-format => 'swiss',
+                             -file   => ">$outfile");
+
+lives_ok {$seqout->write_seq($seq)};
+
+$seqout->close;
+
+open(my $swissfh, '<', $outfile) || die "Can't open $outfile: $!";
+
+my $seen_gn;
+while (<$swissfh>) {
+    if (/^GN\s+(\S+)/) {
+        $seen_gn = $1;
+        last
+    }
+}
+
+close $swissfh;
+
+is $seen_gn, 'bar';

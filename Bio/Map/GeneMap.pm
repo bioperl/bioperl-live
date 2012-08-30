@@ -105,7 +105,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Sendu Bala
 
@@ -188,7 +188,7 @@ sub new {
  Title   : get
  Usage   : my $map = Bio::Map::GeneMap->get();
  Function: Builds a new Bio::Map::GeneMap object (like new()), or gets a
-           pre-existing one that corresponds to your arguements.
+           pre-existing one that corresponds to your arguments.
  Returns : Bio::Map::GeneMap
  Args    : -gene        => string name of the gene this map will be for
                            (in a form common to all species that have the gene,

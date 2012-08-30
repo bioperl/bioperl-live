@@ -100,7 +100,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Ewan Birney
 
@@ -131,6 +131,8 @@ use Bio::Annotation::DBLink;
 
 use base qw(Bio::SeqIO);
 
+# Note that a qualifier that exceeds one line (i.e. a long label) will
+# automatically be quoted regardless:
 %FTQUAL_NO_QUOTE=(
                   'anticodon'=>1,
                   'citation'=>1,
@@ -213,26 +215,26 @@ sub next_seq {
         # ID   DQ299383; SV 1; linear; mRNA; STD; MAM; 431 BP.
         # This regexp comes from the new2old.pl conversion script, from EBI
         if ($line =~ m/^ID   (\w+);\s+SV (\d+); (\w+); ([^;]+); (\w{3}); (\w{3}); (\d+) BP./) {
-        ($name, $sv, $topology, $mol, $div) = ($1, $2, $3, $4, $6);
+            ($name, $sv, $topology, $mol, $div) = ($1, $2, $3, $4, $6);
         }
-        if (defined($sv)) {
-        $params{'-seq_version'} = $sv;
-        $params{'-version'} = $sv;
+        if (defined $sv) {
+            $params{'-seq_version'} = $sv;
+            $params{'-version'} = $sv;
         }
 
-        if ($topology eq "circular") {
-        $params{'-is_circular'} = 1;
+        if (defined $topology && $topology eq 'circular') {
+            $params{'-is_circular'} = 1;
         }
     
-    if (defined $mol ) {
-        if ($mol =~ /DNA/) {
-        $alphabet='dna';
-        } elsif ($mol =~ /RNA/) {
-        $alphabet='rna';
-        } elsif ($mol =~ /AA/) {
-        $alphabet='protein';
+        if (defined $mol ) {
+            if ($mol =~ /DNA/) {
+                $alphabet = 'dna';
+            } elsif ($mol =~ /RNA/) {
+                $alphabet = 'rna';
+            } elsif ($mol =~ /AA/) {
+                $alphabet = 'protein';
+            }
         }
-    }
     } else {
     
         # Old style header (EMBL Release < 87, before June 2006)
@@ -265,6 +267,7 @@ sub next_seq {
     my $buffer = $line;
     local $_;
     BEFORE_FEATURE_TABLE :
+          my $ncbi_taxid;
           until ( !defined $buffer ) {
               $_ = $buffer;
               # Exit at start of Feature table
@@ -337,6 +340,10 @@ sub next_seq {
 
               # NCBI TaxID Xref
               elsif (/^OX/) {
+                  if (/NCBI_TaxID=(\d+)/) {
+                      $ncbi_taxid=$1;
+                  }
+
                   my @links = $self->_read_EMBL_TaxID_DBLink(\$buffer);
                   foreach my $dblink ( @links ) {
                       $annotation->add_Annotation('dblink',$dblink);
@@ -397,6 +404,9 @@ sub next_seq {
                 $ftunit->_generic_seqfeature($self->location_factory(), $name);
 
             # add taxon_id from source if available
+            # Notice, this will override what is found in the OX line.
+            # this is by design as this seems to be the official way
+            # of specifying a TaxID
             if ($params{'-species'} && ($feat->primary_tag eq 'source')
                 && $feat->has_tag('db_xref')
                 && (! $params{'-species'}->ncbi_taxid())) {
@@ -416,6 +426,12 @@ sub next_seq {
             }
         }
     }
+    # Set taxid found in OX line
+    if ($params{'-species'} && defined $ncbi_taxid
+        && (! $params{'-species'}->ncbi_taxid())) {
+        $params{'-species'}->ncbi_taxid($ncbi_taxid);
+    }
+
     # skip comments
     while ( defined ($buffer) && $buffer =~ /^XX/ ) {
         $buffer = $self->_readline();
@@ -489,11 +505,11 @@ sub _write_ID_line {
 
         # The sequence name is supposed to be the primary accession number,
         my $name = $seq->accession_number();
-        if (!$name) {
-            # but if it is not present, use the sequence ID.
-            $name = $seq->id();
+        if ( not(defined $name) || $name eq 'unknown') {
+            # but if it is not present, use the sequence ID or the empty string
+            $name = $seq->id() || '';
         }
-
+ 
         $self->warn("No whitespace allowed in EMBL id [". $name. "]") if $name =~ /\s/;
 
         # Use the sequence version, or default to 1.
@@ -725,6 +741,10 @@ sub write_seq {
             if ($spec->organelle) {
                 $self->_write_line_EMBL_regex("OG   ","OG   ",$spec->organelle,'; |$',80) || return;
             }
+            my $ncbi_taxid = $spec->ncbi_taxid;
+            if ($ncbi_taxid) {
+                $self->_print("OX   NCBI_TaxID=$ncbi_taxid\n") || return;
+            }
             $self->_print("XX\n") || return;
         }
         # Reference lines
@@ -946,7 +966,9 @@ sub _print_EMBL_FTHelper {
             }
             # there are almost 3x more quoted qualifier values and they
             # are more common too so we take quoted ones first
-            elsif (!$FTQUAL_NO_QUOTE{$tag}) {
+            #
+            # Long qualifiers, that will be line wrapped, are always quoted
+            elsif (!$FTQUAL_NO_QUOTE{$tag} or length("/$tag=$value")>=60) {
                 my $pat = $value =~ /\s/ ? '\s|\-|$' : '.|\-|$';
                 $self->_write_line_EMBL_regex("FT                   ",
                                               "FT                   ",
@@ -1149,9 +1171,12 @@ sub _read_EMBL_Species {
     foreach my $i (0..$#class) {
         my $name = $class[$i];
         $names{$name}++;
-        if ($names{$name} > 1 && $name ne $class[$i - 1]) {
-            $self->throw("$acc seems to have an invalid species classification.");
-        }
+        # this code breaks examples like: Xenopus (Silurana) tropicalis
+        # commenting out, see bug 3158
+        
+        #if ($names{$name} > 1 && ($name ne $class[$i - 1])) {
+        #    $self->warn("$acc seems to have an invalid species classification:$name ne $class[$i - 1]");
+        #}
     }
     my $make = Bio::Species->new();
     $make->scientific_name($sci_name);

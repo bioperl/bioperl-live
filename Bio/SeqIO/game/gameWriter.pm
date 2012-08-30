@@ -65,7 +65,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Sheldon McKay
 
@@ -177,7 +177,7 @@ sub write_to_game {
     # $self->_rearrange_hierarchies($seq, @gene_containers);
 
     # add back nested feats
-    $seq->add_SeqFeature( @nested_feats  );
+    $seq->add_SeqFeature( $_ ) foreach @nested_feats;
     
     my $atts  = {};
     my $xml = '';
@@ -295,7 +295,7 @@ sub _rearrange_hierarchies { #renamed to not conflict with Bio::Root::_rearrange
     }    
    
     push @addback, (@containers, grep { defined $_ } @genes );
-    $seq->add_SeqFeature(@addback);
+    $seq->add_SeqFeature($_) foreach @addback;
 }
 
 

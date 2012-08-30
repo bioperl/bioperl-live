@@ -36,7 +36,7 @@ be the first class in the inheretence list, _initialise_storable()
 should be called during object instantiation.
 
 Object storage is recursive; If the object being stored contains other
-storable objects, these will be stored seperately, and replaced by a
+storable objects, these will be stored separately, and replaced by a
 skeleton object in the parent heirarchy. When the parent is later
 retrieved, its children remain in the skeleton state until explicitly
 retrieved by the parent. This lazy-retrieve approach has obvious
@@ -80,7 +80,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Will Spooner
 
@@ -377,7 +377,7 @@ sub store{
               This is useful for those that do not serialise too well
               (e.g. filehandles).
               Attributes are examined for other storable objects. If these
-              are found they are serialised seperately using 'new_retrievable'
+              are found they are serialised separately using 'new_retrievable'
   Returntype: string
   Exceptions: 
   Caller    : 

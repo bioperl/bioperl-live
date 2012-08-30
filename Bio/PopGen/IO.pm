@@ -16,10 +16,10 @@
 Bio::PopGen::IO - Input individual,marker,allele information
 
 =head1 SYNOPSIS
-
+ 
   use Bio::PopGen::IO;
   my $io = Bio::PopGen::IO->new(-format => 'csv',
-                               -file   => 'data.csv');
+                                -file   => 'data.csv');
 
   # Some IO might support reading in a population at a time
 
@@ -66,7 +66,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -125,6 +125,20 @@ sub new {
     return "Bio::PopGen::IO::${format}"->new(@args);
   }
 }
+
+
+=head2 format
+
+ Title   : format
+ Usage   : $format = $stream->format()
+ Function: Get the PopGen format
+ Returns : PopGen format
+ Args    : none
+
+=cut
+
+# format() method inherited from Bio::Root::IO
+
 
 # _initialize is chained for all PopGen::IO classes
 

@@ -35,7 +35,7 @@ via HTTP
 
   my $factory = Bio::Tools::Run::RemoteBlast->new(@params);
 
-  #change a query paramter
+  #change a query parameter
   $Bio::Tools::Run::RemoteBlast::HEADER{'ENTREZ_QUERY'} = 'Homo sapiens [ORGN]';
 
   #change a retrieval parameter
@@ -133,7 +133,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.bioperl.org
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR 
 
@@ -188,7 +188,7 @@ our %PUTPARAMS = (
     'ENTREZ_QUERY'      => '.*',
     'EXPECT'    => '\d+(\.\d+)?([eE]-\d+)?',    # Positive double
     'FILTER'    => '[LRm]',                     # L or R or m
-    'GAPCOSTS'  => '-?\d+(\.\d+)\s+i-?\d+(\.\d+)',
+    'GAPCOSTS'  => '-?\d+(\.\d+)\s+-?\d+(\.\d+)',
                                     # Two space separated float values
     'GENETIC_CODE'      => '([1-9]|1[1-6]|2(1|2))',     # 1..16,21,22
     'HITLIST_SIZE'      => '\d+',                       # Positive integer

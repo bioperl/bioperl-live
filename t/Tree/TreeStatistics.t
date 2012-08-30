@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 40);
+    test_begin(-tests => 42);
 
     use_ok('Bio::TreeIO');
     use_ok('Bio::Tree::Statistics');
@@ -16,7 +16,7 @@ BEGIN {
 
 use Data::Dumper;
 my $in = Bio::TreeIO->new(-format => 'nexus',
-			  -file   => test_input_file('traittree.nexus'));
+                          -file   => test_input_file('traittree.nexus'));
 my $tree = $in->next_tree;
 my $node = $tree->find_node(-id => 'N14');
 
@@ -26,8 +26,14 @@ is $stats->cherries($tree), 8, 'cherries';
 is $stats->cherries($tree, $node), 4, 'cherries';
 
 # traits
-my $key = $tree->add_trait(test_input_file('traits.tab'), 3);
-is ($key, 'intermediate', 'read traits');
+my $key = $tree->add_trait(test_input_file('traits.tab'), 4);
+is $key, undef, 'read traits'; # exceeded column number
+
+$key = $tree->add_trait(test_input_file('traits.tab'), 2, 1);
+is $key, 'disp'; # one leaf has a missing trait value, but ignore it
+
+$key = $tree->add_trait(test_input_file('traits.tab'), 3);
+is $key, 'intermediate';
 
 is $stats->ps($tree, $key), 4, 'parsimony score';
 is $stats->ps($tree, $key, $node), 1, 'subtree parsimony score';

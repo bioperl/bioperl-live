@@ -50,11 +50,15 @@ There are all sorts of nasty gotcha's about interactions between coordinate
 systems when these sort of objects are used. Some mapping now occurs to deal
 with HSP data, however it can probably be integrated in better and most methods
 do not implement it correctly yet. Also, several PrimarySeqI methods (subseq(),
-trunc(), etc.) do not behave as expected and must be used with care.
+trunc(), etc.) do not behave as expected and must be used with care. Due to this,
+LocatableSeq functionality is to be refactored in a future BioPerl release.
+However, for alignment functionality it works adequately for the time being.
 
-Due to this, LocatableSeq functionality is to be refactored in a future BioPerl
-release. However, for alignment functionality it works adequately for the time
-being
+If you do not need alignment functionality, L<Bio::SeqfeatureI>-implementing
+modules may be a suitable alternative to L<Bio::LocatableSeq>. For example,
+L<Bio::SeqFeature::Generic> and L<Bio::SeqFeature::Lite> provide methods to
+attach a sequence to a specific region of a parent sequence and to set other
+useful attributes.
 
 =head1 FEEDBACK
 
@@ -84,7 +88,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 APPENDIX
 

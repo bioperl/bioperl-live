@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 49 );
+    test_begin( -tests => 51 );
 
     use_ok('Bio::SearchIO');
 }
@@ -77,7 +77,7 @@ while ( my $r = $searchio->next_result ) {
 
 # bug 2346
 
-my @cts = (7, 1);
+my @cts = (7, 1, 7);
 
 $searchio = Bio::SearchIO->new(
    -format => 'exonerate',
@@ -88,6 +88,12 @@ parse($searchio);
 $searchio = Bio::SearchIO->new(
    -format => 'exonerate',
    -file   => test_input_file('exonerate.output.dontwork'),
+);
+parse($searchio);
+
+$searchio = Bio::SearchIO->new(
+   -format => 'exonerate',
+   -file   => test_input_file('exonerate.whitespace_before_query.works'),
 );
 parse($searchio);
 

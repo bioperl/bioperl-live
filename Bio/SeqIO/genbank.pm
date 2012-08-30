@@ -86,7 +86,7 @@ stores this information.
 
 Items listed as Annotation 'NAME' tell you the data is stored the
 associated Bio::AnnotationCollectionI object which is associated with
-Bio::Seq objects.  If it is explictly requested that no annotations
+Bio::Seq objects.  If it is explicitly requested that no annotations
 should be stored when parsing a record of course they will not be
 available when you try and get them.  If you are having this problem
 look at the type of SeqBuilder that is being used to contruct your
@@ -146,7 +146,7 @@ with code and data examples if at all possible.
 Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Bioperl Project
 

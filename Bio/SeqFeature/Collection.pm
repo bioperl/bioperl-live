@@ -68,9 +68,9 @@ provided by the DB_File interface to the Berkeley DB.
 
 This is based on work done by Lincoln for storage in a mysql instance
 - this is intended to be an embedded in-memory implementation for
-easily quering for subsets of a large range set.
+easily querying for subsets of a large range set.
 
-Collections can be made persistant by keeping the indexfile and
+Collections can be made persistent by keeping the indexfile and
 passing in the -keep flag like this:
 
   my $collection = Bio::SeqFeature::Collection->new(-keep => 1,
@@ -113,7 +113,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -525,10 +525,26 @@ sub _compare{
 
 sub feature_freeze {
     my $obj = shift;
-    for my $funcref ( $obj->_cleanup_methods ) {
-	$obj->_unregister_for_cleanup($funcref);
-    }
+    _remove_cleanup_methods($obj);
     return freeze($obj);
+}
+
+sub _remove_cleanup_methods {
+    my $obj = shift;
+    
+    # we have to remove any cleanup methods here for Storable
+    for my $funcref ( $obj->_cleanup_methods ) {
+        $obj->_unregister_for_cleanup($funcref);
+    }
+    
+    # ... and the same for any contained features; hopefully any implementations
+    # adhere to implementing Bio::SeqFeatureI::sub_SeqFeature
+    
+    for my $contained ($obj->sub_SeqFeature) {
+        _remove_cleanup_methods($contained);
+    }
+    
+    1;
 }
 
 sub feature_thaw {

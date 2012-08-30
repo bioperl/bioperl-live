@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::DB::SeqVersion::gi
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Brian Osborne
 #
@@ -37,20 +37,20 @@ the Sequence Revision page itself.
 
 =head1 DESCRIPTION
 
-All sequence entries at GenBank are identified by a pair of 
-identifiers, an accession and a numeric identifier, and this number is 
+All sequence entries at GenBank are identified by a pair of
+identifiers, an accession and a numeric identifier, and this number is
 frequently called a GI number (B<G>enInfo B<I>dentifier). The accession
-is stable, but each new version of the sequence entry for the accession 
+is stable, but each new version of the sequence entry for the accession
 receives a new GI number (see L<http://www.ncbi.nlm.nih.gov/Sitemap/sequenceIDs.html>
 for more information on GenBank identifiers). One accession
 can have one or more GI numbers and the highest of these is the most recent,
 or "live", GI.
 
 Information on an accession and its associated GI numbers is available at
-the Sequence Revision History page at NCBI, 
+the Sequence Revision History page at NCBI,
 L<http://www.ncbi.nlm.nih.gov/entrez/sutils/girevhist.cgi>, this information is
-not available in file format. This module queries the Web page and retrieves GI 
-numbers and related data given an accession (e.g. NP_111111, A11111, P12345) or 
+not available in file format. This module queries the Web page and retrieves GI
+numbers and related data given an accession (e.g. NP_111111, A11111, P12345) or
 a GI number (e.g. 2, 11111111) as query.
 
 =head1 FEEDBACK
@@ -64,15 +64,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -81,7 +81,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Brian Osborne
 
@@ -102,13 +102,13 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::SeqVersion::gi;
 use strict;
-
+use HTML::TableExtract;
 use base qw(Bio::DB::SeqVersion);
 
 # Private class variables
 
-my $CGIBASE = 'http://www.ncbi.nlm.nih.gov';
-my $CGIARGS = '/entrez/sutils/girevhist.cgi?val=';
+# TODO: this may be an unstable setting (text is actually minimal XHTML)
+my $URL = 'http://www.ncbi.nlm.nih.gov/nuccore/%s?report=girevhist&format=text';
 
 =head2 new
 
@@ -120,10 +120,10 @@ my $CGIARGS = '/entrez/sutils/girevhist.cgi?val=';
 =cut
 
 sub new {
-	my ($class, @args) = @_;
-	my $self = $class->SUPER::new(@args);
-	$self->_initialize;
-	return $self;
+    my ( $class, @args ) = @_;
+    my $self = $class->SUPER::new(@args);
+    $self->_initialize;
+    return $self;
 }
 
 =head2 get_all
@@ -137,14 +137,15 @@ sub new {
 =cut
 
 sub get_all {
-	my ($self,$id) = @_;
-	my (@arr,$ref);
-	$id eq $self->{_last_id} ? $ref = $self->{_last_result}
-	  : $ref = $self->get_history($id);		
-	for my $row (@{$ref}) {
-		push @arr,$$row[0];
-	}
-	@arr;
+    my ( $self, $id ) = @_;
+    my ( @arr, $ref );
+    $id eq $self->{_last_id}
+      ? $ref = $self->{_last_result}
+      : $ref = $self->get_history($id);
+    for my $row ( @{$ref} ) {
+        push @arr, $$row[0];
+    }
+    @arr;
 }
 
 =head2 get_recent
@@ -158,11 +159,31 @@ sub get_all {
 =cut
 
 sub get_recent {
-	my ($self,$id) = @_;
-	my $ref;
-	$id eq $self->{_last_id} ? $ref = $self->{_last_result}
-	  : $ref = $self->get_history($id);		
-	$ref->[0]->[0];
+    my ( $self, $id ) = @_;
+    my $ref;
+    $id eq $self->{_last_id}
+      ? $ref = $self->{_last_result}
+      : $ref = $self->get_history($id);
+    $ref->[0]->[0];
+}
+
+=head2 get_status
+
+ Title   : get_status
+ Usage   : my $newest_gi = $q->get_status(2)
+ Function: Get most recent GI given a single GI
+ Returns : String
+ Args    : A single GI number (string)
+
+=cut
+
+sub get_status {
+    my ( $self, $id ) = @_;
+    $self->throw("Must pass an ID") if !defined $id;
+    if ($id ne $self->{_last_id} ) {
+        $self->get_history($id);
+    }
+    $self->{_last_status};
 }
 
 =head2 get_history
@@ -170,14 +191,13 @@ sub get_recent {
  Title   : get_history
  Usage   : my $ref = $query_obj->get_history()
  Function: Queries the NCBI Revision page, gets the data from the HTML table
- Returns : Reference to an array of arrays where element 0 refers to the most 
-           recent version and the last element refers to the oldest version. 
+ Returns : Reference to an array of arrays where element 0 refers to the most
+           recent version and the last element refers to the oldest version.
            In the second dimension the elements are:
 
            0      GI number
            1      Version
            2      Update Date
-           3      Status
 
            For example, to get the GI number of the first version:
 
@@ -188,20 +208,25 @@ sub get_recent {
            $ref->[0]->[2]
 
  Args    : One identifier (string)
+ Note    : Status of the GI was returned here previously as the last element in
+           the row of elemnts above; however the status is currently only
+           returned for the GI requested (e.g. a single value).  One can get
+           the status for this using the get_status() method above
 
 =cut
 
 sub get_history {
-	my ($self,$id) = @_;
-	my $html = $self->_get_request($id);
-	my $ref = $self->_process_data($html);
-	# store the very last result in case some other methods
-	# are called using the same identifier
-	$self->{_last_result} = $ref;
-	$self->{_last_id} = $id;
-	$ref;
-}
+    my ( $self, $id ) = @_;
+    my $html = $self->_get_request($id);
+    my ( $ref, $status ) = $self->_process_data($html);
 
+    # store the very last result in case some other methods
+    # are called using the same identifier
+    $self->{_last_result} = $ref;
+    $self->{_last_id}     = $id;
+    $self->{_last_status} = $status;
+    $ref;
+}
 
 =head2 _get_request
 
@@ -214,18 +239,18 @@ sub get_history {
 =cut
 
 sub _get_request {
-  my ($self,$id) = @_;
+    my ( $self, $id ) = @_;
 
-  $self->throw("Must specify a single id to query") if  (!$id || ref($id));
+    $self->throw("Must specify a single id to query") if ( !defined($id) || ref($id) );
 
-  my $url = $CGIBASE . $CGIARGS . $id;
-  my $response = $self->get( $url );
-  if ( not $response->is_success ) {
-    $self->warn("Can't query $url: ".$response->status_line."\n");
-    return;
-  }
-  $self->debug("Response is:\n",$response->content,"\n"); 
-  return $response->content;
+    my $url = sprintf( $URL, $id );
+    my $response = $self->get($url);
+    if ( not $response->is_success ) {
+        $self->throw( "Can't query $url: "
+              . $response->status_line . "\n"
+              . "ID likely does not exist" );
+    }
+    return $response->content;
 }
 
 =head2 _process_data
@@ -239,22 +264,27 @@ sub _get_request {
 =cut
 
 sub _process_data {
-         my ($self,$html) = @_;    
-         my @table = ();
-	 my $count = 0;
-	 my ($table) = $html =~ /Revision \s+ history \s+ for \s+ .+? (<table.+)/sx;
-	 $self->throw("Could not parse 'Revision history' HTML table") if not defined $table;
-	 my (@rows) = $table =~ /<tr>(.+?)<\/tr>/g;
-	 shift @rows; # get rid of header
-	 for my $row (@rows) {
-		 my (@arr) = $row =~ />([^<>]+)/g;
-		 $table[$count] = \@arr;
-		 $count++;
-	 }
-	 \@table;
+    my ( $self, $html ) = @_;
+
+    # Only one status is returned (not one per revision).  Setting once
+    my $status;
+    if ($html =~ /<div class="status">Current status:\s+(\S+)<\/div>/) {
+        $status = $1;
+    } else {
+        $self->warn("No current status found, setting to 'unknown'");
+        $status = 'unknown';
+    }
+
+    my $te = HTML::TableExtract->new(
+        headers => ['Gi', 'Version', 'Update Date'] ,
+        depth   => 0);
+    $te->parse($html);
+    my $table = $te->first_table_found;
+    $self->throw("No table found") unless defined $table;
+    my $t = [$table->rows];
+    ($t, $status);
 }
 
 1;
 
 __END__
-

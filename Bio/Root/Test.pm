@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::Root::Test
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Sendu Bala <bix@sendu.me.uk>
 #
@@ -26,8 +26,9 @@ Bio::Root::Test - A common base for all Bioperl test scripts.
 
   my $do_network_tests = test_network();
   my $output_debugging = test_debug();
-
-  # carry out tests with Test::More, Test::Exception and Test::Warn syntax
+  
+  # Bio::Root::Test rewraps Test::Most, so one can carry out tests with
+  # Test::More, Test::Exception, Test::Warn, Test::Deep, Test::Diff syntax
 
   SKIP: {
     # these tests need version 2.6 of Optional::Module to work
@@ -59,10 +60,11 @@ Bio::Root::Test - A common base for all Bioperl test scripts.
 =head1 DESCRIPTION
 
 This provides a common base for all BioPerl test scripts. It safely handles the
-loading of Test::More, Test::Exception and Test::Warn (actually, a subclass
-compatible with Bioperl warnings) prior to tests being run. It also presents an
-interface to common needs such as skipping all tests if required modules aren't
-present or if network tests haven't been enabled. See test_begin().
+loading of Test::Most, itself a simple wrapper around several highly used test
+modules: Test::More, Test::Exception, Test::Warn, Test::Deep, and Test::Diff. It
+also presents an interface to common needs such as skipping all tests if
+required modules aren't present or if network tests haven't been enabled. See
+test_begin().
 
 In the same way, it allows you to skip just a subset of tests for those same
 reasons, in addition to requiring certain executables and environment variables.
@@ -86,15 +88,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -103,11 +105,15 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Sendu Bala
 
 Email bix@sendu.me.uk
+
+=head1 CONTRIBUTORS
+
+Chris Fields  cjfields at bioperl dot org
 
 =head1 APPENDIX
 
@@ -121,74 +127,88 @@ package Bio::Root::Test;
 use strict;
 use warnings;
 
+# According to Ovid, 'use base' can override signal handling, so use
+# old-fashioned way. This should be a Test::Builder::Module subclass
+# for consistency (as are any Test modules)
+use Test::Most;
+use Test::Builder;
+use Test::Builder::Module;
 use File::Temp qw(tempdir);
 use File::Spec;
-use Exporter qw(import);
 
-BEGIN {
-    # For prototyping reasons, we have to load Test::More's methods now, even
-    # though theoretically in future the user may use a different Test framework
+our @ISA = qw(Test::Builder::Module);
+
+# TODO: Evil magic ahead; can we clean this up?
+
+{
+    my $Tester = Test::Builder->new;
     
-    # We want to load Test::More, Test::Exception and Test::Warn. Preferably the
-    # users own versions, but if they don't have them, the ones in t/lib.
-    # However, this module is in t/lib so t/lib is already in @INC so Test::* in
-    # t/lib will be used first, which we don't want: get rid of t/lib in @INC
-    no lib 't/lib';
-    eval { require Test::More;
-           require Test::Exception;
-           require Test::Warn; };
-    if ($@) {
-        eval "use lib 't/lib';";
+    no warnings 'redefine';
+    sub Test::Warn::_canonical_got_warning {
+        my ($called_from, $msg) = @_;
+        my $warn_kind = $called_from eq 'Carp' ? 'carped' : ($called_from =~ /Bio::/ ? 'Bioperl' : 'warn');
+        
+        my $warning;
+        if ($warn_kind eq 'Bioperl') {
+            ($warning) = $msg =~ /\n--------------------- WARNING ---------------------\nMSG: (.+)\n---------------------------------------------------\n$/m;
+            $warning ||= $msg; # shouldn't ever happen
+        }
+        else {
+            my @warning_stack = split /\n/, $msg;   # some stuff of uplevel is included
+            $warning = $warning_stack[0];
+        }
+        
+        return {$warn_kind => $warning}; # return only the real message
     }
-    eval "use Test::More;
-          use Test::Exception;";
-    die "$@\n" if $@;
     
-    # now that the users' Test::Warn has been loaded if they had it, we can
-    # use Bio::Root::TestWarn
-    eval "use Bio::Root::Test::Warn;";
-    die "$@\n" if $@;
+    sub Test::Warn::_diag_found_warning {
+        foreach (@_) {
+            if (ref($_) eq 'HASH') {
+                ${$_}{carped} ? $Tester->diag("found carped warning: ${$_}{carped}")
+                              : (${$_}{Bioperl} ? $Tester->diag("found Bioperl warning: ${$_}{Bioperl}")
+                                 : $Tester->diag("found warning: ${$_}{warn}"));
+            } else {
+                $Tester->diag( "found warning: $_" );
+            }
+        }
+        $Tester->diag( "didn't find a warning" ) unless @_;
+    }
+    
+    sub Test::Warn::_cmp_got_to_exp_warning {
+        my ($got_kind, $got_msg) = %{ shift() };
+        my ($exp_kind, $exp_msg) = %{ shift() };
+        return 0 if ($got_kind eq 'warn') && ($exp_kind eq 'carped');
+        
+        my $cmp;
+        if ($got_kind eq 'Bioperl') {
+            $cmp = $got_msg =~ /^\Q$exp_msg\E$/;
+        }
+        else {
+            $cmp = $got_msg =~ /^\Q$exp_msg\E at \S+ line \d+\.?$/;
+        }
+        
+        return $cmp;
+    }
 }
 
-# re-export Test::More, Test::Exception and Test::Warn methods and export our own
-our @EXPORT = qw(ok use_ok require_ok
-                 is isnt like unlike is_deeply
-                 cmp_ok
-                 skip todo todo_skip
-                 pass fail
-                 eq_array eq_hash eq_set
-                 $TODO
-                 plan
-                 can_ok isa_ok
-                 diag
-                 BAIL_OUT
-                 
-                 dies_ok
-                 lives_ok
-                 throws_ok
-                 lives_and
-                 
-                 warning_is
-                 warnings_are
-                 warning_like
-                 warnings_like
-                 
-                 test_begin
-                 test_skip
-                 test_output_file
-                 test_output_dir
-                 test_input_file
-                 test_network
-                 test_email
-                 test_debug
-                 float_is
-                 );
+our @EXPORT = (@Test::Most::EXPORT,
+               #@Bio::Root::Test::Warn::EXPORT,
+               # Test::Warn method wrappers
+               
+               # BioPerl-specific
+               qw(
+                test_begin
+                test_skip
+                test_output_file
+                test_output_dir
+                test_input_file
+                test_network
+                test_email
+                test_debug
+                float_is
+             ));
 
-if (Test::More->can('done_testing')) {
-    push @EXPORT, 'done_testing';
-}
-
-our $GLOBAL_FRAMEWORK = 'Test::More';
+our $GLOBAL_FRAMEWORK = 'Test::Most';
 our @TEMP_FILES;
 
 =head2 test_begin
@@ -217,9 +237,9 @@ our @TEMP_FILES;
            -excludes_os         => str (default none, if OS suppied, all tests
                                         will skip if running on that OS (eg.
                                         'mswin'))
-           -framework           => str (default 'Test::More', the Test module
+           -framework           => str (default 'Test::Most', the Test module
                                         to load. NB: experimental, avoid using)
-           
+
            Note, supplying -tests => 0 is possible, allowing you to skip all
            tests in the case that a test script is testing deprecated modules
            that have yet to be removed from the distribution
@@ -229,11 +249,11 @@ our @TEMP_FILES;
 sub test_begin {
     my ($skip_all, $tests, $framework) = _skip(@_);
     $GLOBAL_FRAMEWORK = $framework;
-    
-    if ($framework eq 'Test::More') {
-        # ideally we'd delay loading Test::More until this point, but see BEGIN
+
+    if ($framework eq 'Test::Most') {
+        # ideally we'd delay loading Test::Most until this point, but see BEGIN
         # block
-        
+
         if ($skip_all) {
             eval "plan skip_all => '$skip_all';";
         }
@@ -243,14 +263,14 @@ sub test_begin {
         elsif ($tests) {
             eval "plan tests => $tests;";
         }
-        
+
         return 1;
     }
     # go ahead and add support for other frameworks here
     else {
-        die "Only Test::More is supported at the current time\n";
+        die "Only Test::Most is supported at the current time\n";
     }
-    
+
     return 0;
 }
 
@@ -260,7 +280,6 @@ sub test_begin {
  Usage   : SKIP: {
                    test_skip(-tests => 10,
                              -requires_module => 'Optional::Module 2.01');
-
                    # 10 tests that need v2.01 of Optional::Module
            }
  Function: Skip a subset of tests for one of several common reasons: missing one
@@ -298,15 +317,15 @@ sub test_begin {
 sub test_skip {
     my ($skip, $tests, $framework) = _skip(@_);
     $tests || die "-tests must be a number greater than 0";
-    
-    if ($framework eq 'Test::More') {
+
+    if ($framework eq 'Test::Most') {
         if ($skip) {
             eval "skip('$skip', $tests);";
         }
     }
     # go ahead and add support for other frameworks here
     else {
-        die "Only Test::More is supported at the current time\n";
+        die "Only Test::Most is supported at the current time\n";
     }
 }
 
@@ -323,7 +342,7 @@ sub test_skip {
 
 sub test_output_file {
     die "test_output_file takes no args\n" if @_;
-    
+
     # RT 48813
     my $tmp = File::Temp->new();
     push(@TEMP_FILES, $tmp);
@@ -346,7 +365,7 @@ sub test_output_file {
 
 sub test_output_dir {
     die "test_output_dir takes no args\n" if @_;
-    
+
     return tempdir(CLEANUP => 1);
 }
 
@@ -439,12 +458,12 @@ sub float_is ($$;$) {
 # decide if should skip and generate skip message
 sub _skip {
     my %args = @_;
-    
+
     # handle input strictly
     my $tests = $args{'-tests'};
     #(defined $tests && $tests =~ /^\d+$/) || die "-tests must be supplied and be an int\n";
     delete $args{'-tests'};
-    
+
     my $req_mods = $args{'-requires_modules'};
     delete $args{'-requires_modules'};
     my @req_mods;
@@ -458,51 +477,51 @@ sub _skip {
         ref($req_mod) && die "-requires_module takes a string\n";
         push(@req_mods, $req_mod);
     }
-    
+
     my $req_net = $args{'-requires_networking'};
     delete $args{'-requires_networking'};
-    
+
     my $req_email = $args{'-requires_email'};
     delete $args{'-requires_email'};
-    
+
     my $req_env = $args{'-requires_env'};
     delete $args{'-requires_env'};
 
     # strip any leading $ in case someone passes $FOO instead of 'FOO'
-    $req_env =~ s{^\$}{} if $req_env; 
+    $req_env =~ s{^\$}{} if $req_env;
 
     my $req_exe = $args{'-requires_executable'};
     delete $args{'-requires_executable'};
-    
+
     if ($req_exe && (!ref($req_exe) || !$req_exe->isa('Bio::Tools::Run::WrapperBase'))) {
         die "-requires_exe takes an argument of type Bio::Tools::Run::WrapperBase";
     }
-    
+
     my $os = $args{'-excludes_os'};
     delete $args{'-excludes_os'};
-    
+
     my $framework = $args{'-framework'} || $GLOBAL_FRAMEWORK;
     delete $args{'-framework'};
-    
+
     # catch user mistakes
     while (my ($key, $val) = each %args) {
         die "unknown argument '$key' supplied, did you mistake 'required...' for 'requires...'?\n";
     }
-    
+
     # test user requirments and return
     if ($os) {
         if ($^O =~ /$os/i) {
             return ('Not compatible with your Operating System', $tests, $framework);
         }
     }
-    
+
     foreach my $mod (@req_mods) {
         my $skip = _check_module($mod);
         if ($skip) {
-            return ($skip, $tests, $framework); 
+            return ($skip, $tests, $framework);
         }
     }
-    
+
     if ($req_net && ! test_network()) {
         return ('Network tests have not been requested', $tests, $framework);
     }
@@ -511,32 +530,35 @@ sub _skip {
         return ('Valid email not provided; required for tests', $tests, $framework);
     }
 
-    if ($req_exe && !$req_exe->executable) {
-        my $msg = 'Required executable for '.ref($req_exe).' is not present';
-        diag($msg);
-        return ($msg, $tests, $framework);
+    if ($req_exe) {
+        eval {$req_exe->executable};
+        if ($@) {
+            my $msg = 'Required executable for '.ref($req_exe).' is not present';
+            diag($msg);
+            return ($msg, $tests, $framework);
+        }
     }
-    
+
     if ($req_env && !exists $ENV{$req_env}) {
         my $msg = 'Required environment variable $'.$req_env. ' is not set';
         diag($msg);
         return ($msg, $tests, $framework);
     }
-    
+
     return ('', $tests, $framework);
 }
 
 sub _check_module {
     my $mod = shift;
-    
+
     my $desired_version;
     if ($mod =~ /(\S+)\s+(\S+)/) {
         $mod = $1;
         $desired_version = $2;
     }
-    
+
     eval "require $mod;";
-    
+
     if ($@) {
 	if ($@ =~ /Can't locate/) {
 	    return "The optional module $mod (or dependencies thereof) was not installed";
@@ -554,8 +576,8 @@ sub _check_module {
             return "The optional module $mod was out of date (wanted v$desired_version)";
         }
     }
-    
+
     return;
 }
- 
+
 1;

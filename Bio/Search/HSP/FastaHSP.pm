@@ -61,7 +61,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -99,9 +99,11 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
   
-  my ($swscore) = $self->_rearrange([qw(SWSCORE)], @args);
+  my ($swscore, $evalue2) = $self->_rearrange([qw(SWSCORE EVALUE2)], @args);
 
   defined $swscore && $self->sw_score($swscore);
+
+  defined $evalue2 && $self->evalue2($evalue2);
 
   return $self;
 }
@@ -125,6 +127,26 @@ sub sw_score{
 	$self->{'_sw_score'} = $value;
     }
     return $self->{'_sw_score'};
+}
+
+=head2 evalue2
+
+ Title   : evalue2
+ Usage   : $obj->evalue2($newval)
+ Function: Get/Set E2() expectation value
+ Returns : value of evalue2
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub evalue2{
+    my ($self,$value) = @_;
+    if( defined $value || ! defined $self->{'_evalue2'} ) {
+	$value = 0 unless defined $value; # default value
+	$self->{'_evalue2'} = $value;
+    }
+    return $self->{'_evalue2'};
 }
 
 

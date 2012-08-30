@@ -69,6 +69,5 @@
 \bBioPerl-[\d\.\_]+
 
 # Avoid additional run-time generated things
-t/LocalDB/SeqFeature_SQLite.t
-bioperl.lisp
-t/LocalDB/SeqFeature_BDB.t
+bioperl\.lisp
+SeqFeature_(BDB|SQLite|Pg|mysql)\.t

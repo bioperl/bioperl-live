@@ -93,7 +93,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Torsten Seemann
 
@@ -190,19 +190,46 @@ sub next_feature {
   return $feat;
 }
 
-=head2 write_feature (NOT IMPLEMENTED)
+=head2 write_feature
 
  Title   : write_feature
  Usage   : $io->write_feature($feature)
- Function: write a Bio::SeqFeatureI object in PTT format
+ Function: write a Bio::SeqFeature object in PTT format with no header
  Example : 
- Args    : Bio::SeqFeatureI object
+ Args    : Bio::SeqFeature object
  Returns : 
 
 =cut
 
 sub write_feature {
-  shift->throw_not_implemented;
+  my($self,$feat) = @_;
+
+  # Example, with header:
+  # Location  Strand  Length  PID Gene  Synonym Code  COG Product
+  # 190..255  + 21  16763391  thrL  STM0001 - - thr operon leader peptide
+
+  $self->throw("Only Bio::SeqFeature::Generic or Bio::SeqFeature::Annotated objects are writeable") 
+  unless ( $feat->isa('Bio::SeqFeature::Generic') || $feat->isa('Bio::SeqFeature::Annotated') );
+
+  # Default
+  my ($len,$pid,$gene,$synonym,$code,$cog,$product) = qw(- - - - - - -);
+
+  my $start = $feat->start;
+  my $end   = $feat->end;
+  my $loc   = "$start..$end";
+
+  my $strand = $feat->strand == 1 ? '+' : '-';
+
+  $len = int(($end - $start)/3);
+
+  $product = join ' ',$feat->get_tag_values("product")     if ($feat->has_tag("product"));
+  $pid     = join ' ',$feat->get_tag_values("protein_id")  if ($feat->has_tag("protein_id"));
+  $code    = join ' ',$feat->get_tag_values("codon_start") if ($feat->has_tag("codon_start"));
+
+  $self->_print(join("\t",($loc,$strand,$len,$pid,$gene,$synonym,$code,$cog,$product)) . "\n");
+
+  $self->write_feature($_) foreach $feat->get_SeqFeatures();
+
 }
 
 =head2 description

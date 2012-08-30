@@ -147,7 +147,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Aaron Mackey, Jason Stajich
 
@@ -210,7 +210,7 @@ BEGIN {
  Title   : new
  Usage   : $gb = Bio::DB::GenBank->new(@options)
  Function: Creates a new genbank handle
- Returns : New genbank handle
+ Returns : a new Bio::DB::Genbank object
  Args    : -delay   number of seconds to delay between fetches (3s)
 
 NOTE:  There are other options that are used internally.  By NCBI policy, this

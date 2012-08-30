@@ -54,7 +54,7 @@ Bio::DB::EMBL - Database object interface for EMBL entry retrieval
 
 Allows the dynamic retrieval of sequence objects L<Bio::Seq> from the
 EMBL database using the dbfetch script at EBI:
-L<http://www.ebi.ac.uk/cgi-bin/dbfetch>.
+L<http://www.ebi.ac.uk/Tools/dbfetch/dbfetch>.
 
 In order to make changes transparent we have host type (currently only
 ebi) and location (defaults to ebi) separated out.  This allows later
@@ -91,7 +91,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Heikki Lehvaslaiho
 
@@ -119,7 +119,7 @@ BEGIN {
     # you can add your own here theoretically.
     %HOSTS = (
 	       'dbfetch' => {
-		   baseurl => 'http://%s/cgi-bin/dbfetch?db=embl&style=raw',
+		   baseurl => 'http://%s/Tools/dbfetch/dbfetch?db=embl&style=raw',
 		   hosts   => {
 		       'ebi'  => 'www.ebi.ac.uk'
 		       }

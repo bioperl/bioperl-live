@@ -62,7 +62,7 @@ Bio::SeqFeature::AnnotationAdaptor - integrates SeqFeatureIs annotation
                                                   -tagname => "some tag");
    $anncoll->add_Annotation($tagval);
    # this is now also available from the feature's tag/value system
-   my @vals = $feat->each_tag_value("some tag");
+   my @vals = $feat->get_tag_values("some tag");
 
 =head1 DESCRIPTION
 
@@ -124,7 +124,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Hilmar Lapp
 
@@ -336,7 +336,7 @@ sub get_num_of_annotations{
   my $num_anns = 0;
 
   foreach ($self->feature()->all_tags()) {
-	$num_anns += scalar( $self->feature()->each_tag_value($_));
+	$num_anns += scalar( $self->feature()->get_tag_values($_));
   }
 
   # add from the annotation implementation if any

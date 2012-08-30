@@ -1,5 +1,4 @@
 # -*-Perl-*- Test Harness script for Bioperl
-# $Id$
 
 use strict;
 use warnings;
@@ -7,14 +6,17 @@ use warnings;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    
-    test_begin(-tests => 67);
-	
+
+    test_begin(-tests => 77);
+
     use_ok('Bio::Root::IO');
+    use_ok('Bio::SeqIO');
+    use_ok('Bio::Assembly::IO');
 }
 
 my $obj = Bio::Root::IO->new();
 ok defined($obj) && $obj->isa('Bio::Root::IO');
+
 
 #############################################
 # tests for exceptions/debugging/verbosity
@@ -42,9 +44,11 @@ is $verbobj->verbose(), 1, 'set verbosity to 1';
 
 ok $obj->verbose(-1);
 
+
 #############################################
 # tests for finding executables
 #############################################
+
 ok(my $io = Bio::Root::IO->new());
 # An executable file
 my $test_file = 'test_file.txt';
@@ -99,17 +103,15 @@ is $wio->_fh, $O;
 is $wio->mode, 'w', 'handle, write';
 
 SKIP: {
-    my $warn;
-    local $SIG{__WARN__} = sub { $warn = shift };
     my $tempfile = eval { require File::Temp; File::Temp->new }
-	or skip 'could not create File::Temp object, maybe your File::Temp is 10 years old', 3;
-    my $temp_io;
-    ok $temp_io = Bio::Root::IO->new( -fh => $tempfile );
+       or skip 'could not create File::Temp object, maybe your File::Temp is 10 years old', 3;
+
+    my $temp_io = Bio::Root::IO->new( -fh => $tempfile );
+    isa_ok($temp_io, 'Bio::Root::IO');
     is $temp_io->mode, 'w', 'is a write handle';
-    # wish i could just use Test::Warn.  but then there's ... THE DEPENDENCY HOBGOBLIN! (TM)
-    $temp_io->close;
-    ok !$warn, 'no warnings';
+    warnings_like sub { $temp_io->close }, '', 'no warnings in ->close call';
 }
+
 
 ##############################################
 # tests _pushback for multi-line buffering
@@ -120,8 +122,8 @@ my $rio1 =
 my $line1 = $rio->_readline;
 my $line2 = $rio->_readline;
 
-ok $rio->_pushback($line1);
 ok $rio->_pushback($line2);
+ok $rio->_pushback($line1);
 
 my $line3 = $rio->_readline;
 my $line4 = $rio->_readline;
@@ -133,6 +135,7 @@ isnt $line5, $line4;
 
 ok close($I);
 ok close($O);
+
 
 ##############################################
 # test _print and _insert
@@ -175,6 +178,7 @@ for (1..5) {
 
 }
 
+
 ##############################################
 # test Win vs UNIX line ending using PerlIO::eol
 ##############################################
@@ -187,6 +191,19 @@ SKIP: {
     for (1..5) {
         is($unix_rio->_readline, $win_rio->_readline);
     }
+}
+
+
+##############################################
+# test Path::Class support
+##############################################
+
+SKIP: {
+    test_skip(-tests => 2, -requires_module => 'Path::Class');
+
+    my $f = sub { Bio::Root::IO->new( -file => Path::Class::file(test_input_file('U71225.gb.unix') ) ) };
+    lives_ok(sub { $f->() } , 'Bio::Root::IO->new can handle a Path::Class object');
+    isa_ok($f->(), 'Bio::Root::IO');
 }
 
 
@@ -204,6 +221,7 @@ SKIP: {
   $Bio::Root::IO::HAS_LWP = 0;
   lives_ok {$rio = Bio::Root::IO->new(-url=>$TESTURL)};
 }
+
 
 ##############################################
 # test -string
@@ -223,3 +241,30 @@ $line3 = $rio->_readline;
 is($line3, "Bar\n");
 $line3 = $rio->_readline;
 is($line3, "Baz");
+
+
+##############################################
+# test format() and variant()
+##############################################
+
+my $in = Bio::SeqIO->new(
+   -file    => test_input_file('bug2901.fa'),
+   -format  => "fasta",
+);
+is $in->format, 'fasta';
+is $in->variant, undef;
+
+$in = Bio::SeqIO->new(
+   -file    => test_input_file('fastq', 'illumina_faked.fastq'),
+   -format  => "fastq",
+   -variant => 'illumina',
+);
+is $in->format, 'fastq';
+is $in->variant, 'illumina';
+
+$in = Bio::Assembly::IO->new(
+   -file   => test_input_file('assembly_with_singlets.ace'),
+);
+is $in->format, 'ace';
+is $in->variant, 'consed';
+
