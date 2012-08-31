@@ -6,9 +6,9 @@ use strict;
 BEGIN {
 	use lib '.';
     use Bio::Root::Test;
-    
+
     test_begin(-tests => 16);
-	
+
 	use_ok('Bio::AlignIO::phylip');
 }
 
@@ -16,12 +16,49 @@ my $DEBUG = test_debug();
 
 my ($str,$aln,$strout,$status);
 
+# PHYLIP sequential/non-interleaved
+$strout = Bio::AlignIO->new('-file'  => test_input_file('noninterleaved.phy'), '-interleaved' => 0,
+			    '-format' => 'phylip');
+$aln = $strout->next_aln($aln);
+isa_ok($aln,'Bio::Align::AlignI');
+is($aln->get_seq_by_pos(2)->seq(), 'CCTCAGATCACTCTTTGGCAACGACCCCTCGTCACAATAA'.
+   'AGGTAGGGGGGCAACTAAAGGAAGCTCTATTAGATACAGGAGCAGATGATACAGTATTAGAAGACATGAATT'.
+   'TGCCAGGAAGATGGAAACCAAAAATGATAGGGGGAATTGGAGGGTTTATCAAAGTAAGACAGTATGATCAGA'.
+   'TACCCATAGAGATCTGTGGACATAAAGCTATAGGTACAGTATTAGTAGGACCCACACCTGTCAATATAATTG'.
+   'GAAGAAATCTGTTGACTCAGATTGGTTGCACTTTAAATTTT' );
+
+# PHYLIP interleaved with long Ids
+
+$str = Bio::AlignIO->new(
+    '-file' => test_input_file("protpars_longid.phy"),
+    '-format' => 'phylip',
+    'longid' => 1);
+
+$aln = $str->next_aln();
+isa_ok($str,'Bio::AlignIO');
+isa_ok($aln,'Bio::Align::AlignI');
+is $aln->get_seq_by_pos(1)->get_nse, 'S I N F R U  P 0 0 1 /1-84';
+is $aln->get_seq_by_pos(2)->get_nse, 'SINFRUP002/1-84';
+
+# PHYLIP interleaved, multiple segments
+$str = Bio::AlignIO->new(
+    '-file' => test_input_file("protpars.phy"),
+    '-format' => 'phylip');
+
+$aln = $str->next_aln();
+isa_ok($str,'Bio::AlignIO');
+isa_ok($aln,'Bio::Align::AlignI');
+is $aln->get_seq_by_pos(1)->get_nse, 'SINFRUP001/1-4940';
+# is $aln->get_seq_by_pos(2)->get_nse, 'SINFRUP002/1-84';
+
+
 # PHYLIP interleaved
+
 $str = Bio::AlignIO->new(
     '-file' => test_input_file("testaln.phylip"),
     '-format' => 'phylip');
-isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
+isa_ok($str,'Bio::AlignIO');
 isa_ok($aln,'Bio::Align::AlignI');
 is $aln->get_seq_by_pos(1)->get_nse, 'Homo_sapie/1-45';
 
@@ -44,27 +81,4 @@ TODO: {
     is($ls->strand,0);
     is($ls->length,47);
 }
-
-# PHYLIP sequential/non-interleaved
-$strout = Bio::AlignIO->new('-file'  => test_input_file('noninterleaved.phy'),
-			    '-format' => 'phylip');
-$aln = $strout->next_aln($aln);
-isa_ok($aln,'Bio::Align::AlignI');
-is($aln->get_seq_by_pos(2)->seq(), 'CCTCAGATCACTCTTTGGCAACGACCCCTCGTCACAATAA'.
-   'AGGTAGGGGGGCAACTAAAGGAAGCTCTATTAGATACAGGAGCAGATGATACAGTATTAGAAGACATGAATT'.
-   'TGCCAGGAAGATGGAAACCAAAAATGATAGGGGGAATTGGAGGGTTTATCAAAGTAAGACAGTATGATCAGA'.
-   'TACCCATAGAGATCTGTGGACATAAAGCTATAGGTACAGTATTAGTAGGACCCACACCTGTCAATATAATTG'.
-   'GAAGAAATCTGTTGACTCAGATTGGTTGCACTTTAAATTTT' );
-
-# PHYLIP interleaved with long Ids
-$str = Bio::AlignIO->new(
-    '-file' => test_input_file("protpars_longid.phy"),
-    '-format' => 'phylip',
-    'longid' => 1);
-
-isa_ok($str,'Bio::AlignIO');
-$aln = $str->next_aln();
-isa_ok($aln,'Bio::Align::AlignI');
-is $aln->get_seq_by_pos(1)->get_nse, 'S I N F R U  P 0 0 1 /1-84';
-is $aln->get_seq_by_pos(2)->get_nse, 'SINFRUP002/1-84';
 
