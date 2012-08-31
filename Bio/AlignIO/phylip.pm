@@ -186,7 +186,7 @@ sub next_aln {
             ($seqcount, $residuecount) = ($1, $2);
             last;
         } else {
-        	$self->warn ("Did not see a sequence count and residue count while parsing phylip format.");
+        	$self->warn ("Failed to parse PHYLIP: Did not see a sequence count and residue count.");
             return;
         }
     }
@@ -208,8 +208,6 @@ sub next_aln {
             if ($entry =~ /^'(.+)'\s+(.+)$/) { # 3. name has single quotes.
                 $name = $1;
                 $str = $2;
-                chomp $name;
-                #$name =~ s/\s+/_/g;
             } else {    # 2. name does not have single quotes, so should not have spaces.
                 # therefore, the first part of the line is the name and the rest is the seq.
                 # make sure that the line does not lead with extra spaces.
@@ -220,10 +218,9 @@ sub next_aln {
             $entry =~ /^(.{10})\s+(.+)$/;
             $name = $1;
             $str = $2;
-            chomp $name;
+            $name =~ s/\s+$//; # eat any trailing spaces
             $name =~ s/\s+/_/g;
         }
-
         push @names, $name;
         #clean sequence of spaces:
         $str =~ s/\s+//g;
@@ -235,7 +232,7 @@ sub next_aln {
                 $str .= $entry;
                 $str =~ s/\s+//g;
                 if ($entry =~ /^\s*$/) { # we ran into a newline before we got a complete sequence: bail!
-                    $self->warn("Sequence $name was shorter than expected: " . length($str) . " instead of $residuecount.");
+                    $self->warn("Failed to parse PHYLIP: Sequence $name was shorter than expected: " . length($str) . " instead of $residuecount.");
                     last;
                 }
             }
@@ -256,7 +253,7 @@ sub next_aln {
             while ($entry = $self->_readline) {
                 if ($entry =~ /^\s*$/) { # eat newlines
                     if ($count != 0) { # there was a newline at an unexpected place!
-                        $self->warn("Interleaved file is missing a segment: saw $count, expected $seqcount");
+                        $self->warn("Failed to parse PHYLIP: Interleaved file is missing a segment: saw $count, expected $seqcount.");
                         return;
                     }
                     next;
@@ -265,22 +262,21 @@ sub next_aln {
                     $hash{$count} .= $entry;
                     $count++;
                 }
-                if ($count >= $seqcount) {
+                if ($count >= $seqcount) { # we've read all of the sequences for this chunk, so move on.
                     last;
                 }
             }
         }
     }
-
     if ((scalar @names) != $seqcount) {
-        $self->warn("Did not see the correct number of seqs: saw " . scalar(@names) . ", expected $seqcount.");
+        $self->warn("Failed to parse PHYLIP: Did not see the correct number of seqs: saw " . scalar(@names) . ", expected $seqcount.");
         return;
     }
     for ($count=0; $count<$seqcount; $count++) {
         $str = $hash{$count};
         my $seqname = @names[$count];
         if (length($str) != $residuecount) {
-            $self->warn("Sequence $seqname was the wrong length: " . length($str) . " instead of $residuecount.");
+            $self->warn("Failed to parse PHYLIP: Sequence $seqname was the wrong length: " . length($str) . " instead of $residuecount.");
         }
         $seq = Bio::LocatableSeq->new('-seq'  => $hash{$count},
                           '-display_id'    => $seqname);

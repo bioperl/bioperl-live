@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 16);
+    test_begin(-tests => 17);
 
 	use_ok('Bio::AlignIO::phylip');
 }
@@ -35,7 +35,7 @@ $str = Bio::AlignIO->new(
     'longid' => 1);
 
 $aln = $str->next_aln();
-isa_ok($str,'Bio::AlignIO');
+#isa_ok($str,'Bio::AlignIO');
 isa_ok($aln,'Bio::Align::AlignI');
 is $aln->get_seq_by_pos(1)->get_nse, 'S I N F R U  P 0 0 1 /1-84';
 is $aln->get_seq_by_pos(2)->get_nse, 'SINFRUP002/1-84';
@@ -46,7 +46,7 @@ $str = Bio::AlignIO->new(
     '-format' => 'phylip');
 
 $aln = $str->next_aln();
-isa_ok($str,'Bio::AlignIO');
+#isa_ok($str,'Bio::AlignIO');
 isa_ok($aln,'Bio::Align::AlignI');
 is $aln->get_seq_by_pos(1)->get_nse, 'SINFRUP001/1-4940';
 # is $aln->get_seq_by_pos(2)->get_nse, 'SINFRUP002/1-84';
@@ -58,7 +58,7 @@ $str = Bio::AlignIO->new(
     '-file' => test_input_file("testaln.phylip"),
     '-format' => 'phylip');
 $aln = $str->next_aln();
-isa_ok($str,'Bio::AlignIO');
+#isa_ok($str,'Bio::AlignIO');
 isa_ok($aln,'Bio::Align::AlignI');
 is $aln->get_seq_by_pos(1)->get_nse, 'Homo_sapie/1-45';
 
@@ -82,3 +82,8 @@ TODO: {
     is($ls->length,47);
 }
 
+# check to see that newlines between header and sequences are parsed correctly
+$str = Bio::AlignIO->new('-file' => test_input_file("codeml45b.mlc"), '-format' => 'phylip', '-longid' => 1);
+$aln = $str->next_aln();
+my $ls = $aln->get_seq_by_pos(9);
+ok($ls->display_id eq "Pop_trich_ch", "newline between header and sequences is parsed correctly");
