@@ -403,14 +403,7 @@ sub remove_LocatableSeq {
 	unless ref $seq && $seq->isa( 'Bio::LocatableSeq');
 
     $id = $seq->id();
-<<<<<<< HEAD
-    $start = $seq->start();
-    $end  = $seq->end();
-    $name = sprintf("%s/%d-%d",$id,$start,$end);
-    
-=======
     $name = $seq->get_nse;
->>>>>>> upstream/master
 
     if( !exists $self->{'_seq'}->{$name} ) {
 	$self->throw("Sequence $name does not exist in the alignment to remove!");
