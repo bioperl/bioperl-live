@@ -56,15 +56,15 @@ here.
 One of the functionalities that L<Bio::Root::RootI> provides is the
 ability to L<throw>() exceptions with pretty stack traces. Bio::Root::Root
 enhances this with the ability to use L<Error> (available from CPAN)
-if it has also been installed. 
+if it has also been installed.
 
 If L<Error> has been installed, L<throw>() will use it. This causes an
 Error.pm-derived object to be thrown. This can be caught within a
 C<catch{}> block, from wich you can extract useful bits of
-information. If L<Error> is not installed, it will use the 
+information. If L<Error> is not installed, it will use the
 L<Bio::Root::RootI>-based exception throwing facilty.
 
-=head2 Typed Exception Syntax 
+=head2 Typed Exception Syntax
 
 The typed exception syntax of L<throw>() has the advantage of plainly
 indicating the nature of the trouble, since the name of the class
@@ -103,7 +103,7 @@ also use a try-catch-finally block structure if L<Error> has been
 installed in your system (available from CPAN).  See the documentation
 for Error for more details.
 
-Here's an example. See the L<Bio::Root::Exception> module for 
+Here's an example. See the L<Bio::Root::Exception> module for
 other pre-defined exception types:
 
    try {
@@ -125,7 +125,7 @@ other pre-defined exception types:
    finally {
        # Any code that you want to execute regardless of whether or not
        # an exception occurred.
-   };  
+   };
    # the ending semicolon is essential!
 
 =head1 FEEDBACK
@@ -141,15 +141,15 @@ Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -162,7 +162,7 @@ web:
 
 =head1 AUTHOR
 
-Functions originally from Steve Chervitz. 
+Functions originally from Steve Chervitz.
 Refactored by Ewan Birney.
 Re-refactored by Lincoln Stein.
 
@@ -182,7 +182,7 @@ use base qw(Bio::Root::RootI);
 
 our ($DEBUG, $ID, $VERBOSITY, $ERRORLOADED, $CLONE_CLASS);
 
-BEGIN { 
+BEGIN {
     $ID        = 'Bio::Root::Root';
     $DEBUG     = 0;
     $VERBOSITY = 0;
@@ -198,20 +198,20 @@ BEGIN {
             import Error qw(:try);
             require Bio::Root::Exception;
             $ERRORLOADED = 1;
-            $Error::Debug = 1; # enable verbose stack trace 
+            $Error::Debug = 1; # enable verbose stack trace
         }
-    } 
+    }
     if( !$ERRORLOADED ) {
         require Carp; import Carp qw( confess );
-    }    
-    
+    }
+
     # set up _dclone()
     for my $class (qw(Clone Storable)) {
         eval "require $class; 1;";
         if (!$@) {
             $CLONE_CLASS = $class;
-            *Bio::Root::Root::_dclone = $class eq 'Clone' ? 
-                sub {shift; Clone::clone($_[0])} : 
+            *Bio::Root::Root::_dclone = $class eq 'Clone' ?
+                sub {shift; Clone::clone($_[0])} :
                 sub {shift; Storable::dclone($_[0])} ;
             last;
         }
@@ -237,13 +237,13 @@ BEGIN {
             $data;
         }
     }
-    
+
     $main::DONT_USE_ERROR;  # so that perl -w won't warn "used only once"
 }
 
 =head2 new
 
- Purpose   : generic instantiation function can be overridden if 
+ Purpose   : generic instantiation function can be overridden if
              special needs of a module cannot be done in _initialize
 
 =cut
@@ -279,35 +279,35 @@ sub new {
  Comments: Where possible, faster clone methods are used, in order:
            Clone::clone(), Storable::dclone.  If neither is present,
            a pure perl fallback (not very well tested) is used instead.
-           Storable dclone() cannot clone CODE references.  Therefore, 
+           Storable dclone() cannot clone CODE references.  Therefore,
            any CODE reference in your original object will remain, but
-           will not exist in the cloned object.  
+           will not exist in the cloned object.
            This should not be used for anything other than cloning of simple
            objects. Developers of subclasses are encouraged to override this
            method with one of their own.
-           
+
 =cut
 
 sub clone {
     my ($orig, %named_params) = @_;
-    
+
     __PACKAGE__->throw("Can't call clone() as a class method") unless
         ref $orig && $orig->isa('Bio::Root::Root');
-    
+
     # Can't dclone CODE references...
     # Should we shallow copy these? Should be harmless for these specific
     # methods...
-    
+
     my %put_these_back = (
        _root_cleanup_methods => $orig->{'_root_cleanup_methods'},
     );
     delete $orig->{_root_cleanup_methods};
-    
+
     # call the proper clone method, set lazily above
     my $clone = __PACKAGE__->_dclone($orig);
 
     $orig->{_root_cleanup_methods} = $put_these_back{_root_cleanup_methods};
-    
+
     foreach my $key (grep { /^-/ } keys %named_params) {
         my $method = $key;
         $method =~ s/^-//;
@@ -359,7 +359,7 @@ sub verbose {
    # allow one to set global verbosity flag
    return $DEBUG  if $DEBUG;
    return $VERBOSITY unless ref $self;
-   
+
     if (defined $value || ! defined $self->{'_root_verbose'}) {
        $self->{'_root_verbose'} = $value || 0;
     }
@@ -400,19 +400,19 @@ sub _cleanup_methods {
                         -text  => "throwing exception message",
                         -value => $bad_value  );
  Function: Throws an exception, which, if not caught with an eval or
-           a try block will provide a nice stack trace to STDERR 
+           a try block will provide a nice stack trace to STDERR
            with the message.
            If Error.pm is installed, and if a -class parameter is
-           provided, Error::throw will be used, throwing an error 
+           provided, Error::throw will be used, throwing an error
            of the type specified by -class.
            If Error.pm is installed and no -class parameter is provided
-           (i.e., a simple string is given), A Bio::Root::Exception 
+           (i.e., a simple string is given), A Bio::Root::Exception
            is thrown.
  Returns : n/a
  Args    : A string giving a descriptive error message, optional
            Named parameters:
-           '-class'  a string for the name of a class that derives 
-                     from Error.pm, such as any of the exceptions 
+           '-class'  a string for the name of a class that derives
+                     from Error.pm, such as any of the exceptions
                      defined in Bio::Root::Exception.
                      Default class: Bio::Root::Exception
            '-text'   a string giving a descriptive error message
@@ -426,22 +426,22 @@ sub _cleanup_methods {
             for some reason, you can block the use of Error.pm by
             Bio::Root::Root::throw() by defining a scalar named
             $main::DONT_USE_ERROR (define it in your main script
-            and you don't need the main:: part) and setting it to 
+            and you don't need the main:: part) and setting it to
             a true value; you must do this within a BEGIN subroutine.
 
 =cut
 
 sub throw {
     my ($self, @args) = @_;
-    
+
     my ($text, $class, $value) = $self->_rearrange( [qw(TEXT
                                                         CLASS
                                                         VALUE)], @args);
     $text ||= $args[0] if @args == 1;
-    
+
     if ($ERRORLOADED) {
         # Enable re-throwing of Error objects.
-        # If the error is not derived from Bio::Root::Exception, 
+        # If the error is not derived from Bio::Root::Exception,
         # we can't guarantee that the Error's value was set properly
         # and, ipso facto, that it will be catchable from an eval{}.
         # But chances are, if you're re-throwing non-Bio::Root::Exceptions,
@@ -456,19 +456,19 @@ sub throw {
             else {
                 my $text .= "\nWARNING: Attempt to throw a non-Error.pm object: " . ref$args[0];
                 my $class = "Bio::Root::Exception";
-                $class->throw( '-text' => $text, '-value' => $args[0] ); 
+                $class->throw( '-text' => $text, '-value' => $args[0] );
             }
         }
         else {
             $class ||= "Bio::Root::Exception";
-            
+
             my %args;
             if( @args % 2 == 0 && $args[0] =~ /^-/ ) {
                 %args = @args;
                 $args{-text} = $text;
                 $args{-object} = $self;
             }
-            
+
             $class->throw( scalar keys %args > 0 ? %args : @args ); # (%args || @args) puts %args in scalar context!
         }
     }
@@ -479,7 +479,7 @@ sub throw {
         my $title = "------------- EXCEPTION$class -------------";
         my $footer = ('-' x CORE::length($title))."\n";
         $text ||= '';
-        
+
         die "\n$title\n", "MSG: $text\n", $std, $footer, "\n";
     }
 }
@@ -496,7 +496,7 @@ sub throw {
 
 sub debug {
     my ($self, @msgs) = @_;
-    
+
 	# using CORE::warn doesn't give correct backtrace information; we want the
 	# line from the previous call in the call stack, not this call (similar to
 	# cluck).  For now, just add a stack trace dump and simple comment under the
@@ -515,7 +515,7 @@ sub debug {
  Title   : _load_module
  Usage   : $self->_load_module("Bio::SeqIO::genbank");
  Function: Loads up (like use) the specified module at run time on demand.
- Example : 
+ Example :
  Returns : TRUE on success. Throws an exception upon failure.
  Args    : The module to load (_without_ the trailing .pm).
 
@@ -531,7 +531,7 @@ sub _load_module {
     # a fix by Lincoln) HL
     if ($name !~ /^([\w:]+)$/) {
 	$self->throw("$name is an illegal perl package name");
-    } else { 
+    } else {
 	$name = $1;
     }
 
@@ -550,6 +550,7 @@ sub _load_module {
 
 sub DESTROY {
     my $self = shift;
+    print "Destroy root " . $self . ", save_tempfiles = " . $self->save_tempfiles . ", " . "\n";
     my @cleanup_methods = $self->_cleanup_methods or return;
     for my $method (@cleanup_methods) {
       $method->($self);
