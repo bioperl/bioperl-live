@@ -386,6 +386,7 @@ use strict;
 use IO::File;
 use AnyDBM_File;
 use Fcntl;
+use File::Spec;
 use File::Basename qw(basename dirname);
 
 use base qw(Bio::DB::SeqI Bio::Root::Root);
@@ -521,7 +522,7 @@ sub index_dir {
     my ($self, $dir, $force_reindex) = @_;
 
     # find all qual files
-    my @files = glob("$dir/$self->{glob}");
+    my @files = glob( File::Spec->catfile($dir, $self->{glob}) );
     $self->throw("No qual files found in $dir") unless @files;
 
     # get name of index
@@ -680,7 +681,7 @@ sub index_name {
         my $dir = $self->{dirname} or return;
         return $self->index_name($dir,-d $dir);
     } 
-    return "$path/directory.index" if $isdir;
+    return File::Spec->catfile($path, "directory.index") if $isdir;
     return "$path.index";
 }
 
@@ -944,8 +945,8 @@ sub subqual {
 sub fh {
     my ($self, $id) = @_;
     my $file = $self->file($id) or return;
-    $self->fhcache("$self->{dirname}/$file") ||
-        $self->throw("Can't open file $file");
+    return $self->fhcache( File::Spec->catfile($self->{dirname},$file) ) or
+        $self->throw( "Can't open file $file");
 }
 
 =head2 header
