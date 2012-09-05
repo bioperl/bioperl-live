@@ -873,7 +873,7 @@ sub _guess_alphabet {
     my ($self) = @_;
     my $type;
 
-    # Remove char's that clearly don't denote nucleic or amino acids
+    # Remove chars that clearly don't denote nucleic or amino acids
     my $str = $self->seq();
     $str =~ s/[-.?]//gi;
 
