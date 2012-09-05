@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 34,
+    test_begin(-tests => 35,
                -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -74,6 +74,7 @@ is $db->alphabet('gi|352962132|ref|NG_030353.1|'), 'dna';
 is $db->alphabet('gi|352962148|ref|NM_001251825.1|'), 'rna';
 is $db->alphabet('gi|194473622|ref|NP_001123975.1|'), 'protein';
 is $db->alphabet('gi|61679760|pdb|1Y4P|B'), 'protein';
+is $db->alphabet('123'), '';
 
 
 # Test stream
@@ -83,7 +84,7 @@ my $count = 0;
 while (my $seq = $stream->next_seq) {
     $count++;
 }
-is $count, 4;
+is $count, 5;
 unlink "$test_file.index";
 
 

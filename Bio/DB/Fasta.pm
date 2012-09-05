@@ -424,6 +424,7 @@ use base qw(Bio::DB::SeqI Bio::Root::Root);
 use constant STRUCT    =>'NNnnCa*';
 use constant STRUCTBIG =>'QQnnCa*'; # 64-bit file offset and seq length
 
+use constant NA        => 0;
 use constant DNA       => 1;
 use constant RNA       => 2;
 use constant PROTEIN   => 3;
@@ -744,7 +745,7 @@ sub calculate_offsets {
           $seqlength      -= $termination_length * $seq_lines;
           my $ppos = &{$self->{packmeth}}($offset,$seqlength,$linelength,
                                           $firstline,$type,$base);
-          $type = undef;
+          $type = NA;
           for my $id (@id) {
             $offsets->{$id} = $ppos;
           }
@@ -778,7 +779,8 @@ sub calculate_offsets {
         }
       }
       $linelength ||= length($_);
-      $type       ||= $self->_type($_);
+      $type       ||= $_ ? $self->_type($_) : '';
+
       $seq_lines++;
     }
     $last_line = $_;
@@ -800,7 +802,7 @@ sub calculate_offsets {
     my $ppos = &{$self->{packmeth}}($offset,$seqlength,
                                     $linelength,$firstline,
                                     $type,$base);
-    $type = undef;
+    $type = NA;
     for my $id (@id) {
       $offsets->{$id} = $ppos;
     }
@@ -811,10 +813,9 @@ sub calculate_offsets {
 
 
 sub _type {
-  shift;
-  local $_ = shift;
-  return /^[gatcnGATCN*-]+$/   ? DNA
-         : /^[gaucnGAUCN*-]+$/ ? RNA
+  my ($self, $string) = @_;
+  return $string =~ m/^[gatcnGATCN*-]+$/   ? DNA
+         : $string =~ m/^[gaucnGAUCN*-]+$/ ? RNA
          : PROTEIN;
 }
 
@@ -927,9 +928,10 @@ sub alphabet {
   $self->throw('Need to provide a sequence ID') if not defined $id;
   my $offset = $self->{offsets}{$id} or return;
   my $type = (&{$self->{unpackmeth}}($offset))[4];
-  return $type == DNA ? 'dna'
+  return : $type == DNA ? 'dna'
          : $type == RNA ? 'rna'
-         : 'protein';
+         : $type == PROTEIN ? 'protein'
+         : '';
 
 }
 
