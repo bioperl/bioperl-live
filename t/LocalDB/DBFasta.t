@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 30,
+    test_begin(-tests => 34,
                -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -20,7 +20,8 @@ my $DEBUG = test_debug();
 my $test_dbdir = setup_temp_dir('dbfa');
 
 # now use this temporary dir for the db file
-ok my $db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1);
+my $db;
+ok $db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1);
 isa_ok $db, 'Bio::DB::Fasta';
 cmp_ok $db->length('CEESC13F'), '>', 0;
 is length($db->seq('CEESC13F:1,10')), 10;
@@ -65,16 +66,24 @@ eval {
 is $@, '';
 
 
-# Loop
-my $test_file = test_input_file('bad_dbfa','shotdb.fa');
+# Test alphabet
+my $test_file = test_input_file('dbfa', 'mixed_alphabet.fasta');
+
 ok $db = Bio::DB::Fasta->new( $test_file, -reindex => 1);
+is $db->alphabet('gi|352962132|ref|NG_030353.1|'), 'dna';
+is $db->alphabet('gi|352962148|ref|NM_001251825.1|'), 'rna';
+is $db->alphabet('gi|194473622|ref|NP_001123975.1|'), 'protein';
+is $db->alphabet('gi|61679760|pdb|1Y4P|B'), 'protein';
+
+
+# Test stream
 ok my $stream = $db->get_PrimarySeq_stream;
 isa_ok $stream, 'Bio::DB::Fasta::Stream';
 my $count = 0;
 while (my $seq = $stream->next_seq) {
     $count++;
 }
-is $count, 6;
+is $count, 4;
 unlink "$test_file.index";
 
 

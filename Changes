@@ -54,6 +54,8 @@ CPAN releases are branched from 'master'.
       cjfields]
     * [3237] Bio::DB::Fasta now allows blank lines between sequences, catches
       instances where blank lines are within sequences [cjfields]
+    * Bio::DB::Fasta reports correct alphabet for files with multiple sequence
+      types [fangly]
     * [3238] Fixes for Bio::DB::SeqFeature::Store::DBI::Pg [Thomas Burkhard,
       cjfields]
     * Various fixes for Stockholm file indexing and processing [bosborne]

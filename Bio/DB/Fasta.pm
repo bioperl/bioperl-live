@@ -423,9 +423,11 @@ use base qw(Bio::DB::SeqI Bio::Root::Root);
 
 use constant STRUCT    =>'NNnnCa*';
 use constant STRUCTBIG =>'QQnnCa*'; # 64-bit file offset and seq length
+
 use constant DNA       => 1;
 use constant RNA       => 2;
 use constant PROTEIN   => 3;
+
 use constant DIE_ON_MISSMATCHED_LINES => 1; # if you want
 
 # Bio::DB-like object
@@ -742,7 +744,10 @@ sub calculate_offsets {
           $seqlength      -= $termination_length * $seq_lines;
           my $ppos = &{$self->{packmeth}}($offset,$seqlength,$linelength,
                                           $firstline,$type,$base);
-          for my $id (@id) { $offsets->{$id} = $ppos }
+          $type = undef;
+          for my $id (@id) {
+            $offsets->{$id} = $ppos;
+          }
         }
         @id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
         ($offset,$firstline,$linelength) = ($pos,length($_),0);
@@ -795,7 +800,10 @@ sub calculate_offsets {
     my $ppos = &{$self->{packmeth}}($offset,$seqlength,
                                     $linelength,$firstline,
                                     $type,$base);
-    for my $id (@id) { $offsets->{$id}  = $ppos }
+    $type = undef;
+    for my $id (@id) {
+      $offsets->{$id} = $ppos;
+    }
   }
   $offsets->{__termination_length} = $termination_length;
   return \%offsets;
