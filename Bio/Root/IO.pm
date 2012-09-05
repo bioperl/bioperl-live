@@ -924,17 +924,14 @@ sub tempfile {
 
 sub tempdir {
     my ( $self, @args ) = @_;
-    print "at root::io::tempdir\n";
     if($FILETEMPLOADED && File::Temp->can('tempdir') ) {
-        print "howdy\n";
-    return File::Temp::tempdir(@args);
+        return File::Temp::tempdir(@args);
     }
 
     # we have to do this ourselves, not good
     #
     # we are planning to cleanup temp files no matter what
     my %params = @args;
-    print "cleanup is " . $params{CLEANUP} . "\n";
     $self->{'_cleanuptempdir'} = ( defined $params{CLEANUP} &&
                    $params{CLEANUP} == 1);
     my $tdir = $self->catfile($TEMPDIR,

@@ -227,16 +227,12 @@ sub tempdir{
    my ($self) = shift;
 
    $self->{'_tmpdir'} = shift if @_;
-   print "hola ";
    unless( $self->{'_tmpdir'} ) {
        $self->{'_tmpdir'} = $self->io->tempdir(CLEANUP => ! $self->save_tempfiles );
-    print "made tempdir ";
    }
    unless( -d $self->{'_tmpdir'} ) {
-   print "2";
        mkdir($self->{'_tmpdir'},0777);
    }
-   print $self->{'_tmpdir'} . "\n";
    return $self->{'_tmpdir'};
 }
 
@@ -254,7 +250,6 @@ sub tempdir{
 sub cleanup{
    my ($self) = @_;
    $self->io->_io_cleanup();
-   print "cleaning up " . $self->{'_tmpdir'} . "\n";
    if( defined $self->{'_tmpdir'} && -d $self->{'_tmpdir'} ) {
       my $verbose = ($self->verbose >= 1) ? 1 : 0;
       File::Path::rmtree( $self->{'_tmpdir'}, $verbose);
@@ -502,10 +497,9 @@ sub _setparams {
 
 sub DESTROY {
     my $self= shift;
-    print "Destroy wrapperbase, tempfiles = " . $self->save_tempfiles . "\n";
     unless ( $self->save_tempfiles ) {
 	$self->cleanup();
-    } else { print "still leaving tempfiles in " . $self->tempdir . "\n"; }
+    }
     $self->SUPER::DESTROY();
 }
 

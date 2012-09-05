@@ -550,7 +550,6 @@ sub _load_module {
 
 sub DESTROY {
     my $self = shift;
-    print "Destroy root " . $self . ", save_tempfiles = " . $self->save_tempfiles . ", " . "\n";
     my @cleanup_methods = $self->_cleanup_methods or return;
     for my $method (@cleanup_methods) {
       $method->($self);
