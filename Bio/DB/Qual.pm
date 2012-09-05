@@ -1,5 +1,4 @@
 #
-#
 # BioPerl module for Bio::DB::Qual
 #
 # You may distribute this module under the same terms as perl itself
@@ -30,7 +29,7 @@ Bio::DB::Qual -- Fast indexed access to a directory of quality files
   my @qual    = @{$obj->qual};
   my @subqual = @{$obj->subqual(4_000_000 => 4_100_000)};
   my $length  = $obj->length;
-  # (etc)
+  # etc
 
   # Bio::SeqIO-style access
   my $stream  = $db->get_PrimaryQual_stream;
@@ -130,14 +129,6 @@ you open the index!
 
 -reindex can be used to force the index to be recreated from scratch.
 
-=item $fh = Bio::DB::Qual-E<gt>newFh($qual_path [,%options])
-
-Create a tied filehandle opened on a Bio::DB::Qual object. Reading from this
-filehandle with E<lt>E<gt> will return a stream of quality objects,
-Bio::SeqIO-style.
-
-=back
-
 The -makeid option gives you a chance to modify quality score IDs during
 indexing. The option value should be a code reference that will take a scalar
 argument and return a scalar result, like this:
@@ -146,7 +137,7 @@ argument and return a scalar result, like this:
 
   sub make_my_id {
     my $description_line = shift;
-    # get a different id from the quality header, e.g.
+    # get a different id from the header, e.g.
     $description_line =~ /(\S+)$/;
     return $1;
   }
@@ -161,6 +152,22 @@ By default, this module will use the regular expression /^E<gt>(\S+)/ to extract
 portion of this, such as the "egl-2" symbol.
 
 The -makeid option is ignored after the index is constructed.
+
+=item $fh = Bio::DB::Qual-E<gt>newFh($qual_path [,%options])
+
+Create a tied filehandle opened on a Bio::DB::Qual object. Reading from this
+filehandle with E<lt>E<gt> will return a stream of quality objects,
+Bio::SeqIO-style.
+
+=back
+
+=item $index_name  = $db-E<gt>index_name
+
+Return the path to the index file.
+
+=item $path = $db-E<gt>path
+
+Return the path to the Qual file(s).
 
 =head1 OBJECT METHODS
 
@@ -211,14 +218,6 @@ Return the length of the header line for the indicated quality score.
 
 Return the offset of the header line for the indicated quality score from the
 beginning of the file in which it is located.
-
-=item $index_name  = $db-E<gt>index_name
-
-Return the path to the index file.
-
-=item $path = $db-E<gt>path
-
-Return the path to the Qual file(s).
 
 =back
 
@@ -358,7 +357,7 @@ initializing the module.
 All quality score lines for a given quality score must have the same length
 except for the last (not sure why there is this limitation). This is not
 problematic for sequences but could be annoying for quality scores. A workaround
-is to make sure the your quality scores fit on no more than 2 lines. Another
+is to make sure that your quality scores fit on no more than 2 lines. Another
 solution could be to padd them with blank spaces so that each line has the same
 number of characters (maybe this padding should be implemented in
 Bio::SeqIO::qual?).
@@ -375,6 +374,7 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
+
 
 package Bio::DB::Qual;
 
@@ -395,7 +395,7 @@ use base qw(Bio::DB::SeqI Bio::Root::Root);
 *ids = \&get_all_ids;
 *get_qual_by_primary_id = *get_qual_by_acc  = \&get_Qual_by_id;
 
-use constant STRUCT =>'NNnna*';
+use constant STRUCT    =>'NNnna*';
 use constant STRUCTBIG =>'QQnna*'; # 64-bit file offset and quality score length
 use constant DIE_ON_MISSMATCHED_LINES => 1; # you can avoid dying if you want
                                             # but you're likely to get bad
@@ -461,25 +461,26 @@ sub new {
         # contain whitespace.
         $path = Win32::GetShortPathName($path)
         if $^O =~ /^MSWin/i && eval 'use Win32; 1';
-        $offsets = $self->index_dir($path,$opts{-reindex});
+        $offsets = $self->index_dir($path,$opts{-reindex}) or return;
         $dirname = $path;
     } elsif (-f _) {
         $offsets = $self->index_file($path,$opts{-reindex});
         $dirname = dirname($path);
     } else {
-        $self->throw( "$path: invalid file or dirname");
+        $self->throw( "$path: Invalid file or dirname");
     }
     @{$self}{qw(dirname offsets)} = ($dirname,$offsets);
-    $self;
+
+    return $self;
 }
 
 =head2 newFh
 
  Title   : newFh
- Usage   : my $fh = Bio::DB::Qual->newFh('/path/to/qual/files');
- Function: gets a new Fh for a file or directory containing several files
+ Usage   : my $fh = Bio::DB::Qual->newFh('/path/to/qual/files', %options);
+ Function: Get a new Fh for a file or directory containing several files
  Returns : filehandle object
- Args    : none
+ Args    : Fasta filename and options
 
 =cut
 
@@ -489,7 +490,7 @@ sub newFh {
     require Symbol;
     my $fh = Symbol::gensym or return;
     tie $$fh,'Bio::DB::Qual::Stream',$self or return;
-    $fh;
+    return $fh;
 }
 
 sub _open_index {
@@ -499,13 +500,14 @@ sub _open_index {
     my $flags = $write ? O_CREAT|O_RDWR : O_RDONLY;
     my @dbmargs = $self->dbmargs;
     tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs 
-        or $self->throw( "Can't open cache file $index: $!");
+        or $self->throw( "Can't open index file $index: $!");
     return \%offsets;
 }
 
 sub _close_index {
     my ($self, $index) = @_;
     untie %$index;
+    return 1;
 }
 
 =head2 index_dir
@@ -567,51 +569,9 @@ sub index_dir {
     # so possibly closing and reopening will help
     $self->_close_index($self->{offsets});
 
-    return $self->{offsets}  = $self->_open_index($index);
+    return $self->{offsets} = $self->_open_index($index);
 }
 
-=head2 get_Qual_by_id
-
- Title   : get_Qual_by_id
- Usage   : my $qual = $db->get_Qual_by_id($id)
- Function: Bio::DB::RandomAccessI method implemented
- Returns : Bio::PrimarySeqI object
- Args    : id
-
-=cut
-
-sub get_Qual_by_id {
-    my ($self, $id) = @_;
-    return unless exists $self->{offsets}{$id};
-    return Bio::Seq::PrimaryQual::Qual->new($self,$id);
-}
-
-=head2 set_pack_method
-
- Title   : set_pack_method
- Usage   : $db->set_pack_method( @files )
- Function: Determines whether data packing uses 32 or 64 bit integers
- Returns : 1 for success
- Args    : one or more file paths
-
-=cut
-
-sub set_pack_method {
-    my $self = shift;
-    # Find the maximum file size:
-    my ($maxsize) = sort { $b <=> $a } map { -s $_ } @_;
-    my $fourGB    = (2 ** 32) - 1;
-
-    if ($maxsize > $fourGB) {
-        # At least one file exceeds 4Gb - we will need to use 64 bit ints
-        $self->{packmeth}   = \&_packBig;
-        $self->{unpackmeth} = \&_unpackBig;
-    } else {
-        $self->{packmeth}   = \&_pack;
-        $self->{unpackmeth} = \&_unpack;
-    }
-    return 1;
-}
 
 =head2 index_file
 
@@ -648,6 +608,34 @@ sub index_file {
     return $self->{offsets};
 }
 
+
+=head2 set_pack_method
+
+ Title   : set_pack_method
+ Usage   : $db->set_pack_method( @files )
+ Function: Determines whether data packing uses 32 or 64 bit integers
+ Returns : 1 for success
+ Args    : one or more file paths
+
+=cut
+
+sub set_pack_method {
+    my $self = shift;
+    # Find the maximum file size:
+    my ($maxsize) = sort { $b <=> $a } map { -s $_ } @_;
+    my $fourGB    = (2 ** 32) - 1;
+
+    if ($maxsize > $fourGB) {
+        # At least one file exceeds 4Gb - we will need to use 64 bit ints
+        $self->{packmeth}   = \&_packBig;
+        $self->{unpackmeth} = \&_unpackBig;
+    } else {
+        $self->{packmeth}   = \&_pack;
+        $self->{unpackmeth} = \&_unpack;
+    }
+    return 1;
+}
+
 =head2 dbmargs
 
  Title   : dbmargs
@@ -675,8 +663,7 @@ sub dbmargs {
 =cut
 
 sub index_name {
-    my $self  = shift;
-    my ($path,$isdir) = @_;
+    my ($self, $path, $isdir) = @_;
     unless ($path) {
         my $dir = $self->{dirname} or return;
         return $self->index_name($dir,-d $dir);
@@ -684,6 +671,12 @@ sub index_name {
     return File::Spec->catfile($path, "directory.index") if $isdir;
     return "$path.index";
 }
+
+
+sub path {
+    return shift->{dirname};
+}
+
 
 =head2 calculate_offsets
 
@@ -696,9 +689,8 @@ sub index_name {
 =cut
 
 sub calculate_offsets {
-    my $self = shift;
-    my ($file,$offsets) = @_;
-    my $base = $self->path2fileno(basename($file));
+    my ($self, $file, $offsets) = @_;
+    my $base = $self->_path2fileno(basename($file));
 
     my $fh = IO::File->new($file) or $self->throw("Can't open $file: $!");
     binmode $fh;
@@ -777,6 +769,53 @@ sub calculate_offsets {
     return \%offsets;
 }
 
+
+sub _check_linelength {
+    my ($self, $linelength) = @_;
+    return unless defined $linelength;
+    $self->throw(
+        "Each line of the qual file must be less than 65,536 characters.Line ".
+        "$. is $linelength chars."
+    ) if $linelength > 65535;
+}
+
+
+sub _fhcache {
+    my ($self, $path) = @_;
+    if (!$self->{fhcache}{$path}) {
+        if ($self->{curopen} >= $self->{maxopen}) {
+            my @lru = sort {$self->{cacheseq}{$a} <=> $self->{cacheseq}{$b};}
+                keys %{$self->{fhcache}};
+            splice(@lru, $self->{maxopen} / 3);
+            $self->{curopen} -= @lru;
+            for (@lru) {
+                delete $self->{fhcache}{$_};
+            }
+        }
+        $self->{fhcache}{$path} = IO::File->new($path) || return;
+        binmode $self->{fhcache}{$path};
+        $self->{curopen}++;
+    }
+    $self->{cacheseq}{$path}++;
+    return $self->{fhcache}{$path};
+}
+
+sub _pack {
+    return pack STRUCT, @_;
+}
+
+sub _packBig {
+    return pack STRUCTBIG, @_;
+}
+
+sub _unpack {
+    return unpack STRUCT, shift;
+}
+
+sub _unpackBig {
+    return unpack STRUCTBIG, shift;
+}
+
 =head2 get_all_ids
 
  Title   : get_all_ids
@@ -787,13 +826,36 @@ sub calculate_offsets {
 
 =cut
 
-sub get_all_ids  { grep {!/^__/} keys %{shift->{offsets}} }
+sub get_all_ids  {
+    return grep {!/^__/} keys %{shift->{offsets}};
+}
+
+
+=head2 get_Qual_by_id
+
+ Title   : get_Qual_by_id
+ Usage   : my $qual = $db->get_Qual_by_id($id)
+ Function: Bio::DB::RandomAccessI method implemented
+ Returns : Bio::PrimarySeqI object
+ Args    : id
+
+=cut
+
+sub get_Qual_by_id {
+    my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
+    return unless exists $self->{offsets}{$id};
+    return Bio::Seq::PrimaryQual::Qual->new($self,$id);
+}
+
 
 sub offset {
     my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
     my $offset = $self->{offsets}{$id} or return;
-    (&{$self->{unpackmeth}}($offset))[0];
+    return (&{$self->{unpackmeth}}($offset))[0];
 }
+
 
 =head2 length
 
@@ -808,6 +870,7 @@ sub offset {
 sub length {
     # the NUMBER of quality values
     my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
     my $len = scalar(@{$self->subqual($id)});
     return $len;
 }
@@ -815,42 +878,46 @@ sub length {
 sub lengthstr {
     # the length of the quality STRING
     my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
     my $offset = $self->{offsets}{$id} or return;
-    (&{$self->{unpackmeth}}($offset))[1];
+    return (&{$self->{unpackmeth}}($offset))[1];
 }
 
 sub linelen {
     my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
     my $offset = $self->{offsets}{$id} or return;
-    (&{$self->{unpackmeth}}($offset))[2];
+    return (&{$self->{unpackmeth}}($offset))[2];
 }
 
 sub headerlen {
     my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
     my $offset = $self->{offsets}{$id} or return;
-    (&{$self->{unpackmeth}}($offset))[3];
+    return (&{$self->{unpackmeth}}($offset))[3];
 }
 
-sub path { shift->{dirname} } 
 
 sub header_offset {
     my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
     return unless $self->{offsets}{$id};
     return $self->offset($id) - $self->headerlen($id);
 }
 
 sub file {
     my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
     my $offset = $self->{offsets}{$id} or return;
-    $self->fileno2path((&{$self->{unpackmeth}}($offset))[4]);
+    return $self->_fileno2path((&{$self->{unpackmeth}}($offset))[4]);
 }
 
-sub fileno2path {
+sub _fileno2path {
     my ($self, $no) = @_;
     return $self->{offsets}{"__file_$no"};
 }
 
-sub path2fileno {
+sub _path2fileno {
     my ($self, $path) = @_;
     if ( !defined $self->{offsets}{"__path_$path"} ) {
         my $fileno  = ($self->{offsets}{"__path_$path"} = 0+ $self->{fileno}++);
@@ -859,14 +926,6 @@ sub path2fileno {
     return $self->{offsets}{"__path_$path"}
 }
 
-sub _check_linelength {
-    my ($self, $linelength) = @_;
-    return unless defined $linelength;
-    $self->throw(
-        "Each line of the qual file must be less than 65,536 characters.Line ".
-        "$. is $linelength chars."
-    ) if $linelength > 65535;
-}
 
 =head2 subqual
 
@@ -894,6 +953,8 @@ sub subqual {
     # begining of the quality score and stopping when the the position of the
     # last quality value requested is reached??
 
+    $self->throw('Need to provide a sequence ID') if not defined $id;
+
     # position of the quality values
     if ($id =~ /^(.+):([\d_]+)(?:,|-|\.\.)([\d_]+)$/) {
         ($id, $start, $stop) = ($1,$2,$3);
@@ -907,8 +968,8 @@ sub subqual {
 
     # fetch full quality string
     my $fh = $self->fh($id) or return;
-    my $filestart = $self->caloffset($id, $string_start);
-    my $filestop  = $self->caloffset($id, $string_stop);
+    my $filestart = $self->_caloffset($id, $string_start);
+    my $filestop  = $self->_caloffset($id, $string_stop);
     seek($fh,$filestart,0);
     my $data;
     read($fh, $data, $filestop-$filestart+1);
@@ -944,8 +1005,9 @@ sub subqual {
 
 sub fh {
     my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
     my $file = $self->file($id) or return;
-    return $self->fhcache( File::Spec->catfile($self->{dirname},$file) ) or
+    return $self->_fhcache( File::Spec->catfile($self->{dirname},$file) ) or
         $self->throw( "Can't open file $file");
 }
 
@@ -961,6 +1023,7 @@ sub fh {
 
 sub header {
     my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
     my ($offset,$seqlength,$linelength,$firstline,$file) 
         = &{$self->{unpackmeth}}($self->{offsets}{$id}) or return;
     $offset -= $firstline;
@@ -970,10 +1033,11 @@ sub header {
     read($fh,$data,$firstline);
     chomp $data;
     substr($data,0,1) = '';
-    $data;
+    return $data;
 }
 
-sub caloffset {
+
+sub _caloffset {
     my ($self, $id, $a) = @_;
     $a--;
     my ($offset,$seqlength,$linelength,$firstline,$file)
@@ -981,44 +1045,9 @@ sub caloffset {
     $a = 0            if $a < 0;
     $a = $seqlength-1 if $a >= $seqlength;
     my $tl = $self->{offsets}{__termination_length};
-    $offset + $linelength * int($a/($linelength-$tl)) + $a % ($linelength-$tl);
+    return $offset + $linelength * int($a/($linelength-$tl)) + $a % ($linelength-$tl);
 }
 
-sub fhcache {
-    my ($self, $path) = @_;
-    if (!$self->{fhcache}{$path}) {
-        if ($self->{curopen} >= $self->{maxopen}) {
-            my @lru = sort {$self->{cacheseq}{$a} <=> $self->{cacheseq}{$b};}
-                keys %{$self->{fhcache}};
-            splice(@lru, $self->{maxopen} / 3);
-            $self->{curopen} -= @lru;
-            for (@lru) {
-                delete $self->{fhcache}{$_};
-            }
-        }
-        $self->{fhcache}{$path} = IO::File->new($path) || return;
-        binmode $self->{fhcache}{$path};
-        $self->{curopen}++;
-    }
-    $self->{cacheseq}{$path}++;
-    $self->{fhcache}{$path}
-}
-
-sub _pack {
-    pack STRUCT, @_;
-}
-
-sub _packBig {
-    pack STRUCTBIG, @_;
-}
-
-sub _unpack {
-    unpack STRUCT, shift;
-}
-
-sub _unpackBig {
-    unpack STRUCTBIG, shift;
-}
 
 =head2 get_PrimaryQual_stream
 
@@ -1035,13 +1064,18 @@ sub get_PrimaryQual_stream {
     return Bio::DB::Qual::Stream->new($self);
 }
 
+
+#-------------------------------------------------------------
+# Tied hash logic
+#
+
 sub TIEHASH {
     my $self = shift;
     return $self->new(@_);
 }
 
 sub FETCH {
-    shift->subqual(@_);
+    return shift->subqual(@_);
 }
 
 sub STORE {
@@ -1057,12 +1091,16 @@ sub CLEAR {
 }
 
 sub EXISTS {
-    defined shift->offset(@_);
+    return defined shift->offset(@_);
 }
 
-sub FIRSTKEY { tied(%{shift->{offsets}})->FIRSTKEY(@_); }
+sub FIRSTKEY {
+    return tied(%{shift->{offsets}})->FIRSTKEY(@_);
+}
 
-sub NEXTKEY  { tied(%{shift->{offsets}})->NEXTKEY(@_);  }
+sub NEXTKEY  {
+    return tied(%{shift->{offsets}})->NEXTKEY(@_);
+}
 
 sub DESTROY {
     my $self = shift;
@@ -1070,7 +1108,9 @@ sub DESTROY {
         warn "indexing was interrupted, so deleting $self->{indexing}";
         unlink $self->{indexing};
     }
+    return 1;
 }
+
 
 #-------------------------------------------------------------
 # Bio::Seq::PrimaryQual compatibility
@@ -1160,6 +1200,7 @@ sub description  {
 package Bio::DB::Qual::Stream;
 use base qw(Tie::Handle Bio::DB::SeqI);
 
+
 sub new {
     my ($class, $db) = @_;
     my $key = $db->FIRSTKEY;
@@ -1175,11 +1216,11 @@ sub next_seq {
     return if not defined $key;
     while ($key =~ /^__/) {
         $key = $db->NEXTKEY($key);
-        return unless defined $key;
+        return if not defined $key;
     }
     my $value = $db->get_Qual_by_id($key);
     $self->{key} = $db->NEXTKEY($key);
-    $value;
+    return $value;
 }
 
 sub TIEHANDLE {
@@ -1189,10 +1230,9 @@ sub TIEHANDLE {
 
 sub READLINE {
     my $self = shift;
-    $self->next_seq;
+    return $self->next_seq;
 }
 
 1;
 
 __END__
-
