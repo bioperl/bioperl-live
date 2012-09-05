@@ -8,7 +8,7 @@
 
 =head1 NAME
 
-Bio::DB::Qual -- Fast indexed access to a directory of quality files
+Bio::DB::Qual - Fast indexed access to a directory of quality files
 
 =head1 SYNOPSIS
 
@@ -395,8 +395,14 @@ use base qw(Bio::DB::SeqI Bio::Root::Root);
 *ids = \&get_all_ids;
 *get_qual_by_primary_id = *get_qual_by_acc  = \&get_Qual_by_id;
 
-use constant STRUCT    =>'NNnna*';
-use constant STRUCTBIG =>'QQnna*'; # 64-bit file offset and quality score length
+use constant STRUCT    =>'NNnnCa*';
+use constant STRUCTBIG =>'QQnnCa*';
+
+use constant NA        => 0;
+use constant DNA       => 1;
+use constant RNA       => 2;
+use constant PROTEIN   => 3;
+
 use constant DIE_ON_MISSMATCHED_LINES => 1; # you can avoid dying if you want
                                             # but you're likely to get bad
                                             # results
@@ -714,7 +720,8 @@ sub calculate_offsets {
                     $qualstrlength,
                     $linelength,
                     $firstline,
-                    $base
+                    NA,
+                    $base,
                 );
             }
             $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
@@ -762,7 +769,8 @@ sub calculate_offsets {
             $qualstrlength,
             $linelength,
             $firstline,
-            $base
+            NA,
+            $base,
         );
     }
     $offsets->{__termination_length} = $termination_length;
@@ -909,7 +917,7 @@ sub file {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
     my $offset = $self->{offsets}{$id} or return;
-    return $self->_fileno2path((&{$self->{unpackmeth}}($offset))[4]);
+    return $self->_fileno2path((&{$self->{unpackmeth}}($offset))[5]);
 }
 
 sub _fileno2path {
