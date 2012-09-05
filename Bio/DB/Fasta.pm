@@ -8,7 +8,7 @@
 
 =head1 NAME
 
-Bio::DB::Fasta -- Fast indexed access to a directory of fasta files
+Bio::DB::Fasta - Fast indexed access to a directory of fasta files
 
 =head1 SYNOPSIS
 
@@ -268,7 +268,7 @@ These methods all do the same thing as get_Seq_by_id().
 
 =item $stream = $db-E<gt>get_PrimarySeq_stream()
 
-Return a Bio::DB::Fasta::Stream object, which supports a single method
+Return a Bio::DB::Indexed::Stream object, which supports a single method
 next_seq(). Each call to next_seq() returns a new
 Bio::PrimarySeq::Fasta object, until no more sequences remain.
 
@@ -421,8 +421,9 @@ use base qw(Bio::DB::SeqI Bio::Root::Root);
 *ids = \&get_all_ids;
 *get_seq_by_primary_id = *get_Seq_by_acc  = \&get_Seq_by_id;
 
-use constant STRUCT    =>'NNnnCa*';
-use constant STRUCTBIG =>'QQnnCa*'; # 64-bit file offset and seq length
+# Pack file $offset, $seqlength, $linelength, $firstline, $type, $base
+use constant STRUCT    =>'NNnnCa*'; # 32-bit
+use constant STRUCTBIG =>'QQnnCa*'; # 64-bit
 
 use constant NA        => 0;
 use constant DNA       => 1;
@@ -519,7 +520,7 @@ sub newFh {
   my $self = $class->new(@_);
   require Symbol;
   my $fh = Symbol::gensym or return;
-  tie $$fh,'Bio::DB::Fasta::Stream',$self or return;
+  tie $$fh,'Bio::DB::Indexed::Stream',$self or return;
   return $fh;
 }
 
@@ -1052,14 +1053,14 @@ sub _caloffset {
  Title   : get_PrimarySeq_stream
  Usage   : my $stream = $seqdb->get_PrimarySeq_stream();
  Function: Get the database sequence stream
- Returns : A Bio::DB::Fasta::Stream object
+ Returns : A Bio::DB::Indexed::Stream object
  Args    : None
 
 =cut
 
 sub get_PrimarySeq_stream {
   my $self = shift;
-  return Bio::DB::Fasta::Stream->new($self);
+  return Bio::DB::Indexed::Stream->new($self);
 }
 
 
@@ -1212,7 +1213,7 @@ sub description  {
 #-------------------------------------------------------------
 # stream-based access to the database
 #
-package Bio::DB::Fasta::Stream;
+package Bio::DB::Indexed::Stream;
 use base qw(Tie::Handle Bio::DB::SeqI);
 
 

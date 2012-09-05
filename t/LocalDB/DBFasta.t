@@ -79,7 +79,7 @@ is $db->alphabet('123'), '';
 
 # Test stream
 ok my $stream = $db->get_PrimarySeq_stream;
-isa_ok $stream, 'Bio::DB::Fasta::Stream';
+isa_ok $stream, 'Bio::DB::Indexed::Stream';
 my $count = 0;
 while (my $seq = $stream->next_seq) {
     $count++;

@@ -242,7 +242,7 @@ These methods all do the same thing as get_Qual_by_id().
 
 =item $stream = $db-E<gt>get_PrimaryQual_stream()
 
-Return a Bio::DB::Qual::Stream object, which supports a single method 
+Return a Bio::DB::Indexed::Stream object, which supports a single method 
 next_seq(). Each call to next_seq() returns a new Bio::Seq::PrimaryQual object,
 until no more quality scores remain.
 
@@ -495,7 +495,7 @@ sub newFh {
     my $self  = $class->new(@_);
     require Symbol;
     my $fh = Symbol::gensym or return;
-    tie $$fh,'Bio::DB::Qual::Stream',$self or return;
+    tie $$fh,'Bio::DB::Indexed::Stream',$self or return;
     return $fh;
 }
 
@@ -1069,7 +1069,7 @@ sub _caloffset {
 
 sub get_PrimaryQual_stream {
     my $self = shift;
-    return Bio::DB::Qual::Stream->new($self);
+    return Bio::DB::Indexed::Stream->new($self);
 }
 
 
@@ -1205,7 +1205,7 @@ sub description  {
 # stream-based access to the database
 #
 
-package Bio::DB::Qual::Stream;
+package Bio::DB::Indexed::Stream;
 use base qw(Tie::Handle Bio::DB::SeqI);
 
 

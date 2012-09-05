@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 44,
+    test_begin( -tests => 45,
                 -requires_module => 'Bio::DB::Qual');
 
     use_ok('Bio::Root::IO');
@@ -61,6 +61,7 @@ undef $revobj;
 
 # using get_PrimaryQual_stream streaming
 ok my $stream  = $db->get_PrimaryQual_stream;
+isa_ok $stream, 'Bio::DB::Indexed::Stream';
 ok my $streamqual = $stream->next_seq;
 isa_ok $streamqual, 'Bio::Seq::PrimaryQual';
 
