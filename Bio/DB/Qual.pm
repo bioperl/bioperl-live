@@ -389,11 +389,11 @@ use Fcntl;
 use File::Spec;
 use File::Basename qw(basename dirname);
 
-use base qw(Bio::DB::SeqI Bio::Root::Root);
+use base qw(Bio::DB::IndexedBase Bio::DB::SeqI);
 
 *qual = *quality = \&subqual;
 *ids = \&get_all_ids;
-*get_qual_by_primary_id = *get_qual_by_acc  = \&get_Qual_by_id;
+*get_seq_by_primary_id = *get_Seq_by_acc = *get_Seq_by_id = *get_qual_by_primary_id = *get_qual_by_acc  = \&get_Qual_by_id;
 
 use constant STRUCT    =>'NNnnCa*';
 use constant STRUCTBIG =>'QQnnCa*';
@@ -1201,45 +1201,6 @@ sub description  {
 }
 *desc = \&description;
 
-#-------------------------------------------------------------
-# stream-based access to the database
-#
-
-package Bio::DB::Indexed::Stream;
-use base qw(Tie::Handle Bio::DB::SeqI);
-
-
-sub new {
-    my ($class, $db) = @_;
-    my $key = $db->FIRSTKEY;
-    return bless {
-        db  => $db,
-        key => $key
-    }, $class;
-}
-
-sub next_seq {
-    my $self = shift;
-    my ($key, $db) = @{$self}{'key', 'db'};
-    return if not defined $key;
-    while ($key =~ /^__/) {
-        $key = $db->NEXTKEY($key);
-        return if not defined $key;
-    }
-    my $value = $db->get_Qual_by_id($key);
-    $self->{key} = $db->NEXTKEY($key);
-    return $value;
-}
-
-sub TIEHANDLE {
-    my ($class, $db) = @_;
-    return $class->new($db);
-}
-
-sub READLINE {
-    my $self = shift;
-    return $self->next_seq;
-}
 
 1;
 
