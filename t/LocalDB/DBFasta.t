@@ -1,13 +1,9 @@
-# -*-Perl-*- Test Harness script for Bioperl
-# $Id$
-
-
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 35,
-               -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
+    test_begin( -tests => 38,
+                -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
 use warnings;
@@ -21,7 +17,7 @@ my $test_dbdir = setup_temp_dir('dbfa');
 
 # now use this temporary dir for the db file
 my $db;
-ok $db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1);
+ok $db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1), 'Index a directory';
 isa_ok $db, 'Bio::DB::Fasta';
 cmp_ok $db->length('CEESC13F'), '>', 0;
 is length($db->seq('CEESC13F:1,10')), 10;
@@ -69,7 +65,7 @@ is $@, '';
 # Test alphabet
 my $test_file = test_input_file('dbfa', 'mixed_alphabet.fasta');
 
-ok $db = Bio::DB::Fasta->new( $test_file, -reindex => 1);
+ok $db = Bio::DB::Fasta->new( $test_file, -reindex => 1), 'Index a single file';
 is $db->alphabet('gi|352962132|ref|NG_030353.1|'), 'dna';
 is $db->alphabet('gi|352962148|ref|NM_001251825.1|'), 'rna';
 is $db->alphabet('gi|194473622|ref|NP_001123975.1|'), 'protein';
@@ -86,6 +82,61 @@ while (my $seq = $stream->next_seq) {
 }
 is $count, 5;
 unlink "$test_file.index";
+
+
+# Test opening set of files and test IDs
+my $test_files = [
+    test_input_file('dbfa', 'mixed_alphabet.fasta'),
+    test_input_file('dbfa', '6.fa')
+];
+ok $db = Bio::DB::Fasta->new( $test_files, -reindex => 1), 'Index a set of files';
+my @ids = sort $db->get_all_ids();
+is_deeply \@ids, [ qw(
+    123
+    CEESC12R
+    CEESC13F
+    CEESC13R
+    CEESC14F
+    CEESC14R
+    CEESC15F
+    CEESC15R
+    CEESC15RB
+    CEESC16F
+    CEESC17F
+    CEESC17RB
+    CEESC18F
+    CEESC18R
+    CEESC19F
+    CEESC19R
+    CEESC20F
+    CEESC21F
+    CEESC21R
+    CEESC22F
+    CEESC23F
+    CEESC24F
+    CEESC25F
+    CEESC26F
+    CEESC27F
+    CEESC28F
+    CEESC29F
+    CEESC30F
+    CEESC32F
+    CEESC33F
+    CEESC33R
+    CEESC34F
+    CEESC35R
+    CEESC36F
+    CEESC37F
+    CEESC39F
+    CEESC40R
+    CEESC41F
+    gi|194473622|ref|NP_001123975.1|
+    gi|352962132|ref|NG_030353.1|
+    gi|352962148|ref|NM_001251825.1|
+    gi|61679760|pdb|1Y4P|B
+)];
+like $db->index_name, qr/^fileset_.+\.index$/;
+unlink $db->index_name;
 
 
 {

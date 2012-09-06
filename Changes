@@ -47,6 +47,8 @@ CPAN releases are branched from 'master'.
         - Option -names of get_taxon() to help with ambiguous taxa [fangly]
     * Bio::DB::Taxonomy::*
         - get_num_taxa() returns the number of taxa in the database [fangly]
+    * Bio::DB::Fasta and Bio::DB::Qual
+        - support indexing an arbitrary list of files [fangly]
 
     [Bug fixes]
 

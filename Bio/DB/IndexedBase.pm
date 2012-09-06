@@ -633,13 +633,17 @@ sub index_file {
 
 sub index_files {
     my ($self, $files, $force_reindex) = @_;
-    my $index = $self->index_name( 'files.index' );
+    my @paths = map { File::Spec->rel2abs($_) } @$files;
+    require Digest::MD5;
+    my $digest = Digest::MD5::md5_hex( join('', sort @paths) );
+    my $index = $self->index_name( "fileset_$digest.index" ); # unique name for the given files
     my $offsets = $self->_index_files($files, $force_reindex);
     return $offsets;
 }
 
 
 sub _index_files {
+    # Do the indexing of the given files using the index file on record
     my ($self, $files, $force_reindex) = @_;
 
     $self->set_pack_method( @$files );
