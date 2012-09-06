@@ -432,8 +432,6 @@ use constant PROTEIN   => 3;
 
 use constant DIE_ON_MISSMATCHED_LINES => 1; # if you want
 
-# Bio::DB-like object
-# providing fast random access to a directory of FASTA files
 
 =head2 new
 
@@ -524,121 +522,6 @@ sub newFh {
   return $fh;
 }
 
-sub _open_index {
-  my $self = shift;
-  my ($index,$write) = @_;
-  my %offsets;
-  my $flags = $write ? O_CREAT|O_RDWR : O_RDONLY;
-  my @dbmargs = $self->dbmargs;
-  tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs
-        or $self->throw("Can't open index file $index: $!");
-  return \%offsets;
-}
-
-sub _close_index {
-  my ($self, $index) = @_;
-  untie %$index;
-  return 1;
-}
-
-=head2 index_dir
-
- Title   : index_dir
- Usage   : $db->index_dir($dir)
- Function: set the index dir and load all files in the dir
- Returns : hashref of seq offsets in each file
- Args    : dirname, boolean to force a reload of all files
-
-=cut
-
-sub index_dir {
-  my ($self, $dir, $force_reindex) = @_;
-
-  # find all fasta files
-  my @files = glob( File::Spec->catfile($dir, $self->{glob}) );
-  return unless @files;
-
-  # get name of index
-  my $index = $self->index_name($dir,1);
-
-  # if caller has requested reindexing, then unlink
-  # the index file.
-  unlink $index if $force_reindex;
-
-  # get the modification time of the index
-  my $indextime   = 0;
-  for my $suffix('','.pag','.dir') {
-    $indextime ||= (stat("${index}${suffix}"))[9];
-  }
-  $indextime ||= 0;  # prevent some uninit variable warnings
-
-  # get the most recent modification time of any of the contents
-  my $modtime = 0;
-  my %modtime;
-  $self->set_pack_method( @files );
-  foreach (@files) {
-    my $m = (stat($_))[9];
-    $modtime{$_} = $m;
-    $modtime = $m if defined $m && $modtime < $m;
-  }
-
-  my $reindex      = $force_reindex || $indextime < $modtime;
-  $self->{offsets} = $self->_open_index($index,$reindex) or return;
-
-  # no indexing needed
-  return $self->{offsets} unless $reindex;
-
-  # otherwise reindex contents of changed files
-  $self->{indexing} = $index;
-  foreach (@files) {
-    next if( defined $indextime && $modtime{$_} <= $indextime);
-    $self->calculate_offsets($_,$self->{offsets});
-  }
-  delete $self->{indexing};
-
-  # we've been having troubles with corrupted index files on Windows systems,
-  # so possibly closing and reopening will help
-  $self->_close_index($self->{offsets});
-
-  return $self->{offsets}  = $self->_open_index($index);
-}
-
-
-=head2 index_file
-
- Title   : index_file
- Usage   : $db->index_file($filename)
- Function: (re)loads a sequence file and indexes sequences offsets in the file
- Returns : seq offsets in the file
- Args    : filename,
-           boolean to force reloading a file
-
-=cut
-
-sub index_file {
-  my ($self, $file, $force_reindex) = @_;
-
-  $self->set_pack_method( $file );
-  my $index = $self->index_name($file);
-  # if caller has requested reindexing, then unlink the index
-  unlink $index if $force_reindex;
-
-  # get the modification time of the index
-  my $indextime = (stat($index))[9] || 0;
-  my $modtime   = (stat($file))[9]  || 0;
-
-  my $reindex = $force_reindex || $indextime < $modtime;
-  my $offsets = $self->_open_index($index,$reindex) or return;
-  $self->{offsets} = $offsets;
-
-  return $self->{offsets} unless $reindex;
-
-  $self->{indexing} = $index;
-  $self->calculate_offsets($file,$offsets);
-  delete $self->{indexing};
-  return $self->{offsets};
-}
-
 
 =head2 set_pack_method
 
@@ -665,49 +548,6 @@ sub set_pack_method {
       $self->{unpackmeth} = \&_unpack;
   }
   return 1;
-}
-
-=head2 dbmargs
-
- Title   : dbmargs
- Usage   : my @args = $db->dbmargs;
- Function: gets stored dbm arguments
- Returns : array
- Args    : none
-
-=cut
-
-sub dbmargs {
-  my $self = shift;
-  my $args = $self->{dbmargs} or return;
-  return ref($args) eq 'ARRAY' ? @$args : $args;
-}
-
-
-=head2 index_name
-
- Title   : index_name
- Usage   : my $indexname = $db->index_name($path,$isdir);
- Function: returns the name of the index for a specific path
- Returns : string
- Args    : path to check,
-           boolean if it is a dir
-
-=cut
-
-sub index_name {
-  my ($self, $path, $isdir) = @_;
-  unless ($path) {
-    my $dir = $self->{dirname} or return;
-    return $self->index_name($dir,-d $dir);
-  }
-  return File::Spec->catfile($path, "directory.index") if $isdir;
-  return "$path.index";
-}
-
-
-sub path {
-  return shift->{dirname};
 }
 
 
@@ -820,31 +660,6 @@ sub _type {
          : PROTEIN;
 }
 
-
-sub _check_linelength {
-  my ($self, $linelength) = @_;
-  return unless defined $linelength;
-  $self->throw("Each line of the fasta file must be less than 65,536 characters.".
-    " Line $. is $linelength chars.") if $linelength > 65535;
-}
-
-
-sub _fhcache {
-  my ($self, $path) = @_;
-  if (!$self->{fhcache}{$path}) {
-    if ($self->{curopen} >= $self->{maxopen}) {
-      my @lru = sort {$self->{cacheseq}{$a} <=> $self->{cacheseq}{$b};} keys %{$self->{fhcache}};
-      splice(@lru, $self->{maxopen} / 3);
-      $self->{curopen} -= @lru;
-      for (@lru) { delete $self->{fhcache}{$_} }
-    }
-    $self->{fhcache}{$path} = IO::File->new($path) or return;
-    binmode $self->{fhcache}{$path};
-    $self->{curopen}++;
-  }
-  $self->{cacheseq}{$path}++;
-  return $self->{fhcache}{$path};
-}
 
 sub _pack {
   return pack STRUCT,@_;
