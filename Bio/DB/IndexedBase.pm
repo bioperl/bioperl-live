@@ -539,13 +539,12 @@ sub dbmargs {
 
 
 sub _open_index {
-    my $self = shift;
-    my ($index,$write) = @_;
+    my ($self, $index, $write) = @_;
     my %offsets;
     my $flags = $write ? O_CREAT|O_RDWR : O_RDONLY;
     my @dbmargs = $self->dbmargs;
     tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs 
-        or $self->throw( "Can't open index file $index: $!");
+        or $self->throw( "Could not open index file $index: $!");
     return \%offsets;
 }
 
@@ -661,9 +660,9 @@ sub index_dir {
 
     # otherwise reindex contents of changed files
     $self->{indexing} = $index;
-    foreach (@files) {
-        next if( defined $indextime && $modtime{$_} <= $indextime);
-        $self->calculate_offsets($_,$self->{offsets});
+    for my $file (@files) {
+        next if( defined $indextime && $modtime{$file} <= $indextime);
+        $self->calculate_offsets($file, $self->{offsets});
     }
     delete $self->{indexing};
 
@@ -705,6 +704,13 @@ sub index_file {
     return $self->{offsets} unless $reindex;
 
     $self->{indexing} = $index;
+
+    ####
+    use Data::Dumper;
+    $Data::Dumper::Maxdepth = 2;
+    print Dumper($self);
+    ####
+
     $self->calculate_offsets($file,$offsets);
     delete $self->{indexing};
     return $self->{offsets};
@@ -789,7 +795,7 @@ sub _fileno2path {
 sub _path2fileno {
     my ($self, $path) = @_;
     if ( !defined $self->{offsets}{"__path_$path"} ) {
-        my $fileno  = ($self->{offsets}{"__path_$path"} = 0+ $self->{fileno}++);
+        my $fileno = ($self->{offsets}{"__path_$path"} = 0+ $self->{fileno}++);
         $self->{offsets}{"__file_$fileno"} = $path;
     }
     return $self->{offsets}{"__path_$path"}

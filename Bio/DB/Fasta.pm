@@ -505,7 +505,7 @@ sub new {
  Title   : calculate_offsets
  Usage   : $db->calculate_offsets($filename,$offsets);
  Function: calculates the sequence offsets in a file based on id
- Returns : offset hash for each file
+ Returns : offset hash for this file
  Args    : file to process
            $offsets - hashref of id to offset storage
 
