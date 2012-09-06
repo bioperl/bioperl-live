@@ -404,6 +404,7 @@ disclaimers of warranty.
 package Bio::DB::Fasta;
 
 use strict;
+use Cwd;
 use IO::File;
 use File::Spec;
 use File::Basename qw(basename dirname);
@@ -428,7 +429,7 @@ use constant DIE_ON_MISSMATCHED_LINES => 1; # if you want
  Usage   : my $db = Bio::DB::Fasta->new( $path, @options);
  Function: initialize a new Bio::DB::Fasta object
  Returns : new Bio::DB::Fasta object
- Args    : path to dir of fasta files or a single filename
+ Args    : a single file, or path to dir, or arrayref of files
 
 These are optional arguments to pass in as well.
 
@@ -456,8 +457,7 @@ These are optional arguments to pass in as well.
 =cut
 
 sub new {
-  my ($class, $path) = @_;
-  my %opts  = @_;
+  my ($class, $path, %opts) = @_;
 
   my $self = bless {
     debug      => $opts{-debug},
@@ -471,22 +471,29 @@ sub new {
     openseq    => 1,
     dirname    => undef,
     offsets    => undef,
-                   }, $class;
-  my ($offsets,$dirname);
+  }, $class;
 
-  if (-d $path) {
-    # because Win32 glob() is broken with respect to long file names
-    # that contain whitespace.
-    $path = Win32::GetShortPathName($path)
-      if $^O =~ /^MSWin/i && eval 'use Win32; 1';
-    $offsets = $self->index_dir($path,$opts{-reindex}) or return;
-    $dirname = $path;
-  } elsif (-f _) {
-    $offsets = $self->index_file($path,$opts{-reindex});
-    $dirname = dirname($path);
+  my ($offsets, $dirname);
+  my $ref = ref $path || '';
+  if ( $ref eq 'ARRAY' ) {
+    $offsets = $self->index_files($path, $opts{-reindex});
+    $dirname = getcwd();
   } else {
-    $self->throw( "$path: Invalid file or dirname");
+    if (-d $path) {
+      # because Win32 glob() is broken with respect to long file names
+      # that contain whitespace.
+      $path = Win32::GetShortPathName($path)
+        if $^O =~ /^MSWin/i && eval 'use Win32; 1';
+      $offsets = $self->index_dir($path, $opts{-reindex});
+      $dirname = $path;
+    } elsif (-f _) {
+      $offsets = $self->index_file($path, $opts{-reindex});
+      $dirname = dirname($path);
+    } else {
+      $self->throw( "$path: Invalid file or dirname");
+    }
   }
+
   @{$self}{qw(dirname offsets)} = ($dirname,$offsets);
 
   return $self;
@@ -746,7 +753,7 @@ sub fh {
   my ($self, $id) = @_;
   $self->throw('Need to provide a sequence ID') if not defined $id;
   my $file = $self->file($id) or return;
-  return $self->_fhcache( File::Spec->catfile($self->{dirname},$file) ) or
+  return $self->_fhcache( File::Spec->catfile($self->{dirname}, $file) ) or
     $self->throw( "Can't open file $file");
 }
 

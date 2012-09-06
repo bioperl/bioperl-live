@@ -405,7 +405,7 @@ use constant DIE_ON_MISSMATCHED_LINES => 1; # you can avoid dying if you want
  Usage   : my $db = Bio::DB::Qual->new( $path, @options);
  Function: initialize a new Bio::DB::Qual object
  Returns : new Bio::DB::Qual object
- Args    : path to dir of qual files or a single qual filename
+ Args    : a single file, or path to dir, or arrayref of files
 
 These are optional arguments to pass in as well.
 
@@ -433,8 +433,7 @@ These are optional arguments to pass in as well.
 =cut
 
 sub new {
-    my ($class, $path) = @_;
-    my %opts  = @_;
+    my ($class, $path, %opts) = @_;
 
     my $self = bless {
         debug      => $opts{-debug},
@@ -449,21 +448,28 @@ sub new {
         dirname    => undef,
         offsets    => undef,
     }, $class;
-    my ($offsets,$dirname);
 
-    if (-d $path) {
-        # because Win32 glob() is broken with respect to long file names that
-        # contain whitespace.
-        $path = Win32::GetShortPathName($path)
-        if $^O =~ /^MSWin/i && eval 'use Win32; 1';
-        $offsets = $self->index_dir($path,$opts{-reindex}) or return;
-        $dirname = $path;
-    } elsif (-f _) {
-        $offsets = $self->index_file($path,$opts{-reindex});
-        $dirname = dirname($path);
+    my ($offsets, $dirname);
+    my $ref = ref $path || '';
+    if ( $ref eq 'ARRAY' ) {
+        $offsets = $self->index_files($path, $opts{-reindex});
+        $dirname = getcwd();
     } else {
-        $self->throw( "$path: Invalid file or dirname");
+        if (-d $path) {
+            # because Win32 glob() is broken with respect to long file names
+            # that contain whitespace.
+            $path = Win32::GetShortPathName($path)
+                if $^O =~ /^MSWin/i && eval 'use Win32; 1';
+            $offsets = $self->index_dir($path, $opts{-reindex});
+            $dirname = $path;
+        } elsif (-f _) {
+            $offsets = $self->index_file($path, $opts{-reindex});
+            $dirname = dirname($path);
+        } else {
+            $self->throw( "$path: Invalid file or dirname");
+       }
     }
+
     @{$self}{qw(dirname offsets)} = ($dirname,$offsets);
 
     return $self;
