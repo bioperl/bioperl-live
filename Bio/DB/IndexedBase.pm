@@ -482,8 +482,9 @@ sub newFh {
     my $class = shift;
     my $self  = $class->new(@_);
     require Symbol;
-    my $fh = Symbol::gensym or return;
-    tie $$fh,'Bio::DB::Indexed::Stream',$self or return;
+    my $fh = Symbol::gensym;
+    tie $$fh, 'Bio::DB::Indexed::Stream', $self
+        or $self->throw("Could not tie filehandle: $!");
     return $fh;
 }
 
