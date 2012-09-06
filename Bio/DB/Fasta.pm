@@ -421,10 +421,6 @@ use base qw(Bio::DB::IndexedBase Bio::DB::SeqI);
 *ids = \&get_all_ids;
 *get_seq_by_primary_id = *get_Seq_by_acc  = \&get_Seq_by_id;
 
-# Pack file $offset, $seqlength, $linelength, $firstline, $type, $base
-use constant STRUCT    =>'NNnnCa*'; # 32-bit
-use constant STRUCTBIG =>'QQnnCa*'; # 64-bit
-
 use constant NA        => 0;
 use constant DNA       => 1;
 use constant RNA       => 2;
@@ -509,34 +505,6 @@ sub new {
 ##  my $self = Bio::DB::IndexedBase->new( $path, %opts );
 ##  return $self;
 ##}
-
-
-=head2 set_pack_method
-
- Title   : set_pack_method
- Usage   : $db->set_pack_method( @files )
- Function: Determine and set the type of data packing to use: 32 or 64 bit integers
- Returns : 1 for success
- Args    : one or more file paths
-
-=cut
-
-sub set_pack_method {
-  my $self = shift;
-  # Find the maximum file size:eq
-  my ($maxsize) = sort { $b <=> $a } map { -s $_ } @_;
-  my $fourGB    = (2 ** 32) - 1;
-
-  if ($maxsize > $fourGB) {
-      # At least one file exceeds 4Gb - we will need to use 64 bit ints
-      $self->{packmeth}   = \&_packBig;
-      $self->{unpackmeth} = \&_unpackBig;
-  } else {
-      $self->{packmeth}   = \&_pack;
-      $self->{unpackmeth} = \&_unpack;
-  }
-  return 1;
-}
 
 
 =head2 calculate_offsets
@@ -638,31 +606,6 @@ sub calculate_offsets {
   }
   $offsets->{__termination_length} = $termination_length;
   return \%offsets;
-}
-
-
-sub _type {
-  my ($self, $string) = @_;
-  return $string =~ m/^[gatcnGATCN*-]+$/   ? DNA
-         : $string =~ m/^[gaucnGAUCN*-]+$/ ? RNA
-         : PROTEIN;
-}
-
-
-sub _pack {
-  return pack STRUCT,@_;
-}
-
-sub _packBig {
-  return pack STRUCTBIG,@_;
-}
-
-sub _unpack {
-  return unpack STRUCT,shift;
-}
-
-sub _unpackBig {
-  return unpack STRUCTBIG,shift;
 }
 
 

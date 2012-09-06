@@ -557,6 +557,61 @@ sub _close_index {
 }
 
 
+=head2 set_pack_method
+
+ Title   : set_pack_method
+ Usage   : $db->set_pack_method( @files )
+ Function: Determines whether data packing uses 32 or 64 bit integers
+ Returns : 1 for success
+ Args    : one or more file paths
+
+=cut
+
+sub set_pack_method {
+    my $self = shift;
+    # Find the maximum file size:
+    my ($maxsize) = sort { $b <=> $a } map { -s $_ } @_;
+    my $fourGB    = (2 ** 32) - 1;
+
+    if ($maxsize > $fourGB) {
+        # At least one file exceeds 4Gb - we will need to use 64 bit ints
+        $self->{packmeth}   = \&_packBig;
+        $self->{unpackmeth} = \&_unpackBig;
+    } else {
+        $self->{packmeth}   = \&_pack;
+        $self->{unpackmeth} = \&_unpack;
+    }
+    return 1;
+}
+
+
+sub _pack {
+    return pack STRUCT, @_;
+}
+
+
+sub _packBig {
+    return pack STRUCTBIG, @_;
+}
+
+
+sub _unpack {
+    return unpack STRUCT, shift;
+}
+
+
+sub _unpackBig {
+    return unpack STRUCTBIG, shift;
+}
+
+
+sub _type {
+  my ($self, $string) = @_;
+  return $string =~ m/^[gatcnGATCN*-]+$/   ? DNA
+         : $string =~ m/^[gaucnGAUCN*-]+$/ ? RNA
+         : PROTEIN;
+}
+
 =head2 index_dir
 
  Title   : index_dir

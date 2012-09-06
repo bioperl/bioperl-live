@@ -395,9 +395,6 @@ use base qw(Bio::DB::IndexedBase Bio::DB::SeqI);
 *ids = \&get_all_ids;
 *get_seq_by_primary_id = *get_Seq_by_acc = *get_Seq_by_id = *get_qual_by_primary_id = *get_qual_by_acc  = \&get_Qual_by_id;
 
-use constant STRUCT    =>'NNnnCa*';
-use constant STRUCTBIG =>'QQnnCa*';
-
 use constant NA        => 0;
 use constant DNA       => 1;
 use constant RNA       => 2;
@@ -476,34 +473,6 @@ sub new {
     @{$self}{qw(dirname offsets)} = ($dirname,$offsets);
 
     return $self;
-}
-
-
-=head2 set_pack_method
-
- Title   : set_pack_method
- Usage   : $db->set_pack_method( @files )
- Function: Determines whether data packing uses 32 or 64 bit integers
- Returns : 1 for success
- Args    : one or more file paths
-
-=cut
-
-sub set_pack_method {
-    my $self = shift;
-    # Find the maximum file size:
-    my ($maxsize) = sort { $b <=> $a } map { -s $_ } @_;
-    my $fourGB    = (2 ** 32) - 1;
-
-    if ($maxsize > $fourGB) {
-        # At least one file exceeds 4Gb - we will need to use 64 bit ints
-        $self->{packmeth}   = \&_packBig;
-        $self->{unpackmeth} = \&_unpackBig;
-    } else {
-        $self->{packmeth}   = \&_pack;
-        $self->{unpackmeth} = \&_unpack;
-    }
-    return 1;
 }
 
 
@@ -598,23 +567,6 @@ sub calculate_offsets {
     }
     $offsets->{__termination_length} = $termination_length;
     return \%offsets;
-}
-
-
-sub _pack {
-    return pack STRUCT, @_;
-}
-
-sub _packBig {
-    return pack STRUCTBIG, @_;
-}
-
-sub _unpack {
-    return unpack STRUCT, shift;
-}
-
-sub _unpackBig {
-    return unpack STRUCTBIG, shift;
 }
 
 
