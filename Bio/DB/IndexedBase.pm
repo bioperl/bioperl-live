@@ -595,8 +595,7 @@ sub index_dir {
     my @files = glob( File::Spec->catfile($dir, $self->{glob}) );
     $self->throw("No suitable files found in $dir") if scalar @files == 0;
     my $index = $self->index_name( File::Spec->catfile($dir, 'directory.index') );
-    my $offsets = $self->index_files(\@files, $force_reindex);
-
+    my $offsets = $self->_index_files(\@files, $force_reindex);
     return $offsets;
 }
 
@@ -615,8 +614,8 @@ sub index_dir {
 sub index_file {
     my ($self, $file, $force_reindex) = @_;
     my $index = $self->index_name( "$file.index" );
-    my $offsets = $self->index_files([$file], $force_reindex);
-    return $self->{offsets};
+    my $offsets = $self->_index_files([$file], $force_reindex);
+    return $offsets;
 }
 
 
@@ -626,21 +625,26 @@ sub index_file {
  Usage   : $db->index_files(\@files)
  Function: Index the given files
  Returns : hashref of offsets
- Args    : arrayref of filnames
+ Args    : arrayref of filenames
            boolean to force a reload of all files
 
 =cut
 
 sub index_files {
     my ($self, $files, $force_reindex) = @_;
+    my $index = $self->index_name( 'files.index' );
+    my $offsets = $self->_index_files($files, $force_reindex);
+    return $offsets;
+}
+
+
+sub _index_files {
+    my ($self, $files, $force_reindex) = @_;
 
     $self->set_pack_method( @$files );
 
-    # get name of index file, set it if it does not exist
+    # get name of index file
     my $index = $self->index_name;
-    if (not defined $index) {
-        $self->index_name( 'files.index' );
-    }
 
     # if caller has requested reindexing, unlink the index file.
     unlink $index if $force_reindex;
