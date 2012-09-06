@@ -403,15 +403,8 @@ disclaimers of warranty.
 
 package Bio::DB::Fasta;
 
-BEGIN {
-  @AnyDBM_File::ISA = qw(DB_File GDBM_File NDBM_File SDBM_File)
-}
-
 use strict;
 use IO::File;
-use AnyDBM_File;
-use Fcntl;
-use File::Glob ':glob';
 use File::Spec;
 use File::Basename qw(basename dirname);
 
@@ -649,12 +642,14 @@ sub offset {
   return (&{$self->{unpackmeth}}($offset))[0];
 }
 
+
 sub length {
   my ($self, $id) = @_;
   $self->throw('Need to provide a sequence ID') if not defined $id;
   my $offset = $self->{offsets}{$id} or return;
   return (&{$self->{unpackmeth}}($offset))[1];
 }
+
 
 sub linelen {
   my ($self, $id) = @_;
@@ -663,12 +658,14 @@ sub linelen {
   return (&{$self->{unpackmeth}}($offset))[2];
 }
 
+
 sub headerlen {
   my ($self, $id) = @_;
   $self->throw('Need to provide a sequence ID') if not defined $id;
   my $offset = $self->{offsets}{$id} or return;
   return (&{$self->{unpackmeth}}($offset))[3];
 }
+
 
 sub alphabet {
   my ($self, $id) = @_;
@@ -690,25 +687,12 @@ sub header_offset {
   return $self->offset($id) - $self->headerlen($id);
 }
 
+
 sub file {
   my ($self, $id) = @_;
   $self->throw('Need to provide a sequence ID') if not defined $id;
   my $offset = $self->{offsets}{$id} or return;
   return $self->_fileno2path((&{$self->{unpackmeth}}($offset))[5]);
-}
-
-sub _fileno2path {
-  my ($self, $no) = @_;
-  return $self->{offsets}{"__file_$no"};
-}
-
-sub _path2fileno {
-  my ($self, $path) = @_;
-  if ( !defined $self->{offsets}{"__path_$path"} ) {
-    my $fileno  = ($self->{offsets}{"__path_$path"} = 0+ $self->{fileno}++);
-    $self->{offsets}{"__file_$fileno"} = $path;
-  }
-  return $self->{offsets}{"__path_$path"}
 }
 
 
@@ -730,7 +714,7 @@ sub subseq {
   if ($id =~ /^(.+):([\d_]+)(?:,|-|\.\.)([\d_]+)$/) {
     ($id,$start,$stop) = ($1,$2,$3);
     $start =~ s/_//g;
-    $stop =~ s/_//g;
+    $stop  =~ s/_//g;
   }
   $start ||= 1;
   $stop  ||= $self->length($id);
@@ -779,18 +763,6 @@ sub header {
   chomp $data;
   substr($data,0,1) = '';
   return $data;
-}
-
-
-sub _caloffset {
-  my $self = shift;
-  my $id   = shift;
-  my $a    = shift()-1;
-  my ($offset,$seqlength,$linelength,$firstline,$type,$file) = &{$self->{unpackmeth}}($self->{offsets}{$id});
-  $a = 0            if $a < 0;
-  $a = $seqlength-1 if $a >= $seqlength;
-  my $tl = $self->{offsets}{__termination_length};
-  return $offset + $linelength * int($a/($linelength-$tl)) + $a % ($linelength-$tl);
 }
 
 

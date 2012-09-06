@@ -747,6 +747,18 @@ sub _check_linelength {
 }
 
 
+sub _caloffset {
+    my ($self, $id, $a) = @_;
+    $a--;
+    my ($offset,$seqlength,$linelength,$firstline,$file)
+        = &{$self->{unpackmeth}}($self->{offsets}{$id});
+    $a = 0            if $a < 0;
+    $a = $seqlength-1 if $a >= $seqlength;
+    my $tl = $self->{offsets}{__termination_length};
+    return $offset + $linelength * int($a/($linelength-$tl)) + $a % ($linelength-$tl);
+}
+
+
 sub _fhcache {
     my ($self, $path) = @_;
     if (!$self->{fhcache}{$path}) {
@@ -765,6 +777,22 @@ sub _fhcache {
     }
     $self->{cacheseq}{$path}++;
     return $self->{fhcache}{$path};
+}
+
+
+sub _fileno2path {
+    my ($self, $no) = @_;
+    return $self->{offsets}{"__file_$no"};
+}
+
+
+sub _path2fileno {
+    my ($self, $path) = @_;
+    if ( !defined $self->{offsets}{"__path_$path"} ) {
+        my $fileno  = ($self->{offsets}{"__path_$path"} = 0+ $self->{fileno}++);
+        $self->{offsets}{"__file_$fileno"} = $path;
+    }
+    return $self->{offsets}{"__path_$path"}
 }
 
 

@@ -378,14 +378,8 @@ it under the same terms as Perl itself.
 
 package Bio::DB::Qual;
 
-BEGIN {
-  @AnyDBM_File::ISA = qw(DB_File GDBM_File NDBM_File SDBM_File)
-}
-
 use strict;
 use IO::File;
-use AnyDBM_File;
-use Fcntl;
 use File::Spec;
 use File::Basename qw(basename dirname);
 
@@ -629,6 +623,7 @@ sub length {
     return $len;
 }
 
+
 sub lengthstr {
     # the length of the quality STRING
     my ($self, $id) = @_;
@@ -637,12 +632,14 @@ sub lengthstr {
     return (&{$self->{unpackmeth}}($offset))[1];
 }
 
+
 sub linelen {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
     my $offset = $self->{offsets}{$id} or return;
     return (&{$self->{unpackmeth}}($offset))[2];
 }
+
 
 sub headerlen {
     my ($self, $id) = @_;
@@ -659,25 +656,12 @@ sub header_offset {
     return $self->offset($id) - $self->headerlen($id);
 }
 
+
 sub file {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
     my $offset = $self->{offsets}{$id} or return;
     return $self->_fileno2path((&{$self->{unpackmeth}}($offset))[5]);
-}
-
-sub _fileno2path {
-    my ($self, $no) = @_;
-    return $self->{offsets}{"__file_$no"};
-}
-
-sub _path2fileno {
-    my ($self, $path) = @_;
-    if ( !defined $self->{offsets}{"__path_$path"} ) {
-        my $fileno  = ($self->{offsets}{"__path_$path"} = 0+ $self->{fileno}++);
-        $self->{offsets}{"__file_$fileno"} = $path;
-    }
-    return $self->{offsets}{"__path_$path"}
 }
 
 
@@ -788,18 +772,6 @@ sub header {
     chomp $data;
     substr($data,0,1) = '';
     return $data;
-}
-
-
-sub _caloffset {
-    my ($self, $id, $a) = @_;
-    $a--;
-    my ($offset,$seqlength,$linelength,$firstline,$file)
-        = &{$self->{unpackmeth}}($self->{offsets}{$id});
-    $a = 0            if $a < 0;
-    $a = $seqlength-1 if $a >= $seqlength;
-    my $tl = $self->{offsets}{__termination_length};
-    return $offset + $linelength * int($a/($linelength-$tl)) + $a % ($linelength-$tl);
 }
 
 
