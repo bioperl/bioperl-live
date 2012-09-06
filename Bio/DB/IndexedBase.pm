@@ -100,9 +100,9 @@ tied hash interface.
 
 =over 2
 
-=item $db = Bio::DB::Fasta-E<gt>new($fasta_path [,%options])
+=item $db = Bio::DB::Fasta-E<gt>new($path [,%options])
 
-Create a new Bio::DB::Fasta object from the Fasta file or files
+Create a new Bio::DB::IndexedBase object from the file or files
 indicated by $fasta_path.  Indexing will be performed automatically if
 needed.  If successful, new() will return the database accessor
 object.  Otherwise it will return undef.
@@ -115,9 +115,9 @@ same name=E<gt>value pairs.  Valid options are:
  Option Name   Description               Default
  -----------   -----------               -------
 
- -glob         Glob expression to use    *.{fa,fasta,fast,FA,FASTA,FAST,dna}
-               for searching for Fasta
-               files in directories.
+ -glob         Glob expression to        *
+               search for files in
+               in directories.
 
  -makeid       A code subroutine for     None
                transforming Fasta IDs.
@@ -463,42 +463,42 @@ These are optional arguments to pass in as well.
 
 =cut
 
-sub new {
-    my ($class, $path) = @_;
-    my %opts  = @_;
+##sub new {
+##    my ($class, $path) = @_;
+##    my %opts  = @_;
 
-    my $self = bless {
-        debug      => $opts{-debug},
-        makeid     => $opts{-makeid},
-        glob       => $opts{-glob}    || '*',
-        maxopen    => $opts{-maxopen} || 32,
-        dbmargs    => $opts{-dbmargs} || undef,
-        fhcache    => {},
-        cacheseq   => {},
-        curopen    => 0,
-        openseq    => 1,
-        dirname    => undef,
-        offsets    => undef,
-    }, $class;
-    my ($offsets,$dirname);
+##    my $self = bless {
+##        debug      => $opts{-debug},
+##        makeid     => $opts{-makeid},
+##        glob       => $opts{-glob}    || '*',
+##        maxopen    => $opts{-maxopen} || 32,
+##        dbmargs    => $opts{-dbmargs} || undef,
+##        fhcache    => {},
+##        cacheseq   => {},
+##        curopen    => 0,
+##        openseq    => 1,
+##        dirname    => undef,
+##        offsets    => undef,
+##    }, $class;
+##    my ($offsets,$dirname);
 
-    if (-d $path) {
-        # because Win32 glob() is broken with respect to long file names that
-        # contain whitespace.
-        $path = Win32::GetShortPathName($path)
-        if $^O =~ /^MSWin/i && eval 'use Win32; 1';
-        $offsets = $self->index_dir($path,$opts{-reindex}) or return;
-        $dirname = $path;
-    } elsif (-f _) {
-        $offsets = $self->index_file($path,$opts{-reindex});
-        $dirname = dirname($path);
-    } else {
-        $self->throw( "$path: Invalid file or dirname");
-    }
-    @{$self}{qw(dirname offsets)} = ($dirname,$offsets);
+##    if (-d $path) {
+##        # because Win32 glob() is broken with respect to long file names that
+##        # contain whitespace.
+##        $path = Win32::GetShortPathName($path)
+##        if $^O =~ /^MSWin/i && eval 'use Win32; 1';
+##        $offsets = $self->index_dir($path,$opts{-reindex}) or return;
+##        $dirname = $path;
+##    } elsif (-f _) {
+##        $offsets = $self->index_file($path,$opts{-reindex});
+##        $dirname = dirname($path);
+##    } else {
+##        $self->throw( "$path: Invalid file or dirname");
+##    }
+##    @{$self}{qw(dirname offsets)} = ($dirname,$offsets);
 
-    return $self;
-}
+##    return $self;
+##}
 
 
 =head2 newFh
@@ -539,12 +539,12 @@ sub dbmargs {
 
 
 sub _open_index {
-    my ($self, $index, $write) = @_;
+    my ($self, $index_file, $write) = @_;
     my %offsets;
     my $flags = $write ? O_CREAT|O_RDWR : O_RDONLY;
     my @dbmargs = $self->dbmargs;
-    tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs 
-        or $self->throw( "Could not open index file $index: $!");
+    tie %offsets, 'AnyDBM_File', $index_file, $flags, 0644, @dbmargs 
+        or $self->throw( "Could not open index file $index_file: $!");
     return \%offsets;
 }
 
@@ -611,66 +611,26 @@ sub _type {
          : PROTEIN;
 }
 
+
 =head2 index_dir
 
  Title   : index_dir
  Usage   : $db->index_dir($dir)
- Function: set the index dir and load all files in the dir
- Returns : hashref of qual offsets in each file
- Args    : dirname, boolean to force a reload of all files
+ Function: Index the files in the given directory that match -glob
+ Returns : hashref of offsets
+ Args    : dirname
+           boolean to force a reload of all files
 
 =cut
 
 sub index_dir {
     my ($self, $dir, $force_reindex) = @_;
-
-    # find all qual files
     my @files = glob( File::Spec->catfile($dir, $self->{glob}) );
-    $self->throw("No qual files found in $dir") unless @files;
+    $self->throw("No suitable files found in $dir") if scalar @files == 0;
+    my $index = $self->index_name( File::Spec->catfile($dir, 'directory.index') );
+    my $offsets = $self->index_files(\@files, $force_reindex);
 
-    # get name of index
-    my $index = $self->index_name($dir,1);
-
-    # if caller has requested reindexing, then unlink
-    # the index file.
-    unlink $index if $force_reindex;
-
-    # get the modification time of the index
-    my $indextime   = 0;
-    for my $suffix('','.pag','.dir') {
-        $indextime ||= (stat("${index}${suffix}"))[9];
-    }
-    $indextime ||= 0;  # prevent some uninit variable warnings
-
-    # get the most recent modification time of any of the contents
-    my $modtime = 0;
-    my %modtime;
-    $self->set_pack_method( @files );
-    for my $file (@files) {
-        my $m = (stat($file))[9];
-        $modtime{$file} = $m;
-        $modtime = $m if defined $m && $modtime < $m;
-    }
-
-    my $reindex      = $force_reindex || $indextime < $modtime;
-    $self->{offsets} = $self->_open_index($index,$reindex) or return;
-
-    # no indexing needed
-    return $self->{offsets} unless $reindex;
-
-    # otherwise reindex contents of changed files
-    $self->{indexing} = $index;
-    for my $file (@files) {
-        next if( defined $indextime && $modtime{$file} <= $indextime);
-        $self->calculate_offsets($file, $self->{offsets});
-    }
-    delete $self->{indexing};
-
-    # we've been having troubles with corrupted index files on Windows systems,
-    # so possibly closing and reopening will help
-    $self->_close_index($self->{offsets});
-
-    return $self->{offsets} = $self->_open_index($index);
+    return $offsets;
 }
 
 
@@ -678,57 +638,97 @@ sub index_dir {
 
  Title   : index_file
  Usage   : $db->index_file($filename)
- Function: (re)loads a quality score file and indexes quality score offsets in
-           the file
- Returns : qual offsets in the file
- Args    : filename, boolean to force reloading a file
+ Function: Index the given file
+ Returns : hashref of offsets
+ Args    : filename
+           boolean to force reloading a file
 
 =cut
 
 sub index_file {
     my ($self, $file, $force_reindex) = @_;
+    my $index = $self->index_name( "$file.index" );
+    my $offsets = $self->index_files([$file], $force_reindex);
+    return $self->{offsets};
+}
 
-    $self->set_pack_method( $file );
-    my $index = $self->index_name($file);
-    # if caller has requested reindexing, then unlink the index
+
+=head2 index_files
+
+ Title   : index_files
+ Usage   : $db->index_files(\@files)
+ Function: Index the given files
+ Returns : hashref of offsets
+ Args    : arrayref of filnames
+           boolean to force a reload of all files
+
+=cut
+
+sub index_files {
+    my ($self, $files, $force_reindex) = @_;
+
+    $self->set_pack_method( @$files );
+
+    # get name of index file, set it if it does not exist
+    my $index = $self->index_name;
+    if (not defined $index) {
+        $self->index_name( 'files.index' );
+    }
+
+    # if caller has requested reindexing, unlink the index file.
     unlink $index if $force_reindex;
 
     # get the modification time of the index
-    my $indextime = (stat($index))[9] || 0;
-    my $modtime   = (stat($file) )[9] || 0;
+    my $indextime = (stat $index)[9] || 0;
 
-    my $reindex = $force_reindex || $indextime < $modtime;
-    my $offsets = $self->_open_index($index,$reindex) or return;
-    $self->{offsets} = $offsets;
+    # list recently updated files
+    my $modtime = 0;
+    my @updated;
+    for my $file (@$files) {
+        my $m = (stat $file)[9] || 0;
+        if ($m > $modtime) {
+           $modtime = $m;
+        }
+        if ($m > $indextime) {
+           push @updated, $file;
+        }
+    }
 
-    return $self->{offsets} unless $reindex;
+    my $reindex      = $force_reindex || (scalar @updated > 1);
+    $self->{offsets} = $self->_open_index($index, $reindex) or return;
 
-    $self->{indexing} = $index;
+    if ($reindex) {
+        # reindex contents of changed files
+        $self->{indexing} = $index;
+        for my $file (@updated) {
+            $self->calculate_offsets($file, $self->{offsets});
+        }
+        delete $self->{indexing};
+    }
 
-    $self->calculate_offsets($file,$offsets);
-    delete $self->{indexing};
-    return $self->{offsets};
+    # closing and reopening might help corrupted index file problem on Windows
+    $self->_close_index($self->{offsets});
+
+    return $self->{offsets} = $self->_open_index($index);
 }
 
 
 =head2 index_name
 
  Title   : index_name
- Usage   : my $indexname = $db->index_name($path,$isdir);
- Function: returns the name of the index for a specific path 
+ Usage   : my $indexname = $db->index_name($path);
+ Function: Get or set the path of the index file
  Returns : string
- Args    : path to check, boolean if it is a dir
+ Args    : none, or path to set
 
 =cut
 
 sub index_name {
-    my ($self, $path, $isdir) = @_;
-    unless ($path) {
-        my $dir = $self->{dirname} or return;
-        return $self->index_name($dir,-d $dir);
-    } 
-    return File::Spec->catfile($path, "directory.index") if $isdir;
-    return "$path.index";
+    my ($self, $path) = @_;
+    if (defined $path) {
+        $self->{index_name} = $path;
+    }
+    return $self->{index_name};
 }
 
 
