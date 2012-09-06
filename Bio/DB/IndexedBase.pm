@@ -501,6 +501,52 @@ sub new {
 }
 
 
+#-------------------------------------------------------------
+# Tied hash logic
+#
+
+sub TIEHASH {
+  my $self = shift;
+  return $self->new(@_);
+}
+
+sub FETCH {
+  return shift->subseq(@_);
+}
+
+sub STORE {
+  shift->throw("Read-only database");
+}
+
+sub DELETE {
+  shift->throw("Read-only database");
+}
+
+sub CLEAR {
+  shift->throw("Read-only database");
+}
+
+sub EXISTS {
+  return defined shift->offset(@_);
+}
+
+sub FIRSTKEY {
+  return tied(%{shift->{offsets}})->FIRSTKEY(@_);
+}
+
+sub NEXTKEY {
+  return tied(%{shift->{offsets}})->NEXTKEY(@_);
+}
+
+sub DESTROY {
+  my $self = shift;
+  if ($self->{indexing}) {  # killed prematurely, so index file is no good!
+    warn "indexing was interrupted, so deleting $self->{indexing}";
+    unlink $self->{indexing};
+  }
+  return 1;
+}
+
 
 #-------------------------------------------------------------
 # stream-based access to the database
