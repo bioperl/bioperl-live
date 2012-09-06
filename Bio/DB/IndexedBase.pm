@@ -410,9 +410,8 @@ use strict;
 use IO::File;
 use AnyDBM_File;
 use Fcntl;
-use File::Glob ':glob';
 use File::Spec;
-use File::Basename qw(basename dirname);
+use File::Basename qw(dirname);
 
 use base qw(Bio::Root::Root);
 
@@ -429,6 +428,7 @@ use constant RNA       => 2;
 use constant PROTEIN   => 3;
 
 use constant DIE_ON_MISSMATCHED_LINES => 1; # if you want
+
 
 =head2 new
 
