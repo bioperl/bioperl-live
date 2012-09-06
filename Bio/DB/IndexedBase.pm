@@ -705,12 +705,6 @@ sub index_file {
 
     $self->{indexing} = $index;
 
-    ####
-    use Data::Dumper;
-    $Data::Dumper::Maxdepth = 2;
-    print Dumper($self);
-    ####
-
     $self->calculate_offsets($file,$offsets);
     delete $self->{indexing};
     return $self->{offsets};
