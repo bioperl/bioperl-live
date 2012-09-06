@@ -418,7 +418,7 @@ use base qw(Bio::Root::Root);
 
 *seq = *sequence = \&subseq;
 *ids = \&get_all_ids;
-*get_seq_by_primary_id = *get_Seq_by_acc  = \&get_Seq_by_id;
+*get_seq_by_primary_id = *get_Seq_by_acc = \&get_Seq_by_id;
 
 use constant STRUCT    =>'NNnnCa*';
 use constant STRUCTBIG =>'QQnnCa*'; # 64-bit file offset and seq length
@@ -501,6 +501,26 @@ sub new {
 }
 
 
+=head2 newFh
+
+ Title   : newFh
+ Usage   : my $fh = Bio::DB::Qual->newFh('/path/to/qual/files', %options);
+ Function: Get a new Fh for a file or directory containing several files
+ Returns : filehandle object
+ Args    : Fasta filename and options
+
+=cut
+
+sub newFh {
+    my $class = shift;
+    my $self  = $class->new(@_);
+    require Symbol;
+    my $fh = Symbol::gensym or return;
+    tie $$fh,'Bio::DB::Indexed::Stream',$self or return;
+    return $fh;
+}
+
+
 =head2 dbmargs
 
  Title   : dbmargs
@@ -572,9 +592,9 @@ sub index_dir {
     my $modtime = 0;
     my %modtime;
     $self->set_pack_method( @files );
-    foreach (@files) {
-        my $m = (stat($_))[9];
-        $modtime{$_} = $m;
+    for my $file (@files) {
+        my $m = (stat($file))[9];
+        $modtime{$file} = $m;
         $modtime = $m if defined $m && $modtime < $m;
     }
 

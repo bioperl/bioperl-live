@@ -478,25 +478,6 @@ sub new {
     return $self;
 }
 
-=head2 newFh
-
- Title   : newFh
- Usage   : my $fh = Bio::DB::Qual->newFh('/path/to/qual/files', %options);
- Function: Get a new Fh for a file or directory containing several files
- Returns : filehandle object
- Args    : Fasta filename and options
-
-=cut
-
-sub newFh {
-    my $class = shift;
-    my $self  = $class->new(@_);
-    require Symbol;
-    my $fh = Symbol::gensym or return;
-    tie $$fh,'Bio::DB::Indexed::Stream',$self or return;
-    return $fh;
-}
-
 
 =head2 set_pack_method
 
@@ -635,6 +616,7 @@ sub _unpack {
 sub _unpackBig {
     return unpack STRUCTBIG, shift;
 }
+
 
 =head2 get_all_ids
 

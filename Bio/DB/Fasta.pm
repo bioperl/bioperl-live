@@ -503,24 +503,12 @@ sub new {
   return $self;
 }
 
-=head2 newFh
-
- Title   : newFh
- Usage   : my $fh = Bio::DB::Fasta->newFh($fasta_path, %options)
- Function: Get a new Fh for a file or directory containing several files
- Returns : GLOB
- Args    : Fasta filename and options
-
-=cut
-
-sub newFh {
-  my $class = shift;
-  my $self = $class->new(@_);
-  require Symbol;
-  my $fh = Symbol::gensym or return;
-  tie $$fh,'Bio::DB::Indexed::Stream',$self or return;
-  return $fh;
-}
+##sub new {
+##  my ($class, $path, %opts) = @_;
+##  $opts{-glob} ||= '*.{fa,fasta,FA,FASTA,fast,FAST,dna,FNA,fna,FAA,faa,FSA,fsa}',
+##  my $self = Bio::DB::IndexedBase->new( $path, %opts );
+##  return $self;
+##}
 
 
 =head2 set_pack_method
