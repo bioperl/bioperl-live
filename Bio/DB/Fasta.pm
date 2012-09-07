@@ -424,6 +424,8 @@ use constant PROTEIN   => 3;
 
 use constant DIE_ON_MISSMATCHED_LINES => 1; # if you want
 
+my $termination_length;
+
 
 =head2 new
 
@@ -532,9 +534,9 @@ sub calculate_offsets {
   my $fh = IO::File->new($file) or $self->throw( "Can't open $file: $!");
   binmode $fh;
   warn "indexing $file\n" if $self->{debug};
-  my ($offset,@id,$linelength,$type,$firstline,$count,
-      $termination_length,$seq_lines,$last_line,%offsets);
-  my ($l3_len,$l2_len,$l_len, $blank_lines)=(0,0,0,0);
+  my ($offset, @id, $linelength, $type, $firstline, $count, $seq_lines,
+      $last_line, %offsets);
+  my ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
 
   while (<$fh>) {  # don't try this at home
     $termination_length ||= /\r\n$/ ? 2 : 1; # account for crlf-terminated Windows files
@@ -611,7 +613,6 @@ sub calculate_offsets {
       $offsets->{$id} = $ppos;
     }
   }
-  $offsets->{__termination_length} = $termination_length;
 
   return \%offsets;
 }
@@ -628,7 +629,7 @@ sub calculate_offsets {
 =cut
 
 sub get_all_ids  {
-  return grep {!/^__/} keys %{shift->{offsets}};
+  return keys %{shift->{offsets}};
 }
 
 
@@ -743,8 +744,8 @@ sub subseq {
   my $data;
 
   my $fh = $self->fh($id) or return;
-  my $filestart = $self->_caloffset($id, $start);
-  my $filestop  = $self->_caloffset($id, $stop);
+  my $filestart = $self->_caloffset($id, $start, $termination_length);
+  my $filestop  = $self->_caloffset($id, $stop , $termination_length);
 
   seek($fh, $filestart,0);
   read($fh, $data, $filestop-$filestart+1);
@@ -898,5 +899,3 @@ sub description  {
 
 
 1;
-
-__END__

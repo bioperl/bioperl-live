@@ -433,6 +433,8 @@ use constant PROTEIN   => 3;
 
 use constant DIE_ON_MISSMATCHED_LINES => 1; # if you want
 
+my (@fileno2path, %filepath2no);
+
 
 =head2 new
 
@@ -697,13 +699,13 @@ sub _check_linelength {
 
 sub _caloffset {
     # Get the offset of the n-th residue of the sequence with the given id
-    my ($self, $id, $n) = @_;
+    # and termination length (tl)
+    my ($self, $id, $n, $tl) = @_;
     $n--;
     my ($offset, $seqlength, $linelength, $firstline, $file)
         = &{$self->{unpackmeth}}($self->{offsets}{$id});
     $n = 0            if $n < 0;
     $n = $seqlength-1 if $n >= $seqlength;
-    my $tl = $self->{offsets}{__termination_length};
     return $offset + $linelength * int($n/($linelength-$tl)) + $n % ($linelength-$tl);
 }
 
@@ -730,18 +732,18 @@ sub _fhcache {
 
 
 sub _fileno2path {
-    my ($self, $no) = @_;
-    return $self->{offsets}{"__file_$no"};
+    my ($self, $fileno) = @_;
+    return $fileno2path[$fileno];
 }
 
 
 sub _path2fileno {
     my ($self, $path) = @_;
-    if ( !defined $self->{offsets}{"__path_$path"} ) {
-        my $fileno = ($self->{offsets}{"__path_$path"} = 0+ $self->{fileno}++);
-        $self->{offsets}{"__file_$fileno"} = $path;
+    if ( not exists $filepath2no{$path} ) {
+        my $fileno = ($filepath2no{$path} = 0+ $self->{fileno}++);
+        $fileno2path[$fileno] = $path;
     }
-    return $self->{offsets}{"__path_$path"}
+    return $filepath2no{$path};
 }
 
 
@@ -851,10 +853,6 @@ sub next_seq {
     my $self = shift;
     my ($key, $db) = @{$self}{'key', 'db'};
     return if not defined $key;
-    while ($key =~ /^__/) {
-        $key = $db->NEXTKEY($key);
-        return if not defined $key;
-    }
     my $value = $db->get_Seq_by_id($key);
     $self->{key} = $db->NEXTKEY($key);
     return $value;
@@ -872,5 +870,3 @@ sub READLINE {
 
 
 1;
-
-__END__

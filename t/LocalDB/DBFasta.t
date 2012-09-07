@@ -16,13 +16,13 @@ my $DEBUG = test_debug();
 my $test_dbdir = setup_temp_dir('dbfa');
 
 # now use this temporary dir for the db file
-my $db;
+my ($db, $primary_seq);
 ok $db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1), 'Index a directory';
 isa_ok $db, 'Bio::DB::Fasta';
 cmp_ok $db->length('CEESC13F'), '>', 0;
 is length($db->seq('CEESC13F:1,10')), 10;
 is length($db->seq('AW057119',1,10)), 10;
-ok my $primary_seq = $db->get_Seq_by_id('AW057119');
+ok $primary_seq = $db->get_Seq_by_id('AW057119');
 isa_ok $primary_seq, 'Bio::PrimarySeqI';
 cmp_ok length($primary_seq->seq), '>', 0;
 is $primary_seq->trunc(1,10)->length, 10;
@@ -31,8 +31,8 @@ is $db->get_Seq_by_id('foobarbaz'), undef;
 undef $db;
 undef $primary_seq;
 
-my (%h,$dna1,$dna2);
-ok tie(%h,'Bio::DB::Fasta',$test_dbdir);
+my (%h, $dna1, $dna2);
+ok tie(%h, 'Bio::DB::Fasta', $test_dbdir);
 ok $h{'AW057146'};
 ok $dna1 = $h{'AW057146:1,10'};
 ok $dna2 = $h{'AW057146:10,1'};

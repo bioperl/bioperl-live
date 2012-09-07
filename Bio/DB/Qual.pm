@@ -400,6 +400,8 @@ use constant DIE_ON_MISSMATCHED_LINES => 1; # you can avoid dying if you want
                                             # but you're likely to get bad
                                             # results
 
+my $termination_length;
+
 
 =head2 new
 
@@ -500,8 +502,8 @@ sub calculate_offsets {
     my $fh = IO::File->new($file) or $self->throw("Can't open $file: $!");
     binmode $fh;
     warn "Indexing $file\n" if $self->{debug};
-    my ( $offset,$id, $linelength, $firstline, $count, $termination_length,
-         $qual_lines, $last_line,  %offsets );
+    my ( $offset, $id, $linelength, $firstline, $count, $qual_lines, $last_line,
+         %offsets );
     my ( $l3_len, $l2_len, $l_len ) = ( 0, 0, 0 );
 
     while (<$fh>) { # don't try this at home
@@ -572,7 +574,6 @@ sub calculate_offsets {
             $base,
         );
     }
-    $offsets->{__termination_length} = $termination_length;
     return \%offsets;
 }
 
@@ -588,7 +589,7 @@ sub calculate_offsets {
 =cut
 
 sub get_all_ids  {
-    return grep {!/^__/} keys %{shift->{offsets}};
+    return keys %{shift->{offsets}};
 }
 
 
@@ -719,8 +720,8 @@ sub subqual {
 
     # fetch full quality string
     my $fh = $self->fh($id) or return;
-    my $filestart = $self->_caloffset($id, $string_start);
-    my $filestop  = $self->_caloffset($id, $string_stop);
+    my $filestart = $self->_caloffset($id, $string_start, $termination_length);
+    my $filestop  = $self->_caloffset($id, $string_stop , $termination_length);
     seek($fh,$filestart,0);
     my $data;
     read($fh, $data, $filestop-$filestart+1);
@@ -896,5 +897,3 @@ sub description  {
 
 
 1;
-
-__END__
