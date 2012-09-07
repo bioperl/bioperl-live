@@ -4,11 +4,9 @@
 # You may distribute this module under the same terms as perl itself
 #
 
-# POD documentation - main docs before the code
-
 =head1 NAME
 
-Bio::DB::Fasta - Fast indexed access to a directory of fasta files
+Bio::DB::Fasta - Fast indexed access to fasta files
 
 =head1 SYNOPSIS
 

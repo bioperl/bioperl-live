@@ -4,11 +4,9 @@
 # You may distribute this module under the same terms as perl itself
 #
 
-# POD documentation - main docs before the code
-
 =head1 NAME
 
-Bio::DB::Qual - Fast indexed access to a directory of quality files
+Bio::DB::Qual - Fast indexed access to quality files
 
 =head1 SYNOPSIS
 
