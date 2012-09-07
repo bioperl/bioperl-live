@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 38,
+    test_begin( -tests => 41,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -71,6 +71,14 @@ is $db->alphabet('gi|352962148|ref|NM_001251825.1|'), 'rna';
 is $db->alphabet('gi|194473622|ref|NP_001123975.1|'), 'protein';
 is $db->alphabet('gi|61679760|pdb|1Y4P|B'), 'protein';
 is $db->alphabet('123'), '';
+
+
+# Test an arbitrary index filename
+my $name = 'arbitrary.idx';
+ok $db = Bio::DB::Fasta->new( $test_file, -reindex => 1, -index_name => $name );
+is $db->index_name, $name;
+ok -f $name;
+unlink $name;
 
 
 # Test stream

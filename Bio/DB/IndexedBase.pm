@@ -15,7 +15,7 @@ Bio::DB::IndexedBase - Base class for modules using indexed sequence files
 
   # create database from directory of fasta files
   my $db       = Bio::DB::Fasta->new('/path/to/fasta/files');
-  my @ids     = $db->ids;
+  my @ids      = $db->ids;
 
   # simple access (for those without Bioperl)
   my $seq      = $db->seq('CHROMOSOME_I',4_000_000 => 4_100_000);
@@ -135,6 +135,10 @@ same name=E<gt>value pairs.  Valid options are:
                to pass to the DBM
                routines when tied
                (scalar or array ref).
+
+ -index_name   Name of the file that     Auto
+               holds the indexing
+               information.
 
 -dbmargs can be used to control the format of the index.  For example,
 you can pass $DB_BTREE to this argument so as to force the IDs to be
@@ -438,7 +442,7 @@ use constant DIE_ON_MISSMATCHED_LINES => 1; # if you want
  Returns : new Bio::DB::Fasta object
  Args    : a single file, or path to dir, or arrayref of files
 
-These are optional arguments to pass in as well.
+These are optional arguments to pass in as well (and their defaults).
 
  -glob         Glob expression to use    *.{fa,fasta,fast,FA,FASTA,FAST}
                for searching for Fasta
@@ -460,6 +464,10 @@ These are optional arguments to pass in as well.
                to pass to the DBM
                routines when tied
                (scalar or array ref).
+
+ -index_name   Name of the file that     Auto
+               holds the indexing
+               information.
 
 =cut
 
@@ -493,7 +501,7 @@ sub newFh {
 
  Title   : dbmargs
  Usage   : my @args = $db->dbmargs;
- Function: gets stored dbm arguments
+ Function: Get stored dbm arguments
  Returns : array
  Args    : none
 
@@ -524,17 +532,17 @@ sub _close_index {
 }
 
 
-=head2 set_pack_method
+=head2 _set_pack_method
 
- Title   : set_pack_method
- Usage   : $db->set_pack_method( @files )
+ Title   : _set_pack_method
+ Usage   : $db->_set_pack_method( @files )
  Function: Determines whether data packing uses 32 or 64 bit integers
  Returns : 1 for success
  Args    : one or more file paths
 
 =cut
 
-sub set_pack_method {
+sub _set_pack_method {
     my $self = shift;
     # Find the maximum file size:
     my ($maxsize) = sort { $b <=> $a } map { -s $_ } @_;
@@ -573,6 +581,7 @@ sub _unpackBig {
 
 
 sub _type {
+  # Determine the molecular type of the given a sequence string: dna, rna or protein
   my ($self, $string) = @_;
   return $string =~ m/^[gatcnGATCN*-]+$/   ? DNA
          : $string =~ m/^[gaucnGAUCN*-]+$/ ? RNA
@@ -595,7 +604,7 @@ sub index_dir {
     my ($self, $dir, $force_reindex) = @_;
     my @files = glob( File::Spec->catfile($dir, $self->{glob}) );
     $self->throw("No suitable files found in $dir") if scalar @files == 0;
-    my $index = $self->index_name( File::Spec->catfile($dir, 'directory.index') );
+    $self->{index_name} ||= File::Spec->catfile($dir, 'directory.index');
     my $offsets = $self->_index_files(\@files, $force_reindex);
     return $offsets;
 }
@@ -614,7 +623,7 @@ sub index_dir {
 
 sub index_file {
     my ($self, $file, $force_reindex) = @_;
-    my $index = $self->index_name( "$file.index" );
+    $self->{index_name} ||= "$file.index";
     my $offsets = $self->_index_files([$file], $force_reindex);
     return $offsets;
 }
@@ -636,7 +645,7 @@ sub index_files {
     my @paths = map { File::Spec->rel2abs($_) } @$files;
     require Digest::MD5;
     my $digest = Digest::MD5::md5_hex( join('', sort @paths) );
-    my $index = $self->index_name( "fileset_$digest.index" ); # unique name for the given files
+    $self->{index_name} ||= "fileset_$digest.index"; # unique name for the given files
     my $offsets = $self->_index_files($files, $force_reindex);
     return $offsets;
 }
@@ -646,7 +655,7 @@ sub _index_files {
     # Do the indexing of the given files using the index file on record
     my ($self, $files, $force_reindex) = @_;
 
-    $self->set_pack_method( @$files );
+    $self->_set_pack_method( @$files );
 
     # get name of index file
     my $index = $self->index_name;
@@ -693,18 +702,14 @@ sub _index_files {
 
  Title   : index_name
  Usage   : my $indexname = $db->index_name($path);
- Function: Get or set the path of the index file
+ Function: Get the path of the index file
  Returns : string
  Args    : none, or path to set
 
 =cut
 
 sub index_name {
-    my ($self, $path) = @_;
-    if (defined $path) {
-        $self->{index_name} = $path;
-    }
-    return $self->{index_name};
+    return shift->{index_name};
 }
 
 
@@ -717,21 +722,22 @@ sub _check_linelength {
     my ($self, $linelength) = @_;
     return unless defined $linelength;
     $self->throw(
-        "Each line of the qual file must be less than 65,536 characters.Line ".
+        "Each line of the qual file must be less than 65,536 characters. Line ".
         "$. is $linelength chars."
     ) if $linelength > 65535;
 }
 
 
 sub _caloffset {
-    my ($self, $id, $a) = @_;
-    $a--;
-    my ($offset,$seqlength,$linelength,$firstline,$file)
+    # Calculate the offset of the n-th residue of the sequence with the given id
+    my ($self, $id, $n) = @_;
+    $n--;
+    my ($offset, $seqlength, $linelength, $firstline, $file)
         = &{$self->{unpackmeth}}($self->{offsets}{$id});
-    $a = 0            if $a < 0;
-    $a = $seqlength-1 if $a >= $seqlength;
+    $n = 0            if $n < 0;
+    $n = $seqlength-1 if $n >= $seqlength;
     my $tl = $self->{offsets}{__termination_length};
-    return $offset + $linelength * int($a/($linelength-$tl)) + $a % ($linelength-$tl);
+    return $offset + $linelength * int($n/($linelength-$tl)) + $n % ($linelength-$tl);
 }
 
 

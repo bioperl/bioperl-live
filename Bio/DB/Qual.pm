@@ -122,6 +122,10 @@ Valid options are:
                routines when tied
                (scalar or array ref).
 
+ -index_name   Name of the file that     Auto
+               holds the indexing
+               information.
+
 -dbmargs can be used to control the format of the index. For example, you can
 pass $DB_BTREE to this argument so as to force the IDs to be sorted and
 retrieved alphabetically. Note that you must use the same arguments every time
@@ -407,7 +411,7 @@ use constant DIE_ON_MISSMATCHED_LINES => 1; # you can avoid dying if you want
  Returns : new Bio::DB::Qual object
  Args    : a single file, or path to dir, or arrayref of files
 
-These are optional arguments to pass in as well.
+These are optional arguments to pass in as well (and their defaults).
 
  -glob         Glob expression to use    *.{qual,QUAL,qa,QA}
                for searching for qual
@@ -430,6 +434,10 @@ These are optional arguments to pass in as well.
                routines when tied
                (scalar or array ref).
 
+ -index_name   Name of the file that     Auto
+               holds the indexing
+               information.
+
 =cut
 
 sub new {
@@ -447,6 +455,7 @@ sub new {
         openseq    => 1,
         dirname    => undef,
         offsets    => undef,
+        index_name => undef,
     }, $class;
 
     my ($offsets, $dirname);

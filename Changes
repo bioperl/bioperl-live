@@ -49,6 +49,7 @@ CPAN releases are branched from 'master'.
         - get_num_taxa() returns the number of taxa in the database [fangly]
     * Bio::DB::Fasta and Bio::DB::Qual
         - support indexing an arbitrary list of files [fangly]
+        - user can supply an arbitrary index file name [fangly]
 
     [Bug fixes]
 

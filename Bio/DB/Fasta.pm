@@ -16,7 +16,7 @@ Bio::DB::Fasta - Fast indexed access to a directory of fasta files
 
   # create database from directory of fasta files
   my $db       = Bio::DB::Fasta->new('/path/to/fasta/files');
-  my @ids     = $db->ids;
+  my @ids      = $db->ids;
 
   # simple access (for those without Bioperl)
   my $seq      = $db->seq('CHROMOSOME_I',4_000_000 => 4_100_000);
@@ -136,6 +136,10 @@ same name=E<gt>value pairs.  Valid options are:
                to pass to the DBM
                routines when tied
                (scalar or array ref).
+
+ -index_name   Name of the file that     Auto
+               holds the indexing
+               information.
 
 -dbmargs can be used to control the format of the index.  For example,
 you can pass $DB_BTREE to this argument so as to force the IDs to be
@@ -431,7 +435,7 @@ use constant DIE_ON_MISSMATCHED_LINES => 1; # if you want
  Returns : new Bio::DB::Fasta object
  Args    : a single file, or path to dir, or arrayref of files
 
-These are optional arguments to pass in as well.
+These are optional arguments to pass in as well (and their defaults).
 
  -glob         Glob expression to use    *.{fa,fasta,fast,FA,FASTA,FAST}
                for searching for Fasta
@@ -454,6 +458,10 @@ These are optional arguments to pass in as well.
                routines when tied
                (scalar or array ref).
 
+ -index_name   Name of the file that     Auto
+               holds the indexing
+               information.
+
 =cut
 
 sub new {
@@ -471,6 +479,7 @@ sub new {
     openseq    => 1,
     dirname    => undef,
     offsets    => undef,
+    index_name => $opts{-index_name},
   }, $class;
 
   my ($offsets, $dirname);
@@ -716,10 +725,10 @@ sub file {
 =cut
 
 sub subseq {
-  my ($self,$id,$start,$stop) = @_;
+  my ($self, $id, $start, $stop) = @_;
   $self->throw('Need to provide a sequence ID') if not defined $id;
   if ($id =~ /^(.+):([\d_]+)(?:,|-|\.\.)([\d_]+)$/) {
-    ($id,$start,$stop) = ($1,$2,$3);
+    ($id, $start, $stop) = ($1, $2, $3);
     $start =~ s/_//g;
     $stop  =~ s/_//g;
   }
@@ -728,18 +737,18 @@ sub subseq {
 
   my $reversed;
   if (defined $stop && $start > $stop) {
-    ($start,$stop) = ($stop,$start);
+    ($start, $stop) = ($stop, $start);
     $reversed++;
   }
 
   my $data;
 
   my $fh = $self->fh($id) or return;
-  my $filestart = $self->_caloffset($id,$start);
-  my $filestop  = $self->_caloffset($id,$stop);
+  my $filestart = $self->_caloffset($id, $start);
+  my $filestop  = $self->_caloffset($id, $stop);
 
-  seek($fh,$filestart,0);
-  read($fh,$data,$filestop-$filestart+1);
+  seek($fh, $filestart,0);
+  read($fh, $data, $filestop-$filestart+1);
   $data =~ s/\n//g;
   $data =~ s/\r//g;
   if ($reversed) {
