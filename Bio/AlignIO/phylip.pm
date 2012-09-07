@@ -176,8 +176,8 @@ sub next_aln {
 
     my $aln =  Bio::SimpleAlign->new(-source => 'phylip');
 
-    # skip blank lines until we see header line
-    # if we see a non-blank line that isn't the seqcount and residuecount line
+    # First, parse up through the header.
+    # If we see a non-blank line that isn't the seqcount and residuecount line
     # then bail out of next_aln (return)
     while ($entry = $self->_readline) {
         if ($entry =~ /^\s?$/) {
@@ -194,90 +194,50 @@ sub next_aln {
     # First alignment section. We expect to see a name and (part of) a sequence.
     my $idlen = $self->idlength;
     $count = 0;
-    my $iter = 1;
-    my $interleaved = $self->interleaved;
-    while( $entry = $self->_readline) {
-	last if( $entry =~ /^\s?$/ && $interleaved );
 
-    # we've hit the next entry.
-	if( $entry =~ /^\s+(\d+)\s+(\d+)\s*$/) {
-	    $self->_pushback($entry);
-	    last;
-	}
-	if( $self->longid  && $entry =~ /\w/ ) {
-	    if ($entry =~ /'/) {
-		$entry =~ /^\s*'([^']+)'\s+(.+)$/;
-		$name = $1;
-		$str = $2;
-	    } else {
-		$entry =~ /^\s*([^\s]+)\s+(.+)$/;
-		$name = $1;
-		$str = $2;
-	    }
-#	    $name =~ s/[\s\/]/_/g; # not sure how wise is it to do this
-	    $name =~ s/_+$//; # remove any trailing _'s
+    while ($entry = $self->_readline) {
+        if ($entry =~ /^\s?$/) { # eat the newlines
+            next;
+        }
 
-	    push @names, $name;
-	    $str =~ s/\s//g;
-	    $count = scalar @names;
-	    $hash{$count} = $str;
+        # Names can be in a few different formats:
+        # 1. they can be traditional phylip: 10 chars long, period. If this is the case, that name can have spaces.
+        # 2. they can be hacked with a long ID, as passed in with the flag -longid.
+        # 3. if there is a long ID, the name can have spaces as long as it is wrapped in single quotes.
+        if ($self->longid()) { # 2 or 3
+            if ($entry =~ /^'(.+)'\s+(.+)$/) { # 3. name has single quotes.
+                $name = $1;
+                $str = $2;
+            } else {    # 2. name does not have single quotes, so should not have spaces.
+                # therefore, the first part of the line is the name and the rest is the seq.
+                # make sure that the line does not lead with extra spaces.
+                $entry =~ s/^\s+//;
+                ($name, $str) = split (/\s+/,$entry, 2);
+            }
+        } else { # 1. traditional phylip.
+            $entry =~ /^(.{10})\s+(.+)$/;
+            $name = $1;
+            $str = $2;
+            $name =~ s/\s+$//; # eat any trailing spaces
+            $name =~ s/\s+/_/g;
+        }
+        push @names, $name;
+        #clean sequence of spaces:
+        $str =~ s/\s+//g;
 
-	} elsif( $entry =~ /^\s+(.+)$/ ) {
-	    $interleaved = 0;
-	    $str = $1;
-	    $str =~ s/\s//g;
-	    $count = scalar @names;
-	    $hash{$count} .= $str;
-	} elsif( $entry =~ /^(.{$idlen})\s*(.*)\s$/ ||
-		 $entry =~ /^(.{$idlen})(\S{$idlen}\s+.+)\s$/ # Handle weirdness when id is too long
-		 ) {
-	    $name = $1;
-	    $str = $2;
-	    $name =~ s/[\s\/]/_/g;
-	    $name =~ s/_+$//; # remove any trailing _'s
-
-	    push @names, $name;
-	    $str =~ s/\s//g;
-	    $count = scalar @names;
-	    $hash{$count} = $str;
-	} elsif( $interleaved ) {
-	    if( $entry =~ /^(\S+)\s+(.+)/ ||
-		$entry =~ /^(.{$idlen})(.*)\s$/ ) {
-		$name = $1;
-		$str = $2;
-		$name =~ s/[\s\/]/_/g;
-		$name =~ s/_+$//; # remove any trailing _'s
-		push @names, $name;
-		$str =~ s/\s//g;
-		$count = scalar @names;
-		$hash{$count} = $str;
-	    } else {
-		$self->debug("unmatched line: $entry");
-	    }
-	}
-	$self->throw("Not a valid interleaved PHYLIP file!") if $count > $seqcount;
-    }
-
-    if( $interleaved ) {
-	# interleaved sections
-	$count = 0;
-	while( $entry = $self->_readline) {
-            # finish current entry
-	    if($entry =~/\s*\d+\s+\d+/){
-		$self->_pushback($entry);
-		last;
-	    }
-	    $count = 0, next if $entry =~ /^\s$/;
-	    $entry =~ /\s*(.*)$/ && do {
-		$str = $1;
-		$str =~ s/\s//g;
-		$count++;
-		$hash{$count} .= $str;
-	    };
-	    $self->throw("Not a valid interleaved PHYLIP file! [$count,$seqcount] ($entry)") if $count > $seqcount;
-	}
-    }
-    return if scalar @names < 1;
+        # are we sequential? If so, we should keep adding to the sequence until we've got all the residues.
+        if (($self->interleaved) == 0) {
+            while (length($str) < $residuecount) {
+                $entry = $self->_readline;
+                $str .= $entry;
+                $str =~ s/\s+//g;
+                if ($entry =~ /^\s*$/) { # we ran into a newline before we got a complete sequence: bail!
+                    $self->warn("Failed to parse PHYLIP: Sequence $name was shorter than expected: " . length($str) . " instead of $residuecount.");
+                    last;
+                }
+            }
+        }
+        $hash{$count} = $str;
 
         $count++;
         # if we've read as many seqs as we're supposed to, move on.
