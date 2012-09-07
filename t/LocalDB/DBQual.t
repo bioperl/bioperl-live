@@ -61,7 +61,7 @@ undef $revobj;
 
 # using get_PrimaryQual_stream streaming
 ok my $stream = $db->get_PrimaryQual_stream;
-ok $stream = $db->get_seq_stream;
+ok $stream = $db->get_Seq_stream;
 isa_ok $stream, 'Bio::DB::Indexed::Stream';
 ok my $streamqual = $stream->next_seq;
 isa_ok $streamqual, 'Bio::Seq::PrimaryQual';

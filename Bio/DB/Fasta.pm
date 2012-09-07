@@ -413,6 +413,7 @@ use File::Basename qw(basename dirname);
 use base qw(Bio::DB::IndexedBase Bio::DB::SeqI);
 
 my $termination_length;
+our $obj_class = 'Bio::PrimarySeq::Fasta';
 
 
 =head2 new
@@ -454,25 +455,15 @@ These are optional arguments to pass in as well (and their defaults).
 
 sub new {
   my ($class, $path, %opts) = @_;
-  $opts{-glob} ||= '*.{fa,fasta,FA,FASTA,fast,FAST,dna,FNA,fna,FAA,faa,FSA,fsa}',
+  $opts{-glob} ||= '*.{fa,FA,fasta,FASTA,fast,FAST,dna,DNA,fna,FNA,faa,FAA,fsa,FSA}',
   my $self = Bio::DB::IndexedBase->new( $path, %opts );
   bless $self, __PACKAGE__;
   return $self;
 }
 
 
-=head2 _calculate_offsets
-
- Title   : _calculate_offsets
- Usage   : $db->_calculate_offsets($filename, $offsets);
- Function: calculates the sequence offsets in a file based on id
- Returns : offset hash for this file
- Args    : file to process
-           $offsets - hashref of id to offset storage
-
-=cut
-
 sub _calculate_offsets {
+  # Bio::DB::IndexedBase calls this to calculate offsets
   my ($self, $file, $offsets) = @_;
   my $base = $self->_path2fileno(basename($file));
 
@@ -561,26 +552,6 @@ sub _calculate_offsets {
 
   return \%offsets;
 }
-
-
-=head2 get_Seq_by_id
-
- Title   : get_Seq_by_id
- Usage   : my $seq = $db->get_Seq_by_id($id)
- Function: Bio::DB::RandomAccessI method implemented
- Returns : Bio::PrimarySeqI object
- Args    : id
-
-=cut
-
-sub get_Seq_by_id {
-  my ($self, $id) = @_;
-  $self->throw('Need to provide a sequence ID') if not defined $id;
-  return if not exists $self->{offsets}{$id};
-  return Bio::PrimarySeq::Fasta->new($self,$id);
-}
-
-*get_seq_by_primary_id = *get_Seq_by_acc  = \&get_Seq_by_id;
 
 
 sub offset {

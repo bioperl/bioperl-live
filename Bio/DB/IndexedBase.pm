@@ -434,7 +434,7 @@ use constant PROTEIN   => 3;
 use constant DIE_ON_MISSMATCHED_LINES => 1; # you can avoid dying if you want
                                             # but you may get bad results
 
-my (@fileno2path, %filepath2no);
+my ($caller, @fileno2path, %filepath2no);
 
 
 =head2 new
@@ -477,6 +477,9 @@ These are optional arguments to pass in as well (and their defaults).
 sub new {
   my ($class, $path, %opts) = @_;
 
+  # Determine which module called IndexedBase: Bio::DB::Fasta? Bio::DB::Qual?
+  $caller = (caller(0))[0];
+
   my $self = bless {
     debug      => $opts{-debug},
     makeid     => $opts{-makeid},
@@ -490,6 +493,7 @@ sub new {
     dirname    => undef,
     offsets    => undef,
     index_name => $opts{-index_name},
+    obj_class  => eval '$'.$caller.'::obj_class',
   }, $class;
 
   my ($offsets, $dirname);
@@ -666,22 +670,42 @@ sub path {
 }
 
 
-=head2 get_seq_stream
+=head2 get_Seq_stream
 
- Title   : get_seq_stream
- Usage   : my $stream = $db->get_seq_stream();
+ Title   : get_Seq_stream
+ Usage   : my $stream = $db->get_Seq_stream();
  Function: Get a SeqIO-like stream of sequence objects
  Returns : A Bio::DB::Indexed::Stream object
  Args    : None
 
 =cut
 
-sub get_seq_stream {
+sub get_Seq_stream {
   my $self = shift;
   return Bio::DB::Indexed::Stream->new($self);
 }
 
-*get_PrimarySeq_stream = \&get_seq_stream;
+*get_PrimarySeq_stream = \&get_Seq_stream;
+
+
+=head2 get_Seq_by_id
+
+ Title   : get_Seq_by_id
+ Usage   : my $seq = $db->get_Seq_by_id($id)
+ Function: Bio::DB::RandomAccessI method implemented
+ Returns : Bio::PrimarySeqI object
+ Args    : id
+
+=cut
+
+sub get_Seq_by_id {
+  my ($self, $id) = @_;
+  $self->throw('Need to provide a sequence ID') if not defined $id;
+  return if not exists $self->{offsets}{$id};
+  return $self->{obj_class}->new($self, $id);
+}
+
+*get_seq_by_primary_id = *get_Seq_by_acc = \&get_Seq_by_id;
 
 
 =head2 _calculate_offsets
@@ -692,7 +716,7 @@ sub get_seq_stream {
            should calculate the sequence offsets in a file based on id.
  Returns : Hash of offsets
  Args    : file to process
-           $offsets - hashref of id to offset storage
+           hashref of id to offset storage
 
 =cut
 
@@ -737,7 +761,6 @@ sub _index_files {
         # reindex contents of changed files
         $self->{indexing} = $index;
 
-        my $caller = (caller(2))[0]; # the module that called IndexedBase
         my $method = \&{$caller.'::_calculate_offsets'};
 
         for my $file (@updated) {

@@ -83,7 +83,7 @@ unlink $name;
 
 # Test stream
 ok my $stream = $db->get_PrimarySeq_stream;
-ok $stream = $db->get_seq_stream;
+ok $stream = $db->get_Seq_stream;
 isa_ok $stream, 'Bio::DB::Indexed::Stream';
 my $count = 0;
 while (my $seq = $stream->next_seq) {

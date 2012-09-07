@@ -388,6 +388,7 @@ use File::Basename qw(basename dirname);
 use base qw(Bio::DB::IndexedBase Bio::DB::SeqI);
 
 my $termination_length;
+our $obj_class = 'Bio::Seq::PrimaryQual::Qual';
 
 
 =head2 new
@@ -436,17 +437,8 @@ sub new {
 }
 
 
-=head2 _calculate_offsets
-
- Title   : _calculate_offsets
- Usage   : $db->_calculate_offsets($filename,$offsets);
- Function: calculates the quality score offsets in a file based on ID
- Returns : offset hash for this file
- Args    : file to process, $offsets - hashref of id to offset storage
-
-=cut
-
 sub _calculate_offsets {
+    # Bio::DB::IndexedBase calls this to calculate offsets
     my ($self, $file, $offsets) = @_;
     my $base = $self->_path2fileno(basename($file));
 
@@ -532,28 +524,17 @@ sub _calculate_offsets {
 # for backward compatibility
 sub get_PrimaryQual_stream {
    my $self = shift;
-   return $self->get_seq_stream;
+   return $self->get_Seq_stream;
 }
 
-*get_seq_by_primary_id = *get_Seq_by_acc = *get_Seq_by_id = *get_qual_by_primary_id = *get_qual_by_acc = \&get_Qual_by_id;
 
-
-=head2 get_Qual_by_id
-
- Title   : get_Qual_by_id
- Usage   : my $qual = $db->get_Qual_by_id($id)
- Function: Bio::DB::RandomAccessI method implemented
- Returns : Bio::PrimarySeqI object
- Args    : id
-
-=cut
-
+# for backward compatibility
 sub get_Qual_by_id {
     my ($self, $id) = @_;
-    $self->throw('Need to provide a sequence ID') if not defined $id;
-    return if not exists $self->{offsets}{$id};
-    return Bio::Seq::PrimaryQual::Qual->new($self,$id);
+    return $self->get_Seq_by_id($id);
 }
+
+*get_qual_by_primary_id = *get_qual_by_acc = \&get_Qual_by_id;
 
 
 sub offset {
@@ -770,16 +751,19 @@ sub new {
     return $self;
 }
 
+
 sub qual {
     my $self = shift;
     my $qual = $self->{db}->qual($self->{id},$self->{start},$self->{stop});
     return $qual;
 }
 
+
 sub subqual {
     my ($self, $start, $stop) = @_;
     return $self->trunc($start, $stop)->qual;
 }
+
 
 sub trunc {
     my ($self, $start, $stop) = @_;
@@ -803,21 +787,25 @@ sub trunc {
     return $obj;  
 }
 
+
 sub display_id {
     my $self = shift;
     return $self->{id};
 }
+
 
 sub primary_id {
     my $self = shift;
     return overload::StrVal($self);
 }
 
+
 sub length {
     # number of quality scores
     my $self = shift;
     return scalar(@{$self->qual});
 }
+
 
 sub description  { 
     my $self = shift;
