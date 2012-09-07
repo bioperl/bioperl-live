@@ -431,7 +431,8 @@ use constant DNA       => 1;
 use constant RNA       => 2;
 use constant PROTEIN   => 3;
 
-use constant DIE_ON_MISSMATCHED_LINES => 1; # if you want
+use constant DIE_ON_MISSMATCHED_LINES => 1; # you can avoid dying if you want
+                                            # but you may get bad results
 
 my (@fileno2path, %filepath2no);
 

@@ -387,15 +387,6 @@ use File::Basename qw(basename dirname);
 
 use base qw(Bio::DB::IndexedBase Bio::DB::SeqI);
 
-use constant NA        => 0;
-use constant DNA       => 1;
-use constant RNA       => 2;
-use constant PROTEIN   => 3;
-
-use constant DIE_ON_MISSMATCHED_LINES => 1; # you can avoid dying if you want
-                                            # but you're likely to get bad
-                                            # results
-
 my $termination_length;
 
 
@@ -481,7 +472,7 @@ sub _calculate_offsets {
                     $qualstrlength,
                     $linelength,
                     $firstline,
-                    NA,
+                    Bio::DB::IndexedBase::NA,
                     $base,
                 );
             }
@@ -495,7 +486,7 @@ sub _calculate_offsets {
             $l2_len = $l_len;
             $l_len = length($_);
             # need to check every line :(
-            if (DIE_ON_MISSMATCHED_LINES &&
+            if (Bio::DB::IndexedBase::DIE_ON_MISSMATCHED_LINES &&
                 $l3_len > 0 &&
                 $l2_len > 0 &&
                 $l3_len != $l2_len
@@ -530,7 +521,7 @@ sub _calculate_offsets {
             $qualstrlength,
             $linelength,
             $firstline,
-            NA,
+            Bio::DB::IndexedBase::NA,
             $base,
         );
     }

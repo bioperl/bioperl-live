@@ -412,13 +412,6 @@ use File::Basename qw(basename dirname);
 
 use base qw(Bio::DB::IndexedBase Bio::DB::SeqI);
 
-use constant NA        => 0;
-use constant DNA       => 1;
-use constant RNA       => 2;
-use constant PROTEIN   => 3;
-
-use constant DIE_ON_MISSMATCHED_LINES => 1; # if you want
-
 my $termination_length;
 
 
@@ -503,7 +496,7 @@ sub _calculate_offsets {
           $seqlength      -= $termination_length * $seq_lines;
           my $ppos = &{$self->{packmeth}}($offset,$seqlength,$linelength,
                                           $firstline,$type,$base);
-          $type = NA;
+          $type = Bio::DB::IndexedBase::NA;
           for my $id (@id) {
             $offsets->{$id} = $ppos;
           }
@@ -522,7 +515,7 @@ sub _calculate_offsets {
         next;
     } else {
       $l3_len= $l2_len; $l2_len= $l_len; $l_len= length($_); # need to check every line :(
-      if (DIE_ON_MISSMATCHED_LINES) {
+      if (Bio::DB::IndexedBase::DIE_ON_MISSMATCHED_LINES) {
         if ($l3_len>0 && $l2_len>0 && $l3_len!=$l2_len) {
           my $fap= substr($_,0,20)."..";
           $self->throw(
@@ -560,7 +553,7 @@ sub _calculate_offsets {
     my $ppos = &{$self->{packmeth}}($offset,$seqlength,
                                     $linelength,$firstline,
                                     $type,$base);
-    $type = NA;
+    $type = Bio::DB::IndexedBase::NA;
     for my $id (@id) {
       $offsets->{$id} = $ppos;
     }
@@ -627,9 +620,9 @@ sub alphabet {
   $self->throw('Need to provide a sequence ID') if not defined $id;
   my $offset = $self->{offsets}{$id} or return;
   my $type = (&{$self->{unpackmeth}}($offset))[4];
-  return : $type == DNA ? 'dna'
-         : $type == RNA ? 'rna'
-         : $type == PROTEIN ? 'protein'
+  return : $type == Bio::DB::IndexedBase::DNA ? 'dna'
+         : $type == Bio::DB::IndexedBase::RNA ? 'rna'
+         : $type == Bio::DB::IndexedBase::PROTEIN ? 'protein'
          : '';
 
 }
