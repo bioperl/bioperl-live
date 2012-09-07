@@ -473,9 +473,49 @@ These are optional arguments to pass in as well (and their defaults).
 
 =cut
 
-##sub new {
-##
-##}
+sub new {
+  my ($class, $path, %opts) = @_;
+
+  my $self = bless {
+    debug      => $opts{-debug},
+    makeid     => $opts{-makeid},
+    glob       => $opts{-glob}    || '*',
+    maxopen    => $opts{-maxopen} || 32,
+    dbmargs    => $opts{-dbmargs} || undef,
+    fhcache    => {},
+    cacheseq   => {},
+    curopen    => 0,
+    openseq    => 1,
+    dirname    => undef,
+    offsets    => undef,
+    index_name => $opts{-index_name},
+  }, $class;
+
+  my ($offsets, $dirname);
+  my $ref = ref $path || '';
+  if ( $ref eq 'ARRAY' ) {
+    $offsets = $self->index_files($path, $opts{-reindex});
+    require Cwd;
+    $dirname = Cwd::getcwd();
+  } else {
+    if (-d $path) {
+      # because Win32 glob() is broken with respect to long file names
+      # that contain whitespace.
+      $path = Win32::GetShortPathName($path)
+        if $^O =~ /^MSWin/i && eval 'use Win32; 1';
+      $offsets = $self->index_dir($path, $opts{-reindex});
+      $dirname = $path;
+    } elsif (-f _) {
+      $offsets = $self->index_file($path, $opts{-reindex});
+      $dirname = dirname($path);
+    } else {
+      $self->throw( "$path: Invalid file or dirname");
+    }
+  }
+  @{$self}{qw(dirname offsets)} = ($dirname,$offsets);
+
+  return $self;
+}
 
 
 =head2 newFh
@@ -520,7 +560,7 @@ sub dbmargs {
 
  Title   : index_dir
  Usage   : $db->index_dir($dir)
- Function: Index the files in the given directory that match -glob
+ Function: Index the files that match -glob in the given directory
  Returns : hashref of offsets
  Args    : dirname
            boolean to force a reload of all files
@@ -534,6 +574,21 @@ sub index_dir {
     $self->{index_name} ||= File::Spec->catfile($dir, 'directory.index');
     my $offsets = $self->_index_files(\@files, $force_reindex);
     return $offsets;
+}
+
+
+=head2 get_all_ids
+
+ Title   : get_all_ids
+ Usage   : my @ids = $db->get_all_ids
+ Function: Get the IDs stored in all indexes
+ Returns : List of ids
+ Args    : none
+
+=cut
+
+sub get_all_ids  {
+    return keys %{shift->{offsets}};
 }
 
 
@@ -610,6 +665,24 @@ sub path {
 }
 
 
+=head2 _calculate_offsets
+
+ Title   : _calculate_offsets
+ Usage   : $db->_calculate_offsets($filename, $offsets);
+ Function: To be implemented by the class that uses Bio::DB::IndexedBase. It
+           should calculate the sequence offsets in a file based on id.
+ Returns : Hash of offsets
+ Args    : file to process
+           $offsets - hashref of id to offset storage
+
+=cut
+
+sub _calculate_offsets {
+   my $self = shift;
+   $self->throw_not_implemented();
+}
+
+
 sub _index_files {
     # Do the indexing of the given files using the index file on record
     my ($self, $files, $force_reindex) = @_;
@@ -644,8 +717,12 @@ sub _index_files {
     if ($reindex) {
         # reindex contents of changed files
         $self->{indexing} = $index;
+
+        my $caller = (caller(2))[0]; # the module that called IndexedBase
+        my $method = \&{$caller.'::_calculate_offsets'};
+
         for my $file (@updated) {
-            $self->calculate_offsets($file, $self->{offsets});
+            &$method($self, $file, $self->{offsets});
         }
         delete $self->{indexing};
     }
@@ -689,7 +766,7 @@ sub _type {
 sub _check_linelength {
     # Check that the line length is valid. Generate an error otherwise.
     my ($self, $linelength) = @_;
-    return unless defined $linelength;
+    return if not defined $linelength;
     $self->throw(
         "Each line of the qual file must be less than 65,536 characters. Line ".
         "$. is $linelength chars."
@@ -794,33 +871,41 @@ sub TIEHASH {
     return shift->new(@_);
 }
 
+
 sub FETCH {
     return shift->subseq(@_);
 }
+
 
 sub STORE {
     shift->throw("Read-only database");
 }
 
+
 sub DELETE {
     shift->throw("Read-only database");
 }
+
 
 sub CLEAR {
     shift->throw("Read-only database");
 }
 
+
 sub EXISTS {
     return defined shift->offset(@_);
 }
+
 
 sub FIRSTKEY {
     return tied(%{shift->{offsets}})->FIRSTKEY(@_);
 }
 
+
 sub NEXTKEY {
     return tied(%{shift->{offsets}})->NEXTKEY(@_);
 }
+
 
 sub DESTROY {
     my $self = shift;

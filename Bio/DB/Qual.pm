@@ -388,7 +388,6 @@ use File::Basename qw(basename dirname);
 use base qw(Bio::DB::IndexedBase Bio::DB::SeqI);
 
 *qual = *quality = \&subqual;
-*ids = \&get_all_ids;
 *get_seq_by_primary_id = *get_Seq_by_acc = *get_Seq_by_id = *get_qual_by_primary_id = *get_qual_by_acc  = \&get_Qual_by_id;
 
 use constant NA        => 0;
@@ -441,61 +440,25 @@ These are optional arguments to pass in as well (and their defaults).
 =cut
 
 sub new {
-    my ($class, $path, %opts) = @_;
-
-    my $self = bless {
-        debug      => $opts{-debug},
-        makeid     => $opts{-makeid},
-        glob       => $opts{-glob}    || '*.{qual,QUAL,qa,QA}',
-        maxopen    => $opts{-maxopen} || 32,
-        dbmargs    => $opts{-dbmargs} || undef,
-        fhcache    => {},
-        cacheseq   => {},
-        curopen    => 0,
-        openseq    => 1,
-        dirname    => undef,
-        offsets    => undef,
-        index_name => undef,
-    }, $class;
-
-    my ($offsets, $dirname);
-    my $ref = ref $path || '';
-    if ( $ref eq 'ARRAY' ) {
-        $offsets = $self->index_files($path, $opts{-reindex});
-        $dirname = getcwd();
-    } else {
-        if (-d $path) {
-            # because Win32 glob() is broken with respect to long file names
-            # that contain whitespace.
-            $path = Win32::GetShortPathName($path)
-                if $^O =~ /^MSWin/i && eval 'use Win32; 1';
-            $offsets = $self->index_dir($path, $opts{-reindex});
-            $dirname = $path;
-        } elsif (-f _) {
-            $offsets = $self->index_file($path, $opts{-reindex});
-            $dirname = dirname($path);
-        } else {
-            $self->throw( "$path: Invalid file or dirname");
-       }
-    }
-
-    @{$self}{qw(dirname offsets)} = ($dirname,$offsets);
-
-    return $self;
+  my ($class, $path, %opts) = @_;
+  $opts{-glob} ||= '*.{qual,QUAL,qa,QA}',
+  my $self = Bio::DB::IndexedBase->new( $path, %opts );
+  bless $self, __PACKAGE__;
+  return $self;
 }
 
 
-=head2 calculate_offsets
+=head2 _calculate_offsets
 
- Title   : calculate_offsets
- Usage   : $db->calculate_offsets($filename,$offsets);
+ Title   : _calculate_offsets
+ Usage   : $db->_calculate_offsets($filename,$offsets);
  Function: calculates the quality score offsets in a file based on ID
  Returns : offset hash for this file
  Args    : file to process, $offsets - hashref of id to offset storage
 
 =cut
 
-sub calculate_offsets {
+sub _calculate_offsets {
     my ($self, $file, $offsets) = @_;
     my $base = $self->_path2fileno(basename($file));
 
@@ -578,21 +541,6 @@ sub calculate_offsets {
 }
 
 
-=head2 get_all_ids
-
- Title   : get_all_ids
- Usage   : my @ids = $db->get_all_ids
- Function: gets all the stored ids in all indexes
- Returns : list of ids
- Args    : none
-
-=cut
-
-sub get_all_ids  {
-    return keys %{shift->{offsets}};
-}
-
-
 =head2 get_Qual_by_id
 
  Title   : get_Qual_by_id
@@ -606,7 +554,7 @@ sub get_all_ids  {
 sub get_Qual_by_id {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
-    return unless exists $self->{offsets}{$id};
+    return if not exists $self->{offsets}{$id};
     return Bio::Seq::PrimaryQual::Qual->new($self,$id);
 }
 
@@ -666,7 +614,7 @@ sub headerlen {
 sub header_offset {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
-    return unless $self->{offsets}{$id};
+    return if not $self->{offsets}{$id};
     return $self->offset($id) - $self->headerlen($id);
 }
 

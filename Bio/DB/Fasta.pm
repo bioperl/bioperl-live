@@ -406,7 +406,6 @@ disclaimers of warranty.
 package Bio::DB::Fasta;
 
 use strict;
-use Cwd;
 use IO::File;
 use File::Spec;
 use File::Basename qw(basename dirname);
@@ -414,7 +413,6 @@ use File::Basename qw(basename dirname);
 use base qw(Bio::DB::IndexedBase Bio::DB::SeqI);
 
 *seq = *sequence = \&subseq;
-*ids = \&get_all_ids;
 *get_seq_by_primary_id = *get_Seq_by_acc  = \&get_Seq_by_id;
 
 use constant NA        => 0;
@@ -466,60 +464,17 @@ These are optional arguments to pass in as well (and their defaults).
 
 sub new {
   my ($class, $path, %opts) = @_;
-
-  my $self = bless {
-    debug      => $opts{-debug},
-    makeid     => $opts{-makeid},
-    glob       => $opts{-glob}    || '*.{fa,fasta,FA,FASTA,fast,FAST,dna,FNA,fna,FAA,faa,FSA,fsa}',
-    maxopen    => $opts{-maxopen} || 32,
-    dbmargs    => $opts{-dbmargs} || undef,
-    fhcache    => {},
-    cacheseq   => {},
-    curopen    => 0,
-    openseq    => 1,
-    dirname    => undef,
-    offsets    => undef,
-    index_name => $opts{-index_name},
-  }, $class;
-
-  my ($offsets, $dirname);
-  my $ref = ref $path || '';
-  if ( $ref eq 'ARRAY' ) {
-    $offsets = $self->index_files($path, $opts{-reindex});
-    $dirname = getcwd();
-  } else {
-    if (-d $path) {
-      # because Win32 glob() is broken with respect to long file names
-      # that contain whitespace.
-      $path = Win32::GetShortPathName($path)
-        if $^O =~ /^MSWin/i && eval 'use Win32; 1';
-      $offsets = $self->index_dir($path, $opts{-reindex});
-      $dirname = $path;
-    } elsif (-f _) {
-      $offsets = $self->index_file($path, $opts{-reindex});
-      $dirname = dirname($path);
-    } else {
-      $self->throw( "$path: Invalid file or dirname");
-    }
-  }
-
-  @{$self}{qw(dirname offsets)} = ($dirname,$offsets);
-
+  $opts{-glob} ||= '*.{fa,fasta,FA,FASTA,fast,FAST,dna,FNA,fna,FAA,faa,FSA,fsa}',
+  my $self = Bio::DB::IndexedBase->new( $path, %opts );
+  bless $self, __PACKAGE__;
   return $self;
 }
 
-##sub new {
-##  my ($class, $path, %opts) = @_;
-##  $opts{-glob} ||= '*.{fa,fasta,FA,FASTA,fast,FAST,dna,FNA,fna,FAA,faa,FSA,fsa}',
-##  my $self = Bio::DB::IndexedBase->new( $path, %opts );
-##  return $self;
-##}
 
+=head2 _calculate_offsets
 
-=head2 calculate_offsets
-
- Title   : calculate_offsets
- Usage   : $db->calculate_offsets($filename,$offsets);
+ Title   : _calculate_offsets
+ Usage   : $db->_calculate_offsets($filename, $offsets);
  Function: calculates the sequence offsets in a file based on id
  Returns : offset hash for this file
  Args    : file to process
@@ -527,7 +482,7 @@ sub new {
 
 =cut
 
-sub calculate_offsets {
+sub _calculate_offsets {
   my ($self, $file, $offsets) = @_;
   my $base = $self->_path2fileno(basename($file));
 
@@ -618,21 +573,6 @@ sub calculate_offsets {
 }
 
 
-=head2 get_all_ids
-
- Title   : get_all_ids
- Usage   : my @ids = $db->get_all_ids
- Function: get the ids stored in all indexes
- Returns : list of ids
- Args    : none
-
-=cut
-
-sub get_all_ids  {
-  return keys %{shift->{offsets}};
-}
-
-
 =head2 get_Seq_by_id
 
  Title   : get_Seq_by_id
@@ -646,7 +586,7 @@ sub get_all_ids  {
 sub get_Seq_by_id {
   my ($self, $id) = @_;
   $self->throw('Need to provide a sequence ID') if not defined $id;
-  return unless exists $self->{offsets}{$id};
+  return if not exists $self->{offsets}{$id};
   return Bio::PrimarySeq::Fasta->new($self,$id);
 }
 
@@ -699,7 +639,7 @@ sub alphabet {
 sub header_offset {
   my ($self, $id) = @_;
   $self->throw('Need to provide a sequence ID') if not defined $id;
-  return unless $self->{offsets}{$id};
+  return if not $self->{offsets}{$id};
   return $self->offset($id) - $self->headerlen($id);
 }
 
@@ -835,7 +775,7 @@ sub subseq {
 
 sub trunc {
   my ($self, $start, $stop) = @_;
-  $self->throw("Stop cannot be smaller than start") unless $start <= $stop;
+  $self->throw("Stop cannot be smaller than start") if $stop < $start;
   return $self->{start} <= $self->{stop} ?  $self->new($self->{db},
                                             $self->{id},
                                             $self->{start}+$start-1,
