@@ -179,19 +179,17 @@ sub next_aln {
     # skip blank lines until we see header line
     # if we see a non-blank line that isn't the seqcount and residuecount line
     # then bail out of next_aln (return)
-    while ($entry = $self->_readline) {
-        if ($entry =~ /^\s?$/) {
-            next;
-        } elsif ($entry =~ /\s*(\d+)\s+(\d+)/) {
+    HEADER: while ($entry = $self->_readline) {
+        next if $entry =~ /^\s?$/;
+        if ($entry =~ /\s*(\d+)\s+(\d+)/) {
             ($seqcount, $residuecount) = ($1, $2);
-            last;
-        } else {
-        	$self->warn ("Failed to parse PHYLIP: Did not see a sequence count and residue count.");
-            return;
-        }
-    }
 
-    # First alignment section. We expect to see a name and (part of) a sequence.
+        }
+        last HEADER;
+    }
+    return unless $seqcount and $residuecount;
+
+    # first alignment section
     my $idlen = $self->idlength;
     $count = 0;
     my $iter = 1;
@@ -279,51 +277,38 @@ sub next_aln {
     }
     return if scalar @names < 1;
 
-        $count++;
-        # if we've read as many seqs as we're supposed to, move on.
-        if ($count == $seqcount) {
-            last;
-        }
-    }
+    # sequence creation
+    $count = 0;
+    foreach $name ( @names ) {
+	$count++;
+	if( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
+	    $seqname = $1;
+	    $start = $2;
+	    $end = $3;
+	} else {
+	    $seqname=$name;
+	    $start = 1;
+	    $str = $hash{$count};
+#	    $str =~ s/[^A-Za-z]//g;
+	    #$end = length($str);
+	}
+	# consistency test
+	$self->throw("Length of sequence [$seqname] is not [$residuecount] it is ".CORE::length($hash{$count})."! ")
+	    unless CORE::length($hash{$count}) == $residuecount;
 
-    # if we are interleaved, we're going to keep seeing chunks of sequence until we get all of it.
-    if ($self->interleaved) {
-        while (length($hash{$seqcount-1}) < $residuecount) {
-            $count = 0;
-            while ($entry = $self->_readline) {
-                if ($entry =~ /^\s*$/) { # eat newlines
-                    if ($count != 0) { # there was a newline at an unexpected place!
-                        $self->warn("Failed to parse PHYLIP: Interleaved file is missing a segment: saw $count, expected $seqcount.");
-                        return;
-                    }
-                    next;
-                } else { # start taking in chunks
-                    $entry =~ s/\s//g;
-                    $hash{$count} .= $entry;
-                    $count++;
-                }
-                if ($count >= $seqcount) { # we've read all of the sequences for this chunk, so move on.
-                    last;
-                }
-            }
-        }
-    }
-    if ((scalar @names) != $seqcount) {
-        $self->warn("Failed to parse PHYLIP: Did not see the correct number of seqs: saw " . scalar(@names) . ", expected $seqcount.");
-        return;
-    }
-    for ($count=0; $count<$seqcount; $count++) {
-        $str = $hash{$count};
-        my $seqname = @names[$count];
-        if (length($str) != $residuecount) {
-            $self->warn("Failed to parse PHYLIP: Sequence $seqname was the wrong length: " . length($str) . " instead of $residuecount.");
-        }
-        $seq = Bio::LocatableSeq->new('-seq'  => $hash{$count},
-                          '-display_id'    => $seqname);
-        $aln->add_seq($seq);
-    }
-    return $aln;
+	$seq = Bio::LocatableSeq->new('-seq'           => $hash{$count},
+				      '-display_id'    => $seqname,
+				      '-start'         => $start,
+				      (defined $end) ? ('-end'           => $end) : (),
+				      '-alphabet'      => $self->alphabet,
+				      );
+	$aln->add_seq($seq);
+
+   }
+   return $aln if $aln->num_sequences;
+   return;
 }
+
 
 =head2 write_aln
 
