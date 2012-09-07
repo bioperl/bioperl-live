@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 41,
+    test_begin( -tests => 42,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -83,6 +83,7 @@ unlink $name;
 
 # Test stream
 ok my $stream = $db->get_PrimarySeq_stream;
+ok $stream = $db->get_seq_stream;
 isa_ok $stream, 'Bio::DB::Indexed::Stream';
 my $count = 0;
 while (my $seq = $stream->next_seq) {

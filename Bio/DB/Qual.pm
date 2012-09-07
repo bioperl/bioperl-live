@@ -387,9 +387,6 @@ use File::Basename qw(basename dirname);
 
 use base qw(Bio::DB::IndexedBase Bio::DB::SeqI);
 
-*qual = *quality = \&subqual;
-*get_seq_by_primary_id = *get_Seq_by_acc = *get_Seq_by_id = *get_qual_by_primary_id = *get_qual_by_acc  = \&get_Qual_by_id;
-
 use constant NA        => 0;
 use constant DNA       => 1;
 use constant RNA       => 2;
@@ -539,6 +536,15 @@ sub _calculate_offsets {
     }
     return \%offsets;
 }
+
+
+# for backward compatibility
+sub get_PrimaryQual_stream {
+   my $self = shift;
+   return $self->get_seq_stream;
+}
+
+*get_seq_by_primary_id = *get_Seq_by_acc = *get_Seq_by_id = *get_qual_by_primary_id = *get_qual_by_acc = \&get_Qual_by_id;
 
 
 =head2 get_Qual_by_id
@@ -703,6 +709,9 @@ sub subqual {
     return \@data;
 }
 
+*qual = *quality = \&subqual;
+
+
 sub fh {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
@@ -710,6 +719,7 @@ sub fh {
     return $self->_fhcache( File::Spec->catfile($self->{dirname},$file) ) or
         $self->throw( "Can't open file $file");
 }
+
 
 =head2 header
 
@@ -734,22 +744,6 @@ sub header {
     chomp $data;
     substr($data,0,1) = '';
     return $data;
-}
-
-
-=head2 get_PrimaryQual_stream
-
- Title   : get_PrimaryQual_stream
- Usage   : $qualdb->get_PrimaryQual_stream
- Function: get a SeqIO-like stream of quality scores 
- Returns : stream object
- Args    : none
-
-=cut
-
-sub get_PrimaryQual_stream {
-    my $self = shift;
-    return Bio::DB::Indexed::Stream->new($self);
 }
 
 

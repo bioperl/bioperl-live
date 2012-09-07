@@ -665,6 +665,24 @@ sub path {
 }
 
 
+=head2 get_seq_stream
+
+ Title   : get_seq_stream
+ Usage   : my $stream = $db->get_seq_stream();
+ Function: Get a SeqIO-like stream of sequence objects
+ Returns : A Bio::DB::Indexed::Stream object
+ Args    : None
+
+=cut
+
+sub get_seq_stream {
+  my $self = shift;
+  return Bio::DB::Indexed::Stream->new($self);
+}
+
+*get_PrimarySeq_stream = \&get_seq_stream;
+
+
 =head2 _calculate_offsets
 
  Title   : _calculate_offsets

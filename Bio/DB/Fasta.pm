@@ -412,9 +412,6 @@ use File::Basename qw(basename dirname);
 
 use base qw(Bio::DB::IndexedBase Bio::DB::SeqI);
 
-*seq = *sequence = \&subseq;
-*get_seq_by_primary_id = *get_Seq_by_acc  = \&get_Seq_by_id;
-
 use constant NA        => 0;
 use constant DNA       => 1;
 use constant RNA       => 2;
@@ -590,6 +587,8 @@ sub get_Seq_by_id {
   return Bio::PrimarySeq::Fasta->new($self,$id);
 }
 
+*get_seq_by_primary_id = *get_Seq_by_acc  = \&get_Seq_by_id;
+
 
 sub offset {
   my ($self, $id) = @_;
@@ -698,6 +697,9 @@ sub subseq {
   return $data;
 }
 
+*seq = *sequence = \&subseq;
+
+
 sub fh {
   my ($self, $id) = @_;
   $self->throw('Need to provide a sequence ID') if not defined $id;
@@ -705,6 +707,7 @@ sub fh {
   return $self->_fhcache( File::Spec->catfile($self->{dirname}, $file) ) or
     $self->throw( "Can't open file $file");
 }
+
 
 sub header {
   my ($self, $id) = @_;
@@ -719,22 +722,6 @@ sub header {
   chomp $data;
   substr($data,0,1) = '';
   return $data;
-}
-
-
-=head2 get_PrimarySeq_stream
-
- Title   : get_PrimarySeq_stream
- Usage   : my $stream = $seqdb->get_PrimarySeq_stream();
- Function: Get the database sequence stream
- Returns : A Bio::DB::Indexed::Stream object
- Args    : None
-
-=cut
-
-sub get_PrimarySeq_stream {
-  my $self = shift;
-  return Bio::DB::Indexed::Stream->new($self);
 }
 
 
