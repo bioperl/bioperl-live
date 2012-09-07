@@ -6,9 +6,9 @@ use strict;
 BEGIN {
 	use lib '.';
     use Bio::Root::Test;
-    
+
     test_begin(-tests => 16);
-	
+
 	use_ok('Bio::AlignIO::phylip');
 }
 
@@ -67,4 +67,3 @@ $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is $aln->get_seq_by_pos(1)->get_nse, 'S I N F R U  P 0 0 1 /1-84';
 is $aln->get_seq_by_pos(2)->get_nse, 'SINFRUP002/1-84';
-
