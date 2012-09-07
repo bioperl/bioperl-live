@@ -42,6 +42,10 @@ Bio::Root::Root - Hash-based implementation of Bio::Root::RootI
 
   $obj->debug("Boring output only to be seen if verbose > 0\n");
 
+  # Deep-object copy
+
+  my $clone = $obj->clone;
+
 =head1 DESCRIPTION
 
 This is a hashref-based implementation of the Bio::Root::RootI
@@ -182,6 +186,7 @@ use base qw(Bio::Root::RootI);
 
 our ($DEBUG, $ID, $VERBOSITY, $ERRORLOADED, $CLONE_CLASS);
 
+
 BEGIN {
     $ID        = 'Bio::Root::Root';
     $DEBUG     = 0;
@@ -206,13 +211,17 @@ BEGIN {
     }
 
     # set up _dclone()
-    for my $class (qw(Clone Storable)) {
+    for my $class (qw(Clone::Fast Clone Storable)) {
         eval "require $class; 1;";
         if (!$@) {
             $CLONE_CLASS = $class;
-            *Bio::Root::Root::_dclone = $class eq 'Clone' ?
-                sub {shift; Clone::clone($_[0])} :
-                sub {shift; Storable::dclone($_[0])} ;
+            if ($class eq 'Clone::Fast') {
+                *Bio::Root::Root::_dclone = sub {shift; return Clone::Fast::clone(shift)};
+            } elsif ($class eq 'Clone') {
+                *Bio::Root::Root::_dclone = sub {shift; return Clone::clone(shift)};
+            } else {
+                *Bio::Root::Root::_dclone = sub {shift; return Storable::dclone(shift)};
+            }
             last;
         }
     }
@@ -241,6 +250,7 @@ BEGIN {
     $main::DONT_USE_ERROR;  # so that perl -w won't warn "used only once"
 }
 
+
 =head2 new
 
  Purpose   : generic instantiation function can be overridden if
@@ -249,18 +259,18 @@ BEGIN {
 =cut
 
 sub new {
-#    my ($class, %param) = @_;
+    #my ($class, %param) = @_;
     my $class = shift;
     my $self = {};
     bless $self, ref($class) || $class;
 
     if(@_ > 1) {
-	# if the number of arguments is odd but at least 3, we'll give
-	# it a try to find -verbose
-	shift if @_ % 2;
-	my %param = @_;
-	## See "Comments" above regarding use of _rearrange().
-	$self->verbose($param{'-VERBOSE'} || $param{'-verbose'});
+        # if the number of arguments is odd but at least 3, we'll give
+        # it a try to find -verbose
+        shift if @_ % 2;
+        my %param = @_;
+        ## See "Comments" above regarding use of _rearrange().
+        $self->verbose($param{'-VERBOSE'} || $param{'-verbose'});
     }
     return $self;
 }
@@ -277,14 +287,13 @@ sub new {
  Args    : Any named parameters provided will be set on the new object.
            Unnamed parameters are ignored.
  Comments: Where possible, faster clone methods are used, in order:
-           Clone::clone(), Storable::dclone.  If neither is present,
-           a pure perl fallback (not very well tested) is used instead.
-           Storable dclone() cannot clone CODE references.  Therefore,
-           any CODE reference in your original object will remain, but
-           will not exist in the cloned object.
-           This should not be used for anything other than cloning of simple
-           objects. Developers of subclasses are encouraged to override this
-           method with one of their own.
+           Clone::Fast::clone(), Clone::clone(), Storable::dclone.  If neither
+           is present, a pure perl fallback (not very well tested) is used
+           instead. Storable dclone() cannot clone CODE references.  Therefore,
+           any CODE reference in your original object will remain, but will not
+           exist in the cloned object.  This should not be used for anything
+           other than cloning of simple objects. Developers of subclasses are
+           encouraged to override this method with one of their own.
 
 =cut
 
@@ -320,6 +329,7 @@ sub clone {
     return $clone;
 }
 
+
 =head2 _dclone
 
  Title   : clone
@@ -339,6 +349,7 @@ sub clone {
 
 =cut
 
+
 =head2 verbose
 
  Title   : verbose
@@ -355,41 +366,44 @@ sub clone {
 =cut
 
 sub verbose {
-   my ($self,$value) = @_;
-   # allow one to set global verbosity flag
-   return $DEBUG  if $DEBUG;
-   return $VERBOSITY unless ref $self;
+    my ($self,$value) = @_;
+    # allow one to set global verbosity flag
+    return $DEBUG  if $DEBUG;
+    return $VERBOSITY unless ref $self;
 
     if (defined $value || ! defined $self->{'_root_verbose'}) {
-       $self->{'_root_verbose'} = $value || 0;
+        $self->{'_root_verbose'} = $value || 0;
     }
     return $self->{'_root_verbose'};
 }
 
+
 sub _register_for_cleanup {
-  my ($self,$method) = @_;
-  if($method) {
-    if(! exists($self->{'_root_cleanup_methods'})) {
-      $self->{'_root_cleanup_methods'} = [];
+    my ($self,$method) = @_;
+    if ($method) {
+        if(! exists($self->{'_root_cleanup_methods'})) {
+            $self->{'_root_cleanup_methods'} = [];
+        }
+        push(@{$self->{'_root_cleanup_methods'}},$method);
     }
-    push(@{$self->{'_root_cleanup_methods'}},$method);
-  }
 }
 
+
 sub _unregister_for_cleanup {
-  my ($self,$method) = @_;
-  my @methods = grep {$_ ne $method} $self->_cleanup_methods;
-  $self->{'_root_cleanup_methods'} = \@methods;
+    my ($self,$method) = @_;
+    my @methods = grep {$_ ne $method} $self->_cleanup_methods;
+    $self->{'_root_cleanup_methods'} = \@methods;
 }
+
 
 
 sub _cleanup_methods {
-  my $self = shift;
-  return unless ref $self && $self->isa('HASH');
-  my $methods = $self->{'_root_cleanup_methods'} or return;
-  @$methods;
-
+    my $self = shift;
+    return unless ref $self && $self->isa('HASH');
+    my $methods = $self->{'_root_cleanup_methods'} or return;
+    @$methods;
 }
+
 
 =head2 throw
 
@@ -484,6 +498,7 @@ sub throw {
     }
 }
 
+
 =head2 debug
 
  Title   : debug
@@ -496,19 +511,19 @@ sub throw {
 
 sub debug {
     my ($self, @msgs) = @_;
-
-	# using CORE::warn doesn't give correct backtrace information; we want the
-	# line from the previous call in the call stack, not this call (similar to
-	# cluck).  For now, just add a stack trace dump and simple comment under the
-	# correct conditions.
+    # using CORE::warn doesn't give correct backtrace information; we want the
+    # line from the previous call in the call stack, not this call (similar to
+    # cluck).  For now, just add a stack trace dump and simple comment under the
+    # correct conditions.
     if (defined $self->verbose && $self->verbose > 0) {
-		if (!@msgs || $msgs[-1] !~ /\n$/) {
-			push @msgs, "Debugging comment:" if !@msgs;
-			push @msgs, sprintf("%s %s:%s", @{($self->stack_trace)[2]}[3,1,2])."\n";
-		}
+        if (!@msgs || $msgs[-1] !~ /\n$/) {
+            push @msgs, "Debugging comment:" if !@msgs;
+            push @msgs, sprintf("%s %s:%s", @{($self->stack_trace)[2]}[3,1,2])."\n";
+        }
         CORE::warn @msgs;
     }
 }
+
 
 =head2 _load_module
 
@@ -530,9 +545,9 @@ sub _load_module {
     # untaint operation for safe web-based running (modified after
     # a fix by Lincoln) HL
     if ($name !~ /^([\w:]+)$/) {
-	$self->throw("$name is an illegal perl package name");
+        $self->throw("$name is an illegal perl package name");
     } else {
-	$name = $1;
+        $name = $1;
     }
 
     $load = "$name.pm";
@@ -548,11 +563,12 @@ sub _load_module {
     return 1;
 }
 
+
 sub DESTROY {
     my $self = shift;
     my @cleanup_methods = $self->_cleanup_methods or return;
     for my $method (@cleanup_methods) {
-      $method->($self);
+        $method->($self);
     }
 }
 

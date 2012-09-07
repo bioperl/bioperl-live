@@ -19,6 +19,35 @@ CPAN releases are branched from 'master'.
 
 1.?.?
 
+    [New features]
+
+    * Bio::Seq::SimulatedRead
+        - New module to represent reads taken from other sequences [fangly]
+    * Bio::Root::Root
+        - Support of Clone::Fast as a faster cloning alternative [fangly]
+    * Bio::Root::IO
+        - Moved the format() and variant() methods from Bio::*IO modules to
+          Bio::Root::IO [fangly]
+        - Can now use format() to get the type of IO format in use [fangly]
+    * Bio::Tools::IUPAC
+        - New regexp() method to create regular expressions from IUPAC sequences
+          [fangly]
+    * Bio::SeqFeature::Primer and Bio::Seq::PrimedSeq:
+        - Code refresh [fangly]
+    * Bio::DB::Taxonomy
+        - Added support for the Greengenes and Silva taxonomies [fangly]
+    * Bio::Tree::TreeFunctionsI
+        - get_lineage_string() represents a lineage as a string [fangly]
+        - add_trait() returns instead of reporting an error when the column
+          number is exceeded in add_trait() [fangly]
+        - Option to support tree leaves without trait [fangly]
+        - Allow ID of 0 in trait files [fangly]
+    * Bio::DB::Taxonomy::list
+        - Misc optimizations [fangly]
+        - Option -names of get_taxon() to help with ambiguous taxa [fangly]
+    * Bio::DB::Taxonomy::*
+        - get_num_taxa() returns the number of taxa in the database [fangly]
+
     [Bug fixes]
 
     * [3240] Bio::AlignIO::stockholm now parses simple sequences [Bernd Web,
@@ -30,6 +59,30 @@ CPAN releases are branched from 'master'.
     * Various fixes for Stockholm file indexing and processing [bosborne]
     * Fix edge case in FASTQ parsing where sequence of length 1 and qual of 0
       breaks parsing [cjfields]
+    * Fix case where Bio::Seq::Meta* objects with no meta information could not
+      be reverse-complemented [fangly]
+    * Fix bug for fields without aliases in Bio::DB::Query::HIVQuery [fangly]
+    * Fix Bio::PopGen::IO::phase: sort values lexically instead of numerically
+      when unsure that values will be numerical [fangly]
+    * Fix undef warnings in Bio::SeqIO::embl [fangly]
+    * Fix Bio::Tools::IUPAC should accept any sequence object [fangly]
+    * Fix for 'Inappropriate ioctl' in Bio::DB::Store::berkeleydb3 [Olivier
+      Sallou]
+    * Bio::SeqFeature::Generic SeqfeatureI compliance: methods primary_tag,
+      source_tag and display_name must return a string, not undef [fangly]
+    * Bio::SimpleAlign and Bio::Seq compliance with Bio::FeatureHolderI
+      add_SeqFeature takes a single argument [fangly]
+    * Use cross-platform filenames and temporary directory in
+      Bio::DB::Taxonomy::flatfile [fangly]
+    * Fix bug in Bio::DB::Taxonomy::list where taxa with no ancestors were not
+      properly identified as existing taxa in the database [fangly]
+    * Fix issue where a Bio::DB::Taxonomy::list object could not be created
+      without also passing a lineage to store [fangly]
+    * Prevent passing a directory to the gi2taxid option (-g) of
+      bp_classify_hits_kingdom.pl and remove an 'earlier declaration' warning
+      [fangly]
+    * Fixed bp_genbank2gff3.pl crash when missing source feature date [fangly]
+
 
 1.6.901 May 18, 2011
 

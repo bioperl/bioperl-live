@@ -65,7 +65,7 @@ my %recommends = (
     #    'Parsing entrezgene/Bio::SeqIO::entrezgene [circular dependency!]'],
 
     'Clone'                     => [0,
-        'Cloning objects/Bio::Tools::Primer3'],
+        'Cloning objects/Bio::Root::Root,Bio::Tools::Primer3'],
 
     'Convert::Binary::C'        => [0,
         'Strider functionality/Bio::SeqIO::strider'],
@@ -127,7 +127,7 @@ my %recommends = (
     'Storable'                  => [2.05,
         'Storing sequence objects in local file cache/'.
         'Bio::DB::FileCache,Bio::SeqFeature::Collection,Bio::PopGen::HtSNP,'.
-        'Bio::PopGen::TagHaplotype,Bio::DB::GFF::Adaptor::berkeleydb'],
+        'Bio::PopGen::TagHaplotype,Bio::DB::GFF::Adaptor::berkeleydb,Bio::Root::Root'],
 
     'SVG'                       => [2.26,
         'Creating SVG images/Bio::Draw::Pictogram'],
@@ -137,11 +137,6 @@ my %recommends = (
 
     'Text::ParseWords'          => [0,
         'Test scripts/Bio::DB::SeqFeature::Store::FeatureFileLoader'],
-
-    'URI::Escape'               => [0,
-        'Dealing with web resources/Bio::FeatureIO::gff,Bio::FeatureIO::interpro,'.
-        'Bio::DB::Biblio::eutils,Bio::DB::EUtilParameters,'.
-        'Bio::DB::Query::GenBank,Bio::DB::NCBIHelper,Bio::SeqFeature::Annotated'],
 
     'XML::DOM::XPath'           => [0.13,
         'parsing interpro features/Bio::FeatureIO::interpro'],
@@ -198,10 +193,11 @@ my $build = Bio::Root::Build->new(
                            },
 
     build_requires      => {
-                            'Test::Most'                => 0,
+                            'CPAN'                      => 1.81,
                             'Module::Build'             => 0.2805,
                             'Test::Harness'             => 2.62,
-                            'CPAN'                      => 1.81
+                            'Test::Most'                => 0,
+                            'URI::Escape'               => 0
                            },
 
     recommends          => {
