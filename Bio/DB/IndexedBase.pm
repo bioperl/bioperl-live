@@ -96,7 +96,7 @@ Create a tied filehandle opened on a Bio::DB::IndexedBase object. Reading
 from this filehandle with E<lt>E<gt> will return a stream of sequence objects,
 Bio::SeqIO style. The path and the options should be specified as for new().
 
-=item $obj = tie %db,'Bio::DB::Fasta','/path/to/fasta/files' [,@args]
+=item $obj = tie %db,'Bio::DB::IndexedBase', '/path/to/file' [,@args]
 
 Create a tied-hash by tieing %db to Bio::DB::IndexedBase using the indicated
 path to the files. The optional @args list is the same set used by new(). If 
@@ -118,19 +118,19 @@ iterate over the entire data set:
 
 When dealing with very large sequences, you can avoid bringing them
 into memory by calling each() in a scalar context.  This returns the
-key only.  You can then use tied(%db) to recover the Bio::DB::Fasta
+key only.  You can then use tied(%db) to recover the Bio::DB::IndexedBase
 object and call its methods.
 
  while (my $id = each %db) {
-    print "$id => $db{$sequence:1,100}\n";
-    print "$id => ",tied(%db)->length($id),"\n";
+    print "$id: $db{$sequence:1,100}\n";
+    print "$id: ".tied(%db)->length($id)."\n";
  }
 
 In addition, you may invoke the FIRSTKEY and NEXTKEY tied hash methods directly
 to retrieve the first and next ID in the database, respectively. This allows to
 write the following iterative loop using just the object-oriented interface:
 
- my $db = Bio::DB::Fasta->new('/path/to/fasta/files');
+ my $db = Bio::DB::IndexedBase->new('/path/to/file');
  for (my $id=$db->FIRSTKEY; $id; $id=$db->NEXTKEY($id)) {
     # do something with sequence
  }
@@ -175,12 +175,8 @@ use File::Basename qw(dirname);
 
 use base qw(Bio::Root::Root);
 
-*seq = *sequence = \&subseq;
-*ids = \&get_all_ids;
-*get_seq_by_primary_id = *get_Seq_by_acc = \&get_Seq_by_id;
-
-use constant STRUCT    =>'NNnnCa*';
-use constant STRUCTBIG =>'QQnnCa*'; # 64-bit file offset and seq length
+use constant STRUCT    =>'NNnnCa*'; # 32-bit file offset and seq length
+use constant STRUCTBIG =>'QQnnCa*'; # 64-bit
 
 use constant NA        => 0;
 use constant DNA       => 1;
@@ -196,8 +192,8 @@ my ($caller, @fileno2path, %filepath2no);
 =head2 new
 
  Title   : new
- Usage   : my $db = Bio::DB::IndexedBase->new($path, @options);
- Function: Initialize a new Bio::DB::IndexedBase object
+ Usage   : my $db = Bio::DB::IndexedBase->new($path, -reindex => 1);
+ Function: Initialize a new database object
  Returns : A Bio::DB::IndexedBase object
  Args    : A single file, or path to dir, or arrayref of files
            Optional arguments:
@@ -221,37 +217,30 @@ my ($caller, @fileno2path, %filepath2no);
 
  -clean        Remove the index file when finished                 0
 
--dbmargs can be used to control the format of the index.  For example,
-you can pass $DB_BTREE to this argument so as to force the IDs to be
-sorted and retrieved alphabetically.  Note that you must use the same
-arguments every time you open the index!
+The -dbmargs option can be used to control the format of the index. For example,
+you can pass $DB_BTREE to this argument so as to force the IDs to be sorted and
+retrieved alphabetically. Note that you must use the same arguments every time
+you open the index!
 
--reindex can be used to force the index to be recreated from scratch.
+The -makeid option gives you a chance to modify sequence IDs during indexing.
+For example, you may wish to extract a portion of the gi|gb|abc|xyz nonsense
+that GenBank Fasta files use. The original header line can be recovered later.
+The option value should be a code reference that takes a scalar argument and
+returns a scalar result, like this:
 
-The -makeid option gives you a chance to modify sequence IDs during
-indexing. For example, you may wish to extract a portion of the gi|gb|abc|xyz
-nonsense that GenBank Fasta files use. The original header line can be recovered
-later. The option value should be a code reference that takes a
-scalar argument and returns a scalar result, like this:
-
-  $db = Bio::DB::Fasta->new("file.fa",-makeid=>\&make_my_id);
+  $db = Bio::DB::IndexedBase->new('file.fa', -makeid => \&make_my_id);
 
   sub make_my_id {
-    my $description_line = shift;
-    # get a different id from the header, e.g.
-    $description_line =~ /(\S+)$/;
-    return $1;
+      my $description_line = shift;
+      # get a different id from the header, e.g.
+      $description_line =~ /(\S+)$/;
+      return $1;
   }
 
-make_my_id() will be called with the full fasta id line (including the
-"E<gt>" symbol!).  For example:
+make_my_id() will be called with the full header line, e.g. a Fasta line would
+include the "E<gt>", the ID and the description:
 
  >A12345.3 Predicted C. elegans protein egl-2
-
-By default, this module will use the regular expression /^E<gt>(\S+)/
-to extract "A12345.3" for use as the ID.  If you pass a -makeid
-callback, you can extract any portion of this, such as the "egl-2"
-symbol.
 
 The -makeid option is ignored after the index is constructed.
 
@@ -310,8 +299,8 @@ sub new {
 =head2 newFh
 
  Title   : newFh
- Usage   : my $fh = Bio::DB::Qual->newFh('/path/to/files/', %options);
- Function: Get a new Fh for a file or directory containing several files
+ Usage   : my $fh = Bio::DB::IndexedBase->newFh('/path/to/files/', %options);
+ Function: Index and get a new Fh for a single file, several files or a directory
  Returns : Filehandle object
  Args    : Same as new()
 
@@ -333,8 +322,8 @@ sub newFh {
  Title   : dbmargs
  Usage   : my @args = $db->dbmargs;
  Function: Get stored dbm arguments
- Returns : array
- Args    : none
+ Returns : Array
+ Args    : None
 
 =cut
 
@@ -350,9 +339,9 @@ sub dbmargs {
  Title   : index_dir
  Usage   : $db->index_dir($dir);
  Function: Index the files that match -glob in the given directory
- Returns : hashref of offsets
- Args    : dirname
-           boolean to force a reload of all files
+ Returns : Hashref of offsets
+ Args    : Dirname
+           Boolean to force a reindexing the directory
 
 =cut
 
@@ -368,11 +357,11 @@ sub index_dir {
 
 =head2 get_all_ids
 
- Title   : get_all_ids
+ Title   : get_all_ids, ids
  Usage   : my @ids = $db->get_all_ids;
  Function: Get the IDs stored in all indexes
  Returns : List of ids
- Args    : none
+ Args    : None
 
 =cut
 
@@ -380,15 +369,17 @@ sub get_all_ids  {
     return keys %{shift->{offsets}};
 }
 
+*ids = \&get_all_ids;
+
 
 =head2 index_file
 
  Title   : index_file
- Usage   : $db->index_file($filename)
+ Usage   : $db->index_file($filename);
  Function: Index the given file
- Returns : hashref of offsets
- Args    : filename
-           boolean to force reloading a file
+ Returns : Hashref of offsets
+ Args    : Filename
+           Boolean to force reindexing the file
 
 =cut
 
@@ -403,11 +394,11 @@ sub index_file {
 =head2 index_files
 
  Title   : index_files
- Usage   : $db->index_files(\@files)
+ Usage   : $db->index_files(\@files);
  Function: Index the given files
- Returns : hashref of offsets
- Args    : arrayref of filenames
-           boolean to force a reload of all files
+ Returns : Hashref of offsets
+ Args    : Arrayref of filenames
+           Boolean to force reindexing the files
 
 =cut
 
@@ -427,8 +418,8 @@ sub index_files {
  Title   : index_name
  Usage   : my $indexname = $db->index_name($path);
  Function: Get the full name of the index file
- Returns : string
- Args    : none
+ Returns : String
+ Args    : None
 
 =cut
 
@@ -442,10 +433,10 @@ sub index_name {
  Title   : path
  Usage   : my $path = $db->path($path);
  Function: When a simple file or a directory of files is indexed, this returns
-           their directory. When indexing an arbitrary list of files, the return
-           value is the path of the current working directory.
- Returns : string
- Args    : none
+           the file directory. When indexing an arbitrary list of files, the
+           return value is the path of the current working directory.
+ Returns : String
+ Args    : None
 
 =cut
 
@@ -474,11 +465,12 @@ sub get_Seq_stream {
 
 =head2 get_Seq_by_id
 
- Title   : get_Seq_by_id
- Usage   : my $seq = $db->get_Seq_by_id($id)
- Function: Bio::DB::RandomAccessI method implemented. Synonyms are: get_Seq_by_acc(), get_Seq_by_primary_id()
- Returns : Bio::PrimarySeqI object
- Args    : id
+ Title   : get_Seq_by_id, get_Seq_by_acc, get_Seq_by_primary_id
+ Usage   : my $seq = $db->get_Seq_by_id($id);
+ Function: Given an ID, fetch the corresponding sequence from the database.
+           This is a Bio::DB::RandomAccessI method implementation.
+ Returns : A sequence object
+ Args    : ID
 
 =cut
 
@@ -496,11 +488,11 @@ sub get_Seq_by_id {
 
  Title   : _calculate_offsets
  Usage   : $db->_calculate_offsets($filename, $offsets);
- Function: Should be implemented by classes that use Bio::DB::IndexedBase. This
-           method calculates the sequence offsets in a file based on ID.
+ Function: This method calculates the sequence offsets in a file based on ID and
+           should be implemented by classes that use Bio::DB::IndexedBase. 
  Returns : Hash of offsets
- Args    : file to process
-           hashref of id to offset storage
+ Args    : File to process
+           Hashref of file offsets keyed by IDs.
 
 =cut
 
@@ -671,7 +663,7 @@ sub _unpackBig {
 
 
 sub _set_pack_method {
-    # Given one or more file paths, determines whether to use 32 or 64 bit integers
+    # Determine whether to use 32 or 64 bit integers for the given files.
     my $self = shift;
     # Find the maximum file size:
     my ($maxsize) = sort { $b <=> $a } map { -s $_ } @_;
