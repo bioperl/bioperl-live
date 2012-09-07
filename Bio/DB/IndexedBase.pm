@@ -136,9 +136,13 @@ same name=E<gt>value pairs.  Valid options are:
                routines when tied
                (scalar or array ref).
 
- -index_name   Name of the file that     Auto
+ -index_name   Name of the file that
                holds the indexing
                information.
+
+ -clean        Remove the index file     0
+               when the database goes
+               out of scope.
 
 -dbmargs can be used to control the format of the index.  For example,
 you can pass $DB_BTREE to this argument so as to force the IDs to be
@@ -447,7 +451,7 @@ my ($caller, @fileno2path, %filepath2no);
 
 These are optional arguments to pass in as well (and their defaults).
 
- -glob         Glob expression to use    *.{fa,fasta,fast,FA,FASTA,FAST}
+ -glob         Glob expression to use    *
                for searching for Fasta
                files in directories.
 
@@ -472,6 +476,10 @@ These are optional arguments to pass in as well (and their defaults).
                holds the indexing
                information.
 
+ -clean        Remove the index file     0
+               when the database goes
+               out of scope.
+
 =cut
 
 sub new {
@@ -485,6 +493,7 @@ sub new {
     makeid     => $opts{-makeid},
     glob       => $opts{-glob}    || '*',
     maxopen    => $opts{-maxopen} || 32,
+    clean      => $opts{-clean}   || 0,
     dbmargs    => $opts{-dbmargs} || undef,
     fhcache    => {},
     cacheseq   => {},
@@ -712,8 +721,8 @@ sub get_Seq_by_id {
 
  Title   : _calculate_offsets
  Usage   : $db->_calculate_offsets($filename, $offsets);
- Function: To be implemented by the class that uses Bio::DB::IndexedBase. It
-           should calculate the sequence offsets in a file based on id.
+ Function: Should be implemented by classes that use Bio::DB::IndexedBase. This
+           method calculates the sequence offsets in a file based on ID.
  Returns : Hash of offsets
  Args    : file to process
            hashref of id to offset storage
@@ -951,9 +960,9 @@ sub NEXTKEY {
 
 sub DESTROY {
     my $self = shift;
-    if ($self->{indexing}) {  # killed prematurely, so index file is no good!
-      warn "indexing was interrupted, so deleting $self->{indexing}";
-      unlink $self->{indexing};
+    if ( $self->{clean} || $self->{indexing} ) {
+      # Indexing aborted or cleaning requested. Delete the index file.
+      unlink $self->{index_name};
     }
     return 1;
 }

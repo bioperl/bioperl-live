@@ -50,6 +50,7 @@ CPAN releases are branched from 'master'.
     * Bio::DB::Fasta and Bio::DB::Qual
         - support indexing an arbitrary list of files [fangly]
         - user can supply an arbitrary index file name [fangly]
+        - new option to remove index file at the end [fangly]
 
     [Bug fixes]
 

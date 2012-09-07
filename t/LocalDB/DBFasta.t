@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 42,
+    test_begin( -tests => 43,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -73,14 +73,6 @@ is $db->alphabet('gi|61679760|pdb|1Y4P|B'), 'protein';
 is $db->alphabet('123'), '';
 
 
-# Test an arbitrary index filename
-my $name = 'arbitrary.idx';
-ok $db = Bio::DB::Fasta->new( $test_file, -reindex => 1, -index_name => $name );
-is $db->index_name, $name;
-ok -f $name;
-unlink $name;
-
-
 # Test stream
 ok my $stream = $db->get_PrimarySeq_stream;
 ok $stream = $db->get_Seq_stream;
@@ -91,6 +83,17 @@ while (my $seq = $stream->next_seq) {
 }
 is $count, 5;
 unlink "$test_file.index";
+
+
+# Test an arbitrary index filename and cleaning
+my $name = 'arbitrary.idx';
+ok $db = Bio::DB::Fasta->new( $test_file,
+    -reindex => 1, -index_name => $name, -clean => 1 );
+is $db->index_name, $name;
+ok -f $name;
+unlink $name;
+undef $db;
+ok ! -f $name;
 
 
 # Test opening set of files and test IDs
