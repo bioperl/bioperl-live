@@ -481,14 +481,14 @@ These are optional arguments to pass in as well (and their defaults).
  Title   : newFh
  Usage   : my $fh = Bio::DB::Qual->newFh('/path/to/qual/files', %options);
  Function: Get a new Fh for a file or directory containing several files
- Returns : filehandle object
- Args    : Fasta filename and options
+ Returns : Filehandle object
+ Args    : Same as new()
 
 =cut
 
 sub newFh {
-    my $class = shift;
-    my $self  = $class->new(@_);
+    my ($class, @args) = @_;
+    my $self = $class->new(@args);
     require Symbol;
     my $fh = Symbol::gensym;
     tie $$fh, 'Bio::DB::Indexed::Stream', $self
@@ -511,81 +511,6 @@ sub dbmargs {
     my $self = shift;
     my $args = $self->{dbmargs} or return;
     return ref($args) eq 'ARRAY' ? @$args : $args;
-}
-
-
-sub _open_index {
-    my ($self, $index_file, $write) = @_;
-    my %offsets;
-    my $flags = $write ? O_CREAT|O_RDWR : O_RDONLY;
-    my @dbmargs = $self->dbmargs;
-    tie %offsets, 'AnyDBM_File', $index_file, $flags, 0644, @dbmargs 
-        or $self->throw( "Could not open index file $index_file: $!");
-    return \%offsets;
-}
-
-
-sub _close_index {
-    my ($self, $index) = @_;
-    untie %$index;
-    return 1;
-}
-
-
-=head2 _set_pack_method
-
- Title   : _set_pack_method
- Usage   : $db->_set_pack_method( @files )
- Function: Determines whether data packing uses 32 or 64 bit integers
- Returns : 1 for success
- Args    : one or more file paths
-
-=cut
-
-sub _set_pack_method {
-    my $self = shift;
-    # Find the maximum file size:
-    my ($maxsize) = sort { $b <=> $a } map { -s $_ } @_;
-    my $fourGB    = (2 ** 32) - 1;
-
-    if ($maxsize > $fourGB) {
-        # At least one file exceeds 4Gb - we will need to use 64 bit ints
-        $self->{packmeth}   = \&_packBig;
-        $self->{unpackmeth} = \&_unpackBig;
-    } else {
-        $self->{packmeth}   = \&_pack;
-        $self->{unpackmeth} = \&_unpack;
-    }
-    return 1;
-}
-
-
-sub _pack {
-    return pack STRUCT, @_;
-}
-
-
-sub _packBig {
-    return pack STRUCTBIG, @_;
-}
-
-
-sub _unpack {
-    return unpack STRUCT, shift;
-}
-
-
-sub _unpackBig {
-    return unpack STRUCTBIG, shift;
-}
-
-
-sub _type {
-  # Determine the molecular type of the given a sequence string: dna, rna or protein
-  my ($self, $string) = @_;
-  return $string =~ m/^[gatcnGATCN*-]+$/   ? DNA
-         : $string =~ m/^[gaucnGAUCN*-]+$/ ? RNA
-         : PROTEIN;
 }
 
 
@@ -651,6 +576,38 @@ sub index_files {
 }
 
 
+=head2 index_name
+
+ Title   : index_name
+ Usage   : my $indexname = $db->index_name($path);
+ Function: Get the path of the index file
+ Returns : string
+ Args    : none
+
+=cut
+
+sub index_name {
+    return shift->{index_name};
+}
+
+
+=head2 path
+
+ Title   : path
+ Usage   : my $path = $db->path($path);
+ Function: When a simple file or a directory of files is to be indexed. this
+           method returns their directory. When indexing an arbitrary list of 
+           files, the return value is the path of the current working directory.
+ Returns : string
+ Args    : none
+
+=cut
+
+sub path {
+    return shift->{dirname};
+}
+
+
 sub _index_files {
     # Do the indexing of the given files using the index file on record
     my ($self, $files, $force_reindex) = @_;
@@ -698,27 +655,37 @@ sub _index_files {
 }
 
 
-=head2 index_name
-
- Title   : index_name
- Usage   : my $indexname = $db->index_name($path);
- Function: Get the path of the index file
- Returns : string
- Args    : none, or path to set
-
-=cut
-
-sub index_name {
-    return shift->{index_name};
+sub _open_index {
+    # Open index file in read-only or write mode
+    my ($self, $index_file, $write) = @_;
+    my %offsets;
+    my $flags = $write ? O_CREAT|O_RDWR : O_RDONLY;
+    my @dbmargs = $self->dbmargs;
+    tie %offsets, 'AnyDBM_File', $index_file, $flags, 0644, @dbmargs 
+        or $self->throw( "Could not open index file $index_file: $!");
+    return \%offsets;
 }
 
 
-sub path {
-    return shift->{dirname};
+sub _close_index {
+    # Close index file
+    my ($self, $index) = @_;
+    untie %$index;
+    return 1;
+}
+
+
+sub _type {
+  # Determine the molecular type of the given a sequence string: dna, rna or protein
+  my ($self, $string) = @_;
+  return $string =~ m/^[gatcnGATCN*-]+$/   ? DNA
+         : $string =~ m/^[gaucnGAUCN*-]+$/ ? RNA
+         : PROTEIN;
 }
 
 
 sub _check_linelength {
+    # Check that the line length is valid. Generate an error otherwise.
     my ($self, $linelength) = @_;
     return unless defined $linelength;
     $self->throw(
@@ -729,7 +696,7 @@ sub _check_linelength {
 
 
 sub _caloffset {
-    # Calculate the offset of the n-th residue of the sequence with the given id
+    # Get the offset of the n-th residue of the sequence with the given id
     my ($self, $id, $n) = @_;
     $n--;
     my ($offset, $seqlength, $linelength, $firstline, $file)
@@ -778,50 +745,88 @@ sub _path2fileno {
 }
 
 
+sub _pack {
+    return pack STRUCT, @_;
+}
+
+
+sub _packBig {
+    return pack STRUCTBIG, @_;
+}
+
+
+sub _unpack {
+    return unpack STRUCT, shift;
+}
+
+
+sub _unpackBig {
+    return unpack STRUCTBIG, shift;
+}
+
+
+sub _set_pack_method {
+    # Given one or more file paths, determines whether to use 32 or 64 bit integers
+    my $self = shift;
+    # Find the maximum file size:
+    my ($maxsize) = sort { $b <=> $a } map { -s $_ } @_;
+    my $fourGB    = (2 ** 32) - 1;
+
+    if ($maxsize > $fourGB) {
+        # At least one file exceeds 4Gb - we will need to use 64 bit ints
+        $self->{packmeth}   = \&_packBig;
+        $self->{unpackmeth} = \&_unpackBig;
+    } else {
+        $self->{packmeth}   = \&_pack;
+        $self->{unpackmeth} = \&_unpack;
+    }
+    return 1;
+}
+
+
 #-------------------------------------------------------------
 # Tied hash logic
 #
 
 sub TIEHASH {
-  my $self = shift;
-  return $self->new(@_);
+    return shift->new(@_);
 }
 
 sub FETCH {
-  return shift->subseq(@_);
+    return shift->subseq(@_);
 }
 
 sub STORE {
-  shift->throw("Read-only database");
+    shift->throw("Read-only database");
 }
 
 sub DELETE {
-  shift->throw("Read-only database");
+    shift->throw("Read-only database");
 }
 
 sub CLEAR {
-  shift->throw("Read-only database");
+    shift->throw("Read-only database");
 }
 
 sub EXISTS {
-  return defined shift->offset(@_);
+    return defined shift->offset(@_);
 }
 
 sub FIRSTKEY {
-  return tied(%{shift->{offsets}})->FIRSTKEY(@_);
+    return tied(%{shift->{offsets}})->FIRSTKEY(@_);
 }
 
 sub NEXTKEY {
-  return tied(%{shift->{offsets}})->NEXTKEY(@_);
+    return tied(%{shift->{offsets}})->NEXTKEY(@_);
 }
 
 sub DESTROY {
-  my $self = shift;
-  if ($self->{indexing}) {  # killed prematurely, so index file is no good!
-    warn "indexing was interrupted, so deleting $self->{indexing}";
-    unlink $self->{indexing};
-  }
-  return 1;
+    my $self = shift;
+    if ($self->{indexing}) {  # killed prematurely, so index file is no good!
+      warn "indexing was interrupted, so deleting $self->{indexing}";
+      unlink $self->{indexing};
+    }
+    return 1;
 }
 
 

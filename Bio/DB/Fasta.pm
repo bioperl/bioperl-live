@@ -614,6 +614,7 @@ sub calculate_offsets {
     }
   }
   $offsets->{__termination_length} = $termination_length;
+
   return \%offsets;
 }
 
