@@ -147,6 +147,15 @@ Currently, the only way to accommodate sequence removal is to rebuild the entire
 index, either by deleting it manually, or by passing -reindex=E<gt>1 to new()
 when initializing the module.
 
+
+=head1 SEE ALSO
+
+L<DB_File>
+
+L<Bio::DB::Fasta>
+
+L<Bio::DB::Qual>
+
 =head1 AUTHOR
 
 Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
