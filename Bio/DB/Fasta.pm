@@ -50,11 +50,11 @@ Bio::DB::Fasta - Fast indexed access to fasta files
 =head1 DESCRIPTION
 
 Bio::DB::Fasta provides indexed access to a single Fasta file, several files,
-or a directory of files. It provides random access to each sequence entry 
-(either as a Bio::PrimarySeqI-compliant object or a string), and to subsequences
-within each entry, allowing you to retrieve portions of very large sequences
-without bringing the entire sequence into memory. Bio::DB::Fasta is based on
-Bio::DB::IndexedBase. See this module's documentation for details.
+or a directory of files. It provides persistent random access to each sequence
+entry (either as a Bio::PrimarySeqI-compliant object or a string), and to
+subsequences within each entry, allowing you to retrieve portions of very large
+sequences without bringing the entire sequence into memory. Bio::DB::Fasta is
+based on Bio::DB::IndexedBase. See this module's documentation for details.
 
 The Fasta files may contain any combination of nucleotide and protein sequences;
 during indexing the module guesses the molecular type. Entries may have any line
@@ -168,7 +168,7 @@ sub _calculate_offsets {
 
     my $fh = IO::File->new($file) or $self->throw( "Can't open $file: $!");
     binmode $fh;
-    warn "indexing $file\n" if $self->{debug};
+    warn "Indexing $file\n" if $self->{debug};
     my ($offset, @id, $linelength, $type, $firstline, $count, $seq_lines,
         $last_line, %offsets);
     my ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
@@ -398,9 +398,9 @@ sub file {
 =head2 offset
 
  Title   : offset
- Usage   : my $file = $db->offset($id);
+ Usage   : my $offset = $db->offset($id);
  Function: Get the offset of the indicated sequence from the beginning of the
-           file in which it is located.  The offset points to the beginning of
+           file in which it is located. The offset points to the beginning of
            the sequence, not the beginning of the header line.
  Returns : String
  Args    : ID of sequence
