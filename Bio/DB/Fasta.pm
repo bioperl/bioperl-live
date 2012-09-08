@@ -96,43 +96,33 @@ disclaimers of warranty.
 The rest of the documentation details each of the object
 methods. Internal methods are usually preceded with a _
 
-For simple access, the following methods are provided:
-
 For BioPerl-style access, the following methods are provided:
 
-=over
+=head2 get_Seq_by_id
 
-=item $seq = $db-E<gt>get_Seq_by_id($id)
+ Title   : get_Seq_by_id, get_Seq_by_acc, get_Seq_by_primary_id
+ Usage   : my $seq = $db->get_Seq_by_id($id);
+ Function: Given an ID, fetch the corresponding sequence from the database.
+ Returns : A Bio::PrimarySeq::Fasta object (Bio::PrimarySeqI compliant)
+           Note that to save resource, Bio::PrimarySeq::Fasta sequence objects
+           only load the sequence string into memory when requested using seq().
+           See L<Bio::PrimarySeqI> for methods provided by the sequence objects
+           returned from get_Seq_by_id() and get_PrimarySeq_stream().
+ Args    : ID
 
-Return a Bio::PrimarySeq::Fasta object, which obeys the
-Bio::PrimarySeqI conventions.  For example, to recover the raw DNA or
-protein sequence, call $seq-E<gt>seq().
+=head2 get_Seq_stream
 
-Note that get_Seq_by_id() does not bring the entire sequence into
-memory until requested.  Internally, the returned object uses the
-accessor to generate subsequences as needed.
+ Title   : get_Seq_stream
+ Usage   : my $stream = $db->get_Seq_stream();
+ Function: Get a stream of Bio::PrimarySeq::Fasta objects. The stream supports a
+           single method, next_seq(). Each call to next_seq() returns a new
+           Bio::PrimarySeq::Fasta sequence object, until no more sequences remain.
+ Returns : A Bio::DB::Indexed::Stream object
+ Args    : None
 
-=item $stream = $db-E<gt>get_PrimarySeq_stream()
+=head1
 
-Return a Bio::DB::Indexed::Stream object, which supports a single method
-next_seq(). Each call to next_seq() returns a new
-Bio::PrimarySeq::Fasta object, until no more sequences remain.
-
-=back
-
-See L<Bio::PrimarySeqI> for methods provided by the sequence objects
-returned from get_Seq_by_id() and get_PrimarySeq_stream().
-
-=head1 BUGS
-
-When a sequence is deleted from one of the Fasta files, this deletion
-is not detected by the module and removed from the index.  As a
-result, a "ghost" entry will remain in the index and will return
-garbage results if accessed.
-
-Currently, the only way to accommodate deletions is to rebuild the
-entire index, either by deleting it manually, or by passing
--reindex=E<gt>1 to new() when initializing the module.
+For simple access, the following methods are provided:
 
 =cut
 
@@ -341,7 +331,8 @@ sub length {
 
  Title   : header
  Usage   : my $header = $db->header($id);
- Function: Get the header line for the ID, including the initial "E<gt>".
+ Function: Get the header line (ID and description fields) of the specified
+           sequence.
  Returns : String
  Args    : ID of sequence
 
@@ -496,7 +487,7 @@ sub fetch_sequence {
 
 sub seq {
     my $self = shift;
-    return $self->{db}->seq($self->{id},$self->{start},$self->{stop});
+    return $self->{db}->seq($self->{id}, $self->{start}, $self->{stop});
 }
 
 sub subseq {
@@ -507,15 +498,15 @@ sub subseq {
 sub trunc {
     my ($self, $start, $stop) = @_;
     $self->throw("Stop cannot be smaller than start") if $stop < $start;
-    return $self->{start} <= $self->{stop} ?  $self->new($self->{db},
-                                              $self->{id},
-                                              $self->{start}+$start-1,
-                                              $self->{start}+$stop-1)
-                                           :  $self->new($self->{db},
-                                              $self->{id},
-                                              $self->{start}-($start-1),
-                                              $self->{start}-($stop-1)
-                                              );
+    return $self->{start} <= $self->{stop} ?
+        $self->new( $self->{db},
+                    $self->{id},
+                    $self->{start}+$start-1,
+                    $self->{start}+$stop-1,  ) :
+        $self->new( $self->{db},
+                    $self->{id},
+                    $self->{start}-($start-1),
+                    $self->{start}-($stop-1) );
 }
 
 sub is_circular {
@@ -530,7 +521,7 @@ sub display_id {
 
 sub accession_number {
     my $self = shift;
-    return "unknown";
+    return 'unknown';
 }
 
 sub primary_id {
@@ -549,7 +540,7 @@ sub alphabet {
 
 sub revcom {
     my $self = shift;
-    return $self->new(@{$self}{'db','id','stop','start'});
+    return $self->new(@{$self}{'db', 'id', 'stop', 'start'});
 }
 
 sub length {
@@ -564,7 +555,7 @@ sub description  {
     my $self = shift;
     my $header = $self->{'db'}->header($self->{id});
     # remove the id from the header
-    return (split(/\s+/,$header,2))[1];
+    return (split(/\s+/, $header, 2))[1];
 }
 *desc = \&description;
 

@@ -161,8 +161,6 @@ Create a tied filehandle opened on a Bio::DB::Qual object. Reading from this
 filehandle with E<lt>E<gt> will return a stream of quality objects,
 Bio::SeqIO-style.
 
-=back
-
 =item $index_name  = $db-E<gt>index_name
 
 Return the path to the index file.
@@ -170,6 +168,8 @@ Return the path to the index file.
 =item $path = $db-E<gt>path
 
 Return the path to the Qual file(s).
+
+=back
 
 =head1 OBJECT METHODS
 

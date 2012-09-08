@@ -463,7 +463,9 @@ sub path {
 
  Title   : get_Seq_stream
  Usage   : my $stream = $db->get_Seq_stream();
- Function: Get a SeqIO-like stream of sequence objects
+ Function: Get a SeqIO-like stream of sequence objects. The stream supports a
+           single method, next_seq(). Each call to next_seq() returns a new
+           PrimarySeqI compliant sequence object, until no more sequences remain.
  Returns : A Bio::DB::Indexed::Stream object
  Args    : None
 
