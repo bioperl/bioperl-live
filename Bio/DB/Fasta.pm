@@ -98,15 +98,6 @@ methods. Internal methods are usually preceded with a _
 
 For simple access, the following methods are provided:
 
-=over
-
-=item $header_offset = $db-E<gt>header_offset($id)
-
-Return the offset of the header line for the indicated sequence from
-the beginning of the file in which it is located.
-
-=back
-
 For BioPerl-style access, the following methods are provided:
 
 =over
@@ -451,19 +442,30 @@ sub headerlen {
 }
 
 
-sub linelen {
-    my ($self, $id) = @_;
-    $self->throw('Need to provide a sequence ID') if not defined $id;
-    my $offset = $self->{offsets}{$id} or return;
-    return (&{$self->{unpackmeth}}($offset))[2];
-}
+=head2 header_offset
 
+ Title   : header_offset
+ Usage   : my $offset = $db->header_offset($id);
+ Function: Get the offset of the header line for the indicated sequence from
+           the beginning of the file in which it is located.
+ Returns : String
+ Args    : ID of sequence
+
+=cut
 
 sub header_offset {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
     return if not $self->{offsets}{$id};
     return $self->offset($id) - $self->headerlen($id);
+}
+
+
+sub linelen {
+    my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
+    my $offset = $self->{offsets}{$id} or return;
+    return (&{$self->{unpackmeth}}($offset))[2];
 }
 
 
