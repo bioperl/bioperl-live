@@ -645,7 +645,7 @@ sub subqual {
     my $string_stop = $self->lengthstr($id);
 
     # fetch full quality string
-    my $fh = $self->fh($id) or return;
+    my $fh = $self->_fh($id) or return;
     my $filestart = $self->_caloffset($id, $string_start, $termination_length);
     my $filestop  = $self->_caloffset($id, $string_stop , $termination_length);
     seek($fh,$filestart,0);
@@ -684,15 +684,6 @@ sub subqual {
 *qual = *quality = \&subqual;
 
 
-sub fh {
-    my ($self, $id) = @_;
-    $self->throw('Need to provide a sequence ID') if not defined $id;
-    my $file = $self->file($id) or return;
-    return $self->_fhcache( File::Spec->catfile($self->{dirname},$file) ) or
-        $self->throw( "Can't open file $file");
-}
-
-
 =head2 header
 
  Title   : header
@@ -710,7 +701,7 @@ sub header {
         = &{$self->{unpackmeth}}($self->{offsets}{$id}) or return;
     $offset -= $firstline;
     my $data;
-    my $fh = $self->fh($id) or return;
+    my $fh = $self->_fh($id) or return;
     seek($fh,$offset,0);
     read($fh,$data,$firstline);
     chomp $data;

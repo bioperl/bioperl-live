@@ -166,6 +166,11 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  See DISCLAIMER.txt for
 disclaimers of warranty.
 
+=head1 APPENDIX
+
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
+
 =cut
 
 
@@ -611,6 +616,16 @@ sub _caloffset {
     $n = 0            if $n < 0;
     $n = $seqlength-1 if $n >= $seqlength;
     return $offset + $linelength * int($n/($linelength-$tl)) + $n % ($linelength-$tl);
+}
+
+
+sub _fh {
+    # Given a sequence ID, return the filehandle on which to find this sequence
+    my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
+    my $file = $self->file($id) or return;
+    return $self->_fhcache( File::Spec->catfile($self->{dirname}, $file) ) or
+        $self->throw( "Can't open file $file");
 }
 
 

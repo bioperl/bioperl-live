@@ -301,7 +301,7 @@ sub subseq {
 
     my $data;
 
-    my $fh = $self->fh($id) or return;
+    my $fh = $self->_fh($id) or return;
     my $filestart = $self->_caloffset($id, $start, $termination_length);
     my $filestop  = $self->_caloffset($id, $stop , $termination_length);
 
@@ -354,7 +354,7 @@ sub header {
         = &{$self->{unpackmeth}}($self->{offsets}{$id}) or return;
     $offset -= $firstline;
     my $data;
-    my $fh = $self->fh($id) or return;
+    my $fh = $self->_fh($id) or return;
     seek($fh,$offset,0);
     read($fh,$data,$firstline);
     chomp $data;
@@ -466,15 +466,6 @@ sub linelen {
     $self->throw('Need to provide a sequence ID') if not defined $id;
     my $offset = $self->{offsets}{$id} or return;
     return (&{$self->{unpackmeth}}($offset))[2];
-}
-
-
-sub fh {
-    my ($self, $id) = @_;
-    $self->throw('Need to provide a sequence ID') if not defined $id;
-    my $file = $self->file($id) or return;
-    return $self->_fhcache( File::Spec->catfile($self->{dirname}, $file) ) or
-      $self->throw( "Can't open file $file");
 }
 
 
