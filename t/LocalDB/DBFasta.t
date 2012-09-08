@@ -26,7 +26,7 @@ my $test_files = [
     is $db->length('CEESC13F'), 389;
     is $db->seq('CEESC13F:1,10'), 'cttgcttgaa';
     is $db->seq('AW057119', 1, 10), 'tcatgttggc';
-    is $db->header('AW057119',), 'XXX'; ####
+    is $db->header('AW057119',), 'AW057119 test description';
     is $db->seq('foobarbaz'), undef;
     ok my $primary_seq = $db->get_Seq_by_id('AW057119');
     isa_ok $primary_seq, 'Bio::PrimarySeqI';
