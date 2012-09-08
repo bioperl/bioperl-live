@@ -28,13 +28,14 @@ my $test_files = [
     is $db->seq('AW057119', 1, 10), 'tcatgttggc';
     is $db->header('AW057119',), 'AW057119 test description';
     is $db->seq('foobarbaz'), undef;
+    is $db->get_Seq_by_id('foobarbaz'), undef;
     ok my $primary_seq = $db->get_Seq_by_id('AW057119');
     isa_ok $primary_seq, 'Bio::PrimarySeqI';
-    is $primary_seq->seq, 'tcatgttggcttctcggggtttttatggattaatacattttccaaacg';
     is $primary_seq->trunc(11, 20)->length, 10;
     is $primary_seq->trunc(11, 20)->seq, 'ttctcggggt';
     is $primary_seq->description, 'test description', 'bug 3126';
-    is $db->get_Seq_by_id('foobarbaz'), undef;
+    is $primary_seq->seq, 'tcatgttggcttctcggggtttttatggattaatacattttccaaacgattctttgcgccttctgtggtgccgccttctccgaaggaactgacgaaaaatgacgtggatttgctgacaaatccaggcgaggaatatttggacggattgatgaaatggcacggcgacgagcgacccgtgttcaaaagagaggacatttatcgttggtcggatagttttccagaatatcggctaagaatgatttgtctgaaagacacgacaagggtcattgcagtcggtcaatattgttactttgatgctctgaaagaaaggagagcagccattgttcttcttaggattgggatggacggatcctgaatatcgtaatcgggcagttatggagcttcaagcttcgatggcgctggaggagagggatcggtatccgactgccaacgcggcatcgcatccaaataagttcatgaaacgattttggcacatattcaacggcctcaaagagcacgaggacaaaggtcacaaggctgccgctgtttcatacaagagcttctacgacctcanagacatgatcattcctgaaaatctggatgtcagtggtattactgtaaatgatgcacgaaaggtgccacaaagagatataatcaactacgatcaaacatttcatccatatcatcgagaaatggttataatttctcacatgtatgacaatgatgggtttggaaaagtgcgtatgatgaggatggaaatgtacttggaattgtctagcgatgtctttanaccaacaagactgcacattagtcaattatgcagatagcc';
+
 }
 
 
