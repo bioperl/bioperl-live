@@ -546,7 +546,7 @@ sub _index_files {
         }
     }
 
-    my $reindex      = $force_reindex || (scalar @updated > 1);
+    my $reindex      = $force_reindex || (scalar @updated > 0);
     $self->{offsets} = $self->_open_index($index, $reindex) or return;
 
     if ($reindex) {
