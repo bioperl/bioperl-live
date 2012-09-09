@@ -185,14 +185,14 @@ sub _calculate_offsets {
     binmode $fh;
     warn "Indexing $file\n" if $self->{debug};
     my ( $offset, $id, $linelen, $headerlen, $count, $qual_lines, $last_line,
-         %offsets );
+         $numres, %offsets );
     my ( $l3_len, $l2_len, $l_len ) = ( 0, 0, 0 );
 
     while (<$fh>) { # don't try this at home
         # account for crlf-terminated Windows files      
         $termination_length ||= /\r\n$/ ? 2 : 1;
         if (/^>(\S+)/) {
-            print STDERR "indexed $count quality scores...\n" 
+            print STDERR "Indexed $count quality scores...\n" 
             if $self->{debug} && (++$count%1000) == 0;
             my $pos = tell($fh);
             if ($id) {
@@ -201,11 +201,13 @@ sub _calculate_offsets {
                 $offsets->{$id} = &{$self->{packmeth}}(
                     $offset,
                     $strlen,
+                    $numres,
                     $linelen,
                     $headerlen,
                     Bio::DB::IndexedBase::NA,
                     $fileno,
                 );
+                $numres = 0;
             }
             $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
             ($offset, $headerlen, $linelen) = ($pos, length($_), 0);
@@ -215,7 +217,7 @@ sub _calculate_offsets {
         } else {
             $l3_len = $l2_len;
             $l2_len = $l_len;
-            $l_len = length($_);
+            $l_len  = length($_);
             # need to check every line :(
             if (Bio::DB::IndexedBase::DIE_ON_MISSMATCHED_LINES &&
                 $l3_len > 0 &&
@@ -229,6 +231,7 @@ sub _calculate_offsets {
             }
             $linelen ||= length($_);
             $qual_lines++;
+            $numres += scalar split /\s+/, $_;
         }
         $last_line = $_;
     }
@@ -250,11 +253,13 @@ sub _calculate_offsets {
         $offsets->{$id} = &{$self->{packmeth}}(
             $offset,
             $strlen,
+            $numres,
             $linelen,
             $headerlen,
             Bio::DB::IndexedBase::NA,
             $fileno,
         );
+        $numres = 0;
     }
     return \%offsets;
 }
@@ -310,18 +315,8 @@ sub subqual {
     # last quality value requested is reached??
 
     $self->throw('Need to provide a sequence ID') if not defined $id;
+    ($id, $start, $stop, my $strand) = $self->_parse_compound_id($id, $start, $stop);
 
-    # Position of the quality values
-    if ($id =~ /^(.+):([\d_]+)(?:,|-|\.\.)([\d_]+)$/) {
-        ($id, $start, $stop) = ($1, $2, $3);
-        $start =~ s/_//g;
-        $stop  =~ s/_//g;
-    }
-    my $strand = 1;
-    if ( (defined $stop) && ($stop < $start) ) {
-        ($start, $stop) = ($stop, $start);
-        $strand = -1;
-    }
     # Position in quality string
     my $string_start = 1;
     my $string_stop = $self->strlen($id);
@@ -359,25 +354,6 @@ sub subqual {
 *qual = *quality = \&subqual;
 
 
-=head2 length
-
- Title   : length
- Usage   : my $length = $qualdb->length($id);
- Function: Get the number of quality values in the indicated entry.
- Returns : Number
- Args    : ID of entry
-
-=cut
-
-sub length {
-    # The NUMBER of quality values
-    my ($self, $id) = @_;
-    $self->throw('Need to provide a sequence ID') if not defined $id;
-    my $len = scalar(@{$self->subqual($id)});
-    return $len;
-}
-
-
 =head2 header
 
  Title   : header
@@ -391,7 +367,7 @@ sub length {
 sub header {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
-    my ($offset, $headerlen) = (&{$self->{unpackmeth}}($self->{offsets}{$id}))[0,3];
+    my ($offset, $headerlen) = (&{$self->{unpackmeth}}($self->{offsets}{$id}))[0,4];
     $offset -= $headerlen;
     my $data;
     my $fh = $self->_fh($id) or return;
