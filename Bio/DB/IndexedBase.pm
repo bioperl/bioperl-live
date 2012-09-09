@@ -690,6 +690,13 @@ sub _guess_alphabet {
 }
 
 
+sub _makeid {
+    # Process the header line by applying any transformation given in -makeid
+    my ($self, $header_line) = @_;
+    return ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($header_line) : $1;
+}
+
+
 sub _check_linelength {
     # Check that the line length is valid. Generate an error otherwise.
     my ($self, $linelength) = @_;

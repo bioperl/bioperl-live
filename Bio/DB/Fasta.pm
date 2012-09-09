@@ -184,7 +184,7 @@ sub _calculate_offsets {
                     $alphabet = Bio::DB::IndexedBase::NA;
                     $offsets->{$id} = $ppos;
                 }
-                $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
+                $id = $self->_makeid($_);
                 ($offset, $headerlen, $linelen, $seq_lines) = ($pos, length $_, 0, 0);
                 ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
             } else {
