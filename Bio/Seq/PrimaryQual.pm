@@ -22,21 +22,22 @@ Bio::Seq::PrimaryQual - Bioperl lightweight Quality Object
  # you can use either a space-delimited string for quality
 
  my $string_quals = "10 20 30 40 50 40 30 20 10";
- my $qualobj = Bio::Seq::PrimaryQual->new
- 	      ( '-qual' => $string_quals,
- 		'-id'  => 'QualityFragment-12',
- 		'-accession_number' => 'X78121',
- 		);
+ my $qualobj = Bio::Seq::PrimaryQual->new(
+     -qual             => $string_quals,
+     -id               => 'QualityFragment-12',
+     -accession_number => 'X78121',
+ );
 
  # _or_ you can use an array of quality values
 
  my @q2 = split/ /,$string_quals;
- $qualobj = Bio::Seq::PrimaryQual->new( '-qual' => \@q2,
-       '-primary_id'     =>      'chads primary_id',
-       '-desc'           =>      'chads desc',
-       '-accession_number' => 'chads accession_number',
-      '-id'             =>      'chads id'
-      );
+ $qualobj = Bio::Seq::PrimaryQual->new(
+     -qual              => \@q2,
+     -primary_id        => 'chads primary_id',
+     -desc              => 'chads desc',
+     -accession_number  => 'chads accession_number',
+     -id                => 'chads id'
+ );
 
  # to get the quality values out:
 
@@ -96,8 +97,6 @@ The rest of the documentation details each of the object methods. Internal metho
 =cut
 
 
-# Let the code begin...
-
 package Bio::Seq::PrimaryQual;
 use vars qw(%valid_type);
 use strict;
@@ -109,22 +108,19 @@ use base qw(Bio::Root::Root Bio::Seq::QualI);
 =head2 new()
 
  Title   : new()
- Usage   : $qual = Bio::Seq::PrimaryQual->new
-	( -qual => '10 20 30 40 50 50 20 10',
-	  -id  => 'human_id',
-	  -accession_number => 'AL000012',
-	);
+ Usage   : $qual = Bio::Seq::PrimaryQual->new(
+               -qual             => '10 20 30 40 50 50 20 10',
+               -id               => 'human_id',
+               -accession_number => 'AL000012',
+           );
 
  Function: Returns a new Bio::Seq::PrimaryQual object from basic 
-	constructors, being a string _or_ a reference to an array for the
-	sequence and strings for id and accession_number. Note that you
-	can provide an empty quality string.
+           constructors, being a string _or_ a reference to an array for the
+           sequence and strings for id and accession_number. Note that you
+           can provide an empty quality string.
  Returns : a new Bio::Seq::PrimaryQual object
 
 =cut
-
-
-
 
 sub new {
     my ($class, @args) = @_;
@@ -159,6 +155,7 @@ sub new {
     return $self;
 }
 
+
 =head2 qual()
 
  Title   : qual()
@@ -174,15 +171,15 @@ sub qual {
     my ($self,$value) = @_;
 
     if( ! defined $value || length($value) == 0 ) { 
-	$self->{'qual'} ||= [];
+        $self->{'qual'} ||= [];
     } elsif( ref($value) =~ /ARRAY/i ) {
-	# if the user passed in a reference to an array
-	$self->{'qual'} = $value;
+        # if the user passed in a reference to an array
+        $self->{'qual'} = $value;
     } elsif(! $self->validate_qual($value)){
-	$self->throw("Attempting to set the quality to [$value] which does not look healthy");	    
+        $self->throw("Attempting to set the quality to [$value] which does not look healthy");
     } else {
-	$value =~ s/^\s+//;
-	$self->{'qual'} = [split(/\s+/,$value)];
+        $value =~ s/^\s+//;
+        $self->{'qual'} = [split(/\s+/,$value)];
     }
     
     return $self->{'qual'};
@@ -200,21 +197,21 @@ sub qual {
 =cut
 
 sub seq {
-    join ' ', @{ shift->qual };
+    return join ' ', @{ shift->qual };
 }
 
 
 =head2 validate_qual($qualstring)
 
- Title	 : validate_qual($qualstring)
- Usage	 : print("Valid.") if { &validate_qual($self,$qualities); }
+ Title   : validate_qual($qualstring)
+ Usage   : print("Valid.") if { &validate_qual($self,$qualities); }
  Function: Make sure that the quality, if it has length > 0, contains at
-	least one digit. Note that quality strings are parsed into arrays
-	using split/\d+/,$quality_string, so make sure that your quality
-	scalar looks like this if you want it to be parsed properly.
+           least one digit. Note that quality strings are parsed into arrays
+           using split/\d+/,$quality_string, so make sure that your quality
+           scalar looks like this if you want it to be parsed properly.
  Returns : 1 for a valid sequence (WHY? Shouldn\'t it return 0? <boggle>)
  Args    : a scalar (any scalar, why PrimarySeq author?) and a scalar
-	containing the string to validate.
+           containing the string to validate.
 
 =cut
 
@@ -231,41 +228,42 @@ sub validate_qual {
     return 0;
 }
 
+
 =head2 subqual($start,$end)
 
  Title   : subqual($start,$end)
  Usage   : @subset_of_quality_values = @{$obj->subqual(10,40)};
  Function: returns the quality values from $start to $end, where the
-        first value is 1 and the number is inclusive, ie 1-2 are the
-	first two bases of the sequence. Start cannot be larger than
-	end but can be equal.
+           first value is 1 and the number is inclusive, ie 1-2 are the
+           first two bases of the sequence. Start cannot be larger than
+           end but can be equal.
  Returns : A reference to an array.
  Args    : a start position and an end position
 
 =cut
 
-
 sub subqual {
-   my ($self,$start,$end) = @_;
+    my ($self,$start,$end) = @_;
 
-   if( $start > $end ){
-       $self->throw("in subqual, start [$start] has to be greater than end [$end]");
-   }
+    if( $start > $end ){
+        $self->throw("in subqual, start [$start] has to be greater than end [$end]");
+    }
 
-   if( $start <= 0 || $end > $self->length ) {
-       $self->throw("You have to have start positive and length less than the total length of sequence [$start:$end] Total ".$self->length."");
-   }
+    if( $start <= 0 || $end > $self->length ) {
+        $self->throw("You have to have start positive and length less than the total length of sequence [$start:$end] Total ".$self->length."");
+    }
 
-   # remove one from start, and then length is end-start
+    # remove one from start, and then length is end-start
 
-   $start--;
-	$end--;
-	my @sub_qual_array = @{$self->{qual}}[$start..$end];
+    $start--;
+    $end--;
+    my @sub_qual_array = @{$self->{qual}}[$start..$end];
 
- 	#   return substr $self->seq(), $start, ($end-$start);
-	return \@sub_qual_array;
+    #   return substr $self->seq(), $start, ($end-$start);
+    return \@sub_qual_array;
 
 }
+
 
 =head2 display_id()
 
@@ -281,8 +279,8 @@ sub subqual {
         though some people overload the id to embed other information.
         Bioperl does not use any embedded information in the ID field,
         and people are encouraged to use other mechanisms (accession
-	field for example, or extending the sequence object) to solve
-	this. Notice that $seq->id() maps to this function, mainly for
+        field for example, or extending the sequence object) to solve
+        this. Notice that $seq->id() maps to this function, mainly for
         legacy/convience issues
  Returns : A string
  Args    : None
@@ -295,8 +293,8 @@ sub display_id {
       $obj->{'display_id'} = $value;
     }
     return $obj->{'display_id'};
-
 }
+
 
 =head2 header()
 
@@ -317,6 +315,7 @@ sub header {
     return $obj->{'header'};
 
 }
+
 
 =head2 accession_number()
 
@@ -346,6 +345,7 @@ sub accession_number {
     return $acc;
 }
 
+
 =head2 primary_id()
 
  Title   : primary_id()
@@ -361,13 +361,13 @@ sub accession_number {
 =cut
 
 sub primary_id {
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'primary_id'} = $value;
+    my ($obj,$value) = @_;
+    if( defined $value) {
+        $obj->{'primary_id'} = $value;
     }
-   return $obj->{'primary_id'};
-
+    return $obj->{'primary_id'};
 }
+
 
 =head2 desc()
 
@@ -382,43 +382,44 @@ sub primary_id {
 =cut
 
 sub desc {
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'desc'} = $value;
+    my ($obj,$value) = @_;
+    if( defined $value) {
+        $obj->{'desc'} = $value;
     }
     return $obj->{'desc'};
-
 }
+
 
 =head2 id()
 
  Title   : id()
  Usage   : $id = $qual->id();
  Function: Return the ID of the quality. This should normally be (and
-	actually is in the implementation provided here) just a synonym
-	for display_id().
+           actually is in the implementation provided here) just a synonym
+           for display_id().
  Returns : A string.
  Args    : None.
 
 =cut
 
 sub id {
-   my ($self,$value) = @_;
-   if( defined $value ) {
+    my ($self,$value) = @_;
+    if( defined $value ) {
         return $self->display_id($value);
-   }
-   return $self->display_id();
+    }
+    return $self->display_id();
 }
+
 
 =head2 length()
 
- Title	 : length()
- Usage	 : $length = $qual->length();
+ Title   : length()
+ Usage   : $length = $qual->length();
  Function: Return the length of the array holding the quality values.
-	Under most circumstances, this should match the number of quality
-	values but no validation is done when the PrimaryQual object is
-	constructed and non-digits could be put into this array. Is this
-	a bug? Just enough rope...
+           Under most circumstances, this should match the number of quality
+           values but no validation is done when the PrimaryQual object is
+           constructed and non-digits could be put into this array. Is this
+           a bug? Just enough rope...
  Returns : A scalar (the number of elements in the quality array).
  Args    : None.
 
@@ -427,19 +428,20 @@ sub id {
 sub length {
     my $self = shift;
     if (ref($self->{qual}) ne "ARRAY") {
-	$self->warn("{qual} is not an array here. Why? It appears to be ".ref($self->{qual})."(".$self->{qual}."). Good thing this can _never_ happen.");
+        $self->warn("{qual} is not an array here. Why? It appears to be ".ref($self->{qual})."(".$self->{qual}."). Good thing this can _never_ happen.");
     }
     return scalar(@{$self->{qual}});
 }
 
-=head2 qualat($position)
 
- Title   : qualat($position)
+=head2 qualat()
+
+ Title   : qualat
  Usage   : $quality = $obj->qualat(10);
  Function: Return the quality value at the given location, where the
-        first value is 1 and the number is inclusive, ie 1-2 are the first
-        two bases of the sequence. Start cannot be larger than end but can
-        be equal.
+           first value is 1 and the number is inclusive, ie 1-2 are the first
+           two bases of the sequence. Start cannot be larger than end but can
+           be equal.
  Returns : A scalar.
  Args    : A position.
 
@@ -449,10 +451,9 @@ sub qualat {
     my ($self,$val) = @_;
     my @qualat = @{$self->subqual($val,$val)};
     if (scalar(@qualat) == 1) {
-	return $qualat[0];
-    }
-    else {
-	$self->throw("AAAH! qualat provided more then one quality.");
+        return $qualat[0];
+    } else {
+        $self->throw("qualat() provided more than one quality.");
     }
 } 
 
@@ -461,14 +462,14 @@ sub qualat {
  Title   : to_string()
  Usage   : $quality = $obj->to_string();
  Function: Return a textual representation of what the object contains.
-	For this module, this function will return:
-		qual
-		display_id
-		accession_number
-		primary_id
-		desc
-		id
-		length
+           For this module, this function will return:
+                qual
+                display_id
+                accession_number
+                primary_id
+                desc
+                id
+                length
  Returns : A scalar.
  Args    : None.
 
@@ -478,9 +479,9 @@ sub to_string {
     my ($self,$out,$result) = shift;
     $out = "qual: ".join(',',@{$self->qual()});
     foreach (qw(display_id accession_number primary_id desc id length)) {
-	$result = $self->$_();
-	if (!$result) { $result = "<unset>"; }
-	$out .= "$_: $result\n";
+        $result = $self->$_();
+        if (!$result) { $result = "<unset>"; }
+        $out .= "$_: $result\n";
     }
     return $out;
 }
@@ -489,17 +490,17 @@ sub to_string {
 sub to_string_automatic {
     my ($self,$sub_result,$out) = shift;
     foreach (sort keys %$self) {
-	print("Working on $_\n");
-	eval { $self->$_(); };
-	if ($@) { $sub_result = ref($_); }
-	elsif (!($sub_result = $self->$_())) {
-	    $sub_result = "<unset>";
-	}
-	if (ref($sub_result) eq "ARRAY") {
-	    print("This thing ($_) is an array!\n");
-	    $sub_result = join(',',@$sub_result);	
-	}
-	$out .= "$_: ".$sub_result."\n";
+        print("Working on $_\n");
+        eval { $self->$_(); };
+        if ($@) { $sub_result = ref($_); }
+        elsif (!($sub_result = $self->$_())) {
+            $sub_result = "<unset>";
+        }
+        if (ref($sub_result) eq "ARRAY") {
+            print("This thing ($_) is an array!\n");
+            $sub_result = join(',',@$sub_result);
+        }
+        $out .= "$_: ".$sub_result."\n";
     }
     return $out;
 } 
