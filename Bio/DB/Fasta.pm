@@ -220,7 +220,7 @@ sub _calculate_offsets {
                 }
             }
             $linelength ||= length($_);
-            $alphabet   ||= $_ ? $self->_alphabet($_) : '';
+            $alphabet   ||= $_ ? $self->_guess_alphabet($_) : '';
 
             $seq_lines++;
         }

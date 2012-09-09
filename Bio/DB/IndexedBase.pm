@@ -231,6 +231,7 @@ use File::Basename qw(dirname);
 
 use base qw(Bio::Root::Root);
 
+# Store offset, strlen, linelen, headerlen, type and fileno
 use constant STRUCT    =>'NNnnCa*'; # 32-bit file offset and seq length
 use constant STRUCTBIG =>'QQnnCa*'; # 64-bit
 
@@ -660,7 +661,7 @@ sub _parse_compound_id {
 }
 
 
-sub _alphabet {
+sub _guess_alphabet {
   # Determine the molecular type of the given a sequence string: dna, rna or protein
   my ($self, $string) = @_;
   return $string =~ m/^[gatcnGATCN*-]+$/   ? DNA
