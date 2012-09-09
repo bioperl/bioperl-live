@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 45,
+    test_begin( -tests => 51,
                 -requires_module => 'Bio::DB::Qual');
 
     use_ok('Bio::Root::IO');
@@ -27,13 +27,19 @@ my $seqid = '17601979';
 
 # direct indexed qual file database access
 is ref($db->qual($seqid)), 'ARRAY';
+is_deeply $db->qual($seqid), [23, 32, 24, 27, 26, 27, 27, 27, 28, 23, 28, 31, 23, 27];
 is $db->length($seqid), 14;
-is $db->length($seqid, -1000, 1000), 14;
-ok $db->header($seqid);
+is $db->length($seqid, -1000, 1000), 14; # length() ignores start and stop
+is $db->header($seqid), '17601979';
+is_deeply $db->qual($seqid, 2, 11), [32, 24, 27, 26, 27, 27, 27, 28, 23, 28];
+is_deeply $db->qual($seqid, 2, 11, 1), [32, 24, 27, 26, 27, 27, 27, 28, 23, 28];
+is_deeply $db->qual($seqid, 11, 2), [28, 23, 28, 27, 27, 27, 26, 27, 24, 32];
+is_deeply $db->qual($seqid, 2, 11, -1), [28, 23, 28, 27, 27, 27, 26, 27, 24, 32];
+is_deeply $db->qual($seqid, 11, 2, -1), [32, 24, 27, 26, 27, 27, 27, 28, 23, 28];
 
 # the bioperl  way
+is $db->get_Qual_by_id('foobarbaz'), undef;
 ok my $obj = $db->get_Qual_by_id($seqid);
-ok !defined $db->get_Qual_by_id('foobarbaz');
 isa_ok $obj, 'Bio::Seq::PrimaryQual';
 is ref($obj->qual($seqid)), 'ARRAY';
 is $obj->length, 14;
@@ -44,8 +50,8 @@ ok $obj->primary_id;
 is $obj->validate_qual($obj, (join ' ', @{$obj->qual($seqid)})), 1;
 is $obj->translate, 0;
 is $obj->qualat(12), 31;
-ok !defined($obj->header);
-ok !defined($obj->desc);
+is $obj->header, undef;
+is $obj->desc, undef;
 ok my $truncobj = $obj->trunc(1,3);
 isa_ok $truncobj, 'Bio::Seq::PrimaryQual';
 is ref($truncobj->qual($seqid)), 'ARRAY';

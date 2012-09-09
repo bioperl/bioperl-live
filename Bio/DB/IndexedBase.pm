@@ -208,6 +208,8 @@ Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
 
 Copyright (c) 2001 Cold Spring Harbor Laboratory.
 
+Florent Angly (for the modularization)
+
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  See DISCLAIMER.txt for
 disclaimers of warranty.
@@ -642,24 +644,26 @@ sub _parse_compound_id {
     #     $db->seq("$id:$start,$stop")
     #     $db->seq("$id:$start..$stop")
     #     $db->seq("$id:$start-$stop")
-    my ($self, $id, $start, $stop) = @_;
+    my ($self, $id, $start, $stop, $strand) = @_;
 
-    if ( (not defined $start) &&
-         (not defined $stop ) &&
+    if ( (not defined $start ) &&
+         (not defined $stop  ) &&
+         (not defined $strand) &&
          ($id =~ /^(.+):([\d_]+)(?:,|-|\.\.)([\d_]+)$/) ) {
-        # Start and stop not provided and ID looks like a compound ID
+        # Start, stop and strand not provided and ID looks like a compound ID
         ($id, $start, $stop) = ($1, $2, $3);
         $start =~ s/_//g;
         $stop  =~ s/_//g;
     }
 
-    $start ||= 1;
-    $stop  ||= $self->length($id) || 0; # 0 if sequence not found in database
+    $start  ||= 1;
+    $stop   ||= $self->length($id) || 0; # 0 if sequence not found in database
+    $strand ||= 1;
 
-    my $strand = 1;
     if ($start > $stop) {
+        # Change the strand
         ($start, $stop) = ($stop, $start);
-        $strand = -1;
+        $strand *= -1;
     }
 
     return $id, $start, $stop, $strand;

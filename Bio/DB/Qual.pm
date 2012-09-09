@@ -284,10 +284,11 @@ sub get_Qual_by_id {
 =head2 qual
 
  Title   : qual, quality, subqual
- Usage   : my @qualarr = @{$qualdb->subqual($id, $start, $stop)};
+ Usage   : my @qualarr = @{$qualdb->subqual($id)};
+           my @qualarr = @{$qualdb->subqual($id, $start, $stop, $strand)};
  Function: Get a subqual of an entry in the database. If $stop is less than
            $start, then the reverse complement of the quality score is returned.
-           Note that this violates Bio::Seq conventions. For your convenience,
+           Note that this goes against Bio::Seq conventions. For your convenience,
            subqual can be indicated with any of the following compound IDs:
               $db->qual("$id:$start,$stop")
               $db->qual("$id:$start..$stop")
@@ -295,12 +296,14 @@ sub get_Qual_by_id {
  Returns : Reference to an array of quality scores
  Args    : Compound ID of entry to retrieve
              or
-           ID, optional starting, and optional ending point
+           ID, optional start (defaults to 1), optional end (defaults to the
+           number of quality scores for this sequence), and strand (defaults to
+           1).
 
 =cut
 
 sub subqual {
-    my ($self, $id, $start, $stop) = @_;
+    my ($self, $id, $start, $stop, $strand) = @_;
 
     # Quality values in a quality score can have 1 or 2 digits and are separated
     # by one (or several?) spaces. Thus contrary to Bio::DB::Fasta, here there
@@ -315,7 +318,7 @@ sub subqual {
     # last quality value requested is reached??
 
     $self->throw('Need to provide a sequence ID') if not defined $id;
-    ($id, $start, $stop, my $strand) = $self->_parse_compound_id($id, $start, $stop);
+    ($id, $start, $stop, $strand) = $self->_parse_compound_id($id, $start, $stop, $strand);
 
     # Position in quality string
     my $string_start = 1;

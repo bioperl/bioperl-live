@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 46,
+    test_begin( -tests => 50,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -26,6 +26,10 @@ my $test_files = [
     is $db->length('CEESC13F'), 389;
     is $db->seq('CEESC13F:1,10'), 'cttgcttgaa';
     is $db->seq('AW057119', 1, 10), 'tcatgttggc';
+    is $db->seq('AW057119', 1, 10, 1), 'tcatgttggc';
+    is $db->seq('AW057119', 1, 10, -1), 'gccaacatga';
+    is $db->seq('AW057119', 10, 1), 'gccaacatga';
+    is $db->seq('AW057119', 10, 1, -1), 'tcatgttggc';
     is $db->header('AW057119'), 'AW057119 test description';
     is $db->seq('foobarbaz'), undef;
     is $db->get_Seq_by_id('foobarbaz'), undef;
