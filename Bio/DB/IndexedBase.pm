@@ -152,7 +152,11 @@ beginning of the header line.
 
 =item strlen($id)
 
-Get the length of the sequence string.
+Get the number of characters in the sequence string.
+
+=item length($id)
+
+Get the number of residues of the sequence.
 
 =item linelen($id)
 
@@ -232,8 +236,8 @@ use File::Basename qw(dirname);
 use base qw(Bio::Root::Root);
 
 # Store offset, strlen, linelen, headerlen, type and fileno
-use constant STRUCT    => 'NNnnCa*'; # 32-bit file offset and seq length
-use constant STRUCTBIG => 'QQnnCa*'; # 64-bit
+use constant STRUCT    => 'NNNnnCa*'; # 32-bit file offset and seq length
+use constant STRUCTBIG => 'QQQnnCa*'; # 64-bit
 
 use constant NA        => 0;
 use constant DNA       => 1;
@@ -687,7 +691,7 @@ sub _caloffset {
     # and termination length (tl)
     my ($self, $id, $n, $tl) = @_;
     $n--;
-    my ($offset, $seqlen, $linelen) = (&{$self->{unpackmeth}}($self->{offsets}{$id}))[0,1,2];
+    my ($offset, $seqlen, $linelen) = (&{$self->{unpackmeth}}($self->{offsets}{$id}))[0,1,3];
     $n = 0            if $n < 0;
     $n = $seqlen-1 if $n >= $seqlen;
     return $offset + $linelen * int($n/($linelen-$tl)) + $n % ($linelen-$tl);
@@ -753,7 +757,7 @@ sub offset {
 
  Title   : strlen
  Usage   : my $length = $db->strlen($id);
- Function: Get the length of the sequence string.
+ Function: Get the number of characters in the sequence string.
  Returns : Integer
  Args    : ID of sequence
 
@@ -764,6 +768,24 @@ sub strlen {
     $self->throw('Need to provide a sequence ID') if not defined $id;
     my $offset = $self->{offsets}{$id} or return;
     return (&{$self->{unpackmeth}}($offset))[1];
+}
+
+
+=head2 length
+
+ Title   : length
+ Usage   : my $length = $db->length($id);
+ Function: Get the number of residues of the sequence.
+ Returns : Integer
+ Args    : ID of sequence
+
+=cut
+
+sub length {
+    my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
+    my $offset = $self->{offsets}{$id} or return;
+    return (&{$self->{unpackmeth}}($offset))[2];
 }
 
 
@@ -781,7 +803,7 @@ sub linelen {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
     my $offset = $self->{offsets}{$id} or return;
-    return (&{$self->{unpackmeth}}($offset))[2];
+    return (&{$self->{unpackmeth}}($offset))[3];
 }
 
 
@@ -799,7 +821,7 @@ sub headerlen {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
     my $offset = $self->{offsets}{$id} or return;
-    return (&{$self->{unpackmeth}}($offset))[3];
+    return (&{$self->{unpackmeth}}($offset))[4];
 }
 
 
@@ -836,7 +858,7 @@ sub alphabet {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
     my $offset = $self->{offsets}{$id} or return;
-    my $alphabet = (&{$self->{unpackmeth}}($offset))[4];
+    my $alphabet = (&{$self->{unpackmeth}}($offset))[5];
     return : $alphabet == Bio::DB::IndexedBase::DNA     ? 'dna'
            : $alphabet == Bio::DB::IndexedBase::RNA     ? 'rna'
            : $alphabet == Bio::DB::IndexedBase::PROTEIN ? 'protein'
@@ -859,7 +881,7 @@ sub file {
   my ($self, $id) = @_;
   $self->throw('Need to provide a sequence ID') if not defined $id;
   my $offset = $self->{offsets}{$id} or return;
-  return $self->_fileno2path((&{$self->{unpackmeth}}($offset))[5]);
+  return $self->_fileno2path((&{$self->{unpackmeth}}($offset))[6]);
 }
 
 

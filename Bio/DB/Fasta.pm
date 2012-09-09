@@ -184,7 +184,7 @@ sub _calculate_offsets {
                 if (@id) {
                     my $strlen  = $pos - $offset - length($_);
                     $strlen    -= $termination_length * $seq_lines;
-                    my $ppos = &{$self->{packmeth}}($offset, $strlen,
+                    my $ppos = &{$self->{packmeth}}($offset, $strlen, $strlen,
                         $linelen, $headerlen, $alphabet, $fileno);
                     $alphabet = Bio::DB::IndexedBase::NA;
                     for my $id (@id) {
@@ -242,7 +242,7 @@ sub _calculate_offsets {
             }
             $strlen -= $termination_length * $seq_lines;
         }
-        my $ppos = &{$self->{packmeth}}($offset, $strlen, $linelen,
+        my $ppos = &{$self->{packmeth}}($offset, $strlen, $linelen, $strlen,
             $headerlen, $alphabet, $fileno);
         $alphabet = Bio::DB::IndexedBase::NA;
         for my $id (@id) {
@@ -308,14 +308,6 @@ sub subseq {
  Returns : Number
  Args    : ID of entry
 
-=cut
-
-sub length {
-    my ($self, $id) = @_;
-    return $self->strlen($id);
-}
-
-
 =head2 header
 
  Title   : header
@@ -330,7 +322,7 @@ sub length {
 sub header {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
-    my ($offset, $headerlen) = (&{$self->{unpackmeth}}($self->{offsets}{$id}))[0,3];
+    my ($offset, $headerlen) = (&{$self->{unpackmeth}}($self->{offsets}{$id}))[0,4];
     $offset -= $headerlen;
     my $data;
     my $fh = $self->_fh($id) or return;
