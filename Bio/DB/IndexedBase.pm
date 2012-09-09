@@ -232,8 +232,8 @@ use File::Basename qw(dirname);
 use base qw(Bio::Root::Root);
 
 # Store offset, strlen, linelen, headerlen, type and fileno
-use constant STRUCT    =>'NNnnCa*'; # 32-bit file offset and seq length
-use constant STRUCTBIG =>'QQnnCa*'; # 64-bit
+use constant STRUCT    => 'NNnnCa*'; # 32-bit file offset and seq length
+use constant STRUCTBIG => 'QQnnCa*'; # 64-bit
 
 use constant NA        => 0;
 use constant DNA       => 1;
@@ -878,7 +878,7 @@ sub _path2fileno {
 }
 
 
-sub _pack {
+sub _packSmall {
     return pack STRUCT, @_;
 }
 
@@ -888,7 +888,7 @@ sub _packBig {
 }
 
 
-sub _unpack {
+sub _unpackSmall {
     return unpack STRUCT, shift;
 }
 
@@ -910,8 +910,8 @@ sub _set_pack_method {
         $self->{packmeth}   = \&_packBig;
         $self->{unpackmeth} = \&_unpackBig;
     } else {
-        $self->{packmeth}   = \&_pack;
-        $self->{unpackmeth} = \&_unpack;
+        $self->{packmeth}   = \&_packSmall;
+        $self->{unpackmeth} = \&_unpackSmall;
     }
     return 1;
 }
