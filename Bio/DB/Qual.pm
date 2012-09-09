@@ -182,36 +182,28 @@ sub _calculate_offsets {
     my ( $l3_len, $l2_len, $l_len ) = ( 0, 0, 0 );
 
     while (<$fh>) {
-        # account for crlf-terminated Windows files      
+        # Account for crlf-terminated Windows files      
         $termination_length ||= /\r\n$/ ? 2 : 1;
         if (/^>(\S+)/) {
             print STDERR "Indexed $count quality scores...\n" 
-            if $self->{debug} && (++$count%1000) == 0;
+                if $self->{debug} && (++$count%1000) == 0;
+            $self->_check_linelength($linelen);
             my $pos = tell($fh);
             if ($id) {
                 my $strlen = $pos - $offset - length($_);
                 $strlen -= $termination_length * $qual_lines;
-                $offsets->{$id} = &{$self->{packmeth}}(
-                    $offset,
-                    $strlen,
-                    $numres,
-                    $linelen,
-                    $headerlen,
-                    Bio::DB::IndexedBase::NA,
-                    $fileno,
-                );
+                $offsets->{$id} = &{$self->{packmeth}}($offset, $strlen, $numres,
+                    $linelen, $headerlen, Bio::DB::IndexedBase::NA, $fileno);
                 $numres = 0;
             }
             $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
-            ($offset, $headerlen, $linelen) = ($pos, length($_), 0);
-            $self->_check_linelength($linelen);
+            ($offset, $headerlen, $linelen, $qual_lines) = ($pos, length $_, 0, 0);
             ($l3_len, $l2_len, $l_len) = (0, 0, 0);
-            $qual_lines = 0;
         } else {
+            # Need to check every line :(
             $l3_len = $l2_len;
             $l2_len = $l_len;
             $l_len  = length($_);
-            # need to check every line :(
             if (Bio::DB::IndexedBase::DIE_ON_MISSMATCHED_LINES &&
                 $l3_len > 0 &&
                 $l2_len > 0 &&
@@ -229,12 +221,11 @@ sub _calculate_offsets {
         $last_line = $_;
     }
 
+    # Process last entry
     $self->_check_linelength($linelen);
-    # deal with last entry
+    my $pos = tell($fh);
     if ($id) {
-        my $pos = tell($fh);
         my $strlen = $pos - $offset;
-      
         if ($linelen == 0) {
             $strlen = 0;
         } else {
@@ -243,16 +234,8 @@ sub _calculate_offsets {
             }
             $strlen -= $termination_length * $qual_lines;
         }
-        $offsets->{$id} = &{$self->{packmeth}}(
-            $offset,
-            $strlen,
-            $numres,
-            $linelen,
-            $headerlen,
-            Bio::DB::IndexedBase::NA,
-            $fileno,
-        );
-        $numres = 0;
+        $offsets->{$id} = &{$self->{packmeth}}($offset, $strlen, $numres,
+            $linelen, $headerlen, Bio::DB::IndexedBase::NA, $fileno);
     }
     return \%offsets;
 }

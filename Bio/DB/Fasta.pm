@@ -162,7 +162,7 @@ sub _calculate_offsets {
     my $fh = IO::File->new($file) or $self->throw( "Could not open $file: $!");
     binmode $fh;
     warn "Indexing $file\n" if $self->{debug};
-    my ($offset, @id, $linelen, $alphabet, $headerlen, $count, $seq_lines,
+    my ($offset, $id, $linelen, $alphabet, $headerlen, $count, $seq_lines,
         $last_line, %offsets);
     my ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
 
@@ -174,22 +174,19 @@ sub _calculate_offsets {
                 print STDERR "Indexed $count sequences...\n"
                     if $self->{debug} && (++$count%1000) == 0;
 
+                $self->_check_linelength($linelen);
                 my $pos = tell($fh);
-                if (@id) {
+                if (defined $id) {
                     my $strlen  = $pos - $offset - length($_);
                     $strlen    -= $termination_length * $seq_lines;
                     my $ppos = &{$self->{packmeth}}($offset, $strlen, $strlen,
                         $linelen, $headerlen, $alphabet, $fileno);
                     $alphabet = Bio::DB::IndexedBase::NA;
-                    for my $id (@id) {
-                        $offsets->{$id} = $ppos;
-                    }
+                    $offsets->{$id} = $ppos;
                 }
-                @id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
-                ($offset, $headerlen, $linelen) = ($pos, length($_), 0);
-                $self->_check_linelength($linelen);
+                $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
+                ($offset, $headerlen, $linelen, $seq_lines) = ($pos, length $_, 0, 0);
                 ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
-                $seq_lines = 0;
             } else {
                 # catch bad header lines, bug 3172
                 $self->throw("FASTA header doesn't match '>(\\S+)': $_")
@@ -198,11 +195,12 @@ sub _calculate_offsets {
             $blank_lines++;
             next;
         } else {
+            # Need to check every line :(
             $l3_len = $l2_len;
             $l2_len = $l_len;
-            $l_len  = length($_); # need to check every line :(
+            $l_len  = length($_);
             if (Bio::DB::IndexedBase::DIE_ON_MISSMATCHED_LINES) {
-                if ($l3_len>0 && $l2_len>0 && $l3_len!=$l2_len) {
+                if ( ($l3_len > 0) && ($l2_len > 0) && ($l3_len != $l2_len) ) {
                     my $fap= substr($_,0,20)."..";
                     $self->throw(
                         "Each line of the fasta entry must be the same length except the last.\n".
@@ -223,10 +221,10 @@ sub _calculate_offsets {
         $last_line = $_;
     }
 
+    # Process with entry
     $self->_check_linelength($linelen);
-    # deal with last entry
-    if (@id) {
-        my $pos = tell($fh);
+    my $pos = tell($fh);
+    if (defined $id) {
         my $strlen   = $pos - $offset;
         if ($linelen == 0) { # yet another pesky empty chr_random.fa file
             $strlen = 0;
@@ -238,10 +236,7 @@ sub _calculate_offsets {
         }
         my $ppos = &{$self->{packmeth}}($offset, $strlen, $linelen, $strlen,
             $headerlen, $alphabet, $fileno);
-        $alphabet = Bio::DB::IndexedBase::NA;
-        for my $id (@id) {
-            $offsets->{$id} = $ppos;
-        }
+        $offsets->{$id} = $ppos;
     }
 
     return \%offsets;
