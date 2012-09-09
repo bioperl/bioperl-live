@@ -169,7 +169,7 @@ sub _calculate_offsets {
     my $fh = IO::File->new($file) or $self->throw( "Can't open $file: $!");
     binmode $fh;
     warn "Indexing $file\n" if $self->{debug};
-    my ($offset, @id, $linelength, $type, $firstline, $count, $seq_lines,
+    my ($offset, @id, $linelength, $type, $headerline, $count, $seq_lines,
         $last_line, %offsets);
     my ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
 
@@ -185,16 +185,16 @@ sub _calculate_offsets {
                     my $seqlength  = $pos - $offset - length($_);
                     $seqlength    -= $termination_length * $seq_lines;
                     my $ppos = &{$self->{packmeth}}($offset, $seqlength,
-                        $linelength, $firstline, $type, $base);
+                        $linelength, $headerline, $type, $base);
                     $type = Bio::DB::IndexedBase::NA;
                     for my $id (@id) {
                         $offsets->{$id} = $ppos;
                     }
                 }
                 @id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
-                ($offset,$firstline,$linelength) = ($pos,length($_),0);
+                ($offset, $headerline, $linelength) = ($pos,length($_),0);
                 $self->_check_linelength($linelength);
-                ($l3_len,$l2_len,$l_len,$blank_lines) = (0,0,0,0);
+                ($l3_len, $l2_len, $l_len, $blank_lines) = (0,0,0,0);
                 $seq_lines = 0;
             } else {
                 # catch bad header lines, bug 3172
@@ -220,7 +220,7 @@ sub _calculate_offsets {
                 }
             }
             $linelength ||= length($_);
-            $type       ||= $_ ? $self->_type($_) : '';
+            $type       ||= $_ ? $self->_alphabet($_) : '';
 
             $seq_lines++;
         }
@@ -241,7 +241,7 @@ sub _calculate_offsets {
             $seqlength -= $termination_length * $seq_lines;
         }
         my $ppos = &{$self->{packmeth}}($offset, $seqlength, $linelength,
-            $firstline, $type, $base);
+            $headerline, $type, $base);
         $type = Bio::DB::IndexedBase::NA;
         for my $id (@id) {
             $offsets->{$id} = $ppos;
@@ -330,15 +330,15 @@ sub length {
 sub header {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
-    my ($offset,$seqlength,$linelength,$firstline,$type,$file)
+    my ($offset, $seqlength, $linelength, $headerline, $type, $file)
         = &{$self->{unpackmeth}}($self->{offsets}{$id}) or return;
-    $offset -= $firstline;
+    $offset -= $headerline;
     my $data;
     my $fh = $self->_fh($id) or return;
-    seek($fh,$offset,0);
-    read($fh,$data,$firstline);
+    seek($fh, $offset, 0);
+    read($fh, $data, $headerline);
     chomp $data;
-    substr($data,0,1) = '';
+    substr($data, 0, 1) = '';
     return $data;
 }
 

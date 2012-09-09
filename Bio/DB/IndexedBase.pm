@@ -304,7 +304,7 @@ sub new {
       $self->throw( "$path: Invalid file or dirname");
     }
   }
-  @{$self}{qw(dirname offsets)} = ($dirname,$offsets);
+  @{$self}{qw(dirname offsets)} = ($dirname, $offsets);
 
   return $self;
 }
@@ -618,7 +618,7 @@ sub _parse_compound_id {
 }
 
 
-sub _type {
+sub _alphabet {
   # Determine the molecular type of the given a sequence string: dna, rna or protein
   my ($self, $string) = @_;
   return $string =~ m/^[gatcnGATCN*-]+$/   ? DNA

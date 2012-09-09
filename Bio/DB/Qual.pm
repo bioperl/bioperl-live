@@ -184,7 +184,7 @@ sub _calculate_offsets {
     my $fh = IO::File->new($file) or $self->throw("Can't open $file: $!");
     binmode $fh;
     warn "Indexing $file\n" if $self->{debug};
-    my ( $offset, $id, $linelength, $firstline, $count, $qual_lines, $last_line,
+    my ( $offset, $id, $linelength, $headerline, $count, $qual_lines, $last_line,
          %offsets );
     my ( $l3_len, $l2_len, $l_len ) = ( 0, 0, 0 );
 
@@ -202,13 +202,13 @@ sub _calculate_offsets {
                     $offset,
                     $qualstrlength,
                     $linelength,
-                    $firstline,
+                    $headerline,
                     Bio::DB::IndexedBase::NA,
                     $base,
                 );
             }
             $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
-            ($offset, $firstline, $linelength) = ($pos, length($_), 0);
+            ($offset, $headerline, $linelength) = ($pos, length($_), 0);
             $self->_check_linelength($linelength);
             ($l3_len, $l2_len, $l_len) = (0, 0, 0);
             $qual_lines = 0;
@@ -251,7 +251,7 @@ sub _calculate_offsets {
             $offset,
             $qualstrlength,
             $linelength,
-            $firstline,
+            $headerline,
             Bio::DB::IndexedBase::NA,
             $base,
         );
@@ -313,7 +313,7 @@ sub subqual {
 
     # Position of the quality values
     if ($id =~ /^(.+):([\d_]+)(?:,|-|\.\.)([\d_]+)$/) {
-        ($id, $start, $stop) = ($1,$2,$3);
+        ($id, $start, $stop) = ($1, $2, $3);
         $start =~ s/_//g;
         $stop  =~ s/_//g;
     }
@@ -330,7 +330,7 @@ sub subqual {
     my $fh = $self->_fh($id) or return;
     my $filestart = $self->_caloffset($id, $string_start, $termination_length);
     my $filestop  = $self->_caloffset($id, $string_stop , $termination_length);
-    seek($fh,$filestart,0);
+    seek($fh, $filestart,0);
     my $data;
     read($fh, $data, $filestop-$filestart+1);
 
@@ -400,15 +400,15 @@ sub lengthstr {
 sub header {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
-    my ($offset,$seqlength,$linelength,$firstline,$file) 
+    my ($offset, $seqlength, $linelength, $headerline, $file) 
         = &{$self->{unpackmeth}}($self->{offsets}{$id}) or return;
-    $offset -= $firstline;
+    $offset -= $headerline;
     my $data;
     my $fh = $self->_fh($id) or return;
-    seek($fh,$offset,0);
-    read($fh,$data,$firstline);
+    seek($fh, $offset, 0);
+    read($fh, $data, $headerline);
     chomp $data;
-    substr($data,0,1) = '';
+    substr($data, 0, 1) = '';
     return $data;
 }
 
