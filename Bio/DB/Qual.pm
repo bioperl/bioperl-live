@@ -174,14 +174,14 @@ sub _calculate_offsets {
     my ($self, $file, $offsets) = @_;
     my $fileno = $self->_path2fileno(basename($file));
 
-    my $fh = IO::File->new($file) or $self->throw("Can't open $file: $!");
+    my $fh = IO::File->new($file) or $self->throw("Could not open $file: $!");
     binmode $fh;
     warn "Indexing $file\n" if $self->{debug};
     my ( $offset, $id, $linelen, $headerlen, $count, $qual_lines, $last_line,
          $numres, %offsets );
     my ( $l3_len, $l2_len, $l_len ) = ( 0, 0, 0 );
 
-    while (<$fh>) { # don't try this at home
+    while (<$fh>) {
         # account for crlf-terminated Windows files      
         $termination_length ||= /\r\n$/ ? 2 : 1;
         if (/^>(\S+)/) {

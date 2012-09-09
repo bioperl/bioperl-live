@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 51,
+    test_begin( -tests => 53,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -105,12 +105,22 @@ my $test_files = [
     # Test an arbitrary index filename and cleaning
     my $name = 'arbitrary.idx';
     ok my $db = Bio::DB::Fasta->new( $test_file,
-        -reindex => 1, -index_name => $name, -clean => 1 );
+        -reindex => 1, -index_name => $name, -clean => 1,
+    );
     is $db->index_name, $name;
     ok -f $name;
     unlink $name;
     undef $db;
     ok ! -f $name;
+}
+
+
+{
+    # Test makeid
+    ok my $db = Bio::DB::Fasta->new( $test_file,
+        -reindex => 1, -clean => 1, -makeid => \&extract_gi,
+    );
+    is_deeply [sort $db->ids], ['', 194473622, 352962132, 352962148, 61679760];
 }
 
 
@@ -201,6 +211,13 @@ my $test_files = [
 
 exit;
 
+
+sub extract_gi {
+    # Extract GI from RefSeq
+    my $header = shift;
+    my ($id) = ($header =~ /gi\|(\d+)/m);
+    return $id || '';
+}
 
 
 sub setup_temp_dir {

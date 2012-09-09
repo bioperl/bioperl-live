@@ -291,19 +291,19 @@ that GenBank Fasta files use. The original header line can be recovered later.
 The option value should be a code reference that takes a scalar argument and
 returns a scalar result, like this:
 
-  $db = Bio::DB::IndexedBase->new('file.fa', -makeid => \&make_my_id);
+  $db = Bio::DB::IndexedBase->new('file.fa', -makeid => \&extract_gi);
 
-  sub make_my_id {
-      my $description_line = shift;
-      # get a different id from the header, e.g.
-      $description_line =~ /(\S+)$/;
-      return $1;
+  sub extract_gi {
+      # Extract GI from GenBank
+      my $header = shift;
+      my ($id) = ($header =~ /gi\|(\d+)/m);
+      return $id || '';
   }
 
-make_my_id() will be called with the full header line, e.g. a Fasta line would
+extract_gi() will be called with the full header line, e.g. a Fasta line would
 include the "E<gt>", the ID and the description:
 
- >A12345.3 Predicted C. elegans protein egl-2
+ >gi|352962132|ref|NG_030353.1| Homo sapiens sal-like 3 (Drosophila) (SALL3)
 
 The -makeid option is ignored after the index is constructed.
 
