@@ -177,42 +177,54 @@ sub _calculate_offsets {
     my $fh = IO::File->new($file) or $self->throw("Could not open $file: $!");
     binmode $fh;
     warn "Indexing $file\n" if $self->{debug};
-    my ( $offset, $id, $linelen, $headerlen, $count, $qual_lines, $last_line,
-         $numres, %offsets );
-    my ( $l3_len, $l2_len, $l_len ) = ( 0, 0, 0 );
+    my ($offset, $id, $linelen, $headerlen, $count, $qual_lines, $last_line,
+        $numres, %offsets);
+    my ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
 
     while (<$fh>) {
         # Account for crlf-terminated Windows files      
         $termination_length ||= /\r\n$/ ? 2 : 1;
-        if (/^>(\S+)/) {
-            print STDERR "Indexed $count quality scores...\n" 
-                if $self->{debug} && (++$count%1000) == 0;
-            $self->_check_linelength($linelen);
-            my $pos = tell($fh);
-            if ($id) {
-                my $strlen = $pos - $offset - length($_);
-                $strlen -= $termination_length * $qual_lines;
-                $offsets->{$id} = &{$self->{packmeth}}($offset, $strlen, $numres,
-                    $linelen, $headerlen, Bio::DB::IndexedBase::NA, $fileno);
-                $numres = 0;
+        if (index($_, '>') == 0) {
+            if (/^>(\S+)/) {
+                print STDERR "Indexed $count quality scores...\n" 
+                    if $self->{debug} && (++$count%1000) == 0;
+                $self->_check_linelength($linelen);
+                my $pos = tell($fh);
+                if ($id) {
+                    my $strlen = $pos - $offset - length($_);
+                    $strlen -= $termination_length * $qual_lines;
+                    $offsets->{$id} = &{$self->{packmeth}}($offset, $strlen, $numres,
+                        $linelen, $headerlen, Bio::DB::IndexedBase::NA, $fileno);
+                    $numres = 0;
+                }
+                $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
+                ($offset, $headerlen, $linelen, $qual_lines) = ($pos, length $_, 0, 0);
+                ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
+            } else {
+                # Catch bad header lines, bug 3172
+                $self->throw("FASTA header doesn't match '>(\\S+)': $_");
             }
-            $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
-            ($offset, $headerlen, $linelen, $qual_lines) = ($pos, length $_, 0, 0);
-            ($l3_len, $l2_len, $l_len) = (0, 0, 0);
+        } elsif ($_ !~ /\S/) {
+            # Skip blank line
+            $blank_lines++;
+            next;
         } else {
             # Need to check every line :(
             $l3_len = $l2_len;
             $l2_len = $l_len;
             $l_len  = length($_);
-            if (Bio::DB::IndexedBase::DIE_ON_MISSMATCHED_LINES &&
-                $l3_len > 0 &&
-                $l2_len > 0 &&
-                $l3_len != $l2_len
-            ) {
-                my $fap = substr($_, 0, 20)."..";
-                $self->throw("Each line of the qual entry must be the same ".
-                "length except the last. Line above #$. '$fap' is $l2_len != ".
-                "$l3_len chars.");
+            if (Bio::DB::IndexedBase::DIE_ON_MISSMATCHED_LINES) {
+                if ( ($l3_len > 0) && ($l2_len > 0) && ($l3_len != $l2_len) ) {
+                    my $fap = substr($_, 0, 20)."..";
+                    $self->throw("Each line of the qual entry must be the same ".
+                        "length except the last. Line above #$. '$fap' is $l2_len".
+                        " != $l3_len chars.");
+                }
+                if ($blank_lines) {
+                    # Blank lines not allowed in entry
+                    $self->throw("Blank lines can only precede header lines, ".
+                        "found preceding line #$.");
+                }
             }
             $linelen ||= length($_);
             $qual_lines++;

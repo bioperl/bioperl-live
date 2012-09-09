@@ -167,9 +167,9 @@ sub _calculate_offsets {
     my ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
 
     while (<$fh>) {
-        # account for crlf-terminated Windows files
+        # Account for crlf-terminated Windows files
         $termination_length ||= /\r\n$/ ? 2 : 1;
-        if (index($_, ">") == 0) {
+        if (index($_, '>') == 0) {
             if (/^>(\S+)/) {
                 print STDERR "Indexed $count sequences...\n"
                     if $self->{debug} && (++$count%1000) == 0;
@@ -188,10 +188,11 @@ sub _calculate_offsets {
                 ($offset, $headerlen, $linelen, $seq_lines) = ($pos, length $_, 0, 0);
                 ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
             } else {
-                # catch bad header lines, bug 3172
-                $self->throw("FASTA header doesn't match '>(\\S+)': $_")
+                # Catch bad header lines, bug 3172
+                $self->throw("FASTA header doesn't match '>(\\S+)': $_");
             }
-        } elsif ($_ !~ /\S/) { # blank line
+        } elsif ($_ !~ /\S/) {
+            # Skip blank line
             $blank_lines++;
             next;
         } else {
@@ -201,21 +202,19 @@ sub _calculate_offsets {
             $l_len  = length($_);
             if (Bio::DB::IndexedBase::DIE_ON_MISSMATCHED_LINES) {
                 if ( ($l3_len > 0) && ($l2_len > 0) && ($l3_len != $l2_len) ) {
-                    my $fap= substr($_,0,20)."..";
-                    $self->throw(
-                        "Each line of the fasta entry must be the same length except the last.\n".
-                        "Line above #$. '$fap' is $l2_len != $l3_len chars."
-                    );
+                    my $fap = substr($_, 0, 20)."..";
+                    $self->throw("Each line of the fasta entry must be the same ".
+                        "length except the last. Line above #$. '$fap' is $l2_len".
+                        " != $l3_len chars.");
                 }
                 if ($blank_lines) {
-                    # shouldn't see blank lines here, otherwise there is a problem...
-                    $self->throw("Blank lines can only precede header lines, found ".
-                        "preceding line #$.");
+                    # Blank lines not allowed in entry
+                    $self->throw("Blank lines can only precede header lines, ".
+                        "found preceding line #$.");
                 }
             }
             $linelen  ||= length($_);
             $alphabet ||= $_ ? $self->_guess_alphabet($_) : '';
-
             $seq_lines++;
         }
         $last_line = $_;
