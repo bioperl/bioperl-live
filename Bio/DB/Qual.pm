@@ -184,7 +184,7 @@ sub _calculate_offsets {
     my $fh = IO::File->new($file) or $self->throw("Can't open $file: $!");
     binmode $fh;
     warn "Indexing $file\n" if $self->{debug};
-    my ( $offset, $id, $linelength, $headerlen, $count, $qual_lines, $last_line,
+    my ( $offset, $id, $linelen, $headerlen, $count, $qual_lines, $last_line,
          %offsets );
     my ( $l3_len, $l2_len, $l_len ) = ( 0, 0, 0 );
 
@@ -196,20 +196,20 @@ sub _calculate_offsets {
             if $self->{debug} && (++$count%1000) == 0;
             my $pos = tell($fh);
             if ($id) {
-                my $qualstrlength = $pos - $offset - length($_);
-                $qualstrlength -= $termination_length * $qual_lines;
+                my $strlen = $pos - $offset - length($_);
+                $strlen -= $termination_length * $qual_lines;
                 $offsets->{$id} = &{$self->{packmeth}}(
                     $offset,
-                    $qualstrlength,
-                    $linelength,
+                    $strlen,
+                    $linelen,
                     $headerlen,
                     Bio::DB::IndexedBase::NA,
                     $fileno,
                 );
             }
             $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
-            ($offset, $headerlen, $linelength) = ($pos, length($_), 0);
-            $self->_check_linelength($linelength);
+            ($offset, $headerlen, $linelen) = ($pos, length($_), 0);
+            $self->_check_linelength($linelen);
             ($l3_len, $l2_len, $l_len) = (0, 0, 0);
             $qual_lines = 0;
         } else {
@@ -227,30 +227,30 @@ sub _calculate_offsets {
                 "length except the last. Line above #$. '$fap' is $l2_len != ".
                 "$l3_len chars.");
             }
-            $linelength ||= length($_);
+            $linelen ||= length($_);
             $qual_lines++;
         }
         $last_line = $_;
     }
 
-    $self->_check_linelength($linelength);
+    $self->_check_linelength($linelen);
     # deal with last entry
     if ($id) {
         my $pos = tell($fh);
-        my $qualstrlength = $pos - $offset;
+        my $strlen = $pos - $offset;
       
-        if ($linelength == 0) {
-            $qualstrlength = 0;
+        if ($linelen == 0) {
+            $strlen = 0;
         } else {
             if ($last_line !~ /\s$/) {
                 $qual_lines--;
             }
-            $qualstrlength -= $termination_length * $qual_lines;
+            $strlen -= $termination_length * $qual_lines;
         }
         $offsets->{$id} = &{$self->{packmeth}}(
             $offset,
-            $qualstrlength,
-            $linelength,
+            $strlen,
+            $linelen,
             $headerlen,
             Bio::DB::IndexedBase::NA,
             $fileno,

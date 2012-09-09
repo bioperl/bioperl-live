@@ -169,7 +169,7 @@ sub _calculate_offsets {
     my $fh = IO::File->new($file) or $self->throw( "Can't open $file: $!");
     binmode $fh;
     warn "Indexing $file\n" if $self->{debug};
-    my ($offset, @id, $linelength, $alphabet, $headerlen, $count, $seq_lines,
+    my ($offset, @id, $linelen, $alphabet, $headerlen, $count, $seq_lines,
         $last_line, %offsets);
     my ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
 
@@ -182,19 +182,19 @@ sub _calculate_offsets {
 
                 my $pos = tell($fh);
                 if (@id) {
-                    my $seqlength  = $pos - $offset - length($_);
-                    $seqlength    -= $termination_length * $seq_lines;
-                    my $ppos = &{$self->{packmeth}}($offset, $seqlength,
-                        $linelength, $headerlen, $alphabet, $fileno);
+                    my $strlen  = $pos - $offset - length($_);
+                    $strlen    -= $termination_length * $seq_lines;
+                    my $ppos = &{$self->{packmeth}}($offset, $strlen,
+                        $linelen, $headerlen, $alphabet, $fileno);
                     $alphabet = Bio::DB::IndexedBase::NA;
                     for my $id (@id) {
                         $offsets->{$id} = $ppos;
                     }
                 }
                 @id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
-                ($offset, $headerlen, $linelength) = ($pos,length($_),0);
-                $self->_check_linelength($linelength);
-                ($l3_len, $l2_len, $l_len, $blank_lines) = (0,0,0,0);
+                ($offset, $headerlen, $linelen) = ($pos, length($_), 0);
+                $self->_check_linelength($linelen);
+                ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
                 $seq_lines = 0;
             } else {
                 # catch bad header lines, bug 3172
@@ -204,7 +204,9 @@ sub _calculate_offsets {
             $blank_lines++;
             next;
         } else {
-            $l3_len= $l2_len; $l2_len= $l_len; $l_len= length($_); # need to check every line :(
+            $l3_len = $l2_len;
+            $l2_len = $l_len;
+            $l_len  = length($_); # need to check every line :(
             if (Bio::DB::IndexedBase::DIE_ON_MISSMATCHED_LINES) {
                 if ($l3_len>0 && $l2_len>0 && $l3_len!=$l2_len) {
                     my $fap= substr($_,0,20)."..";
@@ -219,28 +221,28 @@ sub _calculate_offsets {
                         "preceding line #$.");
                 }
             }
-            $linelength ||= length($_);
-            $alphabet   ||= $_ ? $self->_guess_alphabet($_) : '';
+            $linelen  ||= length($_);
+            $alphabet ||= $_ ? $self->_guess_alphabet($_) : '';
 
             $seq_lines++;
         }
         $last_line = $_;
     }
 
-    $self->_check_linelength($linelength);
+    $self->_check_linelength($linelen);
     # deal with last entry
     if (@id) {
         my $pos = tell($fh);
-        my $seqlength   = $pos - $offset;
-        if ($linelength == 0) { # yet another pesky empty chr_random.fa file
-            $seqlength = 0;
+        my $strlen   = $pos - $offset;
+        if ($linelen == 0) { # yet another pesky empty chr_random.fa file
+            $strlen = 0;
         } else {
             if ($last_line !~ /\s$/) {
                 $seq_lines--;
             }
-            $seqlength -= $termination_length * $seq_lines;
+            $strlen -= $termination_length * $seq_lines;
         }
-        my $ppos = &{$self->{packmeth}}($offset, $seqlength, $linelength,
+        my $ppos = &{$self->{packmeth}}($offset, $strlen, $linelen,
             $headerlen, $alphabet, $fileno);
         $alphabet = Bio::DB::IndexedBase::NA;
         for my $id (@id) {
