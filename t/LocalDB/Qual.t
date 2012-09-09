@@ -21,7 +21,7 @@ isa_ok $db, 'Bio::DB::Qual';
 ok my @ids = $db->ids;
 is scalar(@ids), 15;
 @ids = sort {$a <=> $b} @ids;
-is $ids[0], '17601976';
+is $ids[0] , '17601976';
 is $ids[14], '17601991';
 my $seqid = '17601979';
 

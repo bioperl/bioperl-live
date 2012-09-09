@@ -317,7 +317,11 @@ sub subqual {
         $start =~ s/_//g;
         $stop  =~ s/_//g;
     }
-
+    my $strand = 1;
+    if ( (defined $stop) && ($stop < $start) ) {
+        ($start, $stop) = ($stop, $start);
+        $strand = -1;
+    }
     # Position in quality string
     my $string_start = 1;
     my $string_stop = $self->lengthstr($id);
@@ -333,24 +337,17 @@ sub subqual {
     # Process quality score
     $data =~ s/\n//g;
     $data =~ s/\r//g;
-    my $reverse = 0;
-    if ($stop && $start && $stop < $start) {
-        $reverse = 1;
-        my $tmp = $start;
-        $start = $stop;
-        $stop = $tmp; 
-    }
     my $subqual = 0;
     $subqual = 1 if ( $start || $stop );
     my @data;
-    if ( $subqual || $reverse ) {
+    if ( $subqual || ($strand == -1) ) {
         @data = split / /, $data, $stop+1;
         my $length = scalar(@data);
         $start = 1       if $start < 1;
         $stop  = $length if $stop  > $length;
         pop @data if ($stop != $length);
         splice @data, 0, $start-1;
-        @data = reverse(@data) if $reverse;
+        @data = reverse(@data) if $strand == -1;
         $data = join ' ', @data;
     } else {
         @data = split / /, $data;
@@ -381,6 +378,15 @@ sub length {
 }
 
 
+sub lengthstr {
+    # The length of the quality STRING
+    my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
+    my $offset = $self->{offsets}{$id} or return;
+    return (&{$self->{unpackmeth}}($offset))[1];
+}
+
+
 =head2 header
 
  Title   : header
@@ -404,15 +410,6 @@ sub header {
     chomp $data;
     substr($data,0,1) = '';
     return $data;
-}
-
-
-sub lengthstr {
-    # The length of the quality STRING
-    my ($self, $id) = @_;
-    $self->throw('Need to provide a sequence ID') if not defined $id;
-    my $offset = $self->{offsets}{$id} or return;
-    return (&{$self->{unpackmeth}}($offset))[1];
 }
 
 
