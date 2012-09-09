@@ -648,8 +648,9 @@ sub _parse_compound_id {
         $start =~ s/_//g;
         $stop  =~ s/_//g;
     }
+
     $start ||= 1;
-    $stop  ||= $self->length($id);
+    $stop  ||= $self->length($id) || 0; # 0 if sequence not found in database
 
     my $strand = 1;
     if ($start > $stop) {
