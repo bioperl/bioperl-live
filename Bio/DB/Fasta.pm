@@ -233,7 +233,7 @@ sub _calculate_offsets {
             }
             $strlen -= $termination_length * $seq_lines;
         }
-        my $ppos = &{$self->{packmeth}}($offset, $strlen, $linelen, $strlen,
+        my $ppos = &{$self->{packmeth}}($offset, $strlen, $strlen, $linelen,
             $headerlen, $alphabet, $fileno);
         $offsets->{$id} = $ppos;
     }
