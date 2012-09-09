@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 50,
+    test_begin( -tests => 51,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -22,6 +22,7 @@ my $test_files = [
 {
     # Test basic functionalities
     ok my $db = Bio::DB::Fasta->new($test_dir, -reindex => 1), 'Index a directory';
+    is $db->glob, '*.{fa,FA,fasta,FASTA,fast,FAST,dna,DNA,fna,FNA,faa,FAA,fsa,FSA}';
     isa_ok $db, 'Bio::DB::Fasta';
     is $db->length('CEESC13F'), 389;
     is $db->seq('CEESC13F:1,10'), 'cttgcttgaa';

@@ -225,7 +225,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::DB::IndexedBase;
 
 BEGIN {
-  @AnyDBM_File::ISA = qw(DB_File GDBM_File NDBM_File SDBM_File)
+    @AnyDBM_File::ISA = qw(DB_File GDBM_File NDBM_File SDBM_File)
 }
 
 use strict;
@@ -310,52 +310,50 @@ The -makeid option is ignored after the index is constructed.
 =cut
 
 sub new {
-  my ($class, $path, %opts) = @_;
+    my ($class, $path, %opts) = @_;
 
-  # Determine which module called IndexedBase: Bio::DB::Fasta? Bio::DB::Qual?
-  $caller = (caller(0))[0];
+    my $self = bless {
+        debug       => $opts{-debug},
+        makeid      => $opts{-makeid},
+        glob        => $opts{-glob}    || eval '$'.$class.'::file_glob' || '*',
+        maxopen     => $opts{-maxopen} || 32,
+        clean       => $opts{-clean}   || 0,
+        dbmargs     => $opts{-dbmargs} || undef,
+        fhcache     => {},
+        cacheseq    => {},
+        curopen     => 0,
+        openseq     => 1,
+        dirname     => undef,
+        offsets     => undef,
+        index_name  => $opts{-index_name},
+        obj_class   => eval '$'.$class.'::obj_class',
+        offset_meth => \&{$class.'::_calculate_offsets'},
+    }, $class;
 
-  my $self = bless {
-    debug      => $opts{-debug},
-    makeid     => $opts{-makeid},
-    glob       => $opts{-glob}    || '*',
-    maxopen    => $opts{-maxopen} || 32,
-    clean      => $opts{-clean}   || 0,
-    dbmargs    => $opts{-dbmargs} || undef,
-    fhcache    => {},
-    cacheseq   => {},
-    curopen    => 0,
-    openseq    => 1,
-    dirname    => undef,
-    offsets    => undef,
-    index_name => $opts{-index_name},
-    obj_class  => eval '$'.$caller.'::obj_class',
-  }, $class;
-
-  my ($offsets, $dirname);
-  my $ref = ref $path || '';
-  if ( $ref eq 'ARRAY' ) {
-    $offsets = $self->index_files($path, $opts{-reindex});
-    require Cwd;
-    $dirname = Cwd::getcwd();
-  } else {
-    if (-d $path) {
-      # because Win32 glob() is broken with respect to long file names
-      # that contain whitespace.
-      $path = Win32::GetShortPathName($path)
-        if $^O =~ /^MSWin/i && eval 'use Win32; 1';
-      $offsets = $self->index_dir($path, $opts{-reindex});
-      $dirname = $path;
-    } elsif (-f _) {
-      $offsets = $self->index_file($path, $opts{-reindex});
-      $dirname = dirname($path);
+    my ($offsets, $dirname);
+    my $ref = ref $path || '';
+    if ( $ref eq 'ARRAY' ) {
+        $offsets = $self->index_files($path, $opts{-reindex});
+        require Cwd;
+        $dirname = Cwd::getcwd();
     } else {
-      $self->throw( "$path: Invalid file or dirname");
+        if (-d $path) {
+            # because Win32 glob() is broken with respect to long file names
+            # that contain whitespace.
+            $path = Win32::GetShortPathName($path)
+                if $^O =~ /^MSWin/i && eval 'use Win32; 1';
+            $offsets = $self->index_dir($path, $opts{-reindex});
+            $dirname = $path;
+        } elsif (-f _) {
+            $offsets = $self->index_file($path, $opts{-reindex});
+            $dirname = dirname($path);
+        } else {
+            $self->throw( "$path: Invalid file or dirname");
+        }
     }
-  }
-  @{$self}{qw(dirname offsets)} = ($dirname, $offsets);
+    @{$self}{qw(dirname offsets)} = ($dirname, $offsets);
 
-  return $self;
+    return $self;
 }
 
 
@@ -394,6 +392,22 @@ sub dbmargs {
     my $self = shift;
     my $args = $self->{dbmargs} or return;
     return ref($args) eq 'ARRAY' ? @$args : $args;
+}
+
+
+=head2 glob
+
+ Title   : glob
+ Usage   : my $glob = $db->glob;
+ Function: Get the expression used to match files in directories
+ Returns : String
+ Args    : None
+
+=cut
+
+sub glob {
+    my $self = shift;
+    return $self->{glob};
 }
 
 
@@ -601,11 +615,8 @@ sub _index_files {
     if ($reindex) {
         # reindex contents of changed files
         $self->{indexing} = $index;
-
-        my $method = \&{$caller.'::_calculate_offsets'};
-
         for my $file (@updated) {
-            &$method($self, $file, $self->{offsets});
+            &{$self->{offset_meth}}($self, $file, $self->{offsets});
         }
         delete $self->{indexing};
     }

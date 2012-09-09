@@ -153,6 +153,7 @@ use base qw(Bio::DB::IndexedBase Bio::DB::SeqI);
 
 my $termination_length;
 our $obj_class = 'Bio::Seq::PrimaryQual::Qual';
+our $file_glob = '*.{qual,QUAL,qa,QA}';
 
 
 =head2 new
@@ -166,14 +167,6 @@ our $obj_class = 'Bio::Seq::PrimaryQual::Qual';
            Optional arguments: see Bio::DB::IndexedBase
 
 =cut
-
-sub new {
-  my ($class, $path, %opts) = @_;
-  $opts{-glob} ||= '*.{qual,QUAL,qa,QA}',
-  my $self = Bio::DB::IndexedBase->new( $path, %opts );
-  bless $self, __PACKAGE__;
-  return $self;
-}
 
 
 sub _calculate_offsets {

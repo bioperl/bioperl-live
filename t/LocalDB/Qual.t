@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 51,
+    test_begin( -tests => 52,
                 -requires_module => 'Bio::DB::Qual');
 
     use_ok('Bio::Root::IO');
@@ -17,6 +17,7 @@ my $test_dbdir = setup_temp_dir('dbqual');
 
 # now use this temporary dir for the db file
 ok my $db = Bio::DB::Qual->new($test_dbdir, -reindex => 1);
+is $db->glob, '*.{qual,QUAL,qa,QA}';
 isa_ok $db, 'Bio::DB::Qual';
 ok my @ids = $db->ids;
 is scalar(@ids), 15;
