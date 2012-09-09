@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 46,
+    test_begin( -tests => 45,
                 -requires_module => 'Bio::DB::Qual');
 
     use_ok('Bio::Root::IO');
@@ -28,7 +28,6 @@ my $seqid = '17601979';
 # direct indexed qual file database access
 is ref($db->qual($seqid)), 'ARRAY';
 is $db->length($seqid), 14;
-is $db->length($seqid.':3,12'), 10;
 is $db->length($seqid, -1000, 1000), 14;
 ok $db->header($seqid);
 
