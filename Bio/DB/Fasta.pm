@@ -164,12 +164,12 @@ sub new {
 sub _calculate_offsets {
     # Bio::DB::IndexedBase calls this to calculate offsets
     my ($self, $file, $offsets) = @_;
-    my $base = $self->_path2fileno(basename($file));
+    my $fileno = $self->_path2fileno(basename($file));
 
     my $fh = IO::File->new($file) or $self->throw( "Can't open $file: $!");
     binmode $fh;
     warn "Indexing $file\n" if $self->{debug};
-    my ($offset, @id, $linelength, $type, $headerlen, $count, $seq_lines,
+    my ($offset, @id, $linelength, $alphabet, $headerlen, $count, $seq_lines,
         $last_line, %offsets);
     my ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
 
@@ -185,8 +185,8 @@ sub _calculate_offsets {
                     my $seqlength  = $pos - $offset - length($_);
                     $seqlength    -= $termination_length * $seq_lines;
                     my $ppos = &{$self->{packmeth}}($offset, $seqlength,
-                        $linelength, $headerlen, $type, $base);
-                    $type = Bio::DB::IndexedBase::NA;
+                        $linelength, $headerlen, $alphabet, $fileno);
+                    $alphabet = Bio::DB::IndexedBase::NA;
                     for my $id (@id) {
                         $offsets->{$id} = $ppos;
                     }
@@ -220,7 +220,7 @@ sub _calculate_offsets {
                 }
             }
             $linelength ||= length($_);
-            $type       ||= $_ ? $self->_alphabet($_) : '';
+            $alphabet   ||= $_ ? $self->_alphabet($_) : '';
 
             $seq_lines++;
         }
@@ -241,8 +241,8 @@ sub _calculate_offsets {
             $seqlength -= $termination_length * $seq_lines;
         }
         my $ppos = &{$self->{packmeth}}($offset, $seqlength, $linelength,
-            $headerlen, $type, $base);
-        $type = Bio::DB::IndexedBase::NA;
+            $headerlen, $alphabet, $fileno);
+        $alphabet = Bio::DB::IndexedBase::NA;
         for my $id (@id) {
             $offsets->{$id} = $ppos;
         }
@@ -301,18 +301,16 @@ sub subseq {
 =head2 length
 
  Title   : length
- Usage   : my $length = $db->seq($id);
- Function: Get the number of residues in the indicated sequence.
+ Usage   : my $length = $qualdb->length($id);
+ Function: Get the number of residies in the indicated sequence.
  Returns : Number
- Args    : ID of sequence
+ Args    : ID of entry
 
 =cut
 
 sub length {
     my ($self, $id) = @_;
-    $self->throw('Need to provide a sequence ID') if not defined $id;
-    my $offset = $self->{offsets}{$id} or return;
-    return (&{$self->{unpackmeth}}($offset))[1];
+    return $self->strlen($id);
 }
 
 
@@ -330,8 +328,7 @@ sub length {
 sub header {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
-    my ($offset, $seqlength, $linelength, $headerlen, $type, $file)
-        = &{$self->{unpackmeth}}($self->{offsets}{$id}) or return;
+    my ($offset, $headerlen) = (&{$self->{unpackmeth}}($self->{offsets}{$id}))[0,3];
     $offset -= $headerlen;
     my $data;
     my $fh = $self->_fh($id) or return;
@@ -346,107 +343,12 @@ sub header {
 =head2 alphabet
 
  Title   : alphabet
- Usage   : my $type = $db->alphabet($id);
+ Usage   : my $alphabet = $db->alphabet($id);
  Function: Get the molecular type of the indicated sequence: dna, rna or protein
  Returns : String
  Args    : ID of sequence
 
 =cut
-
-sub alphabet {
-    my ($self, $id) = @_;
-    $self->throw('Need to provide a sequence ID') if not defined $id;
-    my $offset = $self->{offsets}{$id} or return;
-    my $type = (&{$self->{unpackmeth}}($offset))[4];
-    return : $type == Bio::DB::IndexedBase::DNA ? 'dna'
-           : $type == Bio::DB::IndexedBase::RNA ? 'rna'
-           : $type == Bio::DB::IndexedBase::PROTEIN ? 'protein'
-           : '';
-}
-
-
-=head2 file
-
- Title   : file
- Usage   : my $file = $db->file($id);
- Function: Get the the name of the file in which the indicated sequence can be
-           found.
- Returns : String
- Args    : ID of sequence
-
-=cut
-
-sub file {
-  my ($self, $id) = @_;
-  $self->throw('Need to provide a sequence ID') if not defined $id;
-  my $offset = $self->{offsets}{$id} or return;
-  return $self->_fileno2path((&{$self->{unpackmeth}}($offset))[5]);
-}
-
-
-=head2 offset
-
- Title   : offset
- Usage   : my $offset = $db->offset($id);
- Function: Get the offset of the indicated sequence from the beginning of the
-           file in which it is located. The offset points to the beginning of
-           the sequence, not the beginning of the header line.
- Returns : String
- Args    : ID of sequence
-
-=cut
-
-sub offset {
-    my ($self, $id) = @_;
-    $self->throw('Need to provide a sequence ID') if not defined $id;
-    my $offset = $self->{offsets}{$id} or return;
-    return (&{$self->{unpackmeth}}($offset))[0];
-}
-
-
-=head2 headerlen
-
- Title   : headerlen
- Usage   : my $length = $db->headerlen($id);
- Function: Get the length of the header line for the indicated sequence.
- Returns : String
- Args    : ID of sequence
-
-=cut
-
-sub headerlen {
-    my ($self, $id) = @_;
-    $self->throw('Need to provide a sequence ID') if not defined $id;
-    my $offset = $self->{offsets}{$id} or return;
-    return (&{$self->{unpackmeth}}($offset))[3];
-}
-
-
-=head2 header_offset
-
- Title   : header_offset
- Usage   : my $offset = $db->header_offset($id);
- Function: Get the offset of the header line for the indicated sequence from
-           the beginning of the file in which it is located.
- Returns : String
- Args    : ID of sequence
-
-=cut
-
-sub header_offset {
-    my ($self, $id) = @_;
-    $self->throw('Need to provide a sequence ID') if not defined $id;
-    return if not $self->{offsets}{$id};
-    return $self->offset($id) - $self->headerlen($id);
-}
-
-
-sub linelen {
-    my ($self, $id) = @_;
-    $self->throw('Need to provide a sequence ID') if not defined $id;
-    my $offset = $self->{offsets}{$id} or return;
-    return (&{$self->{unpackmeth}}($offset))[2];
-}
 
 
 #-------------------------------------------------------------

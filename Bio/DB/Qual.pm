@@ -179,7 +179,7 @@ sub new {
 sub _calculate_offsets {
     # Bio::DB::IndexedBase calls this to calculate offsets
     my ($self, $file, $offsets) = @_;
-    my $base = $self->_path2fileno(basename($file));
+    my $fileno = $self->_path2fileno(basename($file));
 
     my $fh = IO::File->new($file) or $self->throw("Can't open $file: $!");
     binmode $fh;
@@ -204,7 +204,7 @@ sub _calculate_offsets {
                     $linelength,
                     $headerlen,
                     Bio::DB::IndexedBase::NA,
-                    $base,
+                    $fileno,
                 );
             }
             $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
@@ -253,7 +253,7 @@ sub _calculate_offsets {
             $linelength,
             $headerlen,
             Bio::DB::IndexedBase::NA,
-            $base,
+            $fileno,
         );
     }
     return \%offsets;
@@ -324,7 +324,7 @@ sub subqual {
     }
     # Position in quality string
     my $string_start = 1;
-    my $string_stop = $self->lengthstr($id);
+    my $string_stop = $self->strlen($id);
 
     # Fetch full quality string
     my $fh = $self->_fh($id) or return;
@@ -378,15 +378,6 @@ sub length {
 }
 
 
-sub lengthstr {
-    # The length of the quality STRING
-    my ($self, $id) = @_;
-    $self->throw('Need to provide a sequence ID') if not defined $id;
-    my $offset = $self->{offsets}{$id} or return;
-    return (&{$self->{unpackmeth}}($offset))[1];
-}
-
-
 =head2 header
 
  Title   : header
@@ -400,8 +391,7 @@ sub lengthstr {
 sub header {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
-    my ($offset, $seqlength, $linelength, $headerlen, $file) 
-        = &{$self->{unpackmeth}}($self->{offsets}{$id}) or return;
+    my ($offset, $headerlen) = (&{$self->{unpackmeth}}($self->{offsets}{$id}))[0,3];
     $offset -= $headerlen;
     my $data;
     my $fh = $self->_fh($id) or return;
@@ -410,90 +400,6 @@ sub header {
     chomp $data;
     substr($data, 0, 1) = '';
     return $data;
-}
-
-
-=head2 file
-
- Title   : file
- Usage   : my $file = $db->file($id);
- Function: Get the the name of the file in which the indicated sequence can be
-           found.
- Returns : String
- Args    : ID of sequence
-
-=cut
-
-sub file {
-    my ($self, $id) = @_;
-    $self->throw('Need to provide a sequence ID') if not defined $id;
-    my $offset = $self->{offsets}{$id} or return;
-    return $self->_fileno2path((&{$self->{unpackmeth}}($offset))[5]);
-}
-
-
-=head2 offset
-
- Title   : offset
- Usage   : my $offset = $db->offset($id);
- Function: Get the offset of the indicated entry from the beginning of the
-           file in which it is located. The offset points to the beginning of
-           the quality score, not the beginning of the header line.
- Returns : String
- Args    : ID of sequence
-
-=cut
-
-sub offset {
-    my ($self, $id) = @_;
-    $self->throw('Need to provide a sequence ID') if not defined $id;
-    my $offset = $self->{offsets}{$id} or return;
-    return (&{$self->{unpackmeth}}($offset))[0];
-}
-
-
-=head2 headerlen
-
- Title   : headerlen
- Usage   : my $length = $db->headerlen($id);
- Function: Get the length of the header line for the indicated entry.
- Returns : String
- Args    : ID of sequence
-
-=cut
-
-sub headerlen {
-    my ($self, $id) = @_;
-    $self->throw('Need to provide a sequence ID') if not defined $id;
-    my $offset = $self->{offsets}{$id} or return;
-    return (&{$self->{unpackmeth}}($offset))[3];
-}
-
-
-=head2 header_offset
-
- Title   : header_offset
- Usage   : my $offset = $db->header_offset($id);
- Function: Get the offset of the header line for the indicated entry from
-           the beginning of the file in which it is located.
- Returns : String
- Args    : ID of sequence
-
-=cut
-
-sub header_offset {
-    my ($self, $id) = @_;
-    $self->throw('Need to provide a sequence ID') if not defined $id;
-    return if not $self->{offsets}{$id};
-    return $self->offset($id) - $self->headerlen($id);
-}
-
-
-sub linelen {
-    my ($self, $id) = @_;
-    $self->throw('Need to provide a sequence ID') if not defined $id;
-    my $offset = $self->{offsets}{$id} or return;
-    return (&{$self->{unpackmeth}}($offset))[2];
 }
 
 

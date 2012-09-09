@@ -137,6 +137,48 @@ write the following iterative loop using just the object-oriented interface:
 
 =back
 
+=head1 INDEX CONTENT
+
+Several attributes of each sequence are stored in the index file. Given a
+sequence ID, these attributes can be retrieved using the following methods:
+
+=over
+
+=item offset($id)
+
+Get the offset of the indicated sequence from the beginning of the file in which
+it is located. The offset points to the beginning of the sequence, not the
+beginning of the header line.
+
+=item strlen($id)
+
+Get the length of the sequence string.
+
+=item linelen($id)
+
+Get the length of the line for this sequence. If the sequence is wrapped, then
+linelen() is likely to be much shorter than strlen().
+
+=item headerlen($id)
+
+Get the length of the header line for the indicated sequence.
+
+=item header_offset
+
+Get the offset of the header line for the indicated sequence from the beginning
+of the file in which it is located. This attribute is not stored. It is
+calculated from offset() and headerlen().
+
+=item alphabet($id)
+
+Get the molecular type (alphabet) of the indicated sequence.
+
+=item file($id)
+
+Get the the name of the file in which the indicated sequence can be found.
+
+=back
+
 =head1 BUGS
 
 When a sequence is deleted from one of the files, this deletion is not detected
@@ -643,11 +685,10 @@ sub _caloffset {
     # and termination length (tl)
     my ($self, $id, $n, $tl) = @_;
     $n--;
-    my ($offset, $seqlength, $linelength, $firstline, $file)
-        = &{$self->{unpackmeth}}($self->{offsets}{$id});
+    my ($offset, $seqlen, $linelen) = (&{$self->{unpackmeth}}($self->{offsets}{$id}))[0,1,2];
     $n = 0            if $n < 0;
-    $n = $seqlength-1 if $n >= $seqlength;
-    return $offset + $linelength * int($n/($linelength-$tl)) + $n % ($linelength-$tl);
+    $n = $seqlen-1 if $n >= $seqlen;
+    return $offset + $linelen * int($n/($linelen-$tl)) + $n % ($linelen-$tl);
 }
 
 
@@ -679,6 +720,144 @@ sub _fhcache {
     }
     $self->{cacheseq}{$path}++;
     return $self->{fhcache}{$path};
+}
+
+
+#-------------------------------------------------------------
+# Methods to store and retrieve data from indexed file
+#
+
+=head2 offset
+
+ Title   : offset
+ Usage   : my $offset = $db->offset($id);
+ Function: Get the offset of the indicated sequence from the beginning of the
+           file in which it is located. The offset points to the beginning of
+           the sequence, not the beginning of the header line.
+ Returns : String
+ Args    : ID of sequence
+
+=cut
+
+sub offset {
+    my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
+    my $offset = $self->{offsets}{$id} or return;
+    return (&{$self->{unpackmeth}}($offset))[0];
+}
+
+
+=head2 strlen
+
+ Title   : strlen
+ Usage   : my $length = $db->strlen($id);
+ Function: Get the length of the sequence string.
+ Returns : Integer
+ Args    : ID of sequence
+
+=cut
+
+sub strlen {
+    my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
+    my $offset = $self->{offsets}{$id} or return;
+    return (&{$self->{unpackmeth}}($offset))[1];
+}
+
+
+=head2 linelen
+
+ Title   : linelen
+ Usage   : my $linelen = $db->linelen($id);
+ Function: Get the length of the line for this sequence.
+ Returns : Integer
+ Args    : ID of sequence
+
+=cut
+
+sub linelen {
+    my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
+    my $offset = $self->{offsets}{$id} or return;
+    return (&{$self->{unpackmeth}}($offset))[2];
+}
+
+
+=head2 headerlen
+
+ Title   : headerlen
+ Usage   : my $length = $db->headerlen($id);
+ Function: Get the length of the header line for the indicated sequence.
+ Returns : Integer
+ Args    : ID of sequence
+
+=cut
+
+sub headerlen {
+    my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
+    my $offset = $self->{offsets}{$id} or return;
+    return (&{$self->{unpackmeth}}($offset))[3];
+}
+
+
+=head2 header_offset
+
+ Title   : header_offset
+ Usage   : my $offset = $db->header_offset($id);
+ Function: Get the offset of the header line for the indicated sequence from
+           the beginning of the file in which it is located.
+ Returns : String
+ Args    : ID of sequence
+
+=cut
+
+sub header_offset {
+    my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
+    return if not $self->{offsets}{$id};
+    return $self->offset($id) - $self->headerlen($id);
+}
+
+
+=head2 alphabet
+
+ Title   : alphabet
+ Usage   : my $alphabet = $db->alphabet($id);
+ Function: Get the molecular type of the indicated sequence: dna, rna or protein
+ Returns : String
+ Args    : ID of sequence
+
+=cut
+
+sub alphabet {
+    my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
+    my $offset = $self->{offsets}{$id} or return;
+    my $alphabet = (&{$self->{unpackmeth}}($offset))[4];
+    return : $alphabet == Bio::DB::IndexedBase::DNA     ? 'dna'
+           : $alphabet == Bio::DB::IndexedBase::RNA     ? 'rna'
+           : $alphabet == Bio::DB::IndexedBase::PROTEIN ? 'protein'
+           : '';
+}
+
+
+=head2 file
+
+ Title   : file
+ Usage   : my $file = $db->file($id);
+ Function: Get the the name of the file in which the indicated sequence can be
+           found.
+ Returns : String
+ Args    : ID of sequence
+
+=cut
+
+sub file {
+  my ($self, $id) = @_;
+  $self->throw('Need to provide a sequence ID') if not defined $id;
+  my $offset = $self->{offsets}{$id} or return;
+  return $self->_fileno2path((&{$self->{unpackmeth}}($offset))[5]);
 }
 
 
