@@ -275,19 +275,7 @@ sub _calculate_offsets {
 sub subseq {
     my ($self, $id, $start, $stop) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
-    if ($id =~ /^(.+):([\d_]+)(?:,|-|\.\.)([\d_]+)$/) {
-        ($id, $start, $stop) = ($1, $2, $3);
-        $start =~ s/_//g;
-        $stop  =~ s/_//g;
-    }
-    $start ||= 1;
-    $stop  ||= $self->length($id);
-
-    my $reversed;
-    if (defined $stop && $start > $stop) {
-        ($start, $stop) = ($stop, $start);
-        $reversed++;
-    }
+    ($id, $start, $stop, my $strand) = $self->_parse_compound_id($id, $start, $stop);
 
     my $data;
 
@@ -299,7 +287,8 @@ sub subseq {
     read($fh, $data, $filestop-$filestart+1);
     $data =~ s/\n//g;
     $data =~ s/\r//g;
-    if ($reversed) {
+    if ($strand == -1) {
+        # Reverse-complement the sequence
         $data = reverse $data;
         $data =~ tr/gatcGATC/ctagCTAG/;
     }

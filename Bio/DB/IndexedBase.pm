@@ -588,6 +588,36 @@ sub _close_index {
 }
 
 
+sub _parse_compound_id {
+    # Handle compound IDs:
+    #     $db->seq($id)
+    #     $db->seq($id, $start, $stop)
+    #     $db->seq("$id:$start,$stop")
+    #     $db->seq("$id:$start..$stop")
+    #     $db->seq("$id:$start-$stop")
+    my ($self, $id, $start, $stop) = @_;
+
+    if ( (not defined $start) &&
+         (not defined $stop ) &&
+         ($id =~ /^(.+):([\d_]+)(?:,|-|\.\.)([\d_]+)$/) ) {
+        # Start and stop not provided and ID looks like a compound ID
+        ($id, $start, $stop) = ($1, $2, $3);
+        $start =~ s/_//g;
+        $stop  =~ s/_//g;
+    }
+    $start ||= 1;
+    $stop  ||= $self->length($id);
+
+    my $strand = 1;
+    if ($start > $stop) {
+        ($start, $stop) = ($stop, $start);
+        $strand = -1;
+    }
+
+    return $id, $start, $stop, $strand;
+}
+
+
 sub _type {
   # Determine the molecular type of the given a sequence string: dna, rna or protein
   my ($self, $string) = @_;
