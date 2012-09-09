@@ -169,7 +169,7 @@ sub _calculate_offsets {
     my $fh = IO::File->new($file) or $self->throw( "Can't open $file: $!");
     binmode $fh;
     warn "Indexing $file\n" if $self->{debug};
-    my ($offset, @id, $linelength, $type, $headerline, $count, $seq_lines,
+    my ($offset, @id, $linelength, $type, $headerlen, $count, $seq_lines,
         $last_line, %offsets);
     my ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
 
@@ -185,14 +185,14 @@ sub _calculate_offsets {
                     my $seqlength  = $pos - $offset - length($_);
                     $seqlength    -= $termination_length * $seq_lines;
                     my $ppos = &{$self->{packmeth}}($offset, $seqlength,
-                        $linelength, $headerline, $type, $base);
+                        $linelength, $headerlen, $type, $base);
                     $type = Bio::DB::IndexedBase::NA;
                     for my $id (@id) {
                         $offsets->{$id} = $ppos;
                     }
                 }
                 @id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
-                ($offset, $headerline, $linelength) = ($pos,length($_),0);
+                ($offset, $headerlen, $linelength) = ($pos,length($_),0);
                 $self->_check_linelength($linelength);
                 ($l3_len, $l2_len, $l_len, $blank_lines) = (0,0,0,0);
                 $seq_lines = 0;
@@ -241,7 +241,7 @@ sub _calculate_offsets {
             $seqlength -= $termination_length * $seq_lines;
         }
         my $ppos = &{$self->{packmeth}}($offset, $seqlength, $linelength,
-            $headerline, $type, $base);
+            $headerlen, $type, $base);
         $type = Bio::DB::IndexedBase::NA;
         for my $id (@id) {
             $offsets->{$id} = $ppos;
@@ -330,13 +330,13 @@ sub length {
 sub header {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
-    my ($offset, $seqlength, $linelength, $headerline, $type, $file)
+    my ($offset, $seqlength, $linelength, $headerlen, $type, $file)
         = &{$self->{unpackmeth}}($self->{offsets}{$id}) or return;
-    $offset -= $headerline;
+    $offset -= $headerlen;
     my $data;
     my $fh = $self->_fh($id) or return;
     seek($fh, $offset, 0);
-    read($fh, $data, $headerline);
+    read($fh, $data, $headerlen);
     chomp $data;
     substr($data, 0, 1) = '';
     return $data;
