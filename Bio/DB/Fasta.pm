@@ -167,32 +167,33 @@ sub _calculate_offsets {
         $last_line, %offsets);
     my ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
 
-    while (<$fh>) {
+    while (my $line = <$fh>) {
         # Account for crlf-terminated Windows files
-        $termination_length ||= /\r\n$/ ? 2 : 1;
-        if (index($_, '>') == 0) {
-            if (/^>(\S+)/) {
+        $termination_length ||= ($line =~ /\r\n$/) ? 2 : 1;
+        if (index($line, '>') == 0) {
+            if ($line =~ /^>(\S+)/) {
                 print STDERR "Indexed $count sequences...\n"
                     if $self->{debug} && (++$count%1000) == 0;
 
                 $self->_check_linelength($linelen);
                 my $pos = tell($fh);
                 if (defined $id) {
-                    my $strlen  = $pos - $offset - length($_);
+                    my $strlen  = $pos - $offset - length($line);
                     $strlen    -= $termination_length * $seq_lines;
                     my $ppos = &{$self->{packmeth}}($offset, $strlen, $strlen,
                         $linelen, $headerlen, $alphabet, $fileno);
                     $alphabet = Bio::DB::IndexedBase::NA;
                     $offsets->{$id} = $ppos;
                 }
-                $id = $self->_makeid($_);
-                ($offset, $headerlen, $linelen, $seq_lines) = ($pos, length $_, 0, 0);
+                $id = $self->_makeid($line);
+                ($offset, $headerlen, $linelen, $seq_lines) = ($pos, length $line, 0, 0);
                 ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
+
             } else {
                 # Catch bad header lines, bug 3172
-                $self->throw("FASTA header doesn't match '>(\\S+)': $_");
+                $self->throw("FASTA header doesn't match '>(\\S+)': $line");
             }
-        } elsif ($_ !~ /\S/) {
+        } elsif ($line !~ /\S/) {
             # Skip blank line
             $blank_lines++;
             next;
@@ -200,10 +201,10 @@ sub _calculate_offsets {
             # Need to check every line :(
             $l3_len = $l2_len;
             $l2_len = $l_len;
-            $l_len  = length($_);
+            $l_len  = length $line;
             if (Bio::DB::IndexedBase::DIE_ON_MISSMATCHED_LINES) {
                 if ( ($l3_len > 0) && ($l2_len > 0) && ($l3_len != $l2_len) ) {
-                    my $fap = substr($_, 0, 20)."..";
+                    my $fap = substr($line, 0, 20)."..";
                     $self->throw("Each line of the fasta entry must be the same ".
                         "length except the last. Line above #$. '$fap' is $l2_len".
                         " != $l3_len chars.");
@@ -214,16 +215,16 @@ sub _calculate_offsets {
                         "found preceding line #$.");
                 }
             }
-            $linelen  ||= length($_);
-            $alphabet ||= $self->_guess_alphabet($_);
+            $linelen  ||= length $line;
+            $alphabet ||= $self->_guess_alphabet($line);
             $seq_lines++;
         }
-        $last_line = $_;
+        $last_line = $line;
     }
 
-    # Process with entry
+    # Process last entry
     $self->_check_linelength($linelen);
-    my $pos = tell($fh);
+    my $pos = tell $fh;
     if (defined $id) {
         my $strlen   = $pos - $offset;
         if ($linelen == 0) { # yet another pesky empty chr_random.fa file

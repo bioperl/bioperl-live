@@ -181,30 +181,30 @@ sub _calculate_offsets {
         $numres, %offsets);
     my ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
 
-    while (<$fh>) {
+    while (my $line = <$fh>) {
         # Account for crlf-terminated Windows files      
-        $termination_length ||= /\r\n$/ ? 2 : 1;
-        if (index($_, '>') == 0) {
-            if (/^>(\S+)/) {
+        $termination_length ||= ($line =~ /\r\n$/) ? 2 : 1;
+        if (index($line, '>') == 0) {
+            if ($line =~ /^>(\S+)/) {
                 print STDERR "Indexed $count quality scores...\n" 
                     if $self->{debug} && (++$count%1000) == 0;
                 $self->_check_linelength($linelen);
                 my $pos = tell($fh);
                 if ($id) {
-                    my $strlen = $pos - $offset - length($_);
+                    my $strlen = $pos - $offset - length($line);
                     $strlen -= $termination_length * $qual_lines;
                     $offsets->{$id} = &{$self->{packmeth}}($offset, $strlen, $numres,
                         $linelen, $headerlen, Bio::DB::IndexedBase::NA, $fileno);
                     $numres = 0;
                 }
-                $id = $self->_makeid($_);
-                ($offset, $headerlen, $linelen, $qual_lines) = ($pos, length $_, 0, 0);
+                $id = $self->_makeid($line);
+                ($offset, $headerlen, $linelen, $qual_lines) = ($pos, length $line, 0, 0);
                 ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
             } else {
                 # Catch bad header lines, bug 3172
-                $self->throw("FASTA header doesn't match '>(\\S+)': $_");
+                $self->throw("FASTA header doesn't match '>(\\S+)': $line");
             }
-        } elsif ($_ !~ /\S/) {
+        } elsif ($line !~ /\S/) {
             # Skip blank line
             $blank_lines++;
             next;
@@ -212,10 +212,10 @@ sub _calculate_offsets {
             # Need to check every line :(
             $l3_len = $l2_len;
             $l2_len = $l_len;
-            $l_len  = length($_);
+            $l_len  = length $line;
             if (Bio::DB::IndexedBase::DIE_ON_MISSMATCHED_LINES) {
                 if ( ($l3_len > 0) && ($l2_len > 0) && ($l3_len != $l2_len) ) {
-                    my $fap = substr($_, 0, 20)."..";
+                    my $fap = substr($line, 0, 20)."..";
                     $self->throw("Each line of the qual entry must be the same ".
                         "length except the last. Line above #$. '$fap' is $l2_len".
                         " != $l3_len chars.");
@@ -226,11 +226,11 @@ sub _calculate_offsets {
                         "found preceding line #$.");
                 }
             }
-            $linelen ||= length($_);
+            $linelen ||= length $line;
             $qual_lines++;
-            $numres += scalar split /\s+/, $_;
+            $numres += scalar split /\s+/, $line;
         }
-        $last_line = $_;
+        $last_line = $line;
     }
 
     # Process last entry

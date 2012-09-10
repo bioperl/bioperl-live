@@ -687,11 +687,6 @@ sub _guess_alphabet {
     # Determine the molecular type of the given sequence string:
     #    'dna', 'rna', 'protein' or '' (unknown/empty)
     my ($self, $string) = @_;
-
-    #return $string =~ m/^[gatcnGATCN*-]+$/   ? DNA
-    #       : $string =~ m/^[gaucnGAUCN*-]+$/ ? RNA
-    #       : PROTEIN;
-
     # Handle IUPAC residues like PrimarySeq does
     my $alphabet = Bio::PrimarySeq::_guess_alphabet_from_string($self, $string, 1);
     return $alphabet eq 'dna' ? DNA
