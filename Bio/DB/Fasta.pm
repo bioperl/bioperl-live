@@ -431,10 +431,7 @@ sub revcom {
 
 sub length {
     my $self = shift;
-    #return $self->{db}->length($self->{id});
-        # wrong because ignores sequence start and stop values
     return length($self->seq);
-
 }
 
 sub description  {
