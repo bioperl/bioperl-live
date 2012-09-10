@@ -234,8 +234,9 @@ use AnyDBM_File;
 use Fcntl;
 use File::Spec;
 use File::Basename qw(dirname);
+use Bio::PrimarySeq;
 
-use base qw(Bio::Root::Root);
+use base qw(Bio::DB::SeqI);
 
 # Store offset, strlen, linelen, headerlen, type and fileno
 use constant STRUCT    => 'NNNnnCa*'; # 32-bit file offset and seq length
@@ -682,11 +683,11 @@ sub _parse_compound_id {
 
 
 sub _guess_alphabet {
-  # Determine the molecular type of the given a sequence string: dna, rna or protein
-  my ($self, $string) = @_;
-  return $string =~ m/^[gatcnGATCN*-]+$/   ? DNA
-         : $string =~ m/^[gaucnGAUCN*-]+$/ ? RNA
-         : PROTEIN;
+    # Determine the molecular type of the given a sequence string: dna, rna or protein
+    my ($self, $string) = @_;
+    return $string =~ m/^[gatcnGATCN*-]+$/   ? DNA
+           : $string =~ m/^[gaucnGAUCN*-]+$/ ? RNA
+           : PROTEIN;
 }
 
 

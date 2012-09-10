@@ -134,7 +134,7 @@ use IO::File;
 use File::Spec;
 use File::Basename qw(basename dirname);
 
-use base qw(Bio::DB::IndexedBase Bio::DB::SeqI);
+use base qw(Bio::DB::IndexedBase);
 
 my $termination_length;
 our $obj_class = 'Bio::PrimarySeq::Fasta';
