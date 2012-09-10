@@ -877,46 +877,61 @@ These are internal methods to PrimarySeq
 
 sub _guess_alphabet {
     my ($self) = @_;
-    my $type;
+    # Guess alphabet
+    my $alphabet = $self->_guess_alphabet_from_string($self->seq, $self->{'_nowarnonempty'});
+    # Set alphabet unless it is unknown
+    $self->alphabet($alphabet) if $alphabet;
+    return $alphabet;
+}
+
+
+sub _guess_alphabet_from_string {
+    # Get the alphabet from a sequence string
+    my ($self, $str, $nowarnonempty) = @_;
+
+    $nowarnonempty = 0 if not defined $nowarnonempty;
 
     # Remove chars that clearly don't denote nucleic or amino acids
-    my $str = $self->seq();
     $str =~ s/[-.?]//gi;
 
     # Check for sequences without valid letters
+    my $alphabet;
     my $total = CORE::length($str);
     if( $total == 0 ) {
-        if (!$self->{'_nowarnonempty'}) {
-            $self->warn("Got a sequence with no letters in it ".
-               "cannot guess alphabet");
+        if (not $nowarnonempty) {
+            $self->warn("Got a sequence without letters. Could not guess alphabet");
         }
-        return '';
+        $alphabet = '';
     }
 
-    if ($str =~ m/[EFIJLOPQXZ]/i) {
-        # Start with a safe method to find proteins.
-        # Unambiguous IUPAC letters for proteins are: E,F,I,J,L,O,P,Q,X,Z
-        $type = 'protein';
-    } else {
-        # Alphabet is unsure, could still be DNA, RNA or protein.
-        # DNA and RNA contain mostly A, T, U, G, C and N, but the other letters
-        # they use are also among the 15 valid letters that a protein sequence
-        # can contain at this stage. Make our best guess based on sequence
-        # composition. If it contains over 70% of ACGTUN, it is likely nucleic.
-        if( ($str =~ tr/ATUGCNatugcn//) / $total > 0.7 ) {
-            if ( $str =~ m/U/i ) {
-                $type = 'rna';
-            } else {
-                $type = 'dna';
-            }
+    # Determine alphabet now
+    if (not defined $alphabet) {
+        if ($str =~ m/[EFIJLOPQXZ]/i) {
+            # Start with a safe method to find proteins.
+            # Unambiguous IUPAC letters for proteins are: E,F,I,J,L,O,P,Q,X,Z
+            $alphabet = 'protein';
         } else {
-            $type = 'protein';
+            # Alphabet is unsure, could still be DNA, RNA or protein
+            # DNA and RNA contain mostly A, T, U, G, C and N, but the other
+            # letters they use are also among the 15 valid letters that a
+            # protein sequence can contain at this stage. Make our best guess
+            # based on sequence composition. If it contains over 70% of ACGTUN,
+            # it is likely nucleic.
+            if( ($str =~ tr/ATUGCNatugcn//) / $total > 0.7 ) {
+                if ( $str =~ m/U/i ) {
+                    $alphabet = 'rna';
+                } else {
+                    $alphabet = 'dna';
+                }
+            } else {
+                $alphabet = 'protein';
+            }
         }
     }
 
-    $self->alphabet($type);
-    return $type;
+    return $alphabet;
 }
+
 
 ############################################################################
 # aliases due to name changes or to compensate for our lack of consistency #

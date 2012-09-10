@@ -40,7 +40,6 @@ my $test_files = [
     is $primary_seq->trunc(11, 20)->seq, 'ttctcggggt';
     is $primary_seq->description, 'test description', 'bug 3126';
     is $primary_seq->seq, 'tcatgttggcttctcggggtttttatggattaatacattttccaaacgattctttgcgccttctgtggtgccgccttctccgaaggaactgacgaaaaatgacgtggatttgctgacaaatccaggcgaggaatatttggacggattgatgaaatggcacggcgacgagcgacccgtgttcaaaagagaggacatttatcgttggtcggatagttttccagaatatcggctaagaatgatttgtctgaaagacacgacaagggtcattgcagtcggtcaatattgttactttgatgctctgaaagaaaggagagcagccattgttcttcttaggattgggatggacggatcctgaatatcgtaatcgggcagttatggagcttcaagcttcgatggcgctggaggagagggatcggtatccgactgccaacgcggcatcgcatccaaataagttcatgaaacgattttggcacatattcaacggcctcaaagagcacgaggacaaaggtcacaaggctgccgctgtttcatacaagagcttctacgacctcanagacatgatcattcctgaaaatctggatgtcagtggtattactgtaaatgatgcacgaaaggtgccacaaagagatataatcaactacgatcaaacatttcatccatatcatcgagaaatggttataatttctcacatgtatgacaatgatgggtttggaaaagtgcgtatgatgaggatggaaatgtacttggaattgtctagcgatgtctttanaccaacaagactgcacattagtcaattatgcagatagcc';
-
 }
 
 
@@ -56,7 +55,7 @@ my $test_files = [
 
 {
     # Test writing the Bio::PrimarySeq::Fasta objects with SeqIO
-    ok my $db = Bio::DB::Fasta->new($test_dir, -reindex => 1);
+    ok my $db = Bio::DB::Fasta->new($test_dir, -reindex => 1), 'Writing with SeqIO';
     my $out = Bio::SeqIO->new(
         -format => 'genbank',
         -file   => '>'.test_output_file()

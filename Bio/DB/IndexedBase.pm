@@ -175,7 +175,8 @@ calculated from offset() and headerlen().
 
 =item alphabet($id)
 
-Get the molecular type (alphabet) of the indicated sequence.
+Get the molecular type (alphabet) of the indicated sequence. This method handles
+residues according to the IUPAC convention.
 
 =item file($id)
 
@@ -683,11 +684,20 @@ sub _parse_compound_id {
 
 
 sub _guess_alphabet {
-    # Determine the molecular type of the given a sequence string: dna, rna or protein
+    # Determine the molecular type of the given sequence string:
+    #    'dna', 'rna', 'protein' or '' (unknown/empty)
     my ($self, $string) = @_;
-    return $string =~ m/^[gatcnGATCN*-]+$/   ? DNA
-           : $string =~ m/^[gaucnGAUCN*-]+$/ ? RNA
-           : PROTEIN;
+
+    #return $string =~ m/^[gatcnGATCN*-]+$/   ? DNA
+    #       : $string =~ m/^[gaucnGAUCN*-]+$/ ? RNA
+    #       : PROTEIN;
+
+    # Handle IUPAC residues like PrimarySeq does
+    my $alphabet = Bio::PrimarySeq::_guess_alphabet_from_string($self, $string, 1);
+    return $alphabet eq 'dna' ? DNA
+           : $alphabet eq 'rna' ? RNA
+           : $alphabet eq 'protein' ? PROTEIN
+           : NA;
 }
 
 

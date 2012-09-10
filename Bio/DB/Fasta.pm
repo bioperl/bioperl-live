@@ -214,7 +214,7 @@ sub _calculate_offsets {
                 }
             }
             $linelen  ||= length($_);
-            $alphabet ||= $_ ? $self->_guess_alphabet($_) : '';
+            $alphabet ||= $self->_guess_alphabet($_);
             $seq_lines++;
         }
         $last_line = $_;
