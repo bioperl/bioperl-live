@@ -264,6 +264,7 @@ sub _set_primer {
    # the forward primer or 'rev' for the reverse primer.
    my ($self, $type, $primer) = @_;
    my $re;
+   my $match_rna = 1;
    if ($primer eq '') {
       $re = $type eq 'fwd' ? '^' : '$';
    } else {
@@ -276,7 +277,7 @@ sub _set_primer {
       my $seq = $primer->isa('Bio::SeqFeature::Primer') ? $primer->seq : $primer;
       $re = Bio::Tools::IUPAC->new(
          -seq => $type eq 'fwd' ? $seq : $seq->revcom,
-      )->regexp;
+      )->regexp($match_rna);
    }
    $self->{$type.'_regexp'} = $re;
    # Reset search in progress

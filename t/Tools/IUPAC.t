@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 45);
+    test_begin(-tests => 46);
 
     use_ok('Bio::Tools::IUPAC');
     use_ok('Bio::Seq');
@@ -31,9 +31,12 @@ ok my $iupac = Bio::Tools::IUPAC->new( -seq => $ambiprimaryseq );
 
 ok $iupac = Bio::Tools::IUPAC->new( -seq => $ambiseq );
 
-ok my $regexp = $iupac->regexp;
+ok my $regexp = $iupac->regexp, 'Regexp';
+is $regexp, 'A[AGR]TCGTTG[ACGTBDHKMNRSVWY]';
 
-is $regexp, 'A[AGR]TCGTTG[ACGTBDHKMNRSVWY]', 'Regexp';
+$regexp = $iupac->regexp(1);
+is $regexp, 'A[AGR][TU]CG[TU][TU]G[ACGTUBDHKMNRSVWY]', 'Regexp';
+
 
 is $iupac->count(), 8, 'Count';
 

@@ -516,13 +516,13 @@ sub count {
            regular expression, you might want to compile it and make it case-
            insensitive:
               $re = qr/$re/i;
- Args    : none
+ Args    : 1 to match RNA: T and U characters will match interchangeably
  Return  : regular expression
 
 =cut
 
 sub regexp {
-    my ($self) = @_;
+    my ($self, $match_rna) = @_;
     my $re;
     my $seq = $self->{'_seq'}->seq;
     my %iupac = $self->iupac;
@@ -530,16 +530,19 @@ sub regexp {
     for my $pos (0 .. length($seq)-1) {
         my $res = substr $seq, $pos, 1;
         my $iupacs = $iupac{$res};
-        my $iupacs_amb = $iupac_amb{$res};
+        my $iupacs_amb = $iupac_amb{$res} || [];
         if (not defined $iupacs) {
             $self->throw("Primer sequence '$seq' is not a valid IUPAC sequence.".
                          " Offending character was '$res'.\n");
         }
-        if (scalar @$iupacs > 1) {
-            $re .= '[' . join('',@$iupacs,@$iupacs_amb) . ']';
-        } else {
-            $re .= $$iupacs[0];
+        my $part = join '', (@$iupacs, @$iupacs_amb);
+        if ($match_rna) {
+            $part =~ s/T/TU/i || $part =~ s/U/TU/i;
         }
+        if (length $part > 1) {
+           $part = '['.$part.']';
+        }
+        $re .= $part;
     }
     return $re;
 }
