@@ -179,7 +179,7 @@ sub no_param_checks{
  Function: Get/set the choice of if tempfiles in the temp dir (see tempdir())
            are kept or cleaned up. Default is '0', ie. delete temp files.
            NB: This must be set to the desired value PRIOR to first creating
-           a temp dir with tempdir().
+           a temp dir with tempdir(). Any attempt to set this after tempdir creation will get a warning.
  Returns : boolean
  Args    : none to get, boolean to set
 
@@ -187,6 +187,10 @@ sub no_param_checks{
 
 sub save_tempfiles{
     my $self = shift;
+    my @args = @_;
+    if ((@args[0]) && (exists ($self->{'_tmpdir'}))) {
+        $self->warn ("Tempdir already created; setting save_tempfiles will not affect cleanup behavior.");
+    }
     return $self->io->save_tempfiles(@_);
 }
 
@@ -331,7 +335,7 @@ sub executable {
             }
         }
     }
-    
+
     # bail if we never found the executable
     unless ( defined $self->{'_pathtoexe'}) {
         $self->throw("Cannot find executable for ".$self->program_name .

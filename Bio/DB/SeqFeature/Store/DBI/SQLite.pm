@@ -466,6 +466,8 @@ sub _finish_bulk_update {
   delete $self->{filehandles};
 }
 
+sub commit { shift->dbh->commit }
+
 sub index_tables {
     my $self = shift;
     my @t    = $self->SUPER::index_tables;

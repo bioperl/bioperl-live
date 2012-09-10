@@ -2594,7 +2594,9 @@ sub feature_names {
   my @names = $obj->display_name;
   push @names,$obj->get_tag_values('Name') if $obj->has_tag('Name');
   push @names,$obj->get_tag_values('ID')   if $obj->has_tag('ID');
-  @names = grep {defined $_ && $_ ne $primary_id} @names;
+
+  # don't think this is desired behavior
+  # @names = grep {defined $_ && $_ ne $primary_id} @names;
 
   my @aliases = grep {defined} $obj->get_tag_values('Alias') if $obj->has_tag('Alias');
 
