@@ -124,7 +124,6 @@ use base qw(Bio::DB::RandomAccessI);
 
 sub get_PrimarySeq_stream{
    my ($self,@args) = @_;
-
    $self->throw("Object did not provide a PrimarySeq stream object");
 }
 
@@ -171,7 +170,7 @@ sub get_all_primary_ids{
 
 sub get_Seq_by_primary_id {
    my ($self,@args) = @_;
-   $self->throw("Abstract database call of get_Seq_by_primary_id. Your database"
+   $self->throw("Abstract database call of get_Seq_by_primary_id. Your database".
        " has not implemented this method!");
 
 }
