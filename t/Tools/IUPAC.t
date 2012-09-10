@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 45);
+    test_begin(-tests => 189);
 
     use_ok('Bio::Tools::IUPAC');
     use_ok('Bio::Seq');
@@ -33,9 +33,9 @@ ok $iupac = Bio::Tools::IUPAC->new( -seq => $ambiseq );
 
 ok my $regexp = $iupac->regexp;
 
-is $regexp, 'A[AGR]TCGTTG[ACGTBDHKMNRSVWY]', 'Regexp';
+is $regexp, 'A[AGR][TU]CG[TU][TU]G[ACGTUBDHKMNRSVWY]', 'Regexp';
 
-is $iupac->count(), 8, 'Count';
+is $iupac->count(), 80, 'Count';
 
 my @seqs;
 while (my $uniqueseq = $iupac->next_seq()) {
@@ -45,8 +45,88 @@ while (my $uniqueseq = $iupac->next_seq()) {
 }
 
 @seqs = sort @seqs;
-is_deeply \@seqs, [ 'AATCGTTGA', 'AATCGTTGC', 'AATCGTTGG', 'AATCGTTGT',
-                    'AGTCGTTGA', 'AGTCGTTGC', 'AGTCGTTGG', 'AGTCGTTGT' ];
+is_deeply \@seqs, [
+          'AATCGTTGA',
+          'AATCGTTGC',
+          'AATCGTTGG',
+          'AATCGTTGT',
+          'AATCGTTGU',
+          'AATCGTUGA',
+          'AATCGTUGC',
+          'AATCGTUGG',
+          'AATCGTUGT',
+          'AATCGTUGU',
+          'AATCGUTGA',
+          'AATCGUTGC',
+          'AATCGUTGG',
+          'AATCGUTGT',
+          'AATCGUTGU',
+          'AATCGUUGA',
+          'AATCGUUGC',
+          'AATCGUUGG',
+          'AATCGUUGT',
+          'AATCGUUGU',
+          'AAUCGTTGA',
+          'AAUCGTTGC',
+          'AAUCGTTGG',
+          'AAUCGTTGT',
+          'AAUCGTTGU',
+          'AAUCGTUGA',
+          'AAUCGTUGC',
+          'AAUCGTUGG',
+          'AAUCGTUGT',
+          'AAUCGTUGU',
+          'AAUCGUTGA',
+          'AAUCGUTGC',
+          'AAUCGUTGG',
+          'AAUCGUTGT',
+          'AAUCGUTGU',
+          'AAUCGUUGA',
+          'AAUCGUUGC',
+          'AAUCGUUGG',
+          'AAUCGUUGT',
+          'AAUCGUUGU',
+          'AGTCGTTGA',
+          'AGTCGTTGC',
+          'AGTCGTTGG',
+          'AGTCGTTGT',
+          'AGTCGTTGU',
+          'AGTCGTUGA',
+          'AGTCGTUGC',
+          'AGTCGTUGG',
+          'AGTCGTUGT',
+          'AGTCGTUGU',
+          'AGTCGUTGA',
+          'AGTCGUTGC',
+          'AGTCGUTGG',
+          'AGTCGUTGT',
+          'AGTCGUTGU',
+          'AGTCGUUGA',
+          'AGTCGUUGC',
+          'AGTCGUUGG',
+          'AGTCGUUGT',
+          'AGTCGUUGU',
+          'AGUCGTTGA',
+          'AGUCGTTGC',
+          'AGUCGTTGG',
+          'AGUCGTTGT',
+          'AGUCGTTGU',
+          'AGUCGTUGA',
+          'AGUCGTUGC',
+          'AGUCGTUGG',
+          'AGUCGTUGT',
+          'AGUCGTUGU',
+          'AGUCGUTGA',
+          'AGUCGUTGC',
+          'AGUCGUTGG',
+          'AGUCGUTGT',
+          'AGUCGUTGU',
+          'AGUCGUUGA',
+          'AGUCGUUGC',
+          'AGUCGUUGG',
+          'AGUCGUUGT',
+          'AGUCGUUGU'
+];
 
 like $ambiseq->seq, qr/$regexp/i, 'Regexp matches ambiguous sequences';
 like 'ARTCGTTGW', qr/$regexp/i;

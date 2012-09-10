@@ -690,7 +690,7 @@ sub seq_id {
 
 =cut
 
-sub display_name{
+sub display_name {
     my $self = shift;
     return $self->{'display_name'} = shift if @_;
     return $self->{'display_name'} || '';
@@ -769,7 +769,7 @@ sub get_SeqFeatures {
 
 =cut
 
-sub add_SeqFeature{
+sub add_SeqFeature {
     my ($self,$feat,$expand) = @_;
     unless( defined $feat ) {
         $self->warn("Called add_SeqFeature with no feature, ignoring");
@@ -866,7 +866,7 @@ sub gff_format {
 
 =cut
 
-sub gff_string{
+sub gff_string {
     my ($self,$formatter) = @_;
     $formatter = $self->gff_format() unless $formatter;
     return $formatter->gff_string($self);
@@ -940,7 +940,7 @@ sub _from_gff_string {
            accommodate for the given feature.
 
            May be called whenever any kind of subfeature is added to this
-           feature. add_sub_SeqFeature() already does this.
+           feature. add_SeqFeature() already does this.
  Returns : 
  Args    : A Bio::SeqFeatureI implementing object.
 

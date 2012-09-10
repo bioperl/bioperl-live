@@ -66,7 +66,7 @@ described below:
      X      G or A or T or C
      N      G or A or T or C
 
-
+Note that T and U are both considered the same in this module.
 
     IUPAC-IUP AMINO ACID SYMBOLS:
       Biochem J. 1984 Apr 15; 219(2): 345-373
@@ -102,7 +102,6 @@ described below:
     Y        Tyrosine
     Z        Glutamic Acid, Glutamine
     *        Terminator
-
 
 There are a few things Bio::Tools::IUPAC can do for you:
 
@@ -174,29 +173,31 @@ use base qw(Bio::Root::Root);
 use vars qw(%IUB %IUB_AMB %REV_IUB %IUP %IUP_AMB $AUTOLOAD);
 
 BEGIN {
-    # Ambigous nucleic residues are matched to unambiguous residues
+    # Ambiguous nucleic residues are matched to unambiguous residues
     %IUB = (
         A => [qw(A)],
         C => [qw(C)],
         G => [qw(G)],
-        T => [qw(T)],
-        U => [qw(U)],
+        T => [qw(T U)],
+        U => [qw(U T)],
         M => [qw(A C)],
         R => [qw(A G)],
-        W => [qw(A T)],
         S => [qw(C G)],
-        Y => [qw(C T)],
-        K => [qw(G T)],
+        W => [qw(A T U)],
+        Y => [qw(C T U)],
+        K => [qw(G T U)],
         V => [qw(A C G)],
-        H => [qw(A C T)],
-        D => [qw(A G T)],
-        B => [qw(C G T)],
-        N => [qw(A C G T)],
-        X => [qw(A C G T)],
+        H => [qw(A C T U)],
+        D => [qw(A G T U)],
+        B => [qw(C G T U)],
+        N => [qw(A C G T U)],
+        X => [qw(A C G T U)],
     );
 
-    # Same as %IUB but ambigous residues are matched to ambiguous residues only
+    # Same as %IUB but ambiguous residues are matched to ambiguous residues only
     %IUB_AMB = (
+        T => [qw()],
+        U => [qw()],
         M => [qw(M)],
         R => [qw(R)],
         W => [qw(W)],
@@ -212,22 +213,23 @@ BEGIN {
 
     # The inverse of %IUB
     %REV_IUB = (
-        A    => 'A',
-        T    => 'T',
-        C    => 'C',
-        G    => 'G',
-        AC   => 'M',
-        AG   => 'R',
-        AT   => 'W',
-        CG   => 'S',
-        CT   => 'Y',
-        GT   => 'K',
-        ACG  => 'V',
-        ACT  => 'H',
-        AGT  => 'D',
-        CGT  => 'B',
-        ACGT => 'N',
-        N    => 'N'
+        A     => 'A',
+        T     => 'T',
+        U     => 'U',
+        C     => 'C',
+        G     => 'G',
+        AC    => 'M',
+        AG    => 'R',
+        ATU   => 'W',
+        CG    => 'S',
+        CTU   => 'Y',
+        GTU   => 'K',
+        ACG   => 'V',
+        ACTU  => 'H',
+        AGTU  => 'D',
+        CGTU  => 'B',
+        ACGTU => 'N',
+        N     => 'N'
     );
 
     # Same thing with proteins now
