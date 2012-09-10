@@ -278,13 +278,19 @@ sub get_Qual_by_id {
            my @subqualarr = @{$qualdb->subqual($id, $start, $stop, $strand)};
            # or...
            my @subqualarr = @{$qualdb->subqual($compound_id)};
- Function: Get a subqual of an entry in the database. If $stop is less than
-           $start, then the reverse complement of the quality score is returned.
-           Note that this goes against Bio::Seq conventions. For your convenience,
-           subqual can be indicated with any of the following compound IDs:
+ Function: Get a subqual of an entry in the database. For your convenience,
+           the sequence to extract can be specified with any of the following
+           compound IDs:
               $db->qual("$id:$start,$stop")
               $db->qual("$id:$start..$stop")
               $db->qual("$id:$start-$stop")
+              $db->qual("$id:$start,$stop/$strand")
+              $db->qual("$id:$start..$stop/$strand")
+              $db->qual("$id:$start-$stop/$strand")
+              $db->qual("$id/$strand")
+           If $stop is less than $start, then the reverse complement of the
+           sequence is returned. Avoid using it if possible since this goes
+           against Bio::Seq conventions.
  Returns : Reference to an array of quality scores
  Args    : Compound ID of entry to retrieve
              or

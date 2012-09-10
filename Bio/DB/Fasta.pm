@@ -253,14 +253,19 @@ sub _calculate_offsets {
            my $subseqstr = $db->seq($id, $start, $stop, $strand);
            # or...
            my $subseqstr = $db->seq($compound_id);
- Function: Get a subseq of a sequence from the database. In the case of DNA
-           sequences, if $stop is less than $start, then the reverse complement
-           of the sequence is returned. Note that this goes against Bio::Seq
-           conventions. For your convenience, the sequence to extract can be
-           specified with any of the following compound IDs:
+ Function: Get a subseq of a sequence from the database. For your convenience,
+           the sequence to extract can be specified with any of the following
+           compound IDs:
               $db->seq("$id:$start,$stop")
               $db->seq("$id:$start..$stop")
               $db->seq("$id:$start-$stop")
+              $db->seq("$id:$start,$stop/$strand")
+              $db->seq("$id:$start..$stop/$strand")
+              $db->seq("$id:$start-$stop/$strand")
+              $db->seq("$id/$strand")
+           In the case of DNA or RNA sequence, if $stop is less than $start,
+           then the reverse complement of the sequence is returned. Avoid using
+           it if possible since this goes against Bio::Seq conventions.
  Returns : A string
  Args    : ID of sequence to retrieve
              or

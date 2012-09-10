@@ -667,25 +667,32 @@ sub _close_index {
 sub _parse_compound_id {
     # Handle compound IDs:
     #     $db->seq($id)
-    #     $db->seq($id, $start, $stop)
+    #     $db->seq($id, $start, $stop, $strand)
     #     $db->seq("$id:$start,$stop")
     #     $db->seq("$id:$start..$stop")
     #     $db->seq("$id:$start-$stop")
+    #     $db->seq("$id:$start,$stop/$strand")
+    #     $db->seq("$id:$start..$stop/$strand")
+    #     $db->seq("$id:$start-$stop/$strand")
+    #     $db->seq("$id/$strand")
     my ($self, $id, $start, $stop, $strand) = @_;
 
     if ( (not defined $start ) &&
          (not defined $stop  ) &&
          (not defined $strand) &&
-         ($id =~ /^(.+):([\d_]+)(?:,|-|\.\.)([\d_]+)$/) ) {
+         ($id =~ /^ (.+?) (?:\:([\d_]+)(?:,|-|\.\.)([\d_]+))? (?:\/(.+))? $/x) ) {
         # Start, stop and strand not provided and ID looks like a compound ID
-        ($id, $start, $stop) = ($1, $2, $3);
-        $start =~ s/_//g;
-        $stop  =~ s/_//g;
+        ($id, $start, $stop, $strand) = ($1, $2, $3, $4);
     }
 
+    # Start, stop and strand defaults
     $start  ||= 1;
     $stop   ||= $self->length($id) || 0; # 0 if sequence not found in database
     $strand ||= 1;
+
+    # Convert numbers such as 1_000_000 to 1000000
+    $start =~ s/_//g;
+    $stop  =~ s/_//g;
 
     if ($start > $stop) {
         # Change the strand
