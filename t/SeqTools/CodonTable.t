@@ -5,12 +5,12 @@ use strict;
 
 BEGIN { 
     use lib '.';
-	use Bio::Root::Test;
-	
-	test_begin(-tests => 61);
-    
-	use_ok('Bio::Tools::CodonTable');
-	use_ok('Bio::CodonUsage::IO');
+    use Bio::Root::Test;
+
+    test_begin(-tests => 61);
+
+    use_ok('Bio::Tools::CodonTable');
+    use_ok('Bio::CodonUsage::IO');
 }
 
 # create a table object by giving an ID
@@ -58,7 +58,7 @@ my @res = qw(T   T   X   V  L   Z  );
 my $test = 1;
 for my $i (0..$#ii) {
     if ($res[$i] ne $myCodonTable->translate($ii[$i], 1) ) {
-        $test = 0; 
+        $test = 0;
         print $ii[$i], ": |", $res[$i], "| ne |",
         $myCodonTable->translate($ii[$i], 1), "|\n" if( $DEBUG);
         last ;
@@ -102,10 +102,10 @@ print join (' ', @res), "\n" if( $DEBUG );
 $test = 1;
 for my $i (0..$#ii) {
     if ($res[$i] ne $myCodonTable->translate($ii[$i]) ) {
-	$test = 0; 
-	print $ii[$i], ": |", $res[$i], "| ne |", 
-	  $myCodonTable->translate($ii[$i]),  "| @ $i\n" if( $DEBUG);
-	last ;
+        $test = 0; 
+        print $ii[$i], ": |", $res[$i], "| ne |",
+        $myCodonTable->translate($ii[$i]),  "| @ $i\n" if( $DEBUG);
+        last ;
     }
 }
 ok $test;
@@ -119,27 +119,27 @@ is $myCodonTable->revtranslate('I'), 3;
 
 @ii = qw(A l ACN Thr sER ter Glx);
 @res = (
-	[qw(gct gcc gca gcg)],
-	[qw(ggc gga ggg act acc aca acg)],
-	[qw(tct tcc tca tcg agt agc)],
-	[qw(act acc aca acg)],
-	[qw(tct tcc tca tcg agt agc)],
-	[qw(taa tag tga)],
-	[qw(gaa gag caa cag)]
-	);
+    [qw(gct gcc gca gcg)],
+    [qw(ggc gga ggg act acc aca acg)],
+    [qw(tct tcc tca tcg agt agc)],
+    [qw(act acc aca acg)],
+    [qw(tct tcc tca tcg agt agc)],
+    [qw(taa tag tga)],
+    [qw(gaa gag caa cag)]
+    );
 
 $test = 1;
  TESTING: {
      for my $i (0..$#ii) {
-	 my @codonres = $myCodonTable->revtranslate($ii[$i]);
-	 for my $j (0..$#codonres) {
-	     if ($codonres[$j] ne $res[$i][$j]) {
-		 $test = 0;
-		 print $ii[$i], ': ', $codonres[$j], " ne ", 
-		 $res[$i][$j], "\n" if( $DEBUG);
-		 last TESTING;
-	     }
-	 }
+         my @codonres = $myCodonTable->revtranslate($ii[$i]);
+         for my $j (0..$#codonres) {
+             if ($codonres[$j] ne $res[$i][$j]) {
+                 $test = 0;
+                 print $ii[$i], ': ', $codonres[$j], " ne ",
+                 $res[$i][$j], "\n" if( $DEBUG);
+                 last TESTING;
+             }
+         }
      }
  }
 ok $test;
@@ -192,7 +192,7 @@ is $seq->translate(undef, undef, undef, undef, undef, undef, $myCodonTable)->seq
 # test gapped translated
 
 ok $seq = Bio::PrimarySeq->new(-seq      => 'atg---aar------aay',
-			                   -alphabet => 'dna');
+                               -alphabet => 'dna');
 is $seq->translate->seq, 'M-K--N';
 
 ok $seq = Bio::PrimarySeq->new(-seq =>'ASDFGHKL');
