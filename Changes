@@ -62,6 +62,7 @@ CPAN releases are branched from 'master'.
       instances where blank lines are within sequences [cjfields]
     * Bio::DB::Fasta reports correct alphabet for files with multiple sequence
       types [fangly]
+    * Bio::DB::Fasta rev-comps sequences other than DNA properly [fangly]
     * [3238] Fixes for Bio::DB::SeqFeature::Store::DBI::Pg [Thomas Burkhard,
       cjfields]
     * Various fixes for Stockholm file indexing and processing [bosborne]
