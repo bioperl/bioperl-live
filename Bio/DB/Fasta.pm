@@ -15,7 +15,7 @@ Bio::DB::Fasta - Fast indexed access to fasta files
 
   # Create database from a directory of Fasta files
   my $db       = Bio::DB::Fasta->new('/path/to/fasta/files/');
-  my @ids      = $db->ids;
+  my @ids      = $db->get_all_primary_ids;
 
   # Simple access
   my $seqstr   = $db->seq('CHROMOSOME_I', 4_000_000 => 4_100_000);
@@ -110,10 +110,10 @@ For BioPerl-style access, the following methods are provided:
            returned from get_Seq_by_id() and get_PrimarySeq_stream().
  Args    : ID
 
-=head2 get_Seq_stream
+=head2 get_PrimarySeq_stream
 
- Title   : get_Seq_stream
- Usage   : my $stream = $db->get_Seq_stream();
+ Title   : get_PrimarySeq_stream
+ Usage   : my $stream = $db->get_PrimarySeq_stream();
  Function: Get a stream of Bio::PrimarySeq::Fasta objects. The stream supports a
            single method, next_seq(). Each call to next_seq() returns a new
            Bio::PrimarySeq::Fasta sequence object, until no more sequences remain.

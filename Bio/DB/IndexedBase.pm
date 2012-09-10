@@ -21,13 +21,13 @@ Bio::DB::IndexedBase - Base class for modules using indexed sequence files
   my $db = Bio::DB::XXX->new('/path/to/files/');  # from a directory
 
   # Get IDs of all the sequences in the database
-  my @ids = $db->ids;
+  my @ids = $db->get_all_primary_ids;
 
   # Get a specific sequence
   my $seq = $db->get_Seq_by_id('CHROMOSOME_I');
 
   # Loop through all sequences
-  my $stream = $db->get_Seq_stream;
+  my $stream = $db->get_PrimarySeq_stream;
   while (my $seq = $stream->next_seq) {
     # Do something...
   }
@@ -48,8 +48,9 @@ Bio::DB::IndexedBase - Base class for modules using indexed sequence files
 
 Bio::DB::IndexedBase provides a base class for modules that want to index
 and read sequence files and provides persistent, random access to each sequence
-entry, without bringing the entire file into memory. Bio::DB::Fasta and
-Bio::DB::Qual both use Bio::DB::IndexedBase.
+entry, without bringing the entire file into memory. This module is compliant
+with the Bio::SeqI interface and both. Bio::DB::Fasta and Bio::DB::Qual both use
+Bio::DB::IndexedBase.
 
 When you initialize the module, you point it at a single file, several files, or
 a directory of files. The first time it is run, the module generates an index
@@ -87,8 +88,8 @@ Create a new Bio::DB::IndexedBase object from the files designated by $path
 $path may be a single file, an arrayref of files, or a directory containing
 such files.
 
-After the database is created, you can use methods like ids() and get_Seq_by_id()
-to retrieve sequence objects.
+After the database is created, you can use methods like get_all_primary_ids()
+and get_Seq_by_id() to retrieve sequence objects.
 
 =item $fh = Bio::DB::IndexedBase-E<gt>newFh($path [,%options])
 
@@ -107,19 +108,18 @@ its ID, like this:
 
   my $seq = $db{CHROMOSOME_I};
 
-The keys() and values() functions will return the sequence IDs and
-their sequences, respectively.  In addition, each() can be used to
-iterate over the entire data set:
+The keys() and values() functions will return the sequence IDs and their
+sequences, respectively.  In addition, each() can be used to iterate over the
+entire data set:
 
  while (my ($id,$sequence) = each %db) {
     print "$id => $sequence\n";
  }
 
 
-When dealing with very large sequences, you can avoid bringing them
-into memory by calling each() in a scalar context.  This returns the
-key only.  You can then use tied(%db) to recover the Bio::DB::IndexedBase
-object and call its methods.
+When dealing with very large sequences, you can avoid bringing them into memory
+by calling each() in a scalar context.  This returns the key only.  You can then
+use tied(%db) to recover the Bio::DB::IndexedBase object and call its methods.
 
  while (my $id = each %db) {
     print "$id: $db{$sequence:1,100}\n";
@@ -183,6 +183,19 @@ residues according to the IUPAC convention.
 Get the the name of the file in which the indicated sequence can be found.
 
 =back
+
+=head1 INTERFACE COMPLIANCE NOTES
+
+Bio::DB::IndexedBase is compliant with the Bio::DB::SeqI and hence with the
+Bio::RandomAccessI interfaces.
+
+Database do not necessarily provide any meaningful internal primary ID for the
+sequences they store. However, Bio::DB::IndexedBase's internal primary IDs are
+the IDs of the sequences. This means that the same ID passed to get_Seq_by_id()
+and get_Seq_by_primary_id() will return the same sequence.
+
+Since this database index has no notion of sequence version or namespace, the
+get_Seq_by_id(), get_Seq_by_acc() and get_Seq_by_version() are identical.
 
 =head1 BUGS
 
@@ -434,21 +447,23 @@ sub index_dir {
 }
 
 
-=head2 get_all_ids
+=head2 get_all_primary_ids
 
- Title   : get_all_ids, ids
- Usage   : my @ids = $db->get_all_ids;
- Function: Get the IDs stored in all indexes
+ Title   : get_all_primary_ids, get_all_ids, ids
+ Usage   : my @ids = $db->get_all_primary_ids;
+ Function: Get the IDs stored in all indexes. This is a Bio::DB::SeqI method
+           implementation. Note that in this implementation, the internal
+           database primary IDs are also the sequence IDs.
  Returns : List of ids
  Args    : None
 
 =cut
 
-sub get_all_ids  {
+sub get_all_primary_ids  {
     return keys %{shift->{offsets}};
 }
 
-*ids = \&get_all_ids;
+*ids = *get_all_ids = \&get_all_primary_ids;
 
 
 =head2 index_file
@@ -524,32 +539,31 @@ sub path {
 }
 
 
-=head2 get_Seq_stream
+=head2 get_PrimarySeq_stream
 
- Title   : get_Seq_stream
- Usage   : my $stream = $db->get_Seq_stream();
+ Title   : get_PrimarySeq_stream
+ Usage   : my $stream = $db->get_PrimarySeq_stream();
  Function: Get a SeqIO-like stream of sequence objects. The stream supports a
            single method, next_seq(). Each call to next_seq() returns a new
            PrimarySeqI compliant sequence object, until no more sequences remain.
+           This is a Bio::DB::SeqI method implementation.
  Returns : A Bio::DB::Indexed::Stream object
  Args    : None
 
 =cut
 
-sub get_Seq_stream {
+sub get_PrimarySeq_stream {
   my $self = shift;
   return Bio::DB::Indexed::Stream->new($self);
 }
 
-*get_PrimarySeq_stream = \&get_Seq_stream;
-
 
 =head2 get_Seq_by_id
 
- Title   : get_Seq_by_id, get_Seq_by_acc, get_Seq_by_primary_id
+ Title   : get_Seq_by_id, get_Seq_by_acc, get_Seq_by_version, get_Seq_by_primary_id
  Usage   : my $seq = $db->get_Seq_by_id($id);
  Function: Given an ID, fetch the corresponding sequence from the database.
-           This is a Bio::DB::RandomAccessI method implementation.
+           This is a Bio::DB::SeqI and Bio::DB::RandomAccessI method implementation.
  Returns : A sequence object
  Args    : ID
 
@@ -562,7 +576,7 @@ sub get_Seq_by_id {
   return $self->{obj_class}->new($self, $id);
 }
 
-*get_seq_by_primary_id = *get_Seq_by_acc = \&get_Seq_by_id;
+*get_Seq_by_version = *get_Seq_by_primary_id = *get_Seq_by_acc = \&get_Seq_by_id;
 
 
 =head2 _calculate_offsets

@@ -14,7 +14,7 @@ Bio::DB::Qual - Fast indexed access to quality files
 
   # create database from directory of qual files
   my $db      = Bio::DB::Qual->new('/path/to/qual/files/');
-  my @ids     = $db->ids;
+  my @ids     = $db->get_all_primary_ids;
 
   # Simple access
   my @qualarr = @{$db->qual('CHROMOSOME_I',4_000_000 => 4_100_000)};
@@ -29,7 +29,7 @@ Bio::DB::Qual - Fast indexed access to quality files
   my $length  = $obj->length;
 
   # Loop through sequence objects
-  my $stream  = $db->get_PrimaryQual_stream;
+  my $stream  = $db->get_PrimarySeq_stream;
   while (my $qual = $stream->next_seq) {
     # Bio::Seq::PrimaryQual operations
   }
@@ -114,8 +114,8 @@ For BioPerl-style access, the following methods are provided:
 
 =head2 get_Seq_by_id
 
- Title   : get_Seq_by_id,  get_Seq_by_acc, get_Seq_by_primary_id,
-           get_Qual_by_id, get_qual_by_primary_id, get_qual_by_acc
+ Title   : get_Seq_by_id,  get_Seq_by_acc, get_Seq_by_version, get_Seq_by_primary_id,
+           get_Qual_by_id, get_qual_by_acc, get_qual_by_version, get_qual_by_primary_id,
  Usage   : my $seq = $db->get_Seq_by_id($id);
  Function: Given an ID, fetch the corresponding sequence from the database.
  Returns : A Bio::PrimarySeq::Fasta object (Bio::PrimarySeqI compliant)
@@ -125,9 +125,9 @@ For BioPerl-style access, the following methods are provided:
            returned from get_Seq_by_id() and get_PrimarySeq_stream().
  Args    : ID
 
-=head2 get_Seq_stream
+=head2 get_PrimarySeq_stream
 
- Title   : get_Seq_stream, get_PrimaryQual_stream
+ Title   : get_Seq_stream, get_PrimarySeq_stream
  Usage   : my $stream = $db->get_Seq_stream();
  Function: Get a stream of Bio::PrimarySeq::Fasta objects. The stream supports a
            single method, next_seq(). Each call to next_seq() returns a new
@@ -256,7 +256,7 @@ sub _calculate_offsets {
 # for backward compatibility
 sub get_PrimaryQual_stream {
    my $self = shift;
-   return $self->get_Seq_stream;
+   return $self->get_PrimarySeq_stream;
 }
 
 
@@ -266,7 +266,7 @@ sub get_Qual_by_id {
     return $self->get_Seq_by_id($id);
 }
 
-*get_qual_by_primary_id = *get_qual_by_acc = \&get_Qual_by_id;
+*get_qual_by_version = *get_qual_by_primary_id = *get_qual_by_acc = \&get_Qual_by_id;
 
 
 =head2 qual

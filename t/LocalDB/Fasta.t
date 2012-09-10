@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 55,
+    test_begin( -tests => 59,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -34,8 +34,14 @@ my $test_files = [
     is $db->header('AW057119'), 'AW057119 test description';
     is $db->seq('foobarbaz'), undef;
     is $db->get_Seq_by_id('foobarbaz'), undef;
+
+    # Bio::DB::RandomAccessI and Bio::DB::SeqI methods
     ok my $primary_seq = $db->get_Seq_by_id('AW057119');
+    ok $primary_seq = $db->get_Seq_by_acc('AW057119');
+    ok $primary_seq = $db->get_Seq_by_version('AW057119');
+    ok $primary_seq = $db->get_Seq_by_primary_id('AW057119');
     isa_ok $primary_seq, 'Bio::PrimarySeqI';
+
     is $primary_seq->trunc(11, 20)->length, 10;
     is $primary_seq->trunc(11, 20)->seq, 'ttctcggggt';
     is $primary_seq->description, 'test description', 'bug 3126';
@@ -91,7 +97,6 @@ my $test_files = [
     # Test stream
     ok my $db = Bio::DB::Fasta->new( $test_file, -reindex => 1);
     ok my $stream = $db->get_PrimarySeq_stream;
-    ok $stream = $db->get_Seq_stream;
     isa_ok $stream, 'Bio::DB::Indexed::Stream';
     my $count = 0;
     while (my $seq = $stream->next_seq) {
@@ -121,14 +126,16 @@ my $test_files = [
     ok my $db = Bio::DB::Fasta->new( $test_file,
         -reindex => 1, -clean => 1, -makeid => \&extract_gi,
     );
-    is_deeply [sort $db->ids], ['', 194473622, 352962132, 352962148, 61679760];
+    is_deeply [sort $db->get_all_primary_ids], ['', 194473622, 352962132, 352962148, 61679760];
 }
 
 
 {
     # Test opening set of files and test IDs
     ok my $db = Bio::DB::Fasta->new( $test_files, -reindex => 1), 'Index a set of files';
-    my @ids = sort $db->get_all_ids();
+    ok $db->ids;
+    ok $db->get_all_ids;
+    my @ids = sort $db->get_all_primary_ids();
     is_deeply \@ids, [ qw(
         123
         CEESC12R
