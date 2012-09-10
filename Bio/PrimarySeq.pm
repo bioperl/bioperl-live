@@ -154,21 +154,21 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
            initialize by the parameter -alphabet. See alphabet() for possible
            values.
  Returns : a new Bio::PrimarySeq object
- Args    : -seq         => sequence string
-           -display_id  => display id of the sequence (locus name)
+ Args    : -seq              => sequence string
+           -display_id       => display id of the sequence (locus name)
            -accession_number => accession number
-           -primary_id  => primary id (Genbank id)
-           -version     => version number
-           -namespace   => the namespace for the accession
-           -authority   => the authority for the namespace
-           -description => description text
-           -desc        => alias for description
-           -alphabet    => sequence type (alphabet) (dna|rna|protein)
-           -id          => alias for display id
-           -is_circular => boolean field for whether or not sequence is circular
-           -direct      => boolean field for directly setting sequence (requires alphabet also set)
-           -ref_to_seq  => boolean field indicating the sequence is a reference (?!?)
-           -nowarnonempty => boolean field for whether or not to warn when sequence is empty
+           -primary_id       => primary id (Genbank id)
+           -version          => version number
+           -namespace        => the namespace for the accession
+           -authority        => the authority for the namespace
+           -description      => description text
+           -desc             => alias for description
+           -alphabet         => sequence type (alphabet) (dna|rna|protein)
+           -id               => alias for display id
+           -is_circular      => boolean field for whether or not sequence is circular
+           -direct           => boolean field for directly setting sequence (requires alphabet also set)
+           -ref_to_seq       => boolean field indicating the sequence is a reference (?!?)
+           -nowarnonempty    => boolean field for whether or not to warn when sequence is empty
 
 =cut
 
@@ -861,9 +861,15 @@ These are internal methods to PrimarySeq
 
  Title   : _guess_alphabet
  Usage   :
- Function: Automatically guess and set the type of sequence: dna, rna or protein
+ Function: Automatically guess and set the type of sequence: dna, rna, protein
+           or '' if the sequence was empty. This method first removes dots (.),
+           dashes (-) and question marks (?) before guessing the alphabet
+           using the IUPAC conventions for ambiguous residues. Since the DNA and
+           RNA characters are also valid characters for proteins, there is
+           no foolproof way of determining the right alphabet. This is our best
+           guess only!
  Example :
- Returns : one of strings 'dna', 'rna' or 'protein'.
+ Returns : string 'dna', 'rna', 'protein' or ''.
  Args    : none
 
 

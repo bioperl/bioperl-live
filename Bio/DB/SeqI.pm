@@ -136,7 +136,7 @@ sub get_PrimarySeq_stream{
  Usage   : @ids = $seqdb->get_all_primary_ids()
  Function: gives an array of all the primary_ids of the 
            sequence objects in the database. These
-           maybe ids (display style) or accession numbers
+           may be ids (display style) or accession numbers
            or something else completely different - they
            *are not* meaningful outside of this database
            implementation.
