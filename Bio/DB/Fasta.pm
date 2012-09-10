@@ -133,6 +133,7 @@ use strict;
 use IO::File;
 use File::Spec;
 use File::Basename qw(basename dirname);
+use Bio::PrimarySeqI;
 
 use base qw(Bio::DB::IndexedBase);
 
@@ -286,8 +287,7 @@ sub subseq {
     $data =~ s/\r//g;
     if ($strand == -1) {
         # Reverse-complement the sequence
-        $data = reverse $data;
-        $data =~ tr/gatcGATC/ctagCTAG/;
+        $data = Bio::PrimarySeqI::_revcom_from_string($self, $data, $self->alphabet($id));
     }
     return $data;
 }

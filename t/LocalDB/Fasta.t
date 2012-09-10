@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 53,
+    test_begin( -tests => 55,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -75,13 +75,15 @@ my $test_files = [
 
 
 {
-    # Test alphabet
+    # Test alphabet and reverse-complement RNA
     ok my $db = Bio::DB::Fasta->new( $test_file, -reindex => 1), 'Index a single file';
     is $db->alphabet('gi|352962132|ref|NG_030353.1|'), 'dna';
     is $db->alphabet('gi|352962148|ref|NM_001251825.1|'), 'rna';
     is $db->alphabet('gi|194473622|ref|NP_001123975.1|'), 'protein';
     is $db->alphabet('gi|61679760|pdb|1Y4P|B'), 'protein';
     is $db->alphabet('123'), '';
+    is $db->seq('gi|352962148|ref|NM_001251825.1|', 20, 29, 1 ), 'GUCAGCGUCC';
+    is $db->seq('gi|352962148|ref|NM_001251825.1|', 20, 29, -1), 'GGACGCUGAC';
 }
 
 
@@ -193,7 +195,7 @@ my $test_files = [
 
 
 {
-    # again, Issue 3237
+    # Issue 3237 again
     # but empty lines preceding headers are okay, but let's check the seqs just in case
     my $db;
     lives_ok {$db = Bio::DB::Fasta->new(test_input_file('spaced_fasta.fa'), -reindex => 1)};

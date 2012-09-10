@@ -373,43 +373,6 @@ are encouraged to override these methods
 sub revcom{
    my ($self) = @_;
 
-
-   # check the type is good first.
-   my $t = $self->alphabet;
-
-   if( $t eq 'protein' ) {
-       $self->throw("Sequence is a protein. Cannot revcom");
-   }
-
-   if( $t ne 'dna' && $t ne 'rna' ) {
-       if( $self->can('warn') ) {
-	   $self->warn("Sequence is not dna or rna, but [$t]. ".
-		       "Attempting to revcom, but unsure if this is right");
-       } else {
-	   warn("[$self] Sequence is not dna or rna, but [$t]. ".
-		"Attempting to revcom, but unsure if this is right");
-       }
-   }
-
-   # yank out the sequence string
-
-   my $str = $self->seq();
-
-   # if is RNA - map to DNA then map back
-
-   if( $t eq 'rna' ) {
-       $str =~ tr/uU/tT/;
-   }
-
-   # revcom etc...
-
-   $str =~ tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/;
-   my $revseq = CORE::reverse $str;
-
-   if( $t eq 'rna' ) {
-       $revseq =~ tr/tT/uU/;
-   }
-
    my $seqclass;
    if($self->can_call_new()) {
        $seqclass = ref($self);
@@ -417,7 +380,7 @@ sub revcom{
        $seqclass = 'Bio::PrimarySeq';
        $self->_attempt_to_load_Seq();
    }
-   my $out = $seqclass->new( '-seq' => $revseq,
+   my $out = $seqclass->new( '-seq' => $self->_revcom_from_string($self->seq, $self->alphabet),
 			     '-is_circular'  => $self->is_circular,
 			     '-display_id'  => $self->display_id,
 			     '-accession_number' => $self->accession_number,
@@ -428,6 +391,41 @@ sub revcom{
    return $out;
 
 }
+
+sub _revcom_from_string {
+   my ($self, $string, $alphabet) = @_;
+
+   # Check that reverse-complementing makes sense
+   if( $alphabet eq 'protein' ) {
+       $self->throw("Sequence is a protein. Cannot revcom.");
+   }
+   if( $alphabet ne 'dna' && $alphabet ne 'rna' ) {
+      my $msg = "Sequence is not dna or rna, but [$alphabet]. Attempting to revcom, ".
+                "but unsure if this is right.";
+      if( $self->can('warn') ) {
+         $self->warn($msg);
+      } else {
+         warn("[$self] $msg");
+      }
+   }
+
+   # If sequence is RNA, map to DNA (then map back later)
+   if( $alphabet eq 'rna' ) {
+       $string =~ tr/uU/tT/;
+   }
+
+   # Reverse-complement now
+   $string =~ tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/;
+   $string = CORE::reverse $string;
+
+   # Map back RNA to DNA
+   if( $alphabet eq 'rna' ) {
+       $string =~ tr/tT/uU/;
+   }
+
+   return $string;
+}
+
 
 =head2 trunc
 
