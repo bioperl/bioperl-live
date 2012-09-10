@@ -51,6 +51,8 @@ CPAN releases are branched from 'master'.
         - support indexing an arbitrary list of files [fangly]
         - user can supply an arbitrary index file name [fangly]
         - new option to remove index file at the end [fangly]
+    * Bio::DB::Fasta
+        - now handles IUPAC degenerate residues [fangly]
 
     [Bug fixes]
 
