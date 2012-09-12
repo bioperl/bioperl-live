@@ -499,7 +499,7 @@ sub remove_Seqs {
 sub purge {
     my ($self,@args) = @_;
     $self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"purge - deprecated method. Use remove_redundant_Seqs() instead.");
-    $self->remove_redundant_Seq(@args);
+    $self->remove_redundant_Seqs(@args);
 }
 
 sub remove_redundant_Seqs {
@@ -1114,21 +1114,26 @@ sub get_Seq_by_id {
  Title     : select_Seqs
  Usage     : $aln2 = $aln->select_Seqs([1,5..10,15]) # three first sequences
              $aln2 = $aln->select_Seqs(-selection=>[2..4,11..14],-toggle=>1) # toggle selection
+             $aln2 = $aln->select_Seqs(-selection=>[11..14,2..4],-nosort=>1) #no sort
  Function  : Creates a new alignment from a subset of
              sequences.  Numbering starts from 1.  Sequence positions
              larger than num_sequences() will thow an error.
  Returns   : a Bio::SimpleAlign object
  Args      : An reference list of positive integers for the selected 
-             sequences. An optional parameter can be defined to toggle the 
-             coordinate selection.
+             sequences. 
+             An optional parameter can be defined to toggle the coordinate selection. 
+             If nosort is defined, sequences in the alignment will be returned following 
+             the given order.
              
 
 =cut
 
 sub select_Seqs {
 	my $self=shift;
-	my ($sel, $toggle) = $self->_rearrange([qw(SELECTION TOGGLE)], @_);
-	@{$sel}=sort {$a<=>$b} @{$sel};
+	my ($sel, $toggle,$nosort) = $self->_rearrange([qw(SELECTION TOGGLE NOSORT)], @_);
+	unless($nosort) {
+		@{$sel}=sort {$a<=>$b} @{$sel};
+	}
 
    $self->throw("Select start has to be a positive integer, not [".$sel->[0]."]")
 	unless $sel->[0] =~ /^\d+$/ and $sel->[0] > 0;
@@ -1163,9 +1168,36 @@ sub select_noncont {
 	my $self = shift;
 	$self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"select_noncont - deprecated method. Use select_Seqs() instead.");
 	if($_[0] eq 'nosort') {
-    	shift;
+		shift @_;
+    	$self->select_Seqs(-selection=>[@_],-nosort=>1);
    }
-   $self->select_Seqs([@_]);
+   else {
+	   $self->select_Seqs([@_]);
+	}
+}
+
+
+=head2 select_noncont_by_name
+
+ Title     : select_noncont_by_name
+ Usage     : my $aln2 = $aln->select_noncont_by_name('A123', 'B456');
+ Function  : Creates a new alignment from a subset of sequences which are
+             selected by name (sequence ID).
+ Returns   : a Bio::SimpleAlign object
+ Args      : array of names (i.e., identifiers) for the sequences.
+
+=cut
+
+sub select_noncont_by_name {
+    my ($self, @names) = @_;
+    
+    my $aln = $self->new;
+    foreach my $name (@names) {
+        $aln->add_seq($self->get_seq_by_id($name));
+    }
+    $aln->id($self->id);
+
+    return $aln;
 }
 
 =head2 select_columns
@@ -1191,53 +1223,11 @@ sub select_noncont {
 
 =cut
 
-<<<<<<< HEAD
+
 sub slice {
 	my $self = shift;
 	$self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"slice - deprecated method. Use select_columns() instead.");
 	$self->select_columns([$_[0]..$_[1]],0,defined($_[2])?$_[2]:0);	
-=======
-   return $seq;
-}
-
-
-=head1 Create new alignments
-
-The result of these methods are horizontal or vertical subsets of the
-current MSA.
-
-=head2 select
-
- Title     : select
- Usage     : $aln2 = $aln->select(1, 3) # three first sequences
- Function  : Creates a new alignment from a continuous subset of
-             sequences.  Numbering starts from 1.  Sequence positions
-             larger than num_sequences() will throw an error.
- Returns   : a Bio::SimpleAlign object
- Args      : positive integer for the first sequence
-             positive integer for the last sequence to include (optional)
-
-=cut
-
-sub select {
-    my $self = shift;
-    my ($start, $end) = @_;
-
-    $self->throw("Select start has to be a positive integer, not [$start]")
-	unless $start =~ /^\d+$/ and $start > 0;
-    $self->throw("Select end has to be a positive integer, not [$end]")
-	unless $end  =~ /^\d+$/ and $end > 0;
-    $self->throw("Select $start [$start] has to be smaller than or equal to end [$end]")
-	unless $start <= $end;
-
-    my $aln = $self->new;
-    foreach my $pos ($start .. $end) {
-	$aln->add_seq($self->get_seq_by_pos($pos));
-    }
-    $aln->id($self->id);
-    # fix for meta, sf, ann    
-    return $aln;
->>>>>>> upstream/master
 }
 
 
@@ -1249,66 +1239,37 @@ sub select_columns {
 		$sel=$self->_select_columns_by_type($sel);
 	}
 	
-<<<<<<< HEAD
 	@{$sel}=sort {$a<=$b} @{$sel};
-=======
-	my $aln = $self->new;
-	foreach my $p (@pos) {
-		$aln->add_seq($self->get_seq_by_pos($p));
-	}
-	$aln->id($self->id);
-    # fix for meta, sf, ann    
-	return $aln;
-}
-
-=head2 select_noncont_by_name
-
- Title     : select_noncont_by_name
- Usage     : my $aln2 = $aln->select_noncont_by_name('A123', 'B456');
- Function  : Creates a new alignment from a subset of sequences which are
-             selected by name (sequence ID).
- Returns   : a Bio::SimpleAlign object
- Args      : array of names (i.e., identifiers) for the sequences.
-
-=cut
-
-sub select_noncont_by_name {
-    my ($self, @names) = @_;
-    
-    my $aln = $self->new;
-    foreach my $name (@names) {
-        $aln->add_seq($self->get_seq_by_id($name));
-    }
-    $aln->id($self->id);
-
-    return $aln;
-}
-
-=head2 slice
-
- Title     : slice
- Usage     : $aln2 = $aln->slice(20,30)
- Function  : Creates a slice from the alignment inclusive of start and
-             end columns, and the first column in the alignment is denoted 1.
-             Sequences with no residues in the slice are excluded from the
-             new alignment and a warning is printed. Slice beyond the length of
-             the sequence does not do padding.
- Returns   : A Bio::SimpleAlign object
- Args      : Positive integer for start column, positive integer for end column,
-             optional boolean which if true will keep gap-only columns in the newly
-             created slice. Example:
->>>>>>> upstream/master
 
 	#warnings
-	$self->throw("select_columns start has to be a positive integer, not [".$sel->[0]."]")
-	  unless $sel->[0] =~ /^\d+$/ and $sel->[0] > 0;
-	$self->throw("select_columns end has to be a positive integer, not [".$sel->[$#$sel]."]")
-	  unless $sel->[$#$sel] =~ /^\d+$/ and $sel->[$#$sel] > 0;
+	#the old remove_columns used a 0-based coordinates, so if the first coordinate is 0, the first two coordinates will be added by 1.
+	unless($sel->[0] =~ /^\d+$/ and $sel->[0] > 0) {
+		if($sel->[0] == 0) {
+			$self->deprecated(-warn_version => 1.0060, -throw_version => 1.0080, -message =>"select_columns start is 1 based. It has to be a positive integer, not [".$sel->[0]."]");
+			$sel->[0]++;
+			$sel->[1]++;
+		}
+		else {
+			$self->throw("select_columns start has to be a positive integer, not [".$sel->[0]."]");
+		}
+	}
+
+	unless ($sel->[$#$sel] =~ /^\d+$/ and $sel->[$#$sel] > 0) {
+		if($sel->[$#$sel] == 0) {
+			$self->deprecated(-warn_version => 1.0060, -throw_version => 1.0080, -message =>"select_columns end is 1 based. It has to be a positive integer, not [".$sel->[$#$sel]."]");
+			$sel->[0]++;
+			$sel->[1]++;
+		}
+		else {
+			$self->throw("select_columns end has to be a positive integer, not [".$sel->[$#$sel]."]");
+		}
+	}
 	$self->throw("This alignment has only ". $self->length . " residues. select_columns start " .
 					 "[".$sel->[0]."] is too big.") if $sel->[0] > $self->length;
 
 	my $newcoords;
 	
+	#toggle the coordinate selection
 	if($toggle) {
 		$sel=_toggle_selection($sel,$self->length);
 	}
@@ -1601,19 +1562,7 @@ sub remove_gaps {
     # Do the matching to get the segments to remove
     my $removed_cols;
     while ($gap_line =~ m/[$del_char]/g) {
-<<<<<<< HEAD
         push @{$removed_cols}, pos($gap_line);
-=======
-        my $start = pos($gap_line)-1;
-        $gap_line =~ m/\G[$del_char]+/gc;
-        my $end = pos($gap_line)-1;
-
-        #have to offset the start and end for subsequent removes
-        $start-=$length;
-        $end  -=$length;
-        $length += ($end-$start+1);
-        push @remove, [$start,$end];
->>>>>>> upstream/master
     }
     #remove the segments
     $aln = $#$removed_cols >= 0 ? $self->select_columns($removed_cols,1) : $self;
@@ -1647,21 +1596,39 @@ sub splice_by_seq_pos{
 sub mask_columns {
     #based on slice(), but did not include the Bio::Seq::Meta sections as I was not sure what it is doing
 	my $self=shift;
-	my ($sel, $toggle) = $self->_rearrange([qw(SELECTION TOGGLE)], @_);
-	@{$sel}=sort {$a<=>$b} @{$sel};
-	
-	my $nonres = join("",$self->gap_char, $self->match_char,$self->missing_char);
-	my $mask_char=$self->mask_char;
-   
+	my @args=@_;
+	my ($sel, $toggle);
+
 	#Exceptions
+	unless(ref($args[0])) {
+		$self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"mask_columns - column range must be in refrence.");
+		my ($start, $end, $mask_char) = @args;
+		$sel=[($start, $end)];
+    	if(defined $mask_char) { 
+    		$self->mask_char($mask_char);
+    	}
+    }
+	else {
+		($sel, $toggle) = $self->_rearrange([qw(SELECTION TOGGLE)], @_);
+	}
+	
+	@{$sel}=sort {$a<=>$b} @{$sel};
+
+	#Exceptions
+	
 	$self->throw("Mask start has to be a positive integer and less than ".
                  "alignment length, not [".$sel->[0]."]")
 	unless $sel->[0] =~ /^\d+$/ && $sel->[0] > 0 && $sel->[0] <= $self->length;	
 
    $self->throw("Mask end has to be a positive integer and less than ".
                  "alignment length, not [".$sel->[$#$sel]."]")
-	unless $sel->[$#$sel] =~ /^\d+$/ && $sel->[$#$sel] > 0 && $sel->[$#$sel] <= $self->length;                 
+	unless $sel->[$#$sel] =~ /^\d+$/ && $sel->[$#$sel] > 0 && $sel->[$#$sel] <= $self->length;
+
 	
+	my $nonres = join("",$self->gap_char, $self->match_char,$self->missing_char);
+	my $mask_char=$self->mask_char;
+   
+
 	#calculate the coords, and make it in a continous way
 	my @newcoords;
 	if($toggle) {
@@ -1806,17 +1773,10 @@ sub map_chars {
     $self->throw("Need two arguments: a regexp and a string")
       unless defined $from and defined $to;
 
-<<<<<<< HEAD
     foreach $seq ( $self->next_Seq() ) {
-	$temp = $seq->seq();
-	$temp =~ s/$from/$to/g;
-	$seq->seq($temp);
-=======
-    foreach $seq ( $self->each_seq() ) {
-        $temp = $seq->seq();
-        $temp =~ s/$from/$to/g;
-        $seq->seq($temp);
->>>>>>> upstream/master
+		$temp = $seq->seq();
+		$temp =~ s/$from/$to/g;
+		$seq->seq($temp);
     }
     return 1;
 }
@@ -1881,101 +1841,18 @@ sub lowercase {
 
 =cut
 
-<<<<<<< HEAD
 sub togglecase {
     my $self = shift;
     my $seq;
     my $temp;
-=======
-sub gap_line {
-    my ($self,$gapchar) = @_;
-    $gapchar = $gapchar || $self->gap_char;
-    my %gap_hsh; # column gaps vector
-    foreach my $seq ( $self->each_seq ) {
-		my $i = 0;
-    	map {$gap_hsh{$_->[0]} = undef} grep {$_->[1] =~ m/[$gapchar]/}
-		  map {[$i++, $_]} split(//, uc ($seq->seq));
-    }
-    my $gap_line;
-    foreach my $pos ( 0..$self->length-1 ) {
-	  $gap_line .= (exists $gap_hsh{$pos}) ? $self->gap_char:'.';
-    }
-    return $gap_line;
-}
-
-=head2 all_gap_line
-
- Title    : all_gap_line()
- Usage    : $line = $align->all_gap_line()
- Function : Generates a gap line - much like consensus string
-            except that a line where '-' represents all-gap column
- Args     : (optional) gap line characters ('-' by default)
- Returns  : string
->>>>>>> upstream/master
-
+    
     foreach $seq ( $self->next_Seq() ) {
-      $temp = $seq->seq();
-      $temp =~ tr/[A-Za-z]/[a-zA-Z]/;
-
-<<<<<<< HEAD
-      $seq->seq($temp);
-=======
-sub all_gap_line {
-    my ($self,$gapchar) = @_;
-    $gapchar = $gapchar || $self->gap_char;
-    my %gap_hsh;		# column gaps counter hash
-    my @seqs = $self->each_seq;
-    foreach my $seq ( @seqs ) {
-	my $i = 0;
-    	map {$gap_hsh{$_->[0]}++} grep {$_->[1] =~ m/[$gapchar]/}
-	map {[$i++, $_]} split(//, uc ($seq->seq));
-    }
-    my $gap_line;
-    foreach my $pos ( 0..$self->length-1 ) {
-	if (exists $gap_hsh{$pos} && $gap_hsh{$pos} == scalar @seqs) {
-            # gaps column
-	    $gap_line .= $self->gap_char;
-	} else {
-	    $gap_line .= '.';
-	}
->>>>>>> upstream/master
+		$temp = $seq->seq();
+		$temp =~ tr/[A-Za-z]/[a-zA-Z]/;    
+		$seq->seq($temp);
     }
     return 1;
 }
-
-<<<<<<< HEAD
-=======
-=head2 gap_col_matrix
-
- Title    : gap_col_matrix()
- Usage    : my $cols = $align->gap_col_matrix()
- Function : Generates an array where each element in the array is a 
-            hash reference with a key of the sequence name and a
-            value of 1 if the sequence has a gap at that column
- Returns  : Reference to an array
- Args     : Optional: gap line character ($aln->gap_char or '-' by default)
-
-=cut
-
-sub gap_col_matrix {
-    my ( $self, $gapchar ) = @_;
-    $gapchar = $gapchar || $self->gap_char;
-    my %gap_hsh;    # column gaps vector
-    my @cols;
-    foreach my $seq ( $self->each_seq ) {
-        my $i   = 0;
-        my $str = $seq->seq;
-        my $len = $seq->length;
-        my $ch;
-        my $id = $seq->display_id;
-        while ( $i < $len ) {
-            $ch = substr( $str, $i, 1 );
-            $cols[ $i++ ]->{$id} = ( $ch =~ m/[$gapchar]/ );
-        }
-    }
-    return \@cols;
-}
->>>>>>> upstream/master
 
 =head2 match
 
