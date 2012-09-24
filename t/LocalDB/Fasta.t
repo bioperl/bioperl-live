@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 66,
+    test_begin( -tests => 69,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -53,6 +53,24 @@ my $test_files = [
     is $primary_seq->trunc(11, 20)->seq, 'ttctcggggt';
     is $primary_seq->description, 'test description', 'bug 3126';
     is $primary_seq->seq, 'tcatgttggcttctcggggtttttatggattaatacattttccaaacgattctttgcgccttctgtggtgccgccttctccgaaggaactgacgaaaaatgacgtggatttgctgacaaatccaggcgaggaatatttggacggattgatgaaatggcacggcgacgagcgacccgtgttcaaaagagaggacatttatcgttggtcggatagttttccagaatatcggctaagaatgatttgtctgaaagacacgacaagggtcattgcagtcggtcaatattgttactttgatgctctgaaagaaaggagagcagccattgttcttcttaggattgggatggacggatcctgaatatcgtaatcgggcagttatggagcttcaagcttcgatggcgctggaggagagggatcggtatccgactgccaacgcggcatcgcatccaaataagttcatgaaacgattttggcacatattcaacggcctcaaagagcacgaggacaaaggtcacaaggctgccgctgtttcatacaagagcttctacgacctcanagacatgatcattcctgaaaatctggatgtcagtggtattactgtaaatgatgcacgaaaggtgccacaaagagatataatcaactacgatcaaacatttcatccatatcatcgagaaatggttataatttctcacatgtatgacaatgatgggtttggaaaagtgcgtatgatgaggatggaaatgtacttggaattgtctagcgatgtctttanaccaacaagactgcacattagtcaattatgcagatagcc';
+
+}
+
+
+{
+    # Re-open an existing index.
+    # Doing this test properly involves unloading and reloading Bio::DB::Fasta.
+
+    SKIP: {
+        test_skip(-tests => 1, -requires_modules => [qw(Class::Unload)]);
+        use_ok('Class::Unload');
+        Class::Unload->unload( 'Bio::DB::Fasta' );
+        Class::Unload->unload( 'Bio::DB::IndexedBase' );
+        require Bio::DB::Fasta;
+    }
+
+    ok my $db = Bio::DB::Fasta->new($test_dir), 'Re-open an existing index';
+    is $db->seq('AW057119', 1, 10), 'tcatgttggc';
 }
 
 
@@ -225,6 +243,7 @@ my $test_files = [
 }
 
 exit;
+
 
 
 sub extract_gi {

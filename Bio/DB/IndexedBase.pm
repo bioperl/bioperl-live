@@ -203,10 +203,12 @@ When a sequence is deleted from one of the files, this deletion is not detected
 by the module and removed from the index. As a result, a "ghost" entry will
 remain in the index and will return garbage results if accessed.
 
-Currently, the only way to accommodate sequence removal is to rebuild the entire
-index, either by deleting it manually, or by passing -reindex=E<gt>1 to new()
-when initializing the module.
+Also, if you are indexing a directory, it is wise to not add or remove files
+from it.
 
+In case you have changed the files in a directory, or the sequences in a file,
+you can to rebuild the entire index, either by deleting it manually, or by
+passing -reindex=E<gt>1 to new() when initializing the module.
 
 =head1 SEE ALSO
 
@@ -247,7 +249,7 @@ use IO::File;
 use AnyDBM_File;
 use Fcntl;
 use File::Spec;
-use File::Basename qw(dirname);
+use File::Basename qw(basename dirname);
 use Bio::PrimarySeq;
 
 use base qw(Bio::DB::SeqI);
@@ -603,19 +605,22 @@ sub _index_files {
 
     $self->_set_pack_method( @$files );
 
-    # get name of index file
+    # Get name of index file
     my $index = $self->index_name;
 
-    # if caller has requested reindexing, unlink the index file.
+    # If caller has requested reindexing, unlink the index file.
     unlink $index if $force_reindex;
 
-    # get the modification time of the index
+    # Get the modification time of the index
     my $indextime = (stat $index)[9] || 0;
 
-    # list recently updated files
+    # Register files and find if there has been any update
     my $modtime = 0;
     my @updated;
     for my $file (@$files) {
+        # Register file
+        $self->_path2fileno(basename($file));
+        # Any update?
         my $m = (stat $file)[9] || 0;
         if ($m > $modtime) {
            $modtime = $m;
@@ -625,19 +630,22 @@ sub _index_files {
         }
     }
 
+    # Get termination length from first file
+    $self->{termination_length} = $self->_calc_termination_length( $files->[0] );
+
+    # Reindex contents of changed files if needed
     my $reindex      = $force_reindex || (scalar @updated > 0);
     $self->{offsets} = $self->_open_index($index, $reindex) or return;
-
     if ($reindex) {
-        # reindex contents of changed files
         $self->{indexing} = $index;
         for my $file (@updated) {
-            &{$self->{offset_meth}}($self, $file, $self->{offsets});
+            my $fileno = $self->_path2fileno(basename($file));
+            &{$self->{offset_meth}}($self, $fileno, $file, $self->{offsets});
         }
         delete $self->{indexing};
     }
 
-    # closing and reopening might help corrupted index file problem on Windows
+    # Closing and reopening might help corrupted index file problem on Windows
     $self->_close_index($self->{offsets});
 
     return $self->{offsets} = $self->_open_index($index);
@@ -735,10 +743,23 @@ sub _check_linelength {
 }
 
 
-sub _caloffset {
-    # Get the offset of the n-th residue of the sequence with the given id
+sub _calc_termination_length {
+    # Try the beginning of the file to determine termination length
+    # Account for crlf-terminated Windows and Mac files
+    my ($self, $file) = @_;
+    my $fh = IO::File->new($file) or $self->throw( "Could not open $file: $!");
+    my $line = <$fh>;
+    close $fh;
+    $self->{termination_length} = ($line =~ /\r\n$/) ? 2 : 1;
+    return $self->{termination_length};
+}
+
+
+sub _calc_offset {
+    # Get the offset of the n-th residue of the sequence with the given ID
     # and termination length (tl)
-    my ($self, $id, $n, $tl) = @_;
+    my ($self, $id, $n) = @_;
+    my $tl = $self->{termination_length};
     $n--;
     my ($offset, $seqlen, $linelen) = (&{$self->{unpackmeth}}($self->{offsets}{$id}))[0,1,3];
     $n = 0            if $n < 0;

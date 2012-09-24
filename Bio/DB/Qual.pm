@@ -147,11 +147,9 @@ package Bio::DB::Qual;
 use strict;
 use IO::File;
 use File::Spec;
-use File::Basename qw(basename dirname);
 
 use base qw(Bio::DB::IndexedBase);
 
-my $termination_length;
 our $obj_class = 'Bio::Seq::PrimaryQual::Qual';
 our $file_glob = '*.{qual,QUAL,qa,QA}';
 
@@ -171,8 +169,7 @@ our $file_glob = '*.{qual,QUAL,qa,QA}';
 
 sub _calculate_offsets {
     # Bio::DB::IndexedBase calls this to calculate offsets
-    my ($self, $file, $offsets) = @_;
-    my $fileno = $self->_path2fileno(basename($file));
+    my ($self, $fileno, $file, $offsets) = @_;
 
     my $fh = IO::File->new($file) or $self->throw("Could not open $file: $!");
     binmode $fh;
@@ -181,9 +178,9 @@ sub _calculate_offsets {
         $numres, %offsets);
     my ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
 
+    my $termination_length = $self->{termination_length};
     while (my $line = <$fh>) {
         # Account for crlf-terminated Windows files      
-        $termination_length ||= ($line =~ /\r\n$/) ? 2 : 1;
         if (index($line, '>') == 0) {
             if ($line =~ /^>(\S+)/) {
                 print STDERR "Indexed $count quality scores...\n" 
@@ -324,8 +321,8 @@ sub subqual {
 
     # Fetch full quality string
     my $fh = $self->_fh($id) or return;
-    my $filestart = $self->_caloffset($id, $string_start, $termination_length);
-    my $filestop  = $self->_caloffset($id, $string_stop , $termination_length);
+    my $filestart = $self->_calc_offset($id, $string_start);
+    my $filestop  = $self->_calc_offset($id, $string_stop );
     seek($fh, $filestart,0);
     my $data;
     read($fh, $data, $filestop-$filestart+1);

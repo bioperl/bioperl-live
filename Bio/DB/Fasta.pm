@@ -132,12 +132,10 @@ package Bio::DB::Fasta;
 use strict;
 use IO::File;
 use File::Spec;
-use File::Basename qw(basename dirname);
 use Bio::PrimarySeqI;
 
 use base qw(Bio::DB::IndexedBase);
 
-my $termination_length;
 our $obj_class = 'Bio::PrimarySeq::Fasta';
 our $file_glob = '*.{fa,FA,fasta,FASTA,fast,FAST,dna,DNA,fna,FNA,faa,FAA,fsa,FSA}';
 
@@ -157,8 +155,7 @@ our $file_glob = '*.{fa,FA,fasta,FASTA,fast,FAST,dna,DNA,fna,FNA,faa,FAA,fsa,FSA
 
 sub _calculate_offsets {
     # Bio::DB::IndexedBase calls this to calculate offsets
-    my ($self, $file, $offsets) = @_;
-    my $fileno = $self->_path2fileno(basename($file));
+    my ($self, $fileno, $file, $offsets) = @_;
 
     my $fh = IO::File->new($file) or $self->throw( "Could not open $file: $!");
     binmode $fh;
@@ -167,9 +164,9 @@ sub _calculate_offsets {
         $last_line, %offsets);
     my ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
 
+    my $termination_length = $self->{termination_length};
     while (my $line = <$fh>) {
         # Account for crlf-terminated Windows files
-        $termination_length ||= ($line =~ /\r\n$/) ? 2 : 1;
         if (index($line, '>') == 0) {
             if ($line =~ /^>(\S+)/) {
                 print STDERR "Indexed $count sequences...\n"
@@ -284,8 +281,8 @@ sub subseq {
     my $data;
 
     my $fh = $self->_fh($id) or return;
-    my $filestart = $self->_caloffset($id, $start, $termination_length);
-    my $filestop  = $self->_caloffset($id, $stop , $termination_length);
+    my $filestart = $self->_calc_offset($id, $start);
+    my $filestop  = $self->_calc_offset($id, $stop );
 
     seek($fh, $filestart,0);
     read($fh, $data, $filestop-$filestart+1);
