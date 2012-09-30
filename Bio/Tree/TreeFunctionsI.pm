@@ -118,7 +118,7 @@ sub get_lineage_string {
     my $self = shift;
     my $input = shift;
 
-    my $node = $self->_node_from_arg($input);
+    my $node = $self->root->_node_from_arg($input);
     return $node->lineage_string;
 }
 
@@ -127,7 +127,7 @@ sub get_lineage_nodes {
     my $self = shift;
     my $input = shift;
 
-    my $node = $self->_node_from_arg($input);
+    my $node = $self->root->_node_from_arg($input);
     return $node->lineage;
 }
 
