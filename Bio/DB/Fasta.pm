@@ -428,7 +428,7 @@ sub revcom {
 
 sub length {
     my $self = shift;
-    return length($self->seq);
+    return CORE::length($self->seq);
 }
 
 sub description  {

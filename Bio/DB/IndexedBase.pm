@@ -39,7 +39,7 @@ Bio::DB::IndexedBase - Base class for modules using indexed sequence files
     # Do something...
   }
 
-  
+
   # 3/ Tied-hash access
   tie %sequences, 'Bio::DB::XXX', '/path/to/file';
   print $sequences{'CHROMOSOME_I:1,20000'};
@@ -100,7 +100,7 @@ Bio::SeqIO style. The path and the options should be specified as for new().
 =item $obj = tie %db,'Bio::DB::IndexedBase', '/path/to/file' [,@args]
 
 Create a tied-hash by tieing %db to Bio::DB::IndexedBase using the indicated
-path to the files. The optional @args list is the same set used by new(). If 
+path to the files. The optional @args list is the same set used by new(). If
 successful, tie() returns the tied object, undef otherwise.
 
 Once tied, you can use the hash to retrieve an individual sequence by
@@ -242,6 +242,7 @@ package Bio::DB::IndexedBase;
 
 BEGIN {
     @AnyDBM_File::ISA = qw(DB_File GDBM_File NDBM_File SDBM_File)
+if(!$INC{'AnyDBM_File.pm'});
 }
 
 use strict;
@@ -586,7 +587,7 @@ sub get_Seq_by_id {
  Title   : _calculate_offsets
  Usage   : $db->_calculate_offsets($filename, $offsets);
  Function: This method calculates the sequence offsets in a file based on ID and
-           should be implemented by classes that use Bio::DB::IndexedBase. 
+           should be implemented by classes that use Bio::DB::IndexedBase.
  Returns : Hash of offsets
  Args    : File to process
            Hashref of file offsets keyed by IDs.
@@ -658,7 +659,7 @@ sub _open_index {
     my %offsets;
     my $flags = $write ? O_CREAT|O_RDWR : O_RDONLY;
     my @dbmargs = $self->dbmargs;
-    tie %offsets, 'AnyDBM_File', $index_file, $flags, 0644, @dbmargs 
+    tie %offsets, 'AnyDBM_File', $index_file, $flags, 0644, @dbmargs
         or $self->throw( "Could not open index file $index_file: $!");
     return \%offsets;
 }
