@@ -274,7 +274,7 @@ sub next_aln {
     }
     for ($count=0; $count<$seqcount; $count++) {
         $str = $hash{$count};
-        my $seqname = @names[$count];
+        my $seqname = $names[$count];
         if (length($str) != $residuecount) {
             $self->warn("Failed to parse PHYLIP: Sequence $seqname was the wrong length: " . length($str) . " instead of $residuecount.");
         }

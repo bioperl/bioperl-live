@@ -188,7 +188,7 @@ sub no_param_checks{
 sub save_tempfiles{
     my $self = shift;
     my @args = @_;
-    if ((@args[0]) && (exists ($self->{'_tmpdir'}))) {
+    if (($args[0]) && (exists ($self->{'_tmpdir'}))) {
         $self->warn ("Tempdir already created; setting save_tempfiles will not affect cleanup behavior.");
     }
     return $self->io->save_tempfiles(@_);
