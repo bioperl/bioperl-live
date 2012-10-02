@@ -2714,11 +2714,13 @@ sub mask_char {
 
 
 =head2 symbol_chars
+
  Title   : symbol_chars
  Usage   : my @symbolchars = $aln->symbol_chars;
  Function: Returns all the seen symbols (other than gaps)
  Returns : array of characters that are the seen symbols
  Args    : boolean to include the gap/missing/match characters
+
 
 =cut
 
