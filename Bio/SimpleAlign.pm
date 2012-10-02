@@ -1484,15 +1484,15 @@ sub remove_columns {
 	   
    my ($sel, $toggle,$gap) = $self->_rearrange([qw(SELECTION TOGGLE KEEPGAPONLY)], @args);
    
-   #backward support for remove columns using 0-based coordinate
+   #if there is a 0 based coordinate, all coordinates will be added by 1
    if($sel->[0] =~ /^\d+$/ && $sel->[0]==0) {
 		$self->deprecated(-warn_version => 1.0060, -throw_version => 1.0080, -message =>"select_columns start is 1 based and in a single array. Please check the method description.");
 		#the old method use multiple arrays and the coordiantes are 0 based
-		my @newargs;
+		my @newsel;
 		foreach my $arg (@{$sel}) {
-			push @{$newargs[0]},$arg+1;
+			push @newsel,$arg+1;
 		}
-		@{$sel}=@newargs;
+		$sel=[@newsel];
 	}
    	
 	my $newaln=$self->select_columns(-selection=>$sel,-toggle=>$toggle?0:1,-keepgaponly=>$gap);
