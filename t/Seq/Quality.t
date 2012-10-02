@@ -91,13 +91,13 @@ lives_ok {
 	     );
 };
 
-print("\td) No sequence, No quality, No ID...\n") if $DEBUG;
+print("\td) No sequence, no quality, no ID...\n") if $DEBUG;
 warnings_like {
     $wswq1 = Bio::Seq::Quality->
 	new( -seq  =>	"",
 	     -qual =>	"",
 	     -verbose => 0);
-} qr/Got a sequence with no letters in it cannot guess alphabet/;
+} qr/not guess alphabet/i;
 
 print("Testing various methods and behaviors...\n") if $DEBUG;
 

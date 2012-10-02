@@ -182,7 +182,7 @@ sub get_Seq_by_id {
 sub get_Seq_by_acc {
 
   my $self = shift;
-  my $acc = shift or $self->throw("Must supply an accesion number!\n");
+  my $acc = shift or $self->throw("Must supply an accession number!\n");
 
   return $self->get_Seq_by_id($acc);
 }

@@ -154,21 +154,21 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
            initialize by the parameter -alphabet. See alphabet() for possible
            values.
  Returns : a new Bio::PrimarySeq object
- Args    : -seq         => sequence string
-           -display_id  => display id of the sequence (locus name)
+ Args    : -seq              => sequence string
+           -display_id       => display id of the sequence (locus name)
            -accession_number => accession number
-           -primary_id  => primary id (Genbank id)
-           -version     => version number
-           -namespace   => the namespace for the accession
-           -authority   => the authority for the namespace
-           -description => description text
-           -desc        => alias for description
-           -alphabet    => sequence type (alphabet) (dna|rna|protein)
-           -id          => alias for display id
-           -is_circular => boolean field for whether or not sequence is circular
-           -direct      => boolean field for directly setting sequence (requires alphabet also set)
-           -ref_to_seq  => boolean field indicating the sequence is a reference (?!?)
-           -nowarnonempty => boolean field for whether or not to warn when sequence is empty
+           -primary_id       => primary id (Genbank id)
+           -version          => version number
+           -namespace        => the namespace for the accession
+           -authority        => the authority for the namespace
+           -description      => description text
+           -desc             => alias for description
+           -alphabet         => sequence type (alphabet) (dna|rna|protein)
+           -id               => alias for display id
+           -is_circular      => boolean field for whether or not sequence is circular
+           -direct           => boolean field for directly setting sequence (requires alphabet also set)
+           -ref_to_seq       => boolean field indicating the sequence is a reference (?!?)
+           -nowarnonempty    => boolean field for whether or not to warn when sequence is empty
 
 =cut
 
@@ -861,9 +861,15 @@ These are internal methods to PrimarySeq
 
  Title   : _guess_alphabet
  Usage   :
- Function: Automatically guess and set the type of sequence: dna, rna or protein
+ Function: Automatically guess and set the type of sequence: dna, rna, protein
+           or '' if the sequence was empty. This method first removes dots (.),
+           dashes (-) and question marks (?) before guessing the alphabet
+           using the IUPAC conventions for ambiguous residues. Since the DNA and
+           RNA characters are also valid characters for proteins, there is
+           no foolproof way of determining the right alphabet. This is our best
+           guess only!
  Example :
- Returns : one of strings 'dna', 'rna' or 'protein'.
+ Returns : string 'dna', 'rna', 'protein' or ''.
  Args    : none
 
 
@@ -871,46 +877,61 @@ These are internal methods to PrimarySeq
 
 sub _guess_alphabet {
     my ($self) = @_;
-    my $type;
+    # Guess alphabet
+    my $alphabet = $self->_guess_alphabet_from_string($self->seq, $self->{'_nowarnonempty'});
+    # Set alphabet unless it is unknown
+    $self->alphabet($alphabet) if $alphabet;
+    return $alphabet;
+}
 
-    # Remove char's that clearly don't denote nucleic or amino acids
-    my $str = $self->seq();
+
+sub _guess_alphabet_from_string {
+    # Get the alphabet from a sequence string
+    my ($self, $str, $nowarnonempty) = @_;
+
+    $nowarnonempty = 0 if not defined $nowarnonempty;
+
+    # Remove chars that clearly don't denote nucleic or amino acids
     $str =~ s/[-.?]//gi;
 
     # Check for sequences without valid letters
+    my $alphabet;
     my $total = CORE::length($str);
     if( $total == 0 ) {
-        if (!$self->{'_nowarnonempty'}) {
-            $self->warn("Got a sequence with no letters in it ".
-               "cannot guess alphabet");
+        if (not $nowarnonempty) {
+            $self->warn("Got a sequence without letters. Could not guess alphabet");
         }
-        return '';
+        $alphabet = '';
     }
 
-    if ($str =~ m/[EFIJLOPQXZ]/i) {
-        # Start with a safe method to find proteins.
-        # Unambiguous IUPAC letters for proteins are: E,F,I,J,L,O,P,Q,X,Z
-        $type = 'protein';
-    } else {
-        # Alphabet is unsure, could still be DNA, RNA or protein.
-        # DNA and RNA contain mostly A, T, U, G, C and N, but the other letters
-        # they use are also among the 15 valid letters that a protein sequence
-        # can contain at this stage. Make our best guess based on sequence
-        # composition. If it contains over 70% of ACGTUN, it is likely nucleic.
-        if( ($str =~ tr/ATUGCNatugcn//) / $total > 0.7 ) {
-            if ( $str =~ m/U/i ) {
-                $type = 'rna';
-            } else {
-                $type = 'dna';
-            }
+    # Determine alphabet now
+    if (not defined $alphabet) {
+        if ($str =~ m/[EFIJLOPQXZ]/i) {
+            # Start with a safe method to find proteins.
+            # Unambiguous IUPAC letters for proteins are: E,F,I,J,L,O,P,Q,X,Z
+            $alphabet = 'protein';
         } else {
-            $type = 'protein';
+            # Alphabet is unsure, could still be DNA, RNA or protein
+            # DNA and RNA contain mostly A, T, U, G, C and N, but the other
+            # letters they use are also among the 15 valid letters that a
+            # protein sequence can contain at this stage. Make our best guess
+            # based on sequence composition. If it contains over 70% of ACGTUN,
+            # it is likely nucleic.
+            if( ($str =~ tr/ATUGCNatugcn//) / $total > 0.7 ) {
+                if ( $str =~ m/U/i ) {
+                    $alphabet = 'rna';
+                } else {
+                    $alphabet = 'dna';
+                }
+            } else {
+                $alphabet = 'protein';
+            }
         }
     }
 
-    $self->alphabet($type);
-    return $type;
+    return $alphabet;
 }
+
 
 ############################################################################
 # aliases due to name changes or to compensate for our lack of consistency #

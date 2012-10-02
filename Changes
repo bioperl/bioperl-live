@@ -47,6 +47,12 @@ CPAN releases are branched from 'master'.
         - Option -names of get_taxon() to help with ambiguous taxa [fangly]
     * Bio::DB::Taxonomy::*
         - get_num_taxa() returns the number of taxa in the database [fangly]
+    * Bio::DB::Fasta and Bio::DB::Qual
+        - support indexing an arbitrary list of files [fangly]
+        - user can supply an arbitrary index file name [fangly]
+        - new option to remove index file at the end [fangly]
+    * Bio::DB::Fasta
+        - now handles IUPAC degenerate residues [fangly]
 
     [Bug fixes]
 
@@ -54,6 +60,9 @@ CPAN releases are branched from 'master'.
       cjfields]
     * [3237] Bio::DB::Fasta now allows blank lines between sequences, catches
       instances where blank lines are within sequences [cjfields]
+    * Bio::DB::Fasta reports correct alphabet for files with multiple sequence
+      types [fangly]
+    * Bio::DB::Fasta rev-comps sequences other than DNA properly [fangly]
     * [3238] Fixes for Bio::DB::SeqFeature::Store::DBI::Pg [Thomas Burkhard,
       cjfields]
     * Various fixes for Stockholm file indexing and processing [bosborne]
@@ -65,6 +74,7 @@ CPAN releases are branched from 'master'.
     * Fix Bio::PopGen::IO::phase: sort values lexically instead of numerically
       when unsure that values will be numerical [fangly]
     * Fix undef warnings in Bio::SeqIO::embl [fangly]
+    * Fix undef warnings in Bio::DB::Fasta and Bio::DB::Qual [fangly]
     * Fix Bio::Tools::IUPAC should accept any sequence object [fangly]
     * Fix for 'Inappropriate ioctl' in Bio::DB::Store::berkeleydb3 [Olivier
       Sallou]

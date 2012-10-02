@@ -8,7 +8,7 @@ BEGIN {
     use Bio::Root::Test;
 
     test_begin(    #-tests => 10,
-	-requires_module => 'LWP::UserAgent'
+	-requires_modules => [qw(LWP::UserAgent HTML::TableExtract)]
     );
 
     use_ok('Bio::DB::SeqVersion');

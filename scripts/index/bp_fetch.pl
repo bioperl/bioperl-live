@@ -8,7 +8,7 @@ bp_fetch.pl - fetches sequences from bioperl indexed databases
 
   bp_fetch.pl swiss:ROA1_HUMAN
 
-  bp_fetch.pl net::genbank:X47072
+  bp_fetch.pl net::genbank:JX295726
 
   bp_fetch.pl net::genpept:ROA1_HUMAN
 

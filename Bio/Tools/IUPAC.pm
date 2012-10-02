@@ -67,7 +67,6 @@ described below:
      N      G or A or T or C
 
 
-
     IUPAC-IUP AMINO ACID SYMBOLS:
       Biochem J. 1984 Apr 15; 219(2): 345-373
       Eur J Biochem. 1993 Apr 1; 213(1): 2
@@ -102,7 +101,6 @@ described below:
     Y        Tyrosine
     Z        Glutamic Acid, Glutamine
     *        Terminator
-
 
 There are a few things Bio::Tools::IUPAC can do for you:
 
@@ -165,8 +163,6 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 
-# Let the code begin...
-
 package Bio::Tools::IUPAC;
 
 use strict;
@@ -174,7 +170,7 @@ use base qw(Bio::Root::Root);
 use vars qw(%IUB %IUB_AMB %REV_IUB %IUP %IUP_AMB $AUTOLOAD);
 
 BEGIN {
-    # Ambigous nucleic residues are matched to unambiguous residues
+    # Ambiguous nucleic residues are matched to unambiguous residues
     %IUB = (
         A => [qw(A)],
         C => [qw(C)],
@@ -183,8 +179,8 @@ BEGIN {
         U => [qw(U)],
         M => [qw(A C)],
         R => [qw(A G)],
-        W => [qw(A T)],
         S => [qw(C G)],
+        W => [qw(A T)],
         Y => [qw(C T)],
         K => [qw(G T)],
         V => [qw(A C G)],
@@ -195,7 +191,7 @@ BEGIN {
         X => [qw(A C G T)],
     );
 
-    # Same as %IUB but ambigous residues are matched to ambiguous residues only
+    # Same as %IUB but ambiguous residues are matched to ambiguous residues only
     %IUB_AMB = (
         M => [qw(M)],
         R => [qw(R)],
@@ -214,6 +210,7 @@ BEGIN {
     %REV_IUB = (
         A    => 'A',
         T    => 'T',
+        U    => 'U',
         C    => 'C',
         G    => 'G',
         AC   => 'M',
@@ -519,13 +516,13 @@ sub count {
            regular expression, you might want to compile it and make it case-
            insensitive:
               $re = qr/$re/i;
- Args    : none
+ Args    : 1 to match RNA: T and U characters will match interchangeably
  Return  : regular expression
 
 =cut
 
 sub regexp {
-    my ($self) = @_;
+    my ($self, $match_rna) = @_;
     my $re;
     my $seq = $self->{'_seq'}->seq;
     my %iupac = $self->iupac;
@@ -533,16 +530,19 @@ sub regexp {
     for my $pos (0 .. length($seq)-1) {
         my $res = substr $seq, $pos, 1;
         my $iupacs = $iupac{$res};
-        my $iupacs_amb = $iupac_amb{$res};
+        my $iupacs_amb = $iupac_amb{$res} || [];
         if (not defined $iupacs) {
             $self->throw("Primer sequence '$seq' is not a valid IUPAC sequence.".
                          " Offending character was '$res'.\n");
         }
-        if (scalar @$iupacs > 1) {
-            $re .= '[' . join('',@$iupacs,@$iupacs_amb) . ']';
-        } else {
-            $re .= $$iupacs[0];
+        my $part = join '', (@$iupacs, @$iupacs_amb);
+        if ($match_rna) {
+            $part =~ s/T/TU/i || $part =~ s/U/TU/i;
         }
+        if (length $part > 1) {
+           $part = '['.$part.']';
+        }
+        $re .= $part;
     }
     return $re;
 }
