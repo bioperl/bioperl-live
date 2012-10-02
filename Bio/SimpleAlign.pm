@@ -1603,7 +1603,7 @@ sub mask_columns {
 	unless(ref($args[0])) {
 		$self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"mask_columns - column range must be in refrence.");
 		my ($start, $end, $mask_char) = @args;
-		$sel=[($start, $end)];
+		$sel=[$start..$end];
     	if(defined $mask_char) { 
     		$self->mask_char($mask_char);
     	}
