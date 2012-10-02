@@ -83,7 +83,8 @@ However, in some cases people do not want the name/start-end to be displayed:
 either multiple names in an alignment or names specific to the alignment
 (ROA1_HUMAN_1, ROA1_HUMAN_2 etc). These names are called
 C<displayname>, and generally is what is used to print out the
-alignment. They default to name/start-end.
+alignment. They default to name/start-end. Please be cautious that, the 
+sequence coordinates are 1 based for all the methods in Bio::SimpleAlign.
 
 The SimpleAlign Module is derived from the Align module by Ewan Birney.
 This package is refactored by Jun Yin as part of the Google Summer of 
@@ -1468,7 +1469,32 @@ sub _select_columns_by_type {
 sub remove_columns {
 	my ($self,@args) = @_;
    @args || $self->throw("Must supply column ranges or column types");
-	my ($sel, $toggle,$gap) = $self->_rearrange([qw(SELECTION TOGGLE KEEPGAPONLY)], @args);
+   
+   #provide backward support
+   #backward support for remove columns using multiple anonymous array reference
+   if(defined $args[1] && ref($args[0]) && ref($args[1])) { 
+		$self->deprecated(-warn_version => 1.0060, -throw_version => 1.0080, -message =>"select_columns start is 1 based and in a single array. Please check the method description.");
+		#the old method use multiple arrays and the coordiantes are 0 based
+		my @newargs;
+		foreach my $arg (@args) {
+			push @{$newargs[0]},($arg->[0]+1)..($arg->[1]+1);
+		}
+		@args=@newargs;
+	}
+	   
+   my ($sel, $toggle,$gap) = $self->_rearrange([qw(SELECTION TOGGLE KEEPGAPONLY)], @args);
+   
+   #backward support for remove columns using 0-based coordinate
+   if($sel->[0] =~ /^\d+$/ && $sel->[0]==0) {
+		$self->deprecated(-warn_version => 1.0060, -throw_version => 1.0080, -message =>"select_columns start is 1 based and in a single array. Please check the method description.");
+		#the old method use multiple arrays and the coordiantes are 0 based
+		my @newargs;
+		foreach my $arg (@{$sel}) {
+			push @{$newargs[0]},$arg+1;
+		}
+		@{$sel}=@newargs;
+	}
+   	
 	my $newaln=$self->select_columns(-selection=>$sel,-toggle=>$toggle?0:1,-keepgaponly=>$gap);
 	return $newaln;
 }
