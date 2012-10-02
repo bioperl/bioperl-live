@@ -95,13 +95,13 @@ Bio::DB::SeqFeature::Store::DBI::Pg -- PostgreSQL implementation of Bio::DB::Seq
 
 =head1 DESCRIPTION
 
-Bio::DB::SeqFeature::Store::Pg is the Mysql adaptor for
+Bio::DB::SeqFeature::Store::Pg is the Pg adaptor for
 Bio::DB::SeqFeature::Store. You will not create it directly, but
 instead use Bio::DB::SeqFeature::Store-E<gt>new() to do so.
 
 See L<Bio::DB::SeqFeature::Store> for complete usage instructions.
 
-=head2 Using the Mysql adaptor
+=head2 Using the Pg adaptor
 
 Before you can use the adaptor, you must use the Pgadmin tool to
 create a database and establish a user account with write
