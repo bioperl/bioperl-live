@@ -279,8 +279,9 @@ WARN
     sleep 3;
 }
 
-my $proceed = prompt_for_biodb($accept) if $build->feature('Bio::DB::GFF')
-    || $build->feature('MySQL Tests') || $build->feature('MySQL Tests');
+my $proceed = prompt_for_biodb($accept)
+    if $build->feature('Bio::DB::GFF') || $build->feature('MySQL Tests') ||
+      $build->feature('Pg Tests')      || $build->feature('SQLite Tests');
 
 # Handle auto features
 if ($proceed && $build->feature('DB_File Tests')) {
