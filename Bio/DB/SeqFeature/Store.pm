@@ -2591,7 +2591,8 @@ sub feature_names {
   my $obj  = shift;
 
   my $primary_id = $obj->primary_id;
-  my @names = $obj->display_name if defined $obj->display_name;
+  my @names;
+  push @names,$obj->display_name           if defined $obj->display_name;
   push @names,$obj->get_tag_values('Name') if $obj->has_tag('Name');
   push @names,$obj->get_tag_values('ID')   if $obj->has_tag('ID');
 
