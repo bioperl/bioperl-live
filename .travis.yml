@@ -21,6 +21,7 @@ install:
     - "cpanm Math::Random SOAP::Lite Spreadsheet::ParseExcel | tail -n 1"
     - "cpanm Bio::ASN1::EntrezGene | tail -n 1"
     - "cpanm Bio::Phylo | tail -n 1"
+    - "cpanm -f Bio::ASN1::EntrezGene | tail -n 1"
     #This installs BioPerl itself:
     - "perl ./Build.PL --accept"
 
