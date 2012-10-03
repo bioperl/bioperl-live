@@ -466,12 +466,6 @@ sub _finish_bulk_update {
   delete $self->{filehandles};
 }
 
-sub commit {
-	my $self = shift;
-	my $dbh = $self->dbh;
-	$dbh->commit unless $dbh->{AutoCommit};
-}
-
 sub index_tables {
     my $self = shift;
     my @t    = $self->SUPER::index_tables;
@@ -1201,7 +1195,6 @@ sub _dump_update_location_index {
 	                                 : ($id,$seqid,$bin,$start,$end);
     print $fh join("\t",@args),"\n";
 }
-
 
 1;
 
