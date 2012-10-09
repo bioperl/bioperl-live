@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 274 );
+	test_begin(-tests => 275 );
 	
     use_ok('Bio::SeqIO::genbank');
 }
@@ -601,3 +601,26 @@ $as = $ast->next_seq;
 ($cds) = grep { $_->primary_tag eq 'CDS' } $as->get_SeqFeatures();
 @notes = $cds->get_tag_values('note');
 is(scalar @notes, 2);
+
+# long labels handled
+{
+    # Create sequence with feature with a long label qualifier
+    my $seq=Bio::Seq->new(-seq=>'actg');
+    my $feature=Bio::SeqFeature::Generic->new(-primary=>'CDS', -start=>1, -end=>4);
+    my $label='1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r';
+    $feature->add_tag_value(label=>$label);
+    $seq->add_SeqFeature($feature);
+
+    # Write genbank
+    my $string;
+    open(my $str_fh, '>', \$string) || skip("Can't open string, skipping", 2);
+    my $out=Bio::SeqIO->new(-format=>'genbank', -fh => $str_fh);
+    $out->write_seq($seq);
+
+    # Read genbank
+    my $in=Bio::SeqIO->new(-format=>'genbank', -string => $string);
+    my $genbank=$in->next_seq;
+    my ($read_feature)=$genbank->get_SeqFeatures;
+    my ($read_label)=$read_feature->get_tag_values('label');
+    is($read_label, $label, 'Label is the same');
+}
