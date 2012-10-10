@@ -404,8 +404,8 @@ sub new {
                                  @args);
     $self->{db}    = $db;
     $self->{id}    = $id;
-    $self->{start} = $start || 1;
     $self->{stop}  = $stop  || $db->length($id);
+    $self->{start} = $start || ($self->{stop} > 0 ? 1 : 0); # handle 0-length seqs
     return $self;
 }
 
