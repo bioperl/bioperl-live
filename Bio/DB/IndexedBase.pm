@@ -695,8 +695,8 @@ sub _parse_compound_id {
     }
 
     # Start, stop and strand defaults
-    $start  ||= 1;
     $stop   ||= $self->length($id) || 0; # 0 if sequence not found in database
+    $start  ||= ($stop > 0) ? 1 : 0;
     $strand ||= 1;
 
     # Convert numbers such as 1_000_000 to 1000000

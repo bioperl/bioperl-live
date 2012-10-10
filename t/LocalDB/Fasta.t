@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 69,
+    test_begin( -tests => 70,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -115,6 +115,9 @@ my $test_files = [
     is $db->alphabet('123'), '';
     is $db->seq('gi|352962148|ref|NM_001251825.1|', 20, 29, 1 ), 'GUCAGCGUCC';
     is $db->seq('gi|352962148|ref|NM_001251825.1|', 20, 29, -1), 'GGACGCUGAC';
+
+    # Test empty sequence
+    is $db->seq('123'), '';
 }
 
 
@@ -241,6 +244,7 @@ my $test_files = [
     my $outfile = test_input_file('spaced_fasta.fa').'.index';
     unlink $outfile;
 }
+
 
 exit;
 

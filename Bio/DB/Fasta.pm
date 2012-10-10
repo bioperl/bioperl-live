@@ -288,6 +288,7 @@ sub subseq {
     read($fh, $data, $filestop-$filestart+1);
     $data =~ s/\n//g;
     $data =~ s/\r//g;
+
     if ($strand == -1) {
         # Reverse-complement the sequence
         $data = Bio::PrimarySeqI::_revcom_from_string($self, $data, $self->alphabet($id));
@@ -359,8 +360,8 @@ sub new {
                                  @args);
     $self->{db}    = $db;
     $self->{id}    = $id;
-    $self->{start} = $start || 1;
     $self->{stop}  = $stop  || $db->length($id);
+    $self->{start} = $start || ($self->{stop} > 0 ? 1 : 0); # handle 0-length seqs
     return $self;
 }
 
