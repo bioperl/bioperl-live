@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 87 );
+    test_begin( -tests => 88 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -44,7 +44,7 @@ is $seq->namespace, "t";
 is $seq->version(0), 0;
 is $seq->lsid_string(),      "bioperl.org:t:X677667";
 is $seq->namespace_string(), "t:X677667.0";
-$seq->version(47);
+ok $seq->version(47);
 is $seq->version, 47;
 is $seq->namespace_string(), "t:X677667.47";
 is $seq->description(),      'Sample Bio::Seq object';

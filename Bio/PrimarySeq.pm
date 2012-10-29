@@ -261,7 +261,7 @@ sub direct_seq_set {
 =head2 seq
 
  Title   : seq
- Usage   : $string    = $obj->seq()
+ Usage   : $string = $obj->seq();
  Function: Returns the sequence as a string of letters. The
            case of the letters is left up to the implementer.
            Suggested cases are upper case for proteins and lower case for
@@ -454,21 +454,24 @@ sub subseq {
 =cut
 
 sub length {
-    my $self = shift;
-    my $len = CORE::length($self->seq() || '');
-
-    if(@_) {
-        my $val = shift;
-        if(defined($val) && $len && ($len != $val)) {
+    my ($self, $val) = @_;
+    if (defined $val) {
+        my $len = CORE::length($self->seq() || '');
+        if ($len && ($len != $val)) {
             $self->throw("You're trying to lie about the length: ".
                 "is $len but you say ".$val);
         }
         $self->{'_seq_length'} = $val;
-    } elsif(defined($self->{'_seq_length'})) {
-        return $self->{'_seq_length'};
+        return $val;
+    } else {
+        if (defined $self->{'_seq_length'}) {
+           return $self->{'_seq_length'};
+        } else {
+           return CORE::length($self->seq() || '');
+        }
     }
-    return $len;
 }
+
 
 =head2 display_id
 
