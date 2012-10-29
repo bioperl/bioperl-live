@@ -174,7 +174,7 @@ sub _calculate_offsets {
     my $fh = IO::File->new($file) or $self->throw("Could not open $file: $!");
     binmode $fh;
     warn "Indexing $file\n" if $self->{debug};
-    my ($offset, $id, $linelen, $headerlen, $count, $qual_lines, $last_line,
+    my ($offset, @ids, $linelen, $headerlen, $count, $qual_lines, $last_line,
         $numres, %offsets);
     my ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
 
@@ -187,14 +187,17 @@ sub _calculate_offsets {
                     if $self->{debug} && (++$count%1000) == 0;
                 $self->_check_linelength($linelen);
                 my $pos = tell($fh);
-                if ($id) {
+                if (@ids) {
                     my $strlen = $pos - $offset - length($line);
-                    $strlen -= $termination_length * $qual_lines;
-                    $offsets->{$id} = &{$self->{packmeth}}($offset, $strlen, $numres,
+                    $strlen   -= $termination_length * $qual_lines;
+                    my $ppos = &{$self->{packmeth}}($offset, $strlen, $numres,
                         $linelen, $headerlen, Bio::DB::IndexedBase::NA, $fileno);
+                    for my $id (@ids) {
+                        $offsets->{$id} = $ppos;
+                    }
                     $numres = 0;
                 }
-                $id = $self->_makeid($line);
+                @ids = $self->_makeid($line);
                 ($offset, $headerlen, $linelen, $qual_lines) = ($pos, length $line, 0, 0);
                 ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
             } else {
@@ -233,7 +236,7 @@ sub _calculate_offsets {
     # Process last entry
     $self->_check_linelength($linelen);
     my $pos = tell($fh);
-    if ($id) {
+    if (@ids) {
         my $strlen = $pos - $offset;
         if ($linelen == 0) {
             $strlen = 0;
@@ -243,9 +246,13 @@ sub _calculate_offsets {
             }
             $strlen -= $termination_length * $qual_lines;
         }
-        $offsets->{$id} = &{$self->{packmeth}}($offset, $strlen, $numres,
-            $linelen, $headerlen, Bio::DB::IndexedBase::NA, $fileno);
+        my $ppos = &{$self->{packmeth}}($offset, $strlen, $numres, $linelen,
+            $headerlen, Bio::DB::IndexedBase::NA, $fileno);
+        for my $id (@ids) {
+            $offsets->{$id} = $ppos;
+        }
     }
+
     return \%offsets;
 }
 

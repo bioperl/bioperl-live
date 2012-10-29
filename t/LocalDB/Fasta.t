@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 70,
+    test_begin( -tests => 76,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -113,7 +113,7 @@ my $test_files = [
     is $db->alphabet('gi|194473622|ref|NP_001123975.1|'), 'protein';
     is $db->alphabet('gi|61679760|pdb|1Y4P|B'), 'protein';
     is $db->alphabet('123'), '';
-    is $db->seq('gi|352962148|ref|NM_001251825.1|', 20, 29, 1 ), 'GUCAGCGUCC';
+    is $db->seq('gi|352962148|ref|NM_001251825.1|', 20, 29,  1), 'GUCAGCGUCC';
     is $db->seq('gi|352962148|ref|NM_001251825.1|', 20, 29, -1), 'GGACGCUGAC';
 
     # Test empty sequence
@@ -153,8 +153,21 @@ my $test_files = [
     # Test makeid
     ok my $db = Bio::DB::Fasta->new( $test_file,
         -reindex => 1, -clean => 1, -makeid => \&extract_gi,
-    );
+    ), 'Make single ID';
     is_deeply [sort $db->get_all_primary_ids], ['', 194473622, 352962132, 352962148, 61679760];
+    is $db->get_Seq_by_id('gi|352962148|ref|NM_001251825.1|'), undef;
+    isa_ok $db->get_Seq_by_id(194473622), 'Bio::PrimarySeqI';
+}
+
+
+{
+    # Test makeid that generates several IDs, bug #3389
+    ok my $db = Bio::DB::Fasta->new( $test_file,
+        -reindex => 1, -clean => 1, -makeid => \&extract_gi_and_ref,
+    ), 'Make multiple IDs, bug #3389';
+    is_deeply [sort $db->get_all_primary_ids], ['', 194473622, 352962132, 352962148, 61679760, 'NG_030353.1',  'NM_001251825.1', 'NP_001123975.1'];
+    is $db->get_Seq_by_id('gi|352962148|ref|NM_001251825.1|'), undef;
+    isa_ok $db->get_Seq_by_id('NG_030353.1'), 'Bio::PrimarySeqI';
 }
 
 
@@ -255,6 +268,17 @@ sub extract_gi {
     my $header = shift;
     my ($id) = ($header =~ /gi\|(\d+)/m);
     return $id || '';
+}
+
+
+sub extract_gi_and_ref {
+    # Extract GI and from RefSeq
+    my $header = shift;
+    my ($gi)  = ($header =~ /gi\|(\d+)/m);
+    $gi ||= '';
+    my ($ref) = ($header =~ /ref\|([^|]+)/m);
+    $ref ||= '';
+    return $gi, $ref;
 }
 
 

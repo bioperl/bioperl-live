@@ -306,8 +306,9 @@ you open the index!
 The -makeid option gives you a chance to modify sequence IDs during indexing.
 For example, you may wish to extract a portion of the gi|gb|abc|xyz nonsense
 that GenBank Fasta files use. The original header line can be recovered later.
-The option value should be a code reference that takes a scalar argument and
-returns a scalar result, like this:
+The option value for -makeid should be a code reference that takes a scalar
+argument (the full header line) and returns a scalar or an array of scalars (the
+ID or IDs you want to assign). For example:
 
   $db = Bio::DB::IndexedBase->new('file.fa', -makeid => \&extract_gi);
 
@@ -322,6 +323,11 @@ extract_gi() will be called with the full header line, e.g. a Fasta line would
 include the "E<gt>", the ID and the description:
 
  >gi|352962132|ref|NG_030353.1| Homo sapiens sal-like 3 (Drosophila) (SALL3)
+
+In the database, this sequence can now be retrieved by its GI instead of its
+complete ID:
+
+ my $seq = $db->get_Seq_by_id(352962132);
 
 The -makeid option is ignored after the index is constructed.
 

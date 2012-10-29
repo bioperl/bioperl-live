@@ -160,7 +160,7 @@ sub _calculate_offsets {
     my $fh = IO::File->new($file) or $self->throw( "Could not open $file: $!");
     binmode $fh;
     warn "Indexing $file\n" if $self->{debug};
-    my ($offset, $id, $linelen, $alphabet, $headerlen, $count, $seq_lines,
+    my ($offset, @ids, $linelen, $alphabet, $headerlen, $count, $seq_lines,
         $last_line, %offsets);
     my ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
 
@@ -174,15 +174,17 @@ sub _calculate_offsets {
 
                 $self->_check_linelength($linelen);
                 my $pos = tell($fh);
-                if (defined $id) {
+                if (@ids) {
                     my $strlen  = $pos - $offset - length($line);
                     $strlen    -= $termination_length * $seq_lines;
                     my $ppos = &{$self->{packmeth}}($offset, $strlen, $strlen,
                         $linelen, $headerlen, $alphabet, $fileno);
                     $alphabet = Bio::DB::IndexedBase::NA;
-                    $offsets->{$id} = $ppos;
+                    for my $id (@ids) {
+                        $offsets->{$id} = $ppos;
+                    }
                 }
-                $id = $self->_makeid($line);
+                @ids = $self->_makeid($line);
                 ($offset, $headerlen, $linelen, $seq_lines) = ($pos, length $line, 0, 0);
                 ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
 
@@ -222,7 +224,7 @@ sub _calculate_offsets {
     # Process last entry
     $self->_check_linelength($linelen);
     my $pos = tell $fh;
-    if (defined $id) {
+    if (@ids) {
         my $strlen   = $pos - $offset;
         if ($linelen == 0) { # yet another pesky empty chr_random.fa file
             $strlen = 0;
@@ -234,7 +236,9 @@ sub _calculate_offsets {
         }
         my $ppos = &{$self->{packmeth}}($offset, $strlen, $strlen, $linelen,
             $headerlen, $alphabet, $fileno);
-        $offsets->{$id} = $ppos;
+        for my $id (@ids) {
+            $offsets->{$id} = $ppos;
+        }
     }
 
     return \%offsets;
