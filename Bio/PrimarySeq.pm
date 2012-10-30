@@ -197,8 +197,8 @@ sub new {
                             NOWARNONEMPTY
                             )],
                             @args);
-  
-    # private var _nowarnonempty, need to be set before calling _guess_alphabet
+
+    # Private var _nowarnonempty, need to be set before calling _guess_alphabet
     $self->{'_nowarnonempty'} = $nowarnonempty; 
 
     if( defined $id && defined $given_id ) {
@@ -362,64 +362,65 @@ sub validate_seq {
 =cut
 
 sub subseq {
-   my $self = shift;
-   my @args = @_;
-   my ($start,$end,$nogap,$replace) = $self->_rearrange([qw(START 
-                                                            END
-                                                            NOGAP
-                                                            REPLACE_WITH)],@args);
+    my $self = shift;
+    my @args = @_;
+    my ($start, $end, $nogap, $replace) = $self->_rearrange([qw(START
+                                                             END
+                                                             NOGAP
+                                                             REPLACE_WITH)], @args);
    
-   # if $replace is specified, have the constructor validate it as seq
-   my $dummy = new Bio::PrimarySeq(-seq=>$replace, -alphabet=>$self->alphabet) if defined($replace);
+    # if $replace is specified, have the constructor validate it as seq
+    my $dummy = Bio::PrimarySeq->new( -seq=>$replace, -alphabet=>$self->alphabet )
+        if defined($replace);
 
-   if( ref($start) && $start->isa('Bio::LocationI') ) {
-       my $loc = $start;
-       my $seq = "";
-       foreach my $subloc ($loc->each_Location()) {
-           my $piece = $self->subseq(-START=>$subloc->start(),
-                                     '-END'=>$subloc->end(), 
-                                     -REPLACE_WITH=>$replace,
-                                     -NOGAP=>$nogap);
-           $piece =~ s/[$GAP_SYMBOLS]//g if $nogap;
-           if($subloc->strand() < 0) {
-               $piece = Bio::PrimarySeq->new('-seq' => $piece)->revcom()->seq();
-           }
-           $seq .= $piece;
-       }
-       return $seq;
-   } elsif(  defined  $start && defined $end ) {
-       if( $start > $end ){
-           $self->throw("Bad start,end parameters. Start [$start] has to be ".
-             "less than end [$end]");
-       }
-       if( $start <= 0 ) {
-           $self->throw("Bad start parameter ($start). Start must be positive.");
-       }
+    if( ref($start) && $start->isa('Bio::LocationI') ) {
+        my $loc = $start;
+        my $seq = "";
+        foreach my $subloc ($loc->each_Location()) {
+            my $piece = $self->subseq(-START        => $subloc->start(),
+                                      -END          => $subloc->end(),
+                                      -REPLACE_WITH => $replace,
+                                      -NOGAP        => $nogap);
+            $piece =~ s/[$GAP_SYMBOLS]//g if $nogap;
+            if($subloc->strand() < 0) {
+                $piece = Bio::PrimarySeq->new( -seq => $piece)->revcom()->seq();
+            }
+            $seq .= $piece;
+        }
+        return $seq;
+    } elsif( defined $start && defined $end ) {
+        if( $start > $end ){
+            $self->throw("Bad start,end parameters. Start [$start] has to be ".
+              "less than end [$end]");
+        }
+        if( $start <= 0 ) {
+            $self->throw("Bad start parameter ($start). Start must be positive.");
+        }
 
-       # remove one from start, and then length is end-start
-       $start--;
-       my @ss_args = map { eval "defined $_"  ? $_ : () } qw( $self->{seq} $start $end-$start $replace);
-       my $seqstr = eval join( '', "substr(", join(',',@ss_args), ")");
+        # remove one from start, and then length is end-start
+        $start--;
+        my @ss_args = map { eval "defined $_"  ? $_ : () } qw( $self->{seq} $start $end-$start $replace );
+        my $seqstr = eval join( '', "substr(", join(',',@ss_args), ")");
 
-       if( $end > $self->length) {
-           if ($self->is_circular) {
-               my $start = 0;
-               my $end = $end - $self->length;
-               my @ss_args = map { eval "defined $_"  ? $_ : () } qw( $self->{seq} $start $end-$start $replace);
-               my $appendstr = eval join( '', "substr(", join(',',@ss_args), ")");
-               $seqstr .= $appendstr;
-       } else {
-           $self->throw("Bad end parameter ($end). End must be less than the total length of sequence (total=".$self->length.")")
-           }
-       } 
+        if( $end > $self->length) {
+            if ($self->is_circular) {
+                my $start = 0;
+                my $end = $end - $self->length;
+                my @ss_args = map { eval "defined $_"  ? $_ : () } qw( $self->{seq} $start $end-$start $replace );
+                my $appendstr = eval join( '', "substr(", join(',',@ss_args), ")");
+                $seqstr .= $appendstr;
+            } else {
+                $self->throw("Bad end parameter ($end). End must be less than the total length of sequence (total=".$self->length.")")
+            }
+        }
 
-       $seqstr =~ s/[$GAP_SYMBOLS]//g if ($nogap);
-       return $seqstr;
+        $seqstr =~ s/[$GAP_SYMBOLS]//g if ($nogap);
+        return $seqstr;
 
-   } else {
-       $self->warn("Incorrect parameters to subseq - must be two integers or a Bio::LocationI object. Got:", $self,$start,$end,$replace,$nogap);
-       return;
-   }
+    } else {
+        $self->warn("Incorrect parameters to subseq - must be two integers or a Bio::LocationI object. Got:", $self,$start,$end,$replace,$nogap);
+        return;
+    }
 }
 
 

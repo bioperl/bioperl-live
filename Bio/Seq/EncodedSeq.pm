@@ -482,13 +482,12 @@ sub _recheck_encoding {
 =cut
 
 sub cds {
-
     my ($self, @args) = @_;
 
     my ($nogaps, $loc) = $self->_rearrange([qw(NOGAPS LOCATION)], @args);
     $nogaps = 0 unless defined $nogaps;
 
-    my @nt = split //, $self->strand < 0 ? $self->revcom->seq : $self->seq;
+    my @nt  = split //, $self->strand < 0 ? $self->revcom->seq : $self->seq;
     my @enc = split //, $self->_convert2implicit($self->{_encoding});
 
     my ($start, $end) = (0, scalar @nt);
@@ -516,11 +515,12 @@ sub cds {
         }
     }
 
-    return ($self->can_call_new ? ref($self) : __PACKAGE__)->new
-        (-seq => join('', grep { defined } @nt[$start..--$end]),
-         -start => $self->start,
-         -end => $self->end,
-         -strand => 1, -alphabet => 'dna');
+    return ($self->can_call_new ? ref($self) : __PACKAGE__)->new(
+        -seq      => join('', grep { defined } @nt[$start..--$end]),
+        -start    => $self->start,
+        -end      => $self->end,
+        -strand   => 1,
+        -alphabet => 'dna' );
 }
 
 
