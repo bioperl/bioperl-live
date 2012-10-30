@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 103 );
+    test_begin( -tests => 104 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -288,6 +288,8 @@ is $seq->length, 18;
 is $seq->seq, undef;
 ok $seq->seq('ACGT');
 is $seq->length, 4; # manually-specified length changed when sequence is changed
+
+throws_ok { $seq->length(666); } qr/.+/; # Cannot lie about length
 
 
 # test internal PrimarySeqI _find_orfs function and translate( -orf => 'longest' )
