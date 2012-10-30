@@ -210,7 +210,7 @@ sub new {
     if( defined $given_id ) { $id = $given_id; }
 
     # Set the length before the seq. If there is a seq, length will be updated later
-    $self->{'_seq_length'} = $len || 0;
+    $self->{'length'} = $len || 0;
 
     # if alphabet is provided we set it first, so that it won't be guessed
     # when the sequence is set
@@ -301,7 +301,7 @@ sub seq {
 
        # Record sequence length
        delete $obj->{'_freeze_length'} if $is_changed_seq;
-       $obj->{'_seq_length'} = $len if not exists $obj->{'_freeze_length'};
+       $obj->{'length'} = $len if not exists $obj->{'_freeze_length'};
    }
    return $obj->{'seq'};
 }
@@ -451,15 +451,15 @@ sub subseq {
 sub length {
     my ($self, $val) = @_;
     if (defined $val) {
-        my $len = $self->{'_seq_length'};
+        my $len = $self->{'length'};
         if ($len && ($len != $val)) {
             $self->throw("You're trying to lie about the length: ".
                 "is $len but you say ".$val);
         }
-        $self->{'_seq_length'} = $val;
+        $self->{'length'} = $val;
         $self->{'_freeze_length'} = undef;
     }
-    return $self->{'_seq_length'};
+    return $self->{'length'};
 }
 
 
