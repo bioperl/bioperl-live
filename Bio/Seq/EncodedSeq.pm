@@ -459,9 +459,8 @@ sub _recheck_encoding {
     }
 
     @nt = reverse @nt if $self->strand && $self->strand < 0;
+    $self->seq(join('', @nt), 'dna');
 
-    $self->{'seq'} = join('', @nt);
-    # $self->seq(join('', @nt), 'dna');
     $self->{_encoding} = join '', @enc;
 }
 

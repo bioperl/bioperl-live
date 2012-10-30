@@ -16,9 +16,9 @@ BEGIN {
 my ($str, $aln, $seq, $loc);
 
 ok $seq = Bio::Seq::EncodedSeq->new(
-                 -seq => '--atg---gta--',
-                 -start => 1,
-                 -end => 6,
+                 -seq    => '--atg---gta--',
+                 -start  => 1,
+                 -end    => 6,
                  -strand => 1
                  );
 is $seq->alphabet, 'dna';
@@ -50,9 +50,9 @@ is $seq->encoding, "GGCCCGGGCCCGG";
 is $seq->encoding(-explicit => 1), "GGCDEGGGCDEGG";
 
 ok $seq = Bio::Seq::EncodedSeq->new(
-                 -seq => 'atcgta',
-                 -start => 10,
-                 -end => 15,
+                 -seq    => 'atcgta',
+                 -start  => 10,
+                 -end    => 15,
                  -strand => -1,
                  );
 is $seq->encoding('CCGGG'), 'CCGGGCCCC';
