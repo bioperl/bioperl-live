@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 87 );
+    test_begin( -tests => 103 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -267,6 +267,27 @@ ok $error =~ /\QTerminator codon inside CDS!\E/, 'Terminator + inside sequence';
 $seq = Bio::PrimarySeq->new(-seq=>'ATGCTCGCAGGGTAA'); # MLAG*
 $aa = $seq->translate(-complete=>1, -throw=>1, -terminator=>'#');
 is $aa->seq, 'MLAG';
+
+
+# Test length method
+ok $seq = Bio::PrimarySeq->new( -seq => 'ATGCTCTAAGCAGGGTAA' ), 'Length method';
+is $seq->length, 18;
+ok $seq->seq('ATGCTCTAAG');
+is $seq->length, 10;
+is $seq->seq(undef), undef;
+is $seq->length, 0;
+
+ok $seq = Bio::PrimarySeq->new( -length => 123 );
+is $seq->length, 123;
+
+ok $seq = Bio::PrimarySeq->new( -seq => 'ATGCTCTAAGCAGGGTAA' );
+is $seq->length, 18;
+ok $seq->length( $seq->length ); # save memory by removing seq
+is $seq->seq( undef ), undef;    # ... but keeping a record of length
+is $seq->length, 18;
+is $seq->seq, undef;
+ok $seq->seq('ACGT');
+is $seq->length, 4; # manually-specified length changed when sequence is changed
 
 
 # test internal PrimarySeqI _find_orfs function and translate( -orf => 'longest' )
