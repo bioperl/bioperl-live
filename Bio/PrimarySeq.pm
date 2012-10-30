@@ -155,6 +155,7 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
            values.
  Returns : a new Bio::PrimarySeq object
  Args    : -seq              => sequence string
+           -ref_to_seq       => reference to a sequence string
            -display_id       => display id of the sequence (locus name)
            -accession_number => accession number
            -primary_id       => primary id (Genbank id)
@@ -163,21 +164,20 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
            -authority        => the authority for the namespace
            -description      => description text
            -desc             => alias for description
-           -alphabet         => sequence type (alphabet) (dna|rna|protein)
+           -alphabet         => sequence type (or alphabet): dna|rna|protein. Skip alphabet guessing.
            -id               => alias for display id
-           -is_circular      => boolean field for whether or not sequence is circular
-           -direct           => boolean field for directly setting sequence (requires alphabet also set)
-           -ref_to_seq       => boolean field indicating the sequence is a reference (?!?)
-           -nowarnonempty    => boolean field for whether or not to warn when sequence is empty
+           -is_circular      => boolean to indicate that sequence is circular
+           -direct           => boolean to directly set the sequence, skipping sequence validation
+           -nowarnonempty    => boolean to avoid warning when sequence is empty
 
 =cut
 
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my($seq,$id,$acc,$pid,$ns,$auth,$v,$oid,
-       $desc,$description,
-       $alphabet,$given_id,$is_circular,$direct,$ref_to_seq,$len,$nowarnonempty) =
+    my ($seq, $id, $acc, $pid, $ns, $auth, $v, $oid, $desc, $description,
+        $alphabet, $given_id, $is_circular, $direct, $ref_to_seq, $len,
+        $nowarnonempty) =
       $self->_rearrange([qw(SEQ
                             DISPLAY_ID
                             ACCESSION_NUMBER
@@ -198,8 +198,8 @@ sub new {
                             )],
                             @args);
 
-    # Private var _nowarnonempty, need to be set before calling _guess_alphabet
-    $self->{'_nowarnonempty'} = $nowarnonempty; 
+    # Private var _nowarnonempty, needs to be set before calling _guess_alphabet
+    $self->{'_nowarnonempty'} = $nowarnonempty;
 
     if( defined $id && defined $given_id ) {
         if( $id ne $given_id ) {
@@ -212,20 +212,17 @@ sub new {
     # Set the length before the seq. If there is a seq, length will be updated later
     $self->{'length'} = $len || 0;
 
-    # if alphabet is provided we set it first, so that it won't be guessed
-    # when the sequence is set
+    # Set alphabet now to avoid guessing it later, when sequence is set
     $alphabet && $self->alphabet($alphabet);
 
-    # bernd's idea: define ids so that invalid sequence messages
-    # can be more informative...
+    # Bernd's idea: set ids now for more informative invalid sequence messages
     defined $id  && $self->display_id($id);
     $acc         && $self->accession_number($acc);
     defined $pid && $self->primary_id($pid);
 
-    # if there is an alphabet, and direct is passed in, assume the alphabet
-    # and sequence is ok
-    
     if( $direct && $ref_to_seq) {
+        # if there is an alphabet, and direct is passed in, assume the alphabet
+        # and sequence is ok
         $self->{'seq'} = $$ref_to_seq;
         if( ! $alphabet ) {
             $self->_guess_alphabet();
@@ -233,7 +230,9 @@ sub new {
     } else {
         # print STDERR "DEBUG: setting sequence to [$seq]\n";
         # note: the sequence string may be empty
-        $self->seq($seq) if defined($seq);
+        if (defined $seq) {
+            $self->seq($seq);
+        }
     }
 
     $desc         && $self->desc($desc);
@@ -264,31 +263,31 @@ sub direct_seq_set {
            DNA sequence (IUPAC standard), but you should not rely on this.
  Returns : A scalar
  Args    : - Optional new sequence value (a string) to set
-           - Optional alphabet (it will be guessed by default)
+           - Optional alphabet (it is guessed by default)
 
 =cut
 
 sub seq {
-   my ($obj,@args) = @_;
+   my ($obj, @args) = @_;
 
-   if( scalar(@args) == 0 ) {
+   if( scalar @args == 0 ) {
        return $obj->{'seq'};
    }
 
-   my ($value,$alphabet) = @args;
+   my ($seq_str, $alphabet) = @args;
 
    if(@args) {
-       if(defined($value) && (! $obj->validate_seq($value))) {
+       if( (defined $seq_str) && (! $obj->validate_seq($seq_str)) ) {
            $obj->throw("Attempting to set the sequence '".(defined($obj->id) ||
-               "[unidentified sequence]")."' to [$value] which does not look healthy");
+               "[unidentified sequence]")."' to [$seq_str] which does not look healthy");
        }
        # if a sequence was already set we make sure that we re-adjust the
        # alphabet, otherwise we skip guessing if alphabet is already set
        # note: if the new seq is empty or undef, we don't consider that a
        # change (we wouldn't have anything to guess on anyway)
-       my $len = CORE::length($value || '');
+       my $len = CORE::length($seq_str || '');
        my $is_changed_seq = exists($obj->{'seq'}) && ($len > 0);
-       $obj->{'seq'} = $value;
+       $obj->{'seq'} = $seq_str;
        # new alphabet overridden by arguments?
        if ($alphabet) {
            # yes, set it no matter what
