@@ -13,7 +13,7 @@
 
 =head1 NAME
 
-Bio::PrimarySeq - Bioperl lightweight Sequence Object
+Bio::PrimarySeq - Bioperl lightweight sequence object
 
 =head1 SYNOPSIS
 
@@ -51,7 +51,7 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
 
 =head1 DESCRIPTION
 
-PrimarySeq is a lightweight Sequence object, storing the sequence, its
+PrimarySeq is a lightweight sequence object, storing the sequence, its
 name, a computer-useful unique name, and other fundamental attributes.
 It does not contain sequence features or other information.  To have a
 sequence with sequence features you should use the Seq object which uses
@@ -137,14 +137,14 @@ use base qw(Bio::Root::Root Bio::PrimarySeqI
 
 my %valid_type = map {$_, 1} qw( dna rna protein );
 
+
 =head2 new
 
  Title   : new
- Usage   : $seq    = Bio::PrimarySeq->new( -seq => 'ATGGGGGTGGTGGTACCCT',
-                                           -id  => 'human_id',
-                                           -accession_number => 'AL000012',
-                                           );
-
+ Usage   : $seq = Bio::PrimarySeq->new( -seq => 'ATGGGGGTGGTGGTACCCT',
+                                        -id  => 'human_id',
+                                        -accession_number => 'AL000012',
+                                        );
  Function: Returns a new primary seq object from
            basic constructors, being a string for the sequence
            and strings for id and accession_number.
@@ -171,7 +171,6 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
            -nowarnonempty    => boolean field for whether or not to warn when sequence is empty
 
 =cut
-
 
 sub new {
     my ($class, @args) = @_;
@@ -239,12 +238,12 @@ sub new {
         $self->seq($seq) if defined($seq);
     }
 
-    $desc        && $self->desc($desc);
-    $description && $self->description($description);
-    $is_circular && $self->is_circular($is_circular);
-    $ns          && $self->namespace($ns);
-    $auth        && $self->authority($auth);
-    defined($v)  && $self->version($v);
+    $desc         && $self->desc($desc);
+    $description  && $self->description($description);
+    $is_circular  && $self->is_circular($is_circular);
+    $ns           && $self->namespace($ns);
+    $auth         && $self->authority($auth);
+    defined($v)   && $self->version($v);
     defined($oid) && $self->object_id($oid);
 
 
@@ -261,14 +260,14 @@ sub direct_seq_set {
 =head2 seq
 
  Title   : seq
- Usage   : $string    = $obj->seq()
+ Usage   : $string = $obj->seq();
  Function: Returns the sequence as a string of letters. The
            case of the letters is left up to the implementer.
            Suggested cases are upper case for proteins and lower case for
            DNA sequence (IUPAC standard), but you should not rely on this.
  Returns : A scalar
- Args    : Optionally on set the new value (a string). An optional second
-           argument presets the alphabet (otherwise it will be guessed).
+ Args    : - Optional new sequence value (a string) to set
+           - Optional alphabet (it will be guessed by default)
 
 =cut
 
@@ -308,6 +307,7 @@ sub seq {
    return $obj->{'seq'};
 }
 
+
 =head2 validate_seq
 
  Title   : validate_seq
@@ -322,12 +322,8 @@ sub seq {
            The implementation provided here does not take alphabet() into
            account. Allowed are all letters (A-Z) and '-','.','*','?','=',
            and '~'.
-
- Example :
- Returns : 1 if the supplied sequence string is valid for the object, and
-           0 otherwise.
+ Returns : 1 if the supplied sequence string is valid, 0 otherwise.
  Args    : The sequence string to be validated.
-
 
 =cut
 
@@ -345,12 +341,13 @@ sub validate_seq {
     return 1;
 }
 
+
 =head2 subseq
 
  Title   : subseq
  Usage   : $substring = $obj->subseq(10,40);
-           $substring = $obj->subseq(10,40,NOGAP)
-           $substring = $obj->subseq(-START=>10,-END=>40,-REPLACE_WITH=>'tga')
+           $substring = $obj->subseq(10,40,NOGAP);
+           $substring = $obj->subseq(-START=>10,-END=>40,-REPLACE_WITH=>'tga');
  Function: returns the subseq from start to end, where the first sequence
            character has coordinate 1 number is inclusive, ie 1-2 are the 
            first two characters of the sequence
@@ -426,6 +423,7 @@ sub subseq {
    }
 }
 
+
 =head2 length
 
  Title   : length
@@ -442,12 +440,10 @@ sub subseq {
                $seq->length($seq->length);
                $seq->seq(undef);
 
-           Note that if you set the sequence to a value other than
+           Note that if you set seq() to a value other than
            undef at any time, the length attribute will be
            invalidated, and the length of the sequence string will be
            reported again. Also, we won''t let you lie about the length.
-
- Example :
  Returns : integer representing the length of the sequence.
  Args    : Optionally, the value on set
 
@@ -457,24 +453,25 @@ sub length {
     my $self = shift;
     my $len = CORE::length($self->seq() || '');
 
-    if(@_) {
+    if (@_) {
         my $val = shift;
-        if(defined($val) && $len && ($len != $val)) {
+        if ( (defined $val) && $len && ($len != $val)) {
             $self->throw("You're trying to lie about the length: ".
                 "is $len but you say ".$val);
         }
         $self->{'_seq_length'} = $val;
-    } elsif(defined($self->{'_seq_length'})) {
+    } elsif (defined $self->{'_seq_length'}) {
         return $self->{'_seq_length'};
     }
     return $len;
 }
 
+
 =head2 display_id
 
  Title   : display_id or display_name
  Usage   : $id_string = $obj->display_id();
- Function: returns the display id, aka the common name of the Sequence object.
+ Function: Get or set the display id, aka the common name of the sequence object.
 
            The semantics of this is that it is the most likely string to
            be used as an identifier of the sequence, and likely to have
@@ -489,20 +486,19 @@ sub length {
 
            With the new Bio::DescribeableI interface, display_name aliases
            to this method.
-
- Returns : A string
- Args    : None
-
+ Returns : A string for the display ID
+ Args    : Optional string for the display ID to set
 
 =cut
 
 sub display_id {
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'display_id'} = $value;
+    my ($obj,$value) = @_;
+    if( defined $value) {
+        $obj->{'display_id'} = $value;
     }
     return $obj->{'display_id'};
 }
+
 
 =head2 accession_number
 
@@ -522,7 +518,6 @@ sub display_id {
 
            With the new Bio::IdentifiableI interface, this is aliased
            to object_id
-
  Returns : A string
  Args    : A string (optional) for setting
 
@@ -530,7 +525,6 @@ sub display_id {
 
 sub accession_number {
     my( $obj, $acc ) = @_;
-
     if (defined $acc) {
         $obj->{'accession_number'} = $acc;
     } else {
@@ -539,6 +533,7 @@ sub accession_number {
     }
     return $acc;
 }
+
 
 =head2 primary_id
 
@@ -551,7 +546,6 @@ sub accession_number {
 
            For sequences with no natural primary id, this method
            should return a stringified memory location.
-
  Returns : A string
  Args    : A string (optional, for setting)
 
@@ -573,13 +567,12 @@ sub primary_id {
 =head2 alphabet
 
  Title   : alphabet
- Usage   : if( $obj->alphabet eq 'dna' ) { /Do Something/ }
- Function: Get/Set the alphabet of sequence, one of
+ Usage   : if( $obj->alphabet eq 'dna' ) { # Do something }
+ Function: Get/set the alphabet of sequence, one of
            'dna', 'rna' or 'protein'. This is case sensitive.
 
            This is not called <type> because this would cause
            upgrade problems from the 0.5 and earlier Seq objects.
-
  Returns : a string either 'dna','rna','protein'. NB - the object must
            make a call of the type - if there is no alphabet specified it
            has to guess.
@@ -601,16 +594,15 @@ sub alphabet {
     return $obj->{'alphabet'};
 }
 
+
 =head2 desc
 
  Title   : desc or description
- Usage   : $obj->desc($newval)
+ Usage   : $obj->desc($newval);
  Function: Get/set description of the sequence.
 
            'description' is an alias for this for compliance with the
            Bio::DescribeableI interface.
-
- Example :
  Returns : value of desc (a string)
  Args    : newvalue (a string or undef, optional)
 
@@ -624,6 +616,7 @@ sub desc{
     return $self->{'desc'};
 }
 
+
 =head2 can_call_new
 
  Title   : can_call_new
@@ -633,7 +626,6 @@ sub desc{
  Returns : true
  Args    :
 
-
 =cut
 
 sub can_call_new {
@@ -642,15 +634,15 @@ sub can_call_new {
    return 1;
 }
 
+
 =head2 id
 
  Title   : id
- Usage   : $id = $seq->id()
+ Usage   : $id = $seq->id();
  Function: This is mapped on display_id
  Example :
  Returns :
  Args    :
-
 
 =cut
 
@@ -658,10 +650,11 @@ sub  id {
    return shift->display_id(@_);
 }
 
+
 =head2 is_circular
 
  Title   : is_circular
- Usage   : if( $obj->is_circular) { /Do Something/ }
+ Usage   : if( $obj->is_circular) { # Do something }
  Function: Returns true if the molecule is circular
  Returns : Boolean value
  Args    : none
@@ -678,19 +671,17 @@ sub is_circular{
 
 =head1 Methods for Bio::IdentifiableI compliance
 
-=cut
-
 =head2 object_id
 
  Title   : object_id
- Usage   : $string    = $obj->object_id()
- Function: A string which represents the stable primary identifier
+ Usage   : $string = $obj->object_id();
+ Function: Get or set a string which represents the stable primary identifier
            in this namespace of this object. For DNA sequences this
            is its accession_number, similarly for protein sequences.
 
            This is aliased to accession_number().
  Returns : A scalar
-
+ Args    : Optional object ID to set.
 
 =cut
 
@@ -698,16 +689,17 @@ sub object_id {
     return shift->accession_number(@_);
 }
 
+
 =head2 version
 
  Title   : version
- Usage   : $version    = $obj->version()
- Function: A number which differentiates between versions of
+ Usage   : $version = $obj->version();
+ Function: Get or set a number which differentiates between versions of
            the same object. Higher numbers are considered to be
            later and more relevant, but a single object described
            the same identifier should represent the same concept.
-
  Returns : A number
+ Args    : Optional version to set.
 
 =cut
 
@@ -723,12 +715,12 @@ sub version{
 =head2 authority
 
  Title   : authority
- Usage   : $authority    = $obj->authority()
- Function: A string which represents the organisation which
-           granted the namespace, written as the DNS name for
+ Usage   : $authority = $obj->authority();
+ Function: Get or set a string which represents the organisation which
+           granted the namespace, written as the DNS name of the
            organisation (eg, wormbase.org).
-
  Returns : A scalar
+ Args    : Optional authority to set.
 
 =cut
 
@@ -740,16 +732,16 @@ sub authority {
     return $obj->{'authority'};
 }
 
+
 =head2 namespace
 
  Title   : namespace
- Usage   : $string    = $obj->namespace()
- Function: A string representing the name space this identifier
-           is valid in, often the database name or the name
-           describing the collection.
-
+ Usage   : $string = $obj->namespace();
+ Function: Get or set a string representing the name space this identifier
+           is valid in, often the database name or the name describing the
+           collection.
  Returns : A scalar
-
+ Args    : Optional namespace to set.
 
 =cut
 
@@ -761,24 +753,24 @@ sub namespace{
     return $self->{'namespace'} || "";
 }
 
+
 =head1 Methods for Bio::DescribableI compliance
 
 This comprises of display_name and description.
 
-=cut
-
 =head2 display_name
 
  Title   : display_name
- Usage   : $string    = $obj->display_name()
- Function: A string which is what should be displayed to the user.
+ Usage   : $string = $obj->display_name();
+ Function: Get or set a string which is what should be displayed to the user.
            The string should have no spaces (ideally, though a cautious
            user of this interface would not assumme this) and should be
            less than thirty characters (though again, double checking
            this is a good idea).
 
            This is aliased to display_id().
- Returns : A scalar
+ Returns : A string for the display name
+ Args    : Optional string for the display name to set.
 
 =cut
 
@@ -786,11 +778,12 @@ sub display_name {
     return shift->display_id(@_);
 }
 
+
 =head2 description
 
  Title   : description
- Usage   : $string    = $obj->description()
- Function: A text string suitable for displaying to the user a
+ Usage   : $string = $obj->description();
+ Function: Get or set a text string suitable for displaying to the user a
            description. This string is likely to have spaces, but
            should not have any newlines or formatting - just plain
            text. The string should not be greater than 255 characters
@@ -798,13 +791,15 @@ sub display_name {
            characters for the purposes of display.
 
            This is aliased to desc().
- Returns : A scalar
+ Returns : A string for the description
+ Args    : Optional string for the description to set.
 
 =cut
 
 sub description {
     return shift->desc(@_);
 }
+
 
 =head1 Methods Inherited from Bio::PrimarySeqI
 
@@ -814,7 +809,7 @@ actually implemented on Bio::PrimarySeqI
 =head2 revcom
 
  Title   : revcom
- Usage   : $rev = $seq->revcom()
+ Usage   : $rev = $seq->revcom();
  Function: Produces a new Bio::SeqI implementing object which
            is the reversed complement of the sequence. For protein
            sequences this throws an exception of
@@ -832,30 +827,20 @@ actually implemented on Bio::PrimarySeqI
            This of course, causes Perl to handle the garbage
            collection of the old object, but it is roughly speaking as
            efficient as an inplace edit.
-
  Returns : A new (fresh) Bio::SeqI object
  Args    : none
-
-=cut
 
 =head2 trunc
 
  Title   : trunc
  Usage   : $subseq = $myseq->trunc(10,100);
  Function: Provides a truncation of a sequence,
-
- Example :
  Returns : A fresh Bio::SeqI implementing object.
- Args    :
-
-
-=cut
+ Args    : Numbers for the start and end positions
 
 =head1 Internal methods
 
 These are internal methods to PrimarySeq
-
-=cut
 
 =head2 _guess_alphabet
 
@@ -868,10 +853,8 @@ These are internal methods to PrimarySeq
            RNA characters are also valid characters for proteins, there is
            no foolproof way of determining the right alphabet. This is our best
            guess only!
- Example :
  Returns : string 'dna', 'rna', 'protein' or ''.
  Args    : none
-
 
 =cut
 
