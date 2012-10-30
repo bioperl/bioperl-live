@@ -175,7 +175,6 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-
     my($seq,$id,$acc,$pid,$ns,$auth,$v,$oid,
        $desc,$description,
        $alphabet,$given_id,$is_circular,$direct,$ref_to_seq,$len,$nowarnonempty) =
@@ -203,16 +202,15 @@ sub new {
     $self->{'_nowarnonempty'} = $nowarnonempty; 
 
     if( defined $id && defined $given_id ) {
-      if( $id ne $given_id ) {
-        $self->throw("Provided both id and display_id constructor ".
-            "functions. [$id] [$given_id]");
-      }
+        if( $id ne $given_id ) {
+          $self->throw("Provided both id and display_id constructor ".
+              "functions. [$id] [$given_id]");
+        }
     }
     if( defined $given_id ) { $id = $given_id; }
 
-    # let's set the length before the seq -- if there is one, this length is
-    # going to be invalidated
-    defined $len && $self->length($len);
+    # Set the length before the seq. If there is a seq, length will be updated later
+    $self->{'_seq_length'} = $len || 0;
 
     # if alphabet is provided we set it first, so that it won't be guessed
     # when the sequence is set
@@ -228,9 +226,9 @@ sub new {
     # and sequence is ok
     
     if( $direct && $ref_to_seq) {
-      $self->{'seq'} = $$ref_to_seq;
+        $self->{'seq'} = $$ref_to_seq;
         if( ! $alphabet ) {
-          $self->_guess_alphabet();
+            $self->_guess_alphabet();
         } # else it has been set already above
     } else {
         # print STDERR "DEBUG: setting sequence to [$seq]\n";
@@ -245,7 +243,6 @@ sub new {
     $auth         && $self->authority($auth);
     defined($v)   && $self->version($v);
     defined($oid) && $self->object_id($oid);
-
 
     return $self;
 }
@@ -289,11 +286,11 @@ sub seq {
        # alphabet, otherwise we skip guessing if alphabet is already set
        # note: if the new seq is empty or undef, we don't consider that a
        # change (we wouldn't have anything to guess on anyway)
-       my $is_changed_seq =
-         exists($obj->{'seq'}) && (CORE::length($value || '') > 0);
+       my $len = CORE::length($value || '');
+       my $is_changed_seq = exists($obj->{'seq'}) && ($len > 0);
        $obj->{'seq'} = $value;
        # new alphabet overridden by arguments?
-       if($alphabet) {
+       if ($alphabet) {
            # yes, set it no matter what
            $obj->alphabet($alphabet);
        } elsif ($is_changed_seq || (! defined($obj->alphabet()))) {
@@ -301,8 +298,10 @@ sub seq {
            # alphabet yet at all, we need to guess the (possibly new) alphabet
            $obj->_guess_alphabet();
        } # else (seq not changed and alphabet was defined) do nothing
-       # if the seq is changed, make sure we unset a possibly set length
-       $obj->length(undef) if $is_changed_seq || $obj->{'seq'};
+
+       # Record sequence length
+       delete $obj->{'_freeze_length'} if $is_changed_seq;
+       $obj->{'_seq_length'} = $len if not exists $obj->{'_freeze_length'};
    }
    return $obj->{'seq'};
 }
@@ -450,20 +449,17 @@ sub subseq {
 =cut
 
 sub length {
-    my $self = shift;
-    my $len = CORE::length($self->seq() || '');
-
-    if (@_) {
-        my $val = shift;
-        if ( (defined $val) && $len && ($len != $val)) {
+    my ($self, $val) = @_;
+    if (defined $val) {
+        my $len = $self->{'_seq_length'};
+        if ($len && ($len != $val)) {
             $self->throw("You're trying to lie about the length: ".
                 "is $len but you say ".$val);
         }
         $self->{'_seq_length'} = $val;
-    } elsif (defined $self->{'_seq_length'}) {
-        return $self->{'_seq_length'};
+        $self->{'_freeze_length'} = undef;
     }
-    return $len;
+    return $self->{'_seq_length'};
 }
 
 
