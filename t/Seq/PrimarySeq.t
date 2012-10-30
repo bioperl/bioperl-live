@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 106 );
+    test_begin( -tests => 129 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -210,44 +210,49 @@ is( $seq->display_id,  'aliasid' );
 
 # Test alphabet
 
-$seq->seq('actgx');
-is( $seq->alphabet, 'protein', 'Alphabet' );
-$seq->seq('actge');
-is( $seq->alphabet, 'protein' );
-$seq->seq('actgf');
-is( $seq->alphabet, 'protein' );
-$seq->seq('actgi');
-is( $seq->alphabet, 'protein' );
-$seq->seq('actgj');
-is( $seq->alphabet, 'protein' );
-$seq->seq('actgl');
-is( $seq->alphabet, 'protein' );
-$seq->seq('actgo');
-is( $seq->alphabet, 'protein' );
-$seq->seq('actgp');
-is( $seq->alphabet, 'protein' );
-$seq->seq('actgq');
-is( $seq->alphabet, 'protein' );
-$seq->seq('actgz');
-is( $seq->alphabet, 'protein' );
-$seq->seq('actgn');
-is( $seq->alphabet, 'dna' );
-$seq->seq('acugn');
-is( $seq->alphabet, 'rna' );
-$seq->seq('bdhkm');
-is( $seq->alphabet, 'protein' );
-$seq->seq('rsvwx');
-is( $seq->alphabet, 'protein' );
-$seq->seq('AAACTYAAAAGAATTGRCGG'); # valid degenerate DNA PCR primer sequence (90% ACGTN)
-is( $seq->alphabet, 'dna');
-$seq->seq('AAACTYAAAKGAATTGRCGG'); # another primer previously detected as protein (85% ACGTN)
-is( $seq->alphabet, 'dna');
-$seq->seq('YWACTYAAAKGARTTGRCGG'); # 70% ACGTN. Everything <= 70% is considered a protein
-is( $seq->alphabet, 'protein');
-$seq->seq('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'); # Bug 2438
-is( $seq->alphabet, 'protein', 'Bug 2438');
-$seq->seq('CAGTCXXXXXXXXXXXXXXXXXXXXXXXXXXXCAGCG');
-is( $seq->alphabet, 'protein' );
+ok $seq->seq('actgx');
+is $seq->alphabet, 'protein', 'Alphabet';
+ok $seq->seq('actge');
+is $seq->alphabet, 'protein';
+ok $seq->seq('actgf');
+is $seq->alphabet, 'protein';
+ok $seq->seq('actgi');
+is $seq->alphabet, 'protein';
+ok $seq->seq('actgj');
+is $seq->alphabet, 'protein';
+ok $seq->seq('actgl');
+is $seq->alphabet, 'protein';
+ok $seq->seq('actgo');
+is $seq->alphabet, 'protein';
+ok $seq->seq('actgp');
+is $seq->alphabet, 'protein';
+ok $seq->seq('actgq');
+is $seq->alphabet, 'protein';
+ok $seq->seq('actgz');
+is $seq->alphabet, 'protein';
+ok $seq->seq('actgn');
+is $seq->alphabet, 'dna';
+ok $seq->seq('acugn');
+is $seq->alphabet, 'rna';
+ok $seq->seq('bdhkm');
+is $seq->alphabet, 'protein';
+ok $seq->seq('rsvwx');
+is $seq->alphabet, 'protein';
+ok $seq->seq('AAACTYAAAAGAATTGRCGG'); # valid degenerate DNA PCR primer sequence (90% ACGTN)
+is $seq->alphabet, 'dna';
+ok $seq->seq('AAACTYAAAKGAATTGRCGG'); # another primer previously detected as protein (85% ACGTN)
+is $seq->alphabet, 'dna';
+ok $seq->seq('YWACTYAAAKGARTTGRCGG'); # 70% ACGTN. Everything <= 70% is considered a protein
+is $seq->alphabet, 'protein';
+ok $seq->seq('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'); # Bug 2438
+is $seq->alphabet, 'protein', 'Bug 2438';
+ok $seq->seq('CAGTCXXXXXXXXXXXXXXXXXXXXXXXXXXXCAGCG');
+is $seq->alphabet, 'protein';
+
+ok $seq->seq('actgn', 'protein'); # accept specified alphabet, no matter what
+is $seq->alphabet, 'protein';
+ok $seq->seq('bdhkm', 'dna');
+is $seq->alphabet, 'dna';
 
 
 # Bug #2864:
