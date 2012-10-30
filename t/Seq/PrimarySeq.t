@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 130 );
+    test_begin( -tests => 132 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -278,6 +278,8 @@ is $aa->seq, 'MLAG';
 ok $seq = Bio::PrimarySeq->new(), 'Length method';
 is $seq->length, 0;
 is $seq->alphabet, undef;
+ok $seq->length(123);
+is $seq->length, 123;
 
 ok $seq = Bio::PrimarySeq->new( -seq => 'ATGCTCTAAGCAGGGTAA' );
 is $seq->length, 18;

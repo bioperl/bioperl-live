@@ -427,22 +427,24 @@ sub subseq {
 
  Title   : length
  Usage   : $len = $seq->length();
- Function: Get the length of the sequence in number of symbols (bases
+ Function: Get the stored length of the sequence in number of symbols (bases
            or amino acids).
 
-           You can also set this attribute, even to a number that does
-           not match the length of the sequence string. This is useful
-           if you don''t want to set the sequence too, or if you want
-           to free up memory by unsetting the sequence. In the latter
-           case you could do e.g.
+           In some circumstances, you can also set this attribute:
+           1/ For empty sequences, you can set the length to anything you want:
+              my $seq = Bio::PrimarySeq->new( -length => 123 );
+              my $len = $seq->len; # 123
+           2/ To save memory when using very long sequences, you can set the
+              length of the sequence to the length of the sequence (and nothing
+              else):
+              my $seq = Bio::PrimarySeq->new( -seq => 'ACGT...' ); # 1 Mbp sequence
+              # process $seq... then after you're done with it
+              $seq->length($seq->length);
+              $seq->seq(undef); # free memory!
+              my $len = $seq->len; # 1 Mbp
 
-               $seq->length($seq->length);
-               $seq->seq(undef);
-
-           Note that if you set seq() to a value other than
-           undef at any time, the length attribute will be
-           invalidated, and the length of the sequence string will be
-           reported again. Also, we won''t let you lie about the length.
+           Note that if you set seq() to a value other than undef at any time,
+           the length attribute will be reset.
  Returns : integer representing the length of the sequence.
  Args    : Optionally, the value on set
 
