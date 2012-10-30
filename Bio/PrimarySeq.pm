@@ -200,6 +200,7 @@ sub new {
 
     # Private var _nowarnonempty, needs to be set before calling _guess_alphabet
     $self->{'_nowarnonempty'} = $nowarnonempty;
+    $self->{'_direct'} = $direct;
 
     if( defined $id && defined $given_id ) {
         if( $id ne $given_id ) {
@@ -209,16 +210,16 @@ sub new {
     }
     if( defined $given_id ) { $id = $given_id; }
 
-    # Set the length before the seq. If there is a seq, length will be updated later
-    $self->{'length'} = $len || 0;
-
-    # Set alphabet now to avoid guessing it later, when sequence is set
-    $alphabet && $self->alphabet($alphabet);
-
     # Bernd's idea: set ids now for more informative invalid sequence messages
     defined $id  && $self->display_id($id);
     $acc         && $self->accession_number($acc);
     defined $pid && $self->primary_id($pid);
+
+    # Set alphabet now to avoid guessing it later, when sequence is set
+    $alphabet && $self->alphabet($alphabet);
+
+    # Set the length before the seq. If there is a seq, length will be updated later
+    $self->{'length'} = $len || 0;
 
     if( $direct && $ref_to_seq) {
         # if there is an alphabet, and direct is passed in, assume the alphabet
@@ -277,10 +278,13 @@ sub seq {
    my ($seq_str, $alphabet) = @args;
 
    if(@args) {
-       if( (defined $seq_str) && (! $obj->validate_seq($seq_str)) ) {
+
+       # Unless in direct mode, validate sequence if sequence is not empty
+       if( (! $obj->{'_direct'}) && (defined $seq_str) && (! $obj->validate_seq($seq_str)) ) {
            $obj->throw("Attempting to set the sequence '".(defined($obj->id) ||
                "[unidentified sequence]")."' to [$seq_str] which does not look healthy");
        }
+
        # if a sequence was already set we make sure that we re-adjust the
        # alphabet, otherwise we skip guessing if alphabet is already set
        # note: if the new seq is empty or undef, we don't consider that a
