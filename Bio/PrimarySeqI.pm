@@ -11,6 +11,7 @@
 
 # POD documentation - main docs before the code
 
+
 =head1 NAME
 
 Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
@@ -36,11 +37,11 @@ Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
 
     # Object manipulation
     eval {
-	   $rev = $obj->revcom();
+       $rev = $obj->revcom();
     };
     if( $@ ) {
-	   $obj->throw("Could not reverse complement. ".
-		    "Probably not DNA. Actual exception\n$@\n");
+       $obj->throw( "Could not reverse complement. ".
+                    "Probably not DNA. Actual exception\n$@\n" );
     }
 
     $trunc = $obj->trunc(12,50);
@@ -118,16 +119,14 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 
-# Let the code begin...
-
-
 package Bio::PrimarySeqI;
 use strict;
 use Bio::Tools::CodonTable;
 
 use base qw(Bio::Root::RootI);
 
-=head1 Implementation Specific Functions
+
+=head1 Implementation-specific Functions
 
 These functions are the ones that a specific implementation must
 define.
@@ -151,6 +150,7 @@ sub seq {
    $self->throw_not_implemented();
 }
 
+
 =head2 subseq
 
  Title   : subseq
@@ -171,6 +171,7 @@ sub subseq{
    my ($self) = @_;
    $self->throw_not_implemented();
 }
+
 
 =head2 display_id
 
@@ -195,7 +196,6 @@ sub subseq{
  Returns : A string
  Args    : None
  Status  : Virtual
-
 
 =cut
 
@@ -222,14 +222,12 @@ sub display_id {
  Args    : None
  Status  : Virtual
 
-
 =cut
 
 sub accession_number {
    my ($self,@args) = @_;
    $self->throw_not_implemented();
 }
-
 
 
 =head2 primary_id
@@ -248,7 +246,6 @@ sub accession_number {
  Args    : None
  Status  : Virtual
 
-
 =cut
 
 sub primary_id {
@@ -262,7 +259,7 @@ sub primary_id {
  Title   : can_call_new
  Usage   : if( $obj->can_call_new ) {
              $newobj = $obj->new( %param );
-	 }
+         }
  Function: Can_call_new returns 1 or 0 depending
            on whether an implementation allows new
            constructor to be called. If a new constructor
@@ -270,10 +267,10 @@ sub primary_id {
            constructor list.
 
            $myobject->new( -seq => $sequence_as_string,
-			   -display_id  => $id
-			   -accession_number => $accession
-			   -alphabet => 'dna',
-			   );
+                           -display_id  => $id
+                           -accession_number => $accession
+                           -alphabet => 'dna',
+                           );
  Returns : 1 or 0
  Args    :
 
@@ -282,11 +279,10 @@ sub primary_id {
 
 sub can_call_new{
    my ($self,@args) = @_;
-
    # we default to 0 here
-
    return 0;
 }
+
 
 =head2 alphabet
 
@@ -304,13 +300,13 @@ sub can_call_new{
  Args    : None
  Status  : Virtual
 
-
 =cut
 
 sub alphabet{
     my ( $self ) = @_;
     $self->throw_not_implemented();
 }
+
 
 =head2 moltype
 
@@ -327,7 +323,7 @@ sub moltype{
 }
 
 
-=head1 Optional Implementation Functions
+=head1 Implementation-optional Functions
 
 The following functions rely on the above functions. An
 implementing class does not need to provide these functions, as they
@@ -381,16 +377,17 @@ sub revcom{
        $self->_attempt_to_load_Seq();
    }
    my $out = $seqclass->new( '-seq' => $self->_revcom_from_string($self->seq, $self->alphabet),
-			     '-is_circular'  => $self->is_circular,
-			     '-display_id'  => $self->display_id,
-			     '-accession_number' => $self->accession_number,
-			     '-alphabet' => $self->alphabet,
-			     '-desc' => $self->desc(),
+                             '-is_circular'  => $self->is_circular,
+                             '-display_id'  => $self->display_id,
+                             '-accession_number' => $self->accession_number,
+                             '-alphabet' => $self->alphabet,
+                             '-desc' => $self->desc(),
                              '-verbose' => $self->verbose
-			     );
+                             );
    return $out;
 
 }
+
 
 sub _revcom_from_string {
    my ($self, $string, $alphabet) = @_;
@@ -449,8 +446,8 @@ sub trunc{
        $self->throw("trunc start,end -- there was no end for $start");
    } elsif( $end < $start ) {
        my $msg = "start [$start] is greater than end [$end]. \n".
-	   "If you want to truncated and reverse complement, \n".
-	       "you must call trunc followed by revcom. Sorry.";
+                 "If you want to truncated and reverse complement, \n".
+                 "you must call trunc followed by revcom. Sorry.";
        $self->throw($msg);
    } else {
        $str = $self->subseq($start,$end);
@@ -465,12 +462,12 @@ sub trunc{
    }
 
    my $out = $seqclass->new( '-seq' => $str,
-			     '-display_id'  => $self->display_id,
-			     '-accession_number' => $self->accession_number,
-			     '-alphabet' => $self->alphabet,
-			     '-desc' => $self->desc(),
+                             '-display_id'  => $self->display_id,
+                             '-accession_number' => $self->accession_number,
+                             '-alphabet' => $self->alphabet,
+                             '-desc' => $self->desc(),
                              '-verbose' => $self->verbose
-			     );
+                             );
    return $out;
 }
 
@@ -567,15 +564,15 @@ element in an array:
 =cut
 
 sub translate {
-	 my ($self,@args) = @_;
-     my ($terminator, $unknown, $frame, $codonTableId, $complete,
-     $complete_codons, $throw, $codonTable, $orf, $start_codon, $offset);
+    my ($self,@args) = @_;
+    my ($terminator, $unknown, $frame, $codonTableId, $complete,
+        $complete_codons, $throw, $codonTable, $orf, $start_codon, $offset);
 
-	 ## new API with named parameters, post 1.5.1
-	 if ($args[0] && $args[0] =~ /^-[A-Z]+/i) {
-         ($terminator, $unknown, $frame, $codonTableId, $complete,
-         $complete_codons, $throw,$codonTable, $orf, $start_codon, $offset) =
-			 $self->_rearrange([qw(TERMINATOR
+    ## new API with named parameters, post 1.5.1
+    if ($args[0] && $args[0] =~ /^-[A-Z]+/i) {
+        ($terminator, $unknown, $frame, $codonTableId, $complete,
+        $complete_codons, $throw,$codonTable, $orf, $start_codon, $offset) =
+            $self->_rearrange([qw(TERMINATOR
                                                UNKNOWN
                                                FRAME
                                                CODONTABLE_ID
@@ -586,11 +583,11 @@ sub translate {
                                                ORF
                                                START
                                                OFFSET)], @args);
-	 ## old API, 1.5.1 and preceding versions
-	 } else {
-		 ($terminator, $unknown, $frame, $codonTableId,
-		  $complete, $throw, $codonTable, $offset) = @args;
-	 }
+    ## old API, 1.5.1 and preceding versions
+    } else {
+        ($terminator, $unknown, $frame, $codonTableId,
+         $complete, $throw, $codonTable, $offset) = @args;
+    }
     
     ## Initialize termination codon, unknown codon, codon table id, frame
     $terminator = '*'    unless (defined($terminator) and $terminator ne '');
@@ -601,46 +598,45 @@ sub translate {
     
     ## Get a CodonTable, error if custom CodonTable is invalid
     if ($codonTable) {
-		 $self->throw("Need a Bio::Tools::CodonTable object, not ". $codonTable)
-			unless $codonTable->isa('Bio::Tools::CodonTable');
+        $self->throw("Need a Bio::Tools::CodonTable object, not ". $codonTable)
+            unless $codonTable->isa('Bio::Tools::CodonTable');
     } else {
         
         # shouldn't this be cached?  Seems wasteful to have a new instance
         # every time...
-		$codonTable = Bio::Tools::CodonTable->new( -id => $codonTableId);
-	 }
+        $codonTable = Bio::Tools::CodonTable->new( -id => $codonTableId);
+    }
 
     ## Error if alphabet is "protein"
     $self->throw("Can't translate an amino acid sequence.") if
-		($self->alphabet =~ /protein/i);
+        ($self->alphabet =~ /protein/i);
 
     ## Error if -start parameter isn't a valid codon
-	 if ($start_codon) {
-		 $self->throw("Invalid start codon: $start_codon.") if
-			( $start_codon !~ /^[A-Z]{3}$/i );
-	 }
+    if ($start_codon) {
+        $self->throw("Invalid start codon: $start_codon.") if
+            ( $start_codon !~ /^[A-Z]{3}$/i );
+    }
 
-	 my $seq;
-
-	 if ($offset) {
-		$self->throw("Offset must be 1, 2, or 3.") if
-		    ( $offset !~ /^[123]$/ );
-		my ($start, $end) = ($offset, $self->length);
-		($seq) = $self->subseq($start, $end);
-	 } else {
-		($seq) = $self->seq();
-	 }
+    my $seq;
+    if ($offset) {
+        $self->throw("Offset must be 1, 2, or 3.") if
+            ( $offset !~ /^[123]$/ );
+        my ($start, $end) = ($offset, $self->length);
+        ($seq) = $self->subseq($start, $end);
+    } else {
+        ($seq) = $self->seq();
+    }
 
          ## ignore frame if an ORF is supposed to be found
-	 if ( $orf ) {
-            my ($orf_region) = $self->_find_orfs_nucleotide( $seq, $codonTable, $start_codon, $orf eq 'longest' ? 0 : 'first_only' );
-            $seq = $self->_orf_sequence( $seq, $orf_region );
-	 } else {
-	 ## use frame, error if frame is not 0, 1 or 2
-		 $self->throw("Valid values for frame are 0, 1, or 2, not $frame.")
-			unless ($frame == 0 or $frame == 1 or $frame == 2);
-		 $seq = substr($seq,$frame);
-         }
+    if ( $orf ) {
+        my ($orf_region) = $self->_find_orfs_nucleotide( $seq, $codonTable, $start_codon, $orf eq 'longest' ? 0 : 'first_only' );
+        $seq = $self->_orf_sequence( $seq, $orf_region );
+    } else {
+        ## use frame, error if frame is not 0, 1 or 2
+        $self->throw("Valid values for frame are 0, 1, or 2, not $frame.")
+            unless ($frame == 0 or $frame == 1 or $frame == 2);
+        $seq = substr($seq,$frame);
+    }
 
     ## Translate it
     my $output = $codonTable->translate($seq, $complete_codons);
@@ -650,50 +646,50 @@ sub translate {
 
     ## Only if we are expecting to translate a complete coding region
     if ($complete) {
-		 my $id = $self->display_id;
-		 # remove the terminator character
-		 if( substr($output,-1,1) eq $terminator ) {
-			 chop $output;
-		 } else {
-			 $throw && $self->throw("Seq [$id]: Not using a valid terminator codon!");
-			 $self->warn("Seq [$id]: Not using a valid terminator codon!");
-		 }
-		 # test if there are terminator characters inside the protein sequence!
-		 if ($output =~ /\Q$terminator\E/) {
-             $id ||= '';
-			 $throw && $self->throw("Seq [$id]: Terminator codon inside CDS!");
-			 $self->warn("Seq [$id]: Terminator codon inside CDS!");
-		 }
-		 # if the initiator codon is not ATG, the amino acid needs to be changed to M
-		 if ( substr($output,0,1) ne 'M' ) {
-			 if ($codonTable->is_start_codon(substr($seq, 0, 3)) ) {
-				 $output = 'M'. substr($output,1);
-			 }	elsif ($throw) {
-				 $self->throw("Seq [$id]: Not using a valid initiator codon!");
-			 } else {
-				 $self->warn("Seq [$id]: Not using a valid initiator codon!");
-			 }
-		 }
+        my $id = $self->display_id;
+        # remove the terminator character
+        if( substr($output,-1,1) eq $terminator ) {
+            chop $output;
+        } else {
+            $throw && $self->throw("Seq [$id]: Not using a valid terminator codon!");
+            $self->warn("Seq [$id]: Not using a valid terminator codon!");
+        }
+        # test if there are terminator characters inside the protein sequence!
+        if ($output =~ /\Q$terminator\E/) {
+            $id ||= '';
+            $throw && $self->throw("Seq [$id]: Terminator codon inside CDS!");
+            $self->warn("Seq [$id]: Terminator codon inside CDS!");
+        }
+        # if the initiator codon is not ATG, the amino acid needs to be changed to M
+        if ( substr($output,0,1) ne 'M' ) {
+            if ($codonTable->is_start_codon(substr($seq, 0, 3)) ) {
+                $output = 'M'. substr($output,1);
+            } elsif ($throw) {
+                $self->throw("Seq [$id]: Not using a valid initiator codon!");
+            } else {
+                $self->warn("Seq [$id]: Not using a valid initiator codon!");
+            }
+        }
     }
 
     my $seqclass;
     if ($self->can_call_new()) {
-		 $seqclass = ref($self);
+        $seqclass = ref($self);
     } else {
-		 $seqclass = 'Bio::PrimarySeq';
-		 $self->_attempt_to_load_Seq();
+        $seqclass = 'Bio::PrimarySeq';
+        $self->_attempt_to_load_Seq();
     }
     my $out = $seqclass->new( '-seq' => $output,
-										'-display_id'  => $self->display_id,
-										'-accession_number' => $self->accession_number,
-										# is there anything wrong with retaining the
-										# description?
-										'-desc' => $self->desc(),
-										'-alphabet' => 'protein',
+                              '-display_id'  => $self->display_id,
+                              '-accession_number' => $self->accession_number,
+                              # is there anything wrong with retaining the desc?
+                              '-desc' => $self->desc(),
+                              '-alphabet' => 'protein',
                               '-verbose' => $self->verbose
-			      );
+                  );
     return $out;
 }
+
 
 =head2 transcribe()
 
@@ -713,21 +709,22 @@ sub transcribe {
     $s =~ tr/tT/uU/;
     my $class;
     if ($self->can_call_new) {
-	$class = ref($self);
+        $class = ref($self);
     } else {
-	$class = 'Bio::PrimarySeq';
-	$self->_attempt_to_load_Seq;
+        $class = 'Bio::PrimarySeq';
+        $self->_attempt_to_load_Seq;
     }
     my $desc = $self->desc || '';
     return $class->new(
-	'-seq' => $s,
-	'-alphabet' => 'rna',
-	'-display_id'  => $self->display_id,
-	'-accession_number' => $self->accession_number,
-	'-desc' => "${desc}[TRANSCRIBED]",
-	'-verbose' => $self->verbose
-	);
+        '-seq' => $s,
+        '-alphabet' => 'rna',
+        '-display_id'  => $self->display_id,
+        '-accession_number' => $self->accession_number,
+        '-desc' => "${desc}[TRANSCRIBED]",
+        '-verbose' => $self->verbose
+        );
 }
+
 
 =head2 rev_transcribe()
 
@@ -747,20 +744,21 @@ sub rev_transcribe {
     $s =~ tr/uU/tT/;
     my $class;
     if ($self->can_call_new) {
-	$class = ref($self);
+        $class = ref($self);
     } else {
-	$class = 'Bio::PrimarySeq';
-	$self->_attempt_to_load_Seq;
+        $class = 'Bio::PrimarySeq';
+        $self->_attempt_to_load_Seq;
     }
     return $class->new(
-	'-seq' => $s,
-	'-alphabet' => 'dna',
-	'-display_id'  => $self->display_id,
-	'-accession_number' => $self->accession_number,
-	'-desc' => $self->desc . "[REVERSE TRANSCRIBED]",
-	'-verbose' => $self->verbose
-	);
+        '-seq' => $s,
+        '-alphabet' => 'dna',
+        '-display_id'  => $self->display_id,
+        '-accession_number' => $self->accession_number,
+        '-desc' => $self->desc . "[REVERSE TRANSCRIBED]",
+        '-verbose' => $self->verbose
+        );
 }
+
 
 =head2 id
 
@@ -795,6 +793,7 @@ sub  length {
    $self->throw_not_implemented();
 }
 
+
 =head2 desc
 
  Title   : desc
@@ -824,6 +823,7 @@ sub desc {
 sub is_circular{
     shift->throw_not_implemented;
 }
+
 
 =head1 Private functions
 
@@ -899,15 +899,19 @@ sub _find_orfs_nucleotide {
     return sort { $b->[2] <=> $a->[2] } @orfs;
 }
 
+
 sub _truncate_seq {
     my ($self,$seq) = @_;
     return CORE::length($seq) > 200 ? substr($seq,0,50).'...'.substr($seq,-50) : $seq;
 }
+
+
 sub _orf_sequence {
     my ($self, $seq, $orf ) = @_;
     return '' unless $orf;
     return substr( $seq, $orf->[0], $orf->[2] )
 }
+
 
 =head2 _attempt_to_load_Seq
 
@@ -918,7 +922,6 @@ sub _orf_sequence {
  Returns :
  Args    :
 
-
 =cut
 
 sub _attempt_to_load_Seq{
@@ -928,17 +931,17 @@ sub _attempt_to_load_Seq{
        return 1;
    } else {
        eval {
-	   require Bio::PrimarySeq;
+           require Bio::PrimarySeq;
        };
        if( $@ ) {
-	   my $text = "Bio::PrimarySeq could not be loaded for [$self]\n".
-	       "This indicates that you are using Bio::PrimarySeqI ".
-	       "without Bio::PrimarySeq loaded or without providing a ".
-	       "complete implementation.\nThe most likely problem is that there ".
-	       "has been a misconfiguration of the bioperl environment\n".
-	       "Actual exception:\n\n";
-	   $self->throw("$text$@\n");
-	   return 0;
+           my $text = "Bio::PrimarySeq could not be loaded for [$self]\n".
+               "This indicates that you are using Bio::PrimarySeqI ".
+               "without Bio::PrimarySeq loaded or without providing a ".
+               "complete implementation.\nThe most likely problem is that there ".
+               "has been a misconfiguration of the bioperl environment\n".
+               "Actual exception:\n\n";
+           $self->throw("$text$@\n");
+           return 0;
        }
        return 1;
    }

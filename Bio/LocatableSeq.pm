@@ -440,47 +440,47 @@ sub column_from_residue_number {
     unless $resnumber =~ /^\d+$/ and $resnumber > 0;
 
     if ($resnumber >= $self->start() and $resnumber <= $self->end()) {
-	my @chunks;
-	my $column_incr;
-	my $current_column;
-	my $current_residue = $self->start - 1;
-	my $seq = $self->seq;
-	my $strand = $self->strand || 0;
+        my @chunks;
+        my $column_incr;
+        my $current_column;
+        my $current_residue = $self->start - 1;
+        my $seq = $self->seq;
+        my $strand = $self->strand || 0;
 
-	if ($strand == -1) {
-#	    @chunks = reverse $seq =~ m/[^\.\-]+|[\.\-]+/go;
-	    @chunks = reverse $seq =~ m/[$RESIDUE_SYMBOLS]+|[$GAP_SYMBOLS]+/go;
-	    $column_incr = -1;
-	    $current_column = (CORE::length $seq) + 1;
-	}
-	else {
-#	    @chunks = $seq =~ m/[^\.\-]+|[\.\-]+/go;
-	    @chunks = $seq =~ m/[$RESIDUE_SYMBOLS]+|[$GAP_SYMBOLS]+/go;
-	    $column_incr = 1;
-	    $current_column = 0;
-	}
+        if ($strand == -1) {
+           #@chunks = reverse $seq =~ m/[^\.\-]+|[\.\-]+/go;
+            @chunks = reverse $seq =~ m/[$RESIDUE_SYMBOLS]+|[$GAP_SYMBOLS]+/go;
+            $column_incr = -1;
+            $current_column = (CORE::length $seq) + 1;
+        }
+        else {
+            #@chunks = $seq =~ m/[^\.\-]+|[\.\-]+/go;
+            @chunks = $seq =~ m/[$RESIDUE_SYMBOLS]+|[$GAP_SYMBOLS]+/go;
+            $column_incr = 1;
+            $current_column = 0;
+        }
 
-	while (my $chunk = shift @chunks) {
-#	    if ($chunk =~ m|^[\.\-]|o) {
-	    if ($chunk =~ m|^[$GAP_SYMBOLS]|o) {
-		$current_column += $column_incr * CORE::length($chunk);
-	    }
-	    else {
-		if ($current_residue + CORE::length($chunk) < $resnumber) {
-		    $current_column += $column_incr * CORE::length($chunk);
-		    $current_residue += CORE::length($chunk);
-		}
-		else {
-		    if ($strand == -1) {
-			$current_column -= $resnumber - $current_residue;
-		    }
-		    else {
-			$current_column += $resnumber - $current_residue;
-		    }
-		    return $current_column;
-		}
-	    }
-	}
+        while (my $chunk = shift @chunks) {
+            #if ($chunk =~ m|^[\.\-]|o) {
+            if ($chunk =~ m|^[$GAP_SYMBOLS]|o) {
+                $current_column += $column_incr * CORE::length($chunk);
+            }
+            else {
+                if ($current_residue + CORE::length($chunk) < $resnumber) {
+                    $current_column += $column_incr * CORE::length($chunk);
+                    $current_residue += CORE::length($chunk);
+                }
+                else {
+                    if ($strand == -1) {
+                        $current_column -= $resnumber - $current_residue;
+                    }
+                    else {
+                        $current_column += $resnumber - $current_residue;
+                    }
+                    return $current_column;
+                }
+            }
+        }
     }
 
     $self->throw("Could not find residue number $resnumber");
@@ -601,12 +601,9 @@ sub revcom {
  Title   : trunc
  Usage   : $subseq = $myseq->trunc(10,100);
  Function: Provides a truncation of a sequence,
-
- Example :
  Returns : a fresh Bio::PrimarySeqI implementing object
  Args    : Two integers denoting first and last columns of the
            sequence to be included into sub-sequence.
-
 
 =cut
 
@@ -641,7 +638,6 @@ sub trunc {
            and common symbols used for gaps, stop codons, unknown residues,
            and frameshifts, including '-','.','*','?','=',and '~'.
 
- Example :
  Returns : 1 if the supplied sequence string is valid for the object, and
            0 otherwise.
  Args    : The sequence string to be validated.
@@ -682,11 +678,11 @@ sub validate_seq {
 =cut
 
 sub no_gaps {
-	my $self = shift;
-	$self->deprecated(-warn_version => 1.0069,
-					  -throw_version => 1.0075,
-                      -message => 'Use of method no_gaps() is deprecated, use num_gaps() instead');
-    $self->num_gaps(@_);
+    my $self = shift;
+    $self->deprecated( -warn_version  => 1.0069,
+                       -throw_version => 1.0075,
+                       -message => 'Use of method no_gaps() is deprecated, use num_gaps() instead' );
+    return $self->num_gaps(@_);
 }
 
 =head2 no_sequences
@@ -701,11 +697,11 @@ sub no_gaps {
 =cut
 
 sub no_sequences {
-	my $self = shift;
-	$self->deprecated(-warn_version => 1.0069,
-					  -throw_version => 1.0075,
-                      -message => 'Use of method no_sequences() is deprecated, use num_sequences() instead');
-    $self->num_sequences(@_);
+    my $self = shift;
+    $self->deprecated( -warn_version  => 1.0069,
+                       -throw_version => 1.0075,
+                       -message => 'Use of method no_sequences() is deprecated, use num_sequences() instead' );
+    return $self->num_sequences(@_);
 }
 
 1;
