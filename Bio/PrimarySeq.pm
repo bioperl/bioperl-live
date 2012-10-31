@@ -378,15 +378,15 @@ sub subseq {
 
     if( ref($start) && $start->isa('Bio::LocationI') ) {
         my $loc = $start;
-        my $seq = "";
+        my $seq = '';
         foreach my $subloc ($loc->each_Location()) {
-            my $piece = $self->subseq(-START        => $subloc->start(),
-                                      -END          => $subloc->end(),
-                                      -REPLACE_WITH => $replace,
-                                      -NOGAP        => $nogap);
+            my $piece = $self->subseq(-start        => $subloc->start(),
+                                      -end          => $subloc->end(),
+                                      -replace_with => $replace,
+                                      -nogap        => $nogap);
             $piece =~ s/[$GAP_SYMBOLS]//g if $nogap;
-            if($subloc->strand() < 0) {
-                $piece = Bio::PrimarySeq->new( -seq => $piece)->revcom()->seq();
+            if ($subloc->strand() < 0) {
+                $piece = $self->_revcom_from_string($piece, $self->alphabet);
             }
             $seq .= $piece;
         }
