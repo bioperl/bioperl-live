@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 164 );
+    test_begin( -tests => 166 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -124,8 +124,12 @@ is $seq->subseq($fuzzy), 'GGTGGC';
     throws_ok { $seq->subseq(-start=>2, -end=>5, -replace_with=>'?!'); } qr/.+/;
 }
 
+{
+    ok my $seq = Bio::PrimarySeq->new( -seq => 'AACCGGTT', -is_circular => 1 );
+    is $seq->subseq( -start => 7, -end => 10 ), 'TTAA';
+}
 
-# Test subseq
+# Test trunc
 my $trunc = $seq->trunc( 1, 4 );
 isa_ok $trunc, 'Bio::PrimarySeqI';
 is $trunc->seq(), 'TTGG' or diag( "Expecting TTGG. Got " . $trunc->seq() );

@@ -26,18 +26,22 @@ Bio::PrimarySeq - Bioperl lightweight sequence object
 
   # make from memory
 
-  $seqobj = Bio::PrimarySeq->new ( -seq => 'ATGGGGTGGGCGGTGGGTGGTTTG',
-                                   -id  => 'GeneFragment-12',
-                                   -accession_number => 'X78121',
-                                   -alphabet => 'dna',
-                                   -is_circular => 1 );
+  $seqobj = Bio::PrimarySeq->new (
+      -seq              => 'ATGGGGTGGGCGGTGGGTGGTTTG',
+      -id               => 'GeneFragment-12',
+      -accession_number => 'X78121',
+      -alphabet         => 'dna',
+      -is_circular      => 1,
+  );
   print "Sequence ", $seqobj->id(), " with accession ",
     $seqobj->accession_number, "\n";
 
   # read from file
 
-  $inputstream = Bio::SeqIO->new(-file => "myseq.fa",
-                                 -format => 'Fasta');
+  $inputstream = Bio::SeqIO->new(
+      -file   => "myseq.fa",
+      -format => 'Fasta',
+  );
   $seqobj = $inputstream->next_seq();
   print "Sequence ", $seqobj->id(), " and desc ", $seqobj->desc, "\n";
 
@@ -348,9 +352,10 @@ sub validate_seq {
            $substring = $seqobj->subseq(-start=>10, -end=>40, -replace_with=>'tga');
            $substring = $seqobj->subseq($location_obj);
            $substring = $seqobj->subseq($location_obj, -nogap => 1);
- Function: returns the subseq from start to end, where the first sequence
+ Function: Return the subseq from start to end, where the first sequence
            character has coordinate 1 number is inclusive, ie 1-2 are the 
-           first two characters of the sequence
+           first two characters of the sequence. The given start coordinate
+           has to be larger than the end, even if the sequence is circular.
  Returns : a string
  Args    : integer for start position
            integer for end position
@@ -402,18 +407,21 @@ sub subseq {
 
         # Remove one from start, and then length is end-start
         $start--;
-        my @ss_args = map { eval "defined $_"  ? $_ : () } qw( $self->{seq} $start $end-$start $replace );
+        my @ss_args = map { eval "defined $_"  ? $_ : () }
+            qw( $self->{seq} $start $end-$start $replace );
         my $seqstr = eval join( '', "substr(", join(',',@ss_args), ")");
 
-        if( $end > $self->length) {
+        if ($end > $self->length) {
             if ($self->is_circular) {
                 my $start = 0;
                 my $end = $end - $self->length;
-                my @ss_args = map { eval "defined $_"  ? $_ : () } qw( $self->{seq} $start $end-$start $replace );
+                my @ss_args = map { eval "defined $_"  ? $_ : () }
+                    qw( $self->{seq} $start $end-$start $replace );
                 my $appendstr = eval join( '', "substr(", join(',',@ss_args), ")");
                 $seqstr .= $appendstr;
             } else {
-                $self->throw("Bad end parameter ($end). End must be less than the total length of sequence (total=".$self->length.")")
+                $self->throw("Bad end parameter ($end). End must be less than ".
+                    "the total length of sequence (total=".$self->length.")")
             }
         }
 
@@ -421,7 +429,8 @@ sub subseq {
         return $seqstr;
 
     } else {
-        $self->warn("Incorrect parameters to subseq - must be two integers or a Bio::LocationI object. Got:", $self,$start,$end,$replace,$nogap);
+        $self->warn("Incorrect parameters to subseq - must be two integers or ".
+            "a Bio::LocationI object. Got:", $self,$start,$end,$replace,$nogap);
         return;
     }
 }
@@ -665,7 +674,6 @@ sub  id {
 
 sub is_circular{
     my $self = shift;
-
     return $self->{'is_circular'} = shift if @_;
     return $self->{'is_circular'};
 }

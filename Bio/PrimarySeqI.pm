@@ -786,7 +786,7 @@ sub desc {
 =head2 is_circular
 
  Title   : is_circular
- Usage   : if( $obj->is_circular) { /Do Something/ }
+ Usage   : if( $obj->is_circular) { # Do something }
  Function: Returns true if the molecule is circular
  Returns : Boolean value
  Args    : none
