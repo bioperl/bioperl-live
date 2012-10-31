@@ -249,12 +249,6 @@ sub new {
     return $self;
 }
 
-sub direct_seq_set {
-    my $self = shift;
-    return $self->{'seq'} = shift if @_;
-    return;
-}
-
 
 =head2 seq
 
