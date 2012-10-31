@@ -265,44 +265,51 @@ sub new {
 =cut
 
 sub seq {
-   my ($self, @args) = @_;
+    my ($self, @args) = @_;
 
-   if( scalar @args == 0 ) {
-       return $self->{'seq'};
-   }
+    if( scalar @args == 0 ) {
+        return $self->{'seq'};
+    }
 
-   my ($seq_str, $alphabet) = @args;
+    my ($seq_str, $alphabet) = @args;
+    if (@args) {
+        $self->_set_seq_by_ref(\$seq_str, $alphabet);   
+    }
 
-   if(@args) {
+    return $self->{'seq'};
+}
 
-       # Unless in direct mode, validate sequence if sequence is not empty
-       if( (! $self->{'_direct'}) && (defined $seq_str) && (! $self->validate_seq($seq_str)) ) {
-           $self->throw("Attempting to set the sequence '".(defined($self->id) ||
-               "[unidentified sequence]")."' to [$seq_str] which does not look healthy");
-       }
 
-       # if a sequence was already set we make sure that we re-adjust the
-       # alphabet, otherwise we skip guessing if alphabet is already set
-       # note: if the new seq is empty or undef, we don't consider that a
-       # change (we wouldn't have anything to guess on anyway)
-       my $len = CORE::length($seq_str || '');
-       my $is_changed_seq = exists($self->{'seq'}) && ($len > 0);
-       $self->{'seq'} = $seq_str;
-       # new alphabet overridden by arguments?
-       if ($alphabet) {
-           # yes, set it no matter what
-           $self->alphabet($alphabet);
-       } elsif ($is_changed_seq || (! defined($self->alphabet()))) {
-           # if we changed a previous sequence to a new one or if there is no
-           # alphabet yet at all, we need to guess the (possibly new) alphabet
-           $self->_guess_alphabet();
-       } # else (seq not changed and alphabet was defined) do nothing
+sub _set_seq_by_ref {
+    my ($self, $seq_str_ref, $alphabet) = @_;
 
-       # Record sequence length
-       delete $self->{'_freeze_length'} if $is_changed_seq;
-       $self->{'length'} = $len if not exists $self->{'_freeze_length'};
-   }
-   return $self->{'seq'};
+    # Unless in direct mode, validate sequence if sequence is not empty
+    if( (! $self->{'_direct'}) && (defined $seq_str_ref) && (! $self->validate_seq($$seq_str_ref)) ) {
+        $self->throw("Attempting to set the sequence '".(defined($self->id) ||
+            "[unidentified sequence]")."' to [$seq_str_ref] which does not look healthy");
+    }
+
+    # if a sequence was already set we make sure that we re-adjust the
+    # alphabet, otherwise we skip guessing if alphabet is already set
+    # note: if the new seq is empty or undef, we don't consider that a
+    # change (we wouldn't have anything to guess on anyway)
+    my $len = CORE::length($$seq_str_ref || '');
+    my $is_changed_seq = exists($self->{'seq'}) && ($len > 0);
+    $self->{'seq'} = $$seq_str_ref;
+    # new alphabet overridden by arguments?
+    if ($alphabet) {
+        # yes, set it no matter what
+        $self->alphabet($alphabet);
+    } elsif ($is_changed_seq || (! defined($self->alphabet()))) {
+        # if we changed a previous sequence to a new one or if there is no
+        # alphabet yet at all, we need to guess the (possibly new) alphabet
+        $self->_guess_alphabet();
+    } # else (seq not changed and alphabet was defined) do nothing
+
+    # Record sequence length
+    delete $self->{'_freeze_length'} if $is_changed_seq;
+    $self->{'length'} = $len if not exists $self->{'_freeze_length'};
+    return 1;
 }
 
 
