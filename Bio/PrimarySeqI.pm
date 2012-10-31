@@ -167,7 +167,7 @@ sub seq {
 
 =cut
 
-sub subseq{
+sub subseq {
    my ($self) = @_;
    $self->throw_not_implemented();
 }
@@ -277,7 +277,7 @@ sub primary_id {
 
 =cut
 
-sub can_call_new{
+sub can_call_new {
    my ($self,@args) = @_;
    # we default to 0 here
    return 0;
@@ -302,7 +302,7 @@ sub can_call_new{
 
 =cut
 
-sub alphabet{
+sub alphabet {
     my ( $self ) = @_;
     $self->throw_not_implemented();
 }
@@ -315,7 +315,7 @@ sub alphabet{
 
 =cut
 
-sub moltype{
+sub moltype {
    my ($self,@args) = @_;
 
    $self->warn("moltype: pre v1.0 method. Calling alphabet() instead...");
@@ -366,7 +366,7 @@ are encouraged to override these methods
 
 =cut
 
-sub revcom{
+sub revcom {
    my ($self) = @_;
 
    my $seqclass;
@@ -376,13 +376,13 @@ sub revcom{
        $seqclass = 'Bio::PrimarySeq';
        $self->_attempt_to_load_Seq();
    }
-   my $out = $seqclass->new( '-seq' => $self->_revcom_from_string($self->seq, $self->alphabet),
-                             '-is_circular'  => $self->is_circular,
-                             '-display_id'  => $self->display_id,
-                             '-accession_number' => $self->accession_number,
-                             '-alphabet' => $self->alphabet,
-                             '-desc' => $self->desc(),
-                             '-verbose' => $self->verbose
+   my $out = $seqclass->new( -seq              => $self->_revcom_from_string($self->seq, $self->alphabet),
+                             -is_circular      => $self->is_circular,
+                             -display_id       => $self->display_id,
+                             -accession_number => $self->accession_number,
+                             -alphabet         => $self->alphabet,
+                             -desc             => $self->desc(),
+                             -verbose          => $self->verbose
                              );
    return $out;
 
@@ -435,7 +435,7 @@ sub _revcom_from_string {
 
 =cut
 
-sub trunc{
+sub trunc {
    my ($self,$start,$end) = @_;
 
    my $str;
@@ -461,12 +461,12 @@ sub trunc{
        $self->_attempt_to_load_Seq();
    }
 
-   my $out = $seqclass->new( '-seq' => $str,
-                             '-display_id'  => $self->display_id,
-                             '-accession_number' => $self->accession_number,
-                             '-alphabet' => $self->alphabet,
-                             '-desc' => $self->desc(),
-                             '-verbose' => $self->verbose
+   my $out = $seqclass->new( -seq              => $str,
+                             -display_id       => $self->display_id,
+                             -accession_number => $self->accession_number,
+                             -alphabet         => $self->alphabet,
+                             -desc             => $self->desc(),
+                             -verbose          => $self->verbose
                              );
    return $out;
 }
@@ -679,13 +679,13 @@ sub translate {
         $seqclass = 'Bio::PrimarySeq';
         $self->_attempt_to_load_Seq();
     }
-    my $out = $seqclass->new( '-seq' => $output,
-                              '-display_id'  => $self->display_id,
-                              '-accession_number' => $self->accession_number,
+    my $out = $seqclass->new( -seq              => $output,
+                              -display_id       => $self->display_id,
+                              -accession_number => $self->accession_number,
                               # is there anything wrong with retaining the desc?
-                              '-desc' => $self->desc(),
-                              '-alphabet' => 'protein',
-                              '-verbose' => $self->verbose
+                              -desc             => $self->desc(),
+                              -alphabet         => 'protein',
+                              -verbose          => $self->verbose
                   );
     return $out;
 }
@@ -716,12 +716,12 @@ sub transcribe {
     }
     my $desc = $self->desc || '';
     return $class->new(
-        '-seq' => $s,
-        '-alphabet' => 'rna',
-        '-display_id'  => $self->display_id,
-        '-accession_number' => $self->accession_number,
-        '-desc' => "${desc}[TRANSCRIBED]",
-        '-verbose' => $self->verbose
+        -seq              => $s,
+        -alphabet         => 'rna',
+        -display_id       => $self->display_id,
+        -accession_number => $self->accession_number,
+        -desc             => "${desc}[TRANSCRIBED]",
+        -verbose          => $self->verbose
         );
 }
 
@@ -750,12 +750,12 @@ sub rev_transcribe {
         $self->_attempt_to_load_Seq;
     }
     return $class->new(
-        '-seq' => $s,
-        '-alphabet' => 'dna',
-        '-display_id'  => $self->display_id,
-        '-accession_number' => $self->accession_number,
-        '-desc' => $self->desc . "[REVERSE TRANSCRIBED]",
-        '-verbose' => $self->verbose
+        -seq              => $s,
+        -alphabet         => 'dna',
+        -display_id       => $self->display_id,
+        -accession_number => $self->accession_number,
+        -desc             => $self->desc . "[REVERSE TRANSCRIBED]",
+        -verbose          => $self->verbose
         );
 }
 
@@ -820,7 +820,7 @@ sub desc {
 
 =cut
 
-sub is_circular{
+sub is_circular {
     shift->throw_not_implemented;
 }
 
@@ -924,7 +924,7 @@ sub _orf_sequence {
 
 =cut
 
-sub _attempt_to_load_Seq{
+sub _attempt_to_load_Seq {
    my ($self) = @_;
 
    if( $main::{'Bio::PrimarySeq'} ) {
