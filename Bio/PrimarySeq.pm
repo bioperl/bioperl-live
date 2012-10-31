@@ -131,10 +131,8 @@ $GAP_SYMBOLS = '-~';
 use base qw(Bio::Root::Root Bio::PrimarySeqI
             Bio::IdentifiableI Bio::DescribableI);
 
-#
-# setup the allowed values for alphabet()
-#
 
+# Setup the allowed values for alphabet()
 my %valid_type = map {$_, 1} qw( dna rna protein );
 
 
@@ -155,7 +153,7 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
            values.
  Returns : a new Bio::PrimarySeq object
  Args    : -seq              => sequence string
-           -ref_to_seq       => reference to a sequence string
+           -ref_to_seq       => ... or reference to a sequence string
            -display_id       => display id of the sequence (locus name)
            -accession_number => accession number
            -primary_id       => primary id (Genbank id)
@@ -164,12 +162,11 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
            -authority        => the authority for the namespace
            -description      => description text
            -desc             => alias for description
-           -alphabet         => sequence type (or alphabet): dna|rna|protein. Skip alphabet guessing.
+           -alphabet         => skip alphabet guess and set it to dna, rna or protein
            -id               => alias for display id
            -is_circular      => boolean to indicate that sequence is circular
-           -direct           => boolean to directly set sequences. It skips
-                                validation of sequences passed to -seq or seq().
-                                Use carefully!
+           -direct           => boolean to directly set sequences (through -seq,
+                                seq() or -ref_to_seq) without validation. Be cautious...
            -nowarnonempty    => boolean to avoid warning when sequence is empty
 
 =cut
@@ -206,8 +203,7 @@ sub new {
 
     if( defined $id && defined $given_id ) {
         if( $id ne $given_id ) {
-          $self->throw("Provided both id and display_id constructor ".
-              "functions. [$id] [$given_id]");
+          $self->throw("Provided both id and display_id constructors: [$id] [$given_id]");
         }
     }
     if( defined $given_id ) { $id = $given_id; }
@@ -223,17 +219,12 @@ sub new {
     # Set the length before the seq. If there is a seq, length will be updated later
     $self->{'length'} = $len || 0;
 
-    if( $direct && $ref_to_seq) {
-        # if there is an alphabet, and direct is passed in, assume the alphabet
-        # and sequence is ok
-        $self->{'seq'} = $$ref_to_seq;
-        if( ! $alphabet ) {
-            $self->_guess_alphabet();
-        } # else it has been set already above
+    # Set the sequence (but also alphabet and length)
+    if ($ref_to_seq) {
+        $self->_set_seq_by_ref($ref_to_seq, $alphabet);
     } else {
-        # print STDERR "DEBUG: setting sequence to [$seq]\n";
-        # note: the sequence string may be empty
         if (defined $seq) {
+            # Note: the sequence string may be empty
             $self->seq($seq);
         }
     }
@@ -281,6 +272,8 @@ sub seq {
 
 
 sub _set_seq_by_ref {
+    # Set a sequence by reference. A reference is used to avoid the cost of
+    # copying the sequence (which can be very large) between functions.
     my ($self, $seq_str_ref, $alphabet) = @_;
 
     # Validate sequence if sequence is not empty and we are not in direct mode
