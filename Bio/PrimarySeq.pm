@@ -344,8 +344,10 @@ sub validate_seq {
 
  Title   : subseq
  Usage   : $substring = $seqobj->subseq(10,40);
-           $substring = $seqobj->subseq(10,40,NOGAP);
-           $substring = $seqobj->subseq(-START=>10,-END=>40,-REPLACE_WITH=>'tga');
+           $substring = $seqobj->subseq(10,40,'nogap');
+           $substring = $seqobj->subseq(-start=>10, -end=>40, -replace_with=>'tga');
+           $substring = $seqobj->subseq($location_obj);
+           $substring = $seqobj->subseq($location_obj, -nogap => 1);
  Function: returns the subseq from start to end, where the first sequence
            character has coordinate 1 number is inclusive, ie 1-2 are the 
            first two characters of the sequence
@@ -368,9 +370,11 @@ sub subseq {
                                                              NOGAP
                                                              REPLACE_WITH)], @args);
    
-    # if $replace is specified, have the constructor validate it as seq
-    my $dummy = Bio::PrimarySeq->new( -seq=>$replace, -alphabet=>$self->alphabet )
-        if defined($replace);
+    # If -replace_with is specified, validate the replacement sequence
+    if (defined $replace) {
+        $self->validate_seq( $replace ) ||
+            $self->throw("Replacement sequence does not look valid");
+    }
 
     if( ref($start) && $start->isa('Bio::LocationI') ) {
         my $loc = $start;

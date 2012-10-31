@@ -120,6 +120,8 @@ is $seq->subseq($fuzzy), 'GGTGGC';
 
     is $seq->subseq(-start=>2, -end=>5, -replace_with=>'aa'), 'T-GT';
     is $seq->seq, 'TaaGGCGTCAACT';
+
+    throws_ok { $seq->subseq(-start=>2, -end=>5, -replace_with=>'?!'); } qr/.+/;
 }
 
 
