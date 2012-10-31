@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 79,
+    test_begin( -tests => 83,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -259,6 +259,15 @@ my $test_files = [
     # Remove temporary test file
     my $outfile = test_input_file('spaced_fasta.fa').'.index';
     unlink $outfile;
+}
+
+
+{
+    # Concurrent databases
+    ok my $db1 = Bio::DB::Fasta->new( test_input_file('dbfa', '1.fa') );
+    ok my $db2 = Bio::DB::Fasta->new( test_input_file('dbfa', '2.fa') );
+    is $db1->file('AW057231'), '1.fa';
+    is $db2->file('AW057302'), '2.fa';
 }
 
 
