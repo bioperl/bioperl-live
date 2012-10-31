@@ -285,8 +285,8 @@ sub _set_seq_by_ref {
 
     # Unless in direct mode, validate sequence if sequence is not empty
     if( (! $self->{'_direct'}) && (defined $seq_str_ref) && (! $self->validate_seq($$seq_str_ref)) ) {
-        $self->throw("Attempting to set the sequence '".(defined($self->id) ||
-            "[unidentified sequence]")."' to [$seq_str_ref] which does not look healthy");
+        my $id = defined $self->id ? $self->id : '[unidentified sequence]';
+        $self->throw("Attempted to set sequence '$id' to [$$seq_str_ref] which does not look healthy");
     }
 
     # if a sequence was already set we make sure that we re-adjust the
