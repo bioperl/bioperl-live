@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 153 );
+    test_begin( -tests => 155 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -320,13 +320,15 @@ throws_ok { $seq->length(666); } qr/.+/; # Cannot lie about length
 
 
 # Sequence validation method
-is $seq->validate_seq( 'acgt' )  , 1;
-is $seq->validate_seq( 'ACGT' )  , 1;
-is $seq->validate_seq( 'XFRH' )  , 1;
-is $seq->validate_seq( '-~' )    , 1; # gap symbols
+is $seq->validate_seq( undef    ), 1;
+is $seq->validate_seq( ''       ), 1;
+is $seq->validate_seq( 'acgt'   ), 1;
+is $seq->validate_seq( 'ACGT'   ), 1;
+is $seq->validate_seq( 'XFRH'   ), 1;
+is $seq->validate_seq( '-~'     ), 1; # gap symbols
 is $seq->validate_seq( '-.*?=~' ), 1; # other valid symbols
-is $seq->validate_seq( 'AAAA$' ) , 0;
-is $seq->validate_seq( 'tt&tt' ) , 0;
+is $seq->validate_seq( 'AAAA$'  ), 0;
+is $seq->validate_seq( 'tt&tt'  ), 0;
 
 
 # Test direct option (no sequence validation)
