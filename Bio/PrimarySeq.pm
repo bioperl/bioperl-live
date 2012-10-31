@@ -254,10 +254,10 @@ sub new {
 
  Title   : seq
  Usage   : $string = $seqobj->seq();
- Function: Returns the sequence as a string of letters. The
-           case of the letters is left up to the implementer.
-           Suggested cases are upper case for proteins and lower case for
-           DNA sequence (IUPAC standard), but you should not rely on this.
+ Function: Get or set  the sequence as a string of letters. The case of
+           the letters is left up to the implementer. Suggested cases are
+           upper case for proteins and lower case for DNA sequence (IUPAC
+           standard), but you should not rely on this.
  Returns : A scalar
  Args    : - Optional new sequence value (a string) to set
            - Optional alphabet (it is guessed by default)
@@ -283,32 +283,32 @@ sub seq {
 sub _set_seq_by_ref {
     my ($self, $seq_str_ref, $alphabet) = @_;
 
-    # Unless in direct mode, validate sequence if sequence is not empty
+    # Validate sequence if sequence is not empty and we are not in direct mode
     if( (! $self->{'_direct'}) && (defined $seq_str_ref) && (! $self->validate_seq($$seq_str_ref)) ) {
         my $id = defined $self->id ? $self->id : '[unidentified sequence]';
         $self->throw("Attempted to set sequence '$id' to [$$seq_str_ref] which does not look healthy");
     }
 
-    # if a sequence was already set we make sure that we re-adjust the
-    # alphabet, otherwise we skip guessing if alphabet is already set
-    # note: if the new seq is empty or undef, we don't consider that a
-    # change (we wouldn't have anything to guess on anyway)
+    # Record sequence length
     my $len = CORE::length($$seq_str_ref || '');
-    my $is_changed_seq = exists($self->{'seq'}) && ($len > 0);
+    my $is_changed_seq = (exists $self->{'seq'}) && ($len > 0);
+    # Note: if the new seq is empty or undef, this is not considered a change
+    delete $self->{'_freeze_length'} if $is_changed_seq;
+    $self->{'length'} = $len if not exists $self->{'_freeze_length'};
+
+    # Set sequence
     $self->{'seq'} = $$seq_str_ref;
-    # new alphabet overridden by arguments?
+
+    # Set or guess alphabet
     if ($alphabet) {
-        # yes, set it no matter what
+        # Alphabet specified, set it no matter what
         $self->alphabet($alphabet);
     } elsif ($is_changed_seq || (! defined($self->alphabet()))) {
-        # if we changed a previous sequence to a new one or if there is no
+        # If we changed a previous sequence to a new one or if there is no
         # alphabet yet at all, we need to guess the (possibly new) alphabet
         $self->_guess_alphabet();
     } # else (seq not changed and alphabet was defined) do nothing
 
-    # Record sequence length
-    delete $self->{'_freeze_length'} if $is_changed_seq;
-    $self->{'length'} = $len if not exists $self->{'_freeze_length'};
     return 1;
 }
 
