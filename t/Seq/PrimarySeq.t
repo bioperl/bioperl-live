@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 155 );
+    test_begin( -tests => 163 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -67,12 +67,18 @@ is $seq->namespace_string(), "t:X677667.47";
 is $seq->description(),      'Sample Bio::Seq object';
 is $seq->display_name(),     "new-id";
 
+
+# Test subseq
+is $seq->subseq(2, 5), 'TGGT';
+
+is $seq->subseq( -start => 1, -end => 15), 'TTGGTGGCGTCAACT';
+
 my $location = Bio::Location::Simple->new(
     '-start'  => 2,
     '-end'    => 5,
     '-strand' => -1
 );
-is( $seq->subseq($location), 'ACCA' );
+is $seq->subseq($location), 'ACCA';
 
 my $splitlocation = Bio::Location::Split->new();
 $splitlocation->add_sub_Location(
@@ -91,7 +97,7 @@ $splitlocation->add_sub_Location(
     )
 );
 
-is( $seq->subseq($splitlocation), 'TTGGTGACGC' );
+is $seq->subseq($splitlocation), 'TTGGTGACGC';
 
 my $fuzzy = Bio::Location::Fuzzy->new(
     -start  => '<3',
@@ -99,35 +105,53 @@ my $fuzzy = Bio::Location::Fuzzy->new(
     -strand => 1
 );
 
-is( $seq->subseq($fuzzy), 'GGTGGC' );
+is $seq->subseq($fuzzy), 'GGTGGC';
 
+{
+    ok my $seq = Bio::PrimarySeq->new( -seq => 'TT-GTGGCGTCAACT' );
+    is $seq->subseq(2, 5, 'nogap'), 'TGT';
+    is $seq->subseq( -start => 2, -end => 5, -nogap => 1 ), 'TGT';
+    my $location = Bio::Location::Simple->new(
+       '-start'  => 2,
+       '-end'    => 5,
+       '-strand' => 1
+    );
+    is $seq->subseq( $location, -nogap => 1), 'TGT';
+
+    is $seq->subseq(-start=>2, -end=>5, -replace_with=>'aa'), 'T-GT';
+    is $seq->seq, 'TaaGGCGTCAACT';
+}
+
+
+# Test subseq
 my $trunc = $seq->trunc( 1, 4 );
 isa_ok $trunc, 'Bio::PrimarySeqI';
 is $trunc->seq(), 'TTGG' or diag( "Expecting TTGG. Got " . $trunc->seq() );
 
 $trunc = $seq->trunc($splitlocation);
 isa_ok( $trunc, 'Bio::PrimarySeqI' );
-is( $trunc->seq(), 'TTGGTGACGC' );
+is $trunc->seq(), 'TTGGTGACGC';
 
 $trunc = $seq->trunc($fuzzy);
 isa_ok( $trunc, 'Bio::PrimarySeqI' );
-is( $trunc->seq(), 'GGTGGC' );
+is $trunc->seq(), 'GGTGGC';
 
 my $rev = $seq->revcom();
 isa_ok( $rev, 'Bio::PrimarySeqI' );
+
 
 is $rev->seq(), 'AGTTGACGCCACCAA'
   or diag( 'revcom() failed, was ' . $rev->seq() );
 
 is $rev->display_id, 'new-id';
-is( $rev->alphabet(),    'dna', 'alphabet copied through revcom' );
+is $rev->alphabet(),    'dna', 'alphabet copied through revcom';
 TODO: {
     local $TODO =
       'all attributes of primaryseqs are not currently copied through revcoms';
-    is( $rev->namespace, 't', 'namespace copied through revcom' );
-    is( $rev->namespace_string(),
-        "t:X677667.47", 'namespace_string copied through revcom' );
-    is( $rev->is_circular(), 0,     'is_circular copied through revcom' );
+    is $rev->namespace, 't', 'namespace copied through revcom';
+    is $rev->namespace_string(),
+        "t:X677667.47", 'namespace_string copied through revcom';
+    is $rev->is_circular(), 0,     'is_circular copied through revcom';
 }
 
 #
@@ -222,8 +246,8 @@ $seq = Bio::PrimarySeq->new(
     -id          => 'aliasid',
     -description => 'Alias desc'
 );
-is( $seq->description, 'Alias desc' );
-is( $seq->display_id,  'aliasid' );
+is $seq->description, 'Alias desc';
+is $seq->display_id,  'aliasid';
 
 # Test alphabet
 
