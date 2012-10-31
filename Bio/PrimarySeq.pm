@@ -407,17 +407,27 @@ sub subseq {
 
         # Remove one from start, and then length is end-start
         $start--;
-        my @ss_args = map { eval "defined $_"  ? $_ : () }
-            qw( $self->{seq} $start $end-$start $replace );
-        my $seqstr = eval join( '', "substr(", join(',',@ss_args), ")");
+
+        my $seqstr;
+        if (defined $replace) {
+            $seqstr = substr $self->{seq}, $start, $end-$start, $replace;
+        } else {
+            $seqstr = substr $self->{seq}, $start, $end-$start;
+        }
+
 
         if ($end > $self->length) {
             if ($self->is_circular) {
                 my $start = 0;
                 my $end = $end - $self->length;
-                my @ss_args = map { eval "defined $_"  ? $_ : () }
-                    qw( $self->{seq} $start $end-$start $replace );
-                my $appendstr = eval join( '', "substr(", join(',',@ss_args), ")");
+
+                my $appendstr;
+                if (defined $replace) {
+                    $appendstr = substr $self->{seq}, $start, $end-$start, $replace;
+                } else {
+                    $appendstr = substr $self->{seq}, $start, $end-$start;
+                }
+
                 $seqstr .= $appendstr;
             } else {
                 $self->throw("Bad end parameter ($end). End must be less than ".
