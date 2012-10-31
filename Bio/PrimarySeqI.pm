@@ -367,14 +367,7 @@ are encouraged to override these methods
 
 sub revcom {
     my ($self) = @_;
-
-    my $seqclass;
-    if($self->can_call_new()) {
-        $seqclass = ref($self);
-    } else {
-        $seqclass = 'Bio::PrimarySeq';
-        $self->_attempt_to_load_Seq();
-    }
+    my ($seqclass, $opts) = $self->_setup_class;
     my $out = $seqclass->new(
         -seq              => $self->_revcom_from_string($self->seq, $self->alphabet),
         -is_circular      => $self->is_circular,
@@ -383,7 +376,7 @@ sub revcom {
         -alphabet         => $self->alphabet,
         -desc             => $self->desc,
         -verbose          => $self->verbose,
-        _class_extra_params($seqclass),
+        %$opts,
     );
     return $out;
 }
@@ -453,14 +446,7 @@ sub trunc {
         $str = $self->subseq($start,$end);
     }
 
-    my $seqclass;
-    if($self->can_call_new()) {
-        $seqclass = ref($self);
-    } else {
-        $seqclass = 'Bio::PrimarySeq';
-        $self->_attempt_to_load_Seq();
-    }
-
+    my ($seqclass, $opts) = $self->_setup_class;
     my $out = $seqclass->new(
         -seq              => $str,
         -display_id       => $self->display_id,
@@ -468,7 +454,7 @@ sub trunc {
         -alphabet         => $self->alphabet,
         -desc             => $self->desc,
         -verbose          => $self->verbose,
-        _class_extra_params($seqclass),
+        %$opts,
     );
     return $out;
 }
@@ -674,13 +660,7 @@ sub translate {
         }
     }
 
-    my $seqclass;
-    if ($self->can_call_new()) {
-        $seqclass = ref($self);
-    } else {
-        $seqclass = 'Bio::PrimarySeq';
-        $self->_attempt_to_load_Seq();
-    }
+    my ($seqclass, $opts) = $self->_setup_class;
     my $out = $seqclass->new(
         -seq              => $output,
         -display_id       => $self->display_id,
@@ -689,7 +669,7 @@ sub translate {
         -desc             => $self->desc,
         -alphabet         => 'protein',
         -verbose          => $self->verbose,
-        _class_extra_params($seqclass),
+        %$opts,
     );
     return $out;
 }
@@ -711,14 +691,8 @@ sub transcribe {
     return unless $self->alphabet eq 'dna';
     my $s = $self->seq;
     $s =~ tr/tT/uU/;
-    my $seqclass;
-    if ($self->can_call_new) {
-        $seqclass = ref($self);
-    } else {
-        $seqclass = 'Bio::PrimarySeq';
-        $self->_attempt_to_load_Seq;
-    }
     my $desc = $self->desc || '';
+    my ($seqclass, $opts) = $self->_setup_class;
     return $seqclass->new(
         -seq              => $s,
         -alphabet         => 'rna',
@@ -726,7 +700,7 @@ sub transcribe {
         -accession_number => $self->accession_number,
         -desc             => "${desc}[TRANSCRIBED]",
         -verbose          => $self->verbose,
-        _class_extra_params($seqclass),
+        %$opts,
     );
 }
 
@@ -747,13 +721,7 @@ sub rev_transcribe {
     return unless $self->alphabet eq 'rna';
     my $s = $self->seq;
     $s =~ tr/uU/tT/;
-    my $seqclass;
-    if ($self->can_call_new) {
-        $seqclass = ref($self);
-    } else {
-        $seqclass = 'Bio::PrimarySeq';
-        $self->_attempt_to_load_Seq;
-    }
+    my ($seqclass, $opts) = $self->_setup_class;
     return $seqclass->new(
         -seq              => $s,
         -alphabet         => 'dna',
@@ -761,7 +729,7 @@ sub rev_transcribe {
         -accession_number => $self->accession_number,
         -desc             => $self->desc . "[REVERSE TRANSCRIBED]",
         -verbose          => $self->verbose,
-        _class_extra_params($seqclass),
+        %$opts,
     );
 }
 
@@ -953,16 +921,23 @@ sub _attempt_to_load_Seq {
 }
 
 
-sub _class_extra_params {
-    # Return extra parameters for a given class
-    my ($seqclass) = @_;
-    my %extra;
+sub _setup_class {
+    # Return name of class and setup some default parameters
+    my ($self) = @_;
+    my $seqclass;
+    if ($self->can_call_new()) {
+        $seqclass = ref($self);
+    } else {
+        $seqclass = 'Bio::PrimarySeq';
+        $self->_attempt_to_load_Seq();
+    }
+    my %opts;
     if ($seqclass eq 'Bio::PrimarySeq') {
         # Since sequence is in a Seq object, it has already been validated.
         # We do not need to validate its trunc(), revcom(), etc
-        $extra{ -direct } = 1;
+        $opts{ -direct } = 1;
     }
-    return %extra;
+    return $seqclass, \%opts;
 }
 
 
