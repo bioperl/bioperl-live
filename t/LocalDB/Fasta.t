@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 76,
+    test_begin( -tests => 79,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -41,6 +41,9 @@ my $test_files = [
     is $db->header('AW057119'), 'AW057119 test description';
     is $db->seq('foobarbaz'), undef;
     is $db->get_Seq_by_id('foobarbaz'), undef;
+    is $db->file('AW057119'), '1.fa';
+    is $db->file('AW057410'), '3.fa';
+    is $db->file('CEESC13F'), '6.fa';
 
     # Bio::DB::RandomAccessI and Bio::DB::SeqI methods
     ok my $primary_seq = $db->get_Seq_by_id('AW057119');
