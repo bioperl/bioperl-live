@@ -53,6 +53,8 @@ CPAN releases are branched from 'master'.
         - new option to remove index file at the end [fangly]
     * Bio::DB::Fasta
         - now handles IUPAC degenerate residues [fangly]
+    * Bio::PrimarySeq and Bio::PrimarySeqI
+        - speed improvements for large sequences [Ben Woodcroft, fangly]
 
     [Bug fixes]
 
