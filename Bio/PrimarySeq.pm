@@ -169,8 +169,9 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
            -alphabet         => skip alphabet guess and set it to dna, rna or protein
            -id               => alias for display id
            -is_circular      => boolean to indicate that sequence is circular
-           -direct           => boolean to directly set sequences (through -seq,
-                                seq() or -ref_to_seq) without validation. Be cautious...
+           -direct           => boolean to directly set sequences. The next time -seq,
+                                seq() or -ref_to_seq is use, the sequence will not be
+                                validated. Be careful with this...
            -nowarnonempty    => boolean to avoid warning when sequence is empty
 
 =cut
@@ -285,6 +286,7 @@ sub _set_seq_by_ref {
         my $id = defined $self->id ? $self->id : '[unidentified sequence]';
         $self->throw("Attempted to set sequence '$id' to [$$seq_str_ref] which does not look healthy");
     }
+    delete $self->{'_direct'}; # next sequence will have to be validated
 
     # Record sequence length
     my $len = CORE::length($$seq_str_ref || '');

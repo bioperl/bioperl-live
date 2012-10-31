@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 166 );
+    test_begin( -tests => 167 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -365,7 +365,7 @@ is $seq->validate_seq( 'tt&tt'  ), 0;
 throws_ok { $seq = Bio::PrimarySeq->new(-seq => 'A\T$AGQ+T'); } qr/.+/, 'Validation';
 ok $seq = Bio::PrimarySeq->new( -seq => 'A\T$AGQ+T', -direct => 1 );
 is $seq->seq, 'A\T$AGQ+T';
-
+throws_ok { $seq->seq('NT@/') } qr/.+/;
 
 # Set a sequence by reference
 my $string = 'AAAACCCCGGGGTTTT';
