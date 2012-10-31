@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 135 );
+    test_begin( -tests => 153 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -16,7 +16,25 @@ BEGIN {
     use_ok('Bio::Location::Split');
 }
 
-my $seq = Bio::PrimarySeq->new(
+
+# Bare object
+ok my $seq = Bio::PrimarySeq->new(), 'Bare object';
+isa_ok $seq, 'Bio::PrimarySeqI';
+is $seq->id, undef;
+is $seq->seq, undef;
+is $seq->length, 0;
+is $seq->alphabet, undef;
+
+
+# Empty sequence
+ok $seq = Bio::PrimarySeq->new( -seq => '');
+is $seq->seq, '';
+is $seq->length, 0;
+is $seq->alphabet, undef;
+
+
+# Basic tests
+ok $seq = Bio::PrimarySeq->new(
     '-seq'              => 'TTGGTGGCGTCAACT',
     '-display_id'       => 'new-id',
     '-alphabet'         => 'dna',
@@ -24,7 +42,6 @@ my $seq = Bio::PrimarySeq->new(
     '-desc'             => 'Sample Bio::Seq object'
 );
 ok defined $seq;
-isa_ok $seq, 'Bio::PrimarySeqI';
 is $seq->accession_number(), 'X677667';
 is $seq->seq(),              'TTGGTGGCGTCAACT';
 is $seq->display_id(),       'new-id';
@@ -277,7 +294,6 @@ is $aa->seq, 'MLAG';
 # Test length method
 ok $seq = Bio::PrimarySeq->new(), 'Length method';
 is $seq->length, 0;
-is $seq->alphabet, undef;
 ok $seq->length(123);
 is $seq->length, 123;
 
@@ -303,14 +319,29 @@ is $seq->length, 4; # manually-specified length changed when sequence is changed
 throws_ok { $seq->length(666); } qr/.+/; # Cannot lie about length
 
 
+# Sequence validation method
+is $seq->validate_seq( 'acgt' )  , 1;
+is $seq->validate_seq( 'ACGT' )  , 1;
+is $seq->validate_seq( 'XFRH' )  , 1;
+is $seq->validate_seq( '-~' )    , 1; # gap symbols
+is $seq->validate_seq( '-.*?=~' ), 1; # other valid symbols
+is $seq->validate_seq( 'AAAA$' ) , 0;
+is $seq->validate_seq( 'tt&tt' ) , 0;
+
+
 # Test direct option (no sequence validation)
 throws_ok { $seq = Bio::PrimarySeq->new(-seq => 'A\T$AGQ+T'); } qr/.+/, 'Validation';
 ok $seq = Bio::PrimarySeq->new( -seq => 'A\T$AGQ+T', -direct => 1 );
 is $seq->seq, 'A\T$AGQ+T';
 
 
+# Set a sequence by reference
+my $string = 'AAAACCCCGGGGTTTT';
+ok $seq = Bio::PrimarySeq->new( -ref_to_seq => \$string );
+is $seq->seq, 'AAAACCCCGGGGTTTT';
 
-# test internal PrimarySeqI _find_orfs function and translate( -orf => 'longest' )
+
+# Test internal PrimarySeqI _find_orfs function and translate( -orf => 'longest' )
 {
     my @tests = (
         #tiny test

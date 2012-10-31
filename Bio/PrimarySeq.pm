@@ -319,7 +319,7 @@ sub _set_seq_by_ref {
 
            The implementation provided here does not take alphabet() into
            account. Allowed are all letters (A-Z) and '-','.','*','?','=',
-           and '~'.
+           and '~'. Spaces are not valid.
  Returns : 1 if the supplied sequence string is valid, 0 otherwise.
  Args    : The sequence string to be validated.
 
