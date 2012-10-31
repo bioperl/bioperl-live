@@ -400,7 +400,7 @@ sub subseq {
             $self->throw("Bad start parameter ($start). Start must be positive.");
         }
 
-        # remove one from start, and then length is end-start
+        # Remove one from start, and then length is end-start
         $start--;
         my @ss_args = map { eval "defined $_"  ? $_ : () } qw( $self->{seq} $start $end-$start $replace );
         my $seqstr = eval join( '', "substr(", join(',',@ss_args), ")");

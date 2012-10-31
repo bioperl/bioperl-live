@@ -146,8 +146,8 @@ define.
 =cut
 
 sub seq {
-   my ($self) = @_;
-   $self->throw_not_implemented();
+    my ($self) = @_;
+    $self->throw_not_implemented();
 }
 
 
@@ -168,8 +168,8 @@ sub seq {
 =cut
 
 sub subseq {
-   my ($self) = @_;
-   $self->throw_not_implemented();
+    my ($self) = @_;
+    $self->throw_not_implemented();
 }
 
 
@@ -200,8 +200,8 @@ sub subseq {
 =cut
 
 sub display_id {
-   my ($self) = @_;
-   $self->throw_not_implemented();
+    my ($self) = @_;
+    $self->throw_not_implemented();
 }
 
 
@@ -225,8 +225,8 @@ sub display_id {
 =cut
 
 sub accession_number {
-   my ($self,@args) = @_;
-   $self->throw_not_implemented();
+    my ($self,@args) = @_;
+    $self->throw_not_implemented();
 }
 
 
@@ -249,8 +249,8 @@ sub accession_number {
 =cut
 
 sub primary_id {
-   my ($self,@args) = @_;
-   $self->throw_not_implemented();
+    my ($self,@args) = @_;
+    $self->throw_not_implemented();
 }
 
 
@@ -278,9 +278,9 @@ sub primary_id {
 =cut
 
 sub can_call_new {
-   my ($self,@args) = @_;
-   # we default to 0 here
-   return 0;
+    my ($self,@args) = @_;
+    # we default to 0 here
+    return 0;
 }
 
 
@@ -316,10 +316,9 @@ sub alphabet {
 =cut
 
 sub moltype {
-   my ($self,@args) = @_;
-
-   $self->warn("moltype: pre v1.0 method. Calling alphabet() instead...");
-   $self->alphabet(@args);
+    my ($self,@args) = @_;
+    $self->warn("moltype: pre v1.0 method. Calling alphabet() instead...");
+    return $self->alphabet(@args);
 }
 
 
@@ -367,60 +366,59 @@ are encouraged to override these methods
 =cut
 
 sub revcom {
-   my ($self) = @_;
+    my ($self) = @_;
 
-   my $seqclass;
-   if($self->can_call_new()) {
-       $seqclass = ref($self);
-   } else {
-       $seqclass = 'Bio::PrimarySeq';
-       $self->_attempt_to_load_Seq();
-   }
-   my $out = $seqclass->new( -seq              => $self->_revcom_from_string($self->seq, $self->alphabet),
-                             -is_circular      => $self->is_circular,
-                             -display_id       => $self->display_id,
-                             -accession_number => $self->accession_number,
-                             -alphabet         => $self->alphabet,
-                             -desc             => $self->desc(),
-                             -verbose          => $self->verbose
-                             );
-   return $out;
-
+    my $seqclass;
+    if($self->can_call_new()) {
+        $seqclass = ref($self);
+    } else {
+        $seqclass = 'Bio::PrimarySeq';
+        $self->_attempt_to_load_Seq();
+    }
+    my $out = $seqclass->new( -seq              => $self->_revcom_from_string($self->seq, $self->alphabet),
+                              -is_circular      => $self->is_circular,
+                              -display_id       => $self->display_id,
+                              -accession_number => $self->accession_number,
+                              -alphabet         => $self->alphabet,
+                              -desc             => $self->desc,
+                              -verbose          => $self->verbose
+                              );
+    return $out;
 }
 
 
 sub _revcom_from_string {
-   my ($self, $string, $alphabet) = @_;
+    my ($self, $string, $alphabet) = @_;
 
-   # Check that reverse-complementing makes sense
-   if( $alphabet eq 'protein' ) {
-       $self->throw("Sequence is a protein. Cannot revcom.");
-   }
-   if( $alphabet ne 'dna' && $alphabet ne 'rna' ) {
-      my $msg = "Sequence is not dna or rna, but [$alphabet]. Attempting to revcom, ".
-                "but unsure if this is right.";
-      if( $self->can('warn') ) {
-         $self->warn($msg);
-      } else {
-         warn("[$self] $msg");
-      }
-   }
+    # Check that reverse-complementing makes sense
+    if( $alphabet eq 'protein' ) {
+        $self->throw("Sequence is a protein. Cannot revcom.");
+    }
+    if( $alphabet ne 'dna' && $alphabet ne 'rna' ) {
+        my $msg = "Sequence is not dna or rna, but [$alphabet]. Attempting to revcom, ".
+                  "but unsure if this is right.";
+        if( $self->can('warn') ) {
+            $self->warn($msg);
+        } else {
+            warn("[$self] $msg");
+        }
+    }
 
-   # If sequence is RNA, map to DNA (then map back later)
-   if( $alphabet eq 'rna' ) {
-       $string =~ tr/uU/tT/;
-   }
+    # If sequence is RNA, map to DNA (then map back later)
+    if( $alphabet eq 'rna' ) {
+        $string =~ tr/uU/tT/;
+    }
 
-   # Reverse-complement now
-   $string =~ tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/;
-   $string = CORE::reverse $string;
+    # Reverse-complement now
+    $string =~ tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/;
+    $string = CORE::reverse $string;
 
-   # Map back RNA to DNA
-   if( $alphabet eq 'rna' ) {
-       $string =~ tr/tT/uU/;
-   }
+    # Map back RNA to DNA
+    if( $alphabet eq 'rna' ) {
+        $string =~ tr/tT/uU/;
+    }
 
-   return $string;
+    return $string;
 }
 
 
@@ -436,39 +434,39 @@ sub _revcom_from_string {
 =cut
 
 sub trunc {
-   my ($self,$start,$end) = @_;
+    my ($self,$start,$end) = @_;
 
-   my $str;
-   if( defined $start && ref($start) &&
-       $start->isa('Bio::LocationI') ) {
-       $str = $self->subseq($start); # start is a location actually
-   } elsif( !$end ) {
-       $self->throw("trunc start,end -- there was no end for $start");
-   } elsif( $end < $start ) {
-       my $msg = "start [$start] is greater than end [$end]. \n".
-                 "If you want to truncated and reverse complement, \n".
-                 "you must call trunc followed by revcom. Sorry.";
-       $self->throw($msg);
-   } else {
-       $str = $self->subseq($start,$end);
-   }
+    my $str;
+    if( defined $start && ref($start) &&
+        $start->isa('Bio::LocationI') ) {
+        $str = $self->subseq($start); # start is a location actually
+    } elsif( !$end ) {
+        $self->throw("trunc start,end -- there was no end for $start");
+    } elsif( $end < $start ) {
+        my $msg = "start [$start] is greater than end [$end]. \n".
+                  "If you want to truncated and reverse complement, \n".
+                  "you must call trunc followed by revcom. Sorry.";
+        $self->throw($msg);
+    } else {
+        $str = $self->subseq($start,$end);
+    }
 
-   my $seqclass;
-   if($self->can_call_new()) {
-       $seqclass = ref($self);
-   } else {
-       $seqclass = 'Bio::PrimarySeq';
-       $self->_attempt_to_load_Seq();
-   }
+    my $seqclass;
+    if($self->can_call_new()) {
+        $seqclass = ref($self);
+    } else {
+        $seqclass = 'Bio::PrimarySeq';
+        $self->_attempt_to_load_Seq();
+    }
 
-   my $out = $seqclass->new( -seq              => $str,
-                             -display_id       => $self->display_id,
-                             -accession_number => $self->accession_number,
-                             -alphabet         => $self->alphabet,
-                             -desc             => $self->desc(),
-                             -verbose          => $self->verbose
-                             );
-   return $out;
+    my $out = $seqclass->new( -seq              => $str,
+                              -display_id       => $self->display_id,
+                              -accession_number => $self->accession_number,
+                              -alphabet         => $self->alphabet,
+                              -desc             => $self->desc,
+                              -verbose          => $self->verbose
+                              );
+    return $out;
 }
 
 
@@ -683,7 +681,7 @@ sub translate {
                               -display_id       => $self->display_id,
                               -accession_number => $self->accession_number,
                               # is there anything wrong with retaining the desc?
-                              -desc             => $self->desc(),
+                              -desc             => $self->desc,
                               -alphabet         => 'protein',
                               -verbose          => $self->verbose
                   );
@@ -771,9 +769,8 @@ sub rev_transcribe {
 
 =cut
 
-sub  id {
+sub id {
    my ($self)= @_;
-
    return $self->display_id();
 }
 
@@ -788,9 +785,9 @@ sub  id {
 
 =cut
 
-sub  length {
-   my ($self)= @_;
-   $self->throw_not_implemented();
+sub length {
+    my ($self)= @_;
+    $self->throw_not_implemented();
 }
 
 
@@ -925,27 +922,26 @@ sub _orf_sequence {
 =cut
 
 sub _attempt_to_load_Seq {
-   my ($self) = @_;
+    my ($self) = @_;
 
-   if( $main::{'Bio::PrimarySeq'} ) {
-       return 1;
-   } else {
-       eval {
-           require Bio::PrimarySeq;
-       };
-       if( $@ ) {
-           my $text = "Bio::PrimarySeq could not be loaded for [$self]\n".
-               "This indicates that you are using Bio::PrimarySeqI ".
-               "without Bio::PrimarySeq loaded or without providing a ".
-               "complete implementation.\nThe most likely problem is that there ".
-               "has been a misconfiguration of the bioperl environment\n".
-               "Actual exception:\n\n";
-           $self->throw("$text$@\n");
-           return 0;
-       }
-       return 1;
-   }
-
+    if( $main::{'Bio::PrimarySeq'} ) {
+        return 1;
+    } else {
+        eval {
+            require Bio::PrimarySeq;
+        };
+        if( $@ ) {
+            my $text = "Bio::PrimarySeq could not be loaded for [$self]\n".
+                "This indicates that you are using Bio::PrimarySeqI ".
+                "without Bio::PrimarySeq loaded or without providing a ".
+                "complete implementation.\nThe most likely problem is that there ".
+                "has been a misconfiguration of the bioperl environment\n".
+                "Actual exception:\n\n";
+            $self->throw("$text$@\n");
+            return 0;
+        }
+        return 1;
+    }
 }
 
 1;
