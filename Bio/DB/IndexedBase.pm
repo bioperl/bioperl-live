@@ -241,8 +241,8 @@ methods. Internal methods are usually preceded with a _
 package Bio::DB::IndexedBase;
 
 BEGIN {
-    @AnyDBM_File::ISA = qw(DB_File GDBM_File NDBM_File SDBM_File)
-if(!$INC{'AnyDBM_File.pm'});
+    @AnyDBM_File::ISA = qw(DB_File GDBM_File NDBM_File SDBM_File) 
+        if(!$INC{'AnyDBM_File.pm'});
 }
 
 use strict;
@@ -267,7 +267,31 @@ use constant PROTEIN   => 3;
 use constant DIE_ON_MISSMATCHED_LINES => 1;
 # you can avoid dying if you want but you may get incorrect results
 
-my ($caller, @fileno2path, %filepath2no);
+
+# Store file information, but:
+#  * It cannot be stored as a $self object attribute because not all interfaces
+#    of this module use an object-oriented interface.
+#  * It can not be a my() or our() class variable either because it would clash
+#    when running multiple indexed databases in the same script.
+#  * It could be be stored with the file offsets in the indexed hash file but
+#    mixing different types of data in the same hash is suboptimal.
+# A solution is to use a closure:
+
+my $data = {
+    fileno2path => []   ,
+    filepath2no => {}   ,
+};
+
+my $closure = sub {
+    my ($field, $val) = @_;
+    if (not exists $data->{$field}) {
+        die "Error: Invalid field $field\n";
+    }
+    if (defined $val) {
+        $data->{$field} = $val;
+    }
+    return $data->{$field};
+};
 
 
 =head2 new
@@ -281,21 +305,13 @@ my ($caller, @fileno2path, %filepath2no);
 
  Option        Description                                         Default
  -----------   -----------                                         -------
-
  -glob         Glob expression to search for files in directories  *
-
  -makeid       A code subroutine for transforming IDs              None
-
  -maxopen      Maximum size of filehandle cache                    32
-
  -debug        Turn on status messages                             0
-
  -reindex      Force the index to be rebuilt                       0
-
  -dbmargs      Additional arguments to pass to the DBM routine     None
-
  -index_name   Name of the file that will hold the indices
-
  -clean        Remove the index file when finished                 0
 
 The -dbmargs option can be used to control the format of the index. For example,
@@ -337,7 +353,7 @@ sub new {
     my ($class, $path, %opts) = @_;
 
     my $self = bless {
-        debug       => $opts{-debug},
+        debug       => $opts{-debug}   || 0,
         makeid      => $opts{-makeid},
         glob        => $opts{-glob}    || eval '$'.$class.'::file_glob' || '*',
         maxopen     => $opts{-maxopen} || 32,
@@ -562,8 +578,8 @@ sub path {
 =cut
 
 sub get_PrimarySeq_stream {
-  my $self = shift;
-  return Bio::DB::Indexed::Stream->new($self);
+    my $self = shift;
+    return Bio::DB::Indexed::Stream->new($self);
 }
 
 
@@ -579,10 +595,10 @@ sub get_PrimarySeq_stream {
 =cut
 
 sub get_Seq_by_id {
-  my ($self, $id) = @_;
-  $self->throw('Need to provide a sequence ID') if not defined $id;
-  return if not exists $self->{offsets}{$id};
-  return $self->{obj_class}->new($self, $id);
+    my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
+    return if not exists $self->{offsets}{$id};
+    return $self->{obj_class}->new($self, $id);
 }
 
 *get_Seq_by_version = *get_Seq_by_primary_id = *get_Seq_by_acc = \&get_Seq_by_id;
@@ -601,8 +617,8 @@ sub get_Seq_by_id {
 =cut
 
 sub _calculate_offsets {
-   my $self = shift;
-   $self->throw_not_implemented();
+    my $self = shift;
+    $self->throw_not_implemented();
 }
 
 
@@ -955,26 +971,31 @@ sub alphabet {
 =cut
 
 sub file {
-  my ($self, $id) = @_;
-  $self->throw('Need to provide a sequence ID') if not defined $id;
-  my $offset = $self->{offsets}{$id} or return;
-  return $self->_fileno2path((&{$self->{unpackmeth}}($offset))[6]);
+    my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
+    my $offset = $self->{offsets}{$id} or return;
+    return $self->_fileno2path((&{$self->{unpackmeth}}($offset))[6]);
 }
 
 
 sub _fileno2path {
     my ($self, $fileno) = @_;
-    return $fileno2path[$fileno];
+    my $fileno2path = $closure->('fileno2path');
+    return $fileno2path->[$fileno];
 }
 
 
 sub _path2fileno {
     my ($self, $path) = @_;
-    if ( not exists $filepath2no{$path} ) {
-        my $fileno = ($filepath2no{$path} = 0+ $self->{fileno}++);
-        $fileno2path[$fileno] = $path;
+    my $filepath2no = $closure->('filepath2no');
+    if ( not exists $filepath2no->{$path} ) {
+        my $fileno = ($filepath2no->{$path} = 0+ $self->{fileno}++);
+        # Save path
+        my $fileno2path = $closure->('fileno2path');
+        $fileno2path->[$fileno] = $path;
+        $closure->('fileno2path', $fileno2path);
     }
-    return $filepath2no{$path};
+    return $filepath2no->{$path};
 }
 
 
