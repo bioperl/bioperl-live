@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 83,
+    test_begin( -tests => 85,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -10,6 +10,9 @@ use warnings;
 use Bio::Root::Root;
 use File::Copy;
 my $DEBUG = test_debug();
+
+
+# Test Bio::DB::Fasta, but also the underlying module, Bio::DB::IndexedBase
 
 my $test_dir  = setup_temp_dir('dbfa');
 my $test_file = test_input_file('dbfa', 'mixed_alphabet.fasta');
@@ -82,8 +85,9 @@ my $test_files = [
     my %h;
     ok tie(%h, 'Bio::DB::Fasta', $test_dir), 'Tied hash access';
     ok exists $h{'AW057146'};
-    is $h{'AW057146:1,10'}, 'aatgtgtaca';
-    is $h{'AW057146:10,1'}, 'tgtacacatt'; # reverse complement
+    is $h{'AW057146:1,10'} , 'aatgtgtaca'; # in file 1.fa
+    is $h{'AW057146:10,1'} , 'tgtacacatt'; # reverse complement
+    is $h{'AW057443:11,20'}, 'gaaccgtcag'; # in file 4.fa
 }
 
 
@@ -121,6 +125,8 @@ my $test_files = [
 
     # Test empty sequence
     is $db->seq('123'), '';
+
+    is $db->file('gi|352962132|ref|NG_030353.1|'), 'mixed_alphabet.fasta';
 }
 
 
@@ -135,6 +141,15 @@ my $test_files = [
     }
     is $count, 5;
     unlink "$test_file.index";
+}
+
+
+{
+    # Concurrent databases (bug #3390)
+    ok my $db1 = Bio::DB::Fasta->new( test_input_file('dbfa', '1.fa') );
+    ok my $db2 = Bio::DB::Fasta->new( test_input_file('dbfa', '2.fa') );
+    is $db1->file('AW057231'), '1.fa';
+    is $db2->file('AW057302'), '2.fa';
 }
 
 
@@ -259,15 +274,6 @@ my $test_files = [
     # Remove temporary test file
     my $outfile = test_input_file('spaced_fasta.fa').'.index';
     unlink $outfile;
-}
-
-
-{
-    # Concurrent databases
-    ok my $db1 = Bio::DB::Fasta->new( test_input_file('dbfa', '1.fa') );
-    ok my $db2 = Bio::DB::Fasta->new( test_input_file('dbfa', '2.fa') );
-    is $db1->file('AW057231'), '1.fa';
-    is $db2->file('AW057302'), '2.fa';
 }
 
 
