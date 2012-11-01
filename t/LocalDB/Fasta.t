@@ -148,8 +148,12 @@ my $test_files = [
     # Concurrent databases (bug #3390)
     ok my $db1 = Bio::DB::Fasta->new( test_input_file('dbfa', '1.fa') );
     ok my $db2 = Bio::DB::Fasta->new( test_input_file('dbfa', '2.fa') );
+    ok my $db3 = Bio::DB::Fasta->new( $test_dir );
     is $db1->file('AW057231'), '1.fa';
     is $db2->file('AW057302'), '2.fa';
+    is $db3->file('AW057231'), '1.fa';
+    is $db3->file('AW057119'), '1.fa';
+    is $db3->file('AW057410'), '3.fa';
 }
 
 
