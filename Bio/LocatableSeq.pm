@@ -97,8 +97,7 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-#'
-# Let the code begin...
+
 
 package Bio::LocatableSeq;
 use strict;
@@ -119,6 +118,7 @@ $RESIDUE_SYMBOLS = '0-9A-Za-z\*';
 $MATCHPATTERN = $RESIDUE_SYMBOLS.$GAP_SYMBOLS.$FRAMESHIFT_SYMBOLS.$OTHER_SYMBOLS;
 
 use base qw(Bio::PrimarySeq Bio::RangeI);
+
 
 sub new {
     my ($class, @args) = @_;
@@ -146,6 +146,7 @@ sub new {
     return $self; # success - we hope!
 }
 
+
 =head2 start
 
  Title   : start
@@ -157,7 +158,7 @@ sub new {
 
 =cut
 
-sub start{
+sub start {
     my $self = shift;
     if( @_ ) {
         my $value = shift;
@@ -167,6 +168,7 @@ sub start{
     return 1                if $self->seq;
     return;
 }
+
 
 =head2 end
 
@@ -214,6 +216,7 @@ sub end {
     }
 }
 
+
 # changed 08.10.26 to return ungapped length, not the calculated end
 # of the sequence
 sub _ungapped_len {
@@ -235,6 +238,7 @@ sub _ungapped_len {
 #    return CORE::length($string);
 #}
 
+
 =head2 strand
 
  Title   : strand
@@ -245,7 +249,7 @@ sub _ungapped_len {
 
 =cut
 
-sub strand{
+sub strand {
    my $self = shift;
    if( @_ ) {
         my $value = shift;
@@ -253,6 +257,7 @@ sub strand{
     }
     return $self->{'strand'};
 }
+
 
 =head2 mapping
 
@@ -282,6 +287,7 @@ sub mapping {
     return @{ $self->{'_mapping'} };
 }
 
+
 =head2 frameshifts
 
  Title   : frameshifts
@@ -307,6 +313,7 @@ sub frameshifts {
         return %{$self->{_frameshifts}} : return ();
 }
 
+
 =head2 get_nse
 
  Title   : get_nse
@@ -318,7 +325,7 @@ sub frameshifts {
 
 =cut
 
-sub get_nse{
+sub get_nse {
    my ($self,$char1,$char2) = @_;
 
    $char1 ||= "/";
@@ -346,6 +353,7 @@ sub get_nse{
    return join('',$id, $v, $char1, $st, $char2, $end);
 }
 
+
 =head2 force_nse
 
  Title   : force_nse
@@ -366,6 +374,7 @@ sub force_nse {
     }
     return $self->{'_force_nse'};
 }
+
 
 =head2 num_gaps
 
@@ -487,6 +496,7 @@ sub column_from_residue_number {
 
 }
 
+
 =head2 location_from_column
 
  Title   : location_from_column
@@ -567,6 +577,7 @@ sub location_from_column {
     return $loc;
 }
 
+
 =head2 revcom
 
  Title   : revcom
@@ -595,6 +606,7 @@ sub revcom {
     $new->end($self->end) if $self->end;
     return $new;
 }
+
 
 =head2 trunc
 
@@ -684,6 +696,7 @@ sub no_gaps {
                        -message => 'Use of method no_gaps() is deprecated, use num_gaps() instead' );
     return $self->num_gaps(@_);
 }
+
 
 =head2 no_sequences
 
