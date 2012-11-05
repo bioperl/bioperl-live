@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 167 );
+    test_begin( -tests => 168 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -359,6 +359,8 @@ is $seq->validate_seq( '-~'     ), 1; # gap symbols
 is $seq->validate_seq( '-.*?=~' ), 1; # other valid symbols
 is $seq->validate_seq( 'AAAA$'  ), 0;
 is $seq->validate_seq( 'tt&tt'  ), 0;
+
+throws_ok { $seq->validate_seq('tt&tt', 1); } qr/.+/;
 
 
 # Test direct option (no sequence validation)
