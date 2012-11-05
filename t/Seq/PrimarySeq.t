@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 168 );
+    test_begin( -tests => 177 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -24,6 +24,7 @@ is $seq->id, undef;
 is $seq->seq, undef;
 is $seq->length, 0;
 is $seq->alphabet, undef;
+is $seq->is_circular, undef;
 
 
 # Empty sequence
@@ -56,16 +57,18 @@ isa_ok $seq, 'Bio::DescribableI';
 
 # make sure all methods are implemented
 is $seq->authority("bioperl.org"), "bioperl.org";
-is $seq->namespace("t"),           "t";
+is $seq->authority, "bioperl.org";
+is $seq->namespace("t"), "t";
 is $seq->namespace, "t";
 is $seq->version(0), 0;
-is $seq->lsid_string(),      "bioperl.org:t:X677667";
-is $seq->namespace_string(), "t:X677667.0";
-$seq->version(47);
+is $seq->version, 0;
+is $seq->lsid_string(), "bioperl.org:t:X677667";
+is $seq->namespace_string, "t:X677667.0";
+is $seq->version(47), 47;
 is $seq->version, 47;
-is $seq->namespace_string(), "t:X677667.47";
-is $seq->description(),      'Sample Bio::Seq object';
-is $seq->display_name(),     "new-id";
+is $seq->namespace_string, "t:X677667.47";
+is $seq->description, 'Sample Bio::Seq object';
+is $seq->display_name, "new-id";
 
 
 # Test subseq
@@ -135,29 +138,36 @@ isa_ok $trunc, 'Bio::PrimarySeqI';
 is $trunc->seq(), 'TTGG' or diag( "Expecting TTGG. Got " . $trunc->seq() );
 
 $trunc = $seq->trunc($splitlocation);
-isa_ok( $trunc, 'Bio::PrimarySeqI' );
+isa_ok $trunc, 'Bio::PrimarySeqI' ;
 is $trunc->seq(), 'TTGGTGACGC';
 
 $trunc = $seq->trunc($fuzzy);
-isa_ok( $trunc, 'Bio::PrimarySeqI' );
+isa_ok $trunc, 'Bio::PrimarySeqI';
 is $trunc->seq(), 'GGTGGC';
 
 my $rev = $seq->revcom();
-isa_ok( $rev, 'Bio::PrimarySeqI' );
-
+isa_ok $rev, 'Bio::PrimarySeqI';
 
 is $rev->seq(), 'AGTTGACGCCACCAA'
   or diag( 'revcom() failed, was ' . $rev->seq() );
 
 is $rev->display_id, 'new-id';
-is $rev->alphabet(),    'dna', 'alphabet copied through revcom';
+is $rev->display_name(), 'new-id';
+is $rev->accession_number(), 'X677667';
+is $rev->alphabet, 'dna';
+is $rev->description, 'Sample Bio::Seq object';
+
+
 TODO: {
     local $TODO =
-      'all attributes of primaryseqs are not currently copied through revcoms';
-    is $rev->namespace, 't', 'namespace copied through revcom';
+      'all attributes of primaryseqs are not currently copied through revcom()';
+    # Probably also not copied through trunc(), transcribe() and rev_transcribe()
+    is $rev->is_circular(), 0,           'is_circular copied through revcom';
+    is $rev->version, 47,                'version copied through revcom';
+    is $rev->authority, 'bioperl.org',   'authority copied through revcom';
+    is $rev->namespace, 't',             'namespace copied through revcom';
     is $rev->namespace_string(),
         "t:X677667.47", 'namespace_string copied through revcom';
-    is $rev->is_circular(), 0,     'is_circular copied through revcom';
 }
 
 #
