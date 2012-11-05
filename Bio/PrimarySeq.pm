@@ -122,8 +122,6 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 
-# Let the code begin...
-
 
 package Bio::PrimarySeq;
 use vars qw($MATCHPATTERN $GAP_SYMBOLS);
@@ -253,7 +251,8 @@ sub new {
  Function: Get or set  the sequence as a string of letters. The case of
            the letters is left up to the implementer. Suggested cases are
            upper case for proteins and lower case for DNA sequence (IUPAC
-           standard), but you should not rely on this.
+           standard), but you should not rely on this. An error is thrown if
+           the sequence contains invalid characters: see validate_seq().
  Returns : A scalar
  Args    : - Optional new sequence value (a string) to set
            - Optional alphabet (it is guessed by default)
@@ -282,9 +281,8 @@ sub _set_seq_by_ref {
     my ($self, $seq_str_ref, $alphabet) = @_;
 
     # Validate sequence if sequence is not empty and we are not in direct mode
-    if( (! $self->{'_direct'}) && (defined $$seq_str_ref) && (! $self->validate_seq($$seq_str_ref)) ) {
-        my $id = defined $self->id ? $self->id : '[unidentified sequence]';
-        $self->throw("Attempted to set sequence '$id' to [$$seq_str_ref] which does not look healthy");
+    if ( (! $self->{'_direct'}) && (defined $$seq_str_ref) ) {
+        $self->validate_seq($$seq_str_ref, 1);
     }
     delete $self->{'_direct'}; # next sequence will have to be validated
 
@@ -319,26 +317,27 @@ sub _set_seq_by_ref {
                 print "sequence $seq_str is not valid for an object of
                 alphabet ",$seqobj->alphabet, "\n";
            }
- Function: Validates a given sequence string. A validating sequence string
-           must be accepted by seq(). A string that does not validate will
-           lead to an exception if passed to seq().
-
-           The implementation provided here does not take alphabet() into
-           account. Allowed are all letters (A-Z) and '-','.','*','?','=',
-           and '~'. Spaces are not valid.
+ Function: Test that the given sequence is valid, i.e. contains only valid
+           characters. The allowed characters are all letters (A-Z) and '-','.',
+           '*','?','=' and '~'. Spaces are not valid. Note that this
+           implementation does not take alphabet() into account.
  Returns : 1 if the supplied sequence string is valid, 0 otherwise.
- Args    : The sequence string to be validated.
+ Args    : - Sequence string to be validated
+           - Boolean to throw an error if the sequence is invalid
 
 =cut
 
 sub validate_seq {
-    my ($self, $seqstr) = @_;
+    my ($self, $seqstr, $throw) = @_;
     $seqstr = '' if not defined $seqstr;
-    if ((CORE::length($seqstr) > 0) &&
-        ($seqstr !~ /^([$MATCHPATTERN]+)$/)) {
-            $self->warn("sequence '".(defined($self->id) || "[unidentified sequence]").
-            "' doesn't validate, mismatch is " .
-            join(",",($seqstr =~ /([^$MATCHPATTERN]+)/g)));
+    $throw  = 0  if not defined $throw ; # 0 for backward compatiblity
+    if ( (CORE::length $seqstr > 0         ) &&
+         ($seqstr !~ /^([$MATCHPATTERN]+)$/) ) {
+        if ($throw) {
+            $self->throw("Failed validation of sequence '".(defined($self->id) ||
+            '[unidentified sequence]')."'. Invalid characters were: " .
+            join('',($seqstr =~ /([^$MATCHPATTERN]+)/g)));
+        }
         return 0;
     }
     return 1;

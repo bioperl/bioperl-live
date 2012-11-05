@@ -622,43 +622,43 @@ sub trunc {
     return $new;
 }
 
+
 =head2 validate_seq
 
  Title   : validate_seq
- Usage   : if(! $seq->validate_seq($seq_str) ) {
+ Usage   : if(! $seqobj->validate_seq($seq_str) ) {
                 print "sequence $seq_str is not valid for an object of
-                alphabet ",$seq->alphabet, "\n";
-            }
- Function: Validates a given sequence string. A validating sequence string
-           must be accepted by seq(). A string that does not validate will
-           lead to an exception if passed to seq().
-
-           The implementation provided here does not take alphabet() into
-           account. Allowed are all letters (A-Z), numbers [0-9] 
-           and common symbols used for gaps, stop codons, unknown residues,
-           and frameshifts, including '-','.','*','?','=',and '~'.
-
- Returns : 1 if the supplied sequence string is valid for the object, and
-           0 otherwise.
- Args    : The sequence string to be validated.
+                alphabet ",$seqobj->alphabet, "\n";
+           }
+ Function: Test that the given sequence is valid, i.e. contains only valid
+           characters. The allowed characters are all letters (A-Z) and '-','.',
+           '*','?','=' and '~'. Spaces are not valid. Note that this
+           implementation does not take alphabet() into account.
+ Returns : 1 if the supplied sequence string is valid, 0 otherwise.
+ Args    : - Sequence string to be validated
+           - Boolean to throw an error if the sequence is invalid
 
 =cut
 
 sub validate_seq {
-    my ($self,$seqstr) = @_;
-    if( ! defined $seqstr ){ $seqstr = $self->seq(); }
-    return 0 unless( defined $seqstr);
-    
-    if((CORE::length($seqstr) > 0) &&
-       ($seqstr !~ /^([$MATCHPATTERN]+)$/)) {
-        $self->warn("seq doesn't validate with [$MATCHPATTERN], mismatch is " .
-            join(",",($seqstr =~ /([^$MATCHPATTERN]+)/g)));
+    my ($self, $seqstr, $throw) = @_;
+    $seqstr = '' if not defined $seqstr;
+    $throw  = 0  if not defined $throw ; # 0 for backward compatiblity
+    if ( (CORE::length $seqstr > 0         ) &&
+         ($seqstr !~ /^([$MATCHPATTERN]+)$/) ) {
+        if ($throw) {
+            $self->throw("Failed validation of sequence '".(defined($self->id) ||
+            '[unidentified sequence]')."'. Invalid characters were: " .
+            join('',($seqstr =~ /([^$MATCHPATTERN]+)/g)));
+        }
         return 0;
     }
     return 1;
 }
 
+
 ################## DEPRECATED METHODS ##################
+
 
 =head2 no_gap
 

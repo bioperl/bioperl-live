@@ -7,13 +7,15 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 118);
+    test_begin(-tests => 119);
 	
 	use_ok('Bio::LocatableSeq');
 	use_ok('Bio::AlignIO');
 }
 
 my ($str, $aln, $seq, $loc);
+
+# basic tests
 
 ok $seq = Bio::LocatableSeq->new(
 			     -seq => '--atg---gta--',
@@ -54,6 +56,10 @@ is ref($seq), 'Bio::LocatableSeq';
 
 is $seq->get_nse, '1433_LYCES/9-246';
 is $seq->id, '1433_LYCES';
+
+# test invalid sequence
+
+throws_ok{ $seq = Bio::LocatableSeq->new( -seq => '//!\\' ) } qr/.+/;
 
 # test revcom and trunc
 
