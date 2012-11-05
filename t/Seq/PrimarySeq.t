@@ -27,7 +27,7 @@ is $seq->alphabet, undef;
 
 
 # Empty sequence
-ok $seq = Bio::PrimarySeq->new( -seq => '');
+ok $seq = Bio::PrimarySeq->new( -seq => '', -nowarnonempty => 1);
 is $seq->seq, '';
 is $seq->length, 0;
 is $seq->alphabet, undef;
