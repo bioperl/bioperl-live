@@ -333,8 +333,7 @@ sub _set_seq_by_ref {
 
 sub validate_seq {
     my ($self, $seqstr) = @_;
-    if( ! defined $seqstr ){ $seqstr = $self->seq(); }
-    return 1 unless( defined $seqstr);
+    $seqstr = '' if not defined $seqstr;
     if ((CORE::length($seqstr) > 0) &&
         ($seqstr !~ /^([$MATCHPATTERN]+)$/)) {
             $self->warn("sequence '".(defined($self->id) || "[unidentified sequence]").
