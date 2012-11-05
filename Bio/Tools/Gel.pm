@@ -142,17 +142,19 @@ sub add_band {
 
     foreach my $arg (@$args){
         my $seq;
-        if( ! ref($arg) ) {
+        if( ! ref $arg ) {
             if( $arg =~ /^\d+/ ) {
-                $seq= Bio::PrimarySeq->new(-seq=>"N"x$arg, -id => $arg);
+                # $arg is a number
+                $seq = Bio::PrimarySeq->new(-seq=>'N'x$arg, -id => $arg);
             } else {
-                $seq= Bio::PrimarySeq->new(-seq=>$arg,-id=>length($arg));
+                # $arg is a sequence string
+                $seq = Bio::PrimarySeq->new(-seq=>$arg, -id=>length $arg);
             }
         } elsif( $arg->isa('Bio::PrimarySeqI') ) {
+            # $arg is a sequence object
             $seq = $arg;
         }
 
-        $seq->validate_seq or $seq->throw("invalid symbol in sequence".$seq->seq()."\n");
         $self->_add_band($seq);
     }
     return 1;
