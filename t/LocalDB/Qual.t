@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 54,
+    test_begin( -tests => 56,
                 -requires_module => 'Bio::DB::Qual');
 
     use_ok('Bio::Root::IO');
@@ -42,7 +42,7 @@ is_deeply $db->qual($seqid, 11, 2, -1), [32, 24, 27, 26, 27, 27, 27, 28, 23, 28]
 is $db->get_Qual_by_id('foobarbaz'), undef;
 ok my $obj = $db->get_Qual_by_id($seqid);
 isa_ok $obj, 'Bio::Seq::PrimaryQual::Qual';
-isa_ok $obj, 'Bio::Seq::PrimaryQual';
+isa_ok $obj, 'Bio::Seq::QualI';
 is ref($obj->qual($seqid)), 'ARRAY';
 is $obj->length, 14;
 is $obj->id, '17601979';
@@ -56,10 +56,12 @@ is_deeply $obj->subqual(2, 11), [32, 24, 27, 26, 27, 27, 27, 28, 23, 28];
 is $obj->header, undef;
 is $obj->desc, undef;
 ok my $truncobj = $obj->trunc(1,3);
-isa_ok $truncobj, 'Bio::Seq::PrimaryQual';
+isa_ok $truncobj, 'Bio::Seq::PrimaryQual::Qual';
+isa_ok $obj, 'Bio::Seq::QualI';
 is ref($truncobj->qual($seqid)), 'ARRAY';
 is $truncobj->length, 3;
 ok my $revobj = $obj->revcom;
+isa_ok $revobj, 'Bio::Seq::PrimaryQual::Qual';
 isa_ok $revobj, 'Bio::Seq::PrimaryQual';
 is ref($revobj->qual), 'ARRAY';
 is $revobj->length, 14;

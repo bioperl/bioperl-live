@@ -431,23 +431,24 @@ sub subqual {
 
 
 sub trunc {
+    # Override Bio::Seq::QualI trunc() method. This way, we create an object
+    # that does not store the quality array in memory.
     my ($self, $start, $stop) = @_;
     $self->throw(
         "$stop is smaller than $stop. If you want to truncate and reverse ".
         "complement, you must call trunc followed by revcom."
     ) if $start > $stop;
-    my ($left, $right);
     if ($self->{start} <= $self->{stop}) {
-        $left  = $self->{start}+$start-1;
-        $right = $self->{start}+$stop-1;
+        $start = $self->{start}+$start-1;
+        $stop  = $self->{start}+$stop-1;
     } else {
-        $left  = $self->{start}-($start-1);
-        $right = $self->{start}-($stop-1);
+        $start = $self->{start}-($start-1);
+        $stop  = $self->{start}-($stop-1);
     }
     my $obj = $self->new( -database => $self->{db},
                           -id       => $self->{id},
-                          -start    => $left,
-                          -stop     => $right
+                          -start    => $start,
+                          -stop     => $stop
                         );
     return $obj;
 }
@@ -464,11 +465,18 @@ sub primary_id {
     return overload::StrVal($self);
 }
 
+sub revcom {
+    # Override Bio::QualI revcom() with optimized method.
+    my $self = shift;
+    return $self->new(@{$self}{'db', 'id', 'stop', 'start'});
+}
 
 sub length {
-    # number of quality scores
+    # Get length from quality location, not the quality array (too expensive)
     my $self = shift;
-    return scalar(@{$self->qual});
+    return $self->{start} < $self->{stop}   ?
+        $self->{stop}  - $self->{start} + 1 :
+        $self->{start} - $self->{stop}  + 1 ;
 }
 
 
