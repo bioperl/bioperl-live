@@ -209,20 +209,17 @@ sub seq {
            least one digit. Note that quality strings are parsed into arrays
            using split/\d+/,$quality_string, so make sure that your quality
            scalar looks like this if you want it to be parsed properly.
- Returns : 1 for a valid sequence (WHY? Shouldn\'t it return 0? <boggle>)
- Args    : a scalar (any scalar, why PrimarySeq author?) and a scalar
-           containing the string to validate.
+ Returns : 1 for a valid sequence
+ Args    : a scalar containing the quality string to validate.
 
 =cut
 
 sub validate_qual {
-    # how do I validate quality values?
-    # \d+\s+\d+..., I suppose
-    my ($self,$qualstr) = @_;
-    # why the CORE?? -- (Because Bio::PrimarySeqI namespace has a 
-    #                    length method, you have to qualify 
-    #                    which length to use)
-    return 0 if (!defined $qualstr || CORE::length($qualstr) <= 0);   
+    my ($self, $qualstr) = @_;
+    # why the CORE? because this module's namespace also has length method, you
+    # have to qualify which length to use
+    return 0 if (!defined $qualstr || CORE::length($qualstr) <= 0);
+    # how do I validate quality values? \d+\s+\d+..., I suppose
     return 1 if( $qualstr =~ /\d/);
     
     return 0;
