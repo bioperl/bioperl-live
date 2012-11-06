@@ -379,22 +379,16 @@ sub seq {
 }
 
 sub subseq {
-    my $self = shift;
-    return $self->trunc(@_)->seq();
-}
-
-sub trunc {
     my ($self, $start, $stop) = @_;
     $self->throw("Stop cannot be smaller than start") if $stop < $start;
-    return $self->{start} <= $self->{stop} ?
-        $self->new( $self->{db},
-                    $self->{id},
-                    $self->{start}+$start-1,
-                    $self->{start}+$stop-1,  ) :
-        $self->new( $self->{db},
-                    $self->{id},
-                    $self->{start}-($start-1),
-                    $self->{start}-($stop-1) );
+    if ($self->{start} <= $self->{stop}) {
+        $start = $self->{start}+$start-1;
+        $stop  = $self->{start}+$stop-1;
+    } else {
+        $start = $self->{start}-($start-1);
+        $stop  = $self->{start}-($stop-1);
+    }
+    return $self->{db}->seq($self->{id}, $start, $stop);
 }
 
 sub is_circular {
@@ -413,6 +407,8 @@ sub accession_number {
 }
 
 sub primary_id {
+    # Following Bio::PrimarySeqI, since this sequence has no accession number,
+    # its primary_id should be a stringified memory location.
     my $self = shift;
     return overload::StrVal($self);
 }
@@ -424,11 +420,6 @@ sub can_call_new {
 sub alphabet {
     my $self = shift;
     return $self->{db}->alphabet($self->{id});
-}
-
-sub revcom {
-    my $self = shift;
-    return $self->new(@{$self}{'db', 'id', 'stop', 'start'});
 }
 
 sub length {
