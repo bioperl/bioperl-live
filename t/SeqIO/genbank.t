@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 274 );
+	test_begin(-tests => 283 );
 	
     use_ok('Bio::SeqIO::genbank');
 }
@@ -601,3 +601,22 @@ $as = $ast->next_seq;
 ($cds) = grep { $_->primary_tag eq 'CDS' } $as->get_SeqFeatures();
 @notes = $cds->get_tag_values('note');
 is(scalar @notes, 2);
+
+
+#bug 3375
+my $in = Bio::SeqIO->new(-format => 'genbank',
+                        -file => test_input_file('NC_002058_multDBLINK_bug3375.gb'));
+my $seq = $in->next_seq();     # should not throw a warning now
+my @dblinks = $seq->annotation->get_Annotations('dblink');    # contains 5 dblink references
+is($dblinks[0]->database, 'BioProject', 'bug3375 database is BioProject');
+is($dblinks[0]->primary_id, 'PRJNA15288', 'bug3375 primary_id is PRJNA15288');
+
+is($dblinks[1]->database, 'Project');
+is($dblinks[1]->primary_id, '100');
+is($dblinks[3]->database, 'Project');
+is($dblinks[3]->primary_id, '300');
+
+is($dblinks[4]->database, 'GenBank');
+is($dblinks[4]->primary_id, 'NC_002058');
+is($dblinks[4]->version, '3');
+
