@@ -384,8 +384,8 @@ sub subseq {
 }
 
 sub trunc {
-    # Override Bio::PrimarySeqI trunc() method. This way, we create a
-    # Bio::PrimarySeq::Fasta that does not store the sequence in memory.
+    # Override Bio::PrimarySeqI trunc() method. This way, we create an object
+    # that does not store the sequence in memory.
     my ($self, $start, $stop) = @_;
     $self->throw("Stop cannot be smaller than start") if $stop < $start;
     if ($self->{start} <= $self->{stop}) {
@@ -429,10 +429,16 @@ sub alphabet {
     return $self->{db}->alphabet($self->{id});
 }
 
-sub length {
-    # For efficiency, get length from the database, not from the sequence string
+sub revcom {
+    # Override Bio::PrimarySeqI revcom() with optimized method.
     my $self = shift;
-    return $self->{db}->length($self->{id});
+    return $self->new(@{$self}{'db', 'id', 'stop', 'start'});
+}
+
+sub length {
+    # Get length from sequence location, not the sequence string (too expensive)
+    my $self = shift;
+    return $self->{stop} - $self->{start} + 1;
 }
 
 sub description  {
