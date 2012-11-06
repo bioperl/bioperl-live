@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 91,
+    test_begin( -tests => 92,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -72,6 +72,7 @@ my $test_files = [
     isa_ok $rev, 'Bio::PrimarySeq::Fasta';
     isa_ok $rev, 'Bio::PrimarySeqI';
     is $rev->seq, 'accccgagaa';
+    is $rev->length, 10;
 }
 
 

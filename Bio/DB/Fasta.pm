@@ -438,7 +438,9 @@ sub revcom {
 sub length {
     # Get length from sequence location, not the sequence string (too expensive)
     my $self = shift;
-    return $self->{stop} - $self->{start} + 1;
+    return $self->{start} < $self->{stop}   ?
+        $self->{stop}  - $self->{start} + 1 :
+        $self->{start} - $self->{stop}  + 1 ;
 }
 
 sub description  {
