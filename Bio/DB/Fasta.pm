@@ -307,7 +307,7 @@ sub subseq {
 
  Title   : length
  Usage   : my $length = $qualdb->length($id);
- Function: Get the number of residies in the indicated sequence.
+ Function: Get the number of residues in the indicated sequence.
  Returns : Number
  Args    : ID of entry
 
@@ -423,14 +423,15 @@ sub alphabet {
 }
 
 sub length {
+    # For efficiency, get length from the database, not from the sequence string
     my $self = shift;
-    return CORE::length($self->seq);
+    return $self->{db}->length($self->{id});
 }
 
 sub description  {
     my $self = shift;
     my $header = $self->{'db'}->header($self->{id});
-    # remove the id from the header
+    # remove the ID from the header
     return (split(/\s+/, $header, 2))[1];
 }
 *desc = \&description;

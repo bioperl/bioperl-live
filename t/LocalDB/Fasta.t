@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 84,
+    test_begin( -tests => 85,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -50,6 +50,7 @@ my $test_files = [
     ok $primary_seq = $db->get_Seq_by_acc('AW057119');
     ok $primary_seq = $db->get_Seq_by_version('AW057119');
     ok $primary_seq = $db->get_Seq_by_primary_id('AW057119');
+    isa_ok $primary_seq, 'Bio::PrimarySeq::Fasta';
     isa_ok $primary_seq, 'Bio::PrimarySeqI';
 
     # Bio::PrimarySeqI methods
