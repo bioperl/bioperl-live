@@ -61,12 +61,17 @@ my $test_files = [
     is $primary_seq->accession_number, 'unknown';
     is $primary_seq->is_circular, undef;
     is $primary_seq->subseq(11, 20), 'ttctcggggt';
-    is $primary_seq->trunc(11, 20)->length, 10;
-    is $primary_seq->trunc(11, 20)->seq, 'ttctcggggt';
-    is $primary_seq->trunc(11, 20)->revcom->seq, 'accccgagaa';
     is $primary_seq->description, 'test description', 'bug 3126';
     is $primary_seq->seq, 'tcatgttggcttctcggggtttttatggattaatacattttccaaacgattctttgcgccttctgtggtgccgccttctccgaaggaactgacgaaaaatgacgtggatttgctgacaaatccaggcgaggaatatttggacggattgatgaaatggcacggcgacgagcgacccgtgttcaaaagagaggacatttatcgttggtcggatagttttccagaatatcggctaagaatgatttgtctgaaagacacgacaagggtcattgcagtcggtcaatattgttactttgatgctctgaaagaaaggagagcagccattgttcttcttaggattgggatggacggatcctgaatatcgtaatcgggcagttatggagcttcaagcttcgatggcgctggaggagagggatcggtatccgactgccaacgcggcatcgcatccaaataagttcatgaaacgattttggcacatattcaacggcctcaaagagcacgaggacaaaggtcacaaggctgccgctgtttcatacaagagcttctacgacctcanagacatgatcattcctgaaaatctggatgtcagtggtattactgtaaatgatgcacgaaaggtgccacaaagagatataatcaactacgatcaaacatttcatccatatcatcgagaaatggttataatttctcacatgtatgacaatgatgggtttggaaaagtgcgtatgatgaggatggaaatgtacttggaattgtctagcgatgtctttanaccaacaagactgcacattagtcaattatgcagatagcc';
-
+    ok my $trunc = $primary_seq->trunc(11,20);
+    isa_ok $trunc, 'Bio::PrimarySeq::Fasta';
+    isa_ok $trunc, 'Bio::PrimarySeqI';
+    is $trunc->length, 10;
+    is $trunc->seq, 'ttctcggggt';
+    ok my $rev = $trunc->revcom;
+    isa_ok $trunc, 'Bio::PrimarySeq::Fasta';
+    isa_ok $trunc, 'Bio::PrimarySeqI';
+    is $rev->seq, 'accccgagaa';
 }
 
 

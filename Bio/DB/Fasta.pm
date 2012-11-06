@@ -379,6 +379,13 @@ sub seq {
 }
 
 sub subseq {
+    my $self = shift;
+    return $self->trunc(@_)->seq();
+}
+
+sub trunc {
+    # Override Bio::PrimarySeqI trunc() method. This way, we create a
+    # Bio::PrimarySeq::Fasta that does not store the sequence in memory.
     my ($self, $start, $stop) = @_;
     $self->throw("Stop cannot be smaller than start") if $stop < $start;
     if ($self->{start} <= $self->{stop}) {
@@ -388,7 +395,7 @@ sub subseq {
         $start = $self->{start}-($start-1);
         $stop  = $self->{start}-($stop-1);
     }
-    return $self->{db}->seq($self->{id}, $start, $stop);
+    return $self->new( $self->{db}, $self->{id}, $start, $stop );
 }
 
 sub is_circular {
@@ -431,7 +438,7 @@ sub length {
 sub description  {
     my $self = shift;
     my $header = $self->{'db'}->header($self->{id});
-    # remove the ID from the header
+    # Remove the ID from the header
     return (split(/\s+/, $header, 2))[1];
 }
 *desc = \&description;
