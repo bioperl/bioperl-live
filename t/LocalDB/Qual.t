@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 52,
+    test_begin( -tests => 54,
                 -requires_module => 'Bio::DB::Qual');
 
     use_ok('Bio::Root::IO');
@@ -41,16 +41,18 @@ is_deeply $db->qual($seqid, 11, 2, -1), [32, 24, 27, 26, 27, 27, 27, 28, 23, 28]
 # the bioperl  way
 is $db->get_Qual_by_id('foobarbaz'), undef;
 ok my $obj = $db->get_Qual_by_id($seqid);
+isa_ok $obj, 'Bio::Seq::PrimaryQual::Qual';
 isa_ok $obj, 'Bio::Seq::PrimaryQual';
 is ref($obj->qual($seqid)), 'ARRAY';
 is $obj->length, 14;
-ok $obj->id;
-ok $obj->display_id;
-ok $obj->accession_number;
-ok $obj->primary_id;
-is $obj->validate_qual($obj, (join ' ', @{$obj->qual($seqid)})), 1;
+is $obj->id, '17601979';
+is $obj->display_id, '17601979';
+is $obj->accession_number, 'unknown';
+like $obj->primary_id, qr/^Bio::Seq::PrimaryQual::Qual=HASH/;
+is $obj->validate_qual( join(' ', @{$obj->qual($seqid)}) ), 1;
 is $obj->translate, 0;
 is $obj->qualat(12), 31;
+is_deeply $obj->subqual(2, 11), [32, 24, 27, 26, 27, 27, 27, 28, 23, 28];
 is $obj->header, undef;
 is $obj->desc, undef;
 ok my $truncobj = $obj->trunc(1,3);
