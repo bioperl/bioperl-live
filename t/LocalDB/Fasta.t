@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 76,
+    test_begin( -tests => 84,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 }
 use strict;
@@ -10,6 +10,9 @@ use warnings;
 use Bio::Root::Root;
 use File::Copy;
 my $DEBUG = test_debug();
+
+
+# Test Bio::DB::Fasta and its underlying code, Bio::DB::IndexedBase
 
 my $test_dir  = setup_temp_dir('dbfa');
 my $test_file = test_input_file('dbfa', 'mixed_alphabet.fasta');
@@ -49,8 +52,17 @@ my $test_files = [
     ok $primary_seq = $db->get_Seq_by_primary_id('AW057119');
     isa_ok $primary_seq, 'Bio::PrimarySeqI';
 
+    # Bio::PrimarySeqI methods
+    is $primary_seq->id, 'AW057119';
+    is $primary_seq->display_id, 'AW057119';
+    like $primary_seq->primary_id, qr/^Bio::PrimarySeq::Fasta=HASH/;
+    is $primary_seq->alphabet, 'dna';
+    is $primary_seq->accession_number, 'unknown';
+    is $primary_seq->is_circular, undef;
+    is $primary_seq->subseq(11, 20), 'ttctcggggt';
     is $primary_seq->trunc(11, 20)->length, 10;
     is $primary_seq->trunc(11, 20)->seq, 'ttctcggggt';
+    is $primary_seq->trunc(11, 20)->revcom->seq, 'accccgagaa';
     is $primary_seq->description, 'test description', 'bug 3126';
     is $primary_seq->seq, 'tcatgttggcttctcggggtttttatggattaatacattttccaaacgattctttgcgccttctgtggtgccgccttctccgaaggaactgacgaaaaatgacgtggatttgctgacaaatccaggcgaggaatatttggacggattgatgaaatggcacggcgacgagcgacccgtgttcaaaagagaggacatttatcgttggtcggatagttttccagaatatcggctaagaatgatttgtctgaaagacacgacaagggtcattgcagtcggtcaatattgttactttgatgctctgaaagaaaggagagcagccattgttcttcttaggattgggatggacggatcctgaatatcgtaatcgggcagttatggagcttcaagcttcgatggcgctggaggagagggatcggtatccgactgccaacgcggcatcgcatccaaataagttcatgaaacgattttggcacatattcaacggcctcaaagagcacgaggacaaaggtcacaaggctgccgctgtttcatacaagagcttctacgacctcanagacatgatcattcctgaaaatctggatgtcagtggtattactgtaaatgatgcacgaaaggtgccacaaagagatataatcaactacgatcaaacatttcatccatatcatcgagaaatggttataatttctcacatgtatgacaatgatgggtttggaaaagtgcgtatgatgaggatggaaatgtacttggaattgtctagcgatgtctttanaccaacaagactgcacattagtcaattatgcagatagcc';
 
