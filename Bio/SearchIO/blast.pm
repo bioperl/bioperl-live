@@ -1272,8 +1272,8 @@ sub next_result {
                     last;
                 }
                 elsif (/^Query=/) {
-                    $self->_pushback($reportline) if $reportline;
                     $self->_pushback($_);
+                    $self->_pushback($reportline) if $reportline;
                     last PARSER;
                 }
 

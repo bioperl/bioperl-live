@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 1354);
+    test_begin(-tests => 1357);
 
     use_ok('Bio::SearchIO');
 }
@@ -2201,3 +2201,13 @@ is( $hsp->start('query'), 3255 );
 is( $hsp->start('sbjct'), 128516 );
 is( $hsp->end('query'),   5720 );
 is( $hsp->end('sbjct'),   131000 );
+
+# testing for Bug #3298
+$searchio = Bio::SearchIO->new(
+    '-format' => 'blast',
+    '-file'   => test_input_file('multiresult_blastn+.bls')
+);
+
+is ($searchio->next_result->algorithm_version, '2.2.25+', "testing Bug 3298");
+is ($searchio->next_result->algorithm_version, '2.2.25+', "testing Bug 3298");
+is ($searchio->next_result->algorithm_version, '2.2.25+', "testing Bug 3298");
