@@ -320,7 +320,8 @@ sub _set_seq_by_ref {
  Function: Test that the given sequence is valid, i.e. contains only valid
            characters. The allowed characters are all letters (A-Z) and '-','.',
            '*','?','=' and '~'. Spaces are not valid. Note that this
-           implementation does not take alphabet() into account.
+           implementation does not take alphabet() into account and that empty
+           sequences are considered valid.
  Returns : 1 if the supplied sequence string is valid, 0 otherwise.
  Args    : - Sequence string to be validated
            - Boolean to throw an error if the sequence is invalid
