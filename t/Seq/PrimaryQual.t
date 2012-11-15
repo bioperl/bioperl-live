@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 35);
+    test_begin(-tests => 41);
 	
     use_ok('Bio::SeqIO');
     use_ok('Bio::Seq::Quality');
@@ -58,16 +58,20 @@ $retrieved_quality = $qualobj->qual();
 $retrieved_quality_string = join(' ',@$retrieved_quality);
 is($retrieved_quality_string,$newqualstring);
 
-eval {
-    $qualobj->qual("chad");
-};
-like($@, qr/not look healthy/);
+throws_ok { $qualobj->qual("chad") } qr/.+/;
 
 eval { $qualobj->qual(""); };
 ok(!$@);
 
 eval { $qualobj->qual(" 4"); };
 ok(!$@);
+
+is $qualobj->validate_qual($string_quals), 1;
+is $qualobj->validate_qual(""), 1;
+is $qualobj->validate_qual(undef), 1;
+is $qualobj->validate_qual(" 4"), 1;
+is $qualobj->validate_qual("chad"), 0;
+throws_ok { $qualobj->validate_qual("chad", 1) } qr/.+/;
 
 $qualobj->qual("4 10");
 

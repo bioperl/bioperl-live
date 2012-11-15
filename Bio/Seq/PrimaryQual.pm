@@ -160,9 +160,9 @@ sub new {
 
  Title   : qual()
  Usage   : @quality_values  = @{$obj->qual()};
- Function: Returns the quality as a reference to an array containing the
-           quality values. The individual elements of the quality array are
-           not validated and can be any numeric value.
+ Function: Get or set the quality as a reference to an array containing the
+           quality values. An error is generated if the quality scores are
+           invalid, see validate_qual().
  Returns : A reference to an array.
 
 =cut
@@ -175,9 +175,8 @@ sub qual {
     } elsif( ref($value) =~ /ARRAY/i ) {
         # if the user passed in a reference to an array
         $self->{'qual'} = $value;
-    } elsif(! $self->validate_qual($value)){
-        $self->throw("Attempting to set the quality to [$value] which does not look healthy");
     } else {
+        $self->validate_qual($value, 1);
         $value =~ s/^\s+//;
         $self->{'qual'} = [split(/\s+/,$value)];
     }
@@ -206,23 +205,31 @@ sub seq {
  Title   : validate_qual($qualstring)
  Usage   : print("Valid.") if { &validate_qual($self,$qualities); }
  Function: Make sure that the quality, if it has length > 0, contains at
-           least one digit. Note that quality strings are parsed into arrays
-           using split/\d+/,$quality_string, so make sure that your quality
-           scalar looks like this if you want it to be parsed properly.
- Returns : 1 for a valid sequence
- Args    : a scalar containing the quality string to validate.
+           least one digit. The individual elements of the quality array are
+           not validated and can be any numeric value. Note that quality strings
+           are parsed into arrays using split/\d+/,$quality_string, so make sure
+           that your quality scalar looks like this if you want it to be parsed
+           properly. Note that empty quality strings are considered valid.
+ Returns : 1 for a valid sequence, 0 otherwise
+ Args    : - Scalar containing the quality string to validate.
+           - Boolean to throw an error if validation failed
 
 =cut
 
 sub validate_qual {
-    my ($self, $qualstr) = @_;
-    # why the CORE? because this module's namespace also has length method, you
-    # have to qualify which length to use
-    return 0 if (!defined $qualstr || CORE::length($qualstr) <= 0);
-    # how do I validate quality values? \d+\s+\d+..., I suppose
-    return 1 if( $qualstr =~ /\d/);
-    
-    return 0;
+    my ($self, $qualstr, $throw) = @_;
+    $qualstr = '' if not defined $qualstr;
+    $throw   = 0  if not defined $throw ; # 0 for backward compatiblity
+    if ( (CORE::length $qualstr > 0) &&
+         ($qualstr !~ /\d/         ) ) {
+        if ($throw) {
+            $self->throw("Failed validation of quality score from  '".
+               (defined($self->id)||'[unidentified sequence]')."'. No numeric ".
+               "value found.\n");
+        }
+        return 0;
+    }
+    return 1;
 }
 
 

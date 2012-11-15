@@ -82,6 +82,7 @@ use Bio::PrimarySeq;
 
 use base qw(Bio::Root::Root Bio::Factory::SequenceFactoryI);
 
+
 =head2 new
 
  Title   : new
@@ -129,11 +130,12 @@ sub create {
 
     my $seq = bless {}, 'Bio::Seq';
     my $t_pseq = $seq->{'primary_seq'} = bless {}, 'Bio::PrimarySeq';
-    $t_pseq->{'seq'}  = $sequence;
-    $t_pseq->{'desc'} = $fulldesc;
+    $t_pseq->{'seq'}        = $sequence;
+    $t_pseq->{'length'}     = CORE::length($sequence);
+    $t_pseq->{'desc'}       = $fulldesc;
     $t_pseq->{'display_id'} = $id;
     $t_pseq->{'primary_id'} = $id;
-    $seq->{'primary_id'} = $id; # currently Bio::Seq does not delegate this
+    $seq->{'primary_id'}    = $id; # currently Bio::Seq does not delegate this
     if( $sequence and !$alphabet ) {
         $t_pseq->_guess_alphabet();
     } elsif ( $sequence and $alphabet ) {
