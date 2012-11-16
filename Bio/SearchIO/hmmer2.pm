@@ -862,7 +862,8 @@ sub next_result {
                         }
                         elsif (CORE::length($_) == 0
                             || ( $count != 1 && /^\s+$/o )
-                            || /^\s+\-?\*\s*$/ )
+                            || /^\s+\-?\*\s*$/
+                            || /^.+\-\s+\-\s*$/ )
                         {
                             next;
                         }
