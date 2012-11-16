@@ -268,32 +268,6 @@ use constant DIE_ON_MISSMATCHED_LINES => 1;
 # you can avoid dying if you want but you may get incorrect results
 
 
-# Store file information, but:
-#  * It cannot be stored as a $self object attribute because not all interfaces
-#    of this module use an object-oriented interface.
-#  * It can not be a my() or our() class variable either because it would clash
-#    when running multiple indexed databases in the same script.
-#  * It could be be stored with the file offsets in the indexed hash file but
-#    mixing different types of data in the same hash is suboptimal.
-# A solution is to use a closure:
-
-my $data = {
-    fileno2path => []   ,
-    filepath2no => {}   ,
-};
-
-my $closure = sub {
-    my ($field, $val) = @_;
-    if (not exists $data->{$field}) {
-        die "Error: Invalid field $field\n";
-    }
-    if (defined $val) {
-        $data->{$field} = $val;
-    }
-    return $data->{$field};
-};
-
-
 =head2 new
 
  Title   : new
@@ -368,6 +342,8 @@ sub new {
         index_name  => $opts{-index_name},
         obj_class   => eval '$'.$class.'::obj_class',
         offset_meth => \&{$class.'::_calculate_offsets'},
+        fileno2path => [],
+        filepath2no => {},
     }, $class;
 
     my ($offsets, $dirname);
@@ -980,22 +956,18 @@ sub file {
 
 sub _fileno2path {
     my ($self, $fileno) = @_;
-    my $fileno2path = $closure->('fileno2path');
-    return $fileno2path->[$fileno];
+    return $self->{fileno2path}->[$fileno];
 }
 
 
 sub _path2fileno {
     my ($self, $path) = @_;
-    my $filepath2no = $closure->('filepath2no');
-    if ( not exists $filepath2no->{$path} ) {
-        my $fileno = ($filepath2no->{$path} = 0+ $self->{fileno}++);
-        # Save path
-        my $fileno2path = $closure->('fileno2path');
-        $fileno2path->[$fileno] = $path;
-        $closure->('fileno2path', $fileno2path);
+    if ( not exists $self->{filepath2no}->{$path} ) {
+        my $fileno = ($self->{filepath2no}->{$path} = 0+ $self->{fileno}++);
+        $self->{fileno2path}->[$fileno] = $path; # Save path
     }
-    return $filepath2no->{$path};
+    return $self->{filepath2no}->{$path};
+
 }
 
 
