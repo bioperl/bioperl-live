@@ -98,11 +98,12 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Seq::PrimaryQual;
-use vars qw(%valid_type);
+
 use strict;
 
-
 use base qw(Bio::Root::Root Bio::Seq::QualI);
+
+our $MATCHPATTERN = '0-9eE\.\s+-';
 
 
 =head2 new()
@@ -203,25 +204,22 @@ sub seq {
 =head2 validate_qual($qualstring)
 
  Title   : validate_qual($qualstring)
- Usage   : print("Valid.") if { &validate_qual($self,$qualities); }
- Function: Make sure that the quality, if it has length > 0, contains at
-           least one digit. The individual elements of the quality array are
-           not validated and can be any numeric value. Note that quality strings
-           are parsed into arrays using split/\d+/,$quality_string, so make sure
-           that your quality scalar looks like this if you want it to be parsed
-           properly. Note that empty quality strings are considered valid.
+ Usage   : print("Valid.") if { &validate_qual($self, $quality_string); }
+ Function: Test that the given quality string is valid. It is expected to
+           contain space-delimited numbers that can be parsed using split /\d+/.
+           However, this validation takes shortcuts and only tests that the
+           string contains characters valid in numbers: 0-9 . eE +-
+           Note that empty quality strings are valid too.
  Returns : 1 for a valid sequence, 0 otherwise
  Args    : - Scalar containing the quality string to validate.
-           - Boolean to throw an error if validation failed
+           - Boolean to optionally throw an error if validation failed
 
 =cut
 
 sub validate_qual {
     my ($self, $qualstr, $throw) = @_;
-    $qualstr = '' if not defined $qualstr;
-    $throw   = 0  if not defined $throw ; # 0 for backward compatiblity
-    if ( (CORE::length $qualstr > 0) &&
-         ($qualstr !~ /\d/         ) ) {
+    if ( (defined $qualstr                ) &&
+         ($qualstr !~ /^[$MATCHPATTERN]*$/) ) {
         if ($throw) {
             $self->throw("Failed validation of quality score from  '".
                (defined($self->id)||'[unidentified sequence]')."'. No numeric ".

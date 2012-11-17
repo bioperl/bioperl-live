@@ -55,6 +55,8 @@ CPAN releases are branched from 'master'.
         - now handles IUPAC degenerate residues [fangly]
     * Bio::PrimarySeq and Bio::PrimarySeqI
         - speed improvements for large sequences [Ben Woodcroft, fangly]
+    * Bio::PrimaryQual
+        - tightened and optimized quality string validation [fangly]
 
     [Bug fixes]
 

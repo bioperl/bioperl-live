@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 67);
+    test_begin(-tests => 70);
 
     use_ok('Bio::SeqIO');
     use_ok('Bio::Seq::Quality');
@@ -52,17 +52,20 @@ my @newqualarray = split / /,$newqualstring;
 ok $qualobj->qual(\@newqualarray);
 is join(' ', @{$qualobj->qual()}), $newqualstring;
 
-is $qualobj->validate_qual($string_quals), 1;
-is $qualobj->validate_qual(""           ), 1;
-is $qualobj->validate_qual("0"          ), 1;
-is $qualobj->validate_qual(undef        ), 1;
-is $qualobj->validate_qual("10 20 30 30"), 1;
-is $qualobj->validate_qual(" 20  9.3 5 "), 1;
-is $qualobj->validate_qual(" 4"         ), 1;
-is $qualobj->validate_qual("chad"       ), 0;
-is $qualobj->validate_qual("   "        ), 0;
+is $qualobj->validate_qual($string_quals ), 1;
+is $qualobj->validate_qual(""            ), 1;
+is $qualobj->validate_qual("0"           ), 1;
+is $qualobj->validate_qual(undef         ), 1;
+is $qualobj->validate_qual("   "         ), 1;
+is $qualobj->validate_qual("10 20 30 30" ), 1;
+is $qualobj->validate_qual(" 20  9 5   " ), 1;
+is $qualobj->validate_qual("+1 9.3 50e-1"), 1;
+is $qualobj->validate_qual(" 4"          ), 1;
+is $qualobj->validate_qual("chad"        ), 0;
+is $qualobj->validate_qual("10 one"      ), 0;
 
 ok $qualobj->qual("10 20 30 30");
+ok $qualobj->qual("+1 9.3 50e-1");
 throws_ok { $qualobj->qual("chad"); } qr/.+/;
 throws_ok { $qualobj->validate_qual("chad", 1) } qr/.+/;
 
