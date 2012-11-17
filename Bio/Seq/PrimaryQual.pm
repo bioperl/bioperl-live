@@ -274,18 +274,18 @@ sub subqual {
  Title   : display_id()
  Usage   : $id_string = $obj->display_id();
  Function: returns the display id, aka the common name of the Quality
-        object.
-        The semantics of this is that it is the most likely string to be
-        used as an identifier of the quality sequence, and likely to have
-        "human" readability.  The id is equivalent to the ID field of the
-        GenBank/EMBL databanks and the id field of the Swissprot/sptrembl
-        database. In fasta format, the >(\S+) is presumed to be the id,
-        though some people overload the id to embed other information.
-        Bioperl does not use any embedded information in the ID field,
-        and people are encouraged to use other mechanisms (accession
-        field for example, or extending the sequence object) to solve
-        this. Notice that $seq->id() maps to this function, mainly for
-        legacy/convience issues
+           object.
+           The semantics of this is that it is the most likely string to be
+           used as an identifier of the quality sequence, and likely to have
+           "human" readability.  The id is equivalent to the ID field of the
+           GenBank/EMBL databanks and the id field of the Swissprot/sptrembl
+           database. In fasta format, the >(\S+) is presumed to be the id,
+           though some people overload the id to embed other information.
+           Bioperl does not use any embedded information in the ID field,
+           and people are encouraged to use other mechanisms (accession
+           field for example, or extending the sequence object) to solve
+           this. Notice that $seq->id() maps to this function, mainly for
+           legacy/convience issues
  Returns : A string
  Args    : None
 

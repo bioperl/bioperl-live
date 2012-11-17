@@ -7,8 +7,8 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 41);
-	
+    test_begin(-tests => 67);
+
     use_ok('Bio::SeqIO');
     use_ok('Bio::Seq::Quality');
     use_ok('Bio::Seq::PrimaryQual');
@@ -22,153 +22,119 @@ open (STDERR, ">&STDOUT");
 
 my $string_quals = "10 20 30 40 50 40 30 20 10";
 print("Quals are $string_quals\n") if($DEBUG);
-my $qualobj = Bio::Seq::PrimaryQual->new(
-					  '-qual' => $string_quals,
-					  '-id'  => 'QualityFragment-12',
-					  '-accession_number' => 'X78121',
-					  );
-ok($qualobj);
-is($qualobj->display_id, 'QualityFragment-12');
-is($qualobj->accession_number, 'X78121');
+ok my $qualobj = Bio::Seq::PrimaryQual->new(
+    -qual             => $string_quals,
+    -id               => 'QualityFragment-12',
+    -accession_number => 'X78121',
+);
+is $qualobj->display_id, 'QualityFragment-12';
+is $qualobj->accession_number, 'X78121';
 
-my @q2 = split/ /,$string_quals;
-$qualobj = Bio::Seq::PrimaryQual->new
-    ( '-qual'             => \@q2,
-      '-primary_id'	     => 'chads primary_id',
-      '-desc'		        => 'chads desc',
-      '-accession_number' => 'chads accession_number',
-      '-id'		           => 'chads id',
-		'-header'           => 'chads header'
-      );
+my @q2 = split / /, $string_quals;
+$qualobj = Bio::Seq::PrimaryQual->new(
+    -qual             => \@q2,
+    -primary_id       => 'chads primary_id',
+    -desc             => 'chads desc',
+    -accession_number => 'chads accession_number',
+    -id               => 'chads id',
+    -header           => 'chads header'
+);
 
-is($qualobj->primary_id, 'chads primary_id');
-my $rqual = $qualobj->qual();
-is(ref($rqual),"ARRAY");
+is $qualobj->primary_id, 'chads primary_id';
+isa_ok $qualobj->qual(), 'ARRAY';
 
 my $newqualstring = "50 90 1000 20 12 0 0";
 
-$qualobj->qual($newqualstring);
-my $retrieved_quality = $qualobj->qual();
-my $retrieved_quality_string = join(' ', @$retrieved_quality);
-is($retrieved_quality_string,$newqualstring);
+ok $qualobj->qual($newqualstring);
+is join(' ', @{$qualobj->qual()}), $newqualstring;
 
-my @newqualarray = split/ /,$newqualstring;
-$qualobj->qual(\@newqualarray);
-$retrieved_quality = $qualobj->qual();
-$retrieved_quality_string = join(' ',@$retrieved_quality);
-is($retrieved_quality_string,$newqualstring);
-
-throws_ok { $qualobj->qual("chad") } qr/.+/;
-
-eval { $qualobj->qual(""); };
-ok(!$@);
-
-eval { $qualobj->qual(" 4"); };
-ok(!$@);
+my @newqualarray = split / /,$newqualstring;
+ok $qualobj->qual(\@newqualarray);
+is join(' ', @{$qualobj->qual()}), $newqualstring;
 
 is $qualobj->validate_qual($string_quals), 1;
-is $qualobj->validate_qual(""), 1;
-is $qualobj->validate_qual(undef), 1;
-is $qualobj->validate_qual(" 4"), 1;
-is $qualobj->validate_qual("chad"), 0;
+is $qualobj->validate_qual(""           ), 1;
+is $qualobj->validate_qual("0"          ), 1;
+is $qualobj->validate_qual(undef        ), 1;
+is $qualobj->validate_qual("10 20 30 30"), 1;
+is $qualobj->validate_qual(" 20  9.3 5 "), 1;
+is $qualobj->validate_qual(" 4"         ), 1;
+is $qualobj->validate_qual("chad"       ), 0;
+is $qualobj->validate_qual("   "        ), 0;
+
+ok $qualobj->qual("10 20 30 30");
+throws_ok { $qualobj->qual("chad"); } qr/.+/;
 throws_ok { $qualobj->validate_qual("chad", 1) } qr/.+/;
 
-$qualobj->qual("4 10");
-
-is($qualobj->length(),2 );
+ok $qualobj->qual("4 10");
+is $qualobj->length(), 2;
 
 $qualobj->qual("10 20 30 40 50 40 30 20 10");
-my @subquals = @{$qualobj->subqual(3,6);};
-is(@subquals, 4);
-     # chad, note to self, evaluate border conditions
-is ("30 20 10", join(' ',@{$qualobj->subqual(7,9)}));
+ok my @subquals = @{$qualobj->subqual(3,6);};
+is @subquals, 4;
+is "30 20 10", join(' ',@{$qualobj->subqual(7,9)});
+
+throws_ok { $qualobj->subqual(-1,6); } qr/EX/;
+ok $qualobj->subqual(1,6);
+ok $qualobj->subqual(1,9);
+throws_ok { $qualobj->subqual(9,1); } qr/EX/;
 
 
-my @false_comparator = qw(30 40 70 40);
-my @true_comparator = qw(30 40 50 40);
-ok(!&compare_arrays(\@subquals,\@true_comparator));
+is $qualobj->display_id(), "chads id";
+is $qualobj->display_id("chads new display_id"), "chads new display_id";
+is $qualobj->display_id(), "chads new display_id";
 
-eval { $qualobj->subqual(-1,6); };
-like($@, qr/EX/ );
-eval { $qualobj->subqual(1,6); };
-ok(!$@);
-eval { $qualobj->subqual(1,9); };
-ok(!$@);
-eval { $qualobj->subqual(9,1); };
-like($@, qr/EX/ );
+is $qualobj->accession_number(), "chads accession_number";
+is $qualobj->accession_number("chads new accession_number"), "chads new accession_number";
+is $qualobj->accession_number(), "chads new accession_number";
+is $qualobj->primary_id(), "chads primary_id";
+is $qualobj->primary_id("chads new primary_id"), "chads new primary_id";
+is $qualobj->primary_id(), "chads new primary_id";
 
+is $qualobj->desc(), "chads desc";
+is $qualobj->desc("chads new desc"), "chads new desc";
+is $qualobj->desc(), "chads new desc";
+is $qualobj->display_id(), "chads new display_id";
+is $qualobj->display_id("chads new id"), ("chads new id");
+is $qualobj->display_id(), "chads new id";
 
-is($qualobj->display_id(), "chads id");
-$qualobj->display_id("chads new display_id");
-is($qualobj->display_id(), "chads new display_id");
+is $qualobj->header(), "chads header";
 
-is($qualobj->accession_number(), "chads accession_number");
-$qualobj->accession_number("chads new accession_number");
-is($qualobj->accession_number(), "chads new accession_number");
-is($qualobj->primary_id(), "chads primary_id");
-$qualobj->primary_id("chads new primary_id");
-is($qualobj->primary_id(), "chads new primary_id");
+ok my $in_qual  = Bio::SeqIO->new(
+    -file    => test_input_file('qualfile.qual'),
+    -format  => 'qual',
+    -verbose => $verbose,
+);
+ok my $pq = $in_qual->next_seq();
+is $pq->qual()->[99] , '39'; # spot check boundary
+is $pq->qual()->[100], '39'; # spot check boundary
 
-is($qualobj->desc(), "chads desc");
-$qualobj->desc("chads new desc");
-is($qualobj->desc(), "chads new desc");
-is($qualobj->display_id(), "chads new display_id");
-$qualobj->display_id("chads new id");
-is($qualobj->display_id(), "chads new id");
+ok my $out_qual = Bio::SeqIO->new(
+    -file    => ">".test_output_file(),
+    -format  => 'qual',
+    -verbose => $verbose,
+);
+ok $out_qual->write_seq(-source => $pq);
 
-is($qualobj->header(), "chads header");
+ok my $swq545 = Bio::Seq::Quality->new (
+    -seq  => "ATA",
+    -qual => $pq
+);
+ok $out_qual->write_seq(-source => $swq545);
 
-my $in_qual  = Bio::SeqIO->new(-file => test_input_file('qualfile.qual') ,
-			       '-format' => 'qual',
-			       '-verbose' => $verbose);
-ok($in_qual);
-my $pq = $in_qual->next_seq();
-is($pq->qual()->[99], '39'); # spot check boundary
-is($pq->qual()->[100], '39'); # spot check boundary
+ok $in_qual = Bio::SeqIO->new(
+    -file    => test_input_file('qualfile.qual'),
+    -format  => 'qual',
+    -verbose => $verbose,
+);
 
-my $out_qual = Bio::SeqIO->new('-file'    => ">".test_output_file(),
-                               '-format'  => 'qual',
-                               '-verbose' => $verbose);
-$out_qual->write_seq(-source	=>	$pq);
-
-my $swq545 = Bio::Seq::Quality->new (	-seq	=>	"ATA",
-                                        -qual	=>	$pq
-                                    );
-$out_qual->write_seq(-source	=>	$swq545);
-
-$in_qual = Bio::SeqIO->new('-file' => test_input_file('qualfile.qual') , 
-			   '-format' => 'qual',
-			   '-verbose' => $verbose);
-
-my $out_qual2 = Bio::SeqIO->new('-file' => ">".test_output_file(),
-				'-format'  => 'qual',
-				'-verbose' => $verbose);
+ok my $out_qual2 = Bio::SeqIO->new(
+    -file    => ">".test_output_file(),
+    -format  => 'qual',
+    -verbose => $verbose,
+);
 
 while ( my $batch_qual = $in_qual->next_seq() ) {
-	$out_qual2->write_seq(-source	=>	$batch_qual);
+    ok $out_qual2->write_seq(-source => $batch_qual);
 }
 
-sub display {
-    if($DEBUG ) {
- 	my @quals;
-	print("I saw these in qualfile.qual:\n") ;
-	while ( my $qual = $in_qual->next_seq() ) {
-	    # ::dumpValue($qual);
-	    print($qual->display_id()."\n");
-	    @quals = @{$qual->qual()};
-	    print("(".scalar(@quals).") quality values.\n");
-	}
-    }
-}
-
-# dumpValue($qualobj);
-
-sub compare_arrays {
-	my ($a1,$a2) = @_;
-	return 1 if (scalar(@{$a1}) != scalar(@{$a2}));
-	my ($v1,$v2,$diff,$curr);
-	for ($curr=0;$curr<scalar(@{$a1});$curr++){
-		return 1 if ($a1->[$curr] ne $a2->[$curr]);
-	}
-	return 0;
-}

@@ -367,6 +367,7 @@ is $seq->validate_seq( 'XFRH'   ), 1;
 is $seq->validate_seq( '-~'     ), 1; # gap symbols
 is $seq->validate_seq( '-.*?=~' ), 1; # other valid symbols
 is $seq->validate_seq( '0'      ), 0;
+is $seq->validate_seq( '   '    ), 0;
 is $seq->validate_seq( 'AAAA$'  ), 0;
 is $seq->validate_seq( 'tt&t!'  ), 0;
 
