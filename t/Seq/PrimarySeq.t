@@ -7,7 +7,7 @@ use Data::Dumper;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin( -tests => 178 );
+    test_begin( -tests => 179 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
