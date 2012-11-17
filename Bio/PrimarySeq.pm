@@ -124,11 +124,11 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::PrimarySeq;
-use vars qw($MATCHPATTERN $GAP_SYMBOLS);
+
 use strict;
 
-$MATCHPATTERN = 'A-Za-z\-\.\*\?=~';
-$GAP_SYMBOLS = '-~';
+our $MATCHPATTERN = 'A-Za-z\-\.\*\?=~';
+our $GAP_SYMBOLS  = '-~';
 
 use base qw(Bio::Root::Root Bio::PrimarySeqI
             Bio::IdentifiableI Bio::DescribableI);
