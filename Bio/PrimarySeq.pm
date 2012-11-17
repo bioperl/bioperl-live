@@ -324,20 +324,18 @@ sub _set_seq_by_ref {
            sequences are considered valid.
  Returns : 1 if the supplied sequence string is valid, 0 otherwise.
  Args    : - Sequence string to be validated
-           - Boolean to throw an error if the sequence is invalid
+           - Boolean to optionally throw an error if the sequence is invalid
 
 =cut
 
 sub validate_seq {
     my ($self, $seqstr, $throw) = @_;
-    $seqstr = '' if not defined $seqstr;
-    $throw  = 0  if not defined $throw ; # 0 for backward compatiblity
-    if ( (CORE::length $seqstr > 0         ) &&
-         ($seqstr !~ /^([$MATCHPATTERN]+)$/) ) {
+    if ( (defined $seqstr                ) &&
+         ($seqstr !~ /^[$MATCHPATTERN]*$/) ) {
         if ($throw) {
             $self->throw("Failed validation of sequence '".(defined($self->id) ||
-            '[unidentified sequence]')."'. Invalid characters were: " .
-            join('',($seqstr =~ /([^$MATCHPATTERN]+)/g)));
+                '[unidentified sequence]')."'. Invalid characters were: " .
+                join('',($seqstr =~ /[^$MATCHPATTERN]/g)));
         }
         return 0;
     }

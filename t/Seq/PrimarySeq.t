@@ -7,7 +7,7 @@ use Data::Dumper;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin( -tests => 177 );
+    test_begin( -tests => 178 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -366,10 +366,11 @@ is $seq->validate_seq( 'ACGT'   ), 1;
 is $seq->validate_seq( 'XFRH'   ), 1;
 is $seq->validate_seq( '-~'     ), 1; # gap symbols
 is $seq->validate_seq( '-.*?=~' ), 1; # other valid symbols
+is $seq->validate_seq( '0'      ), 0;
 is $seq->validate_seq( 'AAAA$'  ), 0;
-is $seq->validate_seq( 'tt&tt'  ), 0;
+is $seq->validate_seq( 'tt&t!'  ), 0;
 
-throws_ok { $seq->validate_seq('tt&tt', 1); } qr/.+/;
+throws_ok { $seq->validate_seq('tt&t!', 1); } qr/.+/;
 
 
 # Test direct option (no sequence validation)
