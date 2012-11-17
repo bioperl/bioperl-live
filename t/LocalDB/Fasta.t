@@ -2,8 +2,8 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 91,
-                -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
+    test_begin( -tests => 107,
+                -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)] );
 }
 use strict;
 use warnings;
@@ -53,13 +53,29 @@ my $test_files = [
     ok $primary_seq = $db->get_Seq_by_acc('AW057119');
     ok $primary_seq = $db->get_Seq_by_version('AW057119');
     ok $primary_seq = $db->get_Seq_by_primary_id('AW057119');
+    isa_ok $primary_seq, 'Bio::PrimarySeq::Fasta';
     isa_ok $primary_seq, 'Bio::PrimarySeqI';
 
-    is $primary_seq->trunc(11, 20)->length, 10;
-    is $primary_seq->trunc(11, 20)->seq, 'ttctcggggt';
+    # Bio::PrimarySeqI methods
+    is $primary_seq->id, 'AW057119';
+    is $primary_seq->display_id, 'AW057119';
+    like $primary_seq->primary_id, qr/^Bio::PrimarySeq::Fasta=HASH/;
+    is $primary_seq->alphabet, 'dna';
+    is $primary_seq->accession_number, 'unknown';
+    is $primary_seq->is_circular, undef;
+    is $primary_seq->subseq(11, 20), 'ttctcggggt';
     is $primary_seq->description, 'test description', 'bug 3126';
     is $primary_seq->seq, 'tcatgttggcttctcggggtttttatggattaatacattttccaaacgattctttgcgccttctgtggtgccgccttctccgaaggaactgacgaaaaatgacgtggatttgctgacaaatccaggcgaggaatatttggacggattgatgaaatggcacggcgacgagcgacccgtgttcaaaagagaggacatttatcgttggtcggatagttttccagaatatcggctaagaatgatttgtctgaaagacacgacaagggtcattgcagtcggtcaatattgttactttgatgctctgaaagaaaggagagcagccattgttcttcttaggattgggatggacggatcctgaatatcgtaatcgggcagttatggagcttcaagcttcgatggcgctggaggagagggatcggtatccgactgccaacgcggcatcgcatccaaataagttcatgaaacgattttggcacatattcaacggcctcaaagagcacgaggacaaaggtcacaaggctgccgctgtttcatacaagagcttctacgacctcanagacatgatcattcctgaaaatctggatgtcagtggtattactgtaaatgatgcacgaaaggtgccacaaagagatataatcaactacgatcaaacatttcatccatatcatcgagaaatggttataatttctcacatgtatgacaatgatgggtttggaaaagtgcgtatgatgaggatggaaatgtacttggaattgtctagcgatgtctttanaccaacaagactgcacattagtcaattatgcagatagcc';
-
+    ok my $trunc = $primary_seq->trunc(11,20);
+    isa_ok $trunc, 'Bio::PrimarySeq::Fasta';
+    isa_ok $trunc, 'Bio::PrimarySeqI';
+    is $trunc->length, 10;
+    is $trunc->seq, 'ttctcggggt';
+    ok my $rev = $trunc->revcom;
+    isa_ok $rev, 'Bio::PrimarySeq::Fasta';
+    isa_ok $rev, 'Bio::PrimarySeqI';
+    is $rev->seq, 'accccgagaa';
+    is $rev->length, 10;
 }
 
 

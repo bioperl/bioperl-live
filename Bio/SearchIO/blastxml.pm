@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::SearchIO::blastxml
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Jason Stajich <jason@bioperl.org>
 #
@@ -13,35 +13,35 @@
 
 =head1 NAME
 
-Bio::SearchIO::blastxml - A SearchIO implementation of NCBI Blast XML parsing. 
+Bio::SearchIO::blastxml - A SearchIO implementation of NCBI Blast XML parsing.
 
 =head1 SYNOPSIS
 
     use Bio::SearchIO;
     my $searchin = Bio::SearchIO->new(-format => 'blastxml',
 				     -file   => 't/data/plague_yeast.bls.xml');
-                     
+
     while( my $result = $searchin->next_result ) {
         ....
     }
 
     # one can also request that the parser NOT keep the XML data in memory
     # by using the tempfile initialization flag.
-    
+
     $searchin = Bio::SearchIO->new(-tempfile => 1,
 				     -format => 'blastxml',
 				     -file   => 't/data/plague_yeast.bls.xml');
-                     
+
     while( my $result = $searchin->next_result ) {
        ....
     }
-    
+
     # PSI-BLAST parsing (default is normal BLAST)
     $searchin = Bio::SearchIO->new(
                      -format => 'blastxml',
                      -blasttype => 'psiblast',
 				     -file   => 't/data/plague_yeast.bls.xml');
-                     
+
     while( my $result = $searchin->next_result ) {
        ....
     }
@@ -88,7 +88,7 @@ XML::SAX::Expat. XML::SAX::Expat will work, but only if you have local copies of
 the NCBI BLAST DTDs. This is due to issues with NCBI's BLAST XML format. The
 DTDs and the web address to obtain them are:
 
-  NCBI_BlastOutput.dtd	    
+  NCBI_BlastOutput.dtd
   NCBI_BlastOutput.mod.dtd
 
   http://www.ncbi.nlm.nih.gov/data_specs/dtd/
@@ -104,15 +104,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -180,7 +180,7 @@ my %VALID_TYPE = (
 =cut
 
 sub _initialize{
-    my ($self,@args) = @_;   
+    my ($self,@args) = @_;
     $self->SUPER::_initialize(@args);
     my ($usetempfile, $blasttype,$xmlcompact) = $self->_rearrange([qw(
                                             TEMPFILE
@@ -191,9 +191,27 @@ sub _initialize{
     $self->blasttype(uc $blasttype);
     defined $usetempfile && $self->use_tempfile($usetempfile);
     $self->{_result_count} = 0;
-    eval {  require Time::HiRes };	
+    eval {  require Time::HiRes };
     if( $@ ) { $DEBUG = 0; }
     $DEBUG = 1 if( ! defined $DEBUG && ($self->verbose > 0));
+}
+
+sub attach_EventHandler {
+    my ($self,$handler) = @_;
+
+    $self->SUPER::attach_EventHandler($handler);
+
+	# Make sure if there is an XML parser present already, the internal Handler
+	# is set
+	if (exists $self->{'_xmlparser'}) {
+		$self->{'_xmlparser'}->get_handler->eventHandler($handler);
+	}
+
+    # Optimization: caching the EventHandler since it is used a lot
+    # during the parse.
+
+    $self->{'_handler_cache'} = $handler;
+    return;
 }
 
 =head2 next_result
@@ -208,14 +226,14 @@ sub _initialize{
 
 sub next_result {
     my ($self) = @_;
-    
+
     my $result;
 
     my ($tfh);
-    
+
     # XMLCOMPACT
     # WU-BLAST has an XML_COMPACT option which needs to be preprocessed before
-    # passing on to the parser.  
+    # passing on to the parser.
     if ($self->{_xml_compact}) {
         $self->debug("XMLCOMPACT mode\n");
         my ($tfh2, $filename) = IO::File->new_tmpfile or $self->throw("Unable to open temp file: $!");
@@ -230,17 +248,17 @@ sub next_result {
         # redirect self's IO to use new tempfile
         $self->_fh($tfh2);
     }
-    
+
     if( $self->use_tempfile ) {
-        $tfh = IO::File->new_tmpfile or $self->throw("Unable to open temp file: $!");	
+        $tfh = IO::File->new_tmpfile or $self->throw("Unable to open temp file: $!");
         $tfh->autoflush(1);
     }
-    
+
     my $okaytoprocess = ($self->blasttype =~ /PSI/) ? $self->_chunk_psiblast($tfh) :
         $self->_chunk_normalblast($tfh);
-    
+
     return unless( $okaytoprocess);
-    
+
     my %parser_args;
     if( defined $tfh ) {
 	seek($tfh,0,0);
@@ -251,11 +269,11 @@ sub next_result {
 
     my $starttime;
     if(  $DEBUG ) {  $starttime = [ Time::HiRes::gettimeofday() ]; }
-    
+
     eval {
 	$result = $self->{'_xmlparser'}->parse(%parser_args);
     };
-    
+
     if( $@ ) {
 	$self->warn("error in parsing a report:\n $@");
 	$result = undef;
@@ -263,8 +281,8 @@ sub next_result {
     if( $DEBUG ) {
 	$self->debug( sprintf("parsing took %f seconds\n", Time::HiRes::tv_interval($starttime)));
     }
-    # parsing magic here - but we call event handlers rather than 
-    # instantiating things 
+    # parsing magic here - but we call event handlers rather than
+    # instantiating things
     if (defined $result) {
         # result count is handled here, as the BLASTXML reports are
         # broken up into smaller easier to digest bits
@@ -298,7 +316,7 @@ sub result_count {
  Title   : use_tempfile
  Usage   : $obj->use_tempfile($newval)
  Function: Get/Set boolean flag on whether or not use a tempfile
- Example : 
+ Example :
  Returns : value of use_tempfile
  Args    : newvalue (optional)
 
@@ -337,13 +355,13 @@ sub blasttype{
             print STDERR <<END;
 $self: data module $VALID_TYPE{$value} cannot be found
 Exception $@
-For more information about the Bio::SearchIO::blastxml system please see the Bio::SearchIO::blastxml. 
+For more information about the Bio::SearchIO::blastxml system please see the Bio::SearchIO::blastxml.
 END
             return unless $ok;
         }
         # BlastHandler does the heavy lifting
         my $xmlhandler = $VALID_TYPE{$value}->new(-verbose => $self->verbose);
-        
+
         # The XML handler does the heavy work, passes data to object handler
         if ($value =~ /^PSI/) {
             my $handler = Bio::SearchIO::IteratedSearchResultEventBuilder->new();
@@ -356,7 +374,7 @@ END
             Handler => $xmlhandler);
         $self->{'_xmlparser'} = $parserfactory;
         $self->saxparser(ref($parserfactory));
-        
+
         $self->{'_blasttype'} = $value;
     }
     return $self->{'_blasttype'};
@@ -369,13 +387,13 @@ sub saxparser {
 
 sub _chunk_normalblast {
     my ($self, $tfh) = @_;
-    
+
     local $/ = "\n";
     local $_;
     $self->{'_blastdata'} = '';
-    
+
     my ($sawxmlheader, $okaytoprocess);
-    
+
     my $mode = 'header';
 
     my $tail = << 'XML_END';
@@ -385,7 +403,7 @@ XML_END
 
     # no buffering needed (famous last words...)
     my $fh = $self->_fh;
-    
+
     #chop up XML into edible bits for the parser
     while( defined( my $line = <$fh>) ) {
         next if $line =~ m{^\s*</BlastOutput_iterations>}xmso || $line =~ m{^</BlastOutput>}xmso;
@@ -426,16 +444,16 @@ XML_END
 
 sub _chunk_psiblast {
     my ($self, $tfh) = @_;
-    
+
     local $/ = "\n";
     local $_;
     $self->{'_blastdata'} = '';
-    
+
     my ($sawxmlheader, $okaytoprocess);
 
     # no buffering needed (famous last words...)
     my $fh = $self->_fh;
-    
+
     #chop up XML into edible bits for the parser
     while( defined( my $line = <$fh>) ) {
         if (defined $tfh) {

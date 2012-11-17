@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 165);
+    test_begin(-tests => 166);
 	
 	use_ok('Bio::SearchIO');
     use_ok('Bio::Search::SearchUtils');
@@ -72,7 +72,8 @@ while(my $res = $searchio->next_result) {
     is($hsp->start('query'), 5);
     is($hsp->end('query'), 812);
     is($hsp->length, 821);
-    is($hsp->gaps, 14);
+    is($hsp->percent_identity, 30.0852618757613, 'fixed bug 3343 (percent identity)');
+    is($hsp->gaps, 44, 'side effect of fixing bug 3343 (number of gaps)');
 	my $hit_sf = $hsp->hit;
 	my $query_sf = $hsp->query;
 	isa_ok($hit_sf, 'Bio::SeqFeatureI');

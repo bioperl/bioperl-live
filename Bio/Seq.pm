@@ -573,21 +573,17 @@ sub seq {
 =head2 validate_seq
 
  Title   : validate_seq
- Usage   : if(! $seq->validate_seq($seq_str) ) {
-               print "sequence $seq_str is not valid for an object of type ",
-                      ref($seq), "\n";
+ Usage   : if(! $seqobj->validate_seq($seq_str) ) {
+                print "sequence $seq_str is not valid for an object of
+                alphabet ",$seqobj->alphabet, "\n";
            }
- Function: Validates a given sequence string. A validating sequence string
-           must be accepted by seq(). A string that does not validate will
-           lead to an exception if passed to seq().
-
-           The implementation provided here does not take alphabet() into
-           account. Allowed are all letters (A-Z), '-','.','*','=', and '~'.
-
- Example :
- Returns : 1 if the supplied sequence string is valid for the object, and
-           0 otherwise.
- Args    : The sequence string to be validated.
+ Function: Test that the given sequence is valid, i.e. contains only valid
+           characters. The allowed characters are all letters (A-Z) and '-','.',
+           '*','?','=' and '~'. Spaces are not valid. Note that this
+           implementation does not take alphabet() into account.
+ Returns : 1 if the supplied sequence string is valid, 0 otherwise.
+ Args    : - Sequence string to be validated
+           - Boolean to throw an error if the sequence is invalid
 
 =cut
 

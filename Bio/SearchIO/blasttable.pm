@@ -219,6 +219,16 @@ sub next_result{
 	      $gapsm=$qgaps+$sgaps;
 	  }
 
+       if (@fields == 12 || @fields == 13) {
+          # need to determine total gaps in the alignment for NCBI output
+          # since NCBI reports number of gapopens and NOT total gaps
+          my $qlen      = abs($qstart - $qend) + 1;
+          my $querygaps = $hsp_len - $qlen;
+          my $hlen      = abs($hstart - $hend) + 1;
+          my $hitgaps   = $hsp_len - $hlen;
+          $gapsm = $querygaps + $hitgaps;
+       }
+
        # Remember Jim's code is 0 based
        if( defined $lastquery && 
 	   $lastquery ne $qname ) {

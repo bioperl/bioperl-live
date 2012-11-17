@@ -13,7 +13,7 @@
 
 =head1 NAME
 
-Bio::PrimarySeq - Bioperl lightweight Sequence Object
+Bio::PrimarySeq - Bioperl lightweight sequence object
 
 =head1 SYNOPSIS
 
@@ -26,18 +26,22 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
 
   # make from memory
 
-  $seqobj = Bio::PrimarySeq->new ( -seq => 'ATGGGGTGGGCGGTGGGTGGTTTG',
-                                   -id  => 'GeneFragment-12',
-                                   -accession_number => 'X78121',
-                                   -alphabet => 'dna',
-                                   -is_circular => 1 );
+  $seqobj = Bio::PrimarySeq->new (
+      -seq              => 'ATGGGGTGGGCGGTGGGTGGTTTG',
+      -id               => 'GeneFragment-12',
+      -accession_number => 'X78121',
+      -alphabet         => 'dna',
+      -is_circular      => 1,
+  );
   print "Sequence ", $seqobj->id(), " with accession ",
     $seqobj->accession_number, "\n";
 
   # read from file
 
-  $inputstream = Bio::SeqIO->new(-file => "myseq.fa",
-                                 -format => 'Fasta');
+  $inputstream = Bio::SeqIO->new(
+      -file   => "myseq.fa",
+      -format => 'Fasta',
+  );
   $seqobj = $inputstream->next_seq();
   print "Sequence ", $seqobj->id(), " and desc ", $seqobj->desc, "\n";
 
@@ -51,7 +55,7 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
 
 =head1 DESCRIPTION
 
-PrimarySeq is a lightweight Sequence object, storing the sequence, its
+PrimarySeq is a lightweight sequence object, storing the sequence, its
 name, a computer-useful unique name, and other fundamental attributes.
 It does not contain sequence features or other information.  To have a
 sequence with sequence features you should use the Seq object which uses
@@ -118,33 +122,29 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 
-# Let the code begin...
-
 
 package Bio::PrimarySeq;
-use vars qw($MATCHPATTERN $GAP_SYMBOLS);
+
 use strict;
 
-$MATCHPATTERN = 'A-Za-z\-\.\*\?=~';
-$GAP_SYMBOLS = '-~';
+our $MATCHPATTERN = 'A-Za-z\-\.\*\?=~';
+our $GAP_SYMBOLS  = '-~';
 
 use base qw(Bio::Root::Root Bio::PrimarySeqI
             Bio::IdentifiableI Bio::DescribableI);
 
-#
-# setup the allowed values for alphabet()
-#
 
+# Setup the allowed values for alphabet()
 my %valid_type = map {$_, 1} qw( dna rna protein );
+
 
 =head2 new
 
  Title   : new
- Usage   : $seq    = Bio::PrimarySeq->new( -seq => 'ATGGGGGTGGTGGTACCCT',
+ Usage   : $seqobj = Bio::PrimarySeq->new( -seq => 'ATGGGGGTGGTGGTACCCT',
                                            -id  => 'human_id',
                                            -accession_number => 'AL000012',
                                            );
-
  Function: Returns a new primary seq object from
            basic constructors, being a string for the sequence
            and strings for id and accession_number.
@@ -155,6 +155,7 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
            values.
  Returns : a new Bio::PrimarySeq object
  Args    : -seq              => sequence string
+           -ref_to_seq       => ... or reference to a sequence string
            -display_id       => display id of the sequence (locus name)
            -accession_number => accession number
            -primary_id       => primary id (Genbank id)
@@ -163,23 +164,22 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
            -authority        => the authority for the namespace
            -description      => description text
            -desc             => alias for description
-           -alphabet         => sequence type (alphabet) (dna|rna|protein)
+           -alphabet         => skip alphabet guess and set it to dna, rna or protein
            -id               => alias for display id
-           -is_circular      => boolean field for whether or not sequence is circular
-           -direct           => boolean field for directly setting sequence (requires alphabet also set)
-           -ref_to_seq       => boolean field indicating the sequence is a reference (?!?)
-           -nowarnonempty    => boolean field for whether or not to warn when sequence is empty
+           -is_circular      => boolean to indicate that sequence is circular
+           -direct           => boolean to directly set sequences. The next time -seq,
+                                seq() or -ref_to_seq is use, the sequence will not be
+                                validated. Be careful with this...
+           -nowarnonempty    => boolean to avoid warning when sequence is empty
 
 =cut
-
 
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-
-    my($seq,$id,$acc,$pid,$ns,$auth,$v,$oid,
-       $desc,$description,
-       $alphabet,$given_id,$is_circular,$direct,$ref_to_seq,$len,$nowarnonempty) =
+    my ($seq, $id, $acc, $pid, $ns, $auth, $v, $oid, $desc, $description,
+        $alphabet, $given_id, $is_circular, $direct, $ref_to_seq, $len,
+        $nowarnonempty) =
       $self->_rearrange([qw(SEQ
                             DISPLAY_ID
                             ACCESSION_NUMBER
@@ -199,161 +199,162 @@ sub new {
                             NOWARNONEMPTY
                             )],
                             @args);
-  
-    # private var _nowarnonempty, need to be set before calling _guess_alphabet
-    $self->{'_nowarnonempty'} = $nowarnonempty; 
+
+    # Private var _nowarnonempty, needs to be set before calling _guess_alphabet
+    $self->{'_nowarnonempty'} = $nowarnonempty;
+    $self->{'_direct'} = $direct;
 
     if( defined $id && defined $given_id ) {
-      if( $id ne $given_id ) {
-        $self->throw("Provided both id and display_id constructor ".
-            "functions. [$id] [$given_id]");
-      }
+        if( $id ne $given_id ) {
+          $self->throw("Provided both id and display_id constructors: [$id] [$given_id]");
+        }
     }
     if( defined $given_id ) { $id = $given_id; }
 
-    # let's set the length before the seq -- if there is one, this length is
-    # going to be invalidated
-    defined $len && $self->length($len);
-
-    # if alphabet is provided we set it first, so that it won't be guessed
-    # when the sequence is set
-    $alphabet && $self->alphabet($alphabet);
-
-    # bernd's idea: define ids so that invalid sequence messages
-    # can be more informative...
+    # Bernd's idea: set ids now for more informative invalid sequence messages
     defined $id  && $self->display_id($id);
     $acc         && $self->accession_number($acc);
     defined $pid && $self->primary_id($pid);
 
-    # if there is an alphabet, and direct is passed in, assume the alphabet
-    # and sequence is ok
-    
-    if( $direct && $ref_to_seq) {
-      $self->{'seq'} = $$ref_to_seq;
-        if( ! $alphabet ) {
-          $self->_guess_alphabet();
-        } # else it has been set already above
+    # Set alphabet now to avoid guessing it later, when sequence is set
+    $alphabet && $self->alphabet($alphabet);
+
+    # Set the length before the seq. If there is a seq, length will be updated later
+    $self->{'length'} = $len || 0;
+
+    # Set the sequence (but also alphabet and length)
+    if ($ref_to_seq) {
+        $self->_set_seq_by_ref($ref_to_seq, $alphabet);
     } else {
-        # print STDERR "DEBUG: setting sequence to [$seq]\n";
-        # note: the sequence string may be empty
-        $self->seq($seq) if defined($seq);
+        if (defined $seq) {
+            # Note: the sequence string may be empty
+            $self->seq($seq);
+        }
     }
 
-    $desc        && $self->desc($desc);
-    $description && $self->description($description);
-    $is_circular && $self->is_circular($is_circular);
-    $ns          && $self->namespace($ns);
-    $auth        && $self->authority($auth);
-    defined($v)  && $self->version($v);
+    $desc         && $self->desc($desc);
+    $description  && $self->description($description);
+    $is_circular  && $self->is_circular($is_circular);
+    $ns           && $self->namespace($ns);
+    $auth         && $self->authority($auth);
+    defined($v)   && $self->version($v);
     defined($oid) && $self->object_id($oid);
 
-
     return $self;
-}
-
-sub direct_seq_set {
-    my $obj = shift;
-    return $obj->{'seq'} = shift if @_;
-    return;
 }
 
 
 =head2 seq
 
  Title   : seq
- Usage   : $string = $obj->seq();
- Function: Returns the sequence as a string of letters. The
-           case of the letters is left up to the implementer.
-           Suggested cases are upper case for proteins and lower case for
-           DNA sequence (IUPAC standard), but you should not rely on this.
+ Usage   : $string = $seqobj->seq();
+ Function: Get or set  the sequence as a string of letters. The case of
+           the letters is left up to the implementer. Suggested cases are
+           upper case for proteins and lower case for DNA sequence (IUPAC
+           standard), but you should not rely on this. An error is thrown if
+           the sequence contains invalid characters: see validate_seq().
  Returns : A scalar
- Args    : Optionally on set the new value (a string). An optional second
-           argument presets the alphabet (otherwise it will be guessed).
+ Args    : - Optional new sequence value (a string) to set
+           - Optional alphabet (it is guessed by default)
 
 =cut
 
 sub seq {
-   my ($obj,@args) = @_;
+    my ($self, @args) = @_;
 
-   if( scalar(@args) == 0 ) {
-       return $obj->{'seq'};
-   }
+    if( scalar @args == 0 ) {
+        return $self->{'seq'};
+    }
 
-   my ($value,$alphabet) = @args;
+    my ($seq_str, $alphabet) = @args;
+    if (@args) {
+        $self->_set_seq_by_ref(\$seq_str, $alphabet);   
+    }
 
-   if(@args) {
-       if(defined($value) && (! $obj->validate_seq($value))) {
-           $obj->throw("Attempting to set the sequence '".(defined($obj->id) ||
-               "[unidentified sequence]")."' to [$value] which does not look healthy");
-       }
-       # if a sequence was already set we make sure that we re-adjust the
-       # alphabet, otherwise we skip guessing if alphabet is already set
-       # note: if the new seq is empty or undef, we don't consider that a
-       # change (we wouldn't have anything to guess on anyway)
-       my $is_changed_seq =
-         exists($obj->{'seq'}) && (CORE::length($value || '') > 0);
-       $obj->{'seq'} = $value;
-       # new alphabet overridden by arguments?
-       if($alphabet) {
-           # yes, set it no matter what
-           $obj->alphabet($alphabet);
-       } elsif ($is_changed_seq || (! defined($obj->alphabet()))) {
-           # if we changed a previous sequence to a new one or if there is no
-           # alphabet yet at all, we need to guess the (possibly new) alphabet
-           $obj->_guess_alphabet();
-       } # else (seq not changed and alphabet was defined) do nothing
-       # if the seq is changed, make sure we unset a possibly set length
-       $obj->length(undef) if $is_changed_seq || $obj->{'seq'};
-   }
-   return $obj->{'seq'};
+    return $self->{'seq'};
 }
+
+
+sub _set_seq_by_ref {
+    # Set a sequence by reference. A reference is used to avoid the cost of
+    # copying the sequence (which can be very large) between functions.
+    my ($self, $seq_str_ref, $alphabet) = @_;
+
+    # Validate sequence if sequence is not empty and we are not in direct mode
+    if ( (! $self->{'_direct'}) && (defined $$seq_str_ref) ) {
+        $self->validate_seq($$seq_str_ref, 1);
+    }
+    delete $self->{'_direct'}; # next sequence will have to be validated
+
+    # Record sequence length
+    my $len = CORE::length($$seq_str_ref || '');
+    my $is_changed_seq = (exists $self->{'seq'}) && ($len > 0);
+    # Note: if the new seq is empty or undef, this is not considered a change
+    delete $self->{'_freeze_length'} if $is_changed_seq;
+    $self->{'length'} = $len if not exists $self->{'_freeze_length'};
+
+    # Set sequence
+    $self->{'seq'} = $$seq_str_ref;
+
+    # Set or guess alphabet
+    if ($alphabet) {
+        # Alphabet specified, set it no matter what
+        $self->alphabet($alphabet);
+    } elsif ($is_changed_seq || (! defined($self->alphabet()))) {
+        # If we changed a previous sequence to a new one or if there is no
+        # alphabet yet at all, we need to guess the (possibly new) alphabet
+        $self->_guess_alphabet();
+    } # else (seq not changed and alphabet was defined) do nothing
+
+    return 1;
+}
+
 
 =head2 validate_seq
 
  Title   : validate_seq
- Usage   : if(! $seq->validate_seq($seq_str) ) {
+ Usage   : if(! $seqobj->validate_seq($seq_str) ) {
                 print "sequence $seq_str is not valid for an object of
-                alphabet ",$seq->alphabet, "\n";
+                alphabet ",$seqobj->alphabet, "\n";
            }
- Function: Validates a given sequence string. A validating sequence string
-           must be accepted by seq(). A string that does not validate will
-           lead to an exception if passed to seq().
-
-           The implementation provided here does not take alphabet() into
-           account. Allowed are all letters (A-Z) and '-','.','*','?','=',
-           and '~'.
-
- Example :
- Returns : 1 if the supplied sequence string is valid for the object, and
-           0 otherwise.
- Args    : The sequence string to be validated.
-
+ Function: Test that the given sequence is valid, i.e. contains only valid
+           characters. The allowed characters are all letters (A-Z) and '-','.',
+           '*','?','=' and '~'. Spaces are not valid. Note that this
+           implementation does not take alphabet() into account and that empty
+           sequences are considered valid.
+ Returns : 1 if the supplied sequence string is valid, 0 otherwise.
+ Args    : - Sequence string to be validated
+           - Boolean to optionally throw an error if the sequence is invalid
 
 =cut
 
 sub validate_seq {
-    my ($self,$seqstr) = @_;
-    if( ! defined $seqstr ){ $seqstr = $self->seq(); }
-    return 0 unless( defined $seqstr);
-    if((CORE::length($seqstr) > 0) &&
-        ($seqstr !~ /^([$MATCHPATTERN]+)$/)) {
-            $self->warn("sequence '".(defined($self->id) || "[unidentified sequence]").
-            "' doesn't validate, mismatch is " .
-            join(",",($seqstr =~ /([^$MATCHPATTERN]+)/g)));
+    my ($self, $seqstr, $throw) = @_;
+    if ( (defined $seqstr                ) &&
+         ($seqstr !~ /^[$MATCHPATTERN]*$/) ) {
+        if ($throw) {
+            $self->throw("Failed validation of sequence '".(defined($self->id) ||
+                '[unidentified sequence]')."'. Invalid characters were: " .
+                join('',($seqstr =~ /[^$MATCHPATTERN]/g)));
+        }
         return 0;
     }
     return 1;
 }
 
+
 =head2 subseq
 
  Title   : subseq
- Usage   : $substring = $obj->subseq(10,40);
-           $substring = $obj->subseq(10,40,NOGAP)
-           $substring = $obj->subseq(-START=>10,-END=>40,-REPLACE_WITH=>'tga')
- Function: returns the subseq from start to end, where the first sequence
+ Usage   : $substring = $seqobj->subseq(10,40);
+           $substring = $seqobj->subseq(10,40,'nogap');
+           $substring = $seqobj->subseq(-start=>10, -end=>40, -replace_with=>'tga');
+           $substring = $seqobj->subseq($location_obj);
+           $substring = $seqobj->subseq($location_obj, -nogap => 1);
+ Function: Return the subseq from start to end, where the first sequence
            character has coordinate 1 number is inclusive, ie 1-2 are the 
-           first two characters of the sequence
+           first two characters of the sequence. The given start coordinate
+           has to be larger than the end, even if the sequence is circular.
  Returns : a string
  Args    : integer for start position
            integer for end position
@@ -366,88 +367,106 @@ sub validate_seq {
 =cut
 
 sub subseq {
-   my $self = shift;
-   my @args = @_;
-   my ($start,$end,$nogap,$replace) = $self->_rearrange([qw(START 
-                                                            END
-                                                            NOGAP
-                                                            REPLACE_WITH)],@args);
+    my $self = shift;
+    my @args = @_;
+    my ($start, $end, $nogap, $replace) = $self->_rearrange([qw(START
+                                                             END
+                                                             NOGAP
+                                                             REPLACE_WITH)], @args);
    
-   # if $replace is specified, have the constructor validate it as seq
-   my $dummy = new Bio::PrimarySeq(-seq=>$replace, -alphabet=>$self->alphabet) if defined($replace);
+    # If -replace_with is specified, validate the replacement sequence
+    if (defined $replace) {
+        $self->validate_seq( $replace ) ||
+            $self->throw("Replacement sequence does not look valid");
+    }
 
-   if( ref($start) && $start->isa('Bio::LocationI') ) {
-       my $loc = $start;
-       my $seq = "";
-       foreach my $subloc ($loc->each_Location()) {
-           my $piece = $self->subseq(-START=>$subloc->start(),
-                                     '-END'=>$subloc->end(), 
-                                     -REPLACE_WITH=>$replace,
-                                     -NOGAP=>$nogap);
-           $piece =~ s/[$GAP_SYMBOLS]//g if $nogap;
-           if($subloc->strand() < 0) {
-               $piece = Bio::PrimarySeq->new('-seq' => $piece)->revcom()->seq();
-           }
-           $seq .= $piece;
-       }
-       return $seq;
-   } elsif(  defined  $start && defined $end ) {
-       if( $start > $end ){
-           $self->throw("Bad start,end parameters. Start [$start] has to be ".
-             "less than end [$end]");
-       }
-       if( $start <= 0 ) {
-           $self->throw("Bad start parameter ($start). Start must be positive.");
-       }
+    if( ref($start) && $start->isa('Bio::LocationI') ) {
+        my $loc = $start;
+        my $seq = '';
+        foreach my $subloc ($loc->each_Location()) {
+            my $piece = $self->subseq(-start        => $subloc->start(),
+                                      -end          => $subloc->end(),
+                                      -replace_with => $replace,
+                                      -nogap        => $nogap);
+            $piece =~ s/[$GAP_SYMBOLS]//g if $nogap;
+            if ($subloc->strand() < 0) {
+                $piece = $self->_revcom_from_string($piece, $self->alphabet);
+            }
+            $seq .= $piece;
+        }
+        return $seq;
+    } elsif( defined $start && defined $end ) {
+        if( $start > $end ){
+            $self->throw("Bad start,end parameters. Start [$start] has to be ".
+              "less than end [$end]");
+        }
+        if( $start <= 0 ) {
+            $self->throw("Bad start parameter ($start). Start must be positive.");
+        }
 
-       # remove one from start, and then length is end-start
-       $start--;
-       my @ss_args = map { eval "defined $_"  ? $_ : () } qw( $self->{seq} $start $end-$start $replace);
-       my $seqstr = eval join( '', "substr(", join(',',@ss_args), ")");
+        # Remove one from start, and then length is end-start
+        $start--;
 
-       if( $end > $self->length) {
-           if ($self->is_circular) {
-               my $start = 0;
-               my $end = $end - $self->length;
-               my @ss_args = map { eval "defined $_"  ? $_ : () } qw( $self->{seq} $start $end-$start $replace);
-               my $appendstr = eval join( '', "substr(", join(',',@ss_args), ")");
-               $seqstr .= $appendstr;
-       } else {
-           $self->throw("Bad end parameter ($end). End must be less than the total length of sequence (total=".$self->length.")")
-           }
-       } 
+        my $seqstr;
+        if (defined $replace) {
+            $seqstr = substr $self->{seq}, $start, $end-$start, $replace;
+        } else {
+            $seqstr = substr $self->{seq}, $start, $end-$start;
+        }
 
-       $seqstr =~ s/[$GAP_SYMBOLS]//g if ($nogap);
-       return $seqstr;
 
-   } else {
-       $self->warn("Incorrect parameters to subseq - must be two integers or a Bio::LocationI object. Got:", $self,$start,$end,$replace,$nogap);
-       return;
-   }
+        if ($end > $self->length) {
+            if ($self->is_circular) {
+                my $start = 0;
+                my $end = $end - $self->length;
+
+                my $appendstr;
+                if (defined $replace) {
+                    $appendstr = substr $self->{seq}, $start, $end-$start, $replace;
+                } else {
+                    $appendstr = substr $self->{seq}, $start, $end-$start;
+                }
+
+                $seqstr .= $appendstr;
+            } else {
+                $self->throw("Bad end parameter ($end). End must be less than ".
+                    "the total length of sequence (total=".$self->length.")")
+            }
+        }
+
+        $seqstr =~ s/[$GAP_SYMBOLS]//g if ($nogap);
+        return $seqstr;
+
+    } else {
+        $self->warn("Incorrect parameters to subseq - must be two integers or ".
+            "a Bio::LocationI object. Got:", $self,$start,$end,$replace,$nogap);
+        return;
+    }
 }
+
 
 =head2 length
 
  Title   : length
- Usage   : $len = $seq->length();
- Function: Get the length of the sequence in number of symbols (bases
+ Usage   : $len = $seqobj->length();
+ Function: Get the stored length of the sequence in number of symbols (bases
            or amino acids).
 
-           You can also set this attribute, even to a number that does
-           not match the length of the sequence string. This is useful
-           if you don''t want to set the sequence too, or if you want
-           to free up memory by unsetting the sequence. In the latter
-           case you could do e.g.
+           In some circumstances, you can also set this attribute:
+           1/ For empty sequences, you can set the length to anything you want:
+              my $seqobj = Bio::PrimarySeq->new( -length => 123 );
+              my $len = $seqobj->len; # 123
+           2/ To save memory when using very long sequences, you can set the
+              length of the sequence to the length of the sequence (and nothing
+              else):
+              my $seqobj = Bio::PrimarySeq->new( -seq => 'ACGT...' ); # 1 Mbp sequence
+              # process $seqobj... then after you're done with it
+              $seqobj->length($seqobj->length);
+              $seqobj->seq(undef); # free memory!
+              my $len = $seqobj->len; # 1 Mbp
 
-               $seq->length($seq->length);
-               $seq->seq(undef);
-
-           Note that if you set the sequence to a value other than
-           undef at any time, the length attribute will be
-           invalidated, and the length of the sequence string will be
-           reported again. Also, we won''t let you lie about the length.
-
- Example :
+           Note that if you set seq() to a value other than undef at any time,
+           the length attribute will be reset.
  Returns : integer representing the length of the sequence.
  Args    : Optionally, the value on set
 
@@ -456,28 +475,23 @@ sub subseq {
 sub length {
     my ($self, $val) = @_;
     if (defined $val) {
-        my $len = CORE::length($self->seq() || '');
+        my $len = $self->{'length'};
         if ($len && ($len != $val)) {
             $self->throw("You're trying to lie about the length: ".
                 "is $len but you say ".$val);
         }
-        $self->{'_seq_length'} = $val;
-        return $val;
-    } else {
-        if (defined $self->{'_seq_length'}) {
-           return $self->{'_seq_length'};
-        } else {
-           return CORE::length($self->seq() || '');
-        }
+        $self->{'length'} = $val;
+        $self->{'_freeze_length'} = undef;
     }
+    return $self->{'length'};
 }
 
 
 =head2 display_id
 
  Title   : display_id or display_name
- Usage   : $id_string = $obj->display_id();
- Function: returns the display id, aka the common name of the Sequence object.
+ Usage   : $id_string = $seqobj->display_id();
+ Function: Get or set the display id, aka the common name of the sequence object.
 
            The semantics of this is that it is the most likely string to
            be used as an identifier of the sequence, and likely to have
@@ -492,25 +506,24 @@ sub length {
 
            With the new Bio::DescribeableI interface, display_name aliases
            to this method.
-
- Returns : A string
- Args    : None
-
+ Returns : A string for the display ID
+ Args    : Optional string for the display ID to set
 
 =cut
 
 sub display_id {
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'display_id'} = $value;
+    my ($self, $value) = @_;
+    if( defined $value) {
+        $self->{'display_id'} = $value;
     }
-    return $obj->{'display_id'};
+    return $self->{'display_id'};
 }
+
 
 =head2 accession_number
 
  Title   : accession_number or object_id
- Usage   : $unique_key = $obj->accession_number;
+ Usage   : $unique_key = $seqobj->accession_number;
  Function: Returns the unique biological id for a sequence, commonly
            called the accession_number. For sequences from established
            databases, the implementors should try to use the correct
@@ -525,28 +538,27 @@ sub display_id {
 
            With the new Bio::IdentifiableI interface, this is aliased
            to object_id
-
  Returns : A string
  Args    : A string (optional) for setting
 
 =cut
 
 sub accession_number {
-    my( $obj, $acc ) = @_;
-
+    my( $self, $acc ) = @_;
     if (defined $acc) {
-        $obj->{'accession_number'} = $acc;
+        $self->{'accession_number'} = $acc;
     } else {
-        $acc = $obj->{'accession_number'};
+        $acc = $self->{'accession_number'};
         $acc = 'unknown' unless defined $acc;
     }
     return $acc;
 }
 
+
 =head2 primary_id
 
  Title   : primary_id
- Usage   : $unique_key = $obj->primary_id;
+ Usage   : $unique_key = $seqobj->primary_id;
  Function: Returns the unique id for this object in this
            implementation. This allows implementations to manage their
            own object ids in a way the implementaiton can control
@@ -554,35 +566,33 @@ sub accession_number {
 
            For sequences with no natural primary id, this method
            should return a stringified memory location.
-
  Returns : A string
  Args    : A string (optional, for setting)
 
 =cut
 
 sub primary_id {
-    my $obj = shift;
+    my $self = shift;
 
     if(@_) {
-        $obj->{'primary_id'} = shift;
+        $self->{'primary_id'} = shift;
     }
-    if( ! defined($obj->{'primary_id'}) ) {
-        return "$obj";
+    if( ! defined($self->{'primary_id'}) ) {
+        return "$self";
     }
-    return $obj->{'primary_id'};
+    return $self->{'primary_id'};
 }
 
 
 =head2 alphabet
 
  Title   : alphabet
- Usage   : if( $obj->alphabet eq 'dna' ) { /Do Something/ }
- Function: Get/Set the alphabet of sequence, one of
+ Usage   : if( $seqobj->alphabet eq 'dna' ) { # Do something }
+ Function: Get/set the alphabet of sequence, one of
            'dna', 'rna' or 'protein'. This is case sensitive.
 
            This is not called <type> because this would cause
            upgrade problems from the 0.5 and earlier Seq objects.
-
  Returns : a string either 'dna','rna','protein'. NB - the object must
            make a call of the type - if there is no alphabet specified it
            has to guess.
@@ -592,28 +602,27 @@ sub primary_id {
 =cut
 
 sub alphabet {
-    my ($obj,$value) = @_;
+    my ($self,$value) = @_;
     if (defined $value) {
         $value = lc $value;
         unless ( $valid_type{$value} ) {
-        $obj->throw("Alphabet '$value' is not a valid alphabet (".
+        $self->throw("Alphabet '$value' is not a valid alphabet (".
             join(',', map "'$_'", sort keys %valid_type) .") lowercase");
         }
-        $obj->{'alphabet'} = $value;
+        $self->{'alphabet'} = $value;
     }
-    return $obj->{'alphabet'};
+    return $self->{'alphabet'};
 }
+
 
 =head2 desc
 
  Title   : desc or description
- Usage   : $obj->desc($newval)
+ Usage   : $seqobj->desc($newval);
  Function: Get/set description of the sequence.
 
            'description' is an alias for this for compliance with the
            Bio::DescribeableI interface.
-
- Example :
  Returns : value of desc (a string)
  Args    : newvalue (a string or undef, optional)
 
@@ -627,6 +636,7 @@ sub desc{
     return $self->{'desc'};
 }
 
+
 =head2 can_call_new
 
  Title   : can_call_new
@@ -636,7 +646,6 @@ sub desc{
  Returns : true
  Args    :
 
-
 =cut
 
 sub can_call_new {
@@ -645,15 +654,15 @@ sub can_call_new {
    return 1;
 }
 
+
 =head2 id
 
  Title   : id
- Usage   : $id = $seq->id()
+ Usage   : $id = $seqobj->id();
  Function: This is mapped on display_id
  Example :
  Returns :
  Args    :
-
 
 =cut
 
@@ -661,10 +670,11 @@ sub  id {
    return shift->display_id(@_);
 }
 
+
 =head2 is_circular
 
  Title   : is_circular
- Usage   : if( $obj->is_circular) { /Do Something/ }
+ Usage   : if( $seqobj->is_circular) { # Do something }
  Function: Returns true if the molecule is circular
  Returns : Boolean value
  Args    : none
@@ -673,7 +683,6 @@ sub  id {
 
 sub is_circular{
     my $self = shift;
-
     return $self->{'is_circular'} = shift if @_;
     return $self->{'is_circular'};
 }
@@ -681,19 +690,17 @@ sub is_circular{
 
 =head1 Methods for Bio::IdentifiableI compliance
 
-=cut
-
 =head2 object_id
 
  Title   : object_id
- Usage   : $string    = $obj->object_id()
- Function: A string which represents the stable primary identifier
+ Usage   : $string = $seqobj->object_id();
+ Function: Get or set a string which represents the stable primary identifier
            in this namespace of this object. For DNA sequences this
            is its accession_number, similarly for protein sequences.
 
            This is aliased to accession_number().
  Returns : A scalar
-
+ Args    : Optional object ID to set.
 
 =cut
 
@@ -701,16 +708,17 @@ sub object_id {
     return shift->accession_number(@_);
 }
 
+
 =head2 version
 
  Title   : version
- Usage   : $version    = $obj->version()
- Function: A number which differentiates between versions of
+ Usage   : $version = $seqobj->version();
+ Function: Get or set a number which differentiates between versions of
            the same object. Higher numbers are considered to be
            later and more relevant, but a single object described
            the same identifier should represent the same concept.
-
  Returns : A number
+ Args    : Optional version to set.
 
 =cut
 
@@ -726,33 +734,33 @@ sub version{
 =head2 authority
 
  Title   : authority
- Usage   : $authority    = $obj->authority()
- Function: A string which represents the organisation which
-           granted the namespace, written as the DNS name for
+ Usage   : $authority = $seqobj->authority();
+ Function: Get or set a string which represents the organisation which
+           granted the namespace, written as the DNS name of the
            organisation (eg, wormbase.org).
-
  Returns : A scalar
+ Args    : Optional authority to set.
 
 =cut
 
 sub authority {
-    my ($obj,$value) = @_;
+    my ($self, $value) = @_;
     if( defined $value) {
-        $obj->{'authority'} = $value;
+        $self->{'authority'} = $value;
     }
-    return $obj->{'authority'};
+    return $self->{'authority'};
 }
+
 
 =head2 namespace
 
  Title   : namespace
- Usage   : $string    = $obj->namespace()
- Function: A string representing the name space this identifier
-           is valid in, often the database name or the name
-           describing the collection.
-
+ Usage   : $string = $seqobj->namespace();
+ Function: Get or set a string representing the name space this identifier
+           is valid in, often the database name or the name describing the
+           collection.
  Returns : A scalar
-
+ Args    : Optional namespace to set.
 
 =cut
 
@@ -764,24 +772,24 @@ sub namespace{
     return $self->{'namespace'} || "";
 }
 
+
 =head1 Methods for Bio::DescribableI compliance
 
 This comprises of display_name and description.
 
-=cut
-
 =head2 display_name
 
  Title   : display_name
- Usage   : $string    = $obj->display_name()
- Function: A string which is what should be displayed to the user.
+ Usage   : $string = $seqobj->display_name();
+ Function: Get or set a string which is what should be displayed to the user.
            The string should have no spaces (ideally, though a cautious
            user of this interface would not assumme this) and should be
            less than thirty characters (though again, double checking
            this is a good idea).
 
            This is aliased to display_id().
- Returns : A scalar
+ Returns : A string for the display name
+ Args    : Optional string for the display name to set.
 
 =cut
 
@@ -789,11 +797,12 @@ sub display_name {
     return shift->display_id(@_);
 }
 
+
 =head2 description
 
  Title   : description
- Usage   : $string    = $obj->description()
- Function: A text string suitable for displaying to the user a
+ Usage   : $string = $seqobj->description();
+ Function: Get or set a text string suitable for displaying to the user a
            description. This string is likely to have spaces, but
            should not have any newlines or formatting - just plain
            text. The string should not be greater than 255 characters
@@ -801,13 +810,15 @@ sub display_name {
            characters for the purposes of display.
 
            This is aliased to desc().
- Returns : A scalar
+ Returns : A string for the description
+ Args    : Optional string for the description to set.
 
 =cut
 
 sub description {
     return shift->desc(@_);
 }
+
 
 =head1 Methods Inherited from Bio::PrimarySeqI
 
@@ -817,7 +828,7 @@ actually implemented on Bio::PrimarySeqI
 =head2 revcom
 
  Title   : revcom
- Usage   : $rev = $seq->revcom()
+ Usage   : $rev = $seqobj->revcom();
  Function: Produces a new Bio::SeqI implementing object which
            is the reversed complement of the sequence. For protein
            sequences this throws an exception of
@@ -835,30 +846,20 @@ actually implemented on Bio::PrimarySeqI
            This of course, causes Perl to handle the garbage
            collection of the old object, but it is roughly speaking as
            efficient as an inplace edit.
-
  Returns : A new (fresh) Bio::SeqI object
  Args    : none
-
-=cut
 
 =head2 trunc
 
  Title   : trunc
  Usage   : $subseq = $myseq->trunc(10,100);
  Function: Provides a truncation of a sequence,
-
- Example :
  Returns : A fresh Bio::SeqI implementing object.
- Args    :
-
-
-=cut
+ Args    : Numbers for the start and end positions
 
 =head1 Internal methods
 
 These are internal methods to PrimarySeq
-
-=cut
 
 =head2 _guess_alphabet
 
@@ -871,10 +872,8 @@ These are internal methods to PrimarySeq
            RNA characters are also valid characters for proteins, there is
            no foolproof way of determining the right alphabet. This is our best
            guess only!
- Example :
  Returns : string 'dna', 'rna', 'protein' or ''.
  Args    : none
-
 
 =cut
 

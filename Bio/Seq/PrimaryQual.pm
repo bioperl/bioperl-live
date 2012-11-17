@@ -98,11 +98,12 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Seq::PrimaryQual;
-use vars qw(%valid_type);
+
 use strict;
 
-
 use base qw(Bio::Root::Root Bio::Seq::QualI);
+
+our $MATCHPATTERN = '0-9eE\.\s+-';
 
 
 =head2 new()
@@ -160,9 +161,9 @@ sub new {
 
  Title   : qual()
  Usage   : @quality_values  = @{$obj->qual()};
- Function: Returns the quality as a reference to an array containing the
-           quality values. The individual elements of the quality array are
-           not validated and can be any numeric value.
+ Function: Get or set the quality as a reference to an array containing the
+           quality values. An error is generated if the quality scores are
+           invalid, see validate_qual().
  Returns : A reference to an array.
 
 =cut
@@ -175,9 +176,8 @@ sub qual {
     } elsif( ref($value) =~ /ARRAY/i ) {
         # if the user passed in a reference to an array
         $self->{'qual'} = $value;
-    } elsif(! $self->validate_qual($value)){
-        $self->throw("Attempting to set the quality to [$value] which does not look healthy");
     } else {
+        $self->validate_qual($value, 1);
         $value =~ s/^\s+//;
         $self->{'qual'} = [split(/\s+/,$value)];
     }
@@ -204,28 +204,30 @@ sub seq {
 =head2 validate_qual($qualstring)
 
  Title   : validate_qual($qualstring)
- Usage   : print("Valid.") if { &validate_qual($self,$qualities); }
- Function: Make sure that the quality, if it has length > 0, contains at
-           least one digit. Note that quality strings are parsed into arrays
-           using split/\d+/,$quality_string, so make sure that your quality
-           scalar looks like this if you want it to be parsed properly.
- Returns : 1 for a valid sequence (WHY? Shouldn\'t it return 0? <boggle>)
- Args    : a scalar (any scalar, why PrimarySeq author?) and a scalar
-           containing the string to validate.
+ Usage   : print("Valid.") if { &validate_qual($self, $quality_string); }
+ Function: Test that the given quality string is valid. It is expected to
+           contain space-delimited numbers that can be parsed using split /\d+/.
+           However, this validation takes shortcuts and only tests that the
+           string contains characters valid in numbers: 0-9 . eE +-
+           Note that empty quality strings are valid too.
+ Returns : 1 for a valid sequence, 0 otherwise
+ Args    : - Scalar containing the quality string to validate.
+           - Boolean to optionally throw an error if validation failed
 
 =cut
 
 sub validate_qual {
-    # how do I validate quality values?
-    # \d+\s+\d+..., I suppose
-    my ($self,$qualstr) = @_;
-    # why the CORE?? -- (Because Bio::PrimarySeqI namespace has a 
-    #                    length method, you have to qualify 
-    #                    which length to use)
-    return 0 if (!defined $qualstr || CORE::length($qualstr) <= 0);   
-    return 1 if( $qualstr =~ /\d/);
-    
-    return 0;
+    my ($self, $qualstr, $throw) = @_;
+    if ( (defined $qualstr                ) &&
+         ($qualstr !~ /^[$MATCHPATTERN]*$/) ) {
+        if ($throw) {
+            $self->throw("Failed validation of quality score from  '".
+               (defined($self->id)||'[unidentified sequence]')."'. No numeric ".
+               "value found.\n");
+        }
+        return 0;
+    }
+    return 1;
 }
 
 
@@ -270,18 +272,18 @@ sub subqual {
  Title   : display_id()
  Usage   : $id_string = $obj->display_id();
  Function: returns the display id, aka the common name of the Quality
-        object.
-        The semantics of this is that it is the most likely string to be
-        used as an identifier of the quality sequence, and likely to have
-        "human" readability.  The id is equivalent to the ID field of the
-        GenBank/EMBL databanks and the id field of the Swissprot/sptrembl
-        database. In fasta format, the >(\S+) is presumed to be the id,
-        though some people overload the id to embed other information.
-        Bioperl does not use any embedded information in the ID field,
-        and people are encouraged to use other mechanisms (accession
-        field for example, or extending the sequence object) to solve
-        this. Notice that $seq->id() maps to this function, mainly for
-        legacy/convience issues
+           object.
+           The semantics of this is that it is the most likely string to be
+           used as an identifier of the quality sequence, and likely to have
+           "human" readability.  The id is equivalent to the ID field of the
+           GenBank/EMBL databanks and the id field of the Swissprot/sptrembl
+           database. In fasta format, the >(\S+) is presumed to be the id,
+           though some people overload the id to embed other information.
+           Bioperl does not use any embedded information in the ID field,
+           and people are encouraged to use other mechanisms (accession
+           field for example, or extending the sequence object) to solve
+           this. Notice that $seq->id() maps to this function, mainly for
+           legacy/convience issues
  Returns : A string
  Args    : None
 

@@ -307,7 +307,7 @@ sub subseq {
 
  Title   : length
  Usage   : my $length = $qualdb->length($id);
- Function: Get the number of residies in the indicated sequence.
+ Function: Get the number of residues in the indicated sequence.
  Returns : Number
  Args    : ID of entry
 
@@ -384,17 +384,18 @@ sub subseq {
 }
 
 sub trunc {
+    # Override Bio::PrimarySeqI trunc() method. This way, we create an object
+    # that does not store the sequence in memory.
     my ($self, $start, $stop) = @_;
     $self->throw("Stop cannot be smaller than start") if $stop < $start;
-    return $self->{start} <= $self->{stop} ?
-        $self->new( $self->{db},
-                    $self->{id},
-                    $self->{start}+$start-1,
-                    $self->{start}+$stop-1,  ) :
-        $self->new( $self->{db},
-                    $self->{id},
-                    $self->{start}-($start-1),
-                    $self->{start}-($stop-1) );
+    if ($self->{start} <= $self->{stop}) {
+        $start = $self->{start}+$start-1;
+        $stop  = $self->{start}+$stop-1;
+    } else {
+        $start = $self->{start}-($start-1);
+        $stop  = $self->{start}-($stop-1);
+    }
+    return $self->new( $self->{db}, $self->{id}, $start, $stop );
 }
 
 sub is_circular {
@@ -413,6 +414,8 @@ sub accession_number {
 }
 
 sub primary_id {
+    # Following Bio::PrimarySeqI, since this sequence has no accession number,
+    # its primary_id should be a stringified memory location.
     my $self = shift;
     return overload::StrVal($self);
 }
@@ -427,19 +430,23 @@ sub alphabet {
 }
 
 sub revcom {
+    # Override Bio::PrimarySeqI revcom() with optimized method.
     my $self = shift;
     return $self->new(@{$self}{'db', 'id', 'stop', 'start'});
 }
 
 sub length {
+    # Get length from sequence location, not the sequence string (too expensive)
     my $self = shift;
-    return CORE::length($self->seq);
+    return $self->{start} < $self->{stop}   ?
+        $self->{stop}  - $self->{start} + 1 :
+        $self->{start} - $self->{stop}  + 1 ;
 }
 
 sub description  {
     my $self = shift;
     my $header = $self->{'db'}->header($self->{id});
-    # remove the id from the header
+    # Remove the ID from the header
     return (split(/\s+/, $header, 2))[1];
 }
 *desc = \&description;
