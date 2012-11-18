@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 299);
+    test_begin(-tests => 300);
 
 	use_ok('Bio::SearchIO');
 }
@@ -401,3 +401,16 @@ is(ref($searchio), 'Bio::SearchIO::hmmer2', 'Check if reading from a pipe works'
 $result = $searchio->next_result;
 is(ref($result), 'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
 is($result->num_hits(), 2, 'Check num_hits');
+
+# bug 3376
+{
+   my $in = Bio::SearchIO->new(-format => 'hmmer',
+                            -file   => test_input_file('pfamOutput-bug3376.out')
+			   );
+   my $result = $in->next_result;
+   my $hit = $result->next_hit;
+   my $hsp = $hit->next_hsp;
+   is($hsp->hit_string,"svfqqqqssksttgstvtAiAiAigYRYRYRAvtWnsGsLssGvnDnDnDqqsdgLYtiYYsvtvpssslpsqtviHHHaHkasstkiiikiePr","bug3376");
+}
+# end bug 3376
+
