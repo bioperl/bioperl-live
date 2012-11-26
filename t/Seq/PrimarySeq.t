@@ -7,7 +7,7 @@ use Data::Dumper;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin( -tests => 179 );
+    test_begin( -tests => 181 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -298,12 +298,14 @@ ok $seq->seq('AAACTYAAAAGAATTGRCGG'); # valid degenerate DNA PCR primer sequence
 is $seq->alphabet, 'dna';
 ok $seq->seq('AAACTYAAAKGAATTGRCGG'); # another primer previously detected as protein (85% ACGTN)
 is $seq->alphabet, 'dna';
-ok $seq->seq('YWACTYAAAKGARTTGRCGG'); # 70% ACGTN. Everything <= 70% is considered a protein
-is $seq->alphabet, 'protein';
+ok $seq->seq('YWACTYAAAKGARTTGRCGG'); # 70% ACGTNWSRM. Everything <= 70% is considered a protein
+is $seq->alphabet, 'dna';
 ok $seq->seq('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'); # Bug 2438
 is $seq->alphabet, 'protein', 'Bug 2438';
 ok $seq->seq('CAGTCXXXXXXXXXXXXXXXXXXXXXXXXXXXCAGCG');
 is $seq->alphabet, 'protein';
+ok $seq->seq('WTGGGGCTATGAAAAAAAAAWTTKMGMMAAAAAWTTWTKRWMRATC'); # showed up on MAKER list
+is $seq->alphabet, 'dna';
 
 ok $seq->seq('actgn', 'protein'); # accept specified alphabet, no matter what
 is $seq->alphabet, 'protein';

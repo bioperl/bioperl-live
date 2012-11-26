@@ -1,7 +1,7 @@
 #
 # bioperl module for Bio::PrimarySeq
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
@@ -91,15 +91,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -268,7 +268,7 @@ sub seq {
 
     my ($seq_str, $alphabet) = @args;
     if (@args) {
-        $self->_set_seq_by_ref(\$seq_str, $alphabet);   
+        $self->_set_seq_by_ref(\$seq_str, $alphabet);
     }
 
     return $self->{'seq'};
@@ -352,7 +352,7 @@ sub validate_seq {
            $substring = $seqobj->subseq($location_obj);
            $substring = $seqobj->subseq($location_obj, -nogap => 1);
  Function: Return the subseq from start to end, where the first sequence
-           character has coordinate 1 number is inclusive, ie 1-2 are the 
+           character has coordinate 1 number is inclusive, ie 1-2 are the
            first two characters of the sequence. The given start coordinate
            has to be larger than the end, even if the sequence is circular.
  Returns : a string
@@ -373,7 +373,7 @@ sub subseq {
                                                              END
                                                              NOGAP
                                                              REPLACE_WITH)], @args);
-   
+
     # If -replace_with is specified, validate the replacement sequence
     if (defined $replace) {
         $self->validate_seq( $replace ) ||
@@ -919,7 +919,7 @@ sub _guess_alphabet_from_string {
             # protein sequence can contain at this stage. Make our best guess
             # based on sequence composition. If it contains over 70% of ACGTUN,
             # it is likely nucleic.
-            if( ($str =~ tr/ATUGCNatugcn//) / $total > 0.7 ) {
+            if( ($str =~ tr/ATUGCNWSKMatugcnwskm//) / $total > 0.7 ) {
                 if ( $str =~ m/U/i ) {
                     $alphabet = 'rna';
                 } else {
@@ -948,4 +948,3 @@ sub accession {
 }
 
 1;
-
