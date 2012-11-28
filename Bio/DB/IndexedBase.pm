@@ -116,7 +116,6 @@ entire data set:
     print "$id => $sequence\n";
  }
 
-
 When dealing with very large sequences, you can avoid bringing them into memory
 by calling each() in a scalar context.  This returns the key only.  You can then
 use tied(%db) to recover the Bio::DB::IndexedBase object and call its methods.
@@ -602,6 +601,8 @@ sub _index_files {
     # Do the indexing of the given files using the index file on record
     my ($self, $files, $force_reindex) = @_;
 
+    #### $self->{offset_meth} = \&{$class.'::_calculate_offsets'}, #####
+
     $self->_set_pack_method( @$files );
 
     # Get name of index file
@@ -652,7 +653,7 @@ sub _index_files {
 
 
 sub _open_index {
-    # Open index file in read-only or write mode
+    # Open index file in read-only or write mode. Return a hash of offsets
     my ($self, $index_file, $write) = @_;
     my %offsets;
     my $flags = $write ? O_CREAT|O_RDWR : O_RDONLY;
@@ -664,7 +665,7 @@ sub _open_index {
 
 
 sub _close_index {
-    # Close index file
+    # Close the specified tied hash
     my ($self, $index) = @_;
     untie %$index;
     return 1;
@@ -1008,6 +1009,56 @@ sub _set_pack_method {
     }
     return 1;
 }
+
+
+#-------------------------------------------------------------
+# Hooks for serialization compatibility with Storable
+#
+
+sub _pre_freeze {
+    my ($self) = @_;
+    # Close tied hash
+    $self->_close_index($self->{offsets});
+    # Remove coderef. Not strictly necessary, but we might as well do it.
+    delete $self->{unpackmeth};
+    delete $self->{packmeth};
+    ####delete $self->{offset_meth}; ###
+    return $self;
+}
+
+
+sub _post_thaw {
+    my ($self) = @_;
+    $self->_index_files($self->{fileno2path}, 0);
+    return $self;
+}
+
+
+#sub STORABLE_freeze {
+#    my ($self, $cloning) = @_;
+#    return if $cloning; # Regular default serialization
+#    $self = $self->_pre_freeze;
+#    #require Storable qw(freeze);
+#    my $old = $Storable::Deparse;
+#    $Storable::Deparse = 1;
+#    my $serialized = Storable::freeze $self; # circular...
+#    $Storable::Deparse = $old;
+#    
+#    return $serialized;
+#}
+
+
+#sub STORABLE_thaw {
+#    my ($self, $cloning, $serialized) = @_;
+#    return if $cloning;
+#    #require Storable qw(thaw);
+#    my $old = $Storable::Eval;
+#    $Storable::Eval = 1;
+#    $self = Storable::thaw $serialized;
+#    $Storable::Deparse = $old;
+#    $self->_post_thaw;
+#    return $self;
+#}
 
 
 #-------------------------------------------------------------
