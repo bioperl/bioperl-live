@@ -299,6 +299,31 @@ my $test_files = [
 }
 
 
+{
+    # Test hooks to serialize via Storable
+    SKIP: {
+        test_skip(-tests => 8, -requires_modules => [qw(Storable)]); ### update #tests
+
+        use_ok('Storable');
+
+        ok my $db = Bio::DB::Fasta->new( $test_file, -reindex => 1);
+        is $db->seq('gi|352962148|ref|NM_001251825.1|', 20, 29,  1), 'GUCAGCGUCC';
+
+        ok $db->_pre_freeze;
+
+        ok my $ser = Storable::freeze( $db );
+
+        ok my $db2 = Storable::thaw( $ser );
+
+        ok $db2->_post_thaw;
+
+        is $db2->seq('gi|352962148|ref|NM_001251825.1|', 20, 29,  1), 'GUCAGCGUCC';
+
+    }
+    
+}
+
+
 exit;
 
 

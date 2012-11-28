@@ -1021,13 +1021,18 @@ sub _pre_freeze {
     # Remove coderef. Not strictly necessary, but we might as well do it.
     delete $self->{unpackmeth};
     delete $self->{packmeth};
+    # Empty cache
+    $self->{cacheseq} = {};
+    $self->{fhcache} = {};
     return $self;
 }
 
 
 sub _post_thaw {
     my ($self) = @_;
-    $self->_index_files($self->{fileno2path}, 0);
+    my $dir = $self->{dirname};
+    my @files = map { File::Spec->catfile($dir, $_) } @{$self->{fileno2path}};
+    $self->_index_files(\@files, 0);
     return $self;
 }
 
