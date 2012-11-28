@@ -340,7 +340,6 @@ sub new {
         offsets     => undef,
         index_name  => $opts{-index_name},
         obj_class   => eval '$'.$class.'::obj_class',
-        offset_meth => \&{$class.'::_calculate_offsets'},
         fileno2path => [],
         filepath2no => {},
     }, $class;
@@ -601,8 +600,8 @@ sub _index_files {
     # Do the indexing of the given files using the index file on record
     my ($self, $files, $force_reindex) = @_;
 
-    #### $self->{offset_meth} = \&{$class.'::_calculate_offsets'}, #####
-
+    # Set some methods
+    my $offset_meth = \&{ref($self).'::_calculate_offsets'};
     $self->_set_pack_method( @$files );
 
     # Get name of index file
@@ -640,7 +639,7 @@ sub _index_files {
         $self->{indexing} = $index;
         for my $file (@updated) {
             my $fileno = $self->_path2fileno(basename($file));
-            &{$self->{offset_meth}}($self, $fileno, $file, $self->{offsets});
+            &$offset_meth($self, $fileno, $file, $self->{offsets});
         }
         delete $self->{indexing};
     }
@@ -1022,7 +1021,6 @@ sub _pre_freeze {
     # Remove coderef. Not strictly necessary, but we might as well do it.
     delete $self->{unpackmeth};
     delete $self->{packmeth};
-    ####delete $self->{offset_meth}; ###
     return $self;
 }
 
