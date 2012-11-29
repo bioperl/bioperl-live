@@ -1015,20 +1015,24 @@ sub _set_pack_method {
 #
 
 sub _pre_freeze {
+    # Generate a clone and remove some strategic attributes
     my ($self) = @_;
-    # Close tied hash
-    $self->_close_index($self->{offsets});
-    # Remove coderef. Not strictly necessary, but we might as well do it.
-    delete $self->{unpackmeth};
-    delete $self->{packmeth};
+    my $clone = bless { %$self }, ref $self;
+    # Remove tied hash to prevent a segfault. Bug has been reported, so this may
+    # be unnecessary in a future version of Storable (>2.27).
+    delete $clone->{offsets};
+    # Remove coderefs. Not strictly necessary, but makes things easier.
+    delete $clone->{unpackmeth};
+    delete $clone->{packmeth};
     # Empty cache
-    $self->{cacheseq} = {};
-    $self->{fhcache} = {};
-    return $self;
+    $clone->{cacheseq} = {};
+    $clone->{fhcache} = {};
+    return $clone;
 }
 
 
 sub _post_thaw {
+    # Open index file to populate offsets tied hash.
     my ($self) = @_;
     my $dir = $self->{dirname};
     my @files = map { File::Spec->catfile($dir, $_) } @{$self->{fileno2path}};
@@ -1037,31 +1041,30 @@ sub _post_thaw {
 }
 
 
-#sub STORABLE_freeze {
-#    my ($self, $cloning) = @_;
-#    return if $cloning; # Regular default serialization
-#    $self = $self->_pre_freeze;
-#    #require Storable qw(freeze);
-#    my $old = $Storable::Deparse;
-#    $Storable::Deparse = 1;
-#    my $serialized = Storable::freeze $self; # circular...
-#    $Storable::Deparse = $old;
-#    
-#    return $serialized;
-#}
+sub STORABLE_freeze {
+   # Hook to transparently serialize $self through Storable::freeze. Note that
+   # we disregard the value of $cloning because the entirety of this code is
+   # needed to make a proper clone.
+   my ($self, $cloning) = @_;
+   if (not exists $self->{freezing}) {
+      # Prepare $self for serialization
+      my $pre = $self->_pre_freeze;
+      $pre->{freezing} = undef;
+      return ( Storable::freeze($pre) );
+   } else {
+      # Use serialization as performed by Storable freeze()
+      delete $self->{freezing};
+      return ();
+   }
+}
 
 
-#sub STORABLE_thaw {
-#    my ($self, $cloning, $serialized) = @_;
-#    return if $cloning;
-#    #require Storable qw(thaw);
-#    my $old = $Storable::Eval;
-#    $Storable::Eval = 1;
-#    $self = Storable::thaw $serialized;
-#    $Storable::Deparse = $old;
-#    $self->_post_thaw;
-#    return $self;
-#}
+sub STORABLE_thaw {
+   my ($self, $cloning, $serialized) = @_;
+   %$self = %{ Storable::thaw( $serialized ) };
+   $self->_post_thaw;
+   return;
+}
 
 
 #-------------------------------------------------------------

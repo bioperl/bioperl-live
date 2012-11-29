@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 107,
+    test_begin( -tests => 117,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)] );
 }
 use strict;
@@ -302,25 +302,25 @@ my $test_files = [
 {
     # Test hooks to serialize via Storable
     SKIP: {
-        test_skip(-tests => 8, -requires_modules => [qw(Storable)]); ### update #tests
+        test_skip(-tests => 10, -requires_modules => [qw(Storable)]);
 
+        ok my $db1 = Bio::DB::Fasta->new( $test_file, -reindex => 1);
+
+        # Test freeze, thaw and dclone
         use_ok('Storable');
+        ok my $serialized = Storable::freeze( $db1 );
+        ok my $db2 = Storable::thaw( $serialized );
+        ok my $db3 = Storable::dclone( $db1 );
 
-        ok my $db = Bio::DB::Fasta->new( $test_file, -reindex => 1);
-        is $db->seq('gi|352962148|ref|NM_001251825.1|', 20, 29,  1), 'GUCAGCGUCC';
+        # Different objects, not just a link
+        isnt $db1, $db2;
+        isnt $db1, $db3;
 
-        ok $db->_pre_freeze;
-
-        ok my $ser = Storable::freeze( $db );
-
-        ok my $db2 = Storable::thaw( $ser );
-
-        ok $db2->_post_thaw;
-
+        # Old and new databases should all be functional
+        is $db1->seq('gi|352962148|ref|NM_001251825.1|', 20, 29,  1), 'GUCAGCGUCC';
         is $db2->seq('gi|352962148|ref|NM_001251825.1|', 20, 29,  1), 'GUCAGCGUCC';
-
+        is $db3->seq('gi|352962148|ref|NM_001251825.1|', 20, 29,  1), 'GUCAGCGUCC';
     }
-    
 }
 
 
