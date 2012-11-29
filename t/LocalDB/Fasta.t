@@ -2,11 +2,12 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 134,
+    test_begin( -tests => 144,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)] );
 }
 use strict;
 use warnings;
+use Config;
 use Bio::Root::Root;
 use File::Copy;
 use File::Basename;
@@ -342,6 +343,44 @@ my $test_file_spaced = setup_temp_file('spaced_fasta.fa');
         is $db1->seq('gi|352962148|ref|NM_001251825.1|', 20, 29,  1), 'GUCAGCGUCC';
         is $db2->seq('gi|352962148|ref|NM_001251825.1|', 20, 29,  1), 'GUCAGCGUCC';
         is $db3->seq('gi|352962148|ref|NM_001251825.1|', 20, 29,  1), 'GUCAGCGUCC';
+    }
+}
+
+{
+    SKIP: {
+        skip("since DB_File segfaults in threaded context", 10);
+        skip("since this perl does not support threads", 10) if not $Config{useithreads};
+
+        require_ok 'threads';
+        my ($thr1, $thr2, $val1, $val2);
+
+        # Basic thread
+        ok $thr1 = threads->create(\&worker1, $test_dir);
+        ok $val1 = $thr1->join;
+        ok $val1->id, 'CEESA96F';
+
+        # Concurent threads. One is expected to create the index, while the
+        # other waits for the indexing to be finished.
+        ok $thr1 = threads->create(\&worker1, $test_dir);
+        ok $thr2 = threads->create(\&worker2, $test_dir);
+        ok $val1 = $thr1->join;
+        ok $val2 = $thr2->join;
+        ok $val1->id, 'CEESA96F';
+        ok $val2->id, 'CEESC20F';
+
+        sub worker1 {
+            my ($dir) = @_;
+            my $db  = Bio::DB::Fasta->new($test_dir, -reindex => 1);
+            my $seq = $db->get_Seq_by_id('CEESA96F'); # in 4.fa
+            return $seq;
+        }
+
+        sub worker2 {
+            my ($dir) = @_;
+            my $db = Bio::DB::Fasta->new($test_dir, -reindex => 1);
+            my $seq = $db->get_Seq_by_id('CEESC20F'); # in 6.fa
+            return $seq;
+        }
     }
 }
 

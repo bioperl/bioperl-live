@@ -638,10 +638,17 @@ sub _index_files {
     # Get termination length from first file
     $self->{termination_length} = $self->_calc_termination_length( $files->[0] );
 
-    # Reindex contents of changed files if needed
+    # Reindex contents if forced or if files changed
     my $reindex      = $force_reindex || (scalar @updated > 0);
     $self->{offsets} = $self->_open_index($index, $reindex) or return;
     if ($reindex) {
+
+        #### TODO ####
+        # Indexing should probably be skipped if another thread is doing it.
+        # Also, a thread should wait until indexing is finished by another
+        # thread: use lock(), or a dedicated solution like Tie::DB_Lock,
+        # Tie::DB_LockFile, DB_File::Lock
+
         $self->{indexing} = $index;
         for my $file (@updated) {
             my $fileno = $self->_path2fileno($file);
@@ -1136,6 +1143,7 @@ sub NEXTKEY {
 
 sub DESTROY {
     my $self = shift;
+    $self->_close_index($self->{offsets});
     if ( $self->{clean} || $self->{indexing} ) {
       # Indexing aborted or cleaning requested. Delete the index file.
       unlink $self->{index_name};
