@@ -2,24 +2,28 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 117,
+    test_begin( -tests => 122,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)] );
 }
 use strict;
 use warnings;
 use Bio::Root::Root;
 use File::Copy;
+use File::Basename;
+use File::Spec::Functions qw(catfile);
 my $DEBUG = test_debug();
 
 
 # Test Bio::DB::Fasta, but also the underlying module, Bio::DB::IndexedBase
 
-my $test_dir  = setup_temp_dir('dbfa');
-my $test_file = test_input_file('dbfa', 'mixed_alphabet.fasta');
-my $test_files = [
-    test_input_file('dbfa', 'mixed_alphabet.fasta'),
-    test_input_file('dbfa', '6.fa')
-];
+my $test_dir         = setup_temp_dir('dbfa');
+my $test_file_1      = setup_temp_file('dbfa', '1.fa');
+my $test_file_2      = setup_temp_file('dbfa', '2.fa');
+my $test_file_3      = setup_temp_file('dbfa', '3.fa');
+my $test_file_6      = setup_temp_file('dbfa', '6.fa');
+my $test_file_bad    = setup_temp_file('badfasta.fa');
+my $test_file_mixed  = setup_temp_file('dbfa', 'mixed_alphabet.fasta');
+my $test_file_spaced = setup_temp_file('spaced_fasta.fa');
 
 
 {
@@ -47,6 +51,7 @@ my $test_files = [
     is $db->file('AW057119'), '1.fa';
     is $db->file('AW057410'), '3.fa';
     is $db->file('CEESC13F'), '6.fa';
+    is $db->path(), $test_dir;
 
     # Bio::DB::RandomAccessI and Bio::DB::SeqI methods
     ok my $primary_seq = $db->get_Seq_by_id('AW057119');
@@ -82,7 +87,6 @@ my $test_files = [
 {
     # Re-open an existing index.
     # Doing this test properly involves unloading and reloading Bio::DB::Fasta.
-
     SKIP: {
         test_skip(-tests => 1, -requires_modules => [qw(Class::Unload)]);
         use_ok('Class::Unload');
@@ -90,7 +94,6 @@ my $test_files = [
         Class::Unload->unload( 'Bio::DB::IndexedBase' );
         require Bio::DB::Fasta;
     }
-
     ok my $db = Bio::DB::Fasta->new($test_dir), 'Re-open an existing index';
     is $db->seq('AW057119', 1, 10), 'tcatgttggc';
 }
@@ -130,7 +133,7 @@ my $test_files = [
 
 {
     # Test alphabet and reverse-complement RNA
-    ok my $db = Bio::DB::Fasta->new( $test_file, -reindex => 1), 'Index a single file';
+    ok my $db = Bio::DB::Fasta->new( $test_file_mixed, -reindex => 1), 'Index a single file';
     is $db->alphabet('gi|352962132|ref|NG_030353.1|'), 'dna';
     is $db->alphabet('gi|352962148|ref|NM_001251825.1|'), 'rna';
     is $db->alphabet('gi|194473622|ref|NP_001123975.1|'), 'protein';
@@ -143,12 +146,15 @@ my $test_files = [
     is $db->seq('123'), '';
 
     is $db->file('gi|352962132|ref|NG_030353.1|'), 'mixed_alphabet.fasta';
+    my $dir  = (fileparse($test_file_mixed, qr/\.[^.]*/))[1];
+    my $dir2 = $db->path();
+    like $dir, qr/^$dir2/;
 }
 
 
 {
     # Test stream
-    ok my $db = Bio::DB::Fasta->new( $test_file, -reindex => 1);
+    ok my $db = Bio::DB::Fasta->new( $test_file_mixed, -reindex => 1);
     ok my $stream = $db->get_PrimarySeq_stream;
     isa_ok $stream, 'Bio::DB::Indexed::Stream';
     my $count = 0;
@@ -156,16 +162,16 @@ my $test_files = [
         $count++;
     }
     is $count, 5;
-    unlink "$test_file.index";
+    unlink "$test_file_mixed.index";
 }
 
 
 {
     # Concurrent databases (bug #3390)
-    ok my $db1 = Bio::DB::Fasta->new( test_input_file('dbfa', '1.fa') );
-    ok my $db3 = Bio::DB::Fasta->new( test_input_file('dbfa', '3.fa') );
+    ok my $db1 = Bio::DB::Fasta->new( $test_file_1 );
+    ok my $db3 = Bio::DB::Fasta->new( $test_file_3 );
     ok my $db4 = Bio::DB::Fasta->new( $test_dir );
-    ok my $db2 = Bio::DB::Fasta->new( test_input_file('dbfa', '2.fa') );
+    ok my $db2 = Bio::DB::Fasta->new( $test_file_2 );
     is $db4->file('AW057231'), '1.fa';
     is $db2->file('AW057302'), '2.fa';
     is $db4->file('AW057119'), '1.fa';
@@ -178,7 +184,7 @@ my $test_files = [
 {
     # Test an arbitrary index filename and cleaning
     my $name = 'arbitrary.idx';
-    ok my $db = Bio::DB::Fasta->new( $test_file,
+    ok my $db = Bio::DB::Fasta->new( $test_file_mixed,
         -reindex => 1, -index_name => $name, -clean => 1,
     );
     is $db->index_name, $name;
@@ -191,7 +197,7 @@ my $test_files = [
 
 {
     # Test makeid
-    ok my $db = Bio::DB::Fasta->new( $test_file,
+    ok my $db = Bio::DB::Fasta->new( $test_file_mixed,
         -reindex => 1, -clean => 1, -makeid => \&extract_gi,
     ), 'Make single ID';
     is_deeply [sort $db->get_all_primary_ids], ['', 194473622, 352962132, 352962148, 61679760];
@@ -202,7 +208,7 @@ my $test_files = [
 
 {
     # Test makeid that generates several IDs, bug #3389
-    ok my $db = Bio::DB::Fasta->new( $test_file,
+    ok my $db = Bio::DB::Fasta->new( $test_file_mixed,
         -reindex => 1, -clean => 1, -makeid => \&extract_gi_and_ref,
     ), 'Make multiple IDs, bug #3389';
     is_deeply [sort $db->get_all_primary_ids], ['', 194473622, 352962132, 352962148, 61679760, 'NG_030353.1',  'NM_001251825.1', 'NP_001123975.1'];
@@ -213,7 +219,8 @@ my $test_files = [
 
 {
     # Test opening set of files and test IDs
-    ok my $db = Bio::DB::Fasta->new( $test_files, -reindex => 1), 'Index a set of files';
+    ok my $db = Bio::DB::Fasta->new( [$test_file_mixed, $test_file_6],
+        -reindex => 1), 'Index a set of files';
     ok $db->ids;
     ok $db->get_all_ids;
     my @ids = sort $db->get_all_primary_ids();
@@ -262,6 +269,9 @@ my $test_files = [
         gi|61679760|pdb|1Y4P|B
     )];
     like $db->index_name, qr/^fileset_.+\.index$/;
+    is $db->file('CEESC12R'), '6.fa';
+    is $db->file('123'), 'mixed_alphabet.fasta';
+    is $db->path(), '';
     unlink $db->index_name;
 }
 
@@ -277,7 +287,7 @@ my $test_files = [
 
     # Issue 3237
     # Empty lines within a sequence is bad...
-    throws_ok {my $db = Bio::DB::Fasta->new(test_input_file('badfasta.fa'), -reindex => 1)}
+    throws_ok {my $db = Bio::DB::Fasta->new($test_file_bad, -reindex => 1)}
         qr/Blank lines can only precede header lines/;
 }
 
@@ -286,7 +296,7 @@ my $test_files = [
     # Issue 3237 again
     # but empty lines preceding headers are okay, but let's check the seqs just in case
     my $db;
-    lives_ok {$db = Bio::DB::Fasta->new(test_input_file('spaced_fasta.fa'), -reindex => 1)};
+    lives_ok {$db = Bio::DB::Fasta->new($test_file_spaced, -reindex => 1)};
     is length($db->seq('CEESC39F')), 375, 'length is correct in sequences past spaces';
     is length($db->seq('CEESC13F')), 389;
 
@@ -294,7 +304,7 @@ my $test_files = [
     is $db->subseq('CEESC13F', 146, 155), 'ggctctccct', 'subseq is correct';
 
     # Remove temporary test file
-    my $outfile = test_input_file('spaced_fasta.fa').'.index';
+    my $outfile = $test_file_spaced.'.index';
     unlink $outfile;
 }
 
@@ -304,7 +314,7 @@ my $test_files = [
     SKIP: {
         test_skip(-tests => 10, -requires_modules => [qw(Storable)]);
 
-        ok my $db1 = Bio::DB::Fasta->new( $test_file, -reindex => 1);
+        ok my $db1 = Bio::DB::Fasta->new( $test_file_mixed, -reindex => 1);
 
         # Test freeze, thaw and dclone
         use_ok('Storable');
@@ -351,20 +361,29 @@ sub setup_temp_dir {
     # this obfuscation is to deal with lockfiles by GDBM_File which can
     # only be created on local filesystems apparently so will cause test
     # to block and then fail when the testdir is on an NFS mounted system
-
-    my $data_dir = shift;
-
+    my ($data_dir) = @_;
     my $io = Bio::Root::IO->new();
     my $tempdir = test_output_dir();
     my $test_dir = $io->catfile($tempdir, $data_dir);
-    mkdir($test_dir); # make the directory
+    mkdir $test_dir; # make the directory
     my $indir = test_input_file($data_dir);
-    opendir(my $INDIR,$indir) || die("cannot open dir $indir");
+    opendir my $INDIR, $indir || die("cannot open dir $indir");
     # effectively do a cp -r but only copy the files that are in there, no subdirs
     for my $file ( map { $io->catfile($indir,$_) } readdir($INDIR) ) {
         next unless (-f $file );
-        copy($file, $test_dir);
+        copy $file, $test_dir or die "Copy error: $!\n";
     }
-    closedir($INDIR);
+    closedir $INDIR;
     return $test_dir
+}
+
+sub setup_temp_file {
+    my (@path) = @_;
+    my $filebase = $path[-1];
+    my $ori = test_input_file( @path );
+    my $io = Bio::Root::IO->new();
+    my $tempdir = test_output_dir();
+    my $tempfile = $io->catfile($tempdir, $filebase);
+    copy $ori, $tempfile or die "Copy error: $!\n";
+    return $tempfile;
 }
