@@ -355,8 +355,7 @@ sub new {
     my $ref = ref $path || '';
     if ( $ref eq 'ARRAY' ) {
         $offsets = $self->index_files($path, $opts{-reindex});
-        require Cwd;
-        $dirname = Cwd::getcwd();
+        $dirname = '';
     } else {
         if (-d $path) {
             # because Win32 glob() is broken with respect to long file names
@@ -532,9 +531,9 @@ sub index_name {
 
  Title   : path
  Usage   : my $path = $db->path($path);
- Function: When a simple file or a directory of files is indexed, this returns
-           the file directory. When indexing an arbitrary list of files, the
-           return value is the path of the current working directory.
+ Function: When a simple file or a directory of files has been indexed, this
+           returns the file directory. When an arbitrary list of files has been
+           indexed, the return value is the empty string.
  Returns : String
  Args    : None
 
@@ -625,7 +624,7 @@ sub _index_files {
     my @updated;
     for my $file (@$files) {
         # Register file
-        $self->_path2fileno(basename($file));
+        $self->_path2fileno($file);
         # Any update?
         my $m = (stat $file)[9] || 0;
         if ($m > $modtime) {
@@ -645,7 +644,7 @@ sub _index_files {
     if ($reindex) {
         $self->{indexing} = $index;
         for my $file (@updated) {
-            my $fileno = $self->_path2fileno(basename($file));
+            my $fileno = $self->_path2fileno($file);
             &$offset_meth($self, $fileno, $file, $self->{offsets});
         }
         delete $self->{indexing};
@@ -778,9 +777,9 @@ sub _fh {
     # Given a sequence ID, return the filehandle on which to find this sequence
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
-    my $file = $self->file($id) or return;
-    return $self->_fhcache( File::Spec->catfile($self->{dirname}, $file) ) or
-        $self->throw( "Can't open file $file");
+    my $filepath = $self->filepath($id) or return;
+    return $self->_fhcache( $filepath ) or
+        $self->throw( "Can't open file $filepath");
 }
 
 
@@ -942,12 +941,32 @@ sub alphabet {
 }
 
 
+=head2 filepath
+
+ Title   : filepath
+ Usage   : my $file = $db->file($id);
+ Function: Get the the full path of the file in which the indicated sequence can
+           be found.
+ Returns : String
+ Args    : ID of sequence
+
+=cut
+
+sub filepath {
+    my ($self, $id) = @_;
+    $self->throw('Need to provide a sequence ID') if not defined $id;
+    my $offset = $self->{offsets}{$id} or return;
+    return $self->_fileno2path((&{$self->{unpackmeth}}($offset))[6]);
+}
+
+
 =head2 file
 
  Title   : file
  Usage   : my $file = $db->file($id);
- Function: Get the the name of the file in which the indicated sequence can be
-           found.
+ Function: Get the name of the file in which the indicated sequence can be
+           found. This function is here mostly for backward-compatibility; you
+           should probably use filepath() instead, to get the full filepath.
  Returns : String
  Args    : ID of sequence
 
@@ -956,8 +975,7 @@ sub alphabet {
 sub file {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
-    my $offset = $self->{offsets}{$id} or return;
-    return $self->_fileno2path((&{$self->{unpackmeth}}($offset))[6]);
+    return basename($self->filepath($id));
 }
 
 
@@ -1041,9 +1059,7 @@ sub _pre_freeze {
 sub _post_thaw {
     # Open index file to populate offsets tied hash.
     my ($self) = @_;
-    my $dir = $self->{dirname};
-    my @files = map { File::Spec->catfile($dir, $_) } @{$self->{fileno2path}};
-    $self->_index_files(\@files, 0);
+    $self->_index_files($self->{fileno2path}, 0);
     return $self;
 }
 

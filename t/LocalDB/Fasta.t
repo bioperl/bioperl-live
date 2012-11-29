@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 122,
+    test_begin( -tests => 134,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)] );
 }
 use strict;
@@ -51,6 +51,9 @@ my $test_file_spaced = setup_temp_file('spaced_fasta.fa');
     is $db->file('AW057119'), '1.fa';
     is $db->file('AW057410'), '3.fa';
     is $db->file('CEESC13F'), '6.fa';
+    is $db->filepath('AW057119'), catfile($test_dir, '1.fa');
+    is $db->filepath('AW057410'), catfile($test_dir, '3.fa');
+    is $db->filepath('CEESC13F'), catfile($test_dir, '6.fa');
     is $db->path(), $test_dir;
 
     # Bio::DB::RandomAccessI and Bio::DB::SeqI methods
@@ -146,6 +149,7 @@ my $test_file_spaced = setup_temp_file('spaced_fasta.fa');
     is $db->seq('123'), '';
 
     is $db->file('gi|352962132|ref|NG_030353.1|'), 'mixed_alphabet.fasta';
+    is $db->filepath('gi|352962132|ref|NG_030353.1|'), $test_file_mixed;
     my $dir  = (fileparse($test_file_mixed, qr/\.[^.]*/))[1];
     my $dir2 = $db->path();
     like $dir, qr/^$dir2/;
@@ -178,6 +182,12 @@ my $test_file_spaced = setup_temp_file('spaced_fasta.fa');
     is $db3->file('AW057336'), '3.fa';
     is $db1->file('AW057231'), '1.fa';
     is $db4->file('AW057410'), '3.fa';
+    is $db4->filepath('AW057231'), catfile($test_dir, '1.fa');
+    is $db2->filepath('AW057302'), $test_file_2;
+    is $db4->filepath('AW057119'), catfile($test_dir, '1.fa');
+    is $db3->filepath('AW057336'), $test_file_3;
+    is $db1->filepath('AW057231'), $test_file_1;
+    is $db4->filepath('AW057410'), catfile($test_dir, '3.fa');
 }
 
 
@@ -272,6 +282,8 @@ my $test_file_spaced = setup_temp_file('spaced_fasta.fa');
     is $db->file('CEESC12R'), '6.fa';
     is $db->file('123'), 'mixed_alphabet.fasta';
     is $db->path(), '';
+    is $db->filepath('CEESC12R'), $test_file_6;
+    is $db->filepath('123'), $test_file_mixed;
     unlink $db->index_name;
 }
 
