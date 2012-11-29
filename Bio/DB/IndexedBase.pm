@@ -196,6 +196,11 @@ and get_Seq_by_primary_id() will return the same sequence.
 Since this database index has no notion of sequence version or namespace, the
 get_Seq_by_id(), get_Seq_by_acc() and get_Seq_by_version() are identical.
 
+=head1 SERIALIZATION
+
+Bio::DB::IndexedBase includes hooks that make it Storable-friendly. Simply use
+the freeze() and thaw() functions of Storable to serialize and deserialize it.
+
 =head1 BUGS
 
 When a sequence is deleted from one of the files, this deletion is not detected
@@ -216,6 +221,8 @@ L<DB_File>
 L<Bio::DB::Fasta>
 
 L<Bio::DB::Qual>
+
+L<Storable>
 
 =head1 AUTHOR
 

@@ -48,6 +48,7 @@ CPAN releases are branched from 'master'.
     * Bio::DB::Taxonomy::*
         - get_num_taxa() returns the number of taxa in the database [fangly]
     * Bio::DB::Fasta and Bio::DB::Qual
+        - hooks for serialization with Storable
         - support indexing an arbitrary list of files [fangly]
         - user can supply an arbitrary index file name [fangly]
         - new option to remove index file at the end [fangly]
