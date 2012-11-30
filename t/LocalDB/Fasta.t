@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 144,
+    test_begin( -tests => 145,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)] );
 }
 use strict;
@@ -26,6 +26,7 @@ my $test_file_bad    = setup_temp_file('badfasta.fa');
 my $test_file_mixed  = setup_temp_file('dbfa', 'mixed_alphabet.fasta');
 my $test_file_spaced = setup_temp_file('spaced_fasta.fa');
 
+my $dbi = (@AnyDBM_File::ISA)[0];
 
 {
     # Test basic functionalities
@@ -167,7 +168,7 @@ my $test_file_spaced = setup_temp_file('spaced_fasta.fa');
         $count++;
     }
     is $count, 5;
-    unlink "$test_file_mixed.index";
+    $db->_rm_index;
 }
 
 
@@ -198,10 +199,18 @@ my $test_file_spaced = setup_temp_file('spaced_fasta.fa');
     ok my $db = Bio::DB::Fasta->new( $test_file_mixed,
         -reindex => 1, -index_name => $name, -clean => 1,
     );
+    is $db->seq('gi|352962148|ref|NM_001251825.1|', 20, 29,  1), 'GUCAGCGUCC';
     is $db->index_name, $name;
+
+    if ($dbi eq 'SDBM_File') {
+       $name = $name.'.pag';
+    }
+
     ok -f $name;
-    unlink $name;
+
+    $db->_rm_index;
     undef $db;
+
     ok ! -f $name;
 }
 
@@ -285,7 +294,7 @@ my $test_file_spaced = setup_temp_file('spaced_fasta.fa');
     is $db->path(), '';
     is $db->filepath('CEESC12R'), $test_file_6;
     is $db->filepath('123'), $test_file_mixed;
-    unlink $db->index_name;
+    $db->_rm_index;
 }
 
 
@@ -317,8 +326,7 @@ my $test_file_spaced = setup_temp_file('spaced_fasta.fa');
     is $db->subseq('CEESC13F', 146, 155), 'ggctctccct', 'subseq is correct';
 
     # Remove temporary test file
-    my $outfile = $test_file_spaced.'.index';
-    unlink $outfile;
+    $db->_rm_index;
 }
 
 

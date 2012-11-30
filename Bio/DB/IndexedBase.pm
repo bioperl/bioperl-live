@@ -54,13 +54,14 @@ Bio::DB::IndexedBase.
 
 When you initialize the module, you point it at a single file, several files, or
 a directory of files. The first time it is run, the module generates an index
-of the content of the files using the AnyDBM_File module (BerkeleyDB preferred
-for speed, followed by GDBM_File, and then by SDBM_File, always present with
-Perl). Subsequently, it uses the index file to find the sequence file and offset
-for any requested sequence. If one of the source files is updated, the module
-reindexes just that one file. You can also force reindexing manually at any
-time. For improved performance, the module keeps a cache of open filehandles,
-closing less-recently used ones when the cache is full.
+of the content of the files using the AnyDBM_File module (BerkeleyDB, i.e.
+DB_File is preferred for speed, followed by GDBM_File, and then by SDBM_File,
+always present with Perl). Subsequently, it uses the index file to find the
+sequence file and offset for any requested sequence. If one of the source files
+is updated, the module reindexes just that one file. You can also force
+reindexing manually at any time. For improved performance, the module keeps a
+cache of open filehandles, closing less-recently used ones when the cache is
+full.
 
 Entries may have any line length up to 65,536 characters, and different line
 lengths are allowed in the same file.  However, within a sequence entry, all
@@ -285,16 +286,19 @@ use constant DIE_ON_MISSMATCHED_LINES => 1;
  Args    : A single file, or path to dir, or arrayref of files
            Optional arguments:
 
- Option        Description                                         Default
- -----------   -----------                                         -------
- -glob         Glob expression to search for files in directories  *
- -makeid       A code subroutine for transforming IDs              None
- -maxopen      Maximum size of filehandle cache                    32
- -debug        Turn on status messages                             0
- -reindex      Force the index to be rebuilt                       0
- -dbmargs      Additional arguments to pass to the DBM routine     None
- -index_name   Name of the file that will hold the indices
- -clean        Remove the index file when finished                 0
+ Option         Description                                         Default
+ ------------   -----------                                         -------
+ -glob          Glob expression to search for files in directories  *
+ -makeid        A code subroutine for transforming IDs              None
+ -maxopen       Maximum size of filehandle cache                    32
+ -debug         Turn on status messages                             0
+ -reindex       Force the index to be rebuilt                       0
+ -dbmargs       Additional arguments to pass to the DBM routine     None
+ -index_name*   Name of the file that will hold the indices
+ -clean         Remove the index file when finished                 0
+
+* Note that if you use SDBM_File instead of DB_File or GDBM_File, two index
+files are created, $index_name.'.dir' and $index_name.'.pag'
 
 The -dbmargs option can be used to control the format of the index. For example,
 you can pass $DB_BTREE to this argument so as to force the IDs to be sorted and
@@ -518,7 +522,8 @@ sub index_files {
 
  Title   : index_name
  Usage   : my $indexname = $db->index_name($path);
- Function: Get the full name of the index file
+ Function: Get the full name of the index file (or the prefix for the index file
+           when using SDBM_File).
  Returns : String
  Args    : None
 
@@ -683,6 +688,16 @@ sub _close_index {
     my ($self, $index) = @_;
     untie %$index;
     return 1;
+}
+
+
+sub _rm_index {
+    my ($self) = @_;
+    my $file_glob = $self->index_name;
+    if ((@AnyDBM_File::ISA)[0] eq 'SDBM_File') {
+        $file_glob .= '.{pag,dir}';
+    }
+    unlink glob $file_glob;
 }
 
 
@@ -1148,7 +1163,7 @@ sub DESTROY {
     $self->_close_index($self->{offsets});
     if ( $self->{clean} || $self->{indexing} ) {
       # Indexing aborted or cleaning requested. Delete the index file.
-      unlink $self->{index_name};
+      $self->_rm_index;
     }
     return 1;
 }
