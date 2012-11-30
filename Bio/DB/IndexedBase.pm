@@ -646,8 +646,7 @@ sub _index_files {
     $self->{termination_length} = $self->_calc_termination_length( $files->[0] );
 
     # Reindex contents if forced or if files changed
-    my $reindex      = $force_reindex || (scalar @updated > 0);
-    $self->{offsets} = $self->_open_index($index, $reindex) or return;
+    my $reindex = $force_reindex || (scalar @updated > 0);
     if ($reindex) {
 
         #### TODO ####
@@ -656,17 +655,19 @@ sub _index_files {
         # thread: use lock(), or a dedicated solution like Tie::DB_Lock,
         # Tie::DB_LockFile, DB_File::Lock
 
-        $self->{indexing} = $index;
+        # Opening index in write mode
+        $self->{offsets} = $self->_open_index($index, $reindex);
+
         for my $file (@updated) {
             my $fileno = $self->_path2fileno($file);
             &$offset_meth($self, $fileno, $file, $self->{offsets});
         }
-        delete $self->{indexing};
+
+        # Closing might help corrupted index file problem on Windows
+        $self->_close_index($self->{offsets});
     }
 
-    # Closing and reopening might help corrupted index file problem on Windows
-    $self->_close_index($self->{offsets});
-
+    # Open in read-only mode
     return $self->{offsets} = $self->_open_index($index);
 }
 
@@ -675,7 +676,13 @@ sub _open_index {
     # Open index file in read-only or write mode. Return a hash of offsets
     my ($self, $index_file, $write) = @_;
     my %offsets;
-    my $flags = $write ? O_CREAT|O_RDWR : O_RDONLY;
+    my $flags;
+    if ($write) {
+        $flags = O_CREAT|O_RDWR;
+        $self->{indexing} = $index_file;
+    } else {
+        $flags = O_RDONLY;
+    }
     my @dbmargs = $self->dbmargs;
     tie %offsets, 'AnyDBM_File', $index_file, $flags, 0644, @dbmargs
         or $self->throw( "Could not open index file $index_file: $!");
@@ -686,6 +693,9 @@ sub _open_index {
 sub _close_index {
     # Close the specified tied hash
     my ($self, $index) = @_;
+    if (exists $self->{indexing}) {
+        delete $self->{indexing};
+    }
     untie %$index;
     return 1;
 }
