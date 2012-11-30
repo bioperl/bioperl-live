@@ -54,13 +54,13 @@ Bio::DB::IndexedBase.
 
 When you initialize the module, you point it at a single file, several files, or
 a directory of files. The first time it is run, the module generates an index
-of the content of the files using the AnyDBM_File module (BerkeleyDB preferred,
-followed by GDBM_File, NDBM_File, and SDBM_File). Subsequently, it uses the
-index file to find the sequence file and offset for any requested sequence. If
-one of the source files is updated, the module reindexes just that one file. You
-can also force reindexing manually at any time. For improved performance, the
-module keeps a cache of open filehandles, closing less-recently used ones when
-the cache is full.
+of the content of the files using the AnyDBM_File module (BerkeleyDB preferred
+for speed, followed by GDBM_File, and then by SDBM_File, always present with
+Perl). Subsequently, it uses the index file to find the sequence file and offset
+for any requested sequence. If one of the source files is updated, the module
+reindexes just that one file. You can also force reindexing manually at any
+time. For improved performance, the module keeps a cache of open filehandles,
+closing less-recently used ones when the cache is full.
 
 Entries may have any line length up to 65,536 characters, and different line
 lengths are allowed in the same file.  However, within a sequence entry, all
@@ -247,8 +247,10 @@ methods. Internal methods are usually preceded with a _
 package Bio::DB::IndexedBase;
 
 BEGIN {
-    @AnyDBM_File::ISA = qw(DB_File GDBM_File NDBM_File SDBM_File) 
+    @AnyDBM_File::ISA = qw(DB_File GDBM_File SDBM_File)
         if(!$INC{'AnyDBM_File.pm'});
+    # Prefer DB_File for speed, then GDBM_File, then SDBM_File because it is
+    # always present with Perl
 }
 
 use strict;
