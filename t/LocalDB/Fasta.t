@@ -31,6 +31,9 @@ for my $dbi ('DB_File', 'GDBM_File', 'SDBM_File') {
 SKIP: {
     test_skip(-tests => 145, -requires_modules => [$dbi]);
 
+    @AnyDBM_File::ISA = ($dbi);
+    diag "Testing $dbi interface\n";
+
     {
         # Test basic functionalities
         ok my $db = Bio::DB::Fasta->new($test_dir, -reindex => 1), 'Index a directory';
@@ -175,10 +178,10 @@ SKIP: {
 
     {
         # Concurrent databases (bug #3390)
-        ok my $db1 = Bio::DB::Fasta->new( $test_file_1 );
-        ok my $db3 = Bio::DB::Fasta->new( $test_file_3 );
-        ok my $db4 = Bio::DB::Fasta->new( $test_dir );
-        ok my $db2 = Bio::DB::Fasta->new( $test_file_2 );
+        ok my $db1 = Bio::DB::Fasta->new( $test_file_1, -clean => 1);
+        ok my $db3 = Bio::DB::Fasta->new( $test_file_3, -clean => 1);
+        ok my $db4 = Bio::DB::Fasta->new( $test_dir   , -clean => 1);
+        ok my $db2 = Bio::DB::Fasta->new( $test_file_2, -clean => 1);
         is $db4->file('AW057231'), '1.fa';
         is $db2->file('AW057302'), '2.fa';
         is $db4->file('AW057119'), '1.fa';

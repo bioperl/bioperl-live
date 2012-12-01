@@ -675,17 +675,17 @@ sub _index_files {
 sub _open_index {
     # Open index file in read-only or write mode. Return a hash of offsets
     my ($self, $index_file, $write) = @_;
-    my %offsets;
-    my $flags;
+    my ($flags, $msg);
     if ($write) {
+        $msg = 'write';
         $flags = O_CREAT|O_RDWR;
         $self->{indexing} = $index_file;
     } else {
+        $msg = 'read';
         $flags = O_RDONLY;
     }
-    my @dbmargs = $self->dbmargs;
-    tie %offsets, 'AnyDBM_File', $index_file, $flags, 0644, @dbmargs
-        or $self->throw( "Could not open index file $index_file: $!");
+    tie my %offsets, 'AnyDBM_File', $index_file, $flags, 0644, $self->dbmargs
+        or $self->throw( "Could not $msg index file $index_file: $!");
     return \%offsets;
 }
 
