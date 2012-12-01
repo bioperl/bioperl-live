@@ -356,39 +356,66 @@ SKIP: {
 
 
     SKIP: {
-        skip("since DB_File segfaults in threaded context", 10);
         skip("since this perl does not support threads", 10) if not $Config{useithreads};
 
         require_ok 'threads';
         my ($thr1, $thr2, $val1, $val2);
 
-        # Basic thread
-        ok $thr1 = threads->create(\&worker1, $test_dir);
-        ok $val1 = $thr1->join;
-        ok $val1->id, 'CEESA96F';
+        sub worker_str {
+            # Retrieve the 10 first residues for the given sequence ID
+            my ($file, $id) = @_;
+            my $db  = Bio::DB::Fasta->new($file);
+            my $seq = $db->get_Seq_by_id($id);
+            my $str = $seq->subseq(1,10);
+            return $str;
+        }
 
-        # Concurent threads. One is expected to create the index, while the
-        # other waits for the indexing to be finished.
-        ok $thr1 = threads->create(\&worker1, $test_dir);
-        ok $thr2 = threads->create(\&worker2, $test_dir);
-        ok $val1 = $thr1->join;
-        ok $val2 = $thr2->join;
-        ok $val1->id, 'CEESA96F';
-        ok $val2->id, 'CEESC20F';
-
-        sub worker1 {
-            my ($dir) = @_;
-            my $db  = Bio::DB::Fasta->new($test_dir, -reindex => 1);
-            my $seq = $db->get_Seq_by_id('CEESA96F'); # in 4.fa
+        sub worker_seq {
+            # Retrieve a PrimarySeq object for the given sequence ID
+            my ($file, $id) = @_;
+            my $db  = Bio::DB::Fasta->new($file);
+            my $seq = $db->get_Seq_by_id($id);
             return $seq;
         }
 
-        sub worker2 {
-            my ($dir) = @_;
-            my $db = Bio::DB::Fasta->new($test_dir, -reindex => 1);
-            my $seq = $db->get_Seq_by_id('CEESC20F'); # in 6.fa
-            return $seq;
+
+        {
+            # Basic thread
+            ok $thr1 = threads->create(\&worker_str, $test_dir, 'CEESA96F');
+            ok $val1 = $thr1->join;
+            is $val1, 'atattggcat';
         }
+
+
+        {
+            # Concurent threads. One is expected to create the index, while the
+            # other waits for the indexing to be finished. Then both query the
+            # db and retrieve the specified subsequence.
+
+            my $large_fasta = setup_large_temp_file();
+
+            $thr1 = threads->create(\&worker_str, $large_fasta, 'large_seq');
+            $thr2 = threads->create(\&worker_str, $large_fasta, 'large_seq');
+            $val2 = $thr2->join;
+            if (my $err = $thr2->error()) {
+                warn("Thread 2 error: $err\n");
+            }
+            $val1 = $thr1->join;
+            if (my $err = $thr1->error()) {
+                warn("Thread 1 error: $err\n");
+            }
+            is $val1, 'acgtacgtac';
+            is $val2, 'acgtacgtac';
+        }
+
+        {
+            skip("since returning a PrimarySeq from a thread segfaults", 3);
+
+            ok $thr1 = threads->create(\&worker_seq, $test_dir, 'CEESA96F');
+            ok $val1 = $thr1->join;
+            isa_ok $val1, 'Bio::PrimarySeqI';
+        }
+
     }
 
 
@@ -438,6 +465,7 @@ sub setup_temp_dir {
     return $test_dir
 }
 
+
 sub setup_temp_file {
     my (@path) = @_;
     my $filebase = $path[-1];
@@ -448,3 +476,14 @@ sub setup_temp_file {
     copy $ori, $tempfile or die "Copy error: $!\n";
     return $tempfile;
 }
+
+
+sub setup_large_temp_file {
+    my $large_fasta = test_output_file();
+    my $out = Bio::SeqIO->new( -file => '>'.$large_fasta, -format => 'fasta');
+    $out->write_seq(
+        Bio::PrimarySeq->new(-id => 'large_seq', -seq => 'acgtacgtac' x 1_000_000)
+    );  # 10 Mbp seq
+    return $large_fasta;
+}
+

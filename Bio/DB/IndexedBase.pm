@@ -202,6 +202,22 @@ get_Seq_by_id(), get_Seq_by_acc() and get_Seq_by_version() are identical.
 Bio::DB::IndexedBase includes hooks that make it Storable-friendly. Simply use
 the freeze() and thaw() functions of Storable to serialize and deserialize it.
 
+=head1 CONCURRENCY AND THREADS
+
+You can run concurrent Bio::DB::IndexedBase instances, either in the same thread
+or in multi-threaded fashion. They can even work on the same files because
+locking mechanisms ensure that the different instances will play nicely with
+each other. When running multiple instances on the same file, one performs the
+indexing while the others wait. Once the indexing is over, all instances can
+read the database in the same time. Note, though that you should keep away from
+the -clean and -reindex options if you are going to have concurrent instances
+working on the same files because you do not want an instance altering or
+deleting the database while others are reading it.
+
+Limitations: At the moment, synchronization is done using File::SharedNFSLock,
+which will not work on Windows. Also, for it to work using threads, a patch is
+needed (https://rt.cpan.org/Ticket/Display.html?id=81597).
+
 =head1 BUGS
 
 When a sequence is deleted from one of the files, this deletion is not detected
@@ -260,6 +276,8 @@ use AnyDBM_File;
 use Fcntl;
 use File::Spec;
 use File::Basename qw(basename dirname);
+use File::SharedNFSLock; ### TODO: add to Build.PL, but check out the locking
+                         ### mechanism of ./Bio/DB/SeqFeature/Store/berkeleydb first
 use Bio::PrimarySeq;
 
 use base qw(Bio::DB::SeqI);
@@ -649,13 +667,7 @@ sub _index_files {
     my $reindex = $force_reindex || (scalar @updated > 0);
     if ($reindex) {
 
-        #### TODO ####
-        # Indexing should probably be skipped if another thread is doing it.
-        # Also, a thread should wait until indexing is finished by another
-        # thread: use lock(), or a dedicated solution like Tie::DB_Lock,
-        # Tie::DB_LockFile, DB_File::Lock
-
-        # Opening index in write mode
+        # Opening index in locked, read/write mode
         $self->{offsets} = $self->_open_index($index, $reindex);
 
         for my $file (@updated) {
@@ -675,14 +687,32 @@ sub _index_files {
 sub _open_index {
     # Open index file in read-only or write mode. Return a hash of offsets
     my ($self, $index_file, $write) = @_;
+
+    ### TODO: need to check that -clean and -reindex are not used if running
+    ### concurrent DB instances on the same files
+
+    # Create an exclusive lock... wait if needed.
+    # The plan assumes that a single instance writes the index (and locks the db)
+    # and that all instances after that wait and only read (simultaneously).
+    my $polling = 1;
+    my $timeout = 3600; # 3600s = 1h
+    my $lock = File::SharedNFSLock->new(
+        file            => $index_file,
+        poll_interval   => $polling,    #  1s by default
+        timeout_acquire => $timeout,    # 60s by default
+    );
+    $lock->lock() or $self->throw(
+        "Could not lock file $index_file: timed out after $timeout s" );
     my ($flags, $msg);
     if ($write) {
         $msg = 'write';
         $flags = O_CREAT|O_RDWR;
-        $self->{indexing} = $index_file;
+        # Lock file for exclusive use
+        $self->{lock} = $lock;
     } else {
         $msg = 'read';
         $flags = O_RDONLY;
+        $lock->unlock();
     }
     tie my %offsets, 'AnyDBM_File', $index_file, $flags, 0644, $self->dbmargs
         or $self->throw( "Could not $msg index file $index_file: $!");
@@ -691,13 +721,16 @@ sub _open_index {
 
 
 sub _close_index {
-    # Close the specified tied hash
+    # Close the specified tied hash, return 1 if file was locked (being indexed)
     my ($self, $index) = @_;
-    if (exists $self->{indexing}) {
-        delete $self->{indexing};
+    my $ret = 0;
+    if (exists $self->{lock}) {
+        $ret = 1;
+        $self->{lock}->unlock();
+        delete $self->{lock};
     }
     untie %$index;
-    return 1;
+    return $ret;
 }
 
 
@@ -1170,8 +1203,8 @@ sub NEXTKEY {
 
 sub DESTROY {
     my $self = shift;
-    $self->_close_index($self->{offsets});
-    if ( $self->{clean} || $self->{indexing} ) {
+    my $locked = $self->_close_index($self->{offsets});
+    if ( $self->{clean} || $locked ) {
       # Indexing aborted or cleaning requested. Delete the index file.
       $self->_rm_index;
     }
