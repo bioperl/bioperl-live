@@ -621,7 +621,7 @@ sub _index_files {
     my $index = $self->index_name;
 
     # If caller has requested reindexing, unlink the index file.
-    unlink $index if $force_reindex;
+    $self->_rm_index if $force_reindex;
 
     # Get the modification time of the index
     my $indextime = (stat $index)[9] || 0;
