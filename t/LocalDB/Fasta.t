@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 435,
+    test_begin( -tests => 432,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)] );
 }
 use strict;
@@ -27,7 +27,7 @@ my $test_file_mixed  = setup_temp_file('dbfa', 'mixed_alphabet.fasta');
 my $test_file_spaced = setup_temp_file('spaced_fasta.fa');
 
 
-for my $dbi ('DB_File', 'GDBM_File', 'SDBM_File') {
+for my $dbi ('SDBM_File', 'DB_File', 'GDBM_File') {
 SKIP: {
     test_skip(-tests => 145, -requires_modules => [$dbi]);
 
