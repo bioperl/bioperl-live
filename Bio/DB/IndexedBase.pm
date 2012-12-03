@@ -277,8 +277,7 @@ use AnyDBM_File;
 use Fcntl;
 use File::Spec;
 use File::Basename qw(basename dirname);
-use File::SharedNFSLock; ### TODO: add to Build.PL, but check out the locking
-                         ### mechanism of ./Bio/DB/SeqFeature/Store/berkeleydb first
+use File::SharedNFSLock;
 use Bio::PrimarySeq;
 
 use base qw(Bio::DB::SeqI);
