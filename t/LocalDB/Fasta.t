@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 459,
+    test_begin( -tests => 489,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)] );
 }
 use strict;
@@ -29,7 +29,7 @@ my $test_file_spaced = setup_temp_file('spaced_fasta.fa');
 
 for my $dbi ('SDBM_File', 'DB_File', 'GDBM_File') {
 SKIP: {
-    test_skip(-tests => 153, -requires_modules => [$dbi]);
+    test_skip(-tests => 163, -requires_modules => [$dbi]);
 
     @AnyDBM_File::ISA = ($dbi);
     diag "Testing $dbi interface\n";
@@ -358,6 +358,25 @@ SKIP: {
             # Same thing for sequences
             ok my $db = Bio::DB::Fasta->new( $test_file_mixed, -reindex => 1, -clean => 1);
             ok my $seq1 = $db->get_Seq_by_id('gi|352962148|ref|NM_001251825.1|');
+            ok my $serialized = Storable::freeze( $seq1 );
+            ok my $seq2 = Storable::thaw( $serialized );
+            ok my $seq3 = Storable::dclone( $seq1 );
+            isnt $seq1, $seq2;
+            isnt $seq1, $seq3;
+            is $seq1->subseq(20, 29,  1), 'GUCAGCGUCC';
+            is $seq2->subseq(20, 29,  1), 'GUCAGCGUCC';
+            is $seq3->subseq(20, 29,  1), 'GUCAGCGUCC';
+        }
+
+        {
+            # Again for sequences, but when database is out of scope
+
+            sub get_db_seq {
+                my $db = Bio::DB::Fasta->new( $test_file_mixed, -reindex => 1, -clean => 1);
+                return $db->get_Seq_by_id('gi|352962148|ref|NM_001251825.1|');
+            }
+
+            ok my $seq1 = get_db_seq();
             ok my $serialized = Storable::freeze( $seq1 );
             ok my $seq2 = Storable::thaw( $serialized );
             ok my $seq3 = Storable::dclone( $seq1 );
