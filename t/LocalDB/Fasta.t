@@ -102,7 +102,11 @@ SKIP: {
         use_ok('Class::Unload');
         Class::Unload->unload( 'Bio::DB::Fasta' );
         Class::Unload->unload( 'Bio::DB::IndexedBase' );
-        require Bio::DB::Fasta;
+        {
+            # Prevent 'redefined' warnings
+            local $SIG{__WARN__} = sub {};
+            require Bio::DB::Fasta;
+        }
         ok my $db = Bio::DB::Fasta->new($test_dir), 'Re-open an existing index';
         is $db->seq('AW057119', 1, 10), 'tcatgttggc';
     }
