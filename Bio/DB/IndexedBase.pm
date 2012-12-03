@@ -688,10 +688,6 @@ sub _index_files {
 sub _open_index {
     # Open index file in read-only or write mode. Return a hash of offsets
     my ($self, $index_file, $write) = @_;
-
-    ### TODO: need to check that -clean and -reindex are not used if running
-    ### concurrent DB instances on the same files
-
     # Create an exclusive lock... wait if needed.
     # The plan assumes that a single instance writes the index (and locks the db)
     # and that all instances after that wait and only read (simultaneously).
@@ -702,6 +698,12 @@ sub _open_index {
         poll_interval   => $polling,    #  1s by default
         timeout_acquire => $timeout,    # 60s by default
     );
+
+    if ( (-f $lock->_lock_file) && $self->{clean} ) {
+        $self->warn("Not safe to use -clean with multiple databases operating ".
+            "on the same files.");
+    }
+
     $lock->lock() or $self->throw(
         "Could not lock file $index_file: timed out after $timeout s" );
     my ($flags, $msg);

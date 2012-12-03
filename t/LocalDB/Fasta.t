@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 489,
+    test_begin( -tests => 486,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)] );
 }
 use strict;
@@ -29,7 +29,7 @@ my $test_file_spaced = setup_temp_file('spaced_fasta.fa');
 
 for my $dbi ('SDBM_File', 'DB_File', 'GDBM_File') {
 SKIP: {
-    test_skip(-tests => 163, -requires_modules => [$dbi]);
+    test_skip(-tests => 162, -requires_module => $dbi);
 
     @AnyDBM_File::ISA = ($dbi);
     diag "Testing $dbi interface\n";
