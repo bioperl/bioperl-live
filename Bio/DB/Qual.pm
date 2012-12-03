@@ -399,7 +399,6 @@ sub FETCH {
 # Usage is the same as in Bio::Seq::PrimaryQual
 
 package Bio::Seq::PrimaryQual::Qual;
-use overload '""' => 'display_id';
 
 use base qw(Bio::Root::Root Bio::Seq::PrimaryQual);
 

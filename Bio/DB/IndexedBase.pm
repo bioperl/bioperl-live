@@ -214,9 +214,10 @@ the -clean and -reindex options if you are going to have concurrent instances
 working on the same files because you do not want an instance altering or
 deleting the database while others are reading it.
 
-Limitations: At the moment, synchronization is done using File::SharedNFSLock,
-which will not work on Windows. Also, for it to work using threads, a patch is
-needed (https://rt.cpan.org/Ticket/Display.html?id=81597).
+Limitations: At the moment, synchronization is done using File::SharedNFSLock.
+does not work on older Windows systems running a filesystem older than NTFS.
+Also, for File::SharedNTFSLock to work using threads, a patch is needed
+(https://rt.cpan.org/Ticket/Display.html?id=81597).
 
 =head1 BUGS
 
