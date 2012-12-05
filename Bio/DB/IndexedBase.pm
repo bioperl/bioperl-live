@@ -697,7 +697,7 @@ sub _open_index {
         poll_interval   => $polling,    #  1s by default
         timeout_acquire => $timeout,    # 60s by default
     );
-    if ( (-f $lock->_lock_file) && $self->{clean} ) {
+    if ( $lock->is_locked && $self->{clean} ) {
         $self->warn("Not safe to use -clean with multiple databases operating ".
             "on the same files.");
     }
