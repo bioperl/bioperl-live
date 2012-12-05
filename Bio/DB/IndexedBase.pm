@@ -697,24 +697,22 @@ sub _open_index {
         poll_interval   => $polling,    #  1s by default
         timeout_acquire => $timeout,    # 60s by default
     );
-
     if ( (-f $lock->_lock_file) && $self->{clean} ) {
         $self->warn("Not safe to use -clean with multiple databases operating ".
             "on the same files.");
     }
-
-    $lock->lock() or $self->throw(
-        "Could not lock file $index_file: timed out after $timeout s" );
     my ($flags, $msg);
     if ($write) {
         $msg = 'write';
         $flags = O_CREAT|O_RDWR;
         # Lock file for exclusive use
+        $lock->lock() or $self->throw(
+            "Could not lock file $index_file: timed out after $timeout s" );
         $self->{lock} = $lock;
     } else {
         $msg = 'read';
         $flags = O_RDONLY;
-        $lock->unlock();
+        $lock->wait();
     }
     tie my %offsets, 'AnyDBM_File', $index_file, $flags, 0644, $self->dbmargs
         or $self->throw( "Could not $msg index file $index_file: $!");
