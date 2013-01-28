@@ -49,6 +49,7 @@ base pairs upstream and downstream of the gene, control the naming of files and 
 See the section bugs for problems when using default values of options.
 
 =over
+
 =cut
 
 =item B<--assembly>
@@ -56,6 +57,7 @@ See the section bugs for problems when using default values of options.
 When retrieving the sequence, a specific assemly can be defined. The value expected
 is a regex that will be case-insensitive. If it matches more than one assembly, it will
 use the first match. It defauls to C<(primary|reference) assembly>.
+
 =cut
 my $assembly_regex = '(primary|reference) assembly';
 
@@ -64,6 +66,7 @@ my $assembly_regex = '(primary|reference) assembly';
 If set, even more output will be printed that may help on debugging. Unlike the messages
 from B<--verbose> and B<--very-verbose>, these will not appear on the log file
 unless this option is selected. This option also sets B<--very-verbose>.
+
 =cut
 my $debug         = 0;
 
@@ -71,6 +74,7 @@ my $debug         = 0;
 
 Specifies the number of extra base pairs to be retrieved downstream of the gene.
 This extra base pairs will only affect the gene sequence, not the transcript or proteins.
+
 =cut
 my $downstream    = 0;
 
@@ -78,6 +82,7 @@ my $downstream    = 0;
 
 Specifies the format that the sequences will be saved. Defaults to I<genbank> format.
 Valid formats are 'genbank' or 'fasta'.
+
 =cut
 my $format        = 'genbank';
 
@@ -86,6 +91,7 @@ my $format        = 'genbank';
 Specifies the name for gene file. By default, they are not saved. If no value is given
 defaults to its UID. Possible values are 'uid', 'name', 'symbol' (the official symbol or
 nomenclature).
+
 =cut
 my $genes         = '';
 sub genes_option_parsing {
@@ -105,6 +111,7 @@ When making a query, limit the result to these first specific results. This is t
 prevent the use of specially unspecific queries and a warning will be given if a
 query returns more results than the limit. The default value is 200. Note that
 this limit is for I<each> search.
+
 =cut
 my $limit         = 200;
 
@@ -112,6 +119,7 @@ my $limit         = 200;
 
 Some protein coding genes have transcripts that are non-coding. By default, these sequences are
 saved as well. B<--nonon-coding> can be used to ignore those transcripts.
+
 =cut
 my $get_noncoding = 1;
 
@@ -123,6 +131,7 @@ gene ID) and 'transcript' (the corresponding transcript accesion).
 
 Note that if not using 'accession' is possible for files to be overwritten. It is possible for the same gene
 to encode more than one protein or different proteins to have the same description.
+
 =cut
 my $proteins      = '';
 sub proteins_option_parsing {
@@ -140,6 +149,7 @@ sub proteins_option_parsing {
 =item B<--pseudo>, B<--nopseudo>
 
 By default, sequences of pseudo genes will be saved. B<--nopseudo> can be used to ignore those genes.
+
 =cut
 my $get_pseudo    = 1;
 
@@ -149,6 +159,7 @@ Specifies the path for the directory where the sequence and log files will be sa
 directory does not exist it will be created altough the path to it must exist. Files on the
 directory may be rewritten if necessary. If unspecified, a directory named F<extracted sequences>
 on the current directory will be used.
+
 =cut
 my $save          = File::Spec->catfile (getcwd, 'extracted sequences');
 
@@ -160,6 +171,7 @@ a file. As an optional value, the file format can be specified. Defaults to CSV.
 Currently only CSV is supported.
 
 Saving the data structure as a CSV file, requires the installation of the Text::CSV module.
+
 =cut
 my $save_data     = '';
 sub save_data_option_parsing {
@@ -179,6 +191,7 @@ gene ID) and 'protein' (the protein the transcript encodes).
 Note that if not using 'accession' is possible for files to be overwritten. It is possible for the same gene
 to have more than one transcript or different transcripts to have the same description. Also, non-coding
 transcripts will create problems if using 'protein'.
+
 =cut
 my $transcripts   = '';
 sub transcripts_option_parsing {
@@ -197,12 +210,14 @@ sub transcripts_option_parsing {
 
 Specifies the number of extra base pairs to be extracted upstream of the gene.
 This extra base pairs will only affect the gene sequence, not the transcript or proteins.
+
 =cut
 my $upstream      = 0;
 
 =item B<--verbose>, B<--v>
 
 If set, program becomes verbose. For an extremely verbose program, use B<--very-verbose> instead.
+
 =cut
 my $verbose       = '';
 
@@ -210,6 +225,7 @@ my $verbose       = '';
 
 If set, program becomes extremely verbose. Setting this option, automatically sets B<--verbose> as well.
 For help in debugging, consider using B<--debug>
+
 =cut
 my $very_verbose  = '';
 
@@ -761,6 +777,7 @@ sub get_products {
 When creating the directories to save the files, if the directory already exists it will be used and no error
 or warning will be issued unless B<--debug> as been set. If a non-directory file already exists with that name
 bp_genbank_ref_extractor exits with an error.
+
 =cut
 
 ## checks if directories exist and creates them as needed
@@ -781,6 +798,7 @@ On the subject of verbosity, all messages are saved on the log file. The options
 B<--verbose> and B<--very-verbose> only affect their printing to standard
 output. Debug messages are different as they will only show up (and be logged)
 if requested with B<--debug>.
+
 =cut
 
 sub log_it {
