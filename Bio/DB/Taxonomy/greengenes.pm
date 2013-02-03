@@ -13,7 +13,7 @@
 
 =head1 NAME
 
-Bio::DB::Taxonomy::greengenes - Use the Greengenes taxonomy
+Bio::DB::Taxonomy::greengenes - Query the Greengenes taxonomy
 
 =head1 SYNOPSIS
 
@@ -24,6 +24,8 @@ Bio::DB::Taxonomy::greengenes - Use the Greengenes taxonomy
      -taxofile => 'taxonomy_16S_candiv_gg_2011_1.txt'
   );
 
+  # use $db as any other Bio::DB::Taxonomy object
+
 =head1 DESCRIPTION
 
 I<This module is in beta. Its interface or its results may change in a future update.>
@@ -32,7 +34,7 @@ Bio::DB::Taxonomy::greengenes is an implementation of Bio::DB::Taxonomy which
 stores and accesses the Greengenes taxonomy of Bacteria and Archaea. Internally,
 it keeps the taxonomy into memory by using Bio::DB::Taxonomy::list. As a
 consequence, note that the IDs assigned to the taxonomy nodes, e.g. gg123, are
-arbitrary, contrary to the pre-defined IDs that NCBI assigns to taxons.
+arbitrary, contrary to the pre-defined IDs that NCBI assigns to taxa.
 
 The latest release of the Greengene taxonomy (2011) contains about 4,600 taxa
 and occupies about 4MB of memory once parsed into a Bio::DB::Taxonomy::greengenes
