@@ -75,24 +75,27 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::fasta;
-use vars qw($WIDTH @SEQ_ID_TYPES $DEFAULT_SEQ_ID_TYPE);
 use strict;
+use warnings;
 
-use Bio::Seq::SeqFactory;
 use Bio::Seq::SeqFastaSpeedFactory;
 
-use base qw(Bio::SeqIO);
+use parent qw(Bio::SeqIO);
 
-@SEQ_ID_TYPES = qw(accession accession.version display primary);
-$DEFAULT_SEQ_ID_TYPE = 'display';
-
-BEGIN { $WIDTH = 60}
+our $WIDTH = 60;
+our @SEQ_ID_TYPES = qw(accession accession.version display primary);
+our $DEFAULT_SEQ_ID_TYPE = 'display';
 
 sub _initialize {
     my ($self, @args) = @_;
     $self->SUPER::_initialize(@args);
-    my ($width) = $self->_rearrange([qw(WIDTH)], @args);
-    $width && $self->width($width);
+
+    ## initialize fasta specific parameters
+    my @names = qw(width block);
+    my %opts;
+    @opts{@names} = $self->_rearrange(\@names, @args);
+    $self->$_($opts{$_}) for keys %opts;
+
     unless ( defined $self->sequence_factory ) {
         $self->sequence_factory(Bio::Seq::SeqFastaSpeedFactory->new());
     }
@@ -189,6 +192,20 @@ sub next_seq {
 sub write_seq {
     my ($self,@seq) = @_;
     my $width = $self->width;
+    my $block = $self->block;
+
+    ## take a reference for single string (the sequence) and add the whitespace
+    local *format_str = sub {
+        my $str = $_[0];
+        my @lines = unpack ("(A$width)*", $$str);
+        if ($block >= $width) {
+            $$str = join ("\n", @lines);
+        } else {
+            $$str = "";
+            $$str .= join (" ", unpack ("(A$block)*", $_)) . "\n" foreach (@lines)
+        }
+    };
+
     foreach my $seq (@seq) {
         $self->throw("Did not provide a valid Bio::PrimarySeqI object") 
           unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
@@ -231,7 +248,7 @@ sub write_seq {
                 $buff_end = $seq_length if $buff_end > $seq_length;
                 my $buff = $seq->subseq($buff_size*$c+1,$buff_end);
                 if($buff) {
-                    $buff =~ s/(.{1,$width})/$1\n/g;
+                    format_str (\$buff);
                     $self->_print($buff);
                 } else {
                     $self->_print("\n");
@@ -240,7 +257,7 @@ sub write_seq {
         } else {
             my $str = $seq->seq;
             if(defined $str && length($str) > 0) {
-                $str =~ s/(.{1,$width})/$1\n/g;
+                format_str (\$str);
             } else {
                 $str = "\n";
             }
@@ -252,12 +269,11 @@ sub write_seq {
     return 1;
 }
 
-
 =head2 width
 
  Title   : width
  Usage   : $obj->width($newval)
- Function: Get/Set the line width for FASTA output
+ Function: Get/Set the line width for FASTA output (not counting whitespace).
  Returns : value of width
  Args    : newvalue (optional)
 
@@ -269,6 +285,27 @@ sub width {
         $self->{'width'} = $value;
     }
     return $self->{'width'} || $WIDTH;
+}
+
+=head2 block
+
+ Title   : block
+ Usage   : $obj->block($newval)
+ Function: Get/Set the length of each block for FASTA output. Sequence blocks
+           will be split with a space. Configuring block, to a value of 10 for
+           example, allows to easily indentify a position in a sequence by eye.
+ Default : same value used for width.
+ Returns : value of block
+ Args    : newvalue (optional)
+
+=cut
+
+sub block {
+    my ($self,$value) = @_;
+    if( defined $value) {
+        $self->{'block'} = $value;
+    }
+    return $self->{'block'} || $self->{'width'};
 }
 
 =head2 preferred_id_type
