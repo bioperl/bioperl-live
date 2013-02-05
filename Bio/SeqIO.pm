@@ -323,13 +323,14 @@ methods. Internal methods are usually preceded with a _
 package Bio::SeqIO;
 
 use strict;
+use warnings;
 
 use Bio::Factory::FTLocationFactory;
 use Bio::Seq::SeqBuilder;
 use Bio::Tools::GuessSeqFormat;
 use Symbol;
 
-use base qw(Bio::Root::Root Bio::Root::IO Bio::Factory::SequenceStreamI);
+use parent qw(Bio::Root::Root Bio::Root::IO Bio::Factory::SequenceStreamI);
 
 my %valid_alphabet_cache;
 
