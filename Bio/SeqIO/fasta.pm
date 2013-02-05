@@ -75,18 +75,16 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::fasta;
-use vars qw($WIDTH @SEQ_ID_TYPES $DEFAULT_SEQ_ID_TYPE);
 use strict;
+use warnings;
 
-use Bio::Seq::SeqFactory;
 use Bio::Seq::SeqFastaSpeedFactory;
 
-use base qw(Bio::SeqIO);
+use parent qw(Bio::SeqIO);
 
-@SEQ_ID_TYPES = qw(accession accession.version display primary);
-$DEFAULT_SEQ_ID_TYPE = 'display';
-
-BEGIN { $WIDTH = 60}
+our $WIDTH = 60;
+our @SEQ_ID_TYPES = qw(accession accession.version display primary);
+our $DEFAULT_SEQ_ID_TYPE = 'display';
 
 sub _initialize {
     my ($self, @args) = @_;
