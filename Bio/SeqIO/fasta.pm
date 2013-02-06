@@ -1,6 +1,6 @@
 # BioPerl module for Bio::SeqIO::fasta
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
 #          and Lincoln Stein <lstein@cshl.org>
@@ -37,15 +37,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -123,14 +123,14 @@ sub next_seq {
         return unless $entry = $self->_readline;
         chomp($entry);
     }
-    
+
     # this just checks the initial input; beyond that, due to setting $/ above,
     # the > is part of the record separator and is removed
     $self->throw("The sequence does not appear to be FASTA format ".
         "(lacks a descriptor line '>')") if $. == 1 && $entry !~ /^>/;
-    
+
     $entry =~ s/^>//;
-    
+
     my ($top,$sequence) = split(/\n/,$entry,2);
     defined $sequence && $sequence =~ s/>//g;
     #my ($top,$sequence) = $entry =~ /^>?(.+?)\n+([^>]*)/s
@@ -140,8 +140,8 @@ sub next_seq {
     if( $top =~ /^\s*(\S+)\s*(.*)/ ) {
         ($id,$fulldesc) = ($1,$2);
     }
-    
-    if (defined $id && $id eq '') {$id=$fulldesc;} # FIX incase no space 
+
+    if (defined $id && $id eq '') {$id=$fulldesc;} # FIX incase no space
                                                    # between > and name \AE
     defined $sequence && $sequence =~ tr/ \t\n\r//d; # Remove whitespace
 
@@ -199,7 +199,7 @@ sub write_seq {
         my $str = $_[0];
         my @lines = unpack ("(A$width)*", $$str);
         if ($block >= $width) {
-            $$str = join ("\n", @lines);
+            $$str = join ("\n", @lines)."\n";
         } else {
             $$str = "";
             $$str .= join (" ", unpack ("(A$block)*", $_)) . "\n" foreach (@lines)
@@ -207,18 +207,18 @@ sub write_seq {
     };
 
     foreach my $seq (@seq) {
-        $self->throw("Did not provide a valid Bio::PrimarySeqI object") 
+        $self->throw("Did not provide a valid Bio::PrimarySeqI object")
           unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
 
         # Allow for different ids
-        my $top; 
+        my $top;
         my $id_type = $self->preferred_id_type;
         if( $id_type =~ /^acc/i ) {
             $top = $seq->accession_number();
             if( $id_type =~ /vers/i ) {
                 $top .= "." . $seq->version();
             }
-        } elsif($id_type =~ /^displ/i ) { 
+        } elsif($id_type =~ /^displ/i ) {
             $self->warn("No whitespace allowed in FASTA ID [". $seq->display_id. "]")
               if defined $seq->display_id && $seq->display_id =~ /\s/;
             $top = $seq->display_id();
@@ -233,7 +233,7 @@ sub write_seq {
             $desc =~ s/\n//g;
             $top .= " $desc";
         }
-        
+
         if( $seq->isa('Bio::Seq::LargeSeqI') ) {
             $self->_print(">$top\n");
             # for large seqs, don't call seq(), it defeats the
@@ -305,7 +305,7 @@ sub block {
     if( defined $value) {
         $self->{'block'} = $value;
     }
-    return $self->{'block'} || $self->{'width'};
+    return $self->{'block'} || $self->width;
 }
 
 =head2 preferred_id_type
@@ -316,7 +316,7 @@ sub block {
            for FASTA output.
  Returns : string, one of values defined in @Bio::SeqIO::fasta::SEQ_ID_TYPES.
            Default = $Bio::SeqIO::fasta::DEFAULT_SEQ_ID_TYPE ('display').
- Args    : string when setting. This must be one of values defined in 
+ Args    : string when setting. This must be one of values defined in
            @Bio::SeqIO::fasta::SEQ_ID_TYPES. Allowable values:
            accession, accession.version, display, primary
  Throws  : fatal exception if the supplied id type is not in @SEQ_ID_TYPES.
