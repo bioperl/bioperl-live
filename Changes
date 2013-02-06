@@ -57,6 +57,11 @@ CPAN releases are branched from 'master'.
         - speed improvements for large sequences [Ben Woodcroft, fangly]
     * Bio::PrimaryQual
         - tightened and optimized quality string validation [fangly]
+    * Bio::SeqIO::fasta
+        - new method and option 'block', to create FASTA output with space
+          intervaled blocks (similar to genbank or EMBL) has been implemented.
+        - package variables $WIDTH and $DEFAULT_SEQ_ID_TYPE have been removed
+          in favour of the methods 'width' and 'preferred_id_type` respectively.
 
     [Bug fixes]
 
