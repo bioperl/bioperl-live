@@ -82,19 +82,24 @@ use Bio::Seq::SeqFastaSpeedFactory;
 
 use parent qw(Bio::SeqIO);
 
-our $WIDTH = 60;
-our @SEQ_ID_TYPES = qw(accession accession.version display primary);
-our $DEFAULT_SEQ_ID_TYPE = 'display';
-
 sub _initialize {
     my ($self, @args) = @_;
     $self->SUPER::_initialize(@args);
 
-    ## initialize fasta specific parameters
-    my @names = qw(width block);
-    my %opts;
-    @opts{@names} = $self->_rearrange(\@names, @args);
-    $self->$_($opts{$_}) for keys %opts;
+    ## Initialize fasta specific parameters
+    ## There are some problems with _rearrange. If there's no value for one of
+    ## the parameters, it will return an empty value (not undef). This means we
+    ## can't just merge two hashes since the empty values would override the
+    ## defaults anyway.
+    my (%defs) = (
+                  "width"             => 60,
+                  "block"             => "", # default is same as width
+                  "preferred_id_type" => "display",
+                  );
+    foreach my $param (keys %defs) {
+        $self->$param( $self->_rearrange([$param], @args) ||
+                       $defs{$param});
+    }
 
     unless ( defined $self->sequence_factory ) {
         $self->sequence_factory(Bio::Seq::SeqFastaSpeedFactory->new());
@@ -202,7 +207,7 @@ sub write_seq {
             $$str = join ("\n", @lines)."\n";
         } else {
             $$str = "";
-            $$str .= join (" ", unpack ("(A$block)*", $_)) . "\n" foreach (@lines)
+            $$str .= join (" ", unpack ("(A$block)*", $_)) . "\n" foreach (@lines);
         }
     };
 
@@ -281,10 +286,10 @@ sub write_seq {
 
 sub width {
     my ($self,$value) = @_;
-    if( defined $value) {
+    if (defined $value) {
         $self->{'width'} = $value;
     }
-    return $self->{'width'} || $WIDTH;
+    return $self->{'width'};
 }
 
 =head2 block
@@ -302,7 +307,7 @@ sub width {
 
 sub block {
     my ($self,$value) = @_;
-    if( defined $value) {
+    if (defined $value) {
         $self->{'block'} = $value;
     }
     return $self->{'block'} || $self->width;
@@ -315,7 +320,7 @@ sub block {
  Function: Get/Set the preferred type of identifier to use in the ">ID" position
            for FASTA output.
  Returns : string, one of values defined in @Bio::SeqIO::fasta::SEQ_ID_TYPES.
-           Default = $Bio::SeqIO::fasta::DEFAULT_SEQ_ID_TYPE ('display').
+ Default : display
  Args    : string when setting. This must be one of values defined in
            @Bio::SeqIO::fasta::SEQ_ID_TYPES. Allowable values:
            accession, accession.version, display, primary
@@ -323,17 +328,18 @@ sub block {
 
 =cut
 
+our @SEQ_ID_TYPES = qw(accession accession.version display primary);
+
 sub preferred_id_type {
     my ($self,$type) = @_;
-    if( defined $type ) {
+    if (defined $type) {
         if( ! grep lc($type) eq $_, @SEQ_ID_TYPES) {
             $self->throw(-class=>'Bio::Root::BadParameter',
                          -text=>"Invalid ID type \"$type\". Must be one of: @SEQ_ID_TYPES");
         }
         $self->{'_seq_id_type'} = lc($type);
-        #print STDERR "Setting preferred_id_type=$type\n";
     }
-    $self->{'_seq_id_type'} || $DEFAULT_SEQ_ID_TYPE;
+    $self->{'_seq_id_type'};
 }
 
 1;
