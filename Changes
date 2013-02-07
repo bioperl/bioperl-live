@@ -65,6 +65,13 @@ CPAN releases are branched from 'master'.
 
     [Bug fixes]
 
+    * [3298] Fix bug in Bio::SearchIO::blast.pm where algorithm version
+      information was lost in a multi-result blast file [Paul Cantalupo]
+    * [3343] Fix bug in Bio::SearchIO::blasttable.pm to correctly calculate
+      total gaps [Paul Cantalupo]
+    * [3375] Fix DBLINK parsing bug in Bio::SeqIO::genbank.pm [Paul Cantalupo]
+    * [3376] Fix bug in Bio::SearchIO::hmmer2.pm to correctly handle case
+      when end of domain indicator is split across lines [Paul Cantalupo]
     * [3240] Bio::AlignIO::stockholm now parses simple sequences [Bernd Web,
       cjfields]
     * [3237] Bio::DB::Fasta now allows blank lines between sequences, catches
