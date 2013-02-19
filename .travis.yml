@@ -36,3 +36,4 @@ notifications:
 branches:
   only:
     - master
+    - v1
