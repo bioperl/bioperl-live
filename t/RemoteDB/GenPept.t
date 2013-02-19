@@ -6,13 +6,13 @@ use strict;
 BEGIN {
 	use lib '.';
 	use Bio::Root::Test;
-	
+
 	test_begin(-tests => 21,
 			   -requires_modules => [qw(IO::String
 									    LWP::UserAgent
 										HTTP::Request::Common)],
 			   -requires_networking => 1);
-	
+
 	use_ok('Bio::DB::GenPept');
 }
 
@@ -49,7 +49,7 @@ SKIP: {
 $seq = $seqio = undef;
 
 ok $gb = Bio::DB::GenPept->new('-delay' => 0);
-SKIP: { 
+SKIP: {
     eval {$seq = $gb->get_Seq_by_id('195055');};
     skip "Couldn't connect to Genbank with Bio::DB::GenPept.pm. Skipping those tests", 10 if $@;
     is $seq->length, $expected_lengths{$seq->display_id}, $seq->display_id;
@@ -65,17 +65,16 @@ SKIP: {
     }
     skip('No seqs returned', 8) if !$done;
     is $done, 2;
-    # swissprot genpept parsing   
-    eval {$seq = $gb->get_Seq_by_acc('2AAA_YEAST');};
+    # swissprot genpept parsing
+    eval {$seq = $gb->get_Seq_by_acc('P31383');};
     skip "Couldn't connect to Genbank with Bio::DB::GenPept.pm. Skipping those tests", 5 if $@;
     is $seq->length, $expected_lengths{$seq->display_id}, $seq->display_id;
-    
+
     # test dbsource stuff
     # small chance this might change but hopefully not
     my @annot = $seq->annotation->get_Annotations('dblink');
-    cmp_ok(scalar(@annot), '>', 31);	
+    cmp_ok(scalar(@annot), '>', 31);
     is $annot[0]->database, 'UniProtKB';
     is $annot[0]->primary_id, '2AAA_YEAST';
     is (($seq->annotation->get_Annotations('swissprot_dates'))[0]->value, 'Jul 1, 1993');
 }
-

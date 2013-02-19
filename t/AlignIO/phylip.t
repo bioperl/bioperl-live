@@ -85,5 +85,5 @@ TODO: {
 # check to see that newlines between header and sequences are parsed correctly
 $str = Bio::AlignIO->new('-file' => test_input_file("codeml45b.mlc"), '-format' => 'phylip', '-longid' => 1);
 $aln = $str->next_aln();
-my $ls = $aln->get_seq_by_pos(9);
+$ls = $aln->get_seq_by_pos(9);
 ok($ls->display_id eq "Pop_trich_ch", "newline between header and sequences is parsed correctly");

@@ -6,9 +6,9 @@ use strict;
 BEGIN {
     use lib '.';
 	use Bio::Root::Test;
-	
+
 	test_begin(-tests => 281 );
-	
+
     use_ok('Bio::SeqIO::genbank');
 }
 
@@ -392,16 +392,16 @@ my $outfile = test_output_file();
 
 foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb', 'ay007676.gb', 'dq519393.gb') {
     my $infile =  test_input_file($in);
-    
+
     $str = Bio::SeqIO->new(-format =>'genbank',
                           -verbose => $verbose,
                           -file => $infile);
     $seq = $str->next_seq;
-    
+
     $out = Bio::SeqIO->new(-file => ">$outfile", -format => 'genbank');
     $out->write_seq($seq);
     $out->close();
-    
+
     open (IN, $infile);
     my @in = <IN>;
     close(IN);
@@ -409,7 +409,7 @@ foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb'
     my $line = 0;
     my $check = 0;
     my $is = 1;
-    
+
     FILECHECK:
     while (my $result = <RESULT>) {
         if ($result =~ /^KEYWORDS/) {
@@ -422,11 +422,11 @@ foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb'
         }
 
         if ($check) {
-            
+
             # end periods don't count (not all input files have them)
             $result =~ s{\.$}{};
             $in[$line] =~ s{\.$}{};
-            
+
             if ($result ne $in[$line]) {
                 $is = 0;
                 last;
@@ -434,7 +434,7 @@ foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb'
         }
     } continue { $line++ }
     close(RESULT);
-    
+
     ok $is, $in;
 }
 
@@ -481,7 +481,7 @@ foreach my $in ('P35527.gb') {
                 }
                     ok ( $parts[1], "$parts[0]" );
             }
-                
+
         }
     }
 }
@@ -489,7 +489,7 @@ foreach my $in ('P35527.gb') {
 is($ct, 46);
 
 # bug 2195
-    
+
 $str = Bio::SeqIO->new(-format =>'genbank',
                       -verbose => $verbose,
                       -file => test_input_file('AF305198.gb')
@@ -504,7 +504,7 @@ is(join(', ',$species->classification), 'Virginia creeper phytoplasma, '.
    'Firmicutes, Bacteria', 'Bug 2195');
 
 # bug 2569, PROJECT line support, read and write, round-tripping
-    
+
 $str = Bio::SeqIO->new(-format =>'genbank',
                       -verbose => $verbose,
                       -file => test_input_file('NC_008536.gb'));
@@ -573,7 +573,7 @@ is($dblinks[0]->display_text, 'UniProtKB:PYRR_BACSU','operator overloading in An
 
 #bug 2982 embl/genbank contig handling
 
-$ast = Bio::SeqIO->new( -file => test_input_file('bug2982.gb'), 
+$ast = Bio::SeqIO->new( -file => test_input_file('bug2982.gb'),
 			-format => 'genbank' );
 
 $seq = $ast->next_seq;
@@ -606,8 +606,8 @@ is(scalar @notes, 2);
 #bug 3375
 my $in = Bio::SeqIO->new(-format => 'genbank',
                         -file => test_input_file('NC_002058_multDBLINK_bug3375.gb'));
-my $seq = $in->next_seq();     # should not throw a warning now
-my @dblinks = $seq->annotation->get_Annotations('dblink');    # contains 5 dblink references
+$seq = $in->next_seq();     # should not throw a warning now
+@dblinks = $seq->annotation->get_Annotations('dblink');    # contains 5 dblink references
 # testing DBLINK      BioProject: PRJNA15288
 is($dblinks[0]->database, 'BioProject', 'bug3375 database is BioProject');
 is($dblinks[0]->primary_id, 'PRJNA15288', 'bug3375 primary_id is PRJNA15288');
