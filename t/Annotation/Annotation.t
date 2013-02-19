@@ -3,12 +3,12 @@
 
 use strict;
 
-BEGIN { 
+BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    
+
     test_begin(-tests => 159);
-	
+
     use_ok('Bio::Annotation::Collection');
     use_ok('Bio::Annotation::DBLink');
     use_ok('Bio::Annotation::Comment');
@@ -160,7 +160,7 @@ is (scalar($nested_ac->get_Annotations()), 7);
 is (scalar($nested_ac->get_all_Annotations()), 7);
 
 SKIP: {
-  test_skip(-tests => 7, -requires_modules => [qw(Graph::Directed Bio::Annotation::OntologyTerm)]);
+  test_skip(-tests => 7, -requires_modules => [qw(Bio::Annotation::OntologyTerm)]);
   use_ok('Bio::Annotation::OntologyTerm');
   # OntologyTerm annotation
   my $termann = Bio::Annotation::OntologyTerm->new(-label => 'test case',
@@ -252,7 +252,7 @@ my $ann_tree = Bio::Annotation::Tree->new(
 isa_ok($ann_tree, 'Bio::AnnotationI');
 $ann_tree->tree_id('test');
 is $ann_tree->tree_id(), 'test', "tree_id()";
-$ann_tree->tagname('tree'); 
+$ann_tree->tagname('tree');
 is $ann_tree->tagname(), 'tree', "tagname()";
 my $aln_filename = test_input_file('longnames.aln');
 use Bio::AlignIO;
@@ -311,7 +311,7 @@ my $ann_struct2 = Bio::Annotation::TagTree->new(-tagname => 'gn',
 						-value => $val);
 is($ann_struct2->value, $val,'roundtrip');
 
-# formats 
+# formats
 like($ann_struct2->value, qr/Name: CALM1/,'itext');
 $ann_struct2->tagformat('sxpr');
 like($ann_struct2->value, qr/\(Name "CALM1"\)/,'spxr');
