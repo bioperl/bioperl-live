@@ -1695,7 +1695,7 @@ sub suppress_residues {
 
 sub allow_residues {
     my $self = shift;
-    my $allow_residues = shift if defined(@_);
+    my $allow_residues = shift if @_;
     return $self->{'allow_residues'} = $allow_residues if defined($allow_residues);
     return $self->{'allow_residues'};
 }
