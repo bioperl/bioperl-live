@@ -4,7 +4,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     test_begin( -tests            => 236,
-                -requires_modules => [qw(Graph::Undirected)] );
+                -requires_modules => [ qw(Bio::Assembly::Tools::ContigSpectrum)] );
     use_ok('Bio::Assembly::IO');
     use_ok('Bio::Assembly::Tools::ContigSpectrum');
 }
