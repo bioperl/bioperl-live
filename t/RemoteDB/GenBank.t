@@ -22,7 +22,7 @@ my %expected_lengths = (
     'AF303112.1' => 1611,
     'AF041456'  => 1156,
     'CELRABGDI' => 1743,
-    'CH402638'  => 5041
+    'JH374761'  => 38055
 );
 
 my ($gb, $seq, $seqio, $seqin);
@@ -121,12 +121,12 @@ $seq = $seqio = undef;
 # test contig retrieval
 ok $gb = Bio::DB::GenBank->new('-delay'  => 0, '-format' => 'gbwithparts');
 SKIP: {
-    eval {$seq = $gb->get_Seq_by_id('CH402638');};
+    eval {$seq = $gb->get_Seq_by_id('JH374761');};
     skip "Couldn't connect to GenBank with Bio::DB::GenBank.pm. Skipping those tests", 3 if $@;
     is $seq->length, $expected_lengths{$seq->display_id}, $seq->display_id;
     # now to check that postprocess_data in NCBIHelper catches CONTIG...
     ok $gb = Bio::DB::GenBank->new('-delay' => 0, '-format' => 'gb');
-    eval {$seq = $gb->get_Seq_by_id('CH402638');};
+    eval {$seq = $gb->get_Seq_by_id('JH374761');};
     skip "Couldn't connect to GenBank with Bio::DB::GenBank.pm. Skipping those tests", 1 if $@;
     is $seq->length, $expected_lengths{$seq->display_id}, $seq->display_id;
 }
