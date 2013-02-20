@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 138,
+    test_begin(-tests => 142,
         -requires_module => 'XML::Twig');
 
     use_ok('Bio::DB::Taxonomy');
@@ -202,15 +202,31 @@ is $h_list->ancestor->ancestor->scientific_name, 'Homo/Pan/Gorilla group';
 
 # get_lca should work on nodes from different databases
 SKIP: {
-    test_skip(-tests => 5, -requires_networking => 1);
+    test_skip(-tests => 9, -requires_networking => 1);
+
+    # check that the result is the same as if we are retrieving from the same DB
+    # flatfile
     $h_flat = $db_flatfile->get_taxon(-name => 'Homo');
+    my $h_flat2 = $db_flatfile->get_taxon(-name => 'Homo sapiens');
+    ok my $tree_functions = Bio::Tree::Tree->new();
+    is $tree_functions->get_lca($h_flat, $h_flat2)->scientific_name, 'Homo', 'get_lca() within flatfile db';
+
+    # entrez
     my $h_entrez;
     eval { $h_entrez = $db_entrez->get_taxon(-name => 'Homo sapiens');};
-    skip "Unable to connect to entrez database; no network or server busy?", 5 if $@;
+    skip "Unable to connect to entrez database; no network or server busy?", 7 if $@;
+    my $h_entrez2;
+    eval { $h_entrez2 = $db_entrez->get_taxon(-name => 'Homo');};
+    skip "Unable to connect to entrez database; no network or server busy?", 7 if $@;
+    ok $tree_functions = Bio::Tree::Tree->new();
+    is $tree_functions->get_lca($h_entrez, $h_entrez2)->scientific_name, 'Homo', 'get_lca() within entrez db';
 
-    ok my $tree_functions = Bio::Tree::Tree->new();
-    is $tree_functions->get_lca($h_flat, $h_entrez)->scientific_name, 'Homo';
-
+    ok $tree_functions = Bio::Tree::Tree->new();
+    # mixing entrez and flatfile
+    TODO:{
+        local $TODO = 'Mixing databases for get_lca() not working, see bug #3416';
+        is $tree_functions->get_lca($h_flat, $h_entrez)->scientific_name, 'Homo', 'get_lca() mixing flatfile and remote db';
+    }
     # even though the species taxa for Homo sapiens from list and flat databases
     # have the same internal id, get_lca won't work because they have different
     # roots and descendents
