@@ -1528,18 +1528,15 @@ package Bio::DB::Fasta::Subdir;
 
 use base 'Bio::DB::Fasta';
 
-# alter calling arguments so that the fasta file is placed in a subdirectory
+# alter calling arguments so that the index file is placed in a subdirectory
 # named "indexes"
 
-sub index_name {
-    my ($self, $path, $isdir) = @_;
-    my $index_name;
-    if ($isdir) {
-        $index_name = File::Spec->catfile($path,'indexes','fasta.index');
-    } else {
-        $index_name = $self->SUPER::index_name($path,$isdir);
+sub new {
+    my ($class, $path, %opts) = @_;
+    if (-d $path) {
+        $opts{-index_name} = File::Spec->catfile($path,'indexes','fasta.index');
     }
-    return $index_name;
+    return Bio::DB::Fasta->new($path, %opts);
 }
 
 
