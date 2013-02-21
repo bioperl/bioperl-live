@@ -527,7 +527,7 @@ sub index_name {
 
  Title   : path
  Usage   : my $path = $db->path($path);
- Function: When a simple file or a directory of files is indexed, this returns
+ Function: When a single file or a directory of files is indexed, this returns
            the file directory. When indexing an arbitrary list of files, the
            return value is the path of the current working directory.
  Returns : String
