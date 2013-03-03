@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 300);
+    test_begin(-tests => 301);
 
 	use_ok('Bio::SearchIO');
 }
@@ -414,3 +414,14 @@ is($result->num_hits(), 2, 'Check num_hits');
 }
 # end bug 3376
 
+# bug 3421 - making sure a full line of dashes in an HSP is parsed correctly
+{
+   my $in = Bio::SearchIO->new(-format => 'hmmer',
+                            -file   => test_input_file('hmmpfam_HSPdashline.txt')
+			   );
+   my $result = $in->next_result;
+   my $hit = $result->next_hit;
+   my $hsp = $hit->next_hsp;
+   is($hsp->length,"561","bug3421 - Check if can correctly parse an HSP with line full of dashes");
+}
+# end bug 3421
