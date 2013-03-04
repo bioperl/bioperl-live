@@ -259,20 +259,20 @@ sub new {
     # we want to call SUPER to create and bless an object
 
     if ($class =~ /Bio::DB::Biblio::(\S+)/) {
-	my ($self) = $class->SUPER::new (@args);
+        my ($self) = $class->SUPER::new (@args);
 
-	# now the $self is an empty object - we will populate it from
-	# the $caller - if $caller is an object
+        # now the $self is an empty object - we will populate it from
+        # the $caller - if $caller is an object
 
-	if (ref ($caller)) {
-	    %{ $self } = %{ $caller };
-	}
+        if (ref ($caller)) {
+            %{ $self } = %{ $caller };
+        }
 
-	# and finally add values from '@args' into the newly created
-	# object (the values will overwrite the values copied above)
+        # and finally add values from '@args' into the newly created
+        # object (the values will overwrite the values copied above)
 
-	$self->_initialize (@args);
-	return $self;
+        $self->_initialize (@args);
+        return $self;
 
     # this is called only the first time when somebody calls: 'new
     # Bio::Biblio (...)', and it actually loads a 'real-work-doing'
@@ -280,20 +280,20 @@ sub new {
     # module has its own new() method)
 
     } else {
-	my %param = @args;
-	@param { map { lc $_ } keys %param } = values %param; # lowercase keys
-	my $access =
-	    $param {'-access'} ||
-	    $class->_guess_access ( $param {'-location'} ) ||
-	    'soap';
-	$access = "\L$access";	# normalize capitalization to lower case
+        my %param = @args;
+        @param { map { lc $_ } keys %param } = values %param; # lowercase keys
+        my $access =
+            $param {'-access'} ||
+            $class->_guess_access ( $param {'-location'} ) ||
+            'soap';
+        $access = "\L$access";  # normalize capitalization to lower case
 
-	# load module with the real implementation - as defined in $access
-	return unless (&_load_access_module ($access));
+        # load module with the real implementation - as defined in $access
+        return unless (&_load_access_module ($access));
 
-	# this will call this same method new() - but rather its the
-	# upper (object) branche
-	return "Bio::DB::Biblio::$access"->new (@args);
+        # this will call this same method new() - but rather its the
+        # upper (object) branche
+        return "Bio::DB::Biblio::$access"->new (@args);
     }
 }
 
@@ -316,27 +316,27 @@ It prints an error on STDERR if it fails to find and load the module
 =cut
 
 sub _load_access_module {
-  my ($access) = @_;
-  my ($module, $load, $m);
+    my ($access) = @_;
+    my ($module, $load, $m);
 
-  $module = "_<Bio/DB/Biblio/$access.pm";
-  $load = "Bio/DB/Biblio/$access.pm";
+    $module = "_<Bio/DB/Biblio/$access.pm";
+    $load = "Bio/DB/Biblio/$access.pm";
 
-  return 1 if $main::{$module};
-  eval {
-    require $load;
-  };
+    return 1 if $main::{$module};
+    eval {
+        require $load;
+    };
 
-  if ( $@ ) {
-    Bio::Root::Root->throw (<<END);
+    if ( $@ ) {
+        Bio::Root::Root->throw (<<END);
 $load: $access cannot be found or loaded
 Exception $@
 For more information about the Biblio system please see the Bio::Biblio docs.
 END
   ;
-    return;
-  }
-  return 1;
+        return;
+    }
+    return 1;
 }
 
 # -----------------------------------------------------------------------------
@@ -361,8 +361,8 @@ CORBA).
 # services
 
 sub _guess_access {
-#   my ($class, $location) = @_;
-   return 'soap';
+#    my ($class, $location) = @_;
+    return 'soap';
 }
 
 =head2 VERSION and Revision
