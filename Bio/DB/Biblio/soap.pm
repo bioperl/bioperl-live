@@ -108,8 +108,9 @@ with an underscore _.
 
 
 package Bio::DB::Biblio::soap;
-use vars qw($DEFAULT_SERVICE $DEFAULT_NAMESPACE);
 use strict;
+use warnings;
+use parent qw(Bio::Biblio);
 
 use SOAP::Lite
     on_fault => sub {
@@ -122,17 +123,11 @@ use SOAP::Lite
     }
 ;
 
-use base qw(Bio::Biblio);
+# where to go...
+our $DEFAULT_SERVICE = 'http://www.ebi.ac.uk/openbqs/services/MedlineSRS';
 
-BEGIN {
-    # where to go...
-    $DEFAULT_SERVICE = 'http://www.ebi.ac.uk/openbqs/services/MedlineSRS';
-
-    # ...and what to find there
-
-    ## TODO: This namespace is no longer valid (check for deprecation or update)
-    $DEFAULT_NAMESPACE = 'http://industry.ebi.ac.uk/openBQS';
-}
+## TODO: This namespace is no longer valid (check for deprecation or update)
+our $DEFAULT_NAMESPACE = 'http://industry.ebi.ac.uk/openBQS';
 
 # -----------------------------------------------------------------------------
 
