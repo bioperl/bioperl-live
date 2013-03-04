@@ -183,40 +183,34 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
 
-
 package Bio::SeqUtils;
-use vars qw(%ONECODE %THREECODE);
 use strict;
-use Carp;
+use warnings;
 use Scalar::Util qw(blessed);
-use base qw(Bio::Root::Root);
+use parent qw(Bio::Root::Root);
 # new inherited from RootI
 
-BEGIN {
-    # Note : Ambiguity code 'J' = I/L (used for ambiguities in mass-spec data)
-    %ONECODE =
-    ('Ala' => 'A', 'Asx' => 'B', 'Cys' => 'C', 'Asp' => 'D',
-     'Glu' => 'E', 'Phe' => 'F', 'Gly' => 'G', 'His' => 'H',
-     'Ile' => 'I', 'Lys' => 'K', 'Leu' => 'L', 'Met' => 'M',
-     'Asn' => 'N', 'Pro' => 'P', 'Gln' => 'Q', 'Arg' => 'R',
-     'Ser' => 'S', 'Thr' => 'T', 'Val' => 'V', 'Trp' => 'W',
-     'Xaa' => 'X', 'Tyr' => 'Y', 'Glx' => 'Z', 'Ter' => '*',
-     'Sec' => 'U', 'Pyl' => 'O', 'Xle' => 'J'
-     );
+our %ONECODE = (
+    'Ala' => 'A', 'Asx' => 'B', 'Cys' => 'C', 'Asp' => 'D',
+    'Glu' => 'E', 'Phe' => 'F', 'Gly' => 'G', 'His' => 'H',
+    'Ile' => 'I', 'Lys' => 'K', 'Leu' => 'L', 'Met' => 'M',
+    'Asn' => 'N', 'Pro' => 'P', 'Gln' => 'Q', 'Arg' => 'R',
+    'Ser' => 'S', 'Thr' => 'T', 'Val' => 'V', 'Trp' => 'W',
+    'Xaa' => 'X', 'Tyr' => 'Y', 'Glx' => 'Z', 'Ter' => '*',
+    'Sec' => 'U', 'Pyl' => 'O', 'Xle' => 'J'
+);
 
-    %THREECODE =
-    ('A' => 'Ala', 'B' => 'Asx', 'C' => 'Cys', 'D' => 'Asp',
-     'E' => 'Glu', 'F' => 'Phe', 'G' => 'Gly', 'H' => 'His',
-     'I' => 'Ile', 'K' => 'Lys', 'L' => 'Leu', 'M' => 'Met',
-     'N' => 'Asn', 'P' => 'Pro', 'Q' => 'Gln', 'R' => 'Arg',
-     'S' => 'Ser', 'T' => 'Thr', 'V' => 'Val', 'W' => 'Trp',
-     'Y' => 'Tyr', 'Z' => 'Glx', 'X' => 'Xaa', '*' => 'Ter',
-     'U' => 'Sec', 'O' => 'Pyl', 'J' => 'Xle'
-     );
-}
+our %THREECODE = (
+    'A' => 'Ala','B' => 'Asx', 'C' => 'Cys', 'D' => 'Asp',
+    'E' => 'Glu', 'F' => 'Phe', 'G' => 'Gly', 'H' => 'His',
+    'I' => 'Ile', 'K' => 'Lys', 'L' => 'Leu', 'M' => 'Met',
+    'N' => 'Asn', 'P' => 'Pro', 'Q' => 'Gln', 'R' => 'Arg',
+    'S' => 'Ser', 'T' => 'Thr', 'V' => 'Val', 'W' => 'Trp',
+    'Y' => 'Tyr', 'Z' => 'Glx', 'X' => 'Xaa', '*' => 'Ter',
+    'U' => 'Sec', 'O' => 'Pyl', 'J' => 'Xle'
+);
 
 =head2 seq3
 
