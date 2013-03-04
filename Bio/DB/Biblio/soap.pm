@@ -1,7 +1,7 @@
 #
 # BioPerl module Bio::DB::Biblio::soap.pm
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Martin Senger <senger@ebi.ac.uk>
 # For copyright and disclaimer see below.
@@ -38,15 +38,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -113,11 +113,11 @@ use strict;
 
 use SOAP::Lite
     on_fault => sub {
-	my $soap = shift;
-	my $res = shift;
-	my $msg =
-	    ref $res ? "--- SOAP FAULT ---\n" . $res->faultcode . " " . $res->faultstring
-		     : "--- TRANSPORT ERROR ---\n" . $soap->transport->status . "\n$res\n";
+    my $soap = shift;
+    my $res = shift;
+    my $msg =
+        ref $res ? "--- SOAP FAULT ---\n" . $res->faultcode . " " . $res->faultstring
+             : "--- TRANSPORT ERROR ---\n" . $soap->transport->status . "\n$res\n";
         Bio::DB::Biblio::soap->throw ( -text => $msg );
     }
 ;
@@ -129,7 +129,7 @@ BEGIN {
     $DEFAULT_SERVICE = 'http://www.ebi.ac.uk/openbqs/services/MedlineSRS';
 
     # ...and what to find there
-    
+
     ## TODO: This namespace is no longer valid (check for deprecation or update)
     $DEFAULT_NAMESPACE = 'http://industry.ebi.ac.uk/openBQS';
 }
@@ -151,7 +151,7 @@ BEGIN {
 
                ## TODO: This namespace is no longer valid (check for deprecation
                ## or update)
-               
+
                Default is 'http://industry.ebi.ac.uk/openBQS'.
 
              -destroy_on_exit => '0'
@@ -193,10 +193,10 @@ BEGIN {
                  to specify also a location/URL of a HTTP proxy server
                  (if your site requires one).
 
-	   Additionally, the main module Bio::Biblio recognises
-	   also:
-             -access => '...'
-             -location => '...'
+           Additionally, the main module Bio::Biblio recognises
+           also:
+              -access => '...'
+              -location => '...'
 
 It populates calling object with the given arguments, and then - for
 some attributes and only if they are not yet populated - it assigns
@@ -216,7 +216,7 @@ Bio::Biblio::new method, not this one.
 
 sub _initialize {
     my ($self, @args) = @_;
-    
+
     # make a hashtable from @args
     my %param = @args;
     @param { map { lc $_ } keys %param } = values %param; # lowercase keys
@@ -225,8 +225,8 @@ sub _initialize {
     # there) - changing '-key' into '_key'
     my $new_key;
     foreach my $key (keys %param) {
-	($new_key = $key) =~ s/^-/_/;
-	$self->{ $new_key } = $param { $key };
+        ($new_key = $key) =~ s/^-/_/;
+        $self->{ $new_key } = $param { $key };
     }
 
     # finally add default values for those keys who have default value
@@ -235,17 +235,17 @@ sub _initialize {
     $self->{'_namespace'} = $DEFAULT_NAMESPACE unless $self->{'_namespace'};
     $self->{'_destroy_on_exit'} = 1 unless defined $self->{'_destroy_on_exit'};
     unless ($self->{'_soap'}) {
-	if (defined $self->{'_httpproxy'}) {
-	    $self->{'_soap'} = SOAP::Lite
-	                          -> uri ($self->{'_namespace'})
-		                  -> proxy ($self->{'_location'},
-				            proxy => ['http' => $self->{'_httpproxy'}]);
-	} else {
-	    $self->{'_soap'} = SOAP::Lite
-	                          -> uri ($self->{'_namespace'})
-				  -> proxy ($self->{'_location'});
-	}
-#	$self->{'_soap'}->soapversion (1.2);
+        if (defined $self->{'_httpproxy'}) {
+            $self->{'_soap'} = SOAP::Lite
+                                  -> uri ($self->{'_namespace'})
+                                  -> proxy ($self->{'_location'},
+                                    proxy => ['http' => $self->{'_httpproxy'}]);
+        } else {
+            $self->{'_soap'} = SOAP::Lite
+                                  -> uri ($self->{'_namespace'})
+                                  -> proxy ($self->{'_location'});
+        }
+#       $self->{'_soap'}->soapversion (1.2);
     }
 }
 
@@ -266,7 +266,7 @@ sub DESTROY {
 
     # ignore all errors here
     eval {
-	$soap->destroy (SOAP::Data->type (string => $collection_id));
+        $soap->destroy (SOAP::Data->type (string => $collection_id));
     }
 }
 
@@ -289,7 +289,7 @@ or to obtain a collection ID indirectly from a query method:
 \tBio::Biblio->new->find ('keyword')->$strip_method;
 END_OF_MSG
 }
-    
+
 #
 # some methods do not work with older SOAP::Lite version; here we
 #return message explaining it
@@ -330,7 +330,7 @@ Method '$method' expects vocabulary name as parameter.
 END_OF_MSG
 }
 
-# 
+#
 # return a copy of a given array, with all its elements replaced
 # with the SOAP-Data objects defining elements type as 'string'
 #
@@ -339,7 +339,7 @@ sub _as_strings {
     my (@result) = map { SOAP::Data->new (type => 'string', value => $_) } @$ref_input_array;
     return \@result;
 }
-    
+
 # ---------------------------------------------------------------------
 #
 #   Here are the methods implementing Bio::DB::BiblioI interface
@@ -348,198 +348,198 @@ sub _as_strings {
 # ---------------------------------------------------------------------
 
 sub get_collection_id {
-   my ($self) = @_;
-   $self->{'_collection_id'};
+    my ($self) = @_;
+    $self->{'_collection_id'};
 }
 
 sub get_count {
-   my ($self) = @_;
-   my $soap = $self->{'_soap'};
-   my ($collection_id) = $self->{'_collection_id'};
-   if ($collection_id) {
-       $soap->getBibRefCountOfCollection (SOAP::Data->type (string => $collection_id))->result;
-   } else {
-       $soap->getBibRefCount->result;
-   }
+    my ($self) = @_;
+    my $soap = $self->{'_soap'};
+    my ($collection_id) = $self->{'_collection_id'};
+    if ($collection_id) {
+        $soap->getBibRefCountOfCollection (SOAP::Data->type (string => $collection_id))->result;
+    } else {
+        $soap->getBibRefCount->result;
+    }
 }
 
 # try: 12368254 (it's a Bioperl article)
 sub get_by_id {
-   my ($self, $citation_id) = @_;
-   $self->throw ("Citation ID is expected as a parameter of method 'get_by_id'.")
-       unless $citation_id;
-   my $soap = $self->{'_soap'};
-   $soap->getById (SOAP::Data->type (string => $citation_id))->result;
+    my ($self, $citation_id) = @_;
+    $self->throw ("Citation ID is expected as a parameter of method 'get_by_id'.")
+        unless $citation_id;
+    my $soap = $self->{'_soap'};
+    $soap->getById (SOAP::Data->type (string => $citation_id))->result;
 }
 
 sub find {
-   my ($self, $keywords, $attrs) = @_;
-   my (@keywords, @attrs);
+    my ($self, $keywords, $attrs) = @_;
+    my (@keywords, @attrs);
 
-   # $keywords can be a comma-delimited scalar or a reference to an array
-   if ($keywords) {
-       my $ref = ref $keywords;
-       @keywords = split (/,/, $keywords) unless $ref;
-       @keywords = @$keywords if $ref =~ /ARRAY/;
-   }
-   $self->throw ("No keywords given in 'find' method.\n")
-       unless (@keywords);
+    # $keywords can be a comma-delimited scalar or a reference to an array
+    if ($keywords) {
+        my $ref = ref $keywords;
+        @keywords = split (/,/, $keywords) unless $ref;
+        @keywords = @$keywords if $ref =~ /ARRAY/;
+    }
+    $self->throw ("No keywords given in 'find' method.\n")
+        unless (@keywords);
 
-   # ...and the same with $attrs
-   if ($attrs) {
-       my $ref = ref $attrs;
-       @attrs = split (/,/, $attrs) unless $ref;
-       @attrs = @$attrs if $ref =~ /ARRAY/;
-   }
+    # ...and the same with $attrs
+    if ($attrs) {
+        my $ref = ref $attrs;
+        @attrs = split (/,/, $attrs) unless $ref;
+        @attrs = @$attrs if $ref =~ /ARRAY/;
+    }
 
-   my $soap = $self->{'_soap'};
-   my $collection_id = $self->{'_collection_id'};
-   my $new_id;
-   if ($collection_id) {
-       if (@attrs) {
-	   $new_id = $soap->reFindInAttrs (SOAP::Data->name ('arg0')->type (string => $collection_id),
-				           SOAP::Data->name ('arg1')->value (&_as_strings (\@keywords)),
-				           SOAP::Data->name ('arg2')->value (&_as_strings (\@attrs)))
-	       ->result;
-       } else {
-	   $new_id = $soap->reFind (SOAP::Data->name ('arg0')->type (string => $collection_id),
-				    SOAP::Data->name ('arg1')->value (&_as_strings (\@keywords)))
-	       ->result;
-       }
-   } else {
-       if (@attrs) {
-	   $new_id = $soap->findInAttrs (SOAP::Data->name ('arg0')->value (&_as_strings (\@keywords)),
-				         SOAP::Data->name ('arg1')->value (&_as_strings (\@attrs)))
-	       ->result;
-       } else {
-	   $new_id = $soap->find (SOAP::Data->name ('arg0')->value (&_as_strings (\@keywords)))
-	       ->result;
-       }
-   }
+    my $soap = $self->{'_soap'};
+    my $collection_id = $self->{'_collection_id'};
+    my $new_id;
+    if ($collection_id) {
+        if (@attrs) {
+            $new_id = $soap->reFindInAttrs (SOAP::Data->name ('arg0')->type (string => $collection_id),
+                                            SOAP::Data->name ('arg1')->value (&_as_strings (\@keywords)),
+                                            SOAP::Data->name ('arg2')->value (&_as_strings (\@attrs)))
+               ->result;
+        } else {
+            $new_id = $soap->reFind (SOAP::Data->name ('arg0')->type (string => $collection_id),
+                                     SOAP::Data->name ('arg1')->value (&_as_strings (\@keywords)))
+                ->result;
+        }
+    } else {
+        if (@attrs) {
+            $new_id = $soap->findInAttrs (SOAP::Data->name ('arg0')->value (&_as_strings (\@keywords)),
+                                          SOAP::Data->name ('arg1')->value (&_as_strings (\@attrs)))
+                ->result;
+        } else {
+            $new_id = $soap->find (SOAP::Data->name ('arg0')->value (&_as_strings (\@keywords)))
+                ->result;
+        }
+    }
 
-   # clone itself but change the collection ID to a new one
-   return $self->new (-collection_id        => $new_id,
-		      -parent_collection_id => $collection_id);
+    # clone itself but change the collection ID to a new one
+    return $self->new (-collection_id        => $new_id,
+                       -parent_collection_id => $collection_id);
 }
 
 sub get_all_ids {
-   my ($self) = @_;
-   my $soap = $self->{'_soap'};
-   my ($collection_id) = $self->{'_collection_id'};
-   $self->throw ($self->_no_id_msg) unless $collection_id;
-   $soap->getAllIDs (SOAP::Data->type (string => $collection_id))->result;
+    my ($self) = @_;
+    my $soap = $self->{'_soap'};
+    my ($collection_id) = $self->{'_collection_id'};
+    $self->throw ($self->_no_id_msg) unless $collection_id;
+    $soap->getAllIDs (SOAP::Data->type (string => $collection_id))->result;
 }
 
 sub get_all {
-   my ($self) = @_;
-   my $soap = $self->{'_soap'};
-   my ($collection_id) = $self->{'_collection_id'};
-   $self->throw ($self->_no_id_msg) unless $collection_id;
-   $soap->getAllBibRefs (SOAP::Data->type (string => $collection_id))->result;
+    my ($self) = @_;
+    my $soap = $self->{'_soap'};
+    my ($collection_id) = $self->{'_collection_id'};
+    $self->throw ($self->_no_id_msg) unless $collection_id;
+    $soap->getAllBibRefs (SOAP::Data->type (string => $collection_id))->result;
 }
 
 sub has_next {
-   my ($self) = @_;
-   my $soap = $self->{'_soap'};
-   my ($collection_id) = $self->{'_collection_id'};
-   $self->throw ($self->_no_id_msg) unless $collection_id;
-   $self->throw ($self->_old_version_msg) if $SOAP::Lite::VERSION lt '0.52';
-   $soap->hasNext (SOAP::Data->type (string => $collection_id))->result;
+    my ($self) = @_;
+    my $soap = $self->{'_soap'};
+    my ($collection_id) = $self->{'_collection_id'};
+    $self->throw ($self->_no_id_msg) unless $collection_id;
+    $self->throw ($self->_old_version_msg) if $SOAP::Lite::VERSION lt '0.52';
+    $soap->hasNext (SOAP::Data->type (string => $collection_id))->result;
 }
 
 sub get_next {
-   my ($self) = @_;
-   my $soap = $self->{'_soap'};
-   my ($collection_id) = $self->{'_collection_id'};
-   $self->throw ($self->_no_id_msg) unless $collection_id;
-   $soap->getNext (SOAP::Data->type (string => $collection_id))->result;
+    my ($self) = @_;
+    my $soap = $self->{'_soap'};
+    my ($collection_id) = $self->{'_collection_id'};
+    $self->throw ($self->_no_id_msg) unless $collection_id;
+    $soap->getNext (SOAP::Data->type (string => $collection_id))->result;
 }
 
 sub get_more {
-   my ($self, $how_many) = @_;
-   my $soap = $self->{'_soap'};
-   my $collection_id = $self->{'_collection_id'};
-   $self->throw ($self->_no_id_msg) unless $collection_id;
+    my ($self, $how_many) = @_;
+    my $soap = $self->{'_soap'};
+    my $collection_id = $self->{'_collection_id'};
+    $self->throw ($self->_no_id_msg) unless $collection_id;
 
-   unless (defined ($how_many) and $how_many =~ /^\d+$/) {
-       $self->warn ("Method 'get_more' expects a numeric argument. Changing to 1.\n");
-       $how_many = 1;
-   }
-   unless ($how_many > 0) {
-       $self->warn ("Method 'get_more' expects a positive argument. Changing to 1.\n");
-       $how_many = 1;
-   }
+    unless (defined ($how_many) and $how_many =~ /^\d+$/) {
+        $self->warn ("Method 'get_more' expects a numeric argument. Changing to 1.\n");
+        $how_many = 1;
+    }
+    unless ($how_many > 0) {
+        $self->warn ("Method 'get_more' expects a positive argument. Changing to 1.\n");
+        $how_many = 1;
+    }
 
-   my $ra = $soap->getMore (SOAP::Data->type (string => $collection_id),
-			    SOAP::Data->type (int    => $how_many))->result;
-   $self->{'_collection_id'} = shift @{ $ra };
-   $ra;
+    my $ra = $soap->getMore (SOAP::Data->type (string => $collection_id),
+                             SOAP::Data->type (int    => $how_many))->result;
+    $self->{'_collection_id'} = shift @{ $ra };
+    $ra;
 }
 
 sub reset_retrieval {
-   my ($self) = @_;
-   my $soap = $self->{'_soap'};
-   my ($collection_id) = $self->{'_collection_id'};
-   $self->throw ($self->_no_id_msg) unless $collection_id;
-   $self->{'_collection_id'} = $soap->resetRetrieval (SOAP::Data->type (string => $collection_id))->result;
+    my ($self) = @_;
+    my $soap = $self->{'_soap'};
+    my ($collection_id) = $self->{'_collection_id'};
+    $self->throw ($self->_no_id_msg) unless $collection_id;
+    $self->{'_collection_id'} = $soap->resetRetrieval (SOAP::Data->type (string => $collection_id))->result;
 }
 
 sub exists {
-   my ($self) = @_;
-   my $soap = $self->{'_soap'};
-   my ($collection_id) = $self->{'_collection_id'};
-   $self->throw ($self->_no_id_msg) unless $collection_id;
-   $self->throw ($self->_old_version_msg) if $SOAP::Lite::VERSION lt '0.52';
-   $soap->exists (SOAP::Data->type (string => $collection_id))->result;
+    my ($self) = @_;
+    my $soap = $self->{'_soap'};
+    my ($collection_id) = $self->{'_collection_id'};
+    $self->throw ($self->_no_id_msg) unless $collection_id;
+    $self->throw ($self->_old_version_msg) if $SOAP::Lite::VERSION lt '0.52';
+    $soap->exists (SOAP::Data->type (string => $collection_id))->result;
 }
 
 sub destroy {
-   my ($self) = @_;
-   my $soap = $self->{'_soap'};
-   my ($collection_id) = $self->{'_collection_id'};
-   $self->throw ($self->_no_id_msg) unless $collection_id;
-   $soap->destroy (SOAP::Data->type (string => $collection_id));
+    my ($self) = @_;
+    my $soap = $self->{'_soap'};
+    my ($collection_id) = $self->{'_collection_id'};
+    $self->throw ($self->_no_id_msg) unless $collection_id;
+    $soap->destroy (SOAP::Data->type (string => $collection_id));
 }
 
 sub get_vocabulary_names {
-   my ($self) = @_;
-   my $soap = $self->{'_soap'};
-   $soap->getAllVocabularyNames->result;
+    my ($self) = @_;
+    my $soap = $self->{'_soap'};
+    $soap->getAllVocabularyNames->result;
 }
 
 sub contains {
-   my ($self, $vocabulary_name, $value) = @_;
-   my $soap = $self->{'_soap'};
-   $self->throw ($self->_old_version_msg) if $SOAP::Lite::VERSION lt '0.52';
-   $self->throw ($self->_two_params_msg)
-       unless defined $vocabulary_name and defined $value;
-   $soap->contains (SOAP::Data->type (string => $vocabulary_name),
-		    SOAP::Data->type (string => $value))->result;
+    my ($self, $vocabulary_name, $value) = @_;
+    my $soap = $self->{'_soap'};
+    $self->throw ($self->_old_version_msg) if $SOAP::Lite::VERSION lt '0.52';
+    $self->throw ($self->_two_params_msg)
+        unless defined $vocabulary_name and defined $value;
+    $soap->contains (SOAP::Data->type (string => $vocabulary_name),
+                     SOAP::Data->type (string => $value))->result;
 }
 
 sub get_entry_description {
-   my ($self, $vocabulary_name, $value) = @_;
-   my $soap = $self->{'_soap'};
-   $self->throw ($self->_two_params_msg)
-       unless defined $vocabulary_name and defined $value;
-   $soap->getEntryDescription (SOAP::Data->type (string => $vocabulary_name),
-			         SOAP::Data->type (string => $value))->result;
+    my ($self, $vocabulary_name, $value) = @_;
+    my $soap = $self->{'_soap'};
+    $self->throw ($self->_two_params_msg)
+        unless defined $vocabulary_name and defined $value;
+    $soap->getEntryDescription (SOAP::Data->type (string => $vocabulary_name),
+                                SOAP::Data->type (string => $value))->result;
 }
 
 sub get_all_values {
-   my ($self, $vocabulary_name) = @_;
-   my $soap = $self->{'_soap'};
-   $self->throw ($self->_missing_name_msg)
-       unless defined $vocabulary_name;
-   $soap->getAllValues (SOAP::Data->type (string => $vocabulary_name))->result;
+    my ($self, $vocabulary_name) = @_;
+    my $soap = $self->{'_soap'};
+    $self->throw ($self->_missing_name_msg)
+        unless defined $vocabulary_name;
+    $soap->getAllValues (SOAP::Data->type (string => $vocabulary_name))->result;
 }
 
 sub get_all_entries {
-   my ($self, $vocabulary_name) = @_;
-   my $soap = $self->{'_soap'};
-   $self->throw ($self->_missing_name_msg)
-       unless defined $vocabulary_name;
-   $soap->getAllEntries (SOAP::Data->type (string => $vocabulary_name))->result;
+    my ($self, $vocabulary_name) = @_;
+    my $soap = $self->{'_soap'};
+    $self->throw ($self->_missing_name_msg)
+        unless defined $vocabulary_name;
+    $soap->getAllEntries (SOAP::Data->type (string => $vocabulary_name))->result;
 }
 
 =head2 VERSION and Revision
