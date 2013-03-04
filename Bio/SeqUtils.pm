@@ -1464,10 +1464,10 @@ sub evolve {
     my $oristring = $string;
     my $length = $seq->length;
 
-    while (1) {
+    # stop evolving if the limit has been reached
+    until ($self->_get_similarity($oristring, $string) <= $sim) {
         # find the location in the string to change
         my $loc = int (rand $length) + 1;
-
 
         # nucleotide to change
         my $oldnuc = substr $string, $loc-1, 1;
@@ -1488,10 +1488,6 @@ sub evolve {
         substr $string, $loc-1, 1 , $newnuc;
 
         $self->debug("$loc$oldnuc>$newnuc\n");
-
-        # stop evolving if the limit has been reached
-        last if $self->_get_similarity($oristring, $string) <= $sim;
-
     }
 
     return new Bio::PrimarySeq(-id => $seq->id. "-$sim",
