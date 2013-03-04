@@ -103,32 +103,28 @@ with an underscore _.
 
 
 package Bio::DB::Biblio::biofetch;
-use vars qw(%HOSTS %FORMATMAP  $DEFAULTFORMAT $DEFAULTRETRIEVAL_TYPE
-            $DEFAULT_SERVICE $DEFAULT_NAMESPACE);
 use strict;
+use warnings;
 
 use Bio::Biblio::IO;
 
-use base qw(Bio::DB::DBFetch Bio::Biblio);
+use parent qw(Bio::DB::DBFetch Bio::Biblio);
 
-BEGIN {
-
-    # you can add your own here theoretically.
-    %HOSTS = (
-               'dbfetch' => {
-                   baseurl => 'http://%s/Tools/dbfetch/dbfetch?db=medline&style=raw',
-                   hosts   => {
-                       'ebi'  => 'www.ebi.ac.uk'
-                       }
-               }
+# you can add your own here theoretically.
+our %HOSTS = (
+              'dbfetch' => {
+                            baseurl => 'http://%s/Tools/dbfetch/dbfetch?db=medline&style=raw',
+                            hosts   => {
+                                        'ebi'  => 'www.ebi.ac.uk'
+                                        }
+                            }
               );
-    %FORMATMAP = ( 'default' => 'medlinexml'
-                   );
-    $DEFAULTFORMAT = 'medlinexml';
+our %FORMATMAP = ( 'default' => 'medlinexml' );
+our $DEFAULTFORMAT = 'medlinexml';
 
-    $DEFAULT_SERVICE = 'http://www.ebi.ac.uk/Tools/dbfetch/dbfetch';
-    $DEFAULTRETRIEVAL_TYPE = 'tempfile';
-}
+our $DEFAULT_SERVICE = 'http://www.ebi.ac.uk/Tools/dbfetch/dbfetch';
+our $DEFAULTRETRIEVAL_TYPE = 'tempfile';
+
 
 sub new {
     my ($class, @args ) = @_;
