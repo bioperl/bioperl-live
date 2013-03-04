@@ -120,7 +120,6 @@ our %HOSTS = (
                             }
               );
 our %FORMATMAP = ( 'default' => 'medlinexml' );
-our $DEFAULTFORMAT = 'medlinexml';
 
 our $DEFAULT_SERVICE = 'http://www.ebi.ac.uk/Tools/dbfetch/dbfetch';
 our $DEFAULTRETRIEVAL_TYPE = 'tempfile';
@@ -136,7 +135,7 @@ sub new {
     $self->hosts(\%HOSTS);
     $self->formatmap(\%FORMATMAP);
         $self->retrieval_type($DEFAULTRETRIEVAL_TYPE);
-    $self->{'_default_format'} = $DEFAULTFORMAT;
+    $self->{'_default_format'} = $FORMATMAP{'default'};
 
     return $self;
 }
