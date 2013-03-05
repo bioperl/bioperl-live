@@ -111,7 +111,7 @@ my %recommends = (
     'PostScript::TextBlock'     => [0,
         'EPS output/Bio::Tree::Draw::Cladogram'],
 
-    'SharedNFSLock'             => [0,
+    'File::SharedNFSLock'             => [0,
         'Database locking/Bio::DB::IndexedBase'],
 
     'Set::Scalar'               => [0,
