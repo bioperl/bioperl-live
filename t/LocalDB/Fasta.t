@@ -355,7 +355,6 @@ SKIP: {
             is $db1->seq('gi|352962148|ref|NM_001251825.1|', 20, 29,  1), 'GUCAGCGUCC';
             is $db2->seq('gi|352962148|ref|NM_001251825.1|', 20, 29,  1), 'GUCAGCGUCC';
             is $db3->seq('gi|352962148|ref|NM_001251825.1|', 20, 29,  1), 'GUCAGCGUCC';
-
         }
 
         {
@@ -447,12 +446,16 @@ SKIP: {
             is $val2, 'acgtacgtac';
         }
 
-        {
-            skip("since returning a PrimarySeq from a thread segfaults", 3);
-
-            ok $thr1 = threads->create(\&worker_seq, $test_dir, 'CEESA96F');
-            ok $val1 = $thr1->join;
-            isa_ok $val1, 'Bio::PrimarySeqI';
+        TODO: {
+            local $TODO = 'returning a PrimarySeq from a thread segfaults. '.
+                'Upstream bug https://rt.perl.org/rt3//Public/Bug/Display.html?id=115972';
+            ok 1;
+            {
+                skip("since returning a PrimarySeq from a thread segfaults", 3);
+                ok $thr1 = threads->create(\&worker_seq, $test_dir, 'CEESA96F');
+                ok $val1 = $thr1->join;
+                isa_ok $val1, 'Bio::PrimarySeqI';
+            }
         }
 
     }
