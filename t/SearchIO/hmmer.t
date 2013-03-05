@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 301);
+    test_begin(-tests => 302);
 
 	use_ok('Bio::SearchIO');
 }
@@ -425,3 +425,15 @@ is($result->num_hits(), 2, 'Check num_hits');
    is($hsp->length,"561","bug3421 - Check if can correctly parse an HSP with line full of dashes");
 }
 # end bug 3421
+
+# bug 3302
+{
+   my $in = Bio::SearchIO->new(-format => 'hmmer',
+                            -file   => test_input_file('hmmpfam_multiresult.out')
+			   );
+   my $result = $in->next_result;
+   my $result = $in->next_result;
+   my $hit = $result->next_hit;
+   is($hit->name, "IS66_ORF3.uniq","bug3302 - Check if can parse multiresult hmmer");
+}
+# end bug 3302
