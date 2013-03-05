@@ -69,6 +69,10 @@ CPAN releases are branched from 'master'.
 
     [Bug fixes]
 
+    * [3302] Fixes bug in Bio::SearchIO::hmmer2.pm to correctly parse
+      multi-query hmmer output [Francisco J. Ossandon, Paul Cantalupo]
+    * [3421] Fixes bug in Bio::SearchIO::hmmer2.pm to correctly parse an HSP
+      with a line full of dashes [Francisco J. Ossandon, Paul Cantalupo]
     * [3298] Fix bug in Bio::SearchIO::blast.pm where algorithm version
       information was lost in a multi-result blast file [Paul Cantalupo]
     * [3343] Fix bug in Bio::SearchIO::blasttable.pm to correctly calculate
