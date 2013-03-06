@@ -48,10 +48,11 @@ CPAN releases are branched from 'master'.
     * Bio::DB::Taxonomy::*
         - get_num_taxa() returns the number of taxa in the database [fangly]
     * Bio::DB::Fasta and Bio::DB::Qual
-        - hooks for serialization with Storable
         - support indexing an arbitrary list of files [fangly]
         - user can supply an arbitrary index file name [fangly]
         - new option to remove index file at the end [fangly]
+        - hooks for compatiblity with Storable [fangly]
+        - support for multithreading [fangly]
     * Bio::DB::Fasta
         - now handles IUPAC degenerate residues [fangly]
     * Bio::PrimarySeq and Bio::PrimarySeqI
@@ -90,6 +91,8 @@ CPAN releases are branched from 'master'.
     * Bio::DB::Fasta rev-comps sequences other than DNA properly [fangly]
     * [3238] Fixes for Bio::DB::SeqFeature::Store::DBI::Pg [Thomas Burkhard,
       cjfields]
+    * Bio::DB::Fasta and Qual have better support for SDBM backend, but do not
+      support the NDBM backend anymore [fangly]
     * Various fixes for Stockholm file indexing and processing [bosborne]
     * Fix edge case in FASTQ parsing where sequence of length 1 and qual of 0
       breaks parsing [cjfields]
