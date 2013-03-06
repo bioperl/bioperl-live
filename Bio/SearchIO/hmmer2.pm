@@ -219,10 +219,10 @@ sub next_result {
             if ( !$seentop ) {
 
                 # we're in a multi-query report
-                $self->_pushback( $self->{'_hmmidline'} );
-                $self->_pushback( $self->{'_hmmfileline'} );
-                $self->_pushback( $self->{'_hmmseqline'} );
                 $self->_pushback($lineorig);
+                $self->_pushback( $self->{'_hmmseqline'} );
+                $self->_pushback( $self->{'_hmmfileline'} );
+                $self->_pushback( $self->{'_hmmidline'} );
                 next;
             }
             s/\s+$//;
@@ -863,7 +863,7 @@ sub next_result {
                         elsif (CORE::length($_) == 0
                             || ( $count != 1 && /^\s+$/o )
                             || /^\s+\-?\*\s*$/
-                            || /^.+\-\s+\-\s*$/ )
+                            || /^\s+\S+\s+\-\s+\-\s*$/ )
                         {
                             next;
                         }

@@ -102,6 +102,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::SeqVersion::gi;
 use strict;
+use Encode;
 use HTML::TableExtract;
 use base qw(Bio::DB::SeqVersion);
 
@@ -278,7 +279,7 @@ sub _process_data {
     my $te = HTML::TableExtract->new(
         headers => ['Gi', 'Version', 'Update Date'] ,
         depth   => 0);
-    $te->parse($html);
+    $te->parse(decode_utf8($html));
     my $table = $te->first_table_found;
     $self->throw("No table found") unless defined $table;
     my $t = [$table->rows];

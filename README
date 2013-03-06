@@ -1,29 +1,9 @@
 This is the README file for the BioPerl central distribution.
 
-o Version  
-
- This is bioperl-live, from the BioPerl GitHub master branch 
-
 o Getting Started
-
- Thank you for downloading this distribution!
 
  Please see the the INSTALL or INSTALL.WIN documents for installation
  instructions.
-
- For tutorials see the BioPerl Tutorial.pl
- (http://www.bioperl.org/wiki/Bptutorial.pl) or the HOWTO documents
- and tutorials online at http://bioperl.org. To look at example code
- browse the scripts/ and examples/ directories
-
- For people starting out with Perl and BioPerl, look at the Bio::Perl
- module (go "perldoc Bio::Perl" from within this directory). This
- module is designed to flatten the learning curve for newcomers.
-
- For a list of OS's and versions that are known to support BioPerl see
- the PLATFORMS file.
- 
- For info on BioPerl read on!
 
 o About BioPerl
 
@@ -36,7 +16,7 @@ o About BioPerl
 
 o Contact info
 
- BioPerl developers: bioperl-l@bioperl.org
+ BioPerl mailing list: bioperl-l@bioperl.org
 
  There's quite a variety of tools available in BioPerl, and more are
  added all the time. If the tool you're looking for isn't described in
@@ -45,8 +25,6 @@ o Contact info
 
  Project website : http://bioperl.org/
 
- Project FTP server : bioperl.org (anonymous FTP ok)
-
  Bug reports : https://redmine.open-bio.org/projects/bioperl/
 
      Please send us bugs, in particular about documentation which you
@@ -54,52 +32,34 @@ o Contact info
      interested in functions which don't work the way you think they
      do!
 
- Please see the AUTHORS file for the complete list of BioPerl
- developers and contributors.
-
-o About the directory structure
+o The directory structure
 
  The BioPerl directory structure is organized as follows:
 
    - Bio/ - BioPerl modules
 
-   - models/ - DIA drawing program generated OO UML for BioPerl classes
-         (these are quite out-of-date)
-
-   - t/ - Perl built-in tests
-         tests are divided into subdirectories generally based on the
-         specific classes being tested
-
-   - t/data/ - Data files used for the tests
-         provides good data examples for those new to bioinformatics data
-
-   - scripts/ - Useful production-quality scripts with POD documentation
+   - doc/ - Documentation utilities
 
    - examples/ - Scripts demonstrating the many uses of BioPerl
 
+   - ide/ - files for developing BioPerl using an IDE
+
    - maintenance/ - BioPerl housekeeping scripts
+
+   - models/ - DIA drawing program generated OO UML for BioPerl classes
+               (these are quite out-of-date)
+
+   - scripts/ - Useful production-quality scripts with POD documentation
+
+   - t/ - Perl built-in tests, tests are divided into subdirectories 
+          based on the specific classes being tested
+
+   - t/data/ - Data files used for the tests, provides good example data
 
 o Documentation
 
- The BioPerl Tutorial (http://www.bioperl.org/wiki/Bptutorial.pl)
- contains useful information for new and existing BioPerl users. This
- file also contains a number of useful scripts that the student of
- BioPerl may want to examine.
-
- Individual *.pm modules have their own embedded POD documentation as
- well. A complete set of hyperlinked POD, or module, documentation is
- available at http://www.bioperl.org/.
-
- Remember that 'perldoc' is your friend. You can use it to read any
- file containing POD formatted documentation without needing any type
- of translator.
- 
- If you used the Build.PL installation, and depending on your
- platform, you may have documentation installed as man pages, which
- can be accessed in the usual way.
-
- There is also an online course written at the Pasteur Institute. See
- http://www.pasteur.fr/recherche/unites/sis/formation/bioperl.
+ For documentation on BioPerl see the HOWTO documents and tutorials 
+ online at http://bioperl.org.
 
  Useful documentation in the form of example code can also be found in
  the examples/ and scripts/ directories. The current collection
@@ -108,22 +68,26 @@ o Documentation
  protein to nucleotide sequence, run GENSCAN on multiple sequences,
  and much more! See bioscripts.pod for a complete listing.
 
+ Individual *.pm modules have their own embedded POD documentation as
+ well. A complete set of hyperlinked POD, or module, documentation is
+ available at http://www.bioperl.org/.
+
+ Remember that 'perldoc' is your friend. You can use it to read any
+ file containing POD formatted documentation without needing any type
+ of translator (e.g. 'perldoc Bio::SeqIO').
+ 
+ If you used the Build.PL installation, and depending on your
+ platform, you may have documentation installed as man pages, which
+ can be accessed in the usual way.
+
 o Releases
   
- BioPerl releases are always available from the website
- http://www.bioperl.org/ or by FTP from ftp://bioperl.org/ (note that
- we've had trouble with our new network setup which is not allowing
- FTP to support passive mode properly, use http://www.bioperl.org/DIST
- to get a listing of the distribution directory).  Each release is
- tested with the test suite and cross-tested on a number of different
- platforms. See the PLATFORMS file for more information on a specific
- platform. All efforts are made to release a bug-free package, however
- most major bugs in a release will be documented in the BUGS file. See
- the Changes file for a listing of what features have been added or
- what APIs have changed between releases.
+ BioPerl releases are always available from the website at
+ http://www.bioperl.org/DIST or in CPAN. The latest code can be found
+ at https://github.com/bioperl.
 
  BioPerl formerly used a numbering scheme to indicate stable release
- series vs.  development release series. A release number is a three
+ series vs. development release series. A release number is a three
  digit number like 1.2.0. The first digit indicates the major release
  - the idea being that all the API calls in a major release are
  reasonably consistent. The second number is the release series. This
@@ -146,7 +110,7 @@ o Releases
  distribution for cutting-edge (in development) code, untested
  modules, and alternative implementations.
 
-o Caveats, warnings, etc
+o Caveats and warnings
 
  When you run the tests ("./Build test") some tests may issue warnings
  messages or even fail. Sometimes this is because we didn't have
@@ -154,8 +118,7 @@ o Caveats, warnings, etc
  system, version of perl, and associated libraries and other modules.
  Because BioPerl depends on several outside libraries we may not be
  able to test every single combination so if there are warnings you
- may find that the package is still perfectly useful. See the
- PLATFORMS file for reports of specific issues.
+ may find that the package is still perfectly useful.
  
  If you install the bioperl-run system and run tests when you don't
  have the program installed you'll get messages like 'program XXX not
@@ -163,14 +126,14 @@ o Caveats, warnings, etc
  supposed to do. If you wanted to run the program you'd need to
  install it first.
  
- Not all scripts in the examples/ directory are correct and
- up-to-date. We need volunteers to help maintain these so if you find
- they do not work, submit a bug report to https://redmine.open-bio.org/projects/bioperl/
+ Not all scripts in the examples/ directory are correct and up-to-date.
+ We need volunteers to help maintain these so if you find they do not
+ submit a bug report to https://redmine.open-bio.org/projects/bioperl/
  and consider helping out in their maintenance.
 
  If you are confused about what modules are appropriate when you try
  and solve a particular issue in bioinformatics we urge you to look at
- the BioPerl Tutorial or the HOWTO documents first.
+ HOWTO documents first.
 
 o A simple module summary
 
@@ -246,7 +209,7 @@ o A simple module summary
    References, and misc key/value pairs)
 
  - Coordinate is a system for mapping between different coordinate
-   systems such as DNA to protein or between assemblies.
+   systems such as DNA to protein or between assemblies
 
  - Index is for locally indexed flatfiles with BerkeleyDB
 
@@ -293,4 +256,3 @@ o Upgrading from an older version
  give you warnings or may not work at all (although we have tried very
  hard to minimize this!). Send an email to the list and we'll be happy
  to give you pointers.
-

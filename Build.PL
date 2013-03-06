@@ -141,9 +141,6 @@ my %recommends = (
     'Text::ParseWords'          => [0,
         'Test scripts/Bio::DB::SeqFeature::Store::FeatureFileLoader'],
 
-    'XML::DOM::XPath'           => [0.13,
-        'parsing interpro features/Bio::FeatureIO::interpro'],
-
     'XML::Parser'               => [0,
         'parsing xml/Bio::Biblio::IO::medlinexml'],
 

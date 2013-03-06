@@ -15,20 +15,21 @@ bp_download_query_genbank - script to query Genbank and retrieve records
 
  Provide ONE of:
 
-  --query query string OR
+  -q --query query string OR
   --queryfile profile file with query OR
-  --gi --gifile file with list of GIs to download
+  --gi --gis --gifile file with list of GIs to download
 
  Database type:
 
- --db database (nucest, protein, nucleotide)
+ -d --db database (nucleotide [default], nucest, protein, )
 
- -f --format sequence file output format
+ -o --out --outfile output file (results are displayed on screen otherwise)
+ -f --format sequence file output format (fasta by default)
  -v --verbose debugging output
 
 =head2 Query options
 
- --maxids maximum number of IDs to retrieve in a set
+ --maxids maximum number of IDs to retrieve in a set (100 at a time by default)
  --reldate 
  --maxdate maxdate for a record
  --mindate minimum date for record

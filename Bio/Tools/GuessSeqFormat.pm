@@ -9,6 +9,8 @@
 # You may distribute this module under the same terms as perl itself
 #------------------------------------------------------------------
 
+=encoding utf-8
+
 =head1 NAME
 
 Bio::Tools::GuessSeqFormat - Module for determining the sequence
@@ -230,11 +232,11 @@ submitted via the web:
 
 =head1 AUTHOR
 
-Andreas Kähäri, andreas.kahari@ebi.ac.uk
+Andreas KE<228>hE<228>ri, andreas.kahari@ebi.ac.uk
 
 =head1 CONTRIBUTORS
 
-Heikki Lehväslaiho, heikki-at-bioperl-dot-org
+Heikki LehvE<228>slaiho, heikki-at-bioperl-dot-org
 Mark A. Jensen, maj-at-fortinbras-dot-us
 
 =cut
