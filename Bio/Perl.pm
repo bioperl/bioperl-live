@@ -122,25 +122,25 @@ use Bio::Seq;
 use Bio::Root::Version '$VERSION';
 BEGIN {
     eval {
-	require Bio::DB::EMBL;
-	require Bio::DB::GenBank;
-	require Bio::DB::SwissProt;
-	require Bio::DB::RefSeq;
-	require Bio::DB::GenPept;
+        require Bio::DB::EMBL;
+        require Bio::DB::GenBank;
+        require Bio::DB::SwissProt;
+        require Bio::DB::RefSeq;
+        require Bio::DB::GenPept;
     };
     if( $@ ) {
-	$DBOKAY = 0;
+        $DBOKAY = 0;
     } else {
-	$DBOKAY = 1;
+        $DBOKAY = 1;
     }
 }
 
 use base qw(Exporter);
 
 @EXPORT = qw(read_sequence read_all_sequences write_sequence
-	     new_sequence get_sequence translate translate_as_string
-	     reverse_complement revcom revcom_as_string
-	     reverse_complement_as_string blast_sequence write_blast);
+             new_sequence get_sequence translate translate_as_string
+             reverse_complement revcom revcom_as_string
+             reverse_complement_as_string blast_sequence write_blast);
 
 @EXPORT_OK = @EXPORT;
 
@@ -171,23 +171,23 @@ For more information on Seq objects see L<Bio::Seq>.
 =cut
 
 sub read_sequence{
-   my ($filename,$format) = @_;
+    my ($filename,$format) = @_;
 
-   if( !defined $filename ) {
-       confess "read_sequence($filename) - usage incorrect";
-   }
+    if( !defined $filename ) {
+        confess "read_sequence($filename) - usage incorrect";
+    }
 
-   my $seqio;
+    my $seqio;
 
-   if( defined $format ) {
-       $seqio = Bio::SeqIO->new( '-file' => $filename, '-format' => $format);
-   } else {
-       $seqio = Bio::SeqIO->new( '-file' => $filename);
-   }
+    if( defined $format ) {
+        $seqio = Bio::SeqIO->new( '-file' => $filename, '-format' => $format);
+    } else {
+        $seqio = Bio::SeqIO->new( '-file' => $filename);
+    }
 
-   my $seq = $seqio->next_seq();
+    my $seq = $seqio->next_seq();
 
-   return $seq;
+    return $seq;
 }
 
 
@@ -214,27 +214,27 @@ See L<Bio::SeqIO> and L<Bio::Seq> for more information
 =cut
 
 sub read_all_sequences{
-   my ($filename,$format) = @_;
+    my ($filename,$format) = @_;
 
-   if( !defined $filename ) {
-       confess "read_all_sequences($filename) - usage incorrect";
-   }
+    if( !defined $filename ) {
+        confess "read_all_sequences($filename) - usage incorrect";
+    }
 
-   my $seqio;
+    my $seqio;
 
-   if( defined $format ) {
-       $seqio = Bio::SeqIO->new( '-file' => $filename, '-format' => $format);
-   } else {
-       $seqio = Bio::SeqIO->new( '-file' => $filename);
-   }
+    if( defined $format ) {
+        $seqio = Bio::SeqIO->new( '-file' => $filename, '-format' => $format);
+    } else {
+        $seqio = Bio::SeqIO->new( '-file' => $filename);
+    }
 
-   my @seq_array;
+    my @seq_array;
 
-   while( my $seq = $seqio->next_seq() ) {
-       push(@seq_array,$seq);
-   }
+    while( my $seq = $seqio->next_seq() ) {
+        push(@seq_array,$seq);
+    }
 
-   return @seq_array;
+    return @seq_array;
 }
 
 
@@ -256,51 +256,56 @@ sub read_all_sequences{
 =cut
 
 sub write_sequence{
-   my ($filename,$format,@sequence_objects) = @_;
+    my ($filename,$format,@sequence_objects) = @_;
 
-   if( scalar(@sequence_objects) == 0 ) {
-       confess("write_sequence(filename,format,sequence_object)");
-   }
+    if( scalar(@sequence_objects) == 0 ) {
+        confess("write_sequence(filename,format,sequence_object)");
+    }
 
-   my $error = 0;
-   my $seqname = "sequence1";
+    my $error = 0;
+    my $seqname = "sequence1";
 
-   # catch users who haven't passed us a filename we can open
-   if( $filename !~ /^\>/ && $filename !~ /^|/ ) {
-       $filename = ">".$filename;
-   }
+    # catch users who haven't passed us a filename we can open
+    if( $filename !~ /^\>/ && $filename !~ /^|/ ) {
+        $filename = ">".$filename;
+    }
 
-   my $seqio = Bio::SeqIO->new('-file' => $filename, '-format' => $format);
+    my $seqio = Bio::SeqIO->new('-file' => $filename, '-format' => $format);
 
-   foreach my $seq ( @sequence_objects ) {
-       my $seq_obj;
+    foreach my $seq ( @sequence_objects ) {
+        my $seq_obj;
 
-       if( !ref $seq ) {
-	   if( length $seq > 50 ) {
-	       # odds are this is a sequence as a string, and someone has not figured out
-	       # how to make objects. Warn him/her and then make a sequence object
-	       # from this
-	       if( $error == 0 ) {
-		   carp("WARNING: You have put in a long string into write_sequence.\nI suspect this means that this is the actual sequence\nIn the future try the\n  new_sequence method of this module to make a new sequence object.\nDoing this for you here\n");
-		   $error = 1;
-	       }
+        if( !ref $seq ) {
+            if( length $seq > 50 ) {
+                # odds are this is a sequence as a string, and someone has not figured out
+                # how to make objects. Warn him/her and then make a sequence object
+                # from this
+                if( $error == 0 ) {
+                    carp("WARNING: You have put in a long string into write_sequence.\n".
+                         "I suspect this means that this is the actual sequence\n".
+                         "In the future try the\n".
+                         "  new_sequence method of this module to make a new sequence object.\n".
+                         "Doing this for you here\n");
+                    $error = 1;
+                }
 
-	       $seq_obj = new_sequence($seq,$seqname);
-	       $seqname++;
-	   } else {
-	       confess("You have a non object [$seq] passed to write_sequence. It maybe that you want to use new_sequence to make this string into a sequence object?");
-	   }
-       } else {
-	   if( !$seq->isa("Bio::SeqI") ) {
-	       confess("object [$seq] is not a Bio::Seq object; can't write it out");
-	   }
-	   $seq_obj = $seq;
-       }
+                $seq_obj = new_sequence($seq,$seqname);
+                $seqname++;
+            } else {
+                confess("You have a non object [$seq] passed to write_sequence. It maybe that you".
+                        "want to use new_sequence to make this string into a sequence object?");
+            }
+        } else {
+            if( !$seq->isa("Bio::SeqI") ) {
+                confess("object [$seq] is not a Bio::Seq object; can't write it out");
+            }
+            $seq_obj = $seq;
+        }
 
-       # finally... we get to write out the sequence!
-       $seqio->write_seq($seq_obj);
-   }
-   1;
+        # finally... we get to write out the sequence!
+        $seqio->write_seq($seq_obj);
+    }
+    1;
 }
 
 =head2 new_sequence
@@ -318,19 +323,19 @@ sub write_sequence{
 =cut
 
 sub new_sequence{
-   my ($seq,$name,$accession) = @_;
+    my ($seq,$name,$accession) = @_;
 
-   if( !defined $seq ) {
-       confess("new_sequence(sequence_as_string) usage");
-   }
+    if( !defined $seq ) {
+        confess("new_sequence(sequence_as_string) usage");
+    }
 
-   $name ||= "no-name-for-sequence";
+    $name ||= "no-name-for-sequence";
 
-   my $seq_object = Bio::Seq->new( -seq => $seq, -id => $name);
+    my $seq_object = Bio::Seq->new( -seq => $seq, -id => $name);
 
-   $accession && $seq_object->accession_number($accession);
+    $accession && $seq_object->accession_number($accession);
 
-   return $seq_object;
+    return $seq_object;
 }
 
 =head2 blast_sequence
@@ -358,13 +363,13 @@ sub blast_sequence {
     my ($seq,$verbose) = @_;
 
     if( !defined $verbose ) {
-	$verbose = 1;
+        $verbose = 1;
     }
 
     if( !ref $seq ) {
-	$seq = Bio::Seq->new( -seq => $seq, -id => 'blast-sequence-temp-id');
+        $seq = Bio::Seq->new( -seq => $seq, -id => 'blast-sequence-temp-id');
     } elsif ( !$seq->isa('Bio::PrimarySeqI') ) {
-	croak("[$seq] is an object, but not a Bio::Seq object, cannot be blasted");
+        croak("[$seq] is an object, but not a Bio::Seq object, cannot be blasted");
     }
 
     require Bio::Tools::Run::RemoteBlast;
@@ -373,14 +378,14 @@ sub blast_sequence {
     my $e_val= '1e-10';
 
     my @params = ( '-prog' => $prog,
-		   '-expect' => $e_val,
-		   '-readmethod' => 'SearchIO' );
+                   '-expect' => $e_val,
+                   '-readmethod' => 'SearchIO' );
 
     my $factory = Bio::Tools::Run::RemoteBlast->new(@params);
 
     my $r = $factory->submit_blast($seq);
     if( $verbose ) {
-	print STDERR "Submitted Blast for [".$seq->id."] ";
+        print STDERR "Submitted Blast for [".$seq->id."] ";
     }
     sleep 5;
 
@@ -388,26 +393,26 @@ sub blast_sequence {
 
     LOOP :
     while( my @rids = $factory->each_rid) {
-	foreach my $rid ( @rids ) {
-	    my $rc = $factory->retrieve_blast($rid);
-	    if( !ref($rc) ) {
-		if( $rc < 0 ) {
-		    $factory->remove_rid($rid);
-		}
-		if( $verbose ) {
-		    print STDERR ".";
-		}
-		sleep 10;
-	    } else {
-		$result = $rc->next_result();
-		$factory->remove_rid($rid);
-		last LOOP;
-	    }
-	}
+        foreach my $rid ( @rids ) {
+            my $rc = $factory->retrieve_blast($rid);
+            if( !ref($rc) ) {
+                if( $rc < 0 ) {
+                    $factory->remove_rid($rid);
+                }
+                if( $verbose ) {
+                    print STDERR ".";
+                }
+                sleep 10;
+            } else {
+                $result = $rc->next_result();
+                $factory->remove_rid($rid);
+                last LOOP;
+            }
+        }
     }
 
     if( $verbose ) {
-	print STDERR "\n";
+        print STDERR "\n";
     }
     return $result;
 }
@@ -432,7 +437,7 @@ sub write_blast {
     my ($filename,$blast) = @_;
 
     if( $filename !~ /^\>/ && $filename !~ /^|/ ) {
-	$filename = ">".$filename;
+        $filename = ">".$filename;
     }
 
     my $output = Bio::SearchIO->new( -output_format => 'blast', -file => $filename);
@@ -470,59 +475,61 @@ my $swiss_db = undef;
 my $refseq_db = undef;
 
 sub get_sequence{
-   my ($db_type,$identifier) = @_;
-   if( ! $DBOKAY ) {
-       confess ("Your system does not have one of LWP, HTTP::Request::Common, IO::String installed so the DB retrieval method is not available.  \nFull error message is:\n $!\n");
-       return;
-   }
-   $db_type = lc($db_type);
+    my ($db_type,$identifier) = @_;
+    if( ! $DBOKAY ) {
+        confess ("Your system does not have one of LWP, HTTP::Request::Common, IO::String\n".
+                 "installed so the DB retrieval method is not available.\n".
+                 "Full error message is:\n $!\n");
+        return;
+    }
+    $db_type = lc($db_type);
 
-   my $db;
+    my $db;
 
-   if( $db_type =~ /genbank/ ) {
-       if( !defined $genbank_db ) {
-	   $genbank_db = Bio::DB::GenBank->new();
-       }
-       $db = $genbank_db;
-   }
-   if( $db_type =~ /genpept/ ) {
-       if( !defined $genpept_db ) {
-	   $genpept_db = Bio::DB::GenPept->new();
-       }
-       $db = $genpept_db;
-   }
+    if( $db_type =~ /genbank/ ) {
+        if( !defined $genbank_db ) {
+            $genbank_db = Bio::DB::GenBank->new();
+        }
+        $db = $genbank_db;
+    }
+    if( $db_type =~ /genpept/ ) {
+        if( !defined $genpept_db ) {
+            $genpept_db = Bio::DB::GenPept->new();
+        }
+        $db = $genpept_db;
+    }
 
-   if( $db_type =~ /swiss/ ) {
-       if( !defined $swiss_db ) {
-	   $swiss_db = Bio::DB::SwissProt->new();
-       }
-       $db = $swiss_db;
-   }
+    if( $db_type =~ /swiss/ ) {
+        if( !defined $swiss_db ) {
+            $swiss_db = Bio::DB::SwissProt->new();
+        }
+        $db = $swiss_db;
+    }
 
-   if( $db_type =~ /embl/ ) {
-       if( !defined $embl_db ) {
-	   $embl_db = Bio::DB::EMBL->new();
-       }
-       $db = $embl_db;
-   }
+    if( $db_type =~ /embl/ ) {
+        if( !defined $embl_db ) {
+            $embl_db = Bio::DB::EMBL->new();
+        }
+        $db = $embl_db;
+    }
 
-   if( $db_type =~ /refseq/ or ($db_type !~ /swiss/ and
-				$identifier =~ /^\s*N\S+_/)) {
-       if( !defined $refseq_db ) {
-	   $refseq_db = Bio::DB::RefSeq->new();
-       }
-       $db = $refseq_db;
-   }
+    if( $db_type =~ /refseq/ or ($db_type !~ /swiss/ and
+                                 $identifier =~ /^\s*N\S+_/)) {
+        if( !defined $refseq_db ) {
+            $refseq_db = Bio::DB::RefSeq->new();
+        }
+        $db = $refseq_db;
+    }
 
-   my $seq;
+    my $seq;
 
-   if( $identifier =~ /^\w+\d+$/ ) {
-       $seq = $db->get_Seq_by_acc($identifier);
-   } else {
-       $seq = $db->get_Seq_by_id($identifier);
-   }
+    if( $identifier =~ /^\w+\d+$/ ) {
+        $seq = $db->get_Seq_by_acc($identifier);
+    } else {
+        $seq = $db->get_Seq_by_id($identifier);
+    }
 
-   return $seq;
+    return $seq;
 }
 
 
@@ -541,31 +548,24 @@ sub get_sequence{
 =cut
 
 sub translate {
-   my ($scalar) = shift;
+    my ($scalar) = shift;
 
-   my $obj;
-
-   if( ref $scalar ) {
-     if( !$scalar->isa("Bio::PrimarySeqI") ) {
-        confess("Expecting a sequence object not a $scalar");
-     } else {
-        $obj= $scalar;
-
-     }
-
-   } else {
-
-     # check this looks vaguely like DNA
-     my $n = ( $scalar =~ tr/ATGCNatgcn/ATGCNatgcn/ );
-
-     if( $n < length($scalar) * 0.85 ) {
-       confess("Sequence [$scalar] is less than 85% ATGCN, which doesn't look very DNA to me");
-     }
-
-     $obj = Bio::PrimarySeq->new(-id => 'internalbioperlseq',-seq => $scalar);
-   }
-
-   return $obj->translate();
+    my $obj;
+    if( ref $scalar ) {
+        if( !$scalar->isa("Bio::PrimarySeqI") ) {
+            confess("Expecting a sequence object not a $scalar");
+        } else {
+            $obj= $scalar;
+        }
+    } else {
+        # check this looks vaguely like DNA
+        my $n = ( $scalar =~ tr/ATGCNatgcn/ATGCNatgcn/ );
+        if( $n < length($scalar) * 0.85 ) {
+            confess("Sequence [$scalar] is less than 85% ATGCN, which doesn't look very DNA to me");
+        }
+        $obj = Bio::PrimarySeq->new(-id => 'internalbioperlseq',-seq => $scalar);
+    }
+    return $obj->translate();
 }
 
 
@@ -584,11 +584,9 @@ sub translate {
 =cut
 
 sub translate_as_string {
-   my ($scalar) = shift;
-
-   my $obj = Bio::Perl::translate($scalar);
-
-   return $obj->seq;
+    my ($scalar) = shift;
+    my $obj = Bio::Perl::translate($scalar);
+    return $obj->seq;
 }
 
 
@@ -608,31 +606,30 @@ sub translate_as_string {
 =cut
 
 sub reverse_complement {
-   my ($scalar) = shift;
+    my ($scalar) = shift;
 
-   my $obj;
+    my $obj;
 
-   if( ref $scalar ) {
-     if( !$scalar->isa("Bio::PrimarySeqI") ) {
-        confess("Expecting a sequence object not a $scalar");
-     } else {
-        $obj= $scalar;
+    if( ref $scalar ) {
+        if( !$scalar->isa("Bio::PrimarySeqI") ) {
+            confess("Expecting a sequence object not a $scalar");
+        } else {
+            $obj= $scalar;
+        }
 
-     }
+    } else {
 
-   } else {
+        # check this looks vaguely like DNA
+        my $n = ( $scalar =~ tr/ATGCNatgcn/ATGCNatgcn/ );
 
-     # check this looks vaguely like DNA
-     my $n = ( $scalar =~ tr/ATGCNatgcn/ATGCNatgcn/ );
+        if( $n < length($scalar) * 0.85 ) {
+            confess("Sequence [$scalar] is less than 85% ATGCN, which doesn't look very DNA to me");
+        }
 
-     if( $n < length($scalar) * 0.85 ) {
-       confess("Sequence [$scalar] is less than 85% ATGCN, which doesn't look very DNA to me");
-     }
+        $obj = Bio::PrimarySeq->new(-id => 'internalbioperlseq',-seq => $scalar);
+    }
 
-     $obj = Bio::PrimarySeq->new(-id => 'internalbioperlseq',-seq => $scalar);
-   }
-
-   return $obj->revcom();
+    return $obj->revcom();
 }
 
 =head2 revcom
@@ -672,11 +669,9 @@ sub revcom {
 =cut
 
 sub reverse_complement_as_string {
-   my ($scalar) = shift;
-
-   my $obj = &Bio::Perl::reverse_complement($scalar);
-
-   return $obj->seq;
+    my ($scalar) = shift;
+    my $obj = &Bio::Perl::reverse_complement($scalar);
+    return $obj->seq;
 }
 
 
@@ -695,11 +690,9 @@ sub reverse_complement_as_string {
 =cut
 
 sub revcom_as_string {
-   my ($scalar) = shift;
-
-   my $obj = &Bio::Perl::reverse_complement($scalar);
-
-   return $obj->seq;
+    my ($scalar) = shift;
+    my $obj = &Bio::Perl::reverse_complement($scalar);
+    return $obj->seq;
 }
 
 
