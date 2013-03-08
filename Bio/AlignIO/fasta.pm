@@ -18,7 +18,7 @@ class.
 =head1 DESCRIPTION
 
 This object can transform L<Bio::SimpleAlign> objects to and from
-fasta flat file databases.  This is for the fasta alignment format, not
+fasta flat files.  This is for the fasta alignment format, not
 for the FastA sequence analysis program.  To process the alignments from
 FastA (FastX, FastN, FastP, tFastA, etc) use the Bio::SearchIO module.
 
@@ -94,24 +94,17 @@ sub next_aln {
 		$tempdesc = $entry;
 		if ( defined $name ) {
 		    $seqchar =~ s/\s//g;
-				# put away last name and sequence
-		    if ( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
-			$seqname = $1;
-			$start = $2;
-			$end = $3;
-		    } else {
 			$seqname = $name;
 			$start = 1;
 			$end = $self->_get_len($seqchar);
-		    }
 		    $seq = Bio::LocatableSeq->new
 			( 
-			  '-seq'         => $seqchar,
-			  '-display_id'  => $seqname,
-			  '-description' => $desc,
-			  '-start'       => $start,
-			  '-end'         => $end,
-			  '-alphabet'    => $self->alphabet,
+			  -seq         => $seqchar,
+			  -display_id  => $seqname,
+			  -description => $desc,
+			  -start       => $start,
+			  -end         => $end,
+			  -alphabet    => $self->alphabet,
 			  );
 		    $aln->add_seq($seq);
 		    $self->debug("Reading $seqname\n");
@@ -148,12 +141,12 @@ sub next_aln {
 	# end of the file. Skip this is seqchar and seqname is null
 	unless ( length($seqchar) == 0 && length($seqname) == 0 ) {
 	    $seq = Bio::LocatableSeq->new
-		('-seq'         => $seqchar,
-		 '-display_id'  => $seqname,
-		 '-description' => $desc,
-		 '-start'       => $start,
-		 '-end'         => $end,
-		 '-alphabet'    => $self->alphabet,
+		(-seq         => $seqchar,
+		 -display_id  => $seqname,
+		 -description => $desc,
+		 -start       => $start,
+		 -end         => $end,
+		 -alphabet    => $self->alphabet,
 		 );
 	    $aln->add_seq($seq);
 	    $self->debug("Reading $seqname\n");
