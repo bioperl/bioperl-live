@@ -447,7 +447,7 @@ sub next_result {
     my $data   = '';
     my $flavor = '';
     $self->{'_seentop'} = 0;     # start next report at top
-    $self->{'_seentop'} = 0;
+
     my ( $reporttype, $seenquery, $reportline, $reportversion );
     my ( $seeniteration, $found_again );
     my $incl_threshold = $self->inclusion_threshold;
@@ -462,7 +462,7 @@ sub next_result {
         next if (/^\s+$/);       # skip empty lines
         next if (/CPU time:/);
         next if (/^>\s*$/);
-        next if (/\Q[*]+\s+No hits found\s+[*]+\E/);
+        next if (/[*]+\s+No hits found\s+[*]+/);
         if (
                /^((?:\S+?)?BLAST[NPX]?)\s+(.+)$/i  # NCBI BLAST, PSIBLAST
                                                    # RPSBLAST, MEGABLAST
@@ -630,6 +630,27 @@ sub next_result {
                     'Data' => "$acc$version"
                 }
             ) if $acc;
+
+            # these elements are dropped with some multiquery reports; add
+            # back here
+            $self->element(
+                {
+                    'Name' => 'BlastOutput_db-len',
+                    'Data' => $self->{'_blsdb_length'}
+                }
+            ) if $self->{'_blsdb_length'};
+            $self->element(
+                {
+                    'Name' => 'BlastOutput_db-let',
+                    'Data' => $self->{'_blsdb_letters'}
+                }
+            ) if $self->{'_blsdb_letters'};
+            $self->element(
+                {
+                    'Name' => 'BlastOutput_db',
+                    'Data' => $self->{'_blsdb'}
+                }
+            ) if $self->{'_blsdb_letters'};
         }
 		# added check for WU-BLAST -echofilter option (bug 2388)
 		elsif (/^>Unfiltered[+-]1$/) {
@@ -655,26 +676,6 @@ sub next_result {
             if ( !$self->in_element('iteration') ) {
                 $self->start_element( { 'Name' => 'Iteration' } );
             }
-            # these elements are dropped with some multiquery reports; add
-            # back here
-            $self->element(
-                {
-                    'Name' => 'BlastOutput_db-len',
-                    'Data' => $self->{'_blsdb_length'}
-                }
-            ) if $self->{'_blsdb_length'};
-            $self->element(
-                {
-                    'Name' => 'BlastOutput_db-let',
-                    'Data' => $self->{'_blsdb_letters'}
-                }
-            ) if $self->{'_blsdb_letters'};
-            $self->element(
-                {
-                    'Name' => 'BlastOutput_db',
-                    'Data' => $self->{'_blsdb'}
-                }
-            ) if $self->{'_blsdb_letters'};
 
             # changed 8/28/2008 to exit hit table if blank line is found after an
             # appropriate line
@@ -757,7 +758,7 @@ sub next_result {
             }
 
         }
-        elsif (/^Database:\s*(.+)$/) {
+        elsif (/^Database:\s*(.+?)\s*$/) {
 
             $self->debug("blast.pm: Database: $1\n");
             my $db = $1;

@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 1357);
+    test_begin(-tests => 1360);
 
     use_ok('Bio::SearchIO');
 }
@@ -1171,7 +1171,7 @@ is( $r->algorithm,                           'MEGABLAST' );
 is( $r->query_name,                          '503384' );
 is( $r->query_description,                   '11337 bp 2 contigs' );
 is( $r->query_length,                        11337 );
-is( $r->database_name,                       'cneoA.nt ' );
+is( $r->database_name,                       'cneoA.nt' );
 is( $r->database_letters,                    17206226 );
 is( $r->database_entries,                    4935 );
 is( $r->get_statistic('querylength'),        11318 );
@@ -2211,3 +2211,13 @@ $searchio = Bio::SearchIO->new(
 is ($searchio->next_result->algorithm_version, '2.2.25+', "testing Bug 3298");
 is ($searchio->next_result->algorithm_version, '2.2.25+', "testing Bug 3298");
 is ($searchio->next_result->algorithm_version, '2.2.25+', "testing Bug 3298");
+
+# testing for Bug #3251
+$searchio = Bio::SearchIO->new(
+    '-format' => 'blast',
+    '-file'   => test_input_file('rpsblast_no_hits.bls')
+);
+
+is ($searchio->next_result->database_name, 'CDD.v.2.13', "testing Bug 3251");
+is ($searchio->next_result->database_name, 'CDD.v.2.13', "testing Bug 3251");
+is ($searchio->next_result->database_name, 'CDD.v.2.13', "testing Bug 3251");
