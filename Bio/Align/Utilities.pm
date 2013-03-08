@@ -19,25 +19,22 @@ and manipulating alignment objects
 =head1 SYNOPSIS
 
   use Bio::Align::Utilities qw(:all);
-  # %dnaseqs is a hash of CDS sequences (spliced)
-
 
   # Even if the protein alignments are local make sure the start/end
   # stored in the LocatableSeq objects are to the full length protein.
-  # The CoDing Sequence that is passed in should still be the full 
+  # The coding sequence that is passed in should still be the full 
   # length CDS as the nt alignment will be generated.
-  #
-  my $dna_aln = &aa_to_dna_aln($aa_aln,\%dnaseqs);
+  # %dnaseqs is a hash of CDS sequences (spliced)
 
+  my $dna_aln = &aa_to_dna_aln($aa_aln,\%dnaseqs);
 
   # generate bootstraps
   my $replicates = &bootstrap_replicates($aln,$count);
 
-
 =head1 DESCRIPTION
 
 This module contains utility methods for manipulating sequence
-alignments ( L<Bio::Align::AlignI>) objects.
+alignments (L<Bio::Align::AlignI>) objects.
 
 The B<aa_to_dna_aln> utility is essentially the same as the B<mrtrans>
 program by Bill Pearson available at
@@ -103,6 +100,7 @@ use base qw(Exporter);
 @EXPORT = qw();
 @EXPORT_OK = qw(aa_to_dna_aln bootstrap_replicates cat bootstrap_replicates_codons);
 %EXPORT_TAGS = (all =>[@EXPORT, @EXPORT_OK]);
+
 BEGIN {
     use constant CODONSIZE => 3;
     $GAP = '-';
@@ -134,46 +132,51 @@ See also: L<Bio::Align::AlignI>, L<Bio::SimpleAlign>, L<Bio::PrimarySeq>
 =cut
 
 sub aa_to_dna_aln {
-    my ($aln,$dnaseqs) = @_;
-    unless( defined $aln && 
-	    ref($aln) &&
-	    $aln->isa('Bio::Align::AlignI') ) { 
-	croak('Must provide a valid Bio::Align::AlignI object as the first argument to aa_to_dna_aln, see the documentation for proper usage and the method signature');
+    my ( $aln, $dnaseqs ) = @_;
+    unless ( defined $aln
+        && ref($aln)
+        && $aln->isa('Bio::Align::AlignI') )
+    {
+        croak(
+'Must provide a valid Bio::Align::AlignI object as the first argument to aa_to_dna_aln, see the documentation for proper usage and the method signature'
+        );
     }
-    my $alnlen = $aln->length;
+    my $alnlen   = $aln->length;
     my $dnaalign = Bio::SimpleAlign->new();
-    $aln->map_chars('\.',$GAP);
+    $aln->map_chars( '\.', $GAP );
 
-    foreach my $seq ( $aln->each_seq ) {    
-	my $aa_seqstr = $seq->seq();
-	my $id = $seq->display_id;
-	my $dnaseq = $dnaseqs->{$id} || $aln->throw("cannot find ".
-						     $seq->display_id);
-	my $start_offset = ($seq->start - 1) * CODONSIZE;
+    foreach my $seq ( $aln->each_seq ) {
+        my $aa_seqstr = $seq->seq();
+        my $id        = $seq->display_id;
+        my $dnaseq =
+          $dnaseqs->{$id} || $aln->throw( "cannot find " . $seq->display_id );
+        my $start_offset = ( $seq->start - 1 ) * CODONSIZE;
 
-	$dnaseq = $dnaseq->seq();
-	my $dnalen = $dnaseqs->{$id}->length;
-	my $nt_seqstr;
-	my $j = 0;
-	for( my $i = 0; $i < $alnlen; $i++ ) {
-	    my $char = substr($aa_seqstr,$i + $start_offset,1);	    
-	    if ( $char eq $GAP || $j >= $dnalen )  { 
-		$nt_seqstr .= $CODONGAP;
-	    } else {
-		$nt_seqstr .= substr($dnaseq,$j,CODONSIZE);
-		$j += CODONSIZE;
-	    }
-	}
-	$nt_seqstr .= $GAP x (($alnlen * 3) - length($nt_seqstr));
+        $dnaseq = $dnaseq->seq();
+        my $dnalen = $dnaseqs->{$id}->length;
+        my $nt_seqstr;
+        my $j = 0;
+        for ( my $i = 0 ; $i < $alnlen ; $i++ ) {
+            my $char = substr( $aa_seqstr, $i + $start_offset, 1 );
+            if ( $char eq $GAP || $j >= $dnalen ) {
+                $nt_seqstr .= $CODONGAP;
+            }
+            else {
+                $nt_seqstr .= substr( $dnaseq, $j, CODONSIZE );
+                $j += CODONSIZE;
+            }
+        }
+        $nt_seqstr .= $GAP x ( ( $alnlen * 3 ) - length($nt_seqstr) );
 
-	my $newdna = Bio::LocatableSeq->new(-display_id  => $id,
-					   -alphabet    => 'dna',
-					   -start       => $start_offset+1,
-					   -end         => ($seq->end * 
-							    CODONSIZE),
-					   -strand      => 1,
-					   -seq         => $nt_seqstr);    
-	$dnaalign->add_seq($newdna);
+        my $newdna = Bio::LocatableSeq->new(
+            -display_id => $id,
+            -alphabet   => 'dna',
+            -start      => $start_offset + 1,
+            -end        => ( $seq->end * CODONSIZE ),
+            -strand     => 1,
+            -seq        => $nt_seqstr
+        );
+        $dnaalign->add_seq($newdna);
     }
     return $dnaalign;
 }
