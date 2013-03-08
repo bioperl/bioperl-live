@@ -26,7 +26,7 @@ Bio::Root::Test - A common base for all Bioperl test scripts.
 
   my $do_network_tests = test_network();
   my $output_debugging = test_debug();
-  
+
   # Bio::Root::Test rewraps Test::Most, so one can carry out tests with
   # Test::More, Test::Exception, Test::Warn, Test::Deep, Test::Diff syntax
 
@@ -142,12 +142,12 @@ our @ISA = qw(Test::Builder::Module);
 
 {
     my $Tester = Test::Builder->new;
-    
+
     no warnings 'redefine';
     sub Test::Warn::_canonical_got_warning {
         my ($called_from, $msg) = @_;
         my $warn_kind = $called_from eq 'Carp' ? 'carped' : ($called_from =~ /Bio::/ ? 'Bioperl' : 'warn');
-        
+
         my $warning;
         if ($warn_kind eq 'Bioperl') {
             ($warning) = $msg =~ /\n--------------------- WARNING ---------------------\nMSG: (.+)\n---------------------------------------------------\n$/m;
@@ -157,10 +157,10 @@ our @ISA = qw(Test::Builder::Module);
             my @warning_stack = split /\n/, $msg;   # some stuff of uplevel is included
             $warning = $warning_stack[0];
         }
-        
+
         return {$warn_kind => $warning}; # return only the real message
     }
-    
+
     sub Test::Warn::_diag_found_warning {
         foreach (@_) {
             if (ref($_) eq 'HASH') {
@@ -173,12 +173,12 @@ our @ISA = qw(Test::Builder::Module);
         }
         $Tester->diag( "didn't find a warning" ) unless @_;
     }
-    
+
     sub Test::Warn::_cmp_got_to_exp_warning {
         my ($got_kind, $got_msg) = %{ shift() };
         my ($exp_kind, $exp_msg) = %{ shift() };
         return 0 if ($got_kind eq 'warn') && ($exp_kind eq 'carped');
-        
+
         my $cmp;
         if ($got_kind eq 'Bioperl') {
             $cmp = $got_msg =~ /^\Q$exp_msg\E$/;
@@ -186,7 +186,7 @@ our @ISA = qw(Test::Builder::Module);
         else {
             $cmp = $got_msg =~ /^\Q$exp_msg\E at \S+ line \d+\.?$/;
         }
-        
+
         return $cmp;
     }
 }
@@ -194,7 +194,7 @@ our @ISA = qw(Test::Builder::Module);
 our @EXPORT = (@Test::Most::EXPORT,
                #@Bio::Root::Test::Warn::EXPORT,
                # Test::Warn method wrappers
-               
+
                # BioPerl-specific
                qw(
                 test_begin

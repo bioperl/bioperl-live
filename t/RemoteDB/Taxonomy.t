@@ -3,11 +3,11 @@
 
 use strict;
 
-BEGIN { 
+BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    
-    test_begin(-tests => 138,
+
+    test_begin(-tests => 142,
         -requires_module => 'XML::Twig');
 
     use_ok('Bio::DB::Taxonomy');
@@ -53,9 +53,9 @@ for my $db ($db_entrez, $db_flatfile) {
 
         eval { $id = $db->get_taxonid('Homo sapiens');};
         skip "Unable to connect to entrez database; no network or server busy?", 38 if $@;
-        
+
         is $id, 9606;
-        
+
         # easy test on human, try out the main Taxon methods
         ok $n = $db->get_taxon(9606);
         is $n->id, 9606;
@@ -63,16 +63,16 @@ for my $db ($db_entrez, $db_flatfile) {
         is $n->ncbi_taxid, $n->id;
         is $n->parent_id, 9605;
         is $n->rank, 'species';
-        
+
         is $n->node_name, 'Homo sapiens';
         is $n->scientific_name, $n->node_name;
         is ${$n->name('scientific')}[0], $n->node_name;
-        
+
         my %common_names = map { $_ => 1 } $n->common_names;
         is keys %common_names, 3, ref($db).": common names";
         ok exists $common_names{human};
         ok exists $common_names{man};
-        
+
         is $n->division, 'Primates';
         is $n->genetic_code, 1;
         is $n->mitochondrial_genetic_code, 2;
@@ -82,7 +82,7 @@ for my $db ($db_entrez, $db_flatfile) {
             ok defined $n->create_date;
             ok defined $n->update_date;
         }
-        
+
         # briefly test some Bio::Tree::NodeI methods
         ok my $ancestor = $n->ancestor;
         is $ancestor->scientific_name, 'Homo';
@@ -90,13 +90,13 @@ for my $db ($db_entrez, $db_flatfile) {
         # each_Descendent; must ask the database directly
         ok my @children = $ancestor->db_handle->each_Descendent($ancestor);
         cmp_ok @children, '>', 0;
-        
+
         sleep(3) if $db eq $db_entrez;
-        
+
         # do some trickier things...
         ok my $n2 = $db->get_Taxonomy_Node('89593');
         is $n2->scientific_name, 'Craniata';
-        
+
         # briefly check we can use some Tree methods
         my $tree = Bio::Tree::Tree->new();
         is $tree->get_lca($n, $n2)->scientific_name, 'Craniata';
@@ -108,36 +108,30 @@ for my $db ($db_entrez, $db_flatfile) {
         @lineage_nodes = $tree->get_lineage_nodes($n->id); # read ID, only works if nodes have been added to tree
         is scalar @lineage_nodes, 0;
         @lineage_nodes = $tree->get_lineage_nodes($n);     # node object always works
-        is scalar @lineage_nodes, 29;
+        cmp_ok(scalar @lineage_nodes, '>', 20);
 
         # get lineage string
-        is $tree->get_lineage_string($n), ($db eq $db_entrez) ?
-           'cellular organisms;Eukaryota;Opisthokonta;Metazoa;Eumetazoa;Bilateria;Coelomata;Deuterostomia;Chordata;Craniata;Vertebrata;Gnathostomata;Teleostomi;Euteleostomi;Sarcopterygii;Tetrapoda;Amniota;Mammalia;Theria;Eutheria;Euarchontoglires;Primates;Haplorrhini;Simiiformes;Catarrhini;Hominoidea;Hominidae;Homininae;Homo;Homo sapiens' :
-           'cellular organisms;Eukaryota;Fungi/Metazoa group;Metazoa;Eumetazoa;Bilateria;Coelomata;Deuterostomia;Chordata;Craniata;Vertebrata;Gnathostomata;Teleostomi;Euteleostomi;Sarcopterygii;Tetrapoda;Amniota;Mammalia;Theria;Eutheria;Euarchontoglires;Primates;Haplorrhini;Simiiformes;Catarrhini;Hominoidea;Hominidae;Homo/Pan/Gorilla group;Homo;Homo sapiens';
-        is $tree->get_lineage_string($n,'-'), ($db eq $db_entrez) ?
-           'cellular organisms-Eukaryota-Opisthokonta-Metazoa-Eumetazoa-Bilateria-Coelomata-Deuterostomia-Chordata-Craniata-Vertebrata-Gnathostomata-Teleostomi-Euteleostomi-Sarcopterygii-Tetrapoda-Amniota-Mammalia-Theria-Eutheria-Euarchontoglires-Primates-Haplorrhini-Simiiformes-Catarrhini-Hominoidea-Hominidae-Homininae-Homo-Homo sapiens' :
-           'cellular organisms-Eukaryota-Fungi/Metazoa group-Metazoa-Eumetazoa-Bilateria-Coelomata-Deuterostomia-Chordata-Craniata-Vertebrata-Gnathostomata-Teleostomi-Euteleostomi-Sarcopterygii-Tetrapoda-Amniota-Mammalia-Theria-Eutheria-Euarchontoglires-Primates-Haplorrhini-Simiiformes-Catarrhini-Hominoidea-Hominidae-Homo/Pan/Gorilla group-Homo-Homo sapiens';
-        is $tree->get_lineage_string($n2), ($db eq $db_entrez) ?
-            'cellular organisms;Eukaryota;Opisthokonta;Metazoa;Eumetazoa;Bilateria;Coelomata;Deuterostomia;Chordata;Craniata' : 
-            'cellular organisms;Eukaryota;Fungi/Metazoa group;Metazoa;Eumetazoa;Bilateria;Coelomata;Deuterostomia;Chordata;Craniata';
-        
+        like($tree->get_lineage_string($n), qr/cellular organisms;Eukaryota/);
+        like($tree->get_lineage_string($n,'-'), qr/cellular organisms-Eukaryota/);
+        like($tree->get_lineage_string($n2), qr/cellular organisms;Eukaryota/);
+
         # can we actually form a Tree and use other Tree methods?
         ok $tree = Bio::Tree::Tree->new(-node => $n);
-        is $tree->number_nodes, 30;
-        is $tree->get_nodes, 30;
+        cmp_ok($tree->number_nodes, '>', 20);
+        cmp_ok(scalar($tree->get_nodes), '>', 20);
         is $tree->find_node(-rank => 'genus')->scientific_name, 'Homo';
-        
+
         # check that getting the ancestor still works now we have explitly set the
         # ancestor by making a Tree
         is $n->ancestor->scientific_name, 'Homo';
-        
+
         sleep(3) if $db eq $db_entrez;
-        
+
         ok $n = $db->get_Taxonomy_Node('1760');
         is $n->scientific_name, 'Actinobacteria';
-        
+
         sleep(3) if $db eq $db_entrez;
-        
+
         # entrez isn't as good at searching as flatfile, so we have to special-case
         my @ids = sort $db->get_taxonids('Chloroflexi');
         is scalar @ids, 2;
@@ -145,7 +139,7 @@ for my $db ($db_entrez, $db_flatfile) {
 
         $id = $db->get_taxonids('Chloroflexi (class)');
         $db eq $db_entrez ? is($id, undef) : is($id, 32061);
-        
+
         @ids = $db->get_taxonids('Rhodotorula');
         cmp_ok @ids, '>=' , 8;
         @ids = $db->get_taxonids('Rhodotorula <Microbotryomycetidae>');
@@ -208,15 +202,31 @@ is $h_list->ancestor->ancestor->scientific_name, 'Homo/Pan/Gorilla group';
 
 # get_lca should work on nodes from different databases
 SKIP: {
-    test_skip(-tests => 5, -requires_networking => 1);
+    test_skip(-tests => 9, -requires_networking => 1);
+
+    # check that the result is the same as if we are retrieving from the same DB
+    # flatfile
     $h_flat = $db_flatfile->get_taxon(-name => 'Homo');
+    my $h_flat2 = $db_flatfile->get_taxon(-name => 'Homo sapiens');
+    ok my $tree_functions = Bio::Tree::Tree->new();
+    is $tree_functions->get_lca($h_flat, $h_flat2)->scientific_name, 'Homo', 'get_lca() within flatfile db';
+
+    # entrez
     my $h_entrez;
     eval { $h_entrez = $db_entrez->get_taxon(-name => 'Homo sapiens');};
-    skip "Unable to connect to entrez database; no network or server busy?", 5 if $@;
-    
-    ok my $tree_functions = Bio::Tree::Tree->new();
-    is $tree_functions->get_lca($h_flat, $h_entrez)->scientific_name, 'Homo';
-    
+    skip "Unable to connect to entrez database; no network or server busy?", 7 if $@;
+    my $h_entrez2;
+    eval { $h_entrez2 = $db_entrez->get_taxon(-name => 'Homo');};
+    skip "Unable to connect to entrez database; no network or server busy?", 7 if $@;
+    ok $tree_functions = Bio::Tree::Tree->new();
+    is $tree_functions->get_lca($h_entrez, $h_entrez2)->scientific_name, 'Homo', 'get_lca() within entrez db';
+
+    ok $tree_functions = Bio::Tree::Tree->new();
+    # mixing entrez and flatfile
+    TODO:{
+        local $TODO = 'Mixing databases for get_lca() not working, see bug #3416';
+        is $tree_functions->get_lca($h_flat, $h_entrez)->scientific_name, 'Homo', 'get_lca() mixing flatfile and remote db';
+    }
     # even though the species taxa for Homo sapiens from list and flat databases
     # have the same internal id, get_lca won't work because they have different
     # roots and descendents
@@ -239,7 +249,7 @@ for my $name ('Human', 'Hominidae') {
   my $ncbi_id = $db_flatfile->get_taxonid($name);
   if ($ncbi_id) {
     my $node = $db_flatfile->get_taxon(-taxonid => $ncbi_id);
-    
+
     if ($tree) {
         $tree->merge_lineage($node);
     }
@@ -258,7 +268,7 @@ SKIP: {
     test_skip(-tests => 1, -requires_networking => 1);
     eval {$db_entrez->get_taxon(10090);};
     skip "Unable to connect to entrez database; no network or server busy?", 1 if $@;
-    
+
     my $lca = $db_entrez->get_taxon(314146);
     my @descs = $db_entrez->get_all_Descendents($lca);
     cmp_ok @descs, '>=', 17;
@@ -324,4 +334,3 @@ is $node->ancestor->node_name, 'o__Alteromonadales';
 
 ok $node = $db_list->get_taxon( -names => ['c__Gammaproteobacteria', 'o__Oceanospirillales'  , 'f__Alteromonadaceae'] );
 is $node->ancestor->node_name, 'o__Oceanospirillales';
-

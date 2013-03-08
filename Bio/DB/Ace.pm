@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::DB::Ace
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
@@ -20,7 +20,7 @@ Bio::DB::Ace - Database object interface to ACeDB servers
 
     $db = Bio::DB::Ace->new( -server => 'myace.server.com', port => '120000');
 
-    $seq = $db->get_Seq_by_id('MUSIGHBA1'); # Unique ID
+    $seq = $db->get_Seq_by_id('J00522'); # Unique ID
 
     # or ...
 
@@ -62,15 +62,15 @@ Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -208,9 +208,3 @@ sub _aceobj {
 }
 
 1;
-
-
-
-
-
-

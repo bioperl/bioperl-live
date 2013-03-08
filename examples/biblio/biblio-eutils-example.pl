@@ -1,4 +1,7 @@
 #!/usr/bin/perl
+
+=encoding utf-8
+
 =head1 NAME
 
 biblio-eutils-example.pl
@@ -105,12 +108,12 @@ sub print_title {
                     <Initials>B</Initials>
                 </Author>
                 <Author ValidYN="Y">
-                    <LastName>Kubícková</LastName>
+                    <LastName>KubE<237>ckovE<225></LastName>
                     <ForeName>B</ForeName>
                     <Initials>B</Initials>
                 </Author>
                 <Author ValidYN="Y">
-                    <LastName>Máslová</LastName>
+                    <LastName>ME<225>slovE<225></LastName>
                     <ForeName>F</ForeName>
                     <Initials>B</Initials>
                 </Author>
