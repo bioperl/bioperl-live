@@ -161,7 +161,7 @@ sub start_element {
 			$self->sequence_factory->create();
 	} elsif( $name eq 'GBFEATURE' ) {
 		my $curseq = $self->{'_seendata'}->{'_seqs'}->[-1];
-		my $fthelper = new Bio::SeqIO::FTHelper();
+		my $fthelper = Bio::SeqIO::FTHelper->new();
 		$fthelper->verbose($self->verbose());
 		push @{$self->{'_seendata'}->{'_feats'}}, $fthelper;
 	}

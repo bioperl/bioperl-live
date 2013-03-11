@@ -401,7 +401,7 @@ sub help{
    my ($self, $fname) = @_;
    my (@ret, @tok);
    my $schema = $self->_schema;
-   my $h = new CGI;
+   my $h = CGI->new();
 
    my (@tbls, @flds, @als, @opts, $fh);
    if ($fname) {
@@ -531,7 +531,7 @@ sub add_annotations_for_id{
     my $self = shift;
     my ($id, $ac) = @_;
     $id = "" unless defined $id; # avoid warnings
-    $ac = new Bio::Annotation::Collection unless defined $ac;
+    $ac = Bio::Annotation::Collection->new() unless defined $ac;
     $self->throw(-class=>'Bio::Root::BadParameter'
 		 -text=>'Bio::Annotation::Collection required at arg 2',
 		 -value=>"") unless ref($ac) eq 'Bio::Annotation::Collection';
@@ -1345,7 +1345,7 @@ sub _do_lanl_request {
 	eval { # encapsulate communication errors here, defer biothrows...
         
         #mark the useragent should be setable from outside (so we can modify timeouts, etc)
-	    my $ua = new Bio::WebAgent($self->_ua_hash);
+	    my $ua = Bio::WebAgent->new($self->_ua_hash);
 	    my $idPing = $ua->get($self->_map_db_uri);
 	    $idPing->is_success || do {
 		$response=$idPing; 
@@ -1484,7 +1484,7 @@ sub _parse_lanl_response {
 	    @rec{@cols} = split /\t/;
 	    my $id = $rec{'se_id'};
 	    $self->add_id($id);
-	    $ac = new Bio::Annotation::Collection();
+	    $ac = Bio::Annotation::Collection->new();
 	    #create annotations
 	    foreach (@cols) {
                 next if $_ eq '#';

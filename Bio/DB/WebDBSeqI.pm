@@ -131,7 +131,7 @@ sub new {
 					     $format ne '' );
 
     $self->request_format($format);
-    my $ua = new LWP::UserAgent(env_proxy => 1);
+    my $ua = LWP::UserAgent->new(env_proxy => 1);
     $ua->agent(ref($self) ."/$MODVERSION");
     $self->ua($ua);
     $self->{'_authentication'} = [];
