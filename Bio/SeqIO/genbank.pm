@@ -449,11 +449,7 @@ sub next_seq {
 		# Project
 		elsif (/^PROJECT\s+(\S.*)/) {
 			if ($annotation) {
-<<<<<<< HEAD
-				my $project = new Bio::Annotation::SimpleValue->new(-value => $1);
-=======
 				my $project = Bio::Annotation::SimpleValue->new(-value => $1);
->>>>>>> e3a770c... typo, removed ->
 				$annotation->add_Annotation('project',$project);
 			}
 		}
