@@ -127,7 +127,7 @@ sub _initialize {
 
     # create an instance of the XML parser
     # (unless it is already there...)
-    $self->{'_xml_parser'} = new XML::Parser (Handlers => {Init  => \&Bio::Biblio::IO::medlinexml::handle_doc_start,
+    $self->{'_xml_parser'} = XML::Parser->new (Handlers => {Init  => \&Bio::Biblio::IO::medlinexml::handle_doc_start,
 							   Start => \&handle_start,
 							   End   => \&handle_end,
 							   Char  => \&Bio::Biblio::IO::medlinexml::handle_char,
