@@ -193,7 +193,7 @@ sub fetch_report
 	}
 
 	# Then join them and send
-	my $rfh = new IO::String(join('', @header, @data));
+	my $rfh = IO::String->new(join('', @header, @data));
 	my $report = Bio::SearchIO->new(
 		-noclose => 1,
 		-format  => 'hmmer',
