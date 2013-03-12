@@ -389,7 +389,7 @@ sub create_bperl_seq {
             else {$seqID = $rowlabel;}
             
             #build the seq object using the factory create method
-            my $seqbuilder = new Bio::Seq::SeqFactory('-type' => 'Bio::Seq');
+            my $seqbuilder = Bio::Seq::SeqFactory->new('-type' => 'Bio::Seq');
             my $seq = $seqbuilder->create(
                        -seq         => $newSeq,
                        -id          => $rowlabel,

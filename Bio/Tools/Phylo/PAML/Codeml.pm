@@ -241,8 +241,8 @@ sub _parse_mlc {
 	    # ...
 	    while( defined($_ = $self->_readline) ) {
 		if( /^\(/) {
-		    my $treestr = new IO::String($_);
-		    my $treeio = new Bio::TreeIO(-fh => $treestr,
+		    my $treestr = IO::String->new($_);
+		    my $treeio = Bio::TreeIO->new(-fh => $treestr,
 						 -format => 'newick');
 		    # this is very tenative here!!
 		    push @{$self->{'_trees'}}, $treeio->next_tree;

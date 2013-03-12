@@ -266,7 +266,7 @@ sub _run {
 
     # format the sequence into fasta
     my $seq_fasta;
-    my $stringfh = new IO::String($seq_fasta);
+    my $stringfh = IO::String->new($seq_fasta);
     my $seqout = Bio::SeqIO->new(-fh => $stringfh,
                                 -format => 'fasta');
     $seqout->write_seq($self->seq);

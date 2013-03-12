@@ -1508,7 +1508,7 @@ sub get_doublets {
 
 sub dump_hash {
     my $self = shift;
-    my $dumper = new Dumpvalue;
+    my $dumper = Dumpvalue->new();
     $self->debug( "Bio::Tools::Alignment::Consed::dump_hash - ".
                   "The following is the contents of the contig hash...\n");
     $dumper->dumpValue($self->{'contigs'});

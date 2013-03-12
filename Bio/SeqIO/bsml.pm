@@ -1420,7 +1420,7 @@ sub _parse_xml {
 	$self->throw("Could not parse non-existant XML file '$file'.");
 	return;
     }
-    my $parser = new XML::DOM::Parser;
+    my $parser = XML::DOM::Parser->new();
     my $doc = $parser->parsefile ($file);
     return $doc;
 }

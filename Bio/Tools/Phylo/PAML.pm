@@ -1091,7 +1091,7 @@ sub _parse_Forestry {
         }
         elsif (/^\(/) {
             s/([\,:])\s+/$1/g;
-            my $treestr = new IO::String($_);
+            my $treestr = IO::String->new($_);
             my $treeio  = Bio::TreeIO->new(
                 -fh     => $treestr,
                 -format => 'newick'
