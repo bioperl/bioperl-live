@@ -7,7 +7,7 @@ use Data::Dumper;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin( -tests => 181 );
+    test_begin( -tests => 185 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -130,6 +130,45 @@ is $seq->subseq($fuzzy), 'GGTGGC';
     ok my $seq = Bio::PrimarySeq->new( -seq => 'AACCGGTT', -is_circular => 1 );
     is $seq->subseq( -start => 7, -end => 10 ), 'TTAA';
 }
+
+### Test for Bug #2936
+# Without strand input argument (case: user don't think is necessary)
+my $split_loc_obj1 = Bio::Location::Split->new();
+$split_loc_obj1->add_sub_Location(
+    Bio::Location::Simple->new(
+        '-start'  => 1,
+        '-end'    => 10
+    )
+);
+$split_loc_obj1->add_sub_Location(
+    Bio::Location::Simple->new(
+        '-start'  => 20,
+        '-end'    => 30
+    )
+);
+# With strand input argument (case: user provides the argument)
+my $split_loc_obj2 = Bio::Location::Split->new();
+$split_loc_obj2->add_sub_Location(
+    Bio::Location::Simple->new(
+        '-start'  => 1,
+        '-end'    => 10,
+        '-strand' => 1
+    )
+);
+$split_loc_obj2->add_sub_Location(
+    Bio::Location::Simple->new(
+        '-start'  => 20,
+        '-end'    => 30,
+        '-strand' => 1
+    )
+);
+is $split_loc_obj1->to_FTstring, "join(1..10,20..30)";
+is $split_loc_obj2->to_FTstring, "join(1..10,20..30)";
+$split_loc_obj1->flip_strand;
+$split_loc_obj2->flip_strand;
+is $split_loc_obj1->to_FTstring, "complement(join(1..10,20..30))";
+is $split_loc_obj2->to_FTstring, "complement(join(1..10,20..30))";
+###
 
 # Test trunc
 my $trunc = $seq->trunc( 1, 4 );

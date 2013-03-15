@@ -380,11 +380,15 @@ sub strand{
 sub flip_strand {
     my $self = shift;
     for my $loc ( $self->sub_Location(0) ) {
-		$loc->flip_strand;
-		if ($loc->isa('Bio::Location::SplitLocationI')) {
-			my $gs = ($self->guide_strand == -1) ? undef : -1;
-			$loc->guide_strand($gs);
-		}
+        # Initialize strand if not defined to flip it
+        my $loc_strand = ($loc->strand == 0) ? 1 : $loc->strand;
+        $loc->strand($loc_strand);
+
+        $loc->flip_strand;
+        if ($self->isa('Bio::Location::SplitLocationI')) {
+            my $gs = ($loc->strand == -1) ? -1 : undef;
+            $self->guide_strand($gs);
+        }
     }
 }
 
