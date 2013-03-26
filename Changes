@@ -66,6 +66,9 @@ CPAN releases are branched from 'master'.
         - moved from bioperl-live into the separate distribution Bio-FeatureIO
     * Bio::SeqFeature::Annotated
         - moved from bioperl-live into the separate distribution Bio-FeatureIO
+    * Bio::Cluster::SequenceFamily
+        - improved performance when using get_members with overlapping multiple
+          criteria
 
     [Bug fixes]
 
@@ -117,6 +120,8 @@ CPAN releases are branched from 'master'.
       [fangly]
     * Fixed bp_genbank2gff3.pl crash when missing source feature date [fangly]
     * Bio::PrimarySeq constructor -direct works for -seq or -ref_to_seq [fangly]
+    * Bio::Cluster::SequenceFamily - checks if the sequence has a Bio::Species
+      object before trying to access, and no longer returns repeated sequences.
 
 
 1.6.901 May 18, 2011

@@ -104,9 +104,8 @@ methods. Internal methods are usually preceded with a "_".
 package Bio::Cluster::SequenceFamily;
 
 use strict;
-
+use warnings;
 use base qw(Bio::Root::Root Bio::Cluster::FamilyI);
-
 
 =head2 new
 
@@ -323,28 +322,23 @@ sub description{
 =cut
 
 sub get_members {
-	my $self = shift;
-	my @ret;
+    my $self = shift;
+    return @{$self->{'_members'}} unless @_;
 
-	if(@_) {
-		my %hash = @_;
-		foreach my $mem ( @{$self->{'_members'}} ) {
-			foreach my $key ( keys %hash){
-				my $method = $key;
-				$method=~s/-//g;
-				if($mem->can('species')){
-					my $species = $mem->species;
-					$species->can($method) ||
-					  $self->throw("$method is an invalid criteria");
-					if($species->$method() eq $hash{$key} ){
-						push @ret, $mem;
-					}
-				}
-			}
-		}
-		return @ret;
-	}
-	return @{$self->{'_members'}};
+    ## since the logic behind the checks is OR, we keep the ids in an hash for
+    ## performance (skip the test if it's already there) and to avoid repats
+    my %match;
+    my %filter = @_;
+    foreach my $key (keys %filter) {
+        (my $method = $key) =~ s/^-//;
+        %match = (%match, map { $_ => $_ } grep {
+            ! $match{$_} && $_->species &&
+            ($_->species->can($method) ||
+                $self->throw("$method is an invalid criteria")) &&
+            $_->species->$method() eq $filter{$key}
+        } @{$self->{'_members'}});
+    }
+    return map {$match{$_}} keys (%match);
 }
 
 =head2 size
