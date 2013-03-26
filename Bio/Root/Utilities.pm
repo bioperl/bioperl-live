@@ -889,7 +889,7 @@ sub create_filehandle {
       }
 
       require FileHandle;
-      $FH = new FileHandle;
+      $FH = FileHandle->new();
       open ($FH, $file) || $self->throw(-class=>'Bio::Root::FileOpenException',
                                         -text =>"Can't access data file: $file: $!");
       $self->verbose > 0 and printf STDERR "$ID: reading data from file $file\n";
