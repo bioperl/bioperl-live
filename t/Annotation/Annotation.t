@@ -190,7 +190,7 @@ SKIP: {
 my $clu = Bio::Cluster::UniGene->new();
 isa_ok($clu, "Bio::AnnotatableI");
 my $aln = Bio::SimpleAlign->new();
-isa_ok($clu,"Bio::AnnotatableI");
+isa_ok($aln,"Bio::AnnotatableI");
 
 # tests for Bio::Annotation::AnnotationFactory
 
