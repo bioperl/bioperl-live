@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 205 );
+    test_begin( -tests => 206 );
 
     use_ok('Bio::SimpleAlign');
     use_ok('Bio::AlignIO');
@@ -366,6 +366,8 @@ SKIP: {
 # Bio::FeatureHolder stuff
 
 $aln = Bio::SimpleAlign->new;
+isa_ok($aln,"Bio::AnnotatableI");
+
 for my $seqset ( [qw(one AGAGGAT)], [qw(two AGACGAT)], [qw(three AGAGGTT)] ) {
     $aln->add_seq(
         Bio::LocatableSeq->new(
