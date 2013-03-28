@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 28);
+    test_begin(-tests => 29);
 
     use_ok('Bio::AlignIO');
 }
@@ -38,6 +38,12 @@ my %files = (
  );
 
 # input file handles
+
+my $aln = Bio::AlignIO->new(
+    -file  => test_input_file('longnames.aln'),
+    -format=>'clustalw',
+)->next_aln();
+isa_ok($aln, 'Bio::AnnotatableI');
 
 while (my ($file, $fdata) = each %files) {
     my ($format, $in, $out) = @{$fdata};

@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 72);
+    test_begin(-tests => 73);
 
     use_ok('Bio::Seq');
     use_ok('Bio::Seq::RichSeq');
@@ -21,6 +21,7 @@ ok my $seq = Bio::Seq->new(-seq=>'ACTGTGGCGTCAACT',
                         -alphabet => 'dna',
                         -is_circular => 1
                        );
+isa_ok($seq,"Bio::AnnotatableI");
 
 ok $seq->is_circular;
 ok not $seq->is_circular(0);

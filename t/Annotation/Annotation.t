@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 159);
+    test_begin(-tests => 152);
 
     use_ok('Bio::Annotation::Collection');
     use_ok('Bio::Annotation::DBLink');
@@ -19,9 +19,6 @@ BEGIN {
     use_ok('Bio::Annotation::StructuredValue');
     use_ok('Bio::Annotation::TagTree');
     use_ok('Bio::Annotation::Tree');
-    use_ok('Bio::Seq');
-    use_ok('Bio::SimpleAlign');
-    use_ok('Bio::Cluster::UniGene');
 }
 
 my $DEBUG = test_debug();
@@ -175,8 +172,8 @@ SKIP: {
 }
 
 # AnnotatableI
+use Bio::Seq;
 my $seq = Bio::Seq->new();
-isa_ok($seq,"Bio::AnnotatableI");
 SKIP: {
         test_skip(-requires_modules => [qw(Bio::SeqFeature::Annotated URI::Escape)],
                           -tests => 4);
@@ -187,10 +184,6 @@ SKIP: {
         isa_ok($fea, "Bio::SeqFeatureI",'isa SeqFeatureI');
         isa_ok($fea, "Bio::AnnotatableI",'isa AnnotatableI');
 }
-my $clu = Bio::Cluster::UniGene->new();
-isa_ok($clu, "Bio::AnnotatableI");
-my $aln = Bio::SimpleAlign->new();
-isa_ok($aln,"Bio::AnnotatableI");
 
 # tests for Bio::Annotation::AnnotationFactory
 
@@ -254,11 +247,9 @@ $ann_tree->tree_id('test');
 is $ann_tree->tree_id(), 'test', "tree_id()";
 $ann_tree->tagname('tree');
 is $ann_tree->tagname(), 'tree', "tagname()";
-my $aln_filename = test_input_file('longnames.aln');
 use Bio::AlignIO;
-$aln = Bio::AlignIO->new(-file  => $aln_filename,
+my $aln = Bio::AlignIO->new(-file  => test_input_file('longnames.aln'),
                          -format=>'clustalw')->next_aln();
-isa_ok($aln, 'Bio::AnnotatableI');
 $ac = Bio::Annotation::Collection->new();
 $ac->add_Annotation('tree',$ann_tree);
 $aln->annotation($ac);
