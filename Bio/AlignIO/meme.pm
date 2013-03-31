@@ -139,11 +139,11 @@ sub next_aln {
         }
         # The first regexp is for version 3, the second is for version 4
         elsif ( $line =~ /^(\S+)\s+([+-]?)\s+(\d+)\s+
-                           \S+\s+[.ACTGNX\-]*\s+([ACTGNX\-]+)\s+
-                           ([.ACTGNX\-]*)/xi
+                           \S+\s+[.A-Z\-]*\s+([A-Z\-]+)\s+
+                           ([.A-Z\-]*)/xi
                 ||
                 $line =~ /^(\S+)\s+([+-]?)\s+(\d+)\s+
-                           \S+\s+\.\s+([ACTGNX\-]+)/xi
+                           \S+\s+\.\s+([A-Z\-]+)/xi
           )
         {
             # Got a sequence line
