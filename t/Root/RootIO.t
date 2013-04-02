@@ -7,11 +7,9 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 77);
+    test_begin(-tests => 69);
 
     use_ok('Bio::Root::IO');
-    use_ok('Bio::SeqIO');
-    use_ok('Bio::Assembly::IO');
 }
 
 my $obj = Bio::Root::IO->new();
@@ -241,30 +239,3 @@ $line3 = $rio->_readline;
 is($line3, "Bar\n");
 $line3 = $rio->_readline;
 is($line3, "Baz");
-
-
-##############################################
-# test format() and variant()
-##############################################
-
-my $in = Bio::SeqIO->new(
-   -file    => test_input_file('bug2901.fa'),
-   -format  => "fasta",
-);
-is $in->format, 'fasta';
-is $in->variant, undef;
-
-$in = Bio::SeqIO->new(
-   -file    => test_input_file('fastq', 'illumina_faked.fastq'),
-   -format  => "fastq",
-   -variant => 'illumina',
-);
-is $in->format, 'fastq';
-is $in->variant, 'illumina';
-
-$in = Bio::Assembly::IO->new(
-   -file   => test_input_file('assembly_with_singlets.ace'),
-);
-is $in->format, 'ace';
-is $in->variant, 'consed';
-
