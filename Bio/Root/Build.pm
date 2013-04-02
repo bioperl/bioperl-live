@@ -33,7 +33,7 @@ not work with more modern perl tools such as perlbrew and cpanm.
 
 BEGIN {
     # we really need Module::Build to be installed
-    eval "use base Module::Build; 1" or die "This package requires Module::Build v0.2805 or greater to install itself.\n$@";
+    eval "use base 'Module::Build'; 1" or die "This package requires Module::Build v0.2805 or greater to install itself.\n$@";
 
     # ensure we'll be able to reload this module later by adding its path to inc
     use Cwd;
