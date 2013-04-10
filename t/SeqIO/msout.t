@@ -1,7 +1,6 @@
 #!/usr/bin/perl -w
 use version;
-our $API_VERSION = qv('1.1.7');
-
+our $API_VERSION = $Bio::SeqIO::msout::API_VERSION;
 use strict;
 use File::Path qw(mkpath rmtree);
 
@@ -10,7 +9,7 @@ BEGIN {
     use Bio::Root::Test;
 
     test_begin(
-        -tests               => 89,
+        -tests               => 165,
         -requires_modules    => [q(Bio::SeqIO::msout)],
         -requires_networking => 0
     );
@@ -24,9 +23,9 @@ my $api_version = $Bio::SeqIO::msout::API_VERSION;
 cmp_ok( $api_version, '>=', qv('1.1.5'),
     "Bio::SeqIO::msout is at least api version 1.1.5" );
 
-test_file_1( 0, "msout/msout_infile1" );
-test_file_2( 0, "msout/msout_infile2" );
-test_file_3( 0, "msout/msout_infile3" );
+test_file_1( 0, "msout/msout_infile1" );    # 23 tests
+test_file_2( 0, "msout/msout_infile2" );    # 22 tests
+test_file_3( 0, "msout/msout_infile3" );    # 17 tests
 
 # tests to run for api versions >= 1.1.6
 SKIP: {
@@ -39,21 +38,21 @@ SKIP: {
 SKIP: {
     skip q($Bio::SeqIO::msout::API_VERSION < 1.1.7), 4
       unless $api_version >= qv('1.1.7');
-    bad_test_file_1( 0, q(msout/bad_msout_infile1) );
-    bad_test_file_2( 0, q(msout/bad_msout_infile2) );
+    bad_test_file_1( 0, q(msout/bad_msout_infile1) ); # 2 tests
+    bad_test_file_2( 0, q(msout/bad_msout_infile2) ); # 2 tests
 }
 
 # tests to run for api version >= 1.1.8
 SKIP: {
-    skip q($Bio::SeqIO::msout::API_VERSION < 1.1.8), 92
+    skip q($Bio::SeqIO::msout::API_VERSION < 1.1.8), 75
       unless $api_version >= qv('1.1.8');
 
     test_file_1( 0, "msout/msout_infile1", 100 );
     test_file_2( 0, "msout/msout_infile2", 10 );
-    test_file_3( 0, "msout/msout_infile3", 1 );
     test_file_1( 0, q(msout/msout_infile4), 100 );
     bad_test_file_1( 0, q(msout/bad_msout_infile1), 1000 );
     bad_test_file_2( 0, q(msout/bad_msout_infile2), 1000 );
+    bad_n_sites( 0, q(msout/msout_infile1) ); # 2 tests
 }
 
 sub create_dir {
@@ -429,8 +428,8 @@ sub test_file_3 {
 ## Test file 3
 ##############################################################################
 
-    my $gzip   = shift;
-    my $infile = shift;
+    my $gzip    = shift;
+    my $infile  = shift;
     $infile = Bio::Root::Test::test_input_file($infile);
 
     # the files are now part of the git repo and don't have to be printed
@@ -448,8 +447,6 @@ sub test_file_3 {
     isa_ok( $msout, 'Bio::SeqIO::msout' );
 
     my $rh_base_conversion_table = $msout->get_base_conversion_table;
-
-    isa_ok( $msout, 'Bio::SeqIO::msout' );
 
     my %attributes = (
         RUNS                 => 1,
@@ -606,4 +603,32 @@ sub bad_test_file_2 {
 qr/\'\/\/\' not encountered when expected. There are more haplos in one of the msOUT runs than advertised in the msinfo line/,
       q(Caught error in bad msout file 2);
 
+}
+
+sub bad_n_sites {
+##############################################################################
+## Bad n_sites
+##############################################################################
+
+    # this sub tests if msout.pm dies when n_sites is smaller than segsites
+    my $gzip    = shift;
+    my $infile  = shift;
+    $infile = Bio::Root::Test::test_input_file($infile);
+
+    my $file_sequence = $infile;
+    if ($gzip) {
+        $file_sequence = "gzip -dc <$file_sequence |";
+    }
+    my $msout = Bio::SeqIO->new(
+            -file    => "$file_sequence",
+            -format  => 'msout',
+    );
+
+    # test nsites -1
+    throws_ok { $msout->set_n_sites(-1) } qr|first argument needs to be a positive integer. argument supplied: -1|;
+
+    # test nsites smaller than next hap
+    $msout->set_n_sites(1);
+    throws_ok{$msout->get_next_seq} 'Bio::Root::Exception', 'too few n_sites failed OK';
+    
 }
