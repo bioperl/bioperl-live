@@ -79,7 +79,7 @@ sub test_file_1 {
 
     my $file_sequence = $infile;
     if ($gzip) {
-        $file_sequence = "gunzip -c <$file_sequence |";
+        $file_sequence = "gzip -dc <$file_sequence |";
     }
     my $msout = Bio::SeqIO->new(
         -file   => "$file_sequence",
@@ -215,7 +215,7 @@ sub test_file_2 {
 
     my $file_sequence = $infile;
     if ($gzip) {
-        $file_sequence = "gunzip -c <$file_sequence |";
+        $file_sequence = "gzip -dc <$file_sequence |";
     }
 
     my $msout = Bio::SeqIO->new(
@@ -361,7 +361,7 @@ sub test_file_3 {
 
     my $file_sequence = $infile;
     if ($gzip) {
-        $file_sequence = "gunzip -c <$file_sequence |";
+        $file_sequence = "gzip -dc <$file_sequence |";
     }
     my $msout = Bio::SeqIO->new(
         -file   => "$file_sequence",
@@ -459,7 +459,7 @@ sub test_file_4 {
 
     my $file_sequence = $infile;
     if ($gzip) {
-        $file_sequence = "gunzip -c <$file_sequence |";
+        $file_sequence = "gzip -dc <$file_sequence |";
     }
     my $msout = Bio::SeqIO->new(
         -file   => "$file_sequence",
@@ -843,7 +843,7 @@ sub bad_test_file_1 {
 
     my $file_sequence = $infile;
     if ($gzip) {
-        $file_sequence = "gunzip -c <$file_sequence |";
+        $file_sequence = "gzip -dc <$file_sequence |";
     }
     my $msout = Bio::SeqIO->new(
         -file   => "$file_sequence",
@@ -872,7 +872,7 @@ sub bad_test_file_2 {
 
     my $file_sequence = $infile;
     if ($gzip) {
-        $file_sequence = "gunzip -c <$file_sequence |";
+        $file_sequence = "gzip -dc <$file_sequence |";
     }
     my $msout = Bio::SeqIO->new(
         -file   => "$file_sequence",
