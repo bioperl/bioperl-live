@@ -373,15 +373,13 @@ sub removeSeq {
 sub remove_seq {
     my $self = shift;
     my $seq = shift;
-    my ($name,$id,$start,$end);
+    my ($name,$id);
 
     $self->throw("Need Bio::Locatable seq argument ")
 	unless ref $seq && $seq->isa( 'Bio::LocatableSeq');
 
     $id = $seq->id();
-    $start = $seq->start();
-    $end  = $seq->end();
-    $name = sprintf("%s/%d-%d",$id,$start,$end);
+    $name = $seq->get_nse;
 
     if( !exists $self->{'_seq'}->{$name} ) {
 	$self->throw("Sequence $name does not exist in the alignment to remove!");
@@ -848,7 +846,7 @@ sub each_seq_with_id {
  Usage     : $seq = $aln->get_seq_by_pos(3) # third sequence from the alignment
  Function  : Gets a sequence based on its position in the alignment.
              Numbering starts from 1.  Sequence positions larger than
-             num_sequences() will thow an error.
+             num_sequences() will throw an error.
  Returns   : a Bio::LocatableSeq object
  Args      : positive integer for the sequence position
 
@@ -986,7 +984,7 @@ current MSA.
  Usage     : $aln2 = $aln->select(1, 3) # three first sequences
  Function  : Creates a new alignment from a continuous subset of
              sequences.  Numbering starts from 1.  Sequence positions
-             larger than num_sequences() will thow an error.
+             larger than num_sequences() will throw an error.
  Returns   : a Bio::SimpleAlign object
  Args      : positive integer for the first sequence
              positive integer for the last sequence to include (optional)
@@ -1064,6 +1062,29 @@ sub select_noncont {
 	$aln->id($self->id);
     # fix for meta, sf, ann    
 	return $aln;
+}
+
+=head2 select_noncont_by_name
+
+ Title     : select_noncont_by_name
+ Usage     : my $aln2 = $aln->select_noncont_by_name('A123', 'B456');
+ Function  : Creates a new alignment from a subset of sequences which are
+             selected by name (sequence ID).
+ Returns   : a Bio::SimpleAlign object
+ Args      : array of names (i.e., identifiers) for the sequences.
+
+=cut
+
+sub select_noncont_by_name {
+    my ($self, @names) = @_;
+    
+    my $aln = $self->new;
+    foreach my $name (@names) {
+        $aln->add_seq($self->get_seq_by_id($name));
+    }
+    $aln->id($self->id);
+
+    return $aln;
 }
 
 =head2 slice
@@ -1233,7 +1254,7 @@ sub remove_gaps {
     # Do the matching to get the segments to remove
     while ($gap_line =~ m/[$del_char]/g) {
         my $start = pos($gap_line)-1;
-        $gap_line=~/\G[$del_char]+/gc;
+        $gap_line =~ m/\G[$del_char]+/gc;
         my $end = pos($gap_line)-1;
 
         #have to offset the start and end for subsequent removes
@@ -1434,14 +1455,13 @@ sub splice_by_seq_pos{
  Title     : map_chars
  Usage     : $ali->map_chars('\.','-')
  Function  : Does a s/$arg1/$arg2/ on the sequences. Useful for gap
-             characters
+             characters.
 
-             Notice that the from (arg1) is interpretted as a regex,
-             so be careful about quoting meta characters (eg
-             $ali->map_chars('.','-') wont do what you want)
+             Note that the first argument is interpreted as a regexp
+             so be careful and escape any wild card characters (e.g.
+             do $ali->map_chars('\.','-') to replace periods with dashes.
  Returns   :
- Argument  : 'from' rexexp
-             'to' string
+ Argument  : A regexp and a string
 
 =cut
 
@@ -1449,15 +1469,15 @@ sub map_chars {
     my $self = shift;
     my $from = shift;
     my $to   = shift;
-    my ($seq,$temp);
+    my ( $seq, $temp );
 
-    $self->throw("Need exactly two arguments")
-	unless defined $from and defined $to;
+    $self->throw("Need two arguments: a regexp and a string")
+      unless defined $from and defined $to;
 
     foreach $seq ( $self->each_seq() ) {
-	$temp = $seq->seq();
-	$temp =~ s/$from/$to/g;
-	$seq->seq($temp);
+        $temp = $seq->seq();
+        $temp =~ s/$from/$to/g;
+        $seq->seq($temp);
     }
     return 1;
 }
@@ -1670,12 +1690,12 @@ sub gap_line {
     my %gap_hsh; # column gaps vector
     foreach my $seq ( $self->each_seq ) {
 		my $i = 0;
-    	map {$gap_hsh{$_->[0]} = undef} grep {$_->[1] eq $gapchar}
+    	map {$gap_hsh{$_->[0]} = undef} grep {$_->[1] =~ m/[$gapchar]/}
 		  map {[$i++, $_]} split(//, uc ($seq->seq));
     }
     my $gap_line;
     foreach my $pos ( 0..$self->length-1 ) {
-	  $gap_line .= (exists $gap_hsh{$pos}) ? $gapchar:'.';
+	  $gap_line .= (exists $gap_hsh{$pos}) ? $self->gap_char:'.';
     }
     return $gap_line;
 }
@@ -1698,14 +1718,14 @@ sub all_gap_line {
     my @seqs = $self->each_seq;
     foreach my $seq ( @seqs ) {
 	my $i = 0;
-    	map {$gap_hsh{$_->[0]}++} grep {$_->[1] eq $gapchar}
+    	map {$gap_hsh{$_->[0]}++} grep {$_->[1] =~ m/[$gapchar]/}
 	map {[$i++, $_]} split(//, uc ($seq->seq));
     }
     my $gap_line;
     foreach my $pos ( 0..$self->length-1 ) {
 	if (exists $gap_hsh{$pos} && $gap_hsh{$pos} == scalar @seqs) {
             # gaps column
-	    $gap_line .= $gapchar;
+	    $gap_line .= $self->gap_char;
 	} else {
 	    $gap_line .= '.';
 	}
@@ -1717,29 +1737,29 @@ sub all_gap_line {
 
  Title    : gap_col_matrix()
  Usage    : my $cols = $align->gap_col_matrix()
- Function : Generates an array of hashes where
-            each entry in the array is a hash reference
-            with keys of all the sequence names and
-            and value of 1 or 0 if the sequence has a gap at that column
- Args     : (optional) gap line characters ($aln->gap_char or '-' by default)
+ Function : Generates an array where each element in the array is a 
+            hash reference with a key of the sequence name and a
+            value of 1 if the sequence has a gap at that column
+ Returns  : Reference to an array
+ Args     : Optional: gap line character ($aln->gap_char or '-' by default)
 
 =cut
 
 sub gap_col_matrix {
-    my ($self,$gapchar) = @_;
+    my ( $self, $gapchar ) = @_;
     $gapchar = $gapchar || $self->gap_char;
-    my %gap_hsh; # column gaps vector
+    my %gap_hsh;    # column gaps vector
     my @cols;
     foreach my $seq ( $self->each_seq ) {
-	my $i = 0;
-	my $str = $seq->seq;
-	my $len = $seq->length;
-	my $ch;
-	my $id = $seq->display_id;
-	while( $i < $len ) {
-	    $ch = substr($str, $i, 1);
-	    $cols[$i++]->{$id} = ($ch eq $gapchar);
-	}
+        my $i   = 0;
+        my $str = $seq->seq;
+        my $len = $seq->length;
+        my $ch;
+        my $id = $seq->display_id;
+        while ( $i < $len ) {
+            $ch = substr( $str, $i, 1 );
+            $cols[ $i++ ]->{$id} = ( $ch =~ m/[$gapchar]/ );
+        }
     }
     return \@cols;
 }
@@ -2037,19 +2057,36 @@ sub consensus_string {
     return $out;
 }
 
+=head2 consensus_conservation
+
+ Title     : consensus_conservation
+ Usage     : @conservation = $ali->consensus_conservation();
+ Function  : Conservation (as a percent) of each position of alignment
+ Returns   : Array of percentages [0-100]. Gap columns are 0% conserved.
+ Argument  : 
+ 
+=cut
+
+sub consensus_conservation {
+    my $self = shift;
+    my @cons;
+    my $num_sequences = $self->num_sequences;
+    foreach my $point (0..$self->length-1) {
+        my %hash = $self->_consensus_counts($point);
+        # max frequency of a non-gap letter
+        my $max = (sort {$b<=>$a} values %hash )[0];
+        push @cons, 100 * $max / $num_sequences;
+    }
+    return @cons; 
+}
+
 sub _consensus_aa {
     my $self = shift;
     my $point = shift;
     my $threshold_percent = shift || -1 ;
     my ($seq,%hash,$count,$letter,$key);
     my $gapchar = $self->gap_char;
-    foreach $seq ( $self->each_seq() ) {
-	$letter = substr($seq->seq,$point,1);
-	$self->throw("--$point-----------") if $letter eq '';
-	($letter eq $gapchar || $letter =~ /\./) && next;
-	# print "Looking at $letter\n";
-	$hash{$letter}++;
-    }
+    %hash = $self->_consensus_counts($point);
     my $number_of_sequences = $self->num_sequences();
     my $threshold = $number_of_sequences * $threshold_percent / 100. ;
     $count = -1;
@@ -2063,6 +2100,21 @@ sub _consensus_aa {
 	}
     }
     return $letter;
+}
+
+# Frequency of each letter in one column
+sub _consensus_counts {
+    my $self = shift;
+    my $point = shift;
+    my %hash;
+    my $gapchar = $self->gap_char;
+    foreach my $seq ( $self->each_seq() ) {
+        my $letter = substr($seq->seq,$point,1);
+        $self->throw("--$point-----------") if $letter eq '';
+        ($letter eq $gapchar || $letter =~ /\./) && next;
+        $hash{$letter}++;
+    }
+    return %hash;
 }
 
 
@@ -2994,29 +3046,42 @@ sub get_SeqFeatures {
     return @{$self->{'_as_feat'}};
 }
 
+
 =head2 add_SeqFeature
 
  Usage   : $aln->add_SeqFeature($subfeat);
- Function: adds a SeqFeature into the SeqFeature array.
+ Function: Adds a SeqFeature into the SeqFeature array. The 'EXPAND' qualifier
+           (see L<Bio::FeatureHolderI>) is supported, but has no effect.
  Example :
  Returns : true on success
  Args    : a Bio::SeqFeatureI object
- Note    : This implementation is not compliant
-           with Bio::FeatureHolderI
 
 =cut
 
 sub add_SeqFeature {
-   my ($self,@feat) = @_;
+   my ($self, @feat) = @_;
 
    $self->{'_as_feat'} = [] unless $self->{'_as_feat'};
 
-   foreach my $feat ( @feat ) {
+   if (scalar @feat > 1) {
+      $self->deprecated(
+         -message => 'Providing an array of features to Bio::SimpleAlign add_SeqFeature()'.
+                     ' is deprecated and will be removed in a future version. '.
+                     'Add a single feature at a time instead.',
+         -warn_version    => 1.007,
+         -throw_version   => 1.009,
+      );
+   }
+
+   for my $feat ( @feat ) {
+
+       next if $feat eq 'EXPAND'; # Need to support it for FeatureHolderI compliance
+
        if( !$feat->isa("Bio::SeqFeatureI") ) {
-           $self->throw("$feat is not a SeqFeatureI and that's what we expect...");
+           $self->throw("Expected a Bio::SeqFeatureI object, but got a $feat.");
        }
 
-       push(@{$self->{'_as_feat'}},$feat);
+       push @{$self->{'_as_feat'}}, $feat;
    }
    return 1;
 }

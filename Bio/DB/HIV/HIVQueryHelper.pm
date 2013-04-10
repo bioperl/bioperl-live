@@ -1172,7 +1172,7 @@ sub len {
 sub clone {
     local $_;
     my $self = shift;
-    my $ret = new QRY();
+    my $ret = QRY->new();
     foreach ($self->requests) {
 	$ret->put_requests($_->clone);
     }
@@ -1346,7 +1346,7 @@ by an R object are effectively C<AND>ed.
 package # hide from PAUSE
     R;
 use strict;
-$R::NULL = new R();
+$R::NULL = R->new();
 
 
 ## R constructor
@@ -1538,7 +1538,7 @@ sub A {
 sub clone {
     local $_;
     my $self = shift;
-    my $ret = new R();
+    my $ret = R->new();
     foreach ($self->atoms) {
 	$ret->put_atoms($_->clone);
     }
@@ -1602,7 +1602,7 @@ sub And {
 
     # common fields
     my @cf = grep {defined} map {my $sf = $_; grep /$sf/, $t->fields } $s->fields;
-    my $ret = new R();
+    my $ret = R->new();
     my $v = $t->clone;
     $v->del_atoms(@cf);
     my $u = $s->clone;
@@ -1729,7 +1729,7 @@ C<qeq, qin, qand, qor>.
 package # hide from PAUSE
     Q;
 use strict;
-$Q::NULL = new Q();
+$Q::NULL = Q->new();
 
 ## Q constructor
 
@@ -1860,7 +1860,7 @@ sub A {
 sub clone {
     my $self = shift;
     Bio::Root::Root->throw("requires type Q (atom)") unless ref($self) && $self->isa('Q');
-    my $ret = new Q ($self->fld, $self->dta);
+    my $ret = Q->new($self->fld, $self->dta);
     return $ret;
 }
 
@@ -1937,7 +1937,7 @@ sub qor {
     foreach my $f (@f) {
 	my @fobjs =  grep {$_->fld eq $f} @a;
 	my @d = unique(map {split(/\s/, $_->dta)} @fobjs );
-        my $r = new Q($f, @d);
+        my $r = Q->new($f, @d);
 	push @ret, $r;
     }
     return @ret;
@@ -1983,7 +1983,7 @@ sub qand {
 	    foreach (@bd) {
 		$ad{$_}++;
 	    }
-	    my $r = new Q($a->fld,
+	    my $r = Q->new($a->fld,
 			  grep {$_}
 			  map {$ad{$_} == 2 ? $_ : undef} keys %ad);
 	    return (length($r->dta) > 0) ? ($r) : ($Q::NULL);
@@ -2109,8 +2109,8 @@ sub put_value {
 	else {
 	    # replace an old value
 	    $self->remove_Annotations($_) if $a;
-	    my $ac = new Bio::Annotation::Collection;
-	    $self->add_Annotation(new Bio::Annotation::SimpleValue(
+	    my $ac = Bio::Annotation::Collection->new();
+	    $self->add_Annotation(Bio::Annotation::SimpleValue->new(
 				      -tagname => $_,
 				      -value => $ac
 				  )
@@ -2123,7 +2123,7 @@ sub put_value {
 	($self->get_Annotations($lastkey))[0]->{value} = $value;
     }
     else {
-	$self->add_Annotation(new Bio::Annotation::SimpleValue(
+	$self->add_Annotation(Bio::Annotation::SimpleValue->new(
 				  -tagname=>$lastkey,
 				  -value=>$value
 			      ));

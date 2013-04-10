@@ -239,11 +239,11 @@ is(scalar(@anc),4);
 # helper functions
 #################################################################
 
-sub goid { num ( $a->GO_id() ) <=> num ( $b->GO_id() ) }
+sub goid { snum ( $a->GO_id() ) <=> snum ( $b->GO_id() ) }
 
-sub child_goid { num ( $a->child_term()->GO_id() ) <=> num ( $b->child_term()->GO_id() ) }
+sub child_goid { snum ( $a->child_term()->GO_id() ) <=> snum ( $b->child_term()->GO_id() ) }
 
-sub num {
+sub snum {
     my $x = shift( @_ );
     $x =~ s/\D+//g;
     return $x;

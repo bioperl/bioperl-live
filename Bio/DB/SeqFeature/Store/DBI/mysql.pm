@@ -566,7 +566,7 @@ sub _finish_bulk_update {
     my $fh = $self->dump_filehandle($table);
     my $path = $self->dump_path($table);
     $fh->close;
-    print STDERR "$path\n";
+    #print STDERR "$path\n";
     
     $dbh->do("LOAD DATA LOCAL INFILE '$path' REPLACE INTO TABLE $table FIELDS OPTIONALLY ENCLOSED BY '\\''") 
       or $self->throw($dbh->errstr);
@@ -1061,8 +1061,8 @@ sub _types_sql {
       ($primary_tag,$source_tag) = split ':',$type,2;
     }
 
-    if (length $source_tag) {
-      if (length($primary_tag)) {
+    if (defined $source_tag && length $source_tag) {
+      if (defined $primary_tag && length($primary_tag)) {
         push @matches,"tl.tag=?";
         push @args,"$primary_tag:$source_tag";
       }

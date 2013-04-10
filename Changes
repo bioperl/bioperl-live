@@ -17,6 +17,107 @@ Bugs and requested features list:
 CPAN releases are branched from 'master'.
 ---------------------------------------------------------
 
+1.?.?
+
+    [New features]
+
+    * Bio::Seq::SimulatedRead
+        - New module to represent reads taken from other sequences [fangly]
+    * Bio::Tools::IUPAC
+        - New regexp() method to create regular expressions from IUPAC sequences
+          [fangly]
+    * Bio::SeqFeature::Primer and Bio::Seq::PrimedSeq:
+        - Code refresh [fangly]
+    * Bio::DB::Taxonomy
+        - Added support for the Greengenes and Silva taxonomies [fangly]
+    * Bio::Tree::TreeFunctionsI
+        - get_lineage_string() represents a lineage as a string [fangly]
+        - add_trait() returns instead of reporting an error when the column
+          number is exceeded in add_trait() [fangly]
+        - Option to support tree leaves without trait [fangly]
+        - Allow ID of 0 in trait files [fangly]
+    * Bio::DB::Taxonomy::list
+        - Misc optimizations [fangly]
+        - Option -names of get_taxon() to help with ambiguous taxa [fangly]
+    * Bio::DB::Taxonomy::*
+        - get_num_taxa() returns the number of taxa in the database [fangly]
+    * Bio::DB::Fasta and Bio::DB::Qual
+        - support indexing an arbitrary list of files [fangly]
+        - user can supply an arbitrary index file name [fangly]
+        - new option to remove index file at the end [fangly]
+    * Bio::DB::Fasta
+        - now handles IUPAC degenerate residues [fangly]
+    * Bio::PrimarySeq and Bio::PrimarySeqI
+        - speed improvements for large sequences [Ben Woodcroft, fangly]
+    * Bio::PrimaryQual
+        - tightened and optimized quality string validation [fangly]
+    * Bio::SeqIO::fasta
+        - new method and option 'block', to create FASTA output with space
+          intervaled blocks (similar to genbank or EMBL) has been implemented.
+        - package variables $WIDTH and $DEFAULT_SEQ_ID_TYPE have been removed
+          in favour of the methods 'width' and 'preferred_id_type` respectively.
+    * Bio::FeatureIO::*
+        - moved from bioperl-live into the separate distribution Bio-FeatureIO
+    * Bio::SeqFeature::Annotated
+        - moved from bioperl-live into the separate distribution Bio-FeatureIO
+    * Bio::Cluster::SequenceFamily
+        - improved performance when using get_members with overlapping multiple
+          criteria
+
+    [Bug fixes]
+
+    * [3302] Fixes bug in Bio::SearchIO::hmmer2.pm to correctly parse
+      multi-query hmmer output [Francisco J. Ossandon, Paul Cantalupo]
+    * [3421] Fixes bug in Bio::SearchIO::hmmer2.pm to correctly parse an HSP
+      with a line full of dashes [Francisco J. Ossandon, Paul Cantalupo]
+    * [3298] Fix bug in Bio::SearchIO::blast.pm where algorithm version
+      information was lost in a multi-result blast file [Paul Cantalupo]
+    * [3343] Fix bug in Bio::SearchIO::blasttable.pm to correctly calculate
+      total gaps [Paul Cantalupo]
+    * [3375] Fix DBLINK parsing bug in Bio::SeqIO::genbank.pm [Paul Cantalupo]
+    * [3376] Fix bug in Bio::SearchIO::hmmer2.pm to correctly handle case
+      when end of domain indicator is split across lines [Paul Cantalupo]
+    * [3240] Bio::AlignIO::stockholm now parses simple sequences [Bernd Web,
+      cjfields]
+    * [3237] Bio::DB::Fasta now allows blank lines between sequences, catches
+      instances where blank lines are within sequences [cjfields]
+    * Bio::DB::Fasta reports correct alphabet for files with multiple sequence
+      types [fangly]
+    * Bio::DB::Fasta rev-comps sequences other than DNA properly [fangly]
+    * [3238] Fixes for Bio::DB::SeqFeature::Store::DBI::Pg [Thomas Burkhard,
+      cjfields]
+    * Various fixes for Stockholm file indexing and processing [bosborne]
+    * Fix edge case in FASTQ parsing where sequence of length 1 and qual of 0
+      breaks parsing [cjfields]
+    * Fix case where Bio::Seq::Meta* objects with no meta information could not
+      be reverse-complemented [fangly]
+    * Fix bug for fields without aliases in Bio::DB::Query::HIVQuery [fangly]
+    * Fix Bio::PopGen::IO::phase: sort values lexically instead of numerically
+      when unsure that values will be numerical [fangly]
+    * Fix undef warnings in Bio::SeqIO::embl [fangly]
+    * Fix undef warnings in Bio::DB::Fasta and Bio::DB::Qual [fangly]
+    * Fix Bio::Tools::IUPAC should accept any sequence object [fangly]
+    * Fix for 'Inappropriate ioctl' in Bio::DB::Store::berkeleydb3 [Olivier
+      Sallou]
+    * Bio::SeqFeature::Generic SeqfeatureI compliance: methods primary_tag,
+      source_tag and display_name must return a string, not undef [fangly]
+    * Bio::SimpleAlign and Bio::Seq compliance with Bio::FeatureHolderI
+      add_SeqFeature takes a single argument [fangly]
+    * Use cross-platform filenames and temporary directory in
+      Bio::DB::Taxonomy::flatfile [fangly]
+    * Fix bug in Bio::DB::Taxonomy::list where taxa with no ancestors were not
+      properly identified as existing taxa in the database [fangly]
+    * Fix issue where a Bio::DB::Taxonomy::list object could not be created
+      without also passing a lineage to store [fangly]
+    * Prevent passing a directory to the gi2taxid option (-g) of
+      bp_classify_hits_kingdom.pl and remove an 'earlier declaration' warning
+      [fangly]
+    * Fixed bp_genbank2gff3.pl crash when missing source feature date [fangly]
+    * Bio::PrimarySeq constructor -direct works for -seq or -ref_to_seq [fangly]
+    * Bio::Cluster::SequenceFamily - checks if the sequence has a Bio::Species
+      object before trying to access, and no longer returns repeated sequences.
+
+
 1.6.901 May 18, 2011
 
     [Notes]
@@ -133,7 +234,7 @@ CPAN releases are branched from 'master'.
     * [3034] - AlignIO::clustal output [Bernd, DaveMessina]
     * [3031] - Parse algorithm ref for BLAST [Razi Khaja, cjfields]
     * [3028] - Bio::TreeIO::nexus and FigTree compat [Kevin Balbi, cjfields]
-    * [3025] - Bio::SeqIO::embl infinite loop [Adam Sjøgren, cjfields]
+    * [3025] - Bio::SeqIO::embl infinite loop [Adam SjÃ¸gren, cjfields]
     * [3040, 3023, 2974, 2921, 2753, 2636, 2482] - PAML parser fixed, works with
                PAML 4.4d [DaveMessina]
     * [3015, 3022] - Bio::Restriction withrefm regexp [Emmanuel Quevillon,
@@ -153,7 +254,7 @@ CPAN releases are branched from 'master'.
     * [2944] - Bio::Tools::GFF score [cjfields]
     * [2942] - correct MapTiling output [maj]
     * [2939] - PDB residue insertion codes [John May, maj]
-    * [2930] - PrimarySeqI term symbol [Adam Sjøgren, maj]
+    * [2930] - PrimarySeqI term symbol [Adam SjÃ¸gren, maj]
     * [2928] - GuessSeqFormat raw [maj]
     * [2926] - Bio:Tools::TandemRepeatsFinder seq_id [takadonet, cjfields]
     * [2922] - open() directive issue [cjfields]
@@ -162,7 +263,7 @@ CPAN releases are branched from 'master'.
     * [2899] - SeqFeature::Store host issues [lstein, dbolser]
     * [2897] - Add a "mask_below_threshold" method to Seq::Quality [dbolser,
                cjfields]
-    * [2881] - .scf files don't' roundtrip [Adam Sjøgren, cjfields]
+    * [2881] - .scf files don't' roundtrip [Adam SjÃ¸gren, cjfields]
     * [2876] - CDD search with RemoteBlast [Malcolm Cook]
     * [2863] - Root::IO::_initialize_io causes crash [rbuels, maj, DaveMessina]
     * [2845] - Bio::Seq::Quality gives seq with no ID [Tristan Lefebure, cjfields]
@@ -319,7 +420,7 @@ CPAN releases are branched from 'master'.
     * Bio::SeqIO::raw
         - add option for 'single' and 'multiple'
     * Bio::SeqIO::scf
-        - bug 2881 - fix scf round-tripping [Adam Sj¿gren]
+        - bug 2881 - fix scf round-tripping [Adam SÃ¸gren]
     * Bio::SeqUtils
         - bug 2766, 2810 - copy over tags from features, doc fixes [David
           Jackson]

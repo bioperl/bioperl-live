@@ -7,11 +7,11 @@ use constant TEST_COUNT => 116;
 BEGIN {
     use lib '.','..','./t/lib';
     use Bio::Root::Test;
-	
+
     test_begin(-tests => TEST_COUNT);
-    
+
     $ENV{ORACLE_HOME} ||= '/home/oracle/Home';
-    use_ok('Bio::SeqFeature::Generic');	
+    use_ok('Bio::SeqFeature::Generic');
     use_ok('Bio::DB::SeqFeature::Store');
     use_ok('Bio::DB::SeqFeature::Store::GFF3Loader');
     use_ok('Bio::Root::IO');
@@ -30,7 +30,7 @@ my @args = @ARGV;
 
 SKIP: {
 my $db = eval { Bio::DB::SeqFeature::Store->new(@args) };
-skip "DB load failed? Skipping all! $@", (TEST_COUNT - 5) if $@;
+skip "DB load failed? Skipping all! $@", (TEST_COUNT - 6) if $@;
 ok($db);
 
 is( $db->isa('Bio::SeqFeature::CollectionI'), 1 );
@@ -43,7 +43,7 @@ $new_features = 0;
 SKIP: {
 #    skip("skipping memory adaptor-specific tests",27)
 #	unless $db->isa('Bio::DB::SeqFeature::Store::memory');
-	
+
 
 # test adding
     my $n = Bio::SeqFeature::Generic->new(
@@ -59,7 +59,7 @@ SKIP: {
     is( scalar @f, 1 );
     $f = $f[0];
     is( $f->primary_id, $n->primary_id);
-    
+
     $f2 = Bio::SeqFeature::Generic->new(
 	-start        => 10,
 	-end          => 100,
@@ -84,14 +84,14 @@ SKIP: {
     ok( @f = $db->types );
     is( @f, 2 );
     isa_ok($f[0], 'Bio::DB::GFF::Typename');
-    
+
 # test removing features
     ok( $db->delete( $f ), 'feature deletion' );
     is( $db->fetch( $f->primary_id ), undef );
     $db->delete( $f2 );
 
     ok( $db->store($f, $f2) );
-    
+
 # test adding seqfeatures
     $sf1 = Bio::SeqFeature::Generic->new( -primary=>'seqfeat1', -start=>23, -end=>512 );
     $sf2 = Bio::SeqFeature::Generic->new( -primary=>'seqfeat2', -start=>23, -end=>512 );
@@ -100,7 +100,7 @@ SKIP: {
     is $db->add_SeqFeature($f, $sf1), 1;
     is $db->add_SeqFeature($f, $sf2, $sf3), 2;
     is $db->add_SeqFeature($f, $sf1, $sf2, $sf3), 3;
-    
+
 # test fetching seqfeatures
     is $db->fetch_SeqFeatures($f), 3;
     is $db->fetch_SeqFeatures($f, 'seqfeat2'), 1;
@@ -275,7 +275,7 @@ is($c[1]->phase,1);
 
  SKIP: {
      test_skip(-tests => 2, -excludes_os => 'mswin');
-	
+
      if (my $child = open(F,"-|")) { # parent reads from child
 	 cmp_ok(scalar <F>,'>',0);
 	 close F;
@@ -338,14 +338,14 @@ ok(substr($contig2,0,$length) eq $f->dna);
 
  SKIP: {
      my $adaptor;
-    
+
      for (my $i=0; $i < @args; $i++) {
 	 if ($args[$i] eq '-adaptor') {
 	     $adaptor = $args[$i+1];
 	     last;
 	 }
      }
-        
+
      skip "Namespaces only supported for DBI::mysql and DBI::Pg adaptors", 6, if ($adaptor ne 'DBI::mysql' && $adaptor ne 'DBI::Pg');
 
      push(@args, ('-namespace', 'bioperl_seqfeature_t_test_schema'));
@@ -365,7 +365,7 @@ ok(substr($contig2,0,$length) eq $f->dna);
      # there should be three subfeatures of type "exon" and three of type "CDS"
      is($f->get_SeqFeatures('exon'),3);
      is($f->get_SeqFeatures('CDS'),3);
-    
+
      $db->remove_namespace();
 }
 
@@ -378,7 +378,7 @@ sub make_fasta_testdir {
     my $tempdir = test_output_dir();
     my $test_dbdir = $io->catfile($tempdir, 'dbfa');
     mkdir($test_dbdir); # make the directory
-    my $indir = test_input_file('dbfa'); 
+    my $indir = test_input_file('dbfa');
     opendir(INDIR,$indir) || die("cannot open dir $indir");
     # effectively do a cp -r but only copy the files that are in there, no subdirs
     for my $file ( map { $io->catfile($indir,$_) } readdir(INDIR) ) {

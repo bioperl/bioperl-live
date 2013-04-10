@@ -185,15 +185,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -430,7 +430,7 @@ EOUSAGE
         if (!$srcfeature) {
             if ($seq->can('seq_id')) {
                 $srcfeature=$seq->seq_id if ($seq->seq_id ne $seq->display_name);
-            }    
+            }
         }
 
     #$srcfeature, when provided, should contain at least one alphabetical letter
@@ -498,7 +498,7 @@ EOUSAGE
     local($^W) = 0; # supressing warnings about uninitialized fields.
 
         if (!$name && $seq->can('attributes') ) {
-            ($name) = $seq->attributes('Alias'); 
+            ($name) = $seq->attributes('Alias');
         }
 
     if ($seq->can('accession_number') && defined $seq->accession_number && $seq->accession_number ne 'unknown') {
@@ -556,8 +556,8 @@ EOUSAGE
         my $residues;
         if (!$self->suppress_residues ||
             ($self->suppress_residues && $self->allow_residues eq $ftype)) {
-            $residues = $seq->seq->isa('Bio::PrimarySeq') 
-                        ? $seq->seq->seq 
+            $residues = $seq->seq->isa('Bio::PrimarySeq')
+                        ? $seq->seq->seq
                         : $seq->seq;
         }
         else {
@@ -585,11 +585,11 @@ EOUSAGE
                 %srcfhash = $self->_srcf_hash($srcfeature,
                                               $srcfeattype,
                                               \%organism);
-              
+
                 my ($phase,$strand);
                 if ($seq->can('phase')) {
                     $phase = $seq->phase;
-                } 
+                }
 
                 if ($seq->can('strand')) {
                     $strand = $seq->strand;
@@ -603,7 +603,7 @@ EOUSAGE
                                 );
 
                 $datahash{'featureloc'} = \%fl;
- 
+
         }
 
 
@@ -683,8 +683,8 @@ EOUSAGE
         my %prophash = (
             "type_id"   => {'name' => 'description',
                         'cv_id' => {
-                        'name' => 
-                                                 $cv_name{'feature_property'} 
+                        'name' =>
+                                                 $cv_name{'feature_property'}
                                                        },
                                            },
             "value"     => $temp,
@@ -701,7 +701,7 @@ EOUSAGE
         my %prophash = (
                 "type_id"   => {'name' => 'keywords',
                             'cv_id' => {
-                                                  'name' => 
+                                                  'name' =>
                                                    $cv_name{'feature_property'}
                                                            }
                         },
@@ -713,7 +713,7 @@ EOUSAGE
         }
 
     #COMMENT
-    if ($seq->can('annotation')) { 
+    if ($seq->can('annotation')) {
         $ann = $seq->annotation();
         foreach my $comment ($ann->get_Annotations('comment')) {
             $temp = $comment->as_text();
@@ -721,7 +721,7 @@ EOUSAGE
             my %prophash = (
                 "type_id"   => {'name' => 'comment',
                             'cv_id' => {
-                                                  'name' => 
+                                                  'name' =>
                                                    $cv_name{'feature_property'}
                                                            }
                                                },
@@ -744,7 +744,7 @@ EOUSAGE
                         @featuresyns = $self->handle_Alias_tag($seq,@featuresyns);
                     }
 
-                    ###FIXME deal with Dbxref, Ontology_term,source, 
+                    ###FIXME deal with Dbxref, Ontology_term,source,
                     elsif ($key eq 'Ontology_term') {
                         @top_featurecvterms = $self->handle_Ontology_tag($seq,@top_featurecvterms);
                     }
@@ -754,7 +754,7 @@ EOUSAGE
                     }
 
                     elsif ($key =~ /^[a-z]/) {
-                        @top_featureprops 
+                        @top_featureprops
                              = $self->handle_unreserved_tags($seq,$key,@top_featureprops);
                     }
                 }
@@ -1024,8 +1024,8 @@ EOUSAGE
 
     ##construct srcfeature hash for use in featureloc
     if (defined $srcfeature) {
-                %srcfhash = $self->_srcf_hash($srcfeature, 
-                                              $srcfeattype, 
+                %srcfhash = $self->_srcf_hash($srcfeature,
+                                              $srcfeattype,
                                               \%organism);
     #   my %fr = (
     #       "object_id" => \%srcfhash,
@@ -1066,13 +1066,13 @@ EOUSAGE
         if ($prim_tag eq 'source') {
             foreach $tag ($feat->all_tags()) {
                 #db_xref
-                if ($tag eq 'db_xref' 
+                if ($tag eq 'db_xref'
                                  or $tag eq 'Dbxref'
                                  or $tag eq 'dbxref')   {
                     my @t1 = $feat->each_tag_value($tag);
                     foreach $temp (@t1) {
                        $temp =~ /([^:]*?):(.*)/;
-                                           my $db = $1; 
+                                           my $db = $1;
                                            my $xref = $2;
                                            #PRE/POST very inefficent
                        #my $db = $PREMATCH;
@@ -1516,7 +1516,7 @@ sub _subfeat2featrelhash {
 
     my %fr = (
         "subject_id"    => \%sfhash,
-        "type_id"       => { 'name' => $reltypename, 
+        "type_id"       => { 'name' => $reltypename,
                                              'cv_id' => { 'name' => $cv_name{'relationship'} }},
         );
 
@@ -1670,7 +1670,7 @@ sub _getSubmitAddr {
 
 sub suppress_residues {
     my $self = shift;
-    my $suppress_residues = shift if defined(@_);
+    my $suppress_residues = shift if @_;
     return $self->{'suppress_residues'} = $suppress_residues if defined($suppress_residues);
     return $self->{'suppress_residues'};
 }
@@ -1695,7 +1695,7 @@ sub suppress_residues {
 
 sub allow_residues {
     my $self = shift;
-    my $allow_residues = shift if defined(@_);
+    my $allow_residues = shift if @_;
     return $self->{'allow_residues'} = $allow_residues if defined($allow_residues);
     return $self->{'allow_residues'};
 }
@@ -1751,9 +1751,9 @@ sub return_reltypename {
 
  Title    : next_seq
  Usage    : $obj->next_seq
- Function : 
- Returns  : 
- Args     : 
+ Function :
+ Returns  :
+ Args     :
  Status   : Not implemented (write only adaptor)
 
 =cut
@@ -1779,9 +1779,9 @@ sub next_seq {
 sub _create_writer {
     my $self = shift;
 
-    $self->{'writer'} = new XML::Writer(OUTPUT => $self->_fh,
-                                        DATA_MODE => 1,
-                                        DATA_INDENT => 3);
+    $self->{'writer'} = XML::Writer->new(OUTPUT => $self->_fh,
+                                         DATA_MODE => 1,
+                                         DATA_INDENT => 3);
 
     #print header
     $self->{'writer'}->xmlDecl("UTF-8");
@@ -1871,7 +1871,7 @@ sub handle_Alias_tag {
                     'pub_id'     => {'uniquename' => 'null',
                                      'type_id'    => { 'name' => 'null',
                                                        'cv_id' => {
-                                                            'name' => 'null', 
+                                                            'name' => 'null',
                                                                   },
                                                      },
                                     },
@@ -1924,7 +1924,7 @@ sub handle_Ontology_tag  {
  Usage    : $obj->handle_dbxref
  Function : Convert Dbxref values to dbxref hashref
  Returns  : An array of dbxref hashrefs
- Args     : A seq or seqFeature object and the dbxref array 
+ Args     : A seq or seqFeature object and the dbxref array
  Status   :
 
 =cut
@@ -1966,9 +1966,9 @@ sub handle_dbxref {
 
  Title    : handle_source
  Usage    : $obj->handle_source
- Function : 
- Returns  : 
- Args     : 
+ Function :
+ Returns  :
+ Args     :
  Status   :
 
 =cut
@@ -2012,7 +2012,7 @@ sub _srcf_hash {
 
     my %hash = ('uniquename'    => $srcf,
                 'organism_id'   => $orgref,
-                'type_id'       => {'name' => $stype, 
+                'type_id'       => {'name' => $stype,
                                     'cv_id' =>
                                        {'name' => $cv_name{'sequence'} }},
                );

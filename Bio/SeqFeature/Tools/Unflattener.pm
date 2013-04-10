@@ -1518,7 +1518,7 @@ sub unflatten_seq{
    # modify the original Seq object - the top seqfeatures are now
    # the top features from each group
    $seq->remove_SeqFeatures;
-   $seq->add_SeqFeature(@top_sfs);
+   $seq->add_SeqFeature($_) foreach @top_sfs;
 
    # --------- FINISHED UNFLATTENING -------------
 
@@ -2399,32 +2399,67 @@ sub _resolve_container_for_sf{
            }
        }
 
+
        # SPECIAL CASE FOR /ribosomal_slippage
        # See: http://www.ncbi.nlm.nih.gov/collab/FT/
        if (!$inside && $sf->has_tag('ribosomal_slippage')) {
 	   if ($self->verbose > 0) {
 	       printf STDERR "    Checking for ribosomal_slippage\n";
 	   }
+
+           # TODO: rewrite this to match introns;
+           #  each slippage will be a "fake" small CDS exon
 	   my @transcript_splice_sites = @container_coords;
 	   my @cds_splice_sites = @coords;
+           ##printf STDERR "xxTR SSs: @transcript_splice_sites :: %s\n", $_->get_tag_values('product');
+           ##printf STDERR "xxCD SSs: @cds_splice_sites :: %s\n\n", $sf->get_tag_values('product');
+
 	   # find the the first splice site within the CDS
 	   while (scalar(@transcript_splice_sites) &&
 		  $transcript_splice_sites[0] < $cds_splice_sites[0]) {
 	       shift @transcript_splice_sites;
 	   }
 
-	   if ($transcript_splice_sites[0] == $cds_splice_sites[0]) {
+           ##print STDERR "TR SSs: @transcript_splice_sites\n";
+           ##print STDERR "CD SSs: @cds_splice_sites\n\n";
+
+	   if (!(scalar(@transcript_splice_sites)) ||
+                 $transcript_splice_sites[0] == $cds_splice_sites[0]) {
+
+               # we will now try and align all splice remaining sites in the transcript and CDS;
+               # any splice site that can't be aligned is assumed to be a ribosomal slippage
+
 	       my @slips = ();
 	       my $in_exon = 1;
 	       $inside = 1;   # innocent until proven guilty..
 	       while (@cds_splice_sites) {
 		   if (!@transcript_splice_sites) {
-		       $inside = 0; # guilty!
-		       last;
+
+                       # ribosomal slippage is after the last transcript splice site
+                       # Example: (NC_00007, isoform 3 of PEG10)
+                       #     mRNA            join(85682..85903,92646..99007)
+                       #     mRNA            join(85682..85903,92646..99007)
+                       #     CDS             join(85899..85903,92646..93825,93825..94994)
+
+                       # OR: None of the splice sites align;
+                       #  may be a single CDS exon with one slippage inside it.
+                       # Example: (NC_00007, isoform 4 of PEG10)
+                       #     mRNA            join(85637..85892,92646..99007)
+                       #     CDS             join(92767..93825,93825..94994)
+                       
+                       # Yes, this code is repeated below...
+                       my $p1 = shift @cds_splice_sites;
+                       my $p2 = shift @cds_splice_sites;
+                       if ($self->verbose > 0) {
+                           printf STDERR "    Found the ribosomal_slippage: $p1..$p2\n";
+                       }
+                       push(@slips, ($p2-$p1)-1);
 		   }
-		   if ($cds_splice_sites[0] == $transcript_splice_sites[0]) {
+		   elsif ($cds_splice_sites[0] == $transcript_splice_sites[0]) {
+                       # splice sites align: this is not the slippage
 		       shift @cds_splice_sites;
 		       shift @transcript_splice_sites;
+                       ##print STDERR "MATCH\n";
 		   }
 		   else {
 		       # mismatch
@@ -2434,6 +2469,7 @@ sub _resolve_container_for_sf{
 			   # ---TTTTTTTTTT----
 			   # ---CCCC--CCCC----
 			   #       ^
+
 			   my $p1 = shift @cds_splice_sites;
 			   my $p2 = shift @cds_splice_sites;
 			   if ($self->verbose > 0) {
@@ -2444,6 +2480,7 @@ sub _resolve_container_for_sf{
 		       else {
 			   # not a potential ribosomal slippage
 			   $inside = 0; # guilty!
+                           ##print STDERR "FAIL\n";
 			   last;
 		       }
 		   }

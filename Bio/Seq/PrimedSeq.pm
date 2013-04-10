@@ -25,87 +25,127 @@
 
 =head1 NAME
 
-Bio::Seq::PrimedSeq - A representation of a sequence and two primers 
-flanking a target region
+Bio::Seq::PrimedSeq - A sequence and a pair of primers matching on it
 
 =head1 SYNOPSIS
 
-  # The easiest way to use this is probably either, (i), get the
-  # output from Bio::Tools::Run::Primer3, Bio::Tools::Primer3, or 
-  # Bio::Tools::PCRSimulation:
+  use Bio::Seq;
+  use Bio::Seq::PrimedSeq;
 
-      # For example, start with a fasta file
-      use Bio::SeqIO;
-      use Bio::Tools::Run::Primer3;
+  my $template = Bio::Seq->new( -seq => 'AGCTTTTCATTCTGACTGCAAC' );
+  my $left     = Bio::Seq->new( -seq => 'AGCT' );
+  my $right    = Bio::Seq->new( -seq => 'GTTGC' );
 
-      my $file = shift || die "need a file to read";
-      my $seqin = Bio::SeqIO->new(-file => $file);
-      my $seq = $seqin->next_seq;
+  my $primedseq = Bio::Seq::PrimedSeq->new(
+          -seq          => $template,  # sequence object
+          -left_primer  => $left,      # sequence or primer object
+          -right_primer => $right      # sequence or primer object
+  );
 
-      # use primer3 to design some primers
-      my $primer3run = Bio::Tools::Run::Primer3->new(-seq => $seq);
-      $primer3run -> run; # run it with the default parameters
+  # Get the primers as Bio::SeqFeature::Primer objects
+  my @primer_objects = $primedseq->get_primer();
 
-      # create a file to write the results to
-      my $seqout = Bio::SeqIO->new(-file => ">primed_sequence.gbk", 
-                                   -format => 'genbank');
+  # Sequence object representing the PCR product, i.e. the section of the target
+  # sequence contained between the primers (primers included)
+  my $amplicon_seq = $primedseq->amplicon();
 
-      # now just get all the results and write them out.
-      while (my $results = $primer3run->next_primer) {
-         $seqout->write_seq($results->annotated_seq);
-      }
-
-  # Or, (ii), to create a genbank file for a sequence and its cognate
-  # primers:
-
-     use Bio::SeqIO;
-     use Bio::Seq::PrimedSeq;
-
-     # have a sequence file ($file) with the template, and two primers
-     # that match it, in fasta format
-
-     my $file = shift || die "$0 <file>";
-     my $seqin = Bio::SeqIO->new(-file => $file);
-
-     # read three sequences
-     my ($template, $leftprimer, $rightprimer) =
-           ($seqin->next_seq, $seqin->next_seq, $seqin->next_seq);
-     # set up the primed sequence object
-     my $primedseq = Bio::Seq::PrimedSeq->new(-seq => $template, 
-                                              -left_primer => $leftprimer,
-                                              -right_primer => $rightprimer);
-     # open a file for output
-     my $seqout = Bio::SeqIO->new(-file => ">primed_sequence.gbk",
-                                  -format => 'genbank');
-     # print the sequence out
-     $seqout->write_seq($primedseq->annotated_sequence);
-
-  # This should output a genbank file with the two primers labeled.
+  print 'Got amplicon sequence: '.$amplicon_seq->seq."\n";
+  # Amplicon should be: agctTTTCATTCTGACTgcaac
 
 =head1 DESCRIPTION
 
-This module is a slightly glorified capsule containing a primed sequence. 
-It was created to address the fact that a primer is more than a seqfeature 
-and there need to be ways to represent the primer-sequence complex and 
-the behaviors and attributes that are associated with the complex.
+This module was created to address the fact that a primer is more than a
+SeqFeature and that there is a need to represent the primer-sequence complex and
+the attributes that are associated with the complex.
 
-The primers are represented as Bio::SeqFeature::Primer objects, and should
-be instantiated first.
+A PrimedSeq object is initialized with a target sequence and two primers. The
+location of the primers on the target sequence is calculated if needed so that
+one can then get the PCR product, or amplicon sequence. From the PrimedSeq object
+you can also retrieve information about melting temperatures and what not on each
+of the primers and the amplicon. The L<Bio::Tools::Primer3> module uses PrimedSeq
+objects extensively.
 
-A simple way to create a PrimedSeq object is as follows:
+Note that this module does not simulate PCR. It assumes that the primers
+will match in a single location on the target sequence and does not understand
+degenerate primers.
 
-  my $primedseq = Bio::Seq::PrimedSeq->new(
-          -seq          => $seq,  # Bio::Seq object,
-          -left_primer  => $left, # Bio::SeqFeature::Primer object,
-          -right_primer => $right # Bio::SeqFeature::Primer object,
-  );
+=over
 
-From the PrimedSeq object you should be able to retrieve
-information about melting temperatures and what not on each of the primers 
-and the amplicon.
+=item *
 
-This is based on the PrimedSeq.pm module started by Chad Matsalla, with 
-additions/improvements by Rob Edwards.
+Providing primers as sequence objects
+
+If the primers are specified as sequence objects, e.g. L<Bio::PrimarySeq> or
+L<Bio::Seq>, they are first converted to L<Bio::SeqFeature::Primer> objects.
+Their location on the target sequence is then calculated and added to the
+L<Bio::SeqFeature::Primer> objects, which you can retrieve using the get_primer()
+method.
+
+=item *
+
+Providing primers as primer objects
+
+Because of the limitations of specifying primers as sequence objects, the
+recommended method is to provide L<Bio::SeqFeature::Primer> objects. If you did
+not record the location of the primers in the primer object, it will be
+calculated.
+
+=back
+
+L<Bio::Seq::PrimedSeq> was initially started by Chad Matsalla, and later
+improved on by Rob Edwards.
+
+=head1 RECIPES
+
+=over
+
+=item 1.
+
+Run Primer3 to get PrimedSeq objects:
+
+  use Bio::SeqIO;
+  use Bio::Tools::Run::Primer3;
+
+  # Read a target sequences from a FASTA file
+  my $file = shift || die "Need a file to read";
+  my $seqin = Bio::SeqIO->new(-file => $file);
+  my $seq = $seqin->next_seq;
+
+  # Use Primer3 to design some primers
+  my $primer3 = Bio::Tools::Run::Primer3->new(-seq => $seq);
+  my $results = $primer3->run; # default parameters
+
+  # Write all the results in a Genbank file
+  my $seqout = Bio::SeqIO->new(-file => ">primed_sequence.gbk", 
+                               -format => 'genbank');
+  while (my $primedseq = $results->next_primer) {
+     $seqout->write_seq( $primedseq->annotated_seq );
+  }
+
+=item 2.
+
+Create a genbank file for a sequence and its cognate primers:
+
+  use Bio::SeqIO;
+  use Bio::Seq::PrimedSeq;
+
+  # Read a FASTA file that contains the target sequence and its two primers
+  my $file = shift || die "$0 <file>";
+  my $seqin = Bio::SeqIO->new(-file => $file);
+  my ($template, $leftprimer, $rightprimer) = 
+        ($seqin->next_seq, $seqin->next_seq, $seqin->next_seq);
+
+  # Set up a PrimedSeq object
+  my $primedseq = Bio::Seq::PrimedSeq->new(-seq => $template, 
+                                           -left_primer => $leftprimer,
+                                           -right_primer => $rightprimer);
+
+  # Write the sequences in an output Genbank file
+  my $seqout = Bio::SeqIO->new(-file => ">primed_sequence.gbk",
+                               -format => 'genbank');
+  $seqout->write_seq($primedseq->annotated_sequence);
+
+=back
 
 =head1 FEEDBACK
 
@@ -156,141 +196,110 @@ package Bio::Seq::PrimedSeq;
 use strict;
 use Bio::SeqFeature::Primer;
 
-use vars qw ($AUTOLOAD @RES %OK_FIELD $ID);
-
 use base qw(Bio::Root::Root Bio::SeqFeature::Generic);
-
-BEGIN {
- @RES = qw(); # nothing here yet, not sure what we want!
- foreach my $attr (@RES) {$OK_FIELD{$attr}++}
-}
-
-$ID = 'Bio::Tools::Analysis::Nucleotide::PrimedSeq';
-
-sub AUTOLOAD {
- my $self = shift;
- my $attr = $AUTOLOAD;
- $attr =~ s/.*:://;
- $self->throw("Unallowed parameter: $attr !") unless $OK_FIELD{$attr};
- $self->{$attr} = shift if @_;
- return $self->{$attr};
-}
+# Since this module occupies the Bio::Seq::* namespace, it should probably
+# inherit from Bio::Seq before it inherits from Bio::SeqFeature::Generic. But
+# then, Bio::SeqI and Bio::SeqFeatureI both request a seq() method that return
+# different things. So, being Bio::SeqI is incompatible with being Bio::SeqFeatureI
 
 
 =head2 new
 
  Title   : new()
- Usage   : $primed_sequence = Bio::SeqFeature::Primer->new( 
-                                     -seq => $sequence,
-                                     -left_primer => $left_primer,
-                                     -right_primer => $right_primer);
- Function: A constructor for an object representing a primed sequence 
+ Usage   : my $primedseq = Bio::SeqFeature::Primer->new( 
+                            -seq => $sequence,
+                            -left_primer => $left_primer,
+                            -right_primer => $right_primer
+           );
+ Function: Construct a primed sequence.
  Returns : A Bio::Seq::PrimedSeq object
  Args    :  -seq => a Bio::Seq object (required)
-            -left_primer => a Bio::SeqFeature::Primer object (required)
-            -right_primer => a Bio::SeqFeature::Primer object (required)
+            -left_primer => a Bio::SeqFeature::Primer or sequence object (required)
+            -right_primer => a Bio::SeqFeature::Primer or sequence object (required)
+
+           If you pass a sequence object to specify a primer, it will be used to
+           construct a Bio::SeqFeature::Primer that you can retrieve with the
+           L<get_primer> method.
 
            Many other parameters can be included including all of the output
-           parameters from the primer3 program. At the moment most of these
-           parameters will not do anything.
+           parameters from the primer3 program (see L<Bio::Tools::Primer3>). At
+           the moment these parameters will simply be stored and do anything.
 
 =cut
 
 sub new {
+    my($class,%args) = @_;
+    my $self = $class->SUPER::new(%args);
 
-	# note, I have cleaned up a lot of the script that Chad had written here,
-	# and I have removed the part where he removed the - before the tags.
-	# Very confusing.
+    # Need an amplicon sequence
+    $self->{seq} = delete $args{-seq} || delete $args{-target_sequence} ||
+        $self->throw("Need to provide a sequence during PrimedSeq object construction");
+    if (! ref($self->{seq}) || ! $self->{seq}->isa('Bio::SeqI') ) {
+        $self->throw("The target_sequence must be a Bio::Seq to create this object.");
+    }
 
-	my($class,%args) = @_;
-	my $self = $class->SUPER::new(%args);
-   # these are the absolute minimum components required to make
-   # a primedseq
+    # Need a left and right primers
+    for my $primer ( 'left', 'right' ) {
+        $self->{$primer} = delete $args{'-'.$primer.'_primer'} ||
+            $self->throw("Need to provide both primers during PrimedSeq object construction");
+        if ( ref $self->{$primer} && $self->{$primer}->isa('Bio::PrimarySeqI') ) {
+            # Convert Bio::Seq or Bio::PrimarySeq objects to Bio::SeqFeature::Primer
+            $self->{$primer} = Bio::SeqFeature::Primer->new(-seq => $self->{$primer});
+        }
+        if (not (ref $self->{$primer} && $self->{$primer}->isa("Bio::SeqFeature::Primer"))) {
+            $self->throw("Primers must be Bio::SeqFeature::Primer objects but got a ".ref($self->{$primer}));
+        }
+    }
 
-	foreach my $key (keys %args) {
-		if ($key =~  /^-seq/i) {
-			$self->{target_sequence} = $args{$key};
-			next;
-		} else {
-			my $okey;
-			($okey = $key) =~ s/^-//;
-			if (($okey eq "left_primer" || $okey eq "right_primer") && 
-				 ref($args{$key}) && $args{$key}->isa('Bio::SeqI') ) {
-				# We have been given a Bio::Seq object, 
-				# make it a Bio::SeqFeature::Primer object
-				$self->{$okey} = Bio::SeqFeature::Primer->new(-seq => $args{$key});
-				push @{$self->{'arguments'}},$okey;
-				next;
-			}
+    # Save remaining arguments
+    while (my ($arg, $val) = each %args) {
+        $self->{$arg} = $val;
+    }
 
-			$self->{$okey} = $args{$key};
-			push @{$self->{'arguments'}},$okey;
-		}
-	}
-	# and now the insurance - make sure that things are ok
-	if (!$self->{target_sequence} || !$self->{left_primer} || 
-		 !$self->{right_primer} ) {
-		$self->throw("You must provide a -seq, -left_primer, and -right_primer to create this object.");
-	}
-  
-	if (! ref($self->{target_sequence}) ||
-		 ! $self->{target_sequence}->isa('Bio::SeqI') ) {
-		$self->throw("The target_sequence must be a Bio::Seq to create this object.");
- }
-	if (! ref($self->{left_primer}) ||
-		 ! $self->{left_primer}->isa("Bio::SeqFeature::Primer") || 
-		 ! ref($self->{right_primer}) ||
-		 ! $self->{right_primer}->isa("Bio::SeqFeature::Primer")) {
-		$self->throw("You must provide a left_primer and right_primer, both as Bio::SeqFeature::Primer to create this object.");
-	}
- 
-	# now we have the sequences, lets find out where they are
-	$self->_place_seqs();
-	return $self;
+    # Determine primer location on target if needed
+    if ( not( $self->{'left'}->start  && $self->{'left'}->end &&
+              $self->{'right'}->start && $self->{'right'}->end ) ) {
+        $self->_place_primers();
+    }
+
+    return $self;
 }
 
 
 =head2 get_primer
 
  Title   : get_primer();
- Usage   : $primer = $primedseq->get_primer(l, left, left_primer, 
-           -left_primer) to return the left primer or 
-	        $primer = $primedseq->get_primer(r, right, right_primer, 
-           -right_primer) to return the right primer or
-	        $primer = $primedseq->get_primer(b, both, both_primers, 
-           -both_primers)
-           to return the left primer, right primer array
- Function: A getter for the left primer in thie PrimedSeq object.
+ Usage   :  my @primers = $primedseq->get_primer();
+              or
+            my $primer = $primedseq->get_primer('-left_primer');
+ Function: Get the primers associated with the PrimedSeq object.
  Returns : A Bio::SeqFeature::Primer object
- Args    : Either of (l, left, left_primer, -left_primer) to get left 
-           primer.
-           Either of (r, right, right_primer, -right_primer) to get 
-           right primer
-	        Either of (b, both, both_primers, -both_primers) to get 
-           both primers. 
-           Note that this is plural. [default]
+ Args    : For the left primer, use: l, left, left_primer or -left_primer
+           For the right primer, use: r, right, right_primer or -right_primer
+           For both primers [default], use: b, both, both_primers or -both_primers
 
 =cut
 
-sub get_primer() {
- my ($self, $arg) = @_;
- if (! defined $arg ) {
-  return ($self->{'left_primer'}, $self->{'right_primer'});
- } elsif( $arg =~ /^l/ || $arg =~ /^-l/) { 
-  # what a cheat, I couldn't be bothered to write all those or statements!
-  # Hah, now you can write leprechaun to get the left primer.
-  return $self->{'left_primer'}
- }
- elsif ($arg =~ /^r/ || $arg =~ /^-r/) {return $self->{'right_primer'}}
- elsif ($arg =~ /^b/ || $arg =~ /^-b/) {return ($self->{'left_primer'}, $self->{'right_primer'})}
+sub get_primer {
+    my ($self, $arg) = @_;
+    if (! defined $arg ) {
+        return ($self->{left}, $self->{right});
+    } elsif ( $arg =~ /^-?l/ ) {
+        # What a cheat, I couldn't be bothered to write all the exact statements!
+        # Hah, now you can write 'leprechaun' to get the left primer.
+        return $self->{left}
+    } elsif ( $arg =~ /^-?r/ ) {
+        return $self->{right};
+    } elsif ( $arg =~ /^-?b/ ) {
+        return ($self->{left}, $self->{right});
+    }
 }
-
 
 
 =head2 annotated_sequence
 
  Title   : annotated_sequence
- Usage   : $annotated_sequence_object = $primedseq->annotated_sequence()
+ Usage   : my $annotated_sequence_object = $primedseq->annotate_sequence();
  Function: Get an annotated sequence object containg the left and right 
            primers
  Returns : An annotated sequence object or 0 if not defined.
@@ -301,38 +310,45 @@ sub get_primer() {
 =cut
 
 sub annotated_sequence {
-  my $self = shift;
-  if (exists $self->{annotated_sequence}) {return $self->{annotated_sequence}}
-  else {return 0}
+    my $self = shift;
+    my $seq = $self->{'seq'}; ### clone??
+    $seq->add_SeqFeature($self->{'left'});
+    $seq->add_SeqFeature($self->{'right'});
+    return $seq;
 }
+
 
 =head2 amplicon
 
  Title   : amplicon
- Usage   : my $amplicon = $primedseq->amplicon()
- Function: Retrieve the amplicon as a sequence object
- Returns : A seq object. To get the sequence use $amplicon->seq
+ Usage   : my $amplicon = $primedseq->amplicon();
+ Function: Retrieve the amplicon as a sequence object. The amplicon sequnce is
+           only the section of the target sequence between the primer matches
+           (primers included).
+ Returns : A Bio::Seq object. To get the sequence use $amplicon->seq
  Args    : None
  Note    : 
 
 =cut
 
 sub amplicon {
- my ($self,@args) = @_;
- my $id = $self->{'-seq'}->{'id'};
- unless ($id) {$id=""}
- # this just prevents a warning when $self->{'-seq'}->{'id'} is not defined
- $id = "Amplicon from ".$id;
- 
- my $seqobj=Bio::Seq->new(-id=>$id, seq=>$self->{'amplicon_sequence'});
- return $seqobj;
+    my ($self) = @_;
+    my $left   = $self->{left};
+    my $right  = $self->{right};
+    my $target = $self->{seq};
+    return Bio::PrimarySeq->new(
+        -id  => 'Amplicon_from_'.($target->id || 'unidentified'),
+        -seq => lc( $left->seq->seq ).
+                uc( $target->subseq($left->end+1, $right->start-1) ).
+                lc( $right->seq->revcom->seq ),
+    );
 }
 
 
 =head2 seq
 
  Title   : seq
- Usage   : my $seqobj = $primedseq->seq()
+ Usage   : my $seqobj = $primedseq->seq();
  Function: Retrieve the target sequence as a sequence object
  Returns : A seq object. To get the sequence use $seqobj->seq
  Args    : None
@@ -341,14 +357,15 @@ sub amplicon {
 =cut
 
 sub seq {
- my $self = shift;
- return $self->{target_sequence};
+    my $self = shift;
+    return $self->{seq};
 }
 
-=head2 _place_seqs
 
- Title   : _place_seqs
- Usage   : $self->_place_seqs()
+=head2 _place_primers
+
+ Title   : _place_primers
+ Usage   : $self->_place_primers();
  Function: An internal method to place the primers on the sequence and 
            set up the ranges of the sequences
  Returns : Nothing
@@ -357,121 +374,67 @@ sub seq {
 
 =cut
 
-sub _place_seqs {
-	my $self = shift;
- 
-	# we are going to pull out the target sequence, and then the primer sequences
-	my $target_sequence = $self->{'target_sequence'}->seq();
- 
-	# left primer
-	my $left_seq = $self->{'left_primer'}->seq()->seq();
+sub _place_primers {
+    my $self = shift;
 
-	my $rprc = $self->{'right_primer'}->seq()->revcom();
- 
-	my $right_seq=$rprc->seq();
-  
-	# now just change the case, because we keep getting screwed on this
-	$target_sequence=uc($target_sequence);
-	$left_seq=uc($left_seq);
-	$right_seq=uc($right_seq);
- 
-	unless ($target_sequence =~ /(.*)$left_seq(.*)$right_seq(.*)/) {
-		unless ($target_sequence =~ /$left_seq/) {$self->throw("Can't place left sequence on target!")}
-		unless ($target_sequence =~ /$right_seq/) {$self->throw("Can't place right sequence on target!")}
- }
- 
-	my ($before, $middle, $after) = ($1, $2, $3); # note didn't use $`, $', and $& because they are bad. Just use length instead.
+    # Get the target and primer sequence strings, all in uppercase
+    my $left  = $self->{left};
+    my $right = $self->{right};
+    my $target_seq = uc $self->{seq}->seq();
+    my $left_seq   = uc $left->seq()->seq();
+    my $right_seq  = uc $right->seq()->revcom()->seq();
 
-	# cool now we can figure out lengths and what not.
-	# we'll figure out the position and compare it to known positions (e.g. from primer3)
+    # Locate primers on target sequence
+    my ($before, $middle, $after) = ($target_seq =~ /^(.*)$left_seq(.*)$right_seq(.*)$/);
+    if (not defined $before || not defined $middle || not defined $after) {
+        if ($target_seq !~ /$left_seq/) {
+            $self->throw("Could not place left primer on target");
+        }
+        if ($target_seq !~ /$right_seq/) {
+            $self->throw("Could not place right primer on target")
+        }
+    }
+
+    # Save location information in primer object
+    my $left_location  = length($before) + 1;
+    my $right_location = length($target_seq) - length($after);
+
+    $left->start($left_location);
+    $left->end($left_location + $left->seq->length - 1);
+    $left->strand(1);
+    $right->start($right_location - $right->seq->length + 1);
+    $right->end($right_location);
+    $right->strand(-1);
+
+    # If Primer3 information was recorded, compare it to what we calculated
+    if ( exists($left->{PRIMER_LEFT}) || exists($right->{PRIMER_RIGHT}) || exists($self->{PRIMER_PRODUCT_SIZE}) ) {
+
+        # Bio::Seq::PrimedSeq positions
+        my $amplicon_size  = length($left_seq) + length($middle) + length($right_seq);
+        $left_location  = $left_location.','.length($left_seq);
+        $right_location = $right_location.','.length($right_seq);
  
-	my $left_location = length($before). ",". length($left_seq);
-	my $right_location = (length($target_sequence)-length($after)-1).",".length($right_seq);
-	my $amplicon_size = length($left_seq)+length($middle)+length($right_seq);
- 
-	if (exists $self->{'left_primer'}->{'PRIMER_LEFT'}) {
-		# this is the left primer from primer3 input
-		# just check to make sure it is right
-		unless ($self->{'left_primer'}->{'PRIMER_LEFT'} eq $left_location) {
-			$self->warn("Note got |".$self->{'left_primer'}->{'PRIMER_LEFT'}."| from primer3 and |$left_location| for the left primer. You should email redwards\@utmem.edu about this.");
-		}
-	}
-	else {
-		$self->{'left_primer'}->{'PRIMER_LEFT'}=$left_location;
-	}
- 
-	if (exists $self->{'right_primer'}->{'PRIMER_RIGHT'}) {
-		# this is the right primer from primer3 input
-		# just check to make sure it is right
-		unless ($self->{'right_primer'}->{'PRIMER_RIGHT'} eq $right_location) {
-			$self->warn("Note got |".$self->{'right_primer'}->{'PRIMER_RIGHT'}."| from primer3 and |$right_location| for the right primer. You should email redwards\@utmem.edu about this.");
-		}
-	}
-	else {
-		$self->{'right_primer'}->{'PRIMER_RIGHT'}=$right_location;
-	}
- 
-	if (exists $self->{'PRIMER_PRODUCT_SIZE'}) {
-		# this is the product size from primer3 input
-		# just check to make sure it is right
-		unless ($self->{'PRIMER_PRODUCT_SIZE'} eq $amplicon_size) {
-			$self->warn("Note got |".$self->{'PRIMER_PRODUCT_SIZE'}."| from primer3 and |$amplicon_size| for the size. You should email redwards\@utmem.edu about this.");
-		}
-	}
-	else {
-		$self->{'PRIMER_PRODUCT_SIZE'} = $amplicon_size;
-	}
- 
-	$self->{'amplicon_sequence'}= lc($left_seq).uc($middle).lc($right_seq); # I put this in a different case, but I think the seqobj may revert this
-	
-	$self->_set_seqfeature;
+        # Primer3 positions
+        my $primer_product = $self->{PRIMER_PRODUCT_SIZE};
+        my $primer_left    = $left->{PRIMER_LEFT};
+        my $primer_right   = $right->{PRIMER_RIGHT};
+
+        if ( defined($primer_left) && (not $primer_left eq $left_location) ) {
+            $self->warn("Got |$primer_left| from primer3 but calculated ".
+                "|$left_location| for the left primer.");
+        }
+        if ( defined($primer_right) && (not $primer_right eq $right_location) ) {
+            $self->warn("Got |$primer_right| from primer3 but calculated ".
+                "|$right_location| for the right primer.");
+        }
+        if ( defined($primer_product) && (not $primer_product eq $amplicon_size) ) {
+            $self->warn("Got |$primer_product| from primer3 but calculated ".
+                "|$amplicon_size| for the size.");
+        }
+
+    }
+
 }
 
-=head2 _set_seqfeature
-
- Title   : _set_seqfeature
- Usage   : $self->_set_seqfeature()
- Function: An internal method to create Bio::SeqFeature::Generic objects
-           for the primed seq
- Returns : Nothing
- Args    : None
- Note    : Internal use only. Should only call this once left and right 
-           primers have been placed on the sequence. This will then set 
-           them as sequence features so hopefully we can get a nice output 
-           with write_seq.
-
-=cut
-
-
-sub _set_seqfeature {
-	my $self = shift;
-	unless ($self->{'left_primer'}->{'PRIMER_LEFT'} && 
-			  $self->{'right_primer'}->{'PRIMER_RIGHT'}) {
-		$self->warn("hmmm. Haven't placed primers, but trying to make annotated sequence");
-		return 0;
-	}
-	my ($start, $length) = split /,/, $self->{'left_primer'}->{'PRIMER_LEFT'};
-	my $tm=$self->{'left_primer'}->{'PRIMER_LEFT_TM'} || $self->{'left_primer'}->Tm || 0;
-
-	my $seqfeatureL=Bio::SeqFeature::Generic->new(
-						  -start => $start+1, -end => $start+$length, -strand => 1,
-                    -primary_tag => 'left_primer', -source => 'primer3',
-                    -tag    => {new => 1, author => 'Bio::Seq::PrimedSeq', Tm => $tm}
-															  );
- 
-	($start, $length) = split /,/, $self->{'right_primer'}->{'PRIMER_RIGHT'};
-	$tm=$self->{'right_primer'}->{'PRIMER_RIGHT_TM'} || $self->{'right_primer'}->Tm || 0;
- 
-	my $seqfeatureR=Bio::SeqFeature::Generic->new(
-   -start => $start-$length+2, -end => $start+1, -strand => -1,
-   -primary_tag => 'right_primer', -source => 'primer3',
-   -tag    => {new => 1, author => 'Bio::Seq::PrimedSeq', Tm => $tm}
-															  );
-
-	# now add the sequences to a annotated sequence
-	$self->{annotated_sequence} = $self->{target_sequence};
-	$self->{annotated_sequence}->add_SeqFeature($seqfeatureL);
-	$self->{annotated_sequence}->add_SeqFeature($seqfeatureR);
-}
 
 1;

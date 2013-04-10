@@ -17,9 +17,10 @@ Bio::SeqFeature::FeaturePair - hold pair feature information e.g. blast hits
 
 =head1 SYNOPSIS
 
-    my $feat  = Bio::SeqFeature::FeaturePair->new(-feature1 => $f1,
-						 -feature2 => $f2,
-					      );
+    my $feat  = Bio::SeqFeature::FeaturePair->new(
+        -feature1 => $f1,
+        -feature2 => $f2,
+    );
 
     # Bio::SeqFeatureI methods can be used
 
@@ -41,9 +42,10 @@ HS120G22.  The genomic sequence coordinates are used to create one
 sequence feature $f1 and the protein coordinates are used to create
 feature $f2.  A FeaturePair object can then be made
 
-    my $fp = Bio::SeqFeature::FeaturePair->new(-feature1 => $f1,   # genomic
-					      -feature2 => $f2,   # protein
-					      );
+    my $fp = Bio::SeqFeature::FeaturePair->new(
+        -feature1 => $f1,   # genomic
+        -feature2 => $f2,   # protein
+    );
 
 This object can be used as a standard Bio::SeqFeatureI in which case
 
@@ -139,17 +141,17 @@ sub new {
     #
     my $self = $class->SUPER::new();
     my ($feature1,$feature2,$featfact) = 
-	$self->_rearrange([qw(FEATURE1
-			      FEATURE2
-			      FEATURE_FACTORY
-			      )],@args);
+        $self->_rearrange([qw( FEATURE1
+                               FEATURE2
+                               FEATURE_FACTORY )],@args);
     
     $self->_register_for_cleanup(\&cleanup_fp);
     # initialize the feature object factory if not provided
     if(! $featfact) {
-	$featfact = Bio::Factory::ObjectFactory->new(
-				   -type => "Bio::SeqFeature::Generic",
-				   -interface => "Bio::SeqFeatureI");
+        $featfact = Bio::Factory::ObjectFactory->new(
+            -type => "Bio::SeqFeature::Generic",
+            -interface => "Bio::SeqFeatureI"
+        );
     }
     $self->feature_factory($featfact);
     # Store the features in the object
@@ -179,12 +181,12 @@ sub new {
 sub feature1 {
     my ($self,$arg) = @_;    
     if ( defined($arg) || !defined $self->{'feature1'} ) {
-	$self->throw("internal error: feature factory not set!") 
-	    unless $self->feature_factory;
-	$arg = $self->feature_factory->create_object() unless( defined $arg);
-	$self->throw("Argument [$arg] must be a Bio::SeqFeatureI") 
-	    unless (ref($arg) && $arg->isa("Bio::SeqFeatureI"));
-	$self->{'feature1'} = $arg;
+        $self->throw("internal error: feature factory not set!") 
+            unless $self->feature_factory;
+        $arg = $self->feature_factory->create_object() unless( defined $arg);
+        $self->throw("Argument [$arg] must be a Bio::SeqFeatureI") 
+            unless (ref($arg) && $arg->isa("Bio::SeqFeatureI"));
+        $self->{'feature1'} = $arg;
     }
     return $self->{'feature1'};
 }
@@ -205,12 +207,12 @@ sub feature2 {
     my ($self,$arg) = @_;
 
     if ( defined($arg) || ! defined $self->{'feature2'}) {
-	$self->throw("internal error: feature factory not set!") 
-	    unless $self->feature_factory;
-	$arg = $self->feature_factory->create_object() unless( defined $arg);
-	$self->throw("Argument [$arg] must be a Bio::SeqFeatureI") 
-	    unless (ref($arg) && $arg->isa("Bio::SeqFeatureI"));
-	$self->{'feature2'} = $arg;
+        $self->throw("internal error: feature factory not set!") 
+            unless $self->feature_factory;
+        $arg = $self->feature_factory->create_object() unless( defined $arg);
+        $self->throw("Argument [$arg] must be a Bio::SeqFeatureI") 
+            unless (ref($arg) && $arg->isa("Bio::SeqFeatureI"));
+        $self->{'feature2'} = $arg;
     }
     return $self->{'feature2'};
 }
@@ -242,7 +244,7 @@ sub start {
 
 =cut
 
-sub end{
+sub end {
     return shift->feature1->end(@_);    
 }
 
@@ -258,7 +260,7 @@ sub end{
 
 =cut
 
-sub strand{
+sub strand {
     return shift->feature1->strand(@_);    
 }
 
@@ -320,7 +322,7 @@ sub frame {
 
 =cut
 
-sub primary_tag{
+sub primary_tag {
     return shift->feature1->primary_tag(@_);    
 }
 
@@ -337,7 +339,7 @@ sub primary_tag{
 
 =cut
 
-sub source_tag{
+sub source_tag {
     return shift->feature1->source_tag(@_);    
 }
 
@@ -359,7 +361,7 @@ sub source_tag{
 
 =cut
 
-sub seq_id{
+sub seq_id {
     return shift->feature1->seq_id(@_);    
 }
 
@@ -407,7 +409,7 @@ sub hstart {
 
 =cut
 
-sub hend{
+sub hend {
     return shift->feature2->end(@_);    
 }
 
@@ -424,7 +426,7 @@ sub hend{
 
 =cut
 
-sub hstrand{
+sub hstrand {
     return shift->feature2->strand(@_);
 }
 
@@ -471,7 +473,7 @@ sub hframe {
 
 =cut
 
-sub hprimary_tag{
+sub hprimary_tag {
     return shift->feature2->primary_tag(@_);    
 }
 
@@ -488,7 +490,7 @@ sub hprimary_tag{
 
 =cut
 
-sub hsource_tag{
+sub hsource_tag {
     return shift->feature2->source_tag(@_);
 }
 
@@ -510,7 +512,7 @@ sub invert {
     
     $self->feature1($self->feature2);
     $self->feature2($tmp);
-    return;
+    return 1;
 }
 
 =head2 feature_factory
@@ -535,7 +537,7 @@ sub invert {
 
 =cut
 
-sub feature_factory{
+sub feature_factory {
     my $self = shift;
 
     return $self->{'feature_factory'} = shift if @_;

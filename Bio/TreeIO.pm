@@ -19,8 +19,8 @@ Bio::TreeIO - Parser for Tree files
 
   {
       use Bio::TreeIO;
-      my $treeio = Bio::TreeIO->new('-format' => 'newick',
-                   '-file'   => 'globin.dnd');
+      my $treeio = Bio::TreeIO->new(-format => 'newick',
+                                    -file   => 'globin.dnd');
       while( my $tree = $treeio->next_tree ) {
 		print "Tree is ", $tree->number_nodes, "\n";
       }
@@ -133,6 +133,19 @@ sub new {
   }
   return $obj;
 }
+
+
+=head2 format
+
+ Title   : format
+ Usage   : $format = $obj->format()
+ Function: Get the tree format
+ Returns : tree format
+ Args    : none
+
+=cut
+
+# format() method inherited from Bio::Root::IO
 
 
 =head2 next_tree

@@ -375,14 +375,29 @@ sub fh {
   return $s;
 }
 
+
+=head2 format
+
+ Title   : format
+ Usage   : $format = $stream->format()
+ Function: Get the alignment format
+ Returns : alignment format
+ Args    : none
+
+=cut
+
+# format() method inherited from Bio::Root::IO
+
+
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
   my($self,@args) = @_;
-  my ($flat,$alphabet) = $self->_rearrange([qw(DISPLAYNAME_FLAT ALPHABET)],
+  my ($flat,$alphabet,$width) = $self->_rearrange([qw(DISPLAYNAME_FLAT ALPHABET WIDTH)],
 				 @args);
   $self->force_displayname_flat($flat) if defined $flat;
   $self->alphabet($alphabet);
+  $self->width($width) if defined $width;
   $self->_initialize_io(@args);
   1;
 }

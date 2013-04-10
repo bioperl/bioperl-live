@@ -49,6 +49,9 @@ is $cut->codon_count('CTG'), 26;
 is $cut->get_coding_gc(1), "39.70";
 ok my $ref = $cut->probable_codons(20);
 
+# Examples:
+# http://www.kazusa.or.jp/codon/cgi-bin/spsearch.cgi?species=Pan+troglodytes&c=s
+# http://www.kazusa.or.jp/codon/cgi-bin/showcodon.cgi?species=37011&aa=1&style=GCG
 # requiring Internet access, set env BIOPERLDEBUG to 1 to run
 SKIP: {
 	test_skip(-tests => 14, -requires_networking => 1);
@@ -88,4 +91,11 @@ SKIP: {
 	cmp_ok(int($cdtable->aa_frequency('LEU')), '>', 1);
 	ok $cdtable->get_coding_gc('all');
 	cmp_ok($cdtable->codon_rel_frequency('ttc'), '<', 1); 
+
+	my $db3 = Bio::DB::CUTG->new(-sp =>'Bacillus subtilis', -gc => 1);
+	$db3->verbose($verbose ? $verbose : -1);
+	my $cut3;
+	eval {$cut3 = $db3->get_request();};
+	skip "Server/network problems? Skipping those tests\n$@", 5 if $@;
+	print $cut3->codon_rel_frequency('ATG');
 }

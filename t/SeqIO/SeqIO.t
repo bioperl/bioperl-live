@@ -7,9 +7,9 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 45);
-	
-	use_ok('Bio::SeqIO');
+    test_begin(-tests => 55);
+    
+    use_ok('Bio::SeqIO');
 }
 
 my $verbose = test_debug();
@@ -18,38 +18,41 @@ my @formats = qw(gcg fasta raw pir tab ace );
 # The following files or formats are failing: swiss genbank interpro embl
 
 foreach my $format (@formats) {
-	print "======== $format ========\n" if $verbose;
-	read_write($format);
+    print "======== $format ========\n" if $verbose;
+    read_write($format);
 }
 
 sub read_write {
-	my $format = shift;
-	my $seq;
-	my $str = Bio::SeqIO->new(-file=> test_input_file("test.$format"),
-							  -format => $format);
-	ok $seq = $str->next_seq();
-	print "Sequence 1 of 2 from $format stream:\n", $seq->seq, "\n\n" if  $verbose;
-	unless ($format eq 'raw') {
-		is $seq->id, 'roa1_drome',"ID for format $format";
-		is $seq->length, 358;
-	}
-	
-	unless ($format eq 'gcg') { # GCG file can contain only one sequence
-		ok $seq = $str->next_seq();
-		print "Sequence 2 of 2 from $format stream:\n", $seq->seq, $seq->seq, "\n" if $verbose;
-	}
-	
-	my $outfile = test_output_file();
-	my $out = Bio::SeqIO->new(-file => ">$outfile",
-							  -format => $format);
-	ok $out->write_seq($seq);
-	if ($format eq 'fasta') {
-		my $id_type;
-		ok($id_type = $out->preferred_id_type('accession.version'),
-			'accession.version');
-	}
-	
-	ok -s $outfile;
+    my $format = shift;
+    my $seq;
+    my $str = Bio::SeqIO->new(-file=> test_input_file("test.$format"),
+                                  -format => $format);
+
+        is $str->format(), $format;
+
+    ok $seq = $str->next_seq();
+    print "Sequence 1 of 2 from $format stream:\n", $seq->seq, "\n\n" if  $verbose;
+    unless ($format eq 'raw') {
+        is $seq->id, 'roa1_drome',"ID for format $format";
+        is $seq->length, 358;
+    }
+    
+    unless ($format eq 'gcg') { # GCG file can contain only one sequence
+        ok $seq = $str->next_seq();
+        print "Sequence 2 of 2 from $format stream:\n", $seq->seq, $seq->seq, "\n" if $verbose;
+    }
+    
+    my $outfile = test_output_file();
+    my $out = Bio::SeqIO->new(-file => ">$outfile",
+                              -format => $format);
+    ok $out->write_seq($seq);
+    if ($format eq 'fasta') {
+        my $id_type;
+        ok($id_type = $out->preferred_id_type('accession.version'),
+            'accession.version');
+    }
+    
+    ok -s $outfile;
 }
 
 # from testformats.pl
@@ -85,7 +88,7 @@ SKIP: {
         my $seqout = new Bio::SeqIO( -fh => $out,
                      -format => $type);
         my $seq;
-        while( defined($seq = $seqin->next_seq) ) {	
+        while( defined($seq = $seqin->next_seq) ) {
         $seqout->write_seq($seq);
         }
         $seqout->close();
@@ -103,13 +106,32 @@ SKIP: {
                 }
             }
             print "in is \n", join('', @datain), "\n";
-            print "out is \n", join('',@dataout), "\n";	
+            print "out is \n", join('',@dataout), "\n";
         }
     }
 }
 
 # simple tests specific to Bio::SeqIO interface (applicable to all SeqIO
 # modules)
+
+##############################################
+# test format() and variant() in Bio::RootIO
+##############################################
+
+my $in = Bio::SeqIO->new(
+   -file    => test_input_file('bug2901.fa'),
+   -format  => "fasta",
+);
+is $in->format, 'fasta';
+is $in->variant, undef;
+
+$in = Bio::SeqIO->new(
+   -file    => test_input_file('fastq', 'illumina_faked.fastq'),
+   -format  => "fastq",
+   -variant => 'illumina',
+);
+is $in->format, 'fastq';
+is $in->variant, 'illumina';
 
 ############ EXCEPTION HANDLING ############
 
@@ -132,6 +154,6 @@ throws_ok {
 
 throws_ok {
     Bio::SeqIO->new(-file => 'foo.bar');
-} qr/Can not open 'foo.bar' for reading: No such file or directory/,
+} qr/Can not open 'foo.bar' for reading:/,
     'Must pass a real file';
 

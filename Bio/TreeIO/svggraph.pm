@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::TreeIO::svg-graph
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Allen Day <allenday@ucla.edu>
 #
@@ -40,15 +40,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -99,7 +99,7 @@ use base qw(Bio::TreeIO);
 
  Title   : new
  Usage   : my $obj = Bio::TreeIO::svggraph->new();
- Function: Builds a new Bio::TreeIO::svggraph object 
+ Function: Builds a new Bio::TreeIO::svggraph object
  Returns : Bio::TreeIO::svggraph
  Args    :-width    => image width (default 1600)
           -height   => image height (default 1000)
@@ -159,7 +159,7 @@ sub _write_tree_Helper {
        ('width'   => $self->{'_width'},
 	'height'  => $self->{'_height'},
 	'margin'  => $self->{'_margin'});
-   
+
    my $group0 = $graph->add_frame;
    my $tree = SVG::Graph::Data::Tree->new;
    my $root = SVG::Graph::Data::Node->new;
@@ -168,7 +168,7 @@ sub _write_tree_Helper {
    $tree->root($root);
    $group0->add_data($tree);
 
-   $group0->add_glyph('tree', 
+   $group0->add_glyph('tree',
 		      'stroke'      =>$self->{'_stroke'},
 		      'stroke-width'=>$self->{'_stroke_width'},
 		      'font-size'   =>$self->{'_font_size'});
@@ -192,19 +192,19 @@ sub _write_tree_Helper {
 sub _decorateRoot {
     my ($self,$previousNode,@children) = @_;
     for my $child (@children) {
-	my $currNode = SVG::Graph::Data::Node->new;
-	$currNode->branch_label($child->id);
-	my $length = $child->branch_length;
-      CASE: 
-	{  # is this right? copies from Guillame
-	    if ($self->{_normalize} eq 'log') {
-		$length = log($length + 1);
-		last CASE;
-	    }
-	}
-	$currNode->branch_length($length);
-	$previousNode->add_daughter($currNode);
-	$self->_decorateRoot($currNode, $child->each_Descendent());
+        my $currNode = SVG::Graph::Data::Node->new;
+
+        # if no ID is set, the branch label is intentionally set blank (bug in SVG::Graph)
+        my $id = $child->id || '';
+        $currNode->branch_label($id);
+        my $length = $child->branch_length;
+        if ($self->{_normalize} eq 'log') {
+            $length = log($length + 1);
+        }
+
+        $currNode->branch_length($length);
+        $previousNode->add_daughter($currNode);
+        $self->_decorateRoot($currNode, $child->each_Descendent());
     }
 }
 
@@ -212,7 +212,7 @@ sub _decorateRoot {
 =head2 next_tree
 
  Title   : next_tree
- Usage   : 
+ Usage   :
  Function: Sorry not possible with this format
  Returns : none
  Args    : none

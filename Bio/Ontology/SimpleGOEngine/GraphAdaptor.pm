@@ -2,7 +2,7 @@
 #
 # BioPerl Graph adaptor for Bio::Ontology::SimpleGOEngine
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Nat Goodman <natg at shore.net>
 #
@@ -35,25 +35,19 @@ Bio::Ontology::SimpleGOEngine
 
 =head1 DESCRIPTION
 
-This is a think adaptor to simplify use of the old and new versions of
-the standard CPAN Graph module (old is versions 0.2x; new is 0.5x and
-beyond) within Bio::Ontology::SimpleGOEngine.
+This is an adaptor to simplify use of versions of the standard CPAN Graph module
+(old is versions 0.2x; new is 0.5x and beyond) within
+Bio::Ontology::SimpleGOEngine. Prior versions of this module supported Graph
+version older than 0.5, however we are removing support for these older version
+post BioPerl 1.6.901. If you absolutely require an old version of Graph, please
+use an older version of BioPerl.
 
-This module implements only those Graph methods used by
-SimpleGOEngine.  It is far from a complete compatibility layer!  It
-also implements workarounds for cerain performance problems in the
-current versions of Graph v0.5x.
+This module implements only those Graph methods used by SimpleGOEngine. It is
+far from a complete compatibility layer! It also implements workarounds for
+certain performance problems in the current versions of Graph v0.5x.
 
-This class provides a 'new' method that determines which version of
-Graph is available.  The object returned by 'new' is blessed into this
-class if the new version of Graph is available, else into the subclass
-
-  Bio::Ontology::SimpleGOEngine::GraphAdaptor02
-
-This class provides implementations for the required graph methods
-using the new version of Graph.  In most cases, these are simple
-pass-throughs.  Methods that differ in v0.2x are implemented in the
-subclass.
+This class provides implementations for the required graph methods using the new
+version of Graph. In most cases, these are simple pass-throughs
 
 The methods implemented here or in the subclasses are listed below.
 In all cases, we implemented the Graph v0.5x interface.  Consult the
@@ -86,15 +80,15 @@ Bioperl mailing lists  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -131,7 +125,6 @@ package Bio::Ontology::SimpleGOEngine::GraphAdaptor;
 use Graph::Directed;
 
 use strict;
-use Bio::Ontology::SimpleGOEngine::GraphAdaptor02;
 
 use base qw(Bio::Root::Root);
 
@@ -140,8 +133,8 @@ use base qw(Bio::Root::Root);
  Title   : new
  Usage   : $graph = Bio::Ontology::SimpleGOEngine::GraphAdaptor->new()
  Function: Creates a new graph
- Returns : Bio::Ontology::SimpleGOEngine::GraphAdaptor02 or 
-           Bio::Ontology::SimpleGOEngine::GraphAdaptor05 object, 
+ Returns : Bio::Ontology::SimpleGOEngine::GraphAdaptor02 or
+           Bio::Ontology::SimpleGOEngine::GraphAdaptor05 object,
            depending on which Graph version is available
  Args    : none
 
@@ -151,11 +144,8 @@ sub new {
   my( $class ) = @_;
   $class = ref $class || $class;
 
-  my $self=
-    ( defined $Graph::VERSION && $Graph::VERSION >= 0.5 ) ?
-      bless ( {}, $class ) :
-	bless ( {}, 'Bio::Ontology::SimpleGOEngine::GraphAdaptor02' );
-  $self->{_graph}=new Graph::Directed;
+  my $self= bless( {}, $class );
+  $self->{_graph}=Graph::Directed->new();
   $self->{_vertex_attributes}={};
   $self->{_edge_attributes}={};
   return $self;
@@ -194,7 +184,7 @@ sub edges_at {
 sub predecessors {
   my $self=shift;
   $self->_graph->predecessors(@_);
-} 
+}
 sub successors {
   my $self=shift;
   $self->_graph->successors(@_);
@@ -207,7 +197,7 @@ sub sink_vertices {
   my $self=shift;
   $self->_graph->sink_vertices();
 }
-# The following methods workaround a performance problem in Graph v0.5x 
+# The following methods workaround a performance problem in Graph v0.5x
 # when attributes are attached to the graph
 sub set_vertex_attribute {
   my($self,$v,$attribute,$value)=@_;
@@ -231,7 +221,7 @@ sub get_edge_attribute {
  Title   : _graph
  Usage   : $self->_graph();
  Function: Internal method to access 'real' graph
- Returns : Graph::Directed object 
+ Returns : Graph::Directed object
  Args    : none
 
 =cut
@@ -243,7 +233,7 @@ sub _graph {$_[0]->{_graph}; }
  Title   : _vertex_attributes
  Usage   : $self->vertex_attributes();
  Function: Internal method to access HASH used to store vertex attributes
- Returns : Graph::Directed object 
+ Returns : Graph::Directed object
  Args    : none
 
 =cut
@@ -255,7 +245,7 @@ sub _vertex_attributes {$_[0]->{_vertex_attributes}; }
  Title   : _edge_attributes
  Usage   : $self->edge_attributes();
  Function: Internal method to access HASH used to store edge attributes
- Returns : Graph::Directed object 
+ Returns : Graph::Directed object
  Args    : none
 
 =cut

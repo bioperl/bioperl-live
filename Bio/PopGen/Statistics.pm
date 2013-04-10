@@ -277,6 +277,10 @@ sub fu_and_li_D {
 sub fu_and_li_D_counts {
     my ($self,$n,$seg_sites, $external_mut) = @_;
     my $a_n = 0;
+    if( $n <= 3 ) {
+	$self->warn("n is $n, too small, must be > 3\n");
+	return;
+    }
     for(my $k= 1; $k < $n; $k++ ) {
 	$a_n += ( 1 / $k );
     }
@@ -1389,9 +1393,9 @@ sub mcdonald_kreitman {
 	    my $outcount = 1;
 	    for my $ind ( @{$vals{$t}} ) {
 		my @alleles = $ind->get_Genotypes($codon)->get_Alleles;
-		if( @alleles > 1 ) {
+		if( @alleles > 2 ) {
+		    warn("Codon $codon saw ", scalar @alleles, " alleles for ind ", $ind->unique_id, "\n");
 		    die;
-#		  warn("$codon $codon saw ", scalar @alleles, " for ind ", $ind->unique_id, "\n");
 		} else {
 		    my ($allele) = shift @alleles;
 		    $all_alleles{$ind->unique_id} = $allele;

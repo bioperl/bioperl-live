@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 13,
+    test_begin(-tests => 14,
 			   -requires_modules => [qw(IO::String LWP::UserAgent)],
 			   -requires_networking => 1);
 	
@@ -35,7 +35,9 @@ SKIP: {
 	
 	ok my $meta = $tool->result('meta');
 	ok my $seqobj = Bio::Seq->new(-primary_seq => $meta, display_id=>"a");
-	ok $seqobj->add_SeqFeature($tool->result('Bio::SeqFeatureI'));
+	for ( $tool->result('Bio::SeqFeatureI') ) {
+		ok $seqobj->add_SeqFeature($_);
+	}
 	
 	test_skip(-tests => 2, -requires_module => 'Bio::Seq::Meta::Array');
 	is $meta->named_submeta_text('HNN_helix',1,2), '0 111';

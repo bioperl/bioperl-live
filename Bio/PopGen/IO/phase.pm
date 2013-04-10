@@ -90,7 +90,7 @@ package Bio::PopGen::IO::phase;
 use vars qw($FieldDelim $AlleleDelim $NoHeader);
 use strict;
 
-($FieldDelim,$AlleleDelim,$NoHeader) =( ',', '\s+',0);
+($FieldDelim, $AlleleDelim, $NoHeader) = (' ', '\s+', 1);
 
 
 
@@ -108,7 +108,7 @@ use base qw(Bio::PopGen::IO);
  Function: Builds a new Bio::PopGen::IO::hapmap object 
  Returns : an instance of Bio::PopGen::IO::hapmap
  Args    : [optional, these are the current defaults] 
-           -field_delimiter => ','
+           -field_delimiter => ' '
            -allele_delimiter=> '\s+'
            -no_header       => 0,
 
@@ -178,6 +178,7 @@ sub next_individual  {
 	$marker_positions,$micro_snp);
 
     while( defined( $_ = $self->_readline) ) {
+	chomp;
 	next if( /^\s+$/ || ! length($_) );
 	last;
     }
@@ -214,7 +215,6 @@ sub next_individual  {
 	    $self->{'_count'}++;
 	    return $self->next_individual;
 	} else {
-	    chomp $_;
 	    if( $self->{'_row1'} ) {
 		# if we are looking at the 2nd row of alleles for this id
 
@@ -243,17 +243,28 @@ sub next_individual  {
 	    $m =~ s/^\s+//;
 	    $m =~ s/\s+$//;
 	    my $markername;
-	    if( defined $self->{'_header'} ) {
-		$markername = $self->{'_header'}->[$i] || "Marker$i";
+	    if( defined($self->flag('marker_positions')) ) {
+		$markername = (split($self->flag('field_delimiter'), $self->flag('marker_positions')))[$i];
+	    } elsif( defined $self->{'_header'} ) {
+		$markername = $self->{'_header'}->[$i] || "$i";
 	    } else { 
-		$markername = "Marker$i";
+		$markername = "$i";
 	    }
+
+	    my $markertype;
+	    if( defined($self->flag('marker_positions')) ) {
+		$markertype = (split('', $self->flag('micro_snp')))[$i-1];
+	    } else {
+		$markertype = "S";
+	    }
+
 	    $self->debug( "markername is $markername alleles are $m\n");
 	    my @alleles = split($self->flag('allele_delimiter'), $m);	
 
-	    $m = Bio::PopGen::Genotype->new(-alleles      =>\@alleles,
-					   -marker_name  => $markername,
-					   -individual_id=> $self->{'_sam'}); 
+	    $m = Bio::PopGen::Genotype->new(-alleles       =>\@alleles,
+					    -marker_name   => $markername,
+					    -marker_type   => $markertype,
+					    -individual_id => $self->{'_sam'}); 
 	    $i++; 
 	}
 	return Bio::PopGen::Individual->new(-unique_id => $self->{'_sam'},
@@ -261,7 +272,6 @@ sub next_individual  {
 					   );
 
     } else {
-	chomp;
 	$self->{'_header'} = [split($self->flag('field_delimiter'),$_)];
 	return $self->next_individual; # rerun loop again
     }
@@ -304,25 +314,38 @@ sub write_individual {
     my $fielddelim  = $self->flag('field_delimiter');
     my $alleledelim = $self->flag('allele_delimiter');
 
+    # For now capture print_header flag from @inds
+    my $header = 1;
+    $header = pop(@inds) if($inds[-1] =~ m/^[01]$/);
+
     foreach my $ind ( @inds ) {
 	if (! ref($ind) || ! $ind->isa('Bio::PopGen::IndividualI') ) {
 	    $self->warn("Cannot write an object that is not a Bio::PopGen::IndividualI object ($ind)");
 	    next;
 	}
-	# we'll go ahead and sort these until
-	# we have a better way to insure a consistent order
+
+	# sort lexically until we have a better way to insure a consistent order
 	my @marker_names = sort $ind->get_marker_names;
-	if( ! $self->flag('no_header') && 
-	    ! $self->flag('header_written') ) {
-	    $self->_print(join($fielddelim, ('SAM', @marker_names)), "\n");
-	    $self->flag('header_written',1);
+
+	if ($header) {
+	    my $n_markers = scalar(@marker_names);
+	    $self->_print( "1\n");
+	    $self->_print( $n_markers, "\n");
+	    if( $self->flag('no_header') && 
+		! $self->flag('header_written') ) {
+		$self->_print(join($fielddelim, ('P', @marker_names)), "\n");
+		$self->flag('header_written',1);
+	    }
+	    foreach my $geno ($ind->get_Genotypes()) {
+		$self->_print($geno->marker_type);
+	    }
+	    $self->_print("\n");
 	}
-
+	
 	my(@row1,@row2);
-
 	for (@marker_names){
 	    my $geno = $ind->get_Genotypes(-marker => $_);
-	    my @alleles = $geno->get_Alleles();
+	    my @alleles = $geno->get_Alleles(1);
 	    push(@row1,$alleles[0]);
 	    push(@row2,$alleles[1]);
 	}
@@ -354,27 +377,23 @@ sub write_population {
 	    $self->warn("Cannot write an object that is not a Bio::PopGen::PopulationI object");
 	    next;
 	}
-	# we'll go ahead and sort these until
-	# we have a better way to insure a consistent order
+	# sort lexically until we have a better way to insure a consistent order
 	my @marker_names = sort $pop->get_marker_names;
-	if( ! $self->flag('no_header') && 
+	my $n_markers = scalar(@marker_names);
+	$self->_print( $pop->get_number_individuals, "\n");
+	$self->_print( $n_markers, "\n");
+	if( $self->flag('no_header') && 
 	    ! $self->flag('header_written') ) {
-	    $self->_print( join($fielddelim, ('SAM', @marker_names)), 
-			   "\n");
+	    $self->_print( join($fielddelim, ('P', @marker_names)), "\n");
 	    $self->flag('header_written',1);
 	}
-	foreach my $ind ( $pop->get_Individuals ) {
-	    my(@row1,@row2);
-	    for (@marker_names){
-		my $geno = $ind->get_Genotypes(-marker => $_);
-		my @alleles = $geno->get_Alleles();
-		push (@row1,$alleles[0]);
-		push (@row2,$alleles[1]);
-	    }
-	    $self->_print("#",$ind->unique_id,"\n",
-			  join($fielddelim,@row1),"\n",
-			  join($fielddelim,@row2),"\n");
-	} 
+
+	foreach (@marker_names) {
+	    $self->_print(($pop->get_Genotypes($_))[0]->marker_type);
+	}
+	$self->_print("\n");
+	
+	$self->write_individual( $pop->get_Individuals, 0 );
     }
 }
 

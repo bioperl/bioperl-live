@@ -9,6 +9,7 @@ BEGIN {
     test_begin( -tests => 796,
                 -requires_modules => [
                     'DB_File',
+                    'Bio::DB::Sam',
                     'Bio::Tools::Run::Samtools',
                    ],
                );

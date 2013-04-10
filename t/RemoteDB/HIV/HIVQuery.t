@@ -8,13 +8,13 @@ BEGIN {
     test_begin(
         -tests => 41,
         -requires_modules => [qw( XML::Simple )]
-	);
+    );
     use_ok('Bio::DB::Query::HIVQuery');
     use_ok('Bio::DB::HIV');
-    use_ok( 'Bio::Annotation::Collection' );
-    use_ok( 'Bio::Annotation::Comment' );
-    use_ok( 'Bio::Annotation::Reference' );
-    use_ok( 'Bio::DB::HIV::HIVQueryHelper' );
+    use_ok('Bio::Annotation::Collection');
+    use_ok('Bio::Annotation::Comment');
+    use_ok('Bio::Annotation::Reference');
+    use_ok('Bio::DB::HIV::HIVQueryHelper');
 
 }
 
@@ -150,11 +150,11 @@ SKIP : {
 # test query object handling of Bio::DB::HIV   
     my ($tdb, $seqio, $seq);
     ok( $tdb = new Bio::DB::HIV, "create Bio::DB::HIV object");
-	eval {$seqio = $tdb->get_Stream_by_query($tobj)};
+        eval {$seqio = $tdb->get_Stream_by_query($tobj)};
     if ($@) {
         diag($@);
         skip("Network problems, skipping all", 7);
-    }	
+    }
     ok($seqio, "get SeqIO stream from query");
 # test HIVAnnotProcessor indirectly
     ok($seq = $seqio->next_seq, "access sequence stream");

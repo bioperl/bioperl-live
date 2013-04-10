@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::Search::Hit::ModelHit
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Chris Fields <cjfields at bioperl dot org>
 #
@@ -57,15 +57,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -101,7 +101,7 @@ use base qw(Bio::Search::Hit::GenericHit);
 
  Title   : new
  Usage   : my $obj = Bio::Search::Hit::ModelHit->new();
- Function: Builds a new Bio::Search::Hit::ModelHit object 
+ Function: Builds a new Bio::Search::Hit::ModelHit object
  Returns : Bio::Search::Hit::ModelHit
  Args    : -name         => Name of Hit (required)
            -description  => Description (optional)
@@ -112,8 +112,8 @@ use base qw(Bio::Search::Hit::GenericHit);
            -bits         => Bit Score for the Hit (optional)
            -significance => Significance value for the Hit (optional)
            -algorithm    => Algorithm used (BLASTP, FASTX, etc...)
-           -hsps         => Array ref of HSPs for this Hit. 
-           -found_again  => boolean, true if hit appears in a 
+           -hsps         => Array ref of HSPs for this Hit.
+           -found_again  => boolean, true if hit appears in a
                             "previously found" section of a PSI-Blast report.
            -hsp_factory  => Bio::Factory::ObjectFactoryI able to create HSPI
                             objects.
@@ -179,7 +179,7 @@ Implementation of Bio::Search::Hit::HitI methods
 
  Title   : length
  Usage   : my $len = $hit->length
- Function: Returns the length of the hit 
+ Function: Returns the length of the hit
  Returns : integer
  Args    : [optional] integer to set the length
 
@@ -190,11 +190,11 @@ Implementation of Bio::Search::Hit::HitI methods
  Title   : algorithm
  Usage   : $alg = $hit->algorithm();
  Function: Gets the algorithm specification that was used to obtain the hit
-           For BLAST, the algorithm denotes what type of sequence was aligned 
-           against what (BLASTN: dna-dna, BLASTP prt-prt, BLASTX translated 
-           dna-prt, TBLASTN prt-translated dna, TBLASTX translated 
+           For BLAST, the algorithm denotes what type of sequence was aligned
+           against what (BLASTN: dna-dna, BLASTP prt-prt, BLASTX translated
+           dna-prt, TBLASTN prt-translated dna, TBLASTX translated
            dna-translated dna).
- Returns : a scalar string 
+ Returns : a scalar string
  Args    : [optional] scalar string to set the algorithm
 
 =cut
@@ -248,7 +248,7 @@ See Also   : L<score()|score>
  Title    : next_hsp
  Usage    : while( $hsp = $obj->next_hsp()) { ... }
  Function : Returns the next available High Scoring Pair
- Example  : 
+ Example  :
  Returns  : Bio::Search::HSP::HSPI object or null if finished
  Args     : none
 
@@ -300,13 +300,13 @@ See Also   : L<hsps()|hsps>
  Purpose   : Sets/Gets ambiguity code data member.
  Example   : (see usage)
  Returns   : String = 'q', 's', 'qs', '-'
-           :   'q'  = query sequence contains overlapping sub-sequences 
+           :   'q'  = query sequence contains overlapping sub-sequences
            :          while sbjct does not.
-           :   's'  = sbjct sequence contains overlapping sub-sequences 
+           :   's'  = sbjct sequence contains overlapping sub-sequences
            :          while query does not.
            :   'qs' = query and sbjct sequence contains overlapping sub-sequences
            :          relative to each other.
-           :   '-'  = query and sbjct sequence do not contains multiple domains 
+           :   '-'  = query and sbjct sequence do not contains multiple domains
            :          relative to each other OR both contain the same distribution
            :          of similar domains.
  Argument  : n/a
@@ -322,7 +322,7 @@ See documentation in L<Bio::Search::Hit::HitI::overlap()|Bio::Search::Hit::HitI>
 =cut
 
 sub overlap {
-    my $self = shift; 
+    my $self = shift;
     if(@_) { $self->{'_overlap'} = shift; }
     defined $self->{'_overlap'} ? $self->{'_overlap'} : 0;
 }
@@ -351,11 +351,9 @@ See Also   : L<num_hsps()|num_hsps>
 
 sub n {
     my $self = shift;
-    
-    if (defined @_) {
-        $self->{'_n'} = shift;
-    }
-    
+
+    $self->{'_n'} = shift if @_;
+
     if (defined $self->{'_n'}) {
         return $self->{'_n'}
     } else {
@@ -366,7 +364,7 @@ sub n {
 =head2 p
 
  Usage     : $hit_object->p( [format] );
- Purpose   : Get the P-value for the best HSP 
+ Purpose   : Get the P-value for the best HSP
  Example   : $p =  $sbjct->p;
            : $p =  $sbjct->p('exp');  # get exponent only.
            : ($num, $exp) =  $sbjct->p('parts');  # split sci notation into parts
@@ -377,7 +375,7 @@ sub n {
  Argument  : format: string of 'raw' | 'exp' | 'parts'
            :    'raw' returns value given in report. Default. (1.2e-34)
            :    'exp' returns exponent value only (34)
-           :    'parts' returns the decimal and exponent as a 
+           :    'parts' returns the decimal and exponent as a
            :            2-element list (1.2, -34) (See Comments).
  Throws    : Warns if no P-value is defined. Uses expect instead.
  Comments  : Using the 'parts' argument is not recommended since it will not
@@ -411,13 +409,13 @@ See Also   : L<hsps()|hsps>, L<num_hsps>()
 sub hsp {
     my( $self, $option ) = @_;
     $option ||= 'best';
-    
+
     if (not ref $self->{'_hsps'}) {
         $self->throw("Can't get HSPs: data not collected.");
     }
 
     my @hsps = $self->hsps;
-    
+
     return $hsps[0]      if $option =~ /best|first|1/i;
     return $hsps[$#hsps] if $option =~ /worst|last/i;
 
@@ -456,7 +454,7 @@ sub rank {
 sub locus {
     my ($self,$value) = @_;
     my $previous = $self->{'_locus'};
-    if( defined $value || ! defined $previous ) { 
+    if( defined $value || ! defined $previous ) {
       unless (defined $value) {
         if ($self->{'_name'} =~/(gb|emb|dbj|ref)\|(.*)\|(.*)/) {
                   $value = $previous = $3;
@@ -465,7 +463,7 @@ sub locus {
         }
       }
           $self->{'_locus'} = $value;
-    } 
+    }
         return $previous;
 }
 
@@ -474,7 +472,7 @@ sub locus {
  Title   : each_accession_number
  Usage   : @each_accession_number = $hit->each_accession_number();
  Function: Get each accession number listed in the description of the hit.
-           If there are no alternatives, then only the primary accession will 
+           If there are no alternatives, then only the primary accession will
            be given
  Returns : list of all accession numbers in the description
  Args    : none
@@ -487,14 +485,14 @@ sub each_accession_number {
     #put primary accnum on the list
     my @accnums;
     push (@accnums,$self->{'_accession'});
-    if( defined $desc )  { 
+    if( defined $desc )  {
       while ($desc =~ /(\b\S+\|\S*\|\S*\s?)/g) {
         my $id = $1;
         my ($acc, $version);
 	if ($id =~ /(gb|emb|dbj|sp|pdb|bbs|ref|tp[gde])\|(.*)\|(.*)/) {
-	    ($acc, $version) = split /\./, $2; 
+	    ($acc, $version) = split /\./, $2;
 	} elsif ($id =~ /(pir|prf|pat|gnl)\|(.*)\|(.*)/) {
-	    ($acc, $version) = split /\./, $3;  
+	    ($acc, $version) = split /\./, $3;
 	} elsif( $id =~ /(gim|gi|bbm|bbs|lcl)\|(\d*)/) {
 	    $acc = $id;
 	} elsif( $id =~ /(oth)\|(.*)\|(.*)\|(.*)/ ) { # discontinued...
@@ -510,8 +508,8 @@ sub each_accession_number {
           #Protein Research Foundation       prf||name
           #SWISS-PROT                        sp|accession|entry name
           #Brookhaven Protein Data Bank      pdb|entry|chain
-          #Patents                           pat|country|number 
-          #GenInfo Backbone Id               bbs|number 
+          #Patents                           pat|country|number
+          #GenInfo Backbone Id               bbs|number
           #General database identifier           gnl|database|identifier
           #NCBI Reference Sequence           ref|accession|locus
           #Local Sequence identifier         lcl|identifier
@@ -519,7 +517,7 @@ sub each_accession_number {
             }
             push(@accnums, $acc);
           }
-    }  
+    }
     return @accnums;
 }
 
@@ -561,10 +559,10 @@ sub query_length {
 sub ncbi_gi {
     my ($self,$value) = @_;
     my $previous = $self->{'_ncbi_gi'};
-    if( defined $value || ! defined $previous ) { 
+    if( defined $value || ! defined $previous ) {
         $value = $previous = '' unless defined $value;
         $self->{'_ncbi_gi'} = $value;
-    } 
+    }
         return $previous;
 }
 
@@ -590,7 +588,7 @@ sub length_aln {
 sub gaps {
     my $self = shift;
     $self->warn('$hit->gaps not implemented for Model-based searches');
-    return;    
+    return;
 }
 
 =head2 matches
@@ -610,7 +608,7 @@ sub matches {
 sub start {
     my $self = shift;
     $self->warn('$hit->start not implemented for Model-based searches');
-    return;    
+    return;
 }
 
 
@@ -621,7 +619,7 @@ sub start {
 sub end {
     my $self = shift;
     $self->warn('$hit->end not implemented for Model-based searches');
-    return;    
+    return;
 }
 
 =head2 range
@@ -671,7 +669,7 @@ sub frac_aligned_query {
 sub frac_aligned_hit {
     my $self = shift;
     $self->warn('$hit->frac_aligned_hit not implemented for Model-based searches');
-    return;    
+    return;
 }
 
 =head2 num_unaligned_hit

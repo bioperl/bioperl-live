@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 10);
+    test_begin(-tests => 11);
 	
 	use_ok('Bio::SeqIO');
 	use_ok('Bio::SeqFeature::Tools::Unflattener');
@@ -17,6 +17,29 @@ my $verbosity = test_debug();
 
 my ($seq, @sfs);
 my $unflattener = Bio::SeqFeature::Tools::Unflattener->new();
+
+if (1) {
+    $unflattener->verbose(10);
+    my @path = ("NC_000007-ribosomal-slippage.gb");
+    $seq = getseq(@path);
+    
+    my @topsfs = $seq->get_SeqFeatures;
+    if( $verbosity > 0 ) {
+	warn sprintf "TOP:%d\n", scalar(@topsfs);
+	write_hier(@topsfs);
+    }
+    
+    # UNFLATTEN
+    $unflattener->verbose($verbosity);
+    @sfs = $unflattener->unflatten_seq(-seq=>$seq,
+				       -use_magic=>1);
+    if( $verbosity > 0 ) {
+	warn "\n\nPOST PROCESSING:\n";
+	write_hier(@sfs);
+	warn sprintf "PROCESSED:%d\n", scalar(@sfs);
+    }
+    is(@sfs, 1995);
+}
 
 if (1) {
     my @path = ("ribosome-slippage.gb");

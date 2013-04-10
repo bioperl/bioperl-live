@@ -360,11 +360,13 @@ sub next_result {
                 }
             );
         }
+
         my $hsplen =
-          $q_base_insert +
+          ($q_base_insert +
           $t_base_insert +
           abs( $t_end - $t_start ) +
-          abs( $q_end - $q_start );
+          abs( $q_end - $q_start ))/2;
+
         $self->element(
             {
                 'Name' => 'Hsp_hit-from',

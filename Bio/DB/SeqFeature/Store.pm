@@ -195,7 +195,7 @@ used by default.
 When Bio::DB::SeqFeature::Store stores a Bio::SeqFeatureI object into
 the database, it serializes it into binary or text form. When it later
 fetches the feature from the database, it unserializes it. Two
-serializers are available: Recent versions of 
+serializers are available: Recent versions of
 
 =over 4
 
@@ -355,7 +355,7 @@ Bio::DB::Sam::Fai classes.
 
 =cut
 
-### 
+###
 # object constructor
 #
 sub new {
@@ -934,7 +934,7 @@ features whose endpoints are both outside the indicated range.
 
 sub get_features_by_location {
   my $self = shift;
-  my ($seqid,$start,$end,$strand,$rangetype) = 
+  my ($seqid,$start,$end,$strand,$rangetype) =
     rearrange([['SEQ_ID','SEQID','REF'],'START',['STOP','END'],'STRAND','RANGE_TYPE'],@_);
   $self->_features(-seqid=>$seqid,
 		   -start=>$start||undef,
@@ -1632,7 +1632,7 @@ sub dna_accessor {
 sub can_do_seq {
     my $self = shift;
     my $obj  = shift;
-    return 
+    return
 	UNIVERSAL::can($obj,'seq') ||
 	UNIVERSAL::can($obj,'fetch_sequence');
 }
@@ -2591,10 +2591,13 @@ sub feature_names {
   my $obj  = shift;
 
   my $primary_id = $obj->primary_id;
-  my @names = $obj->display_name;
+  my @names;
+  push @names,$obj->display_name           if defined $obj->display_name;
   push @names,$obj->get_tag_values('Name') if $obj->has_tag('Name');
   push @names,$obj->get_tag_values('ID')   if $obj->has_tag('ID');
-  @names = grep {defined $_ && $_ ne $primary_id} @names;
+
+  # don't think this is desired behavior
+  # @names = grep {defined $_ && $_ ne $primary_id} @names;
 
   my @aliases = grep {defined} $obj->get_tag_values('Alias') if $obj->has_tag('Alias');
 
@@ -2643,7 +2646,7 @@ a single feature, so this is fairly useless.
 
 sub feature_summary {
     my $self = shift;
-    my ($seq_name,$start,$end,$types,$bins,$iterator) = 
+    my ($seq_name,$start,$end,$types,$bins,$iterator) =
 	rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],
 		   ['TYPES','TYPE','PRIMARY_TAG'],
 		   'BINS',
@@ -2663,10 +2666,10 @@ sub feature_summary {
 					     -end    => $end,
 					     -type   => $tag,
 					     -score  => $score,
-					     -attributes => 
+					     -attributes =>
 					     { coverage => [$coverage] });
-    return $iterator 
-	   ? Bio::DB::SeqFeature::Store::FeatureIterator->new($feature) 
+    return $iterator
+	   ? Bio::DB::SeqFeature::Store::FeatureIterator->new($feature)
 	   : $feature;
 }
 
@@ -2720,9 +2723,9 @@ sub next_seq {
   return shift @$self;
 }
 
-sub begin_work { }# noop 
-sub commit     { }# noop 
-sub rollback   { }# noop 
+sub begin_work { }# noop
+sub commit     { }# noop
+sub rollback   { }# noop
 
 1;
 
@@ -2752,4 +2755,3 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
-

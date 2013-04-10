@@ -272,7 +272,7 @@ sub init {
 
 sub table_definitions {
   my $self = shift;
-  my $defs = 
+  my $defs =
       {
 	  feature => <<END,
 (
@@ -321,7 +321,7 @@ END
 
 	  attributelist => <<END,
 (
-  id  integer primary key autoincrement, 
+  id  integer primary key autoincrement,
   tag text    not null
 );
 create index index_attributelist_id  on attributelist(id);
@@ -418,7 +418,7 @@ sub _finish_bulk_update {
   my $dir = $self->{dumpdir} || '.';
 
   $self->begin_work; # making this a transaction greatly improves performance
-  
+
   for my $table ('feature', $self->index_tables) {
     my $fh = $self->dump_filehandle($table);
     my $path = $self->dump_path($table);
@@ -481,8 +481,8 @@ sub _fetch_indexed_features_sql {
     my $feature_table        = $self->_qualify('feature');
     return <<END;
     SELECT typeid,seqid,start-1,end
-  FROM $location_table as l,$feature_table as f 
- WHERE l.id=f.id AND f.\"indexed\"=1 
+  FROM $location_table as l,$feature_table as f
+ WHERE l.id=f.id AND f.\"indexed\"=1
   ORDER BY typeid,seqid,start
 END
 }
@@ -526,7 +526,7 @@ END
   while (my($frag,$offset) = $sth->fetchrow_array) {
     substr($frag,0,$start-$offset) = '' if defined $start && $start > $offset;
     $seq .= $frag;
-  }  
+  }
   substr($seq,$end-$start+1) = '' if defined $end && $end-$start+1 < length($seq);
   if ($reversed) {
     $seq = reverse $seq;
@@ -619,7 +619,7 @@ sub _features {
     push @group,$group if $group;
     push @args,@a;
   }
-  
+
   if (defined($sources)) {
     my @sources = ref($sources) eq 'ARRAY' ? @{$sources} : ($sources);
     if (defined($types)) {
@@ -745,14 +745,14 @@ sub _location_sql {
       AND   $location.id=fi.id
       AND   $range
 END
-;	  
+;
   my $group = '';
-      
+
   my @args  = ($seqid,@range_args);
   return ($from,$where,$group,@args);
 }
 
-sub _feature_index_table          {  
+sub _feature_index_table          {
     my $self = shift;
     return $self->_has_spatial_index ? $self->_qualify('feature_index')
                                      : $self->_qualify('feature_location') }
@@ -766,7 +766,7 @@ sub _name_sql {
   my $from  = "$name_table as n";
   my ($match,$string) = $self->_match_sql($name);
 
-  my $where = "n.id=$join AND n.name $match";
+  my $where = "n.id=$join AND lower(n.name) $match";
   $where   .= " AND n.display_name>0" unless $allow_aliases;
   return ($from,$where,'',$string);
 }
@@ -792,7 +792,7 @@ sub _search_attributes {
   # CROSS JOIN disables SQLite's table reordering optimization
   my $sql = <<END;
 SELECT name,attribute_value,tl.tag,n.id
-  FROM $attributelist_table        AS al 
+  FROM $attributelist_table        AS al
        CROSS JOIN $attribute_table AS a  ON al.id = a.attribute_id
        CROSS JOIN $name_table      AS n  ON n.id = a.id
        CROSS JOIN $type_table      AS t  ON t.id = n.id
@@ -952,9 +952,9 @@ sub bulk_replace {
     my $self       = shift;
     my $index_flag = shift || undef;
     my @objects    = @_;
-    
+
     my $features = $self->_feature_table;
-    
+
     my @insert_values;
     foreach my $object (@objects) {
         my $id = $object->primary_id;
@@ -963,17 +963,17 @@ sub bulk_replace {
         my $source_tag  = $object->source_tag || '';
         $primary_tag    .= ":$source_tag";
         my $typeid   = $self->_typeid($primary_tag,1);
-        
+
         push(@insert_values, ($id,0,$index_flag||0,$strand,$typeid));
     }
-    
+
     my @value_blocks;
     for (1..@objects) {
         push(@value_blocks, '(?,?,?,?,?)');
     }
     my $value_blocks = join(',', @value_blocks);
     my $sql = qq{REPLACE INTO $features (id,object,"indexed",strand,typeid) VALUES $value_blocks};
-    
+
     my $sth = $self->_prepare($sql);
     $sth->execute(@insert_values) or $self->throw($sth->errstr);
 }
@@ -1027,7 +1027,7 @@ INDEXED (toplevel) features.
 
 sub toplevel_types {
     my $self = shift;
-    eval "require Bio::DB::GFF::Typename" 
+    eval "require Bio::DB::GFF::Typename"
 	unless Bio::DB::GFF::Typename->can('new');
     my $typelist_table      = $self->_typelist_table;
     my $feature_table       = $self->_feature_table;
@@ -1178,7 +1178,7 @@ sub _update_location_index {
 	$sql    = "INSERT INTO $table (id,seqid,bin,start,end) values (?,?,?,?,?)";
 	@args   = ($id,$seqid,$bin,$start,$end);
     }
-	    
+
     my $sth  = $self->_prepare($sql);
     $sth->execute(@args);
     $sth->finish;
@@ -1196,7 +1196,6 @@ sub _dump_update_location_index {
     print $fh join("\t",@args),"\n";
 }
 
-
 1;
 
 =head1 AUTHOR
@@ -1213,4 +1212,3 @@ it under the same terms as Perl itself. See the Bioperl license for
 more details.
 
 =cut
-

@@ -36,15 +36,15 @@ temporary files instead of keeping the whole sequences in memory.
 
 =head1 FEEDBACK
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -79,13 +79,14 @@ use base qw(Bio::AlignIO Bio::SeqIO Bio::SimpleAlign);
 
 
 sub _initialize {
-  my($self,@args) = @_;
-  $self->SUPER::_initialize(@args);
-  if( ! defined $self->sequence_factory ) {
-      $self->sequence_factory(Bio::Seq::SeqFactory->new
-			      (-verbose => $self->verbose(),
-			       -type => 'Bio::Seq::LargeLocatableSeq'));
-  }
+    my($self,@args) = @_;
+    $self->SUPER::_initialize(@args);
+    if( ! defined $self->sequence_factory ) {
+        $self->sequence_factory(Bio::Seq::SeqFactory->new(
+            -verbose => $self->verbose(),
+            -type => 'Bio::Seq::LargeLocatableSeq'
+        ));
+    }
 }
 
 =head2 next_seq
@@ -106,23 +107,24 @@ sub next_seq {
     my $count = 0;
     my $seen = 0;
     while( defined ($entry = $self->_readline) ) {
-	if( $seen == 1 && $entry =~ /^\s*>/ ) {
-	    $self->_pushback($entry);
-	    return $largeseq;
-	}
-	if ( ($entry eq '>')  ) { $seen = 1; next; }
-	elsif( $entry =~ /\s*>(.+?)$/ ) {
-	    $seen = 1;
-	    ($id,$fulldesc) = ($1 =~ /^\s*(\S+)\s*(.*)$/)
-		or $self->warn("Can't parse fasta header");
-	    $largeseq->display_id($id);
-	    $largeseq->primary_id($id);
-	    $largeseq->desc($fulldesc);
-	} else {
-	    $entry =~ s/\s+//g;
-	    $largeseq->add_sequence_as_string($entry);
-	}
-	(++$count % 1000 == 0 && $self->verbose() > 0) && print "line $count\n";
+        if( $seen == 1 && $entry =~ /^\s*>/ ) {
+            $self->_pushback($entry);
+            return $largeseq;
+        }
+        if ( $entry eq '>' ) {
+            $seen = 1; next;
+        } elsif( $entry =~ /\s*>(.+?)$/ ) {
+            $seen = 1;
+            ($id,$fulldesc) = ($1 =~ /^\s*(\S+)\s*(.*)$/)
+            or $self->warn("Can't parse fasta header");
+            $largeseq->display_id($id);
+            $largeseq->primary_id($id);
+            $largeseq->desc($fulldesc);
+        } else {
+            $entry =~ s/\s+//g;
+            $largeseq->add_sequence_as_string($entry);
+        }
+        (++$count % 1000 == 0 && $self->verbose() > 0) && print "line $count\n";
     }
     if( ! $seen ) { return; }
     return $largeseq;
@@ -135,7 +137,7 @@ sub next_seq {
  Usage   : $aln = $stream->next_aln()
  Function: returns the next alignment in the stream.
  Returns : L<Bio::Align::AlignI> object - returns 0 on end of file
-	    or on error
+        or on error
  Args    : NONE
 
 =cut
@@ -143,7 +145,7 @@ sub next_seq {
 sub next_aln {
     my $self = shift;
     my $largeseq;
-    my $aln =  Bio::SimpleAlign->new();
+    my $aln = Bio::SimpleAlign->new();
     while (defined ($largeseq = $self->next_seq) ) {
         $aln->add_seq($largeseq);
         $self->debug("sequence readed\n");
@@ -151,14 +153,14 @@ sub next_aln {
 
     my $alnlen = $aln->length;
     foreach my $largeseq ( $aln->each_seq ) {
-	if( $largeseq->length < $alnlen ) {
-	    my ($diff) = ($alnlen - $largeseq->length);
-	    $largeseq->seq("-" x $diff);
-	}
+        if( $largeseq->length < $alnlen ) {
+            my ($diff) = ($alnlen - $largeseq->length);
+            $largeseq->seq("-" x $diff);
+        }
     }
 
     return $aln if $aln->num_sequences;
-	return;
+    return;
 
 }
 
@@ -178,23 +180,23 @@ sub write_aln {
     my ($seq,$desc,$rseq,$name,$count,$length,$seqsub);
 
     foreach my $aln (@aln) {
-	if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) {
-	    $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
-	    next;
-	}
-	foreach $rseq ( $aln->each_seq() ) {
-	    $name = $aln->displayname($rseq->get_nse());
-	    $seq  = $rseq->seq();
-	    $desc = $rseq->description || '';
-	    $self->_print (">$name $desc\n") or return ;
-	    $count =0;
-	    $length = length($seq);
-	    while( ($count * 60 ) < $length ) {
-		$seqsub = substr($seq,$count*60,60);
-		$self->_print ("$seqsub\n") or return ;
-		$count++;
-	    }
-	}
+        if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) {
+            $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
+            next;
+        }
+        foreach $rseq ( $aln->each_seq() ) {
+            $name = $aln->displayname($rseq->get_nse());
+            $seq  = $rseq->seq();
+            $desc = $rseq->description || '';
+            $self->_print (">$name $desc\n") or return ;
+            $count =0;
+            $length = length($seq);
+            while( ($count * 60 ) < $length ) {
+                $seqsub = substr($seq,$count*60,60);
+                $self->_print ("$seqsub\n") or return ;
+                $count++;
+            }
+        }
     }
     $self->flush if $self->_flush_on_write && defined $self->_fh;
     return 1;

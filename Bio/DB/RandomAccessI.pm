@@ -25,7 +25,7 @@ methods which other (concrete) classes will actually implement.
 
 The Bio::DB::RandomAccessI class defines what methods a generic database class
 should have. At the moment it is just the ability to make Bio::Seq objects
-from a name (id) or a accession number.
+from a name (id) or an accession number.
 
 =head1 CONTACT
 

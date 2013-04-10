@@ -6,23 +6,23 @@ use strict;
 BEGIN {
 	use lib '.';
 	use Bio::Root::Test;
-	
+
 	test_begin(-tests => 44,
 			   -requires_modules => [qw(IO::String
 									    LWP::UserAgent
 										HTTP::Request::Common)],
 			   -requires_networking => 1);
-	
+
 	use_ok('Bio::DB::GenBank');
 }
 
 my %expected_lengths = (
-    'MUSIGHBA1' => 408,  
-    'AF303112'  => 1611, 
-    'AF303112.1' => 1611, 
-    'AF041456'  => 1156, 
-    'CELRABGDI' => 1743, 
-    'CH402638'  => 5041 
+    'MUSIGHBA1' => 408,
+    'AF303112'  => 1611,
+    'AF303112.1' => 1611,
+    'AF041456'  => 1156,
+    'CELRABGDI' => 1743,
+    'JH374761'  => 38055
 );
 
 my ($gb, $seq, $seqio, $seqin);
@@ -35,17 +35,17 @@ ok $gb = Bio::DB::GenBank->new('-delay'=>0), 'Bio::DB::GenBank';
 
 # get a single seq
 SKIP: {
-    eval {$seq = $gb->get_Seq_by_id('MUSIGHBA1');};
-    skip "Couldn't connect to Genbank with Bio::DB::GenBank.pm. Do you have network access? Skipping GenBank tests", 4 if $@;
+    eval {$seq = $gb->get_Seq_by_id('J00522');1};
+    skip "Couldn't connect to Genbank with Bio::DB::GenBank.pm. Do you have network access? Skipping GenBank tests: $@", 4 if $@;
     is $seq->length, $expected_lengths{$seq->display_id}, $seq->display_id;
     eval {$seq = $gb->get_Seq_by_acc('AF303112');};
-    skip "Couldn't connect to Genbank with Bio::DB::GenBank.pm. Transient network problems? Skipping GenBank tests", 3 if $@;
+    skip "Couldn't connect to Genbank with Bio::DB::GenBank.pm. Transient network problems? Skipping GenBank tests: $@", 3 if $@;
     is $seq->length, $expected_lengths{$seq->display_id}, $seq->display_id;
     eval {$seq = $gb->get_Seq_by_version('AF303112.1');};
-    skip "Couldn't connect to Genbank with Bio::DB::GenBank.pm. Transient network problems? Skipping GenBank tests", 2 if $@;
+    skip "Couldn't connect to Genbank with Bio::DB::GenBank.pm. Transient network problems? Skipping GenBank tests: $@", 2 if $@;
     is $seq->length, $expected_lengths{$seq->display_id}, $seq->display_id;
     eval {$seq = $gb->get_Seq_by_gi('405830');};
-    skip "Couldn't connect to Genbank with Bio::DB::GenBank.pm. Transient network problems? Skipping GenBank tests", 1 if $@;
+    skip "Couldn't connect to Genbank with Bio::DB::GenBank.pm. Transient network problems? Skipping GenBank tests: $@", 1 if $@;
     is $seq->length, $expected_lengths{$seq->display_id}, $seq->display_id;
 }
 
@@ -69,7 +69,7 @@ $seq = $seqio = undef;
 # test the temporary file creation and fasta
 ok $gb = Bio::DB::GenBank->new('-format' => 'fasta', '-retrievaltype' => 'tempfile', '-delay' => 0);
 SKIP: {
-    eval {$seq = $gb->get_Seq_by_id('MUSIGHBA1');};
+    eval {$seq = $gb->get_Seq_by_id('J00522');};
     skip "Couldn't connect to complete GenBank tests with a tempfile with Bio::DB::GenBank.pm. Skipping those tests", 6 if $@;
     # last part of id holds the key
     is $seq->length, $expected_lengths{(split(/\|/,$seq->display_id))[-1]}, $seq->display_id;
@@ -84,7 +84,7 @@ SKIP: {
     my $done = 0;
     while (my $s = $seqio->next_seq) {
         is $s->length, $expected_lengths{$s->display_id};
-        undef $gb; # test the case where the db is gone, 
+        undef $gb; # test the case where the db is gone,
         # but a temp file should remain until seqio goes away.
         $done++;
     }
@@ -97,7 +97,7 @@ $seq = $seqio = undef;
 # test pipeline creation
 ok $gb = Bio::DB::GenBank->new('-retrievaltype' => 'pipeline', '-delay' => 0);
 SKIP: {
-    eval {$seq = $gb->get_Seq_by_id('MUSIGHBA1');};
+    eval {$seq = $gb->get_Seq_by_id('J00522');};
     skip "Couldn't connect to complete GenBank tests with a pipeline with Bio::DB::GenBank.pm. Skipping those tests", 6 if $@;
     is $seq->length, $expected_lengths{$seq->display_id}, $seq->display_id;
     eval {$seq = $gb->get_Seq_by_acc('AF303112');};
@@ -108,7 +108,7 @@ SKIP: {
     my $done = 0;
     while (my $s = $seqio->next_seq) {
         is $s->length, $expected_lengths{$s->display_id}, $s->display_id;
-        undef $gb; # test the case where the db is gone, 
+        undef $gb; # test the case where the db is gone,
         # but the pipeline should remain until seqio goes away
         $done++;
     }
@@ -121,12 +121,12 @@ $seq = $seqio = undef;
 # test contig retrieval
 ok $gb = Bio::DB::GenBank->new('-delay'  => 0, '-format' => 'gbwithparts');
 SKIP: {
-    eval {$seq = $gb->get_Seq_by_id('CH402638');};
+    eval {$seq = $gb->get_Seq_by_id('JH374761');};
     skip "Couldn't connect to GenBank with Bio::DB::GenBank.pm. Skipping those tests", 3 if $@;
     is $seq->length, $expected_lengths{$seq->display_id}, $seq->display_id;
     # now to check that postprocess_data in NCBIHelper catches CONTIG...
     ok $gb = Bio::DB::GenBank->new('-delay' => 0, '-format' => 'gb');
-    eval {$seq = $gb->get_Seq_by_id('CH402638');};
+    eval {$seq = $gb->get_Seq_by_id('JH374761');};
     skip "Couldn't connect to GenBank with Bio::DB::GenBank.pm. Skipping those tests", 1 if $@;
     is $seq->length, $expected_lengths{$seq->display_id}, $seq->display_id;
 }
@@ -150,7 +150,7 @@ SKIP: {
         is $seq->alphabet, shift(@result);
     }
     is @result, 0;
-    # Real batch retrieval using epost/efetch 
+    # Real batch retrieval using epost/efetch
     # these tests may change if integrated further into Bio::DB::Gen*
     # Currently only useful for retrieving GI's via get_seq_stream
     $gb = Bio::DB::GenBank->new();

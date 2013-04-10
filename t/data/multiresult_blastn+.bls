@@ -1,0 +1,584 @@
+BLASTN 2.2.25+
+
+
+Reference: Stephen F. Altschul, Thomas L. Madden, Alejandro A.
+Schaffer, Jinghui Zhang, Zheng Zhang, Webb Miller, and David J.
+Lipman (1997), "Gapped BLAST and PSI-BLAST: a new generation of
+protein database search programs", Nucleic Acids Res. 25:3389-3402.
+
+
+
+Database: All GenBank+EMBL+DDBJ+PDB sequences (but no EST, STS,
+GSS,environmental samples or phase 0, 1 or 2 HTGS sequences)
+           14,049,258 sequences; 36,075,095,184 total letters
+
+
+
+Query= GFAVMM201BADC0
+
+Length=477
+                                                                      Score     E
+Sequences producing significant alignments:                          (Bits)  Value
+
+gi|194750627|ref|XM_001957596.1|  Drosophila ananassae GF23929 (D...  42.8    2.1  
+gi|118568029|gb|CP000325.1|  Mycobacterium ulcerans Agy99, comple...  42.8    2.1  
+gi|24395301|emb|AL928579.6|  Mouse DNA sequence from clone RP23-3...  42.8    2.1  
+gi|326411376|gb|CP002568.1|  Polymorphum gilvum SL003B-26A1, comp...  41.0    7.4  
+gi|317165637|gb|CP002447.1|  Mesorhizobium ciceri biovar biserrul...  41.0    7.4  
+gi|312283773|gb|AC243242.1|  Panicum virgatum clone PV_ABa051-K05...  41.0    7.4  
+gi|303315262|ref|XM_003067593.1|  Coccidioides posadasii C735 del...  41.0    7.4  
+gi|297153409|gb|CP002047.1|  Streptomyces bingchenggensis BCW-1, ...  41.0    7.4  
+gi|295434944|gb|CP002013.1|  Burkholderia sp. CCGE1002 chromosome...  41.0    7.4  
+gi|283945692|gb|CP001854.1|  Conexibacter woesei DSM 14684, compl...  41.0    7.4  
+gi|194346582|gb|CP001111.1|  Stenotrophomonas maltophilia R551-3,...  41.0    7.4  
+gi|166857509|gb|CP000926.1|  Pseudomonas putida GB-1, complete ge...  41.0    7.4  
+gi|148498119|gb|CP000699.1|  Sphingomonas wittichii RW1, complete...  41.0    7.4  
+
+
+>gi|194750627|ref|XM_001957596.1| Drosophila ananassae GF23929 (Dana\GF23929), mRNA
+Length=1641
+
+ Score = 42.8 bits (46),  Expect = 2.1
+ Identities = 37/45 (83%), Gaps = 1/45 (2%)
+ Strand=Plus/Plus
+
+Query  236  ACGCCGACGACAAGCGGCGAGTCCCTTGTGGACGATCTCGGCCAC  280
+            |||||||||||||| ||||||||| ||  ||||  ||||  ||||
+Sbjct  137  ACGCCGACGACAAG-GGCGAGTCCATTTGGGACTTTCTCACCCAC  180
+
+
+>gi|118568029|gb|CP000325.1| Mycobacterium ulcerans Agy99, complete genome
+Length=5631606
+
+ Score = 42.8 bits (46),  Expect = 2.1
+ Identities = 36/43 (84%), Gaps = 1/43 (2%)
+ Strand=Plus/Minus
+
+Query  69      CCATGACTGCCGGCAGAACATCGACCGGCCAG-TATGTCGGCC  110
+               ||||| ||||||||||||| |||| || || | |||| |||||
+Sbjct  890715  CCATGTCTGCCGGCAGAACTTCGAGCGACCCGATATGGCGGCC  890673
+
+
+>gi|24395301|emb|AL928579.6| Mouse DNA sequence from clone RP23-302M15 on chromosome 4, complete 
+sequence
+Length=184057
+
+ Score = 42.8 bits (46),  Expect = 2.1
+ Identities = 31/35 (89%), Gaps = 1/35 (2%)
+ Strand=Plus/Plus
+
+Query  437     AGCTGCAACATGAATGTGCTCGCAGATCTTCAGGA  471
+               |||||||||||| ||||||| ||||| |||| |||
+Sbjct  146437  AGCTGCAACATGGATGTGCTAGCAGA-CTTCTGGA  146470
+
+
+>gi|326411376|gb|CP002568.1| Polymorphum gilvum SL003B-26A1, complete genome
+Length=4649365
+
+ Score = 41.0 bits (44),  Expect = 7.4
+ Identities = 33/40 (83%), Gaps = 0/40 (0%)
+ Strand=Plus/Plus
+
+Query  238      GCCGACGACAAGCGGCGAGTCCCTTGTGGACGATCTCGGC  277
+                |||||||||  ||||||||||| | |||  |||| |||||
+Sbjct  2023755  GCCGACGACGCGCGGCGAGTCCGTGGTGCTCGATGTCGGC  2023794
+
+
+>gi|317165637|gb|CP002447.1| Mesorhizobium ciceri biovar biserrulae WSM1271, complete genome
+Length=6264489
+
+ Score = 41.0 bits (44),  Expect = 7.4
+ Identities = 22/22 (100%), Gaps = 0/22 (0%)
+ Strand=Plus/Plus
+
+Query  300      TTGATGCCGAGGCGGATGCCAT  321
+                ||||||||||||||||||||||
+Sbjct  4510008  TTGATGCCGAGGCGGATGCCAT  4510029
+
+
+>gi|312283773|gb|AC243242.1| Panicum virgatum clone PV_ABa051-K05, complete sequence
+Length=161398
+
+ Score = 41.0 bits (44),  Expect = 7.4
+ Identities = 28/32 (88%), Gaps = 0/32 (0%)
+ Strand=Plus/Plus
+
+Query  271     TCTCGGCCACCTGTTTGAGTGGTATTCTTTTG  302
+               ||| |||||||||||||||| ||||| || ||
+Sbjct  137850  TCTTGGCCACCTGTTTGAGTTGTATTTTTCTG  137881
+
+
+>gi|303315262|ref|XM_003067593.1| Coccidioides posadasii C735 delta SOWgp Sugar transporter family 
+protein, mRNA
+Length=1947
+
+ Score = 41.0 bits (44),  Expect = 7.4
+ Identities = 31/37 (84%), Gaps = 0/37 (0%)
+ Strand=Plus/Minus
+
+Query  289  GTGGTATTCTTTTGATGCCGAGGCGGATGCCATTGCA  325
+            ||||| ||| | ||||||||||||| | ||| |||||
+Sbjct  84   GTGGTCTTCATATGATGCCGAGGCGTAAGCCTTTGCA  48
+
+
+>gi|297153409|gb|CP002047.1| Streptomyces bingchenggensis BCW-1, complete genome
+Length=11936683
+
+ Score = 41.0 bits (44),  Expect = 7.4
+ Identities = 27/30 (90%), Gaps = 0/30 (0%)
+ Strand=Plus/Plus
+
+Query  38       GTCGGCAGCGGATCTCCGAAAACCATCAAG  67
+                |||||||||||| |||||||  ||||||||
+Sbjct  3073377  GTCGGCAGCGGAACTCCGAATTCCATCAAG  3073406
+
+
+>gi|295434944|gb|CP002013.1| Burkholderia sp. CCGE1002 chromosome 1, complete sequence
+Length=3518940
+
+ Score = 41.0 bits (44),  Expect = 7.4
+ Identities = 33/40 (83%), Gaps = 0/40 (0%)
+ Strand=Plus/Minus
+
+Query  212      ATGGGCGAATCGATCACCTTCAACACGCCGACGACAAGCG  251
+                || |||||||||||| | |||||||||| | |||  ||||
+Sbjct  2243828  ATCGGCGAATCGATCGCGTTCAACACGCTGGCGATGAGCG  2243789
+
+
+>gi|283945692|gb|CP001854.1| Conexibacter woesei DSM 14684, complete genome
+Length=6359369
+
+ Score = 41.0 bits (44),  Expect = 7.4
+ Identities = 35/43 (82%), Gaps = 3/43 (6%)
+ Strand=Plus/Minus
+
+Query  101      TATGTCGGCCATGGCTTCTACAGTCCGGACATGATCGACGGCG  143
+                ||||||||||| | |||||||   ||| || || |||||||||
+Sbjct  2039361  TATGTCGGCCACGACTTCTAC---CCGAACCTGGTCGACGGCG  2039322
+
+
+>gi|194346582|gb|CP001111.1| Stenotrophomonas maltophilia R551-3, complete genome
+Length=4573969
+
+ Score = 41.0 bits (44),  Expect = 7.4
+ Identities = 32/36 (89%), Gaps = 2/36 (5%)
+ Strand=Plus/Minus
+
+Query  102      ATGTCGGCCATGGC-TTCTACAGTCCGGACATGATC  136
+                |||||||||||||| ||  |||| ||||||||||||
+Sbjct  3897524  ATGTCGGCCATGGCGTTGCACAG-CCGGACATGATC  3897490
+
+
+>gi|166857509|gb|CP000926.1| Pseudomonas putida GB-1, complete genome
+Length=6078430
+
+ Score = 41.0 bits (44),  Expect = 7.4
+ Identities = 35/41 (86%), Gaps = 2/41 (4%)
+ Strand=Plus/Minus
+
+Query  222      CGATCACCTTCAACACG-CCGACGACAAGCGGCGAGTCCCT  261
+                ||||||||||| ||||| ||||||| ||||| | |||| ||
+Sbjct  5087565  CGATCACCTTCGACACGTCCGACGA-AAGCGCCAAGTCGCT  5087526
+
+
+>gi|148498119|gb|CP000699.1| Sphingomonas wittichii RW1, complete genome
+Length=5382261
+
+ Score = 41.0 bits (44),  Expect = 7.4
+ Identities = 32/38 (85%), Gaps = 3/38 (7%)
+ Strand=Plus/Plus
+
+Query  208      GACGATG---GGCGAATCGATCACCTTCAACACGCCGA  242
+                |||||||   ||||  |||||||||||||| |||||||
+Sbjct  4265124  GACGATGTGGGGCGGCTCGATCACCTTCAAGACGCCGA  4265161
+
+
+
+Lambda     K      H
+   0.634    0.408    0.912 
+
+Gapped
+Lambda     K      H
+   0.625    0.410    0.780 
+
+Effective search space used: 15727850050068
+
+
+Query= GFAVMM201A1JOH
+
+Length=57
+                                                                      Score     E
+Sequences producing significant alignments:                          (Bits)  Value
+
+gi|22416007|emb|AL772315.4|  Mouse DNA sequence from clone RP23-5...  41.0    0.42 
+gi|117168385|gb|AC190175.4|  Pan troglodytes BAC clone CH251-542A...  39.2    1.5  
+gi|45238691|gb|AC145377.2|  Pan troglodytes BAC clone RP43-11P19 ...  39.2    1.5  
+gi|4926907|gb|AC004936.2|  Homo sapiens PAC clone RP5-959C21 from...  39.2    1.5  
+gi|31414500|emb|AL831797.4|  Oryza sativa chromosome 12, . BAC OS...  39.2    1.5  
+gi|158967071|gb|CP000033.3|  Lactobacillus acidophilus NCFM, comp...  37.4    5.1  
+
+
+>gi|22416007|emb|AL772315.4| Mouse DNA sequence from clone RP23-54A13 on chromosome 4, complete 
+sequence
+Length=200266
+
+ Score = 41.0 bits (44),  Expect = 0.42
+ Identities = 28/31 (91%), Gaps = 2/31 (6%)
+ Strand=Plus/Minus
+
+Query  6      CGTTCCAGTCACGATACATACCAATAACGAC  36
+              ||||||||| |  ||||||||||||||||||
+Sbjct  26821  CGTTCCAGTGA--ATACATACCAATAACGAC  26793
+
+
+>gi|117168385|gb|AC190175.4| Pan troglodytes BAC clone CH251-542A7 from chromosome 7, complete 
+sequence
+Length=214222
+
+ Score = 39.2 bits (42),  Expect = 1.5
+ Identities = 26/29 (90%), Gaps = 0/29 (0%)
+ Strand=Plus/Minus
+
+Query  19      ATACATACCAATAACGACTTCTATATGTA  47
+               ||||||||||||||  | |||||||||||
+Sbjct  166678  ATACATACCAATAAATATTTCTATATGTA  166650
+
+
+>gi|45238691|gb|AC145377.2| Pan troglodytes BAC clone RP43-11P19 from chromosome 7, complete 
+sequence
+Length=194463
+
+ Score = 39.2 bits (42),  Expect = 1.5
+ Identities = 26/29 (90%), Gaps = 0/29 (0%)
+ Strand=Plus/Plus
+
+Query  19      ATACATACCAATAACGACTTCTATATGTA  47
+               ||||||||||||||  | |||||||||||
+Sbjct  192749  ATACATACCAATAAATATTTCTATATGTA  192777
+
+
+>gi|4926907|gb|AC004936.2| Homo sapiens PAC clone RP5-959C21 from 7, complete sequence
+Length=139949
+
+ Score = 39.2 bits (42),  Expect = 1.5
+ Identities = 26/29 (90%), Gaps = 0/29 (0%)
+ Strand=Plus/Minus
+
+Query  19     ATACATACCAATAACGACTTCTATATGTA  47
+              ||||||||||||||  | |||||||||||
+Sbjct  12654  ATACATACCAATAAATATTTCTATATGTA  12626
+
+
+>gi|31414500|emb|AL831797.4| Oryza sativa chromosome 12, . BAC OSJNBa0010M16 of library OSJNBa 
+from chromosome 12 of cultivar Nipponbare of ssp. japonica 
+of Oryza sativa (rice), complete sequence
+Length=132741
+
+ Score = 39.2 bits (42),  Expect = 1.5
+ Identities = 23/24 (96%), Gaps = 0/24 (0%)
+ Strand=Plus/Plus
+
+Query  18      GATACATACCAATAACGACTTCTA  41
+               ||||||||||||||| ||||||||
+Sbjct  126346  GATACATACCAATAAAGACTTCTA  126369
+
+
+>gi|158967071|gb|CP000033.3| Lactobacillus acidophilus NCFM, complete genome
+Length=1993560
+
+ Score = 37.4 bits (40),  Expect = 5.1
+ Identities = 20/20 (100%), Gaps = 0/20 (0%)
+ Strand=Plus/Minus
+
+Query  14      TCACGATACATACCAATAAC  33
+               ||||||||||||||||||||
+Sbjct  756012  TCACGATACATACCAATAAC  755993
+
+
+
+Lambda     K      H
+   0.634    0.408    0.912 
+
+Gapped
+Lambda     K      H
+   0.625    0.410    0.780 
+
+Effective search space used: 890637973200
+
+
+Query= GFAVMM201D933Z
+
+Length=119
+                                                                      Score     E
+Sequences producing significant alignments:                          (Bits)  Value
+
+gi|332189094|gb|CP002684.1|  Arabidopsis thaliana chromosome 1, c...  41.0    1.4  
+gi|313747610|gb|AC237431.3|  Macaca mulatta Y Chr BAC RMAEX-106G5...  41.0    1.4  
+gi|168693784|gb|AC213321.3|  MACACA MULATTA BAC clone CH250-541A1...  41.0    1.4  
+gi|8778954|gb|AC007932.3|F11A17  Arabidopsis thaliana chromosome ...  41.0    1.4  
+gi|256052438|ref|XM_002569731.1|  Schistosoma mansoni GTP-binding...  39.2    5.0  
+gi|238867551|gb|CP001600.1|  Edwardsiella ictaluri 93-146, comple...  39.2    5.0  
+gi|224465197|ref|NG_009929.1|  Homo sapiens like-glycosyltransfer...  39.2    5.0  
+gi|147784643|emb|AM469007.2|  Vitis vinifera contig VV78X098884.1...  39.2    5.0  
+gi|123663234|emb|AM455601.1|  Vitis vinifera, whole genome shotgu...  39.2    5.0  
+gi|118344518|gb|AC192748.2|  Gallus gallus BAC clone CH261-166H21...  39.2    5.0  
+gi|90309320|gb|AY607844.2|  Edwardsiella ictaluri transposase-lik...  39.2    5.0  
+gi|55908997|gb|AC102414.8|  Mus musculus chromosome 15, clone RP2...  39.2    5.0  
+gi|72096292|gb|AC162857.5|  Mus musculus chromosome 15, clone RP2...  39.2    5.0  
+gi|22415845|emb|AL139016.8|  Human DNA sequence from clone RP4-65...  39.2    5.0  
+gi|6572307|emb|Z82173.2|  Human DNA sequence from clone SC22CB-1D...  39.2    5.0  
+gi|56410822|gb|AC140454.4|  Mus musculus BAC clone RP24-163I14 fr...  39.2    5.0  
+gi|38707373|emb|BX255930.3|  Zebrafish DNA sequence from clone DK...  39.2    5.0  
+
+
+>gi|332189094|gb|CP002684.1| Arabidopsis thaliana chromosome 1, complete sequence
+Length=30427671
+
+ Score = 41.0 bits (44),  Expect = 1.4
+ Identities = 25/27 (93%), Gaps = 0/27 (0%)
+ Strand=Plus/Minus
+
+Query  70        AACAGAAACCACTACGAAAGGAAAGAA  96
+                 |||||||||  ||||||||||||||||
+Sbjct  17871124  AACAGAAACTTCTACGAAAGGAAAGAA  17871098
+
+
+>gi|313747610|gb|AC237431.3| Macaca mulatta Y Chr BAC RMAEX-106G5 complete sequence
+Length=169910
+
+ Score = 41.0 bits (44),  Expect = 1.4
+ Identities = 28/31 (91%), Gaps = 2/31 (6%)
+ Strand=Plus/Minus
+
+Query  75     AAACCACTACGAAAGGAAAGAAATGCCTCTA  105
+              ||||||  ||||||||||| |||||||||||
+Sbjct  60448  AAACCA--ACGAAAGGAAATAAATGCCTCTA  60420
+
+
+>gi|168693784|gb|AC213321.3| MACACA MULATTA BAC clone CH250-541A11 from chromosome y, complete 
+sequence
+Length=156689
+
+ Score = 41.0 bits (44),  Expect = 1.4
+ Identities = 28/31 (91%), Gaps = 2/31 (6%)
+ Strand=Plus/Plus
+
+Query  75     AAACCACTACGAAAGGAAAGAAATGCCTCTA  105
+              ||||||  ||||||||||| |||||||||||
+Sbjct  62327  AAACCA--ACGAAAGGAAATAAATGCCTCTA  62355
+
+
+>gi|8778954|gb|AC007932.3|F11A17 Arabidopsis thaliana chromosome 1 BAC F11A17 sequence, complete 
+sequence
+Length=102078
+
+ Score = 41.0 bits (44),  Expect = 1.4
+ Identities = 25/27 (93%), Gaps = 0/27 (0%)
+ Strand=Plus/Plus
+
+Query  70     AACAGAAACCACTACGAAAGGAAAGAA  96
+              |||||||||  ||||||||||||||||
+Sbjct  32940  AACAGAAACTTCTACGAAAGGAAAGAA  32966
+
+
+>gi|256052438|ref|XM_002569731.1| Schistosoma mansoni GTP-binding protein era, putative (Smp_164220) 
+mRNA, complete cds
+Length=1341
+
+ Score = 39.2 bits (42),  Expect = 5.0
+ Identities = 21/21 (100%), Gaps = 0/21 (0%)
+ Strand=Plus/Minus
+
+Query  40   TTCTCTTTTCGTATTTGGAAC  60
+            |||||||||||||||||||||
+Sbjct  159  TTCTCTTTTCGTATTTGGAAC  139
+
+
+>gi|238867551|gb|CP001600.1| Edwardsiella ictaluri 93-146, complete genome
+Length=3812315
+
+ Score = 39.2 bits (42),  Expect = 5.0
+ Identities = 31/37 (84%), Gaps = 3/37 (8%)
+ Strand=Plus/Plus
+
+Query  58       AACAGCTGTTATA---ACAGAAACCACTACGAAAGGA  91
+                |||||| ||||||   ||| ||||||||||| |||||
+Sbjct  1978968  AACAGCCGTTATATCCACATAAACCACTACGCAAGGA  1979004
+
+
+>gi|224465197|ref|NG_009929.1| Homo sapiens like-glycosyltransferase (LARGE), RefSeqGene on 
+chromosome 22
+Length=654355
+
+ Score = 39.2 bits (42),  Expect = 5.0
+ Identities = 30/36 (84%), Gaps = 0/36 (0%)
+ Strand=Plus/Plus
+
+Query  66      TTATAACAGAAACCACTACGAAAGGAAAGAAATGCC  101
+               ||| |||||||||||  || |||||||| ||| |||
+Sbjct  603836  TTAAAACAGAAACCAAAACCAAAGGAAAAAAAAGCC  603871
+
+
+>gi|147784643|emb|AM469007.2| Vitis vinifera contig VV78X098884.11, whole genome shotgun sequence
+Length=7756
+
+ Score = 39.2 bits (42),  Expect = 5.0
+ Identities = 24/26 (93%), Gaps = 0/26 (0%)
+ Strand=Plus/Minus
+
+Query  71    ACAGAAACCACTACGAAAGGAAAGAA  96
+             ||| |||||||||| |||||||||||
+Sbjct  6827  ACAAAAACCACTACAAAAGGAAAGAA  6802
+
+
+>gi|123663234|emb|AM455601.1| Vitis vinifera, whole genome shotgun sequence, contig VV78X123660.5, 
+clone ENTAV 115
+Length=34741
+
+ Score = 39.2 bits (42),  Expect = 5.0
+ Identities = 24/26 (93%), Gaps = 0/26 (0%)
+ Strand=Plus/Plus
+
+Query  71     ACAGAAACCACTACGAAAGGAAAGAA  96
+              ||| |||||||||| |||||||||||
+Sbjct  34120  ACAAAAACCACTACAAAAGGAAAGAA  34145
+
+
+>gi|118344518|gb|AC192748.2| Gallus gallus BAC clone CH261-166H21 from chromosome z, complete 
+sequence
+Length=226699
+
+ Score = 39.2 bits (42),  Expect = 5.0
+ Identities = 27/31 (88%), Gaps = 0/31 (0%)
+ Strand=Plus/Plus
+
+Query  58      AACAGCTGTTATAACAGAAACCACTACGAAA  88
+               ||||||||| ||||||||||||  || ||||
+Sbjct  178051  AACAGCTGTCATAACAGAAACCCATATGAAA  178081
+
+
+>gi|90309320|gb|AY607844.2| Edwardsiella ictaluri transposase-like protein gene, complete 
+cds; urease operon, complete sequence; and ammonium transporter 
+(amtB) and TnpA (tnpA) genes, complete cds
+Length=11426
+
+ Score = 39.2 bits (42),  Expect = 5.0
+ Identities = 31/37 (84%), Gaps = 3/37 (8%)
+ Strand=Plus/Minus
+
+Query  58    AACAGCTGTTATA---ACAGAAACCACTACGAAAGGA  91
+             |||||| ||||||   ||| ||||||||||| |||||
+Sbjct  8030  AACAGCCGTTATATCCACATAAACCACTACGCAAGGA  7994
+
+
+>gi|55908997|gb|AC102414.8| Mus musculus chromosome 15, clone RP24-474D5, complete sequence
+Length=159739
+
+ Score = 39.2 bits (42),  Expect = 5.0
+ Identities = 24/26 (93%), Gaps = 0/26 (0%)
+ Strand=Plus/Plus
+
+Query  70     AACAGAAACCACTACGAAAGGAAAGA  95
+              ||||||||||||||| |||||| |||
+Sbjct  71851  AACAGAAACCACTACAAAAGGAGAGA  71876
+
+
+>gi|72096292|gb|AC162857.5| Mus musculus chromosome 15, clone RP23-333C11, complete sequence
+Length=224913
+
+ Score = 39.2 bits (42),  Expect = 5.0
+ Identities = 24/26 (93%), Gaps = 0/26 (0%)
+ Strand=Plus/Minus
+
+Query  70    AACAGAAACCACTACGAAAGGAAAGA  95
+             ||||||||||||||| |||||| |||
+Sbjct  3370  AACAGAAACCACTACAAAAGGAGAGA  3345
+
+
+>gi|22415845|emb|AL139016.8| Human DNA sequence from clone RP4-658C17 on chromosome 1p11.1-13.3, 
+complete sequence
+Length=100643
+
+ Score = 39.2 bits (42),  Expect = 5.0
+ Identities = 22/23 (96%), Gaps = 0/23 (0%)
+ Strand=Plus/Plus
+
+Query  87     AAGGAAAGAAATGCCTCTANAAG  109
+              ||||||||||||||||||| |||
+Sbjct  22086  AAGGAAAGAAATGCCTCTAGAAG  22108
+
+
+>gi|6572307|emb|Z82173.2| Human DNA sequence from clone SC22CB-1D7 on chromosome 22 Contains 
+a novel gene and part of the LARGE gene for like-glycosyltransferase, 
+complete sequence
+Length=37731
+
+ Score = 39.2 bits (42),  Expect = 5.0
+ Identities = 30/36 (84%), Gaps = 0/36 (0%)
+ Strand=Plus/Minus
+
+Query  66     TTATAACAGAAACCACTACGAAAGGAAAGAAATGCC  101
+              ||| |||||||||||  || |||||||| ||| |||
+Sbjct  15530  TTAAAACAGAAACCAAAACCAAAGGAAAAAAAAGCC  15495
+
+
+>gi|56410822|gb|AC140454.4| Mus musculus BAC clone RP24-163I14 from 1, complete sequence
+Length=171533
+
+ Score = 39.2 bits (42),  Expect = 5.0
+ Identities = 28/32 (88%), Gaps = 4/32 (12%)
+ Strand=Plus/Plus
+
+Query  66      TTATAACAGAAACCACTACGAAAGGAAAGAAA  97
+               ||||||||||||||||    ||||||||||||
+Sbjct  140248  TTATAACAGAAACCAC----AAAGGAAAGAAA  140275
+
+
+>gi|38707373|emb|BX255930.3| Zebrafish DNA sequence from clone DKEY-101K6 in linkage group 
+9 Contains the 3' end of the mcm3ap gene for MCM3 minichromosome 
+maintenance deficient 3 (S. cerevisiae) associated protein, 
+the gene for a novel protein similar to vertebrate lanosterol 
+synthase (2,3-oxidosqualene-lanosterol cyclase) (LSS), 
+the gene for a novel protein similar to human and mouse leishmanolysin-like 
+(metallopeptidase M8 family) (LMLN), the 
+gene for a novel protein similar to vertebrate oxysterol binding 
+protein-like 10 (OSBPL10), the gene for a novel protein 
+similar to vertebrate transforming growth factor, beta receptor 
+II (70/80kDa) (TGFBR2), the snx4 gene for sorting nexin 
+4, the gene for a novel protein similar to vertebrate zinc 
+finger protein 148 (ZNF148) and the 5' end of the gene for a 
+novel protein similar to vertebrate solute carrier family 12 
+(potassium/chloride transporters), member 8 (SLC12A8), complete 
+sequence
+Length=185559
+
+ Score = 39.2 bits (42),  Expect = 5.0
+ Identities = 21/21 (100%), Gaps = 0/21 (0%)
+ Strand=Plus/Plus
+
+Query  62      GCTGTTATAACAGAAACCACT  82
+               |||||||||||||||||||||
+Sbjct  124003  GCTGTTATAACAGAAACCACT  124023
+
+
+
+Lambda     K      H
+   0.634    0.408    0.912 
+
+Gapped
+Lambda     K      H
+   0.625    0.410    0.780 
+
+Effective search space used: 3062586391620
+
+
+  Database: All GenBank+EMBL+DDBJ+PDB sequences (but no EST, STS,
+GSS,environmental samples or phase 0, 1 or 2 HTGS sequences)
+    Posted date:  May 21, 2011  4:39 PM
+  Number of letters in database: 36,075,095,184
+  Number of sequences in database:  14,049,258
+
+
+
+Matrix: blastn matrix 2 -3
+Gap Penalties: Existence: 5, Extension: 2

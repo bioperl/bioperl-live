@@ -308,6 +308,23 @@ sub reset_alleles{
    $self->{'_allele_freqs'} = {};
 }
 
+=head2 marker_coverage
 
+ Title   : marker_coverage
+ Usage   : $marker->marker_coverage();
+ Function: Get marker coverage, that is, the number of 
+           individuals where the marker is present 
+           excluding missing or ambiguous alleles
+ Returns : integer, representing marker coverage
+ Args    : 
+
+
+=cut
+
+sub marker_coverage{
+    my ($self) = @_;
+ 
+    return $self->{_marker_coverage};
+}
 
 1;

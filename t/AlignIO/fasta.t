@@ -1,5 +1,4 @@
 # -*-Perl-*- Test Harness script for Bioperl
-# $Id: fasta.t 14971 2008-10-28 16:08:52Z cjfields $
 
 use strict;
 
@@ -22,7 +21,7 @@ $str = Bio::AlignIO->new(
 		 -format => 'fasta');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
-is $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/114-431', 
+is $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/114-431/1-318', 
   "fasta input test ";
 is ($aln->get_seq_by_pos(1)->description, 'DESCRIPTION HERE', 
     "fasta input test for description");
@@ -48,7 +47,7 @@ my $out = Bio::AlignIO->newFh(
    '-file' => ">".test_output_file(), 
 				'-format' => 'pfam');
 while ( $aln = <$in>) {
-    is $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/114-431',
+    is $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/114-431/1-318',
      "filehandle input test  ";
     $status = print $out $aln;
     last;

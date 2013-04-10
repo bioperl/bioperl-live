@@ -75,6 +75,8 @@ SKIP: {
 	
 	ok my $seq4 = Bio::Seq->new();
 	ok $seq2->primary_seq($meta2);
-	ok $seq2->add_SeqFeature(@res);
+	for (@res) {
+		ok $seq2->add_SeqFeature($_);
+	}
 	ok $seq2->primary_seq->named_submeta_text('Domcut', 1,2);
 }

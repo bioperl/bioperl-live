@@ -129,14 +129,12 @@ use strict;
 use Bio::Seq;
 use Bio::Seq::PrimedSeq;
 use Bio::SeqFeature::Primer;
-use Clone qw(clone);
 
 use vars qw($AUTOLOAD @PRIMER3_PARAMS %OK_FIELD $ID);
 
 BEGIN {
- @PRIMER3_PARAMS=qw(results seqobject);
-
- foreach my $attr (@PRIMER3_PARAMS) {$OK_FIELD{$attr}++}
+    @PRIMER3_PARAMS = qw(results seqobject);
+    foreach my $attr (@PRIMER3_PARAMS) {$OK_FIELD{$attr}++}
 }
 
 
@@ -144,21 +142,19 @@ use base qw(Bio::Root::Root Bio::Root::IO);
 
 
 sub AUTOLOAD {
- my $self = shift;
- my $attr = $AUTOLOAD;
- $attr =~ s/.*:://;
- $self->throw("Unallowed parameter: $attr !") unless $OK_FIELD{$attr};
- $self->{$attr} = shift if @_;
- return $self->{$attr};
+    my $self = shift;
+    my $attr = $AUTOLOAD;
+    $attr =~ s/.*:://;
+    $self->throw("Unallowed parameter: $attr !") unless $OK_FIELD{$attr};
+    $self->{$attr} = shift if @_;
+    return $self->{$attr};
 }
 
-$ID = 'Bio::Tools::Primer3';
 
 =head2 new
 
   Title   : new()
-  Usage   : my $primer3 = Bio::Tools::Primer3->new(-file=>$file)
-            to read a primer3 output file.
+  Usage   : my $primer3 = Bio::Tools::Primer3->new(-file=>$file);
   Function: Parse primer3 output
   Returns : Does not return anything. If called with a filename will
             allow you to retrieve the results
@@ -168,21 +164,23 @@ $ID = 'Bio::Tools::Primer3';
 
 =cut
 
-
 sub new {
- my($class,%args) = @_;
- my $self = $class->SUPER::new(%args);
-
- if ($args{'-file'}) {$self->_readfile($args{'-file'})}
- if ($args{'-verbose'}) {$self->{'verbose'}=1}
- return $self;
+    my($class,%args) = @_;
+    my $self = $class->SUPER::new(%args);
+    if ($args{'-file'}) {
+        $self->_readfile($args{'-file'});
+    }
+    if ($args{'-verbose'}) {
+        $self->{'verbose'} = 1;
+    }
+    return $self;
 }
 
 
 =head2 number_of_results
 
   Title   : number_of_results()
-  Usage   : $primer3->number_of_results()
+  Usage   : my $count = $primer3->number_of_results();
   Function: Retrieve the number of primers returned from Primer3.
   Returns : A scalar
   Args    : None
@@ -194,44 +192,45 @@ sub new {
 =cut
 
 sub number_of_results {
- my $self=shift;
- return $self->{'maximum_primers_returned'} + 1;
+    my $self = shift;
+    return $self->{'maximum_primers_returned'} + 1;
 }
 
 
 =head2 all_results
 
   Title   : all_results()
-  Usage   : $primer3->all_results() to print all results or
-            $primer3->all_results('primer3 result name',
-            'other results') to return a specific result
+  Usage   : my $results = $primer3->all_results();
+               or
+            my $results = $primer3->all_results('primer3 result name', 'other results');
   Function: Retrieve the results returned from Primer3.
   Returns : A reference to a hash
-  Args    : Optional array of results to retrieve
+  Args    : Optional array of specific results to retrieve
 
 =cut
 
 sub all_results {
-	my ($self, @results) = @_;
-	my %hash;
-	if (@results) {
-		# we only want a few things
-		foreach my $result (@results) {$hash{$result}=$self->{'results'}->$result}
-	} else {
-		foreach my $result (keys %{$self->{'results'}}) {
-			$hash{$result}=$self->{'results'}->{$result};
-		}
-	}
+    my ($self, @results) = @_;
+    my %hash;
+    if (@results) {
+        # we only want a few things
+        foreach my $result (@results) {
+            $hash{$result} = $self->{'results'}->$result;
+        }
+    } else {
+        foreach my $result (keys %{$self->{'results'}}) {
+            $hash{$result}=$self->{'results'}->{$result};
+        }
+    }
 
-	return \%hash;
+    return \%hash;
 }
 
 
 =head2 primer_results
 
   Title   : primer_results()
-  Usage   : $primer3->primer_results(2) to print results for the third
-            choice primer (indexed on 0)
+  Usage   : my $results = $primer3->primer_results(2); # results for third primer
   Function: Retrieve the results returned from Primer3 for specific primer pairs.
   Returns : A reference to a hash
   Args    : A number between 0 and the maximum number of primers to retrieve
@@ -239,15 +238,15 @@ sub all_results {
 =cut
 
 sub primer_results {
-	my ($self, $toget) = @_;
-	if ($toget > $self->{'maximum_primers_returned'}) {
-		$self->warn("Didn't get any results for $toget");
-		return 0;
-	}
-	else {
-		return \%{$self->{'results_by_number'}->{$toget}};
-	}
+    my ($self, $toget) = @_;
+    if ($toget > $self->{'maximum_primers_returned'}) {
+        $self->warn("Didn't get any results for $toget");
+        return 0;
+    } else {
+        return \%{$self->{'results_by_number'}->{$toget}};
+    }
 }
+
 
 =head2 _readfile
 
@@ -261,35 +260,36 @@ sub primer_results {
 =cut
 
 sub _readfile {
-	my ($self, $file) = @_;
-	$self->_initialize_io(-file=>$file);
-	my $line;
-	my $id='primer 3 parsed results'; # hopefully we'll get this, but we can set a temp id in case not.
-	while (defined($line=$self->_readline()) ) {
-		chomp $line;
-		next unless ($line);
-		my ($return, $value) = split /=/, $line;
-		if (uc($return) eq "SEQUENCE") {
-			$self->{seqobject}=Bio::Seq->new(-seq=>$value, $id=>$id);
-			next;
-		}
-		if (uc($return) eq "PRIMER_SEQUENCE_ID") {
-			if ($self->{seqobject}) {$self->{seqobject}->id($value)} else {$id=$value}
-		}
+    my ($self, $file) = @_;
+    $self->_initialize_io(-file=>$file);
+    my $line;
+    my $id='primer 3 parsed results'; # hopefully we'll get this, but we can set a temp id in case not.
+    while (defined($line = $self->_readline()) ) {
+        chomp $line;
+        next unless ($line);
+        my ($return, $value) = split /=/, $line;
+        if (uc($return) eq "SEQUENCE") {
+            $self->{seqobject} = Bio::Seq->new(-seq=>$value, $id=>$id);
+            next;
+        }
+        if (uc($return) eq "PRIMER_SEQUENCE_ID") {
+            if ($self->{seqobject}) {$self->{seqobject}->id($value)} else {$id=$value}
+        }
 
-		$self->{'results'}->{$return} = $value;
-	}
+        $self->{'results'}->{$return} = $value;
+    }
 
-	# convert the results to individual results
-	$self->_separate();
+    # convert the results to individual results
+    $self->_separate();
 }
+
 
 =head2 next_primer
 
   Title   : next_primer()
   Usage   : while (my $primed_seq  = $primer3->next_primer()) {
   Function: Retrieve the primed sequence and a primer pair, one at a time
-  Returns : Returns a Bio::Seq::PrimedSeq feature, one at a time
+  Returns : Returns a Bio::Seq::PrimedSeq object, one at a time
   Args    : None
   Notes   : Use $primed_seq->annotated_seq to get an annotated sequence
             object you can write out.
@@ -297,56 +297,60 @@ sub _readfile {
 =cut
 
 sub next_primer {
-	my $self = shift;
-	# here we are going to convert the primers to Bio::SeqFeature::Primer objects
-	# and the primer/sequence to Bio::Seq::PrimedSeq objects
-	# the problem at the moment is that PrimedSeq can only take one sequence/primer pair, and
-	# yet for each sequence we can have lots of primer pairs. We need a way to overcome this.
-	# at the moment we can do this as a stream, I guess.
+    my $self = shift;
+    # here we are going to convert the primers to Bio::SeqFeature::Primer objects
+    # and the primer/sequence to Bio::Seq::PrimedSeq objects
+    # the problem at the moment is that PrimedSeq can only take one sequence/primer pair, and
+    # yet for each sequence we can have lots of primer pairs. We need a way to overcome this.
+    # at the moment we can do this as a stream, I guess.
 
-	$self->warn("No primers were found for: ".$self->{'seqobject'}->{'primary_id'})
-	  if (! $self->number_of_results);
+    $self->warn("No primers were found for: ".$self->{'seqobject'}->{'primary_id'})
+      if (! $self->number_of_results);
 
-	$self->{'next_to_return'} = 0 unless ($self->{'next_to_return'});
-	return if ($self->{'next_to_return'} >= $self->number_of_results);
-	my $results = $self->primer_results($self->{'next_to_return'});
+    $self->{'next_to_return'} = 0 unless ($self->{'next_to_return'});
+    return if ($self->{'next_to_return'} >= $self->number_of_results);
+    my $results = $self->primer_results($self->{'next_to_return'});
 
-	$self->throw("No left primer sequence") unless (${$results}{'PRIMER_LEFT_SEQUENCE'});
-	$self->throw("No right primer sequence") unless (${$results}{'PRIMER_RIGHT_SEQUENCE'});
-	$self->throw("No target sequence") unless ($self->{'seqobject'});
+    $self->throw("No left primer sequence") unless (${$results}{'PRIMER_LEFT_SEQUENCE'});
+    $self->throw("No right primer sequence") unless (${$results}{'PRIMER_RIGHT_SEQUENCE'});
+    $self->throw("No target sequence") unless ($self->{'seqobject'});
 
-	my $left_seq  = Bio::SeqFeature::Primer->new(
-                                   -primer_sequence_id => "left_primer",
-											  -sequence => ${$results}{'PRIMER_LEFT_SEQUENCE'},
-											  -display_id => ($self->{'next_to_return'} + 1) );
-	my $right_seq = Bio::SeqFeature::Primer->new(
-											  -primer_sequence_id => "right_primer",
-											  -sequence => ${$results}{'PRIMER_RIGHT_SEQUENCE'},
-											  -display_id => ($self->{'next_to_return'} + 1) );
+    my $left_seq = Bio::SeqFeature::Primer->new(
+         -id         => 'left_primer',
+         -seq        => ${$results}{'PRIMER_LEFT_SEQUENCE'},
+         -display_id => ($self->{'next_to_return'} + 1),
+    );
 
-	# add data to the Primer objects
-	for my $key (%$results) {
-		# skip the primer sequence data, already added above
-		next if ($key =~ /PRIMER_(LEFT|RIGHT)_SEQUENCE/i );
-		if ($key =~ /PRIMER_LEFT/i) {
-			$left_seq->add_tag_value($key, $$results{$key});
-		} elsif ($key =~ /PRIMER_RIGHT/i) {
-			$right_seq->add_tag_value($key, $$results{$key});
-		}
-	}
+    my $right_seq = Bio::SeqFeature::Primer->new(
+             -id         => "right_primer",
+             -seq        => ${$results}{'PRIMER_RIGHT_SEQUENCE'},
+             -display_id => ($self->{'next_to_return'} + 1) );
 
-	my $primed_seq = Bio::Seq::PrimedSeq->new(-target_sequence => clone($self->{'seqobject'}),
-															-left_primer => $left_seq,
-															-right_primer => $right_seq);
+    # add data to the Primer objects
+    for my $key (%$results) {
+        # skip the primer sequence data, already added above
+        next if ($key =~ /PRIMER_(LEFT|RIGHT)_SEQUENCE/i );
+        if ($key =~ /PRIMER_LEFT/i) {
+            $left_seq->add_tag_value($key, $$results{$key});
+        } elsif ($key =~ /PRIMER_RIGHT/i) {
+            $right_seq->add_tag_value($key, $$results{$key});
+        }
+    }
 
-	# add data to the the PrimedSeq object that's not specific to the Primers
-	for my $key (%$results) {
-		next if ($key =~ /PRIMER_(LEFT|RIGHT)/i );
-			$primed_seq->add_tag_value($key, $$results{$key});
-	}
+    my $primed_seq = Bio::Seq::PrimedSeq->new(
+         -target_sequence => $self->{'seqobject'}->clone,
+         -left_primer     => $left_seq,
+         -right_primer    => $right_seq,
+    );
 
-	$self->{'next_to_return'}++;
-	return $primed_seq;
+    # add data to the the PrimedSeq object that's not specific to the Primers
+    for my $key (%$results) {
+        next if ($key =~ /PRIMER_(LEFT|RIGHT)/i );
+            $primed_seq->add_tag_value($key, $$results{$key});
+    }
+
+    $self->{'next_to_return'}++;
+    return $primed_seq;
 }
 
 
@@ -355,17 +359,18 @@ sub next_primer {
   Title   : primer_stream()
   Usage   : while (my $primed_seq  = $primer3->primer_stream()) {
   Function: Retrieve the primer/sequences one at a time
-  Returns : Returns a Bio::Seq::PrimedSeq feature, one at a time
+  Returns : Returns a Bio::Seq::PrimedSeq object, one at a time
   Args    : None
   Notes   : Deprecated, just a link to next_primer
 
 =cut
 
 sub primer_stream {
-	my $self=shift;
-	my $primedseq = $self->next_primer;
-	return $primedseq;
+    my $self = shift;
+    my $primedseq = $self->next_primer;
+    return $primedseq;
 }
+
 
 =head2 _separate
 
@@ -380,33 +385,34 @@ sub primer_stream {
 =cut
 
 sub _separate {
-	my $self = shift;
-	my %results; # the results that we find
-	my $maxlocation = -1; # the maximum number of primers returned
-	foreach my $key (keys %{$self->{'results'}}) {
-		next if (${$self->{'input_options'}}{$key}); # don't process it if it is an input key
+    my $self = shift;
+    my %results; # the results that we find
+    my $maxlocation = -1; # the maximum number of primers returned
+    foreach my $key (keys %{$self->{'results'}}) {
+        next if (${$self->{'input_options'}}{$key}); # don't process it if it is an input key
 
-		my $location; # the number of the primer pair
-		# names will have values like
-		# PRIMER_RIGHT_SEQUENCE, PRIMER_RIGHT_2_SEQUENCE, PRIMER_PRODUCT_SIZE, and
-		# PRIMER_PRODUCT_SIZE_3 hence we need to find and remove the number
-		my $tempkey=$key;
-		if ($tempkey =~ s/_(\d+)//) {
-			$location=$1;
-			if ($location > $maxlocation) {$maxlocation = $location}
-		} elsif ( $tempkey =~ /PRIMER_(RIGHT|LEFT)_SEQUENCE/ ) {
-			# first primers reported without a number, therefore set $location to 0
-			$location = 0;
-			if ($location > $maxlocation) {$maxlocation = $location}
-		} else {
-			$location = 0;
-		}
-		# we will hash the results by number, and then by name
-		${$results{$location}}{$tempkey}=${$self->{'results'}}{$key};
-	}
-	$self->{'results_by_number'}=\%results;
-	$self->{'maximum_primers_returned'}=$maxlocation;
+        my $location; # the number of the primer pair
+        # names will have values like
+        # PRIMER_RIGHT_SEQUENCE, PRIMER_RIGHT_2_SEQUENCE, PRIMER_PRODUCT_SIZE, and
+        # PRIMER_PRODUCT_SIZE_3 hence we need to find and remove the number
+        my $tempkey = $key;
+        if ($tempkey =~ s/_(\d+)//) {
+            $location = $1;
+            if ($location > $maxlocation) {$maxlocation = $location}
+        } elsif ( $tempkey =~ /PRIMER_(RIGHT|LEFT)_SEQUENCE/ ) {
+            # first primers reported without a number, therefore set $location to 0
+            $location = 0;
+            if ($location > $maxlocation) {$maxlocation = $location}
+        } else {
+            $location = 0;
+        }
+        # we will hash the results by number, and then by name
+        ${$results{$location}}{$tempkey}=${$self->{'results'}}{$key};
+    }
+    $self->{'results_by_number'} = \%results;
+    $self->{'maximum_primers_returned'} = $maxlocation;
 }
+
 
 =head2 _set_variable
 
@@ -420,9 +426,9 @@ sub _separate {
 =cut
 
 sub _set_variable {
-        my ($self, $name, $value)=@_;
-        next unless ($name);
-        $self->{$name} = $value;
+    my ($self, $name, $value) = @_;
+    next unless ($name);
+    $self->{$name} = $value;
 }
 
 1;

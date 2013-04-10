@@ -35,7 +35,6 @@ Bio::Tools::Gel - Calculates relative electrophoretic migration distances
     #25   26.0
     #10   30.0
 
-
 =head1 DESCRIPTION
 
 This takes a set of sequences or Bio::Seq objects, and calculates their
@@ -92,9 +91,6 @@ Internal methods are usually preceded with a _
 =cut
 
 
-# Let the code begin...
-
-
 package Bio::Tools::Gel;
 use strict;
 
@@ -115,20 +111,19 @@ use base qw(Bio::Root::Root);
 =cut
 
 sub new {
-  my($class,@args) = @_;
+    my ($class, @args) = @_;
 
-  my $self = $class->SUPER::new(@args);
-  my ($seqs,$dilate) = $self->_rearrange([qw(SEQ DILATE)],
-					  @args);
-  if( ! ref($seqs)  ) {
-      $self->add_band([$seqs]);
-  } elsif( ref($seqs) =~ /array/i ||
-	   $seqs->isa('Bio::PrimarySeqI') ) {
-      $self->add_band($seqs);
-  } 
-  $self->dilate($dilate || 1);
+    my $self = $class->SUPER::new(@args);
+    my ($seqs, $dilate) = $self->_rearrange([qw(SEQ DILATE)], @args);
+    if( ! ref($seqs)  ) {
+        $self->add_band([$seqs]);
+    } elsif( ref($seqs) =~ /array/i ||
+        $seqs->isa('Bio::PrimarySeqI') ) {
+        $self->add_band($seqs);
+    }
+    $self->dilate($dilate || 1);
   
-  return $self;
+    return $self;
 }
 
 
@@ -143,24 +138,28 @@ sub new {
 =cut
 
 sub add_band {
-  my($self,$args) = @_;
+    my ($self, $args) = @_;
 
-  foreach my $arg (@$args){
-      my $seq;
-      if( ! ref($arg) ) {
-	  if( $arg =~ /^\d+/ ) {
-	      $seq= Bio::PrimarySeq->new(-seq=>"N"x$arg, -id => $arg);
-	  } else {
-	      $seq= Bio::PrimarySeq->new(-seq=>$arg,-id=>length($arg));
-	  }
-      } elsif( $arg->isa('Bio::PrimarySeqI') ) {
-	  $seq = $arg;
-      } 
+    foreach my $arg (@$args){
+        my $seq;
+        if( ! ref $arg ) {
+            if( $arg =~ /^\d+/ ) {
+                # $arg is a number
+                $seq = Bio::PrimarySeq->new(-seq=>'N'x$arg, -id => $arg);
+            } else {
+                # $arg is a sequence string
+                $seq = Bio::PrimarySeq->new(-seq=>$arg, -id=>length $arg);
+            }
+        } elsif( $arg->isa('Bio::PrimarySeqI') ) {
+            # $arg is a sequence object
+            $seq = $arg;
+        }
 
-    $seq->validate_seq or $seq->throw("invalid symbol in sequence".$seq->seq()."\n");
-    $self->_add_band($seq);
-  }
+        $self->_add_band($seq);
+    }
+    return 1;
 }
+
 
 =head2 _add_band
 
@@ -173,11 +172,13 @@ sub add_band {
 =cut
 
 sub _add_band {
-  my($self,$arg) = @_;  
-  if( defined $arg) {
-      push (@{$self->{'bands'}},$arg);
-  }
+    my ($self, $arg) = @_;  
+    if ( defined $arg) {
+        push (@{$self->{'bands'}},$arg);
+    }
+    return 1;
 }
+
 
 =head2 dilate
 
@@ -190,20 +191,24 @@ sub _add_band {
 =cut
 
 sub dilate {
-  my($self,$arg) = @_;
-  return $self->{dilate} unless $arg;
-  $self->throw("-dilate should be numeric") if defined $arg and $arg =~ /[^e\d\.]/;
-  $self->{dilate} = $arg;
-  return $self->{dilate};
+    my ($self, $arg) = @_;
+    return $self->{dilate} unless $arg;
+    $self->throw("-dilate should be numeric") if defined $arg and $arg =~ /[^e\d\.]/;
+    $self->{dilate} = $arg;
+    return $self->{dilate};
 }
 
+
 sub migrate {
-  my ($self,$arg) = @_;
-  $arg = $self unless $arg;
-  if ( $arg ) {
-      return 4 - log10($arg);
-  } else { return 0; }
+    my ($self, $arg) = @_;
+    $arg = $self unless $arg;
+    if ( $arg ) {
+        return 4 - log10($arg);
+    } else {
+        return 0;
+    }
 }
+
 
 =head2 bands
 
@@ -216,18 +221,19 @@ sub migrate {
 =cut
 
 sub bands {
-  my $self = shift;
-  $self->throw("bands() is read-only") if @_;
+    my $self = shift;
+    $self->throw("bands() is read-only") if @_;
 
-  my %bands = ();
-  
-  foreach my $band (@{$self->{bands}}){
-      my $distance = $self->dilate * migrate($band->length);
-      $bands{$band->id} = $distance;
-  }
+    my %bands = ();
 
-  return %bands;
+    foreach my $band (@{$self->{bands}}){
+        my $distance = $self->dilate * migrate($band->length);
+        $bands{$band->id} = $distance;
+    }
+
+    return %bands;
 }
+
 
 =head2 log10
 
@@ -239,7 +245,7 @@ sub bands {
 
 =cut
 
-#from programming perl
+# from "Programming Perl"
 sub log10 {
     my $n = shift;
     return log($n)/log(10);

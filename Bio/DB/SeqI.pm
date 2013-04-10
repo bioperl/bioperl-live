@@ -1,5 +1,3 @@
-
-#
 #
 # BioPerl module for Bio::DB::SeqI.pm
 #
@@ -10,8 +8,8 @@
 # Copyright Ewan Birney
 #
 # You may distribute this module under the same terms as perl itself
+#
 
-# POD documentation - main docs before the code
 
 =head1 NAME
 
@@ -29,7 +27,6 @@ Bio::DB::SeqI - Abstract Interface for Sequence databases
    while((my $seq = $stream->next_seq()) {
       # $seq is a PrimarySeqI compliant object
    }
-
 
 =head1 DESCRIPTION
 
@@ -71,21 +68,19 @@ Email birney@ebi.ac.uk
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object methods. Internal
+methods are usually preceded with a _
 
 =cut
 
 
-# Let the code begin...
-
-
 package Bio::DB::SeqI;
-use strict;
 
+use strict;
 
 use base qw(Bio::DB::RandomAccessI);
 
-=head1 Methods inherieted from Bio::DB::RandomAccessI
+=head1 Methods inherited from Bio::DB::RandomAccessI
 
 =head2 get_Seq_by_id
 
@@ -96,9 +91,6 @@ use base qw(Bio::DB::RandomAccessI);
  Args    : the id (as a string) of a sequence
  Throws  : "id does not exist" exception
 
-
-=cut
-
 =head2 get_Seq_by_acc
 
  Title   : get_Seq_by_acc
@@ -108,8 +100,14 @@ use base qw(Bio::DB::RandomAccessI);
  Args    : accession number (as a string)
  Throws  : "acc does not exist" exception
 
+=head2 get_Seq_by_version
 
-=cut
+ Title   : get_Seq_by_version
+ Usage   : $seq = $db->get_Seq_by_version('X77802.1');
+ Function: Gets a Bio::Seq object by sequence version
+ Returns : A Bio::Seq object
+ Args    : accession.version (as a string)
+ Throws  : "acc.version does not exist" exception
 
 =head1 Methods [that were] specific for Bio::DB::SeqI
 
@@ -126,9 +124,9 @@ use base qw(Bio::DB::RandomAccessI);
 
 sub get_PrimarySeq_stream{
    my ($self,@args) = @_;
-
    $self->throw("Object did not provide a PrimarySeq stream object");
 }
+
 
 =head2 get_all_primary_ids
 
@@ -136,14 +134,13 @@ sub get_PrimarySeq_stream{
  Usage   : @ids = $seqdb->get_all_primary_ids()
  Function: gives an array of all the primary_ids of the 
            sequence objects in the database. These
-           maybe ids (display style) or accession numbers
+           may be ids (display style) or accession numbers
            or something else completely different - they
            *are not* meaningful outside of this database
            implementation.
  Example :
  Returns : an array of strings
  Args    : none
-
 
 =cut
 
@@ -169,13 +166,12 @@ sub get_all_primary_ids{
  Args    : accession number (as a string)
  Throws  : "acc does not exist" exception
 
-
 =cut
 
 sub get_Seq_by_primary_id {
    my ($self,@args) = @_;
-
-   $self->throw("Abstract database call of get_Seq_by_primary_id. Your database has not implemented this method!");
+   $self->throw("Abstract database call of get_Seq_by_primary_id. Your database".
+       " has not implemented this method!");
 
 }
 

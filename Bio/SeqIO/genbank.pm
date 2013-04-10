@@ -449,7 +449,7 @@ sub next_seq {
 		# Project
 		elsif (/^PROJECT\s+(\S.*)/) {
 			if ($annotation) {
-				my $project = new Bio::Annotation::SimpleValue->new(-value => $1);
+				my $project = Bio::Annotation::SimpleValue->new(-value => $1);
 				$annotation->add_Annotation('project',$project);
 			}
 		}
@@ -587,20 +587,30 @@ sub next_seq {
                       -version => $version,
                       -database => $db || 'GenBank',
                       -tagname => 'dblink'));
-                } elsif ( $dbsource =~ /(\S+)([\.:])\s*(\d+)/ ) {
-                    my ($id, $db, $version);
+                } elsif ( $dbsource =~ /(\S+)([\.:])\s*(\S+)/ ) {
+                    my ($db, $version);
+                    my @ids = ();
                     if ($2 eq ':') {
-                        ($db, $id) = ($1, $3);
+                        $db = $1;
+                        # Genbank 192 release notes say this: "The second field can consist of
+                        #     multiple comma-separated identifiers, if a sequence record has
+                        #     multiple DBLINK cross-references of a given type."
+                        #     For example: DBLINK      Project:100,200,300"
+                        @ids = split (/,/, $3);
                     } else {
-                        ($db, $id, $version) = ('GenBank', $1, $3);
+                        ($db, $version) = ('GenBank', $3);
+                        $ids[0] = $1;
                     }
-                    $annotation->add_Annotation('dblink',
-                        Bio::Annotation::DBLink->new(
-                            -primary_id => $id,
-                            -version => $version,
-                            -database => $db,
-                            -tagname => 'dblink')
+                    
+                    foreach my $id (@ids) {
+                        $annotation->add_Annotation('dblink',
+                            Bio::Annotation::DBLink->new(
+                               -primary_id => $id,
+                               -version => $version,
+                               -database => $db,
+                               -tagname => 'dblink')
                         );
+                    }
                 } else {
                     $self->warn("Unrecognized DBSOURCE data: $dbsource\n");
                 }
