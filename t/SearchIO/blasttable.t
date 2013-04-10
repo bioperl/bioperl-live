@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 163);
+    test_begin(-tests => 165);
 	
 	use_ok('Bio::SearchIO');
     use_ok('Bio::Search::SearchUtils');
@@ -61,6 +61,8 @@ while(my $res = $searchio->next_result) {
     my $hit = $res->next_hit;
     is($hit->name, 'gi|34395933|sp|P00561.2|AK1H_ECOLI');
     $hit = $res->next_hit;
+    is($hit->score, 331, 'hit score');
+    is($hit->raw_score, 331, 'hit raw_score');
     my $hsp = $hit->next_hsp;
 	isa_ok($hsp, 'Bio::SeqFeatureI');
     is($hsp->bits, 331);

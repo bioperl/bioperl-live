@@ -450,9 +450,15 @@ needed to initialize the database tables.
 =cut
 
 sub schema {
-  my %schema = (
+    my $self = shift;
+    my $dbh  = $self->dbh;
+    my ($version) = $dbh->selectrow_array('select version()');
+    my ($major, $minor) = split /\./, $version;
+    $version = "$major.$minor";
+    my $engine    = $version >= 4.1 ? 'ENGINE' : 'TYPE';
+    my %schema = (
 		fdata =>{ 
-table=> q{
+table=> qq{
  create table fdata (
     fid	                int not null  auto_increment,
     fref                varchar(100) not null,
@@ -470,24 +476,24 @@ table=> q{
     unique index(fref,fbin,fstart,fstop,ftypeid,gid),
     index(ftypeid),
     index(gid)
-		   )
+		   ) $engine=MyISAM
 }  # fdata table
 }, # fdata
 
 		fgroup =>{ 
-table=> q{
+table=> qq{
 create table fgroup (
     gid	    int not null  auto_increment,
     gclass  varchar(100),
     gname   varchar(100),
     primary key(gid),
     unique(gclass,gname)
-)
+)  $engine=MyISAM
 }
 },
 
           ftype => {
-table=> q{
+table=> qq{
 create table ftype (
     ftypeid      int not null   auto_increment,
     fmethod       varchar(100) not null,
@@ -496,43 +502,43 @@ create table ftype (
     index(fmethod),
     index(fsource),
     unique ftype (fmethod,fsource)
-)
+)  $engine=MyISAM
 }  #ftype table
 }, #ftype
 
          fdna => {
-table=> q{
+table=> qq{
 create table fdna (
 		fref    varchar(100) not null,
 	        foffset int(10) unsigned not null,
 	        fdna    longblob,
 		primary key(fref,foffset)
-)
+)   $engine=MyISAM
 } # fdna table
 },#fdna
 
         fmeta => {
-table=> q{
+table=> qq{
 create table fmeta (
 		fname   varchar(255) not null,
 	        fvalue  varchar(255) not null,
 		primary key(fname)
-)
+)  $engine=MyISAM
 } # fmeta table
 },#fmeta
 
        fattribute => {
-table=> q{
+table=> qq{
 create table fattribute (
 	fattribute_id     int(10)         unsigned not null auto_increment,
         fattribute_name   varchar(255)    not null,
 	primary key(fattribute_id)
-)
+)  $engine=MyISAM
 } #fattribute table
 },#fattribute
 
        fattribute_to_feature => {
-table=> q{
+table=> qq{
 create table fattribute_to_feature (
         fid              int(10) not null,
         fattribute_id    int(10) not null,
@@ -540,19 +546,19 @@ create table fattribute_to_feature (
         key(fid,fattribute_id),
 	key(fattribute_value(48)),
         fulltext(fattribute_value)
-)
+)  $engine=MyISAM
 } # fattribute_to_feature table
 },# fattribute_to_feature
 
        finterval_stats => {
-table=> q{
+table=> qq{
 create table finterval_stats (
    ftypeid            integer not null,
    fref               varchar(100) not null,
    fbin               integer not null,
    fcum_count         integer not null,
    primary key(ftypeid,fref,fbin)
-)
+)  $engine=MyISAM
 } # finterval_stats table
 },# finterval_stats
 

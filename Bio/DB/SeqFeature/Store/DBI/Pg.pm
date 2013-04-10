@@ -277,9 +277,10 @@ END
   name         text  not null,
   display_name int       default 0
 );
-  CREATE INDEX name_id ON name(id);
-  CREATE INDEX name_name ON name(name);
-  CREATE INDEX name_name_varchar_patt_ops_idx ON name USING BTREE (lower(name) varchar_pattern_ops);
+  CREATE INDEX name_id ON name( id );
+  CREATE INDEX name_name ON name( name );
+  CREATE INDEX name_lcname ON name( lower(name) );
+  CREATE INDEX name_lcname_varchar_patt_ops ON name USING BTREE (lower(name) varchar_pattern_ops);
 END
 
 	  attribute => <<END,
@@ -691,7 +692,7 @@ sub _types_sql {
       ($primary_tag,$source_tag) = split ':',$type,2;
     }
 
-    if (defined $source_tag) {
+    if ($source_tag) {
       push @matches,"lower(tl.tag)=lower(?)";
       push @args,"$primary_tag:$source_tag";
     } else {

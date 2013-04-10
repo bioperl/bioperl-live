@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::OntologyIO::simplehierarchy
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Allen Day, allenday@ucla.edu
 #
@@ -57,15 +57,15 @@ Bioperl mailing lists  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -131,7 +131,7 @@ use base qw(Bio::OntologyIO);
            -file_is_root  => Boolean indicating whether a virtual root
                              term is to be added, the name of which will
                              be derived from the file name. Default is false.
-                             Enabling this allows to parse multiple input
+                             Enabling this allows one to parse multiple input
                              files into the same ontology and still have
                              separately rooted.
            -engine        => the L<Bio::Ontology::OntologyEngineI> object
@@ -645,7 +645,7 @@ sub indent_string{
            added, the name of which will be derived from the file
            name.
 
-           Enabling this allows to parse multiple input files into the
+           Enabling this allows one to parse multiple input files into the
            same ontology and still have separately rooted.
 
  Example :

@@ -224,7 +224,7 @@ sub identity{
 When you are measuring sequence divergence, PAM needs to be
 estimated. When you are generating sequences, PAM is simply the count
 of mutations introduced to the reference sequence normalised to the
-original sequence lenght.
+original sequence length.
 
 =cut
 

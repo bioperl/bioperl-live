@@ -52,7 +52,7 @@ pairs as described in this table:
  Name               Value
  ----               -----
 
- -store             A writeable Bio::DB::SeqFeature::Store database handle.
+ -store             A writable Bio::DB::SeqFeature::Store database handle.
 
  -seqfeature_class  The name of the type of Bio::SeqFeatureI object to create
                       and store in the database (Bio::DB::SeqFeature by default)

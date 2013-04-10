@@ -120,7 +120,7 @@ by the enzyme(s).  However, this will change the start of the
 sequence!
 
 There are two separate algorithms used depending on whether your
-enzyme has ambiguity. The non-ambiguous algoritm is a lot faster,
+enzyme has ambiguity. The non-ambiguous algorithm is a lot faster,
 and if you are using very large sequences you should try and use
 this algorithm. If you have a large sequence (e.g. genome) and 
 want to use ambgiuous enzymes you may want to make separate
@@ -204,8 +204,8 @@ use Bio::Restriction::EnzymeCollection;
 use strict;
 use Data::Dumper;
 
-use vars qw ();
 use base qw(Bio::Root::Root);
+use Scalar::Util qw(blessed);
 
 =head1 new
 
@@ -218,7 +218,7 @@ use base qw(Bio::Root::Root);
                  -enzymes=>Restriction::EnzymeCollection object)
 	     -seq requires a Bio::PrimarySeq object
 	     -enzymes is optional.
-              If ommitted it will use the default set of enzymes
+              If omitted it will use the default set of enzymes
 
 This is the place to start. Pass in a sequence, and you will be able
 to get the fragments back out.  Several other things are available
@@ -607,11 +607,11 @@ on a gel!
 You should be able to do these:
 
   # to see all the fragment sizes,
-  print join "\n", @{$re->sizes($enz)}, "\n";
+  print join "\n", $re->sizes($enz), "\n";
   # to see all the fragment sizes sorted
-  print join "\n", @{$re->sizes($enz, 0, 1)}, "\n";
+  print join "\n", $re->sizes($enz, 0, 1), "\n";
   # to see all the fragment sizes in kb sorted
-  print join "\n", @{$re->sizes($enz, 1, 1)}, "\n";
+  print join "\n", $re->sizes($enz, 1, 1), "\n";
 
 =cut
 
@@ -619,8 +619,15 @@ sub sizes {
     my ($self, $enz, $kb, $sort) = @_;
     $self->throw('no enzyme selected to get fragments for')
         unless $enz;
+    
+    if (blessed($enz)) {
+        $self->throw("Enzyme must be enzyme name or a Bio::Restriction::EnzymeI, not ".ref($enz))
+            if !$enz->isa('Bio::Restriction::EnzymeI');
+        $enz = $enz->name;
+    }
     $self->cut unless $self->{'_cut'};
     my @frag; my $lastsite=0;
+
     foreach my $site (@{$self->{'_cut_positions'}->{$enz}}) {
       $kb ? push (@frag, (int($site-($lastsite))/100)/10)
           : push (@frag, $site-($lastsite));

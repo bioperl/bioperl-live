@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 29,
+    test_begin(-tests => 31,
 			   -requires_module => 'IO::String');
 	
 	use_ok('Bio::Perl');
@@ -15,7 +15,7 @@ BEGIN {
 
 # Bio::Perl isn't OO so we don't see Bio::Perl->new() here
 
-my ($seq_object,$filename,@seq_object_array);
+my ($seq_object,$filename,$blast_report,@seq_object_array);
 
 # will guess file format from extension
 $filename = test_input_file('cysprot1.fa');
@@ -62,7 +62,7 @@ is $trans, 'IGLGTQFVCYM';
 # these now run only with BIOPERLDEBUG set
 
 SKIP: {
-	test_skip(-tests => 10, -requires_networking => 1);
+	test_skip(-tests => 12, -requires_networking => 1);
 	
 	# swissprot
 	SKIP: {
@@ -128,4 +128,17 @@ SKIP: {
 			isa_ok $seq_object, 'Bio::SeqI';
 		}
 	}
+    
+    # blast
+    SKIP: {
+		eval {
+			$blast_report = blast_sequence($seq_object, 0);
+		};
+		if ($@) {
+			skip("problem connecting to NCBI BLAST:$@",2);
+		} else {
+			ok $blast_report;
+			isa_ok $blast_report, 'Bio::Search::Result::ResultI';
+		}
+    }
 }

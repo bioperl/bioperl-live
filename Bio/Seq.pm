@@ -560,7 +560,7 @@ of course, you are free to use these functions anyway.
  Returns : A scalar
  Args    : Optionally on set the new value (a string). An optional second
            argument presets the alphabet (otherwise it will be guessed).
-           Both parameters may also be given in named paramater style
+           Both parameters may also be given in named parameter style
            with -seq and -alphabet being the names.
 
 =cut

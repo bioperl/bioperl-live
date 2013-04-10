@@ -266,5 +266,3 @@ foreach my $e (@enzs){
    is($z->complementary_cut(), $d->{rc}, "$e complementary_cut");
 }
 
-
-1;

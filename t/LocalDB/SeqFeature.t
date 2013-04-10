@@ -76,7 +76,7 @@ SKIP: {
     ok( $f2->primary_id );
 
 # test fetching features
-    is( $db->fetch('doesnotexit'), undef);
+    is( $db->fetch('-1'), undef, 'searching for a feature that shouldnt exist');
     is( $db->get_features_by_type('repeat_123:repeatmasker'), 1, 'simple type' );
     is( $db->get_features_by_type('repeat_123:'), 2, 'base type with colon' );
     is( $db->get_features_by_type('repeat_123'), 2, 'base type alone' );

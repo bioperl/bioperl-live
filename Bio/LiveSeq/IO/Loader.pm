@@ -63,8 +63,8 @@ use Bio::Tools::CodonTable;
   Returns : array of references to objects of class Translation
   Errorcode 0
   Args    : optional boolean flag to avoid the retrieval of SwissProt
-            informations for all Transcripts containing SwissProt x-reference
-            default is 1 (to retrieve those informations and create AARange
+            information for all Transcripts containing SwissProt x-reference
+            default is 1 (to retrieve those information and create AARange
             LiveSeq objects)
   Note    : this method can get really slow for big entries. The lightweight
             gene2liveseq method is recommended
@@ -493,7 +493,7 @@ sub transexonscreation {
 
   Title   : printswissprot
   Usage   : $loader->printswissprot($hashref);
-  Function: prints out all informations loaded from a database entry into the
+  Function: prints out all information loaded from a database entry into the
             loader. Mainly used for testing purposes.
   Args    : a hashref containing the SWISSPROT entry datas
   Note    : the hashref can be obtained with a call to the method
@@ -503,7 +503,7 @@ sub transexonscreation {
 =cut
 
 # argument: hashref containing the SWISSPROT entry datas
-# prints out that hash, showing the informations loaded
+# prints out that hash, showing the information loaded
 sub printswissprot {
   my ($self,$entry)=@_;
   unless ($entry) {
@@ -538,14 +538,14 @@ sub printswissprot {
 
   Title   : printembl
   Usage   : $loader->printembl();
-  Function: prints out all informations loaded from a database entry into the
+  Function: prints out all information loaded from a database entry into the
             loader. Mainly used for testing purposes.
   Args    : none
 
 =cut
 
 # argument: hashref containing the EMBL entry datas
-# prints out that hash, showing the informations loaded
+# prints out that hash, showing the information loaded
 sub printembl {
   my ($self,$entry)=@_;
   unless ($entry) {

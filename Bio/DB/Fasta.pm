@@ -378,7 +378,7 @@ is not detected by the module and removed from the index.  As a
 result, a "ghost" entry will remain in the index and will return
 garbage results if accessed.
 
-Currently, the only way to accomodate deletions is to rebuild the
+Currently, the only way to accommodate deletions is to rebuild the
 entire index, either by deleting it manually, or by passing
 -reindex=E<gt>1 to new() when initializing the module.
 

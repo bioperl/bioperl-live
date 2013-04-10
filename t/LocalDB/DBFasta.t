@@ -65,11 +65,16 @@ ok(!$@);
 
 # Issue 3172
 
-$test_dbdir = setup_temp_dir('bad_dbfa');
-
-throws_ok {$db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1)} qr/FASTA header doesn't match/;
+{
+    # squash warnings locally
+    local $SIG{__WARN__} = sub {};
+    $test_dbdir = setup_temp_dir('bad_dbfa');
+    throws_ok {$db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1)}
+        qr/FASTA header doesn't match/;
+}
 
 exit;
+
 }
 
 sub setup_temp_dir {

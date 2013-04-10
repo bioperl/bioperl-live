@@ -470,7 +470,7 @@ sub Tm  {
 
 	   However.... I can never get this calculation to give me the same result
 	   as primer3 does. Don't ask why, I never figured it out. But I did 
-	   want to include a Tm calculation here becuase I use these modules for 
+	   want to include a Tm calculation here because I use these modules for 
 	   other things besides reading primer3 output.
 
 	   The primer3 calculation is saved as 'PRIMER_LEFT_TM' or 'PRIMER_RIGHT_TM'

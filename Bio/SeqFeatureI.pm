@@ -49,7 +49,7 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
 This interface is the functions one can expect for any Sequence
 Feature, whatever its implementation or whether it is a more complex
 type (eg, a Gene). This object does not actually provide any
-implemention, it just provides the definitions of what methods one can
+implementation, it just provides the definitions of what methods one can
 call. See Bio::SeqFeature::Generic for a good standard implementation
 of this object
 

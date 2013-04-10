@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 # Author: Damien Mattei C.N.R.S / U.N.S.A - UMR 6549
 # example: ./idfetch.pl AP001266
 
