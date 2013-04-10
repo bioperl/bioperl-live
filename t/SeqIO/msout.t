@@ -47,7 +47,7 @@ sub create_dir {
 
     my $dir = shift;
 
-    $dir = test_input_file($dir);
+    $dir = Bio::Root::Test::test_input_file($dir);
 
     unless ( -d $dir ) {
         mkpath($dir);
@@ -58,7 +58,7 @@ sub remove_dir {
 
     my $dir = shift;
 
-    $dir = test_input_file($dir);
+    $dir = Bio::Root::Test::test_input_file($dir);
 
     if ( -d $dir ) {
         rmtree($dir);
@@ -73,7 +73,7 @@ sub test_file_1 {
 
     my $gzip   = shift;
     my $infile = shift;
-    $infile = test_input_file($infile);
+    $infile = Bio::Root::Test::test_input_file($infile);
 
     # the files are now part of the git repo and don't have to be printed
     #    print_file1( $infile, $gzip );
@@ -210,7 +210,7 @@ sub test_file_2 {
 
     my $gzip   = shift;
     my $infile = shift;
-    $infile = test_input_file($infile);
+    $infile = Bio::Root::Test::test_input_file($infile);
 
     # the files are now part of the git repo and don't have to be printed
     #    print_file2( $infile, $gzip );
@@ -357,7 +357,7 @@ sub test_file_3 {
 
     my $gzip   = shift;
     my $infile = shift;
-    $infile = test_input_file($infile);
+    $infile = Bio::Root::Test::test_input_file($infile);
 
     # the files are now part of the git repo and don't have to be printed
     #    print_file3( $infile, $gzip );
@@ -456,7 +456,7 @@ sub test_file_4 {
 
     my $gzip   = shift;
     my $infile = shift;
-    $infile = test_input_file($infile);
+    $infile = Bio::Root::Test::test_input_file($infile);
 
     # the files are now part of the git repo and don't have to be printed
     #    print_file4( $infile, $gzip );
@@ -622,7 +622,7 @@ sub bad_test_file_1 {
 
     my $gzip   = shift;
     my $infile = shift;
-    $infile = test_input_file($infile);
+    $infile = Bio::Root::Test::test_input_file($infile);
 
     my $file_sequence = $infile;
     if ($gzip) {
@@ -651,7 +651,7 @@ sub bad_test_file_2 {
 
     my $gzip   = shift;
     my $infile = shift;
-    $infile = test_input_file($infile);
+    $infile = Bio::Root::Test::test_input_file($infile);
 
     my $file_sequence = $infile;
     if ($gzip) {
