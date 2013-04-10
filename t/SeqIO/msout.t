@@ -100,7 +100,7 @@ sub test_file_1 {
         POPS              => [qw(3 2 1)],
         NEXT_RUN_NUM      => 1,
         LAST_READ_HAP_NUM => 0,
-        POSITIONS => [qw(79.1001 80.1001 81.101 82.101 83.10001 84.801 85)],
+        POSITIONS => [qw(0.01 0.25 0.31 0.35 0.68 0.76 0.85)],
         CURRENT_RUN_SEGSITES => 7
     );
 
@@ -236,7 +236,7 @@ sub test_file_2 {
         POPS              => 6,
         NEXT_RUN_NUM      => 1,
         LAST_READ_HAP_NUM => 0,
-        POSITIONS => [qw(79.1001 80.1001 81.101 82.101 83.10001 84.801 85)],
+        POSITIONS => [qw(0.01 0.25 0.31 0.35 0.68 0.76 0.85)],
         CURRENT_RUN_SEGSITES => 7
     );
 
@@ -386,7 +386,7 @@ sub test_file_3 {
         POPS              => 3,
         NEXT_RUN_NUM      => 1,
         LAST_READ_HAP_NUM => 0,
-        POSITIONS => [qw(79.1001 80.1001 81.101 82.101 83.10001 84.801 85)],
+        POSITIONS => [qw(0.01 0.25 0.31 0.35 0.68 0.76 0.85)],
         CURRENT_RUN_SEGSITES => 7
     );
 
