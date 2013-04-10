@@ -14,7 +14,7 @@ ms ( Hudson, R. R. (2002) Generating samples under a Wright-Fisher neutral
 model. Bioinformatics 18:337-8 ) can be found at
 http://home.uchicago.edu/~rhudson1/source/mksamples.html.
 
-Currently this object can be used to read output from ms into seq objects.
+Currently, this object can be used to read output from ms into seq objects.
 However, because bioperl has no support for haplotypes created using an infinite
 sites model (where '1' identifies a derived allele and '0' identifies an
 ancestral allele), the sequences returned by msout are coded using A, T, C and
@@ -24,6 +24,12 @@ unclear. This should not ever happen when creating files with ms, but it will be
 used when creating msOUT files from a collection of seq objects ( To be added
 later ). Alternatively, use get_next_hap() to get a string with 1's and 0's
 instead of a seq object.
+
+=head2 Mapping to Finite Sites
+
+This object can now also be used to map haplotypes created using an infinite sites
+model to sequences of arbitrary finite length.  See set_n_sites() for more detail.
+Thanks to Filipe G. Vieira <fgvieira@berkeley.edu> for the idea and code.
 
 =head1 FEEDBACK
 
@@ -77,7 +83,7 @@ particular purpose.
 
 package Bio::SeqIO::msout;
 use version;
-our $API_VERSION = qv('1.1.7');
+our $API_VERSION = qv('1.1.8');
 
 use strict;
 use base qw(Bio::SeqIO);    # This ISA Bio::SeqIO object
@@ -91,10 +97,13 @@ Title   : _initialize
 Usage   : $stream = Bio::SeqIO::msOUT->new($infile)
 Function: extracts basic information about the file.
 Returns : Bio::SeqIO object
-Args    : no_og, gunzip, gzip
-Details	: include 'no_og' flag if the last population of an msout file contains
-          only one haplotype and you don't want the last haplotype to be
-          treated as the outgroup ( suggested when reading data created by ms ).
+Args    : no_og, gunzip, gzip, n_sites
+Details	: 
+    - include 'no_og' flag if the last population of an msout file contains
+      only one haplotype and you don't want the last haplotype to be
+      treated as the outgroup ( suggested when reading data created by ms ).
+    - including 'n_sites' (positive integer) causes all output haplotypes to be
+      mapped to a sequence of length 'n_sites'. See set_n_sites() for more details.
 
 =cut
 
@@ -105,10 +114,12 @@ sub _initialize {
     unless ( defined $self->sequence_factory ) {
         $self->sequence_factory( Bio::Seq::SeqFactory->new() );
     }
-    my ($no_og) = $self->_rearrange( [qw(NO_OG)], @args );
+    my ($no_og)   = $self->_rearrange( [qw(NO_OG)],   @args );
+    my ($n_sites) = $self->_rearrange( [qw(N_SITES)], @args );
 
     my %initial_values = (
         RUNS              => undef,
+        N_SITES           => undef,
         SEGSITES          => undef,
         SEEDS             => [],
         MS_INFO_LINE      => undef,
@@ -131,6 +142,7 @@ sub _initialize {
     foreach my $key ( keys %initial_values ) {
         $self->{$key} = $initial_values{$key};
     }
+    $self->set_n_sites($n_sites);
 
     # If the filehandle is defined open it and read a few lines
     if ( ref( $self->{_filehandle} ) eq 'GLOB' ) {
@@ -245,6 +257,56 @@ Args    : NONE
 sub get_current_run_segsites {
     my $self = shift;
     return $self->{LAST_READ_SEGSITES};
+}
+
+=head3 get_n_sites
+
+Title   : get_n_sites
+Usage   : $n_sites = $stream->get_n_sites()
+Function: Gets the number of total sites (variable or not) to be output.
+Returns : scalar if n_sites option is defined at call time of new()
+Args    : NONE
+Note    :
+          WARNING: Final sequence length might not be equal to n_sites if n_sites is
+                   too close to number of segregating sites in the msout file.
+
+=cut
+
+sub get_n_sites {
+    my ($self) = @_;
+
+    return $self->{N_SITES};
+}
+
+=head3 set_n_sites
+
+Title   : set_n_sites
+Usage   : $n_sites = $stream->set_n_sites($value)
+Function: Sets the number of total sites (variable or not) to be output.
+Returns : 1 on success; throws an error if $value is not a positive integer or undef
+Args    : positive integer
+Note    :
+          WARNING: Final sequence length might not be equal to n_sites if it is 
+                   too close to number of segregating sites.
+          - n_sites needs to be at least as large as the number of segsites of 
+            the next haplotype returned
+          - n_sites may also be set to undef, in which case haplotypes are returned 
+            under the infinite sites model assumptions.
+
+=cut
+
+sub set_n_sites {
+    my ( $self, $value ) = @_;
+
+    # make sure $value is a positive integer if it is defined
+    if ( defined $value ) {
+        $self->throw(
+"first argument needs to be a positive integer. argument supplied: $value"
+        ) unless ( $value =~ m/^\d+$/ && $value > 0 );
+    }
+    $self->{N_SITES} = $value;
+
+    return 1;
 }
 
 =head3 get_runs
@@ -498,16 +560,41 @@ sub get_next_seq {
         $seqstring =~ s/($rh_base_conversion_table->{$base})/$base/g;
     }
 
-    my $last_read_hap = $self->get_last_read_hap_num;
+    # Fill in non-variable positions
+    my $segsites = $self->get_current_run_segsites;
+    my $n_sites  = $self->get_n_sites;
+    if ( defined($n_sites) ) {
 
-    my $id = 'Hap_' . $last_read_hap . '_Run_' . $run;
+        # make sure that n_sites is at least as large
+        # as segsites for each run. Throw an exception otherwise.
+        $self->throw( "n_sites:\t$n_sites"
+              . "\nsegsites:\t$segsites"
+              . "\nrun:\t$run"
+              . "\nn_sites needs to be at least the number of segsites of every run"
+        ) unless $segsites <= $n_sites;
+
+        my $seq_len = 0;
+        my @seq;
+        my @pos = $self->get_Positions;
+        for ( my $i = 0 ; $i <= $#pos ; $i++ ) {
+            $pos[$i] *= $n_sites;
+            push( @seq, "A" x ( $pos[$i] - 1 - $seq_len ) );
+            $seq_len += length( $seq[-1] );
+            push( @seq, substr( $seqstring, $i, 1 ) );
+            $seq_len += length( $seq[-1] );
+        }
+        push( @seq, "A" x ( $n_sites - $seq_len ) );
+        $seqstring = join( "", @seq );
+    }
+
+    my $last_read_hap = $self->get_last_read_hap_num;
+    my $id            = 'Hap_' . $last_read_hap . '_Run_' . $run;
     my $description =
-        'Segsites '
-      . $self->get_current_run_segsites
-      . "; Positions $self->positions; Haplotype "
-      . $last_read_hap
-      . '; Run '
-      . $run . ';';
+        "Segsites $segsites;"
+      . " Positions "
+      . ( defined $n_sites ? $n_sites : $segsites ) . ";"
+      . " Haplotype $last_read_hap;"
+      . " Run $run;";
     my $seq = $self->sequence_factory->create(
         -seq      => $seqstring,
         -id       => $id,
