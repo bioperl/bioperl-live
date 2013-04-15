@@ -669,19 +669,13 @@ sub to_FTstring {
     my @strs;
 	my $strand = $self->strand() || 0;
 	my $stype = lc($self->splittype());
-	my $guide = $self->guide_strand();
 
     if( $strand < 0 ) {
 		$self->flip_strand; # this will recursively set the strand
 							# to +1 for all the sub locations
     }
-	# If the split type is join, the order is important;
-	# otherwise must be 5'->3' regardless
-
-	my @locs = ($stype eq 'join' && (!$guide && $strand == -1)) ?
-	           reverse $self->sub_Location() : $self->sub_Location() ;
-	
-    foreach my $loc ( @locs ) {
+    
+    foreach my $loc ( $self->sub_Location(0) ) {
 		$loc->verbose($self->verbose);
 		my $str = $loc->to_FTstring();
 		# we only append the remote seq_id if it hasn't been done already
