@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 51);
+    test_begin(-tests => 55);
     
     use_ok('Bio::SeqIO');
 }
@@ -113,6 +113,25 @@ SKIP: {
 
 # simple tests specific to Bio::SeqIO interface (applicable to all SeqIO
 # modules)
+
+##############################################
+# test format() and variant() in Bio::RootIO
+##############################################
+
+my $in = Bio::SeqIO->new(
+   -file    => test_input_file('bug2901.fa'),
+   -format  => "fasta",
+);
+is $in->format, 'fasta';
+is $in->variant, undef;
+
+$in = Bio::SeqIO->new(
+   -file    => test_input_file('fastq', 'illumina_faked.fastq'),
+   -format  => "fastq",
+   -variant => 'illumina',
+);
+is $in->format, 'fastq';
+is $in->variant, 'illumina';
 
 ############ EXCEPTION HANDLING ############
 

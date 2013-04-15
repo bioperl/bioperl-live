@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 159);
+    test_begin(-tests => 152);
 
     use_ok('Bio::Annotation::Collection');
     use_ok('Bio::Annotation::DBLink');
@@ -19,9 +19,6 @@ BEGIN {
     use_ok('Bio::Annotation::StructuredValue');
     use_ok('Bio::Annotation::TagTree');
     use_ok('Bio::Annotation::Tree');
-    use_ok('Bio::Seq');
-    use_ok('Bio::SimpleAlign');
-    use_ok('Bio::Cluster::UniGene');
 }
 
 my $DEBUG = test_debug();
@@ -29,8 +26,8 @@ my $DEBUG = test_debug();
 #simple value
 
 my $simple = Bio::Annotation::SimpleValue->new(-tagname => 'colour',
-					       -value   => '1',
-					      );
+                                               -value   => '1',
+                                              );
 
 isa_ok($simple, 'Bio::AnnotationI');
 is $simple->display_text, 1;
@@ -44,8 +41,8 @@ is $simple->display_text, 0;
 # link
 
 my $link1 = Bio::Annotation::DBLink->new(-database => 'TSC',
-					 -primary_id => 'TSC0000030',
-					);
+                                         -primary_id => 'TSC0000030',
+                                        );
 isa_ok($link1,'Bio::AnnotationI');
 is $link1->database(), 'TSC';
 is $link1->primary_id(), 'TSC0000030';
@@ -55,8 +52,8 @@ isa_ok($ac,'Bio::AnnotationCollectionI');
 
 $ac->add_Annotation('dblink',$link1);
 $ac->add_Annotation('dblink',
-		    Bio::Annotation::DBLink->new(-database => 'TSC',
-						 -primary_id => 'HUM_FABV'));
+                    Bio::Annotation::DBLink->new(-database => 'TSC',
+                                                 -primary_id => 'HUM_FABV'));
 
 my $comment = Bio::Annotation::Comment->new( '-text' => 'sometext');
 is $comment->text, 'sometext';
@@ -66,18 +63,18 @@ $ac->add_Annotation('comment', $comment);
 
 
 my $target = Bio::Annotation::Target->new(-target_id  => 'F321966.1',
-					  -start      => 1,
-					  -end        => 200,
-					  -strand     => 1,
-					 );
+                                          -start      => 1,
+                                          -end        => 200,
+                                          -strand     => 1,
+                                         );
 isa_ok($target,'Bio::AnnotationI');
 ok $ac->add_Annotation('target', $target);
 
 
 my $ref = Bio::Annotation::Reference->new( -authors  => 'author line',
-					   -title    => 'title line',
-					   -location => 'location line',
-					   -start    => 12);
+                                           -title    => 'title line',
+                                           -location => 'location line',
+                                           -start    => 12);
 isa_ok($ref,'Bio::AnnotationI');
 is $ref->authors, 'author line';
 is $ref->title,  'title line';
@@ -153,7 +150,7 @@ is (scalar($nested_ac->get_Annotations('dblink')), 0);
 my @anns = $nested_ac->get_Annotations('gene names');
 isa_ok($anns[0], "Bio::Annotation::StructuredValue");
 @anns = map { $_->get_Annotations('dblink');
-	  } $nested_ac->get_Annotations('nested');
+          } $nested_ac->get_Annotations('nested');
 is (scalar(@anns), 3);
 is (scalar($nested_ac->flatten_Annotations()), 2);
 is (scalar($nested_ac->get_Annotations()), 7);
@@ -164,8 +161,8 @@ SKIP: {
   use_ok('Bio::Annotation::OntologyTerm');
   # OntologyTerm annotation
   my $termann = Bio::Annotation::OntologyTerm->new(-label => 'test case',
-						   -identifier => 'Ann:00001',
-						   -ontology => 'dumpster');
+                                                   -identifier => 'Ann:00001',
+                                                   -ontology => 'dumpster');
   isa_ok($termann->term,'Bio::Ontology::Term');
   is ($termann->term->name, 'test case');
   is ($termann->term->identifier, 'Ann:00001');
@@ -175,22 +172,18 @@ SKIP: {
 }
 
 # AnnotatableI
+use Bio::Seq;
 my $seq = Bio::Seq->new();
-isa_ok($seq,"Bio::AnnotatableI");
 SKIP: {
-	test_skip(-requires_modules => [qw(Bio::SeqFeature::Annotated URI::Escape)],
-			  -tests => 4);
-	my $fea = Bio::SeqFeature::Annotated->new();
-	isa_ok($fea, "Bio::SeqFeatureI",'isa SeqFeatureI');
-	isa_ok($fea, "Bio::AnnotatableI",'isa AnnotatableI');
-	$fea = Bio::SeqFeature::Generic->new();
-	isa_ok($fea, "Bio::SeqFeatureI",'isa SeqFeatureI');
-	isa_ok($fea, "Bio::AnnotatableI",'isa AnnotatableI');
+        test_skip(-requires_modules => [qw(Bio::SeqFeature::Annotated URI::Escape)],
+                          -tests => 4);
+        my $fea = Bio::SeqFeature::Annotated->new();
+        isa_ok($fea, "Bio::SeqFeatureI",'isa SeqFeatureI');
+        isa_ok($fea, "Bio::AnnotatableI",'isa AnnotatableI');
+        $fea = Bio::SeqFeature::Generic->new();
+        isa_ok($fea, "Bio::SeqFeatureI",'isa SeqFeatureI');
+        isa_ok($fea, "Bio::AnnotatableI",'isa AnnotatableI');
 }
-my $clu = Bio::Cluster::UniGene->new();
-isa_ok($clu, "Bio::AnnotatableI");
-my $aln = Bio::SimpleAlign->new();
-isa_ok($clu,"Bio::AnnotatableI");
 
 # tests for Bio::Annotation::AnnotationFactory
 
@@ -199,13 +192,13 @@ isa_ok($factory, 'Bio::Factory::ObjectFactoryI');
 
 # defaults to SimpleValue
 $ann = $factory->create_object(-value => 'peroxisome',
-			       -tagname => 'cellular component');
+                               -tagname => 'cellular component');
 isa_ok($ann, 'Bio::Annotation::SimpleValue');
 
 $factory->type('Bio::Annotation::OntologyTerm');
 
 $ann = $factory->create_object(-name => 'peroxisome',
-			       -tagname => 'cellular component');
+                               -tagname => 'cellular component');
 ok(defined $ann);
 isa_ok($ann, 'Bio::Annotation::OntologyTerm');
 
@@ -230,43 +223,41 @@ isa_ok($ann,'Bio::Annotation::Comment');
 # factory guessing the type: Target
 $factory = Bio::Annotation::AnnotationFactory->new();
 $ann = $factory->create_object(-target_id => 'F1234',
-			       -start     => 1,
-			       -end       => 10 );
+                               -start     => 1,
+                               -end       => 10 );
 ok defined $ann;
 isa_ok($ann,'Bio::Annotation::Target');
 
 # factory guessing the type: OntologyTerm
 $factory = Bio::Annotation::AnnotationFactory->new();
 ok(defined ($ann = $factory->create_object(-name => 'peroxisome',
-					   -tagname => 'cellular component')));
+                                           -tagname => 'cellular component')));
 like(ref $ann, qr(Bio::Annotation::OntologyTerm));
 
 # tree
 my $tree_filename = test_input_file('longnames.dnd');
 my $tree = Bio::TreeIO->new(-file=>$tree_filename)->next_tree();
 my $ann_tree = Bio::Annotation::Tree->new(
-					  -tagname  => 'tree',
-					  -tree_obj => $tree,
-					 );
+                                          -tagname  => 'tree',
+                                          -tree_obj => $tree,
+                                         );
 
 isa_ok($ann_tree, 'Bio::AnnotationI');
 $ann_tree->tree_id('test');
 is $ann_tree->tree_id(), 'test', "tree_id()";
 $ann_tree->tagname('tree');
 is $ann_tree->tagname(), 'tree', "tagname()";
-my $aln_filename = test_input_file('longnames.aln');
 use Bio::AlignIO;
-$aln = Bio::AlignIO->new(-file  => $aln_filename,
-			 -format=>'clustalw')->next_aln();
-isa_ok($aln, 'Bio::AnnotatableI');
+my $aln = Bio::AlignIO->new(-file  => test_input_file('longnames.aln'),
+                         -format=>'clustalw')->next_aln();
 $ac = Bio::Annotation::Collection->new();
 $ac->add_Annotation('tree',$ann_tree);
 $aln->annotation($ac);
 for my $treeblock ( $aln->annotation->get_Annotations('tree') ) {
   my $treeref = $treeblock->tree();
   my @nodes = sort { defined $a->id &&
-		       defined $b->id &&
-			 $a->id cmp $b->id } $treeref->get_nodes();
+                       defined $b->id &&
+                         $a->id cmp $b->id } $treeref->get_nodes();
   is(@nodes, 26);
   is $nodes[12]->id, 'Skud_Contig1703.7', "add tree to AlignI";
   my $str;
@@ -284,23 +275,23 @@ isa_ok($ann,'Bio::Annotation::Tree');
 
 #tagtree
 my $struct = [ 'genenames' => [
-			       ['genename' => [
-					       [ 'Name' => 'CALM1' ],
-					       ['Synonyms'=> 'CAM1'],
-					       ['Synonyms'=> 'CALM'],
-					       ['Synonyms'=> 'CAM' ] ] ],
-			       ['genename'=> [
-					      [ 'Name'=> 'CALM2' ],
-					      [ 'Synonyms'=> 'CAM2'],
-					      [ 'Synonyms'=> 'CAMB'] ] ],
-			       [ 'genename'=> [
-					       [ 'Name'=> 'CALM3' ],
-					       [ 'Synonyms'=> 'CAM3' ],
-					       [ 'Synonyms'=> 'CAMC' ] ] ]
-			      ] ];
+                               ['genename' => [
+                                               [ 'Name' => 'CALM1' ],
+                                               ['Synonyms'=> 'CAM1'],
+                                               ['Synonyms'=> 'CALM'],
+                                               ['Synonyms'=> 'CAM' ] ] ],
+                               ['genename'=> [
+                                              [ 'Name'=> 'CALM2' ],
+                                              [ 'Synonyms'=> 'CAM2'],
+                                              [ 'Synonyms'=> 'CAMB'] ] ],
+                               [ 'genename'=> [
+                                               [ 'Name'=> 'CALM3' ],
+                                               [ 'Synonyms'=> 'CAM3' ],
+                                               [ 'Synonyms'=> 'CAMC' ] ] ]
+                              ] ];
 
 my $ann_struct = Bio::Annotation::TagTree->new(-tagname => 'gn',
-					       -value => $struct);
+                                               -value => $struct);
 
 isa_ok($ann_struct, 'Bio::AnnotationI');
 my $val = $ann_struct->value;
@@ -308,7 +299,7 @@ like($val, qr/Name: CALM1/,'default itext');
 
 # roundtrip
 my $ann_struct2 = Bio::Annotation::TagTree->new(-tagname => 'gn',
-						-value => $val);
+                                                -value => $val);
 is($ann_struct2->value, $val,'roundtrip');
 
 # formats
