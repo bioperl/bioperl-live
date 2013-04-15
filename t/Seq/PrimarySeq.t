@@ -485,7 +485,8 @@ ok $seq = Bio::PrimarySeq->new('-seq' => 'AAAAACCCCCGGGGGTTTTT',);
 ok $seq->is_circular(1);
 
 # NOTE: "_no_strand" variables tests the possibility that the user didn't set
-#       Strand for positive coordinates
+# Strand for positive coordinates (or the object comes from
+# Bio::Factory::FTLocationFactory->from_string)
 
 # Single location
 # Coordinates: 1..5 => AAAAA

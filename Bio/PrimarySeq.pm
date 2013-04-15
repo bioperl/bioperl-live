@@ -391,7 +391,7 @@ sub subseq {
             $order = ($loc->guide_strand() == -1) ? -1 : 0;
         }
         # Reversing order using ->each_Location(-1) does not work well for
-        # cut by origin-splits (like "complement(join(16..20,1..2))"),
+        # cut by origin-splits (like "complement(join(1900..END,START..50))"),
         # so use "reverse" instead
         my @sublocs = ($order == -1) ? reverse $loc->each_Location(): $loc->each_Location;
         foreach my $subloc (@sublocs) {
