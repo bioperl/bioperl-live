@@ -370,8 +370,9 @@ sub strand{
 
   Title   : flip_strand
   Usage   : $location->flip_strand();
-  Function: Flip-flop a strand to the opposite.  Also switch Split strand
-            from undef to -1 or -1 to undef
+  Function: Flip-flop a strand to the opposite.  Also sets Split strand
+            to be consistent with the sublocation strands
+            (1, -1 or undef for mixed strand values)
   Returns : None
   Args    : None
 
@@ -379,15 +380,33 @@ sub strand{
 
 sub flip_strand {
     my $self = shift;
-    for my $loc ( $self->sub_Location(0) ) {
-        # Initialize strand if not defined to flip it
-        my $loc_strand = ($loc->strand == 0) ? 1 : $loc->strand;
-        $loc->strand($loc_strand);
+    my @sublocs;
+    my @subloc_strands;
 
-        $loc->flip_strand;
-        if ($self->isa('Bio::Location::SplitLocationI')) {
-            my $gs = ($loc->strand == -1) ? -1 : undef;
-            $self->guide_strand($gs);
+    for my $loc ( $self->sub_Location(0) ) {
+        # Atomic "flip_strand" now initialize strand if necessary
+        my $new_strand = $loc->flip_strand;
+
+        # Store strand values for later consistency check
+        push @sublocs, $loc;
+        push @subloc_strands, $new_strand;
+    }
+
+    # Sublocations strand values consistency check to set Guide Strand
+    if ($self->isa('Bio::Location::SplitLocationI')) {
+        my $identical   = 0;
+        my $first_value = $subloc_strands[0];
+        foreach my $strand (@subloc_strands) {
+            $identical++ if ($strand == $first_value);
+        }
+
+        if ($identical == scalar @subloc_strands) {
+            $self->guide_strand($first_value);
+        }
+        else {
+            # Mixed strand values, must reverse the sublocations order
+            $self->guide_strand(undef);
+            @{ $self->{_sublocations} } = reverse @sublocs;
         }
     }
 }
@@ -638,7 +657,7 @@ sub to_FTstring {
     }
 	# If the split type is join, the order is important;
 	# otherwise must be 5'->3' regardless
-	
+
 	my @locs = ($stype eq 'join' && (!$guide && $strand == -1)) ?
 	           reverse $self->sub_Location() : $self->sub_Location() ;
 	
