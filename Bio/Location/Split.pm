@@ -309,9 +309,29 @@ sub is_single_sequence {
 =cut
 
 sub guide_strand {
-	my $self = shift;
-	return $self->{'strand'} = shift if @_;
-	return $self->{'strand'};
+    my $self = shift;
+    return $self->{'strand'} = shift if @_;
+
+    # Sublocations strand values consistency check to set Guide Strand
+    my @subloc_strands;
+    foreach my $loc ($self->sub_Location(0)) {
+        push @subloc_strands, $loc->strand || 1;
+    }
+    if ($self->isa('Bio::Location::SplitLocationI')) {
+        my $identical   = 0;
+        my $first_value = $subloc_strands[0];
+        foreach my $strand (@subloc_strands) {
+            $identical++ if ($strand == $first_value);
+        }
+
+        if ($identical == scalar @subloc_strands) {
+            $self->{'strand'} = $first_value;
+        }
+        else {
+            $self->{'strand'} = undef;
+        }
+    }
+    return $self->{'strand'};
 }
 
 =head1 LocationI methods
