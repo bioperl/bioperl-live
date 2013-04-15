@@ -383,7 +383,18 @@ sub subseq {
     if( ref($start) && $start->isa('Bio::LocationI') ) {
         my $loc = $start;
         my $seq = '';
-        foreach my $subloc ($loc->each_Location()) {
+
+        # For Split objects if Guide Strand is negative,
+        # pass the sublocations in reverse
+        my $order = 0;
+        if ($loc->isa('Bio::Location::SplitLocationI')) {
+            $order = ($loc->guide_strand() == -1) ? -1 : 0;
+        }
+        # Reversing order using ->each_Location(-1) does not work well for
+        # cut by origin-splits (like "complement(join(16..20,1..2))"),
+        # so use "reverse" instead
+        my @sublocs = ($order == -1) ? reverse $loc->each_Location(): $loc->each_Location;
+        foreach my $subloc (@sublocs) {
             my $piece = $self->subseq(-start        => $subloc->start(),
                                       -end          => $subloc->end(),
                                       -replace_with => $replace,
