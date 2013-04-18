@@ -39,7 +39,7 @@ my %files = (
 
 # input file handles
 
-my $aln = Bio::AlignIO->new(
+$aln = Bio::AlignIO->new(
     -file  => test_input_file('longnames.aln'),
     -format=>'clustalw',
 )->next_aln();
