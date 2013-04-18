@@ -367,17 +367,9 @@ are encouraged to override these methods
 
 sub revcom {
     my ($self) = @_;
-    my ($seqclass, $opts) = $self->_setup_class;
-    my $out = $seqclass->new(
-        -seq              => $self->_revcom_from_string($self->seq, $self->alphabet),
-        -is_circular      => $self->is_circular,
-        -display_id       => $self->display_id,
-        -accession_number => $self->accession_number,
-        -alphabet         => $self->alphabet,
-        -desc             => $self->desc,
-        -verbose          => $self->verbose,
-        %$opts,
-    );
+    # Take advantage of Bio::Root::clone to get an object copy
+    my $out = $self->clone;
+    $out->seq( $out->_revcom_from_string($out->seq, $out->alphabet) );
     return $out;
 }
 
@@ -446,16 +438,9 @@ sub trunc {
         $str = $self->subseq($start,$end);
     }
 
-    my ($seqclass, $opts) = $self->_setup_class;
-    my $out = $seqclass->new(
-        -seq              => $str,
-        -display_id       => $self->display_id,
-        -accession_number => $self->accession_number,
-        -alphabet         => $self->alphabet,
-        -desc             => $self->desc,
-        -verbose          => $self->verbose,
-        %$opts,
-    );
+    # Take advantage of Bio::Root::clone to get an object copy
+    my $out = $self->clone;
+    $out->seq($str);
     return $out;
 }
 
@@ -660,17 +645,10 @@ sub translate {
         }
     }
 
-    my ($seqclass, $opts) = $self->_setup_class;
-    my $out = $seqclass->new(
-        -seq              => $output,
-        -display_id       => $self->display_id,
-        -accession_number => $self->accession_number,
-        # is there anything wrong with retaining the desc?
-        -desc             => $self->desc,
-        -alphabet         => 'protein',
-        -verbose          => $self->verbose,
-        %$opts,
-    );
+    # Take advantage of Bio::Root::clone to get an object copy
+    my $out = $self->clone;
+    $out->seq($output);
+    $out->alphabet('protein');
     return $out;
 }
 
@@ -692,16 +670,12 @@ sub transcribe {
     my $s = $self->seq;
     $s =~ tr/tT/uU/;
     my $desc = $self->desc || '';
-    my ($seqclass, $opts) = $self->_setup_class;
-    return $seqclass->new(
-        -seq              => $s,
-        -alphabet         => 'rna',
-        -display_id       => $self->display_id,
-        -accession_number => $self->accession_number,
-        -desc             => "${desc}[TRANSCRIBED]",
-        -verbose          => $self->verbose,
-        %$opts,
-    );
+    # Take advantage of Bio::Root::clone to get an object copy
+    my $out = $self->clone;
+    $out->seq($s);
+    $out->alphabet('rna');
+    $out->desc($desc . "[TRANSCRIBED]");
+    return $out;
 }
 
 
@@ -721,16 +695,13 @@ sub rev_transcribe {
     return unless $self->alphabet eq 'rna';
     my $s = $self->seq;
     $s =~ tr/uU/tT/;
-    my ($seqclass, $opts) = $self->_setup_class;
-    return $seqclass->new(
-        -seq              => $s,
-        -alphabet         => 'dna',
-        -display_id       => $self->display_id,
-        -accession_number => $self->accession_number,
-        -desc             => $self->desc . "[REVERSE TRANSCRIBED]",
-        -verbose          => $self->verbose,
-        %$opts,
-    );
+    my $desc = $self->desc || '';
+    # Take advantage of Bio::Root::clone to get an object copy
+    my $out = $self->clone;
+    $out->seq($s);
+    $out->alphabet('dna');
+    $out->desc($desc . "[REVERSE TRANSCRIBED]");
+    return $out;
 }
 
 
