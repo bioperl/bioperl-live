@@ -48,7 +48,7 @@ is $seq->display_id(),       'new-id';
 is $seq->alphabet(),         'dna';
 is $seq->is_circular(),      undef;
 ok $seq->is_circular(1);
-is $seq->is_circular(0), 0;
+is $seq->is_circular(0),     0;
 
 # check IdentifiableI and DescribableI interfaces
 isa_ok $seq, 'Bio::IdentifiableI';
@@ -189,24 +189,16 @@ isa_ok $rev, 'Bio::PrimarySeqI';
 is $rev->seq(), 'AGTTGACGCCACCAA'
   or diag( 'revcom() failed, was ' . $rev->seq() );
 
-is $rev->display_id, 'new-id';
-is $rev->display_name(), 'new-id';
+is $rev->display_id,         'new-id';
+is $rev->display_name(),     'new-id';
 is $rev->accession_number(), 'X677667';
-is $rev->alphabet, 'dna';
-is $rev->description, 'Sample Bio::Seq object';
-
-
-TODO: {
-    local $TODO =
-      'all attributes of primaryseqs are not currently copied through revcom()';
-    # Probably also not copied through trunc(), transcribe() and rev_transcribe()
-    is $rev->is_circular(), 0,           'is_circular copied through revcom';
-    is $rev->version, 47,                'version copied through revcom';
-    is $rev->authority, 'bioperl.org',   'authority copied through revcom';
-    is $rev->namespace, 't',             'namespace copied through revcom';
-    is $rev->namespace_string(),
-        "t:X677667.47", 'namespace_string copied through revcom';
-}
+is $rev->alphabet,           'dna';
+is $rev->description,        'Sample Bio::Seq object';
+is $rev->is_circular(),      0;
+is $rev->version,            47;
+is $rev->authority,          'bioperl.org';
+is $rev->namespace,          't';
+is $rev->namespace_string(), 't:X677667.47';
 
 #
 # Translate
