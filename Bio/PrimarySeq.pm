@@ -232,13 +232,15 @@ sub new {
         }
     }
 
-    $desc         && $self->desc($desc);
-    $description  && $self->description($description);
-    $is_circular  && $self->is_circular($is_circular);
-    $ns           && $self->namespace($ns);
-    $auth         && $self->authority($auth);
-    defined($v)   && $self->version($v);
-    defined($oid) && $self->object_id($oid);
+    $desc                  && $self->desc($desc);
+    $description           && $self->description($description);
+    $ns                    && $self->namespace($ns);
+    $auth                  && $self->authority($auth);
+    # Any variable that can have a value "0" must be tested with defined
+    # or it will fail to be added to the new object
+    defined($v)            && $self->version($v);
+    defined($oid)          && $self->object_id($oid);
+    defined($is_circular)  && $self->is_circular($is_circular);
 
     return $self;
 }
