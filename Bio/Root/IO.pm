@@ -184,7 +184,7 @@ sub new {
 
 =head2 _initialize_io
 
- Title   : initialize_io
+ Title   : _initialize_io
  Usage   : $self->_initialize_io(@params);
  Function: Initializes filehandle and other properties from the parameters.
 
