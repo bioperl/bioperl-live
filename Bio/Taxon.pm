@@ -602,7 +602,7 @@ sub get_Children_Nodes {
                 scientific name and common name, respectively. 'scientific' and
                 'division' are treated specially, allowing only the first value
                 in the Arg2 list to be set.
-            Arg2 .. => list of names
+            Arg2 ... => list of names
 
 =cut
 

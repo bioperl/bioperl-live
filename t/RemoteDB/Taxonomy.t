@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 146,
+    test_begin(-tests => 150,
         -requires_module => 'XML::Twig');
 
     use_ok('Bio::DB::Taxonomy');
@@ -164,10 +164,17 @@ ok $db_list = Bio::DB::Taxonomy->new(
 );
 is $db_list->get_num_taxa, 4;
 
+@h_lineage = ('Eukaryota', 'Mammalia', 'Homo', 'Homo erectus');
+$db_list->add_lineage(-names => \@h_lineage, -ranks => \@ranks);
+
 # Make a tree
-my $tree = $db_list->get_tree('Homo sapiens');
+my $tree = $db_list->get_tree('Homo sapiens', 'Homo erectus');
 isa_ok $tree, 'Bio::Tree::TreeI';
-is $tree->number_nodes, 4;
+is $tree->number_nodes, 5;
+is $tree->total_branch_length, 4;
+ok my $node1 = $tree->find_node( -scientific_name => 'Homo sapiens' );
+ok my $node2 = $tree->find_node( -scientific_name => 'Homo erectus' );
+is $tree->distance($node1, $node2), 2;
 
 ok my $h_list = $db_list->get_taxon(-name => 'Homo sapiens');
 ok my $h_flat = $db_flatfile->get_taxon(-name => 'Homo sapiens');
