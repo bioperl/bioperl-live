@@ -165,9 +165,9 @@ ok $db_list = Bio::DB::Taxonomy->new(
 is $db_list->get_num_taxa, 4;
 
 # Make a tree
-my $tree = $db_list->get_tree('Homo');
+my $tree = $db_list->get_tree('Homo sapiens');
 isa_ok $tree, 'Bio::Tree::TreeI';
-is $tree->number_nodes, 3;
+is $tree->number_nodes, 4;
 
 ok my $h_list = $db_list->get_taxon(-name => 'Homo sapiens');
 ok my $h_flat = $db_flatfile->get_taxon(-name => 'Homo sapiens');
