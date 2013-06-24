@@ -200,21 +200,19 @@ sub get_tree {
     
     # the full lineages of the species are merged into a single tree
     my $tree;
-    foreach my $name (@species_names) {
-        my $ncbi_id = $self->get_taxonid($name);
-        if ($ncbi_id) {
-            my $node = $self->get_taxon(-taxonid => $ncbi_id);
+    for my $name (@species_names) {
+        my @ids = $self->get_taxonids($name);
+        if (not scalar @ids) {
+            $self->throw("No taxonomy database node for species ".$name);
+        }
+        for my $id (@ids) {
+            my $node = $self->get_taxon(-taxonid => $id);
             $node->name('supplied', $name);
-            
             if ($tree) {
                 $tree->merge_lineage($node);
-            }
-            else {
+            } else {
                 $tree = Bio::Tree::Tree->new(-verbose => $self->verbose, -node => $node);
             }
-        }
-        else {
-            $self->throw("No taxonomy database node for species ".$name);
         }
     }
     
