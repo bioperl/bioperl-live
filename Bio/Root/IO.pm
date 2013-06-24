@@ -245,7 +245,7 @@ sub new {
 
 =head2 _initialize_io
 
- Title   : initialize_io
+ Title   : _initialize_io
  Usage   : $self->_initialize_io(@params);
  Function: Initializes filehandle and other properties from the parameters.
 
@@ -259,7 +259,6 @@ sub new {
               -noclose  boolean flag, when set to true will not close a
                         filehandle (must explicitly call close($io->_fh)
               -retries  number of times to try a web fetch before failure
-
               -ua_parms hashref of key => value parameters to pass
                         to LWP::UserAgent->new()
                         (only meaningful with -url is set)
