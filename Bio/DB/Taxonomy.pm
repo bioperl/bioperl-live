@@ -189,7 +189,8 @@ sub get_taxonids {
            species names. The nodes for the requested species are given
            name('supplied') values corresponding to the supplied name, such that
            they can be identified if the real species name in the database
-           (stored under node_name()) is different.
+           (stored under node_name()) is different. The nodes are also given an
+           arbitrary branch length of 1.
  Returns : Bio::Tree::Tree
  Args    : a list of species names (strings)
 
@@ -214,6 +215,11 @@ sub get_tree {
                 $tree = Bio::Tree::Tree->new(-verbose => $self->verbose, -node => $node);
             }
         }
+    }
+
+    # add arbitrary branch length
+    for my $node ($tree->get_nodes) {
+        $node->branch_length(1);
     }
     
     return $tree;
