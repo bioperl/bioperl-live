@@ -399,7 +399,7 @@ sub get_taxon {
 
 sub get_taxonids {
     my ($self, $name) = @_;
-    return @{$self->{name_to_id}->{$name} || []};
+    return wantarray() ? @{$self->{name_to_id}->{$name}} : $self->{name_to_id}->{$name}->[0];
 }
 
 *get_taxonid = \&get_taxonids;

@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 142,
+    test_begin(-tests => 144,
         -requires_module => 'XML::Twig');
 
     use_ok('Bio::DB::Taxonomy');
@@ -285,7 +285,11 @@ Culicoidea, Culicidae, Anophelinae, Anopheles, Anopheles, Angusticorn,
 Anopheles, maculipennis group, maculipennis species complex, Anopheles daciae"))]);
 
 my @taxonids = $db_list->get_taxonids('Anopheles');
-is @taxonids, 3;
+is @taxonids, 3, 'List context';
+
+my $taxonid = $db_list->get_taxonids('Anopheles');
+isa_ok \$taxonid, 'SCALAR', 'Scalar context';
+ok exists { map({$_ => undef} @taxonids) }->{$taxonid};
 
 # but we should still be able to merge in an incomplete lineage of a sister
 # species and have the 'tree' remain consistent:
