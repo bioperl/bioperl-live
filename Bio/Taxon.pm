@@ -22,15 +22,15 @@ Bio::Taxon - A node in a represented taxonomy
   # Typically you will get a Taxon from a Bio::DB::Taxonomy object
   # but here is how you initialize one
   my $taxon = Bio::Taxon->new(-name      => $name,
-                             -id        => $id,
-                             -rank      => $rank,
-                             -division  => $div);
+                              -id        => $id,
+                              -rank      => $rank,
+                              -division  => $div);
 
   # Get one from a database
   my $dbh = Bio::DB::Taxonomy->new(-source   => 'flatfile',
-                                  -directory=> '/tmp',
-                                  -nodesfile=> '/path/to/nodes.dmp',
-                                  -namesfile=> '/path/to/names.dmp');
+                                   -directory=> '/tmp',
+                                   -nodesfile=> '/path/to/nodes.dmp',
+                                   -namesfile=> '/path/to/names.dmp');
   my $human = $dbh->get_taxon(-name => 'Homo sapiens');
   $human = $dbh->get_taxon(-taxonid => '9606');
 
