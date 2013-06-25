@@ -192,7 +192,7 @@ sub get_taxonids {
            (stored under node_name()) is different. The nodes are also given an
            arbitrary branch length of 1.
  Returns : Bio::Tree::Tree
- Args    : a list of species names (strings)
+ Args    : A list of species names (strings) to include in the tree.
 
 =cut
 
@@ -204,7 +204,7 @@ sub get_tree {
     for my $name (@species_names) {
         my @ids = $self->get_taxonids($name);
         if (not scalar @ids) {
-            $self->throw("No taxonomy database node for species ".$name);
+            $self->throw("Could not find species $name in the taxonomy");
         }
         for my $id (@ids) {
             my $node = $self->get_taxon(-taxonid => $id);
