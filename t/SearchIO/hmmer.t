@@ -432,7 +432,7 @@ is($result->num_hits(), 2, 'Check num_hits');
                             -file   => test_input_file('hmmpfam_multiresult.out')
 			   );
    my $result = $in->next_result;
-   my $result = $in->next_result;
+   $result = $in->next_result;
    my $hit = $result->next_hit;
    is($hit->name, "IS66_ORF3.uniq","bug3302 - Check if can parse multiresult hmmer");
 }
