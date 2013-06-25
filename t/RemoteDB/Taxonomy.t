@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 150,
+    test_begin(-tests => 151,
         -requires_module => 'XML::Twig');
 
     use_ok('Bio::DB::Taxonomy');
@@ -168,7 +168,7 @@ is $db_list->get_num_taxa, 4;
 $db_list->add_lineage(-names => \@h_lineage, -ranks => \@ranks);
 
 # Make a tree
-my $tree = $db_list->get_tree('Homo sapiens', 'Homo erectus');
+ok my $tree = $db_list->get_tree('Homo sapiens', 'Homo erectus');
 isa_ok $tree, 'Bio::Tree::TreeI';
 is $tree->number_nodes, 5;
 is $tree->total_branch_length, 4;
