@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 159,
+    test_begin(-tests => 160,
         -requires_module => 'XML::Twig');
 
     use_ok('Bio::DB::Taxonomy');
@@ -357,6 +357,8 @@ is scalar @taxonids, 2; # multiple taxa would match using $db_list->get_taxon(-n
 
 ok $node = $db_list->get_taxon( -names => ['c__Gammaproteobacteria', 'o__Alteromonadales'  , 'f__Alteromonadaceae'] );
 is $node->ancestor->node_name, 'o__Alteromonadales';
+my $iid = $node->internal_id;
 
 ok $node = $db_list->get_taxon( -names => ['c__Gammaproteobacteria', 'o__Oceanospirillales', 'f__Alteromonadaceae'] );
 is $node->ancestor->node_name, 'o__Oceanospirillales';
+isnt $node->internal_id, $iid;
