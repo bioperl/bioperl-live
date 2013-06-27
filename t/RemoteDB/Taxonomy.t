@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 152,
+    test_begin(-tests => 155,
         -requires_module => 'XML::Twig');
 
     use_ok('Bio::DB::Taxonomy');
@@ -166,6 +166,10 @@ is $db_list->get_num_taxa, 4;
 
 @h_lineage = ('Eukaryota', 'Mammalia', 'Homo', 'Homo erectus');
 $db_list->add_lineage(-names => \@h_lineage, -ranks => \@ranks);
+
+ok my @taxa = map {$db_list->get_taxon(-name=>$_)} @h_lineage;
+is_deeply [map {ref($_)} @taxa], ['Bio::Taxon','Bio::Taxon','Bio::Taxon','Bio::Taxon'];
+is_deeply [map {$_->rank} @taxa], \@ranks, 'Ranks';
 
 # Make a tree
 my $tree = $db_list->get_tree('Homo sapiens', 'Homo erectus');
@@ -329,7 +333,7 @@ is scalar @taxonids, 3;
 # bug: duplicate topmost taxa
 $db_list = Bio::DB::Taxonomy->new( -source => 'list',
                                    -names => ['Bacteria', 'Tenericutes'] );
-$db_list->add_lineage( -names => ['Bacteria'] );
+$db_list->add_lineage(  -names => ['Bacteria'] );
 @taxonids = $db_list->get_taxonids('Bacteria');
 is scalar @taxonids, 1;
 
@@ -344,5 +348,5 @@ is scalar @taxonids, 2; # multiple taxa would match using $db_list->get_taxon(-n
 ok $node = $db_list->get_taxon( -names => ['c__Gammaproteobacteria', 'o__Alteromonadales'  , 'f__Alteromonadaceae'] );
 is $node->ancestor->node_name, 'o__Alteromonadales';
 
-ok $node = $db_list->get_taxon( -names => ['c__Gammaproteobacteria', 'o__Oceanospirillales'  , 'f__Alteromonadaceae'] );
+ok $node = $db_list->get_taxon( -names => ['c__Gammaproteobacteria', 'o__Oceanospirillales', 'f__Alteromonadaceae'] );
 is $node->ancestor->node_name, 'o__Oceanospirillales';
