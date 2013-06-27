@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 150,
+    test_begin(-tests => 152,
         -requires_module => 'XML::Twig');
 
     use_ok('Bio::DB::Taxonomy');
@@ -263,7 +263,7 @@ for my $name ('Human', 'Hominidae') {
     my $node = $db_flatfile->get_taxon(-taxonid => $ncbi_id);
 
     if ($tree) {
-        $tree->merge_lineage($node);
+        ok $tree->merge_lineage($node);
     }
     else {
         ok $tree = Bio::Tree::Tree->new(-node => $node);
