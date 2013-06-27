@@ -311,41 +311,51 @@ END
 
  Title   : _handle_internal_id
  Usage   : *INTERNAL Bio::DB::Taxonomy stuff*
- Function: Tries to ensure that when a taxon is requested from any database,
-           the Taxon object returned will have the same internal id regardless
-           of database.
- Args    : Bio::Taxon, and optionally true value to try and do the job using
-           scientific name & rank if your ids aren't comparable to other dbs.
+ Function: Add an internal ID to a taxon object, ensuring that the taxon gets
+           the same internal ID, regardless of which database it is retrieved
+           from.
+ Args    : * A Bio::Taxon
+           * An optional boolean to decide whether or not to try and do the job
+             using scientific name & rank in addition to taxon ID. This is
+             useful if your IDs are not comparable to that of other databases,
+             e.g. if they are arbitrary, as in the case of Bio::DB::Taxonomy::list
 
 =cut
 
 sub _handle_internal_id {
     my ($self, $taxon, $try_name) = @_;
     $self->throw("Must supply a Bio::Taxon") unless ref($taxon) && $taxon->isa('Bio::Taxon');
+
     my $taxid = $taxon->id || return;
     my $sci_name = $taxon->scientific_name || '';
     my $rank = $taxon->rank || 'no rank';
-    
-    if ($try_name && $sci_name && defined $TAXON_IIDS->{names}->{$sci_name}) {
-        if (defined $TAXON_IIDS->{names}->{$sci_name}->{$rank}) {
-            $TAXON_IIDS->{taxids}->{$taxid} = $TAXON_IIDS->{names}->{$sci_name}->{$rank};
+
+    my $iid = $TAXON_IIDS->{taxids}->{$taxid};
+    if ( (not defined $iid) && $try_name && $sci_name && exists $TAXON_IIDS->{names}->{$sci_name}) {
+        # Try to look up IID based on species name and rank
+        $iid = $TAXON_IIDS->{names}->{$sci_name}->{$rank};
+        if (defined $iid) {
+            $TAXON_IIDS->{taxids}->{$taxid} = $iid;
         }
         elsif ($rank eq 'no rank') {
             # pick the internal id of one named rank taxa at random
-            my ($iid) = values %{$TAXON_IIDS->{names}->{$sci_name}};
+            ($iid) = values %{$TAXON_IIDS->{names}->{$sci_name}};
             $TAXON_IIDS->{taxids}->{$taxid} = $iid;
         }
     }
-    
-    if (defined $TAXON_IIDS->{taxids}->{$taxid}) {
-        # a little dangerous to use this internal method of Bio::Tree::Node;
-        # but it is how internal_id() is set
-        $taxon->_creation_id($TAXON_IIDS->{taxids}->{$taxid});
+
+    if (defined $iid) {
+        # Save existing IID the Bio::Tree::Node way, despite internal method
+        $taxon->_creation_id($iid);
+    } else {
+        # Create a new IID for this taxon and register it
+        $iid = $taxon->internal_id;
+        $TAXON_IIDS->{taxids}->{$taxid} = $iid;
+        if ($sci_name) {
+            $TAXON_IIDS->{names}->{$sci_name}->{$rank} = $iid;
+        }
     }
-    else {
-        $TAXON_IIDS->{taxids}->{$taxid} = $taxon->internal_id;
-        $TAXON_IIDS->{names}->{$sci_name}->{$rank} = $taxon->internal_id if $sci_name;
-    }
+
 }
 
 
