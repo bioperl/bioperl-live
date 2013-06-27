@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 155,
+    test_begin(-tests => 159,
         -requires_module => 'XML::Twig');
 
     use_ok('Bio::DB::Taxonomy');
@@ -164,11 +164,16 @@ ok $db_list = Bio::DB::Taxonomy->new(
 );
 is $db_list->get_num_taxa, 4;
 
+my @taxa;
+ok @taxa = map {$db_list->get_taxon(-name=>$_)} @h_lineage;
+is_deeply [map {ref($_)} @taxa], [('Bio::Taxon')x4];
+is_deeply [map {$_->rank} @taxa], \@ranks, 'Ranks';
+
 @h_lineage = ('Eukaryota', 'Mammalia', 'Homo', 'Homo erectus');
 $db_list->add_lineage(-names => \@h_lineage, -ranks => \@ranks);
 
-ok my @taxa = map {$db_list->get_taxon(-name=>$_)} @h_lineage;
-is_deeply [map {ref($_)} @taxa], ['Bio::Taxon','Bio::Taxon','Bio::Taxon','Bio::Taxon'];
+ok @taxa = map {$db_list->get_taxon(-name=>$_)} @h_lineage;
+is_deeply [map {ref($_)} @taxa], [('Bio::Taxon')x4];
 is_deeply [map {$_->rank} @taxa], \@ranks, 'Ranks';
 
 # Make a tree
@@ -312,6 +317,7 @@ $db_list->add_lineage(-names => [
 maculipennis group, maculipennis species complex, Anopheles labranchiae"))]);
 my $node = $db_list->get_taxon(-name => 'Anopheles labranchiae');
 is $node->ancestor->ancestor->ancestor->ancestor->ancestor->ancestor->ancestor->scientific_name, 'Anophelinae';
+is $node->rank, undef;
 
 # missing 'subgenus' Anopheles
 $db_list->add_lineage(-names => [
