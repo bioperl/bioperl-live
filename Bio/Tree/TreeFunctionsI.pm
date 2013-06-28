@@ -506,27 +506,31 @@ sub merge_lineage {
         $lineage_leaf = $thing;
     }
 
-    # see if any node in the supplied lineage is in our tree - that will be
-    # our lca and we can merge at the node below
+    # Find the lowest node in the supplied lineage that is in the tree
+    # That will be our lca and we can merge at the node below
     my @lineage = ($lineage_leaf, reverse($self->get_lineage_nodes($lineage_leaf)));
-
-    my $merged;
-    for my $i (0..$#lineage) {
-        my $node = $self->find_node(-internal_id => $lineage[$i]->internal_id);
+    my $merged = 0;
+    my $node;
+    my $i = 0;
+    while ($i <= $#lineage) {
+        $node = $self->find_node(-internal_id => $lineage[$i]->internal_id);
         if (defined $node) {
-            # if $i == 0, the supplied thing to merge is already in the tree, nothing to do
-            if ($i > 0) {
-                # $i is the node, so the previous node is new to the tree and should
-                # be merged on
-                $node->add_Descendent($lineage[$i-1]);
-            }
             $merged = 1;
             last;
         }
+        $i++;
     }
     if (not $merged) {
         $self->warn("Could not merge the lineage of ".$lineage_leaf->id." with the rest of the tree");
     }
+
+    # Merge descendents, recursively
+    while ($i > 0) {
+        $node->add_Descendent($lineage[$i-1]);
+        $node = $self->find_node(-internal_id => $lineage[$i-1]->internal_id);
+        $i--;
+    }
+
     return $merged;
 }
 
