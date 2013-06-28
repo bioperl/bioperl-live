@@ -169,7 +169,7 @@ sub get_taxon {
            string. Note that multiple taxonids can match to the same supplied
            name.
  Returns : array of integer ids in list context, one of these in scalar context
- Args    : string representing taxon's name
+ Args    : string representing the taxon's name
 
 =cut
 
@@ -314,11 +314,14 @@ END
  Function: Add an internal ID to a taxon object, ensuring that the taxon gets
            the same internal ID, regardless of which database it is retrieved
            from.
+ Returns : The assigned internal ID
  Args    : * A Bio::Taxon
            * An optional boolean to decide whether or not to try and do the job
              using scientific name & rank in addition to taxon ID. This is
              useful if your IDs are not comparable to that of other databases,
-             e.g. if they are arbitrary, as in the case of Bio::DB::Taxonomy::list
+             e.g. if they are arbitrary, as in the case of Bio::DB::Taxonomy::list.
+             CAVEAT: will handle ambiguous names within a database fine, but not
+             across multiple databases.
 
 =cut
 
@@ -326,35 +329,46 @@ sub _handle_internal_id {
     my ($self, $taxon, $try_name) = @_;
     $self->throw("Must supply a Bio::Taxon") unless ref($taxon) && $taxon->isa('Bio::Taxon');
 
-    my $taxid = $taxon->id || return;
-    my $sci_name = $taxon->scientific_name || '';
-    my $rank = $taxon->rank || 'no rank';
+    my $taxid = $taxon->id              || return;
+    my $name  = $taxon->scientific_name || '';
+    my $rank  = $taxon->rank            || 'no rank';
+    my $dbh   = $try_name ? $taxon->db_handle : 'any';
 
-    my $iid = $TAXON_IIDS->{taxids}->{$taxid};
-    if ( (not defined $iid) && $try_name && $sci_name && exists $TAXON_IIDS->{names}->{$sci_name}) {
-        # Try to look up IID based on species name and rank
-        $iid = $TAXON_IIDS->{names}->{$sci_name}->{$rank};
-        if (defined $iid) {
-            $TAXON_IIDS->{taxids}->{$taxid} = $iid;
-        }
-        elsif ($rank eq 'no rank') {
-            # pick the internal id of one named rank taxa at random
-            ($iid) = values %{$TAXON_IIDS->{names}->{$sci_name}};
-            $TAXON_IIDS->{taxids}->{$taxid} = $iid;
+    my $iid = $TAXON_IIDS->{taxids}->{$dbh}->{$taxid};
+    if ( (not defined $iid) && $try_name && $name && exists $TAXON_IIDS->{names}->{$name}) {
+        # Search for a suitable IID based on species name and ranks
+        my %test_ranks = map {$_ => undef} ($rank, 'no rank');
+        SEARCH: while (my ($test_rank, undef) = each %test_ranks) {
+            # Search at the specified rank first, then with 'no rank'
+            while ( my ($test_iid, $test_info) = each %{$TAXON_IIDS->{names}->{$name}->{$rank}} ) {
+                while (my ($test_db, $test_taxid) = each %$test_info) {
+                    if ( ($test_db eq $dbh) && not($test_taxid eq $taxid) ) {
+                        # Taxa are different (same database, different taxid)
+                        next;
+                    }
+                    # IID is acceptable since taxa are from different databases,
+                    # or from the same database but have the same taxid
+                    $iid = $test_iid;
+                    $TAXON_IIDS->{taxids}->{$dbh}->{$taxid} = $iid;
+                    last SEARCH;
+                }
+            }
         }
     }
 
     if (defined $iid) {
-        # Save existing IID the Bio::Tree::Node way, despite internal method
+        # Assign Bio::DB::Taxonomy IID with risky Bio::Tree::Node internal method
         $taxon->_creation_id($iid);
     } else {
-        # Create a new IID for this taxon and register it
+        # Register new IID in Bio::DB::Taxonomy
         $iid = $taxon->internal_id;
-        $TAXON_IIDS->{taxids}->{$taxid} = $iid;
-        if ($sci_name) {
-            $TAXON_IIDS->{names}->{$sci_name}->{$rank} = $iid;
+        $TAXON_IIDS->{taxids}->{$dbh}->{$taxid} = $iid;
+        if ($name) {
+            $TAXON_IIDS->{names}->{$name}->{$rank}->{$iid}->{$taxon->db_handle} = $taxid
         }
     }
+
+    return $iid;
 
 }
 
