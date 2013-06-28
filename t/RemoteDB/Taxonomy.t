@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 160,
+    test_begin(-tests => 179,
         -requires_module => 'XML::Twig');
 
     use_ok('Bio::DB::Taxonomy');
@@ -362,3 +362,33 @@ my $iid = $node->internal_id;
 ok $node = $db_list->get_taxon( -names => ['c__Gammaproteobacteria', 'o__Oceanospirillales', 'f__Alteromonadaceae'] );
 is $node->ancestor->node_name, 'o__Oceanospirillales';
 isnt $node->internal_id, $iid;
+
+
+# More tests with ambiguous names, internal IDs and multiple databases
+my ($node3, $node4, $db_list_2);
+ok $db_list = Bio::DB::Taxonomy->new( -source => 'list' );
+ok $db_list->add_lineage( -names => [ 'o__Enterobacteriales', 'g__Escherichia' ] );
+ok $db_list->add_lineage( -names => [ 'o__Pseudomonadales'  , 'g__Pseudomonas' ] );
+ok $db_list->add_lineage( -names => [ 'o__Chroococcales'    , 'g__Microcoleus' ] );
+ok $node1 = $db_list->get_taxon( -names => [ 'k__Chroococcales', 'g__Microcoleus' ] );
+
+ok $db_list_2 = Bio::DB::Taxonomy->new( -source => 'list' );
+ok $db_list_2->add_lineage( -names => [ 'k__Chroococcales', 'g__Microcoleus' ] );
+ok $node2 = $db_list_2->get_taxon( -names => [ 'k__Chroococcales', 'g__Microcoleus' ] );
+
+is $node1->scientific_name, 'g__Microcoleus';
+is $node2->scientific_name, 'g__Microcoleus'; # same taxon name
+isnt $node1->id, $node2->id;                  # but different dbs and hence taxids
+is $node1->internal_id, $node1->internal_id;  # but same cross-database internal ID
+
+ok $db_list->add_lineage( -names => [ 'o__Oscillatoriales' , 'g__Microcoleus' ] );
+ok $db_list->add_lineage( -names => [ 'o__Acidobacteriales', 'g__Microcoleus' ] );
+
+ok $node1 = $db_list->get_taxon( -names => [ 'o__Chroococcales', 'g__Microcoleus' ] );
+ok $node2 = $db_list->get_taxon( -names => [ 'o__Oscillatoriales'  , 'g__Microcoleus' ] );
+ok $node3 = $db_list->get_taxon( -names => [ 'o__Acidobacteriales'    , 'g__Microcoleus' ] );
+my @nodes = ($node1, $node2, $node3);
+
+is map({$_->id          => undef} @nodes), 6; # 3 distinct taxids
+is map({$_->internal_id => undef} @nodes), 6; # 3 distinct iids
+
