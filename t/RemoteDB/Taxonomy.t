@@ -7,8 +7,10 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 179,
-        -requires_module => 'XML::Twig');
+    test_begin(
+        -tests => 184,
+        -requires_module => 'XML::Twig'
+    );
 
     use_ok('Bio::DB::Taxonomy');
     use_ok('Bio::Tree::Tree');
@@ -373,8 +375,8 @@ ok $db_list->add_lineage( -names => [ 'o__Chroococcales'    , 'g__Microcoleus' ]
 ok $node1 = $db_list->get_taxon( -names => [ 'k__Chroococcales', 'g__Microcoleus' ] );
 
 ok $db_list_2 = Bio::DB::Taxonomy->new( -source => 'list' );
-ok $db_list_2->add_lineage( -names => [ 'k__Chroococcales', 'g__Microcoleus' ] );
-ok $node2 = $db_list_2->get_taxon( -names => [ 'k__Chroococcales', 'g__Microcoleus' ] );
+ok $db_list_2->add_lineage( -names => [ 'o__Chroococcales', 'g__Microcoleus' ] );
+ok $node2 = $db_list_2->get_taxon( -names => [ 'o__Chroococcales', 'g__Microcoleus' ] );
 
 is $node1->scientific_name, 'g__Microcoleus';
 is $node2->scientific_name, 'g__Microcoleus'; # same taxon name
@@ -391,4 +393,10 @@ my @nodes = ($node1, $node2, $node3);
 
 is map({$_->id          => undef} @nodes), 6; # 3 distinct taxids
 is map({$_->internal_id => undef} @nodes), 6; # 3 distinct iids
+
+ok $db_list->add_lineage( -names => [ 'o__Chroococcales'  , 'g__Microcoleus' ] );
+ok $node2 = $db_list->get_taxon( -names => [ 'o__Chroococcales', 'g__Microcoleus' ] );
+is $node2->scientific_name, $node1->scientific_name;
+is $node2->id, $node1->id;
+is $node2->internal_id, $node1->internal_id;
 
