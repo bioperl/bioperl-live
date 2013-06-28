@@ -8,7 +8,7 @@ BEGIN {
     use Bio::Root::Test;
 
     test_begin(
-        -tests => 184,
+        -tests => 191,
         -requires_module => 'XML::Twig'
     );
 
@@ -286,6 +286,15 @@ $tree->contract_linear_paths;
 my $ids = join(",", map { $_->id } $tree->get_nodes);
 is $ids, '131567,9606';
 
+# More thorough tests of merge_lineage
+ok my $node = $db_list->get_taxon(-name => 'Eukaryota');
+$tree = Bio::Tree::Tree->new(-node => $node);
+ok $node = $db_list->get_taxon(-name => 'Homo erectus');
+ok $tree->merge_lineage($node);
+for my $name ('Eukaryota', 'Mammalia', 'Homo', 'Homo erectus') {
+   ok $node = $tree->find_node(-scientific_name => $name);
+}
+
 # we can recursively fetch all descendents of a taxon
 SKIP: {
     test_skip(-tests => 1, -requires_networking => 1);
@@ -321,7 +330,7 @@ ok exists { map({$_ => undef} @taxonids) }->{$taxonid};
 $db_list->add_lineage(-names => [
 (split(/,\s+/, "Anophelinae, Anopheles, Anopheles, Angusticorn,
 maculipennis group, maculipennis species complex, Anopheles labranchiae"))]);
-my $node = $db_list->get_taxon(-name => 'Anopheles labranchiae');
+$node = $db_list->get_taxon(-name => 'Anopheles labranchiae');
 is $node->ancestor->ancestor->ancestor->ancestor->ancestor->ancestor->ancestor->scientific_name, 'Anophelinae';
 is $node->rank, undef;
 
