@@ -41,6 +41,8 @@ use File::Temp 'tempdir';
 use File::Spec;
 use Fcntl qw(O_CREAT O_RDWR);
 
+my %FileHandles;
+
 sub new {
     my $class   = shift;
     my $tmpdir  = shift;
@@ -64,26 +66,32 @@ sub create_dbs {
     my $self = shift;
     my $tmp  = shift;
     my %self;
-
+    # experiment with caching these handles in memory
     my $hash_options           = DB_File::HASHINFO->new();
-
     # Each of these hashes allow only unique keys
     for my $dbname (qw(IndexIt TopLevel Local2Global)) {
-	my %h;
-	tie(%h,'DB_File',File::Spec->catfile($tmp,$dbname),
-	    O_CREAT|O_RDWR,0666,$hash_options);
-	$self{$dbname} = \%h;
+	unless ($FileHandles{$dbname}) {
+	    my %h;
+	    tie(%h,'DB_File',File::Spec->catfile($tmp,$dbname),
+		O_CREAT|O_RDWR,0666,$hash_options);
+	    $FileHandles{$dbname} = \%h;
+	}
+	$self{$dbname} = $FileHandles{$dbname};
+	%{$self{$dbname}} = ();
     }
 
     # The Parent2Child hash allows duplicate keys, so we
     # create it with the R_DUP flag.
     my $btree_options           = DB_File::BTREEINFO->new();
     $btree_options->{flags}     = R_DUP;
-    my %h;
-    tie(%h,'DB_File',File::Spec->catfile($tmp,'Parent2Child'),
-	O_CREAT|O_RDWR,0666,$btree_options);
-    $self{Parent2Child} = \%h;
-
+    unless ($FileHandles{'Parent2Child'}) {
+	my %h;
+	tie(%h,'DB_File',File::Spec->catfile($tmp,'Parent2Child'),
+	    O_CREAT|O_RDWR,0666,$btree_options);
+	$FileHandles{'Parent2Child'} = \%h;
+    }
+    $self{Parent2Child}    = $FileHandles{'Parent2Child'};
+    %{$self{Parent2Child}} = ();
     return \%self;
 }
 
