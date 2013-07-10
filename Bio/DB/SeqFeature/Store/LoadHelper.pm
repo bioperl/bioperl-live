@@ -40,7 +40,9 @@ use File::Temp 'tempdir';
 use File::Spec;
 use Fcntl qw(O_CREAT O_RDWR);
 
-my %FileHandles;
+our $VERSION = '1.10';
+
+my %DBHandles;
 
 sub new {
     my $class   = shift;
@@ -69,13 +71,13 @@ sub create_dbs {
     my $hash_options           = DB_File::HASHINFO->new();
     # Each of these hashes allow only unique keys
     for my $dbname (qw(IndexIt TopLevel Local2Global)) {
-	unless ($FileHandles{$dbname}) {
+	unless ($DBHandles{$dbname}) {
 	    my %h;
 	    tie(%h,'DB_File',File::Spec->catfile($tmp,$dbname),
 		O_CREAT|O_RDWR,0666,$hash_options);
-	    $FileHandles{$dbname} = \%h;
+	    $DBHandles{$dbname} = \%h;
 	}
-	$self{$dbname} = $FileHandles{$dbname};
+	$self{$dbname} = $DBHandles{$dbname};
 	%{$self{$dbname}} = ();
     }
 
@@ -83,13 +85,13 @@ sub create_dbs {
     # create it with the R_DUP flag.
     my $btree_options           = DB_File::BTREEINFO->new();
     $btree_options->{flags}     = R_DUP;
-    unless ($FileHandles{'Parent2Child'}) {
+    unless ($DBHandles{'Parent2Child'}) {
 	my %h;
 	tie(%h,'DB_File',File::Spec->catfile($tmp,'Parent2Child'),
 	    O_CREAT|O_RDWR,0666,$btree_options);
-	$FileHandles{'Parent2Child'} = \%h;
+	$DBHandles{'Parent2Child'} = \%h;
     }
-    $self{Parent2Child}    = $FileHandles{'Parent2Child'};
+    $self{Parent2Child}    = $DBHandles{'Parent2Child'};
     %{$self{Parent2Child}} = ();
     return \%self;
 }
