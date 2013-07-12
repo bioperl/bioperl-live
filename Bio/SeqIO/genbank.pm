@@ -1533,7 +1533,7 @@ sub _read_FTHelper_GenBank {
 		    # to be a sequence (translation for example)
 		    # if(($value.$next) =~ /[^A-Za-z\"\-]/o) {
 		    # changed to explicitly look for translation tag - cjf 06/8/29
-		    if ($qualifier ne 'translation') {
+		    if ($qualifier !~ /^translation$/i ) {
 			$value .= " ";
 		    }
 		    $value .= $next;
