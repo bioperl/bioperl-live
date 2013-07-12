@@ -449,7 +449,7 @@ sub next_seq {
 		# Project
 		elsif (/^PROJECT\s+(\S.*)/) {
 			if ($annotation) {
-				my $project = Bio::Annotation::SimpleValue->new(-value => $1);
+				my $project = new Bio::Annotation::SimpleValue->new(-value => $1);
 				$annotation->add_Annotation('project',$project);
 			}
 		}
@@ -1533,7 +1533,7 @@ sub _read_FTHelper_GenBank {
 		    # to be a sequence (translation for example)
 		    # if(($value.$next) =~ /[^A-Za-z\"\-]/o) {
 		    # changed to explicitly look for translation tag - cjf 06/8/29
-		    if ($qualifier ne 'translation') {
+		    if ($qualifier !~ /^translation$/i ) {
 			$value .= " ";
 		    }
 		    $value .= $next;
