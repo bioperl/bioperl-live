@@ -25,12 +25,12 @@ while (my $feat = $parser->next_result) {
     $count++;
     my @exp = @{shift(@expected)};
     
-    isa_ok $feat, 'Bio::SeqFeature::Annotated';
-    is $feat->source->value, 'GERP', 'correct source';
+    isa_ok $feat, 'Bio::SeqFeature::Generic';
+    is $feat->source_tag, 'GERP', 'correct source';
     is $feat->start, shift(@exp), 'feature start correct';
     is $feat->end, shift(@exp), 'feature end correct';
     is $feat->score, shift(@exp), 'feature score correct';
-    my ($p_value) = $feat->get_Annotations('pvalue');
+    my ($p_value) = $feat->annotation->get_Annotations('pvalue');
     is ref $p_value ? $p_value->value : $p_value, shift(@exp), 'feature pvalue correct';
 }
 
