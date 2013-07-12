@@ -25,8 +25,8 @@ while (my $feat = $parser->next_result) {
     $count++;
     my @exp = @{shift(@expected)};
     
-    isa_ok $feat, 'Bio::SeqFeature::Annotated';
-    is $feat->source->value, 'transfac_match', 'correct source';
+    isa_ok $feat, 'Bio::SeqFeature::Generic';
+    is $feat->source_tag, 'transfac_match', 'correct source';
     is $feat->start, shift(@exp), 'feature start correct';
     is $feat->end, shift(@exp), 'feature end correct';
     
