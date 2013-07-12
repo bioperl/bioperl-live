@@ -22,6 +22,7 @@ install:
     - "cpanm Math::Random SOAP::Lite Spreadsheet::ParseExcel | tail -n 1"
     - "cpanm Bio::Phylo | tail -n 1"
     - "git clone https://github.com/bioperl/Bio-Root.git; export PERL5LIB=$( pwd )/Bio-Root/lib:$PERL5LIB"
+    - "git clone https://github.com/bioperl/Bio-FeatureIO.git; export PERL5LIB=$( pwd )/Bio-FeatureIO/lib:$PERL5LIB"
     #This installs BioPerl itself:
     - "perl ./Build.PL --accept"
 
