@@ -979,7 +979,7 @@ sub significance {
  Title   : strand
  Usage   : $hsp->strand('query')
  Function: Retrieves the strand for the HSP component requested
- Returns : +1 or -1 (0 if unknown)
+ Returns : +1 or -1
  Args    : 'hit' or 'subject' or 'sbjct' to retrieve the strand of the subject,
            'query' to retrieve the query strand (default)
 
