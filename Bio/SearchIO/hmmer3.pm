@@ -351,11 +351,12 @@ sub next_result {
             }
 
             # nhmmer
-            if ( $_ =~ m/Scores for complete hits/ ) {
+            if ( /Scores for complete hits/ ) {
                 while ( defined( $_ = $self->_readline ) ) {
-                    if (   $_ =~ m/inclusion threshold/
-                        || m/Annotation for each hit/
-                        || m/\[No hits detected/
+
+                    if (   /inclusion threshold/
+                        || /Annotation for each hit/
+                        || /\[No hits detected/
                         || m!^//! )
                     {
                         $self->_pushback($_);
@@ -363,7 +364,7 @@ sub next_result {
                     }
 
                     # Grab table data
-                    next if ( m/\-\-\-/ || m/^\s+E-value\s+score/ || m/^$/ );
+                    next if ( /\-\-\-/ || /^\s+E-value\s+score/ || /^$/ );
                     my ($eval,  $score, $bias, $hitid,
                         $start, $end,   $desc, @hitline
                     );
@@ -385,10 +386,12 @@ sub next_result {
 
             # Complete sequence table data below inclusion threshold
             # not currently fully implemented
-            elsif ( $_ =~ m/inclusion threshold/ ) {
+            elsif ( /inclusion threshold/ ) {
                 while ( defined( $_ = $self->_readline ) ) {
-                    if ( $_ =~ m/Domain( and alignment)? annotation for each/
-                        || m/Internal pipeline statistics summary/ )
+                    if (   /Domain( and alignment)? annotation for each/
+                        || /Internal pipeline statistics summary/ 
+                        || /Annotation for each hit\s+\(and alignments\)/
+                        )
                     {
                         $self->_pushback($_);
                         last;
@@ -415,13 +418,13 @@ sub next_result {
             }
 
             # Domain annotation for each sequence table data, hmmscan
-            elsif ( $_ =~ m/Domain( and alignment)? annotation for each/ ) {
+            elsif ( /Domain( and alignment)? annotation for each/ ) {
                 @hsp_list = ();    # Here for multi-query reports
                 my $name;
 
                 while ( defined( $_ = $self->_readline ) ) {
-                    if ( $_ =~ m/Internal pipeline statistics/
-                        || m/\[No targets detected/ )
+                    if (   /Internal pipeline statistics/
+                        || /\[No targets detected/ )
                     {
                         $self->_pushback($_);
                         last;
@@ -500,7 +503,7 @@ sub next_result {
                             }
                         }
                     }
-                    elsif ( $_ =~ m/Alignments for each domain/ ) {
+                    elsif ( /Alignments for each domain/ ) {
                         my $domain_count = 0;
 
                         #line counter
@@ -595,7 +598,7 @@ sub next_result {
             # Annotation for each hit, nhmmer
             # This code is currently incomplete, the alignment strings
             # are not being captured
-            elsif ( $_ =~ m/Annotation for each hit\s+\(and alignments\)/ ) {
+            elsif ( /Annotation for each hit\s+\(and alignments\)/ ) {
                 @hsp_list = ();
                 my $name;
 
@@ -606,7 +609,7 @@ sub next_result {
                         $self->_pushback($_);
                         last;
                     }
-                    if ( $_ =~ m/^>>\s(.*?)\s+/ ) {
+                    if ( /^>>\s+(\S+)\s+/ ) {
                         $name = $1;
 
                         while ( defined( $_ = $self->_readline ) ) {
@@ -634,7 +637,7 @@ sub next_result {
                                 next;
                             }
                             elsif (
-                                /^\s+!\s+(\S+)\s+
+                                /^\s+[!?]\s+(\S+)\s+
                                     (\S+)\s+(\S+)\s+
                                     (\d+)\s+(\d+)\s+[.\[\]]*\s+
                                     (\d+)\s+(\d+)\s+[.\[\]]*\s+
