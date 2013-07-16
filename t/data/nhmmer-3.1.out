@@ -1,0 +1,63 @@
+# nhmmer :: search a DNA model or alignment against a DNA database
+# HMMER 3.1b1 (May 2013); http://hmmer.org/
+# Copyright (C) 2013 Howard Hughes Medical Institute.
+# Freely distributed under the GNU General Public License (GPLv3).
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query file:                      ../HMMs/A_HA_H7_CDS_nucleotide.hmm
+# target sequence database:        tmp.fa
+# number of worker threads:        4
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       A_HA_H7_CDS_nucleotide  [M=1683]
+Scores for complete hits:
+    E-value  score  bias  Sequence  start    end  Description
+    ------- ------ -----  --------  -----  -----  -----------
+    3.2e-48  148.2   5.7  seq1          1    151  Description of seq1
+    3.9e-15   38.6   0.4  seq2         59      1  Description of seq2
+
+
+Annotation for each hit  (and alignments):
+>> seq1  Description of seq1
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to    sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- --------- ---------    ----
+ !  148.2   5.7   3.2e-48       258       411 ..         1       151 []         1       151 []       151    0.98
+
+  Alignment:
+  score: 148.2 bits
+  A_HA_H7_CDS_nucleotide 258 attcctagaattttcagctgatttaattattgagaggcgagaaggaagtaatgatgtctgttatcctgggaaattcgtaaatgaaga 344
+                             attcctagaattttcagc+gatttaattattgagaggcgagaaggaagt   gatgtctgttatcctgggaaattcgt+aatgaaga
+                    seq1   1 ATTCCTAGAATTTTCAGCCGATTTAATTATTGAGAGGCGAGAAGGAAGT---GATGTCTGTTATCCTGGGAAATTCGTGAATGAAGA 84 
+                             689*******************************************777...*********************************** PP
+
+  A_HA_H7_CDS_nucleotide 345 agctctgaggcaaattctcagggggtcaggcggaattgacaaggagacaatgggattcacatatagc 411
+                             agctctgaggcaaattctcaggg+gtcaggcggaattgacaaggagacaatgggattcac+ta+agc
+                    seq1  85 AGCTCTGAGGCAAATTCTCAGGGAGTCAGGCGGAATTGACAAGGAGACAATGGGATTCACCTACAGC 151
+                             ****************************************************************986 PP
+
+>> seq2  Description of seq2
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to    sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- --------- ---------    ----
+ !   38.6   0.4   3.9e-15        34        92 ..        59         1 ..        60         1 ..        60    0.97
+
+  Alignment:
+  score: 38.6 bits
+  A_HA_H7_CDS_nucleotide 34 gtgatgattgcaacaaatgcagacaaaatctgccttgggcaccatgctgtgtcaaacgg 92
+                            g+gat+att+c+acaaatgcagacaa atctgccttgggca+catgc+gtgtcaaacgg
+                    seq2 59 GCGATCATTCCGACAAATGCAGACAAGATCTGCCTTGGGCATCATGCCGTGTCAAACGG 1 
+                            6899****************************************************986 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                              1  (1683 nodes)
+Target sequences:                            2  (422 residues searched)
+Residues passing SSV filter:               211  (0.5); expected (0.02)
+Residues passing bias filter:              211  (0.5); expected (0.02)
+Residues passing Vit filter:               211  (0.5); expected (0.003)
+Residues passing Fwd filter:               211  (0.5); expected (3e-05)
+Total number of hits:                        2  (0.498)
+# CPU time: 0.02u 0.01s 00:00:00.03 Elapsed: 00:00:00.30
+# Mc/sec: 2.37
+//
+[ok]

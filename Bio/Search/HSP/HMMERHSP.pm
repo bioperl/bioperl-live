@@ -65,9 +65,7 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Search::HSP::HMMERHSP;
 use strict;
@@ -82,7 +80,7 @@ use base qw(Bio::Search::HSP::GenericHSP);
  Returns : Bio::Search::HSP::HMMERHSP
  Args    :
 
-Plus Bio::Seach::HSP::GenericHSP methods
+Plus Bio::Search::HSP::GenericHSP methods
 
            -algorithm => algorithm used (BLASTP, TBLASTX, FASTX, etc)
            -evalue    => evalue

@@ -1,4 +1,3 @@
-# $Id: bioperl.lisp 15559 2009-02-23 12:11:20Z maj $
 #
 # BioPerl module for Bio::Search::HSP::hmmer3HSP
 #
