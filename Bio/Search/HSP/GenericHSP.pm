@@ -985,17 +985,17 @@ sub significance {
 
 =cut
 
-# sub strand {
-#     my ($self,$type) = @_;
+sub strand {
+    my ($self,$type) = @_;
 
-#     if( $type =~ /^q/i && defined $self->{'QUERY_STRAND'} ) {
-#         return $self->{'QUERY_STRAND'};
-#     } elsif( $type =~ /^(hit|subject|sbjct)/i && defined $self->{'HIT_STRAND'} ) {
-#         return $self->{'HIT_STRAND'};;
-#     } 
+    if( $type =~ /^q/i && defined $self->{'QUERY_STRAND'} ) {
+        return $self->{'QUERY_STRAND'};
+    } elsif( $type =~ /^(hit|subject|sbjct)/i && defined $self->{'HIT_STRAND'} ) {
+        return $self->{'HIT_STRAND'};
+    } 
 
-#     0; # Should never get here
-# }
+    return $self->SUPER::strand($type)
+}
 
 =head2 score
 
