@@ -974,26 +974,6 @@ sub significance {
     return $self->{SIGNIFICANCE};
 }
 
-=head2 score
-
- Title   : score
- Usage   : $score = $obj->score();
-           $obj->score($value);
- Function: Get/Set the score value
- Returns : numeric
- Args    : [optional] new value to set
-
-
-=head2 bits
-
- Title   : bits
- Usage   : $bits = $obj->bits();
-           $obj->bits($value);
- Function: Get/Set the bits value
- Returns : numeric
- Args    : [optional] new value to set
-
-
 =head2 strand
 
  Title   : strand
@@ -1005,17 +985,35 @@ sub significance {
 
 =cut
 
-sub strand {
-    my ($self,$type) = @_;
+# sub strand {
+#     my ($self,$type) = @_;
 
-    if( $type =~ /^q/i && defined $self->{'QUERY_STRAND'} ) {
-        return $self->{'QUERY_STRAND'};
-    } elsif( $type =~ /^(hit|subject|sbjct)/i && defined $self->{'HIT_STRAND'} ) {
-        return $self->{'HIT_STRAND'};;
-    } 
+#     if( $type =~ /^q/i && defined $self->{'QUERY_STRAND'} ) {
+#         return $self->{'QUERY_STRAND'};
+#     } elsif( $type =~ /^(hit|subject|sbjct)/i && defined $self->{'HIT_STRAND'} ) {
+#         return $self->{'HIT_STRAND'};;
+#     } 
 
-    0; # Should never get here
-}
+#     0; # Should never get here
+# }
+
+=head2 score
+
+ Title   : score
+ Usage   : $score = $obj->score();
+           $obj->score($value);
+ Function: Get/Set the score value
+ Returns : numeric
+ Args    : [optional] new value to set
+
+=head2 bits
+
+ Title   : bits
+ Usage   : $bits = $obj->bits();
+           $obj->bits($value);
+ Function: Get/Set the bits value
+ Returns : numeric
+ Args    : [optional] new value to set
 
 =head1 Private methods
 
