@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 313 );
+    test_begin( -tests => 327 );
 
     use_ok('Bio::SearchIO');
 }
@@ -707,6 +707,24 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     is( $hsp->end('hit'), "151",   "Check nhmmer hsp hit end" );
     is( $hsp->start('query'), "258",   "Check nhmmer hsp query start" );
     is( $hsp->end('query'), "411",   "Check nhmmer hsp query end" );
+    is( $hsp->strand('hit'), '1',   "Check nhmmer hsp hit strand" );
+    is( $hsp->strand('query'), '1',   "Check nhmmer hsp query strand" );
+
+    $hit = $result->next_hit;
+    is( $hit->name, "seq2", "Check nhmmer hit name" );
+    is( $hit->description, "Description of seq2", "Check nhmmer hit description" );
+    is( $hit->significance, "3.9e-15", "Check nhmmer hit significance" );
+    is( $hit->score,        "38.6",   "Check nhmmer hit score" );
+
+    $hsp = $hit->next_hsp;
+    is( $hsp->score, '38.6',   "Check nhmmer hsp score" );
+    is( $hsp->significance, '3.9e-15',   "Check nhmmer hsp score" );
+    is( $hsp->start('query'), '34',   "Check nhmmer hsp query start" );
+    is( $hsp->end('query'), '92',   "Check nhmmer hsp query end" );
+    is( $hsp->start('hit'), '1',   "Check nhmmer hsp hit start" );
+    is( $hsp->end('hit'), '59',   "Check nhmmer hsp hit end" );
+    is( $hsp->strand('hit'), '-1',   "Check nhmmer hsp hit strand" );
+    is( $hsp->strand('query'), '1',   "Check nhmmer hsp query strand" );
 }
 # end HMMER 3.1 nhmmer output
 

@@ -785,6 +785,29 @@ sub next_result {
                                     'Data' => shift @$hsp
                                 }
                             );
+
+                            # Only nhmmer output has strand information
+                            if ( $self->{'_reporttype'} eq 'NHMMER' ) {
+                                my $hstart = $self->get_from_element('HSP-hit_start');
+                                my $hend   = $self->get_from_element('HSP-hit_end');
+                                my $hstrand = ( $hstart < $hend ) ? 1 : -1;
+
+                                my $qstart = $self->get_from_element('HSP-query_start');
+                                my $qend   = $self->get_from_element('HSP-query_end');
+                                my $qstrand = ( $qstart < $qend ) ? 1 : -1;
+
+                                $self->element(
+                                    {   'Name' => 'Hsp_query-strand',
+                                        'Data' => $qstrand
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_hit-strand',
+                                        'Data' => $hstrand
+                                    }
+                                );
+                            }
+
                             $self->end_element( { 'Name' => 'Hsp' } );
                         }
                     }
@@ -912,7 +935,7 @@ sub end_element {
 
  Title   : element
  Usage   : $eventhandler->element({'Name' => $name, 'Data' => $str});
- Function: Convienence method that calls start_element, characters, end_element
+ Function: Convenience method that calls start_element, characters, end_element
  Returns : none
  Args    : Hash ref with the keys 'Name' and 'Data'
 
@@ -923,6 +946,22 @@ sub element {
     $self->start_element($data);
     $self->characters($data);
     $self->end_element($data);
+}
+
+=head2 get_from_element
+
+ Title   : get_from_element
+ Usage   : $self->get_from_element('HSP-hit_start');
+ Function: Convenience method to retrieve data from '_values' hash
+ Returns : string
+ Args    : key
+
+=cut
+
+sub get_from_element {
+    my ($self,$key) = @_;
+    my $values = $self->{_values};
+    $values->{$key};
 }
 
 =head2 characters
