@@ -253,7 +253,7 @@ sub next_result{
 		 (\d+)\s+(\d+)\s+([\-\+\.])\s+ # query start-end-strand
 		 (\S+)\s+                      # target sequence id
 		 (\d+)\s+(\d+)\s+([\-\+])\s+   # target start-end-strand
-		 (\d+)\s+                      # score
+		 (-?\d+)\s+                    # score
 		 //ox ) {
 	   next if( $self->cigar || $self->{'_seencigar'});
 	   $self->{'_vulgar'}++;
@@ -366,7 +366,7 @@ sub next_result{
 		 (\d+)\s+(\d+)\s+([\-\+])\s+   # query start-end-strand
 		 (\S+)\s+                      # target sequence id
 		 (\d+)\s+(\d+)\s+([\-\+])\s+   # target start-end-strand
-		 (\d+)\s+                      # score
+		 (-?\d+)\s+                    # score
 		 //ox ) {
 	   next if( $self->vulgar || $self->{'_seenvulgar'});
 	   $self->{'_cigar'}++;
