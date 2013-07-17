@@ -628,10 +628,10 @@ sub next_result {
                                 || $_ =~ /^\s+Alignment:/
                                 || $_ =~ /^\s+score:/
                                 || $_ =~ /^\s+score\s+bias/
-                                || $_ =~ /^\s+\S+\s+\d+\s+([\s+gatc-]+)/   # Alignment, line 1
-                                || $_ =~ /^\s{20,}([\s+gatc-]+)/           # Alignment, line 2
-                                || $_ =~ /^\s+$name\s+\d+\s+([\s+GATC-]+)/ # Alignment, line 3
-                                || $_ =~ /^\s+[\d.\*]+/                    # Alignment, line 4
+                                || $_ =~ /^\s+\S+\s+\d+\s+([\s+.gatc-]+)/i  # Alignment, line 1
+                                || $_ =~ /^\s{20,}([\s+gatc-]+)/i           # Alignment, line 2
+                                || $_ =~ /^\s+$name\s+\d+\s+([\s+gatc-]+)/i # Alignment, line 3
+                                || $_ =~ /^\s+[\d.\*]+/                     # Alignment, line 4
                                 )
                             {
                                 next;
