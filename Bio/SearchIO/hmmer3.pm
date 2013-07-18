@@ -385,7 +385,8 @@ sub next_result {
             }
 
             # Complete sequence table data below inclusion threshold
-            # not currently fully implemented
+            # not currently fully implemented -
+            # Should all these lines simply be skipped?
             elsif ( /inclusion threshold/ ) {
                 while ( defined( $_ = $self->_readline ) ) {
                     if (   /Domain( and alignment)? annotation for each/
@@ -413,7 +414,7 @@ sub next_result {
                     $hitid      = shift @hitline;
                     $desc       = join " ", @hitline;
 
-                    $hitinfo{$hitid} = "below_inclusion";
+                    $hitinfo{$hitid} = "below_inclusion" if defined $hitid;
                 }
             }
 
