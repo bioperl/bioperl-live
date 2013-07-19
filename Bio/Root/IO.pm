@@ -627,7 +627,7 @@ sub _pushback {
  Usage   : $io->close()
  Function: Closes the file handle associated with this IO instance.
            Will not close the FH if  -noclose is specified
- Returns : none
+ Returns : Return true on success
  Args    : none
 
 =cut
@@ -635,7 +635,7 @@ sub _pushback {
 sub close {
    my ($self) = @_;
 
-   # don't close if we explicitly asked not to
+   # do not close if we explicitly asked not to
    return if $self->noclose;
 
    if( defined( my $fh = $self->{'_filehandle'} )) {
@@ -651,6 +651,7 @@ sub close {
    }
    $self->{'_filehandle'} = undef;
    delete $self->{'_readbuffer'};
+   return 1;
 }
 
 
@@ -665,19 +666,19 @@ sub close {
 =cut
 
 sub flush {
-  my ($self) = shift;
+    my ($self) = shift;
 
-  if( !defined $self->{'_filehandle'} ) {
-    $self->throw("Attempting to call flush but no filehandle active");
-  }
+    if( !defined $self->{'_filehandle'} ) {
+        $self->throw("Attempting to call flush but no filehandle active");
+    }
 
-  if( ref($self->{'_filehandle'}) =~ /GLOB/ ) {
-    my $oldh = select($self->{'_filehandle'});
-    $| = 1;
-    select($oldh);
-  } else {
-    $self->{'_filehandle'}->flush();
-  }
+    if( ref($self->{'_filehandle'}) =~ /GLOB/ ) {
+        my $oldh = select($self->{'_filehandle'});
+        $| = 1;
+        select($oldh);
+    } else {
+        $self->{'_filehandle'}->flush();
+    }
 }
 
 
@@ -697,7 +698,6 @@ sub flush {
 
 sub noclose {
     my $self = shift;
-
     return $self->{'_noclose'} = shift if @_;
     return $self->{'_noclose'};
 }
@@ -714,24 +714,24 @@ sub _io_cleanup {
 
     # we are planning to cleanup temp files no matter what
     if( exists($self->{'_rootio_tempfiles'}) &&
-    ref($self->{'_rootio_tempfiles'}) =~ /array/i &&
-    !$self->save_tempfiles) {
-    if( $v > 0 ) {
-        warn( "going to remove files ",
-          join(",",  @{$self->{'_rootio_tempfiles'}}), "\n");
-    }
-    unlink  (@{$self->{'_rootio_tempfiles'}} );
+      ref($self->{'_rootio_tempfiles'}) =~ /array/i &&
+      !$self->save_tempfiles) {
+        if( $v > 0 ) {
+            warn( "going to remove files ",
+              join(",",  @{$self->{'_rootio_tempfiles'}}), "\n");
+        }
+        unlink  (@{$self->{'_rootio_tempfiles'}} );
     }
     # cleanup if we are not using File::Temp
     if( $self->{'_cleanuptempdir'} &&
-    exists($self->{'_rootio_tempdirs'}) &&
-    ref($self->{'_rootio_tempdirs'}) =~ /array/i &&
-    !$self->save_tempfiles) {
-    if( $v > 0 ) {
-        warn( "going to remove dirs ",
-          join(",",  @{$self->{'_rootio_tempdirs'}}), "\n");
-    }
-    $self->rmtree( $self->{'_rootio_tempdirs'});
+      exists($self->{'_rootio_tempdirs'}) &&
+      ref($self->{'_rootio_tempdirs'}) =~ /array/i &&
+      !$self->save_tempfiles) {
+        if( $v > 0 ) {
+            warn( "going to remove dirs ",
+              join(",",  @{$self->{'_rootio_tempdirs'}}), "\n");
+        }
+        $self->rmtree( $self->{'_rootio_tempdirs'});
     }
 }
 
@@ -928,11 +928,11 @@ sub tempdir {
 sub catfile {
     my ($self, @args) = @_;
 
-    return File::Spec->catfile(@args) if($FILESPECLOADED);
+    return File::Spec->catfile(@args) if $FILESPECLOADED;
     # this is clumsy and not very appealing, but how do we specify the
     # root directory?
     if($args[0] eq '/') {
-    $args[0] = $ROOTDIR;
+        $args[0] = $ROOTDIR;
     }
     return join($PATHSEP, @args);
 }
@@ -976,101 +976,101 @@ sub catfile {
 sub rmtree {
     my($self,$roots, $verbose, $safe) = @_;
     if( $FILEPATHLOADED ) {
-    return File::Path::rmtree ($roots, $verbose, $safe);
+        return File::Path::rmtree ($roots, $verbose, $safe);
     }
 
-    my $force_writable = ($^O eq 'os2' || $^O eq 'dos' || $^O eq 'MSWin32'
-               || $^O eq 'amigaos' || $^O eq 'cygwin');
+    my $force_writable = ($^O eq 'os2' || $^O eq 'dos' || $^O eq 'MSWin32' ||
+                          $^O eq 'amigaos' || $^O eq 'cygwin');
     my $Is_VMS = $^O eq 'VMS';
 
-    my(@files);
-    my($count) = 0;
+    my @files;
+    my $count = 0;
     $verbose ||= 0;
-    $safe ||= 0;
+    $safe    ||= 0;
     if ( defined($roots) && length($roots) ) {
-    $roots = [$roots] unless ref $roots;
+        $roots = [$roots] unless ref $roots;
     } else {
-    $self->warn("No root path(s) specified\n");
-    return 0;
+        $self->warn("No root path(s) specified\n");
+        return 0;
     }
 
-    my($root);
+    my $root;
     foreach $root (@{$roots}) {
-    $root =~ s#/\z##;
-    (undef, undef, my $rp) = lstat $root or next;
-    $rp &= 07777;   # don't forget setuid, setgid, sticky bits
-    if ( -d _ ) {
-        # notabene: 0777 is for making readable in the first place,
-        # it's also intended to change it to writable in case we have
-        # to recurse in which case we are better than rm -rf for
-        # subtrees with strange permissions
-        chmod(0777, ($Is_VMS ? VMS::Filespec::fileify($root) : $root))
-          or $self->warn("Can't make directory $root read+writable: $!")
-        unless $safe;
-        if (opendir(DIR, $root) ){
-        @files = readdir DIR;
-        closedir(DIR);
-        } else {
-            $self->warn( "Can't read $root: $!");
-        @files = ();
-        }
+        $root =~ s#/\z##;
+        (undef, undef, my $rp) = lstat $root or next;
+        $rp &= 07777;   # don't forget setuid, setgid, sticky bits
+        if ( -d _ ) {
+            # notabene: 0777 is for making readable in the first place,
+            # it's also intended to change it to writable in case we have
+            # to recurse in which case we are better than rm -rf for
+            # subtrees with strange permissions
+            chmod(0777, ($Is_VMS ? VMS::Filespec::fileify($root) : $root))
+              or $self->warn("Can't make directory $root read+writable: $!")
+            unless $safe;
+            if (opendir(DIR, $root) ){
+                @files = readdir DIR;
+                closedir DIR;
+            } else {
+                $self->warn( "Can't read $root: $!");
+                @files = ();
+            }
 
-        # Deleting large numbers of files from VMS Files-11 filesystems
-        # is faster if done in reverse ASCIIbetical order
-        @files = reverse @files if $Is_VMS;
-        ($root = VMS::Filespec::unixify($root)) =~ s#\.dir\z## if $Is_VMS;
-        @files = map("$root/$_", grep $_!~/^\.{1,2}\z/s,@files);
-        $count += $self->rmtree([@files],$verbose,$safe);
-        if ($safe &&
-        ($Is_VMS ? !&VMS::Filespec::candelete($root) : !-w $root)) {
-        print "skipped $root\n" if $verbose;
-        next;
-        }
-        chmod 0777, $root
-          or $self->warn( "Can't make directory $root writable: $!")
-        if $force_writable;
-        print "rmdir $root\n" if $verbose;
-        if (rmdir $root) {
-        ++$count;
+            # Deleting large numbers of files from VMS Files-11 filesystems
+            # is faster if done in reverse ASCIIbetical order
+            @files = reverse @files if $Is_VMS;
+            ($root = VMS::Filespec::unixify($root)) =~ s#\.dir\z## if $Is_VMS;
+            @files = map("$root/$_", grep $_!~/^\.{1,2}\z/s,@files);
+            $count += $self->rmtree([@files],$verbose,$safe);
+            if ($safe &&
+              ($Is_VMS ? !&VMS::Filespec::candelete($root) : !-w $root)) {
+                print "skipped $root\n" if $verbose;
+                next;
+            }
+            chmod 0777, $root
+              or $self->warn( "Can't make directory $root writable: $!")
+              if $force_writable;
+            print "rmdir $root\n" if $verbose;
+            if (rmdir $root) {
+                ++$count;
+            }
+            else {
+                $self->warn( "Can't remove directory $root: $!");
+                chmod($rp, ($Is_VMS ? VMS::Filespec::fileify($root) : $root))
+                  or $self->warn("and can't restore permissions to "
+                    . sprintf("0%o",$rp) . "\n");
+            }
         }
         else {
-        $self->warn( "Can't remove directory $root: $!");
-        chmod($rp, ($Is_VMS ? VMS::Filespec::fileify($root) : $root))
-            or $self->warn("and can't restore permissions to "
-                    . sprintf("0%o",$rp) . "\n");
-        }
-    }
-    else {
 
-        if ($safe &&
-        ($Is_VMS ? !&VMS::Filespec::candelete($root)
-                 : !(-l $root || -w $root)))
-        {
-        print "skipped $root\n" if $verbose;
-        next;
-        }
-        chmod 0666, $root
-          or $self->warn( "Can't make file $root writable: $!")
-        if $force_writable;
-        warn "unlink $root\n" if $verbose;
-        # delete all versions under VMS
-        for (;;) {
-        unless (unlink $root) {
-            $self->warn( "Can't unlink file $root: $!");
-            if ($force_writable) {
-            chmod $rp, $root
-                or $self->warn("and can't restore permissions to "
-                        . sprintf("0%o",$rp) . "\n");
+            if ($safe &&
+              ($Is_VMS ? !&VMS::Filespec::candelete($root)
+                       : !(-l $root || -w $root)))
+            {
+                print "skipped $root\n" if $verbose;
+                next;
             }
-            last;
+            chmod 0666, $root
+              or $self->warn( "Can't make file $root writable: $!")
+              if $force_writable;
+            warn "unlink $root\n" if $verbose;
+            # delete all versions under VMS
+            for (;;) {
+                unless (unlink $root) {
+                    $self->warn( "Can't unlink file $root: $!");
+                    if ($force_writable) {
+                        chmod $rp, $root
+                          or $self->warn("and can't restore permissions to "
+                          . sprintf("0%o",$rp) . "\n");
+                    }
+                    last;
+                }
+                ++$count;
+                last unless $Is_VMS && lstat $root;
+            }
         }
-        ++$count;
-        last unless $Is_VMS && lstat $root;
-        }
-    }
     }
 
-    $count;
+    return $count;
 }
 
 
@@ -1090,7 +1090,7 @@ sub rmtree {
 sub _flush_on_write {
     my ($self,$value) = @_;
     if( defined $value) {
-    $self->{'_flush_on_write'} = $value;
+        $self->{'_flush_on_write'} = $value;
     }
     return $self->{'_flush_on_write'};
 }
@@ -1117,3 +1117,4 @@ sub save_tempfiles {
 
 
 1;
+

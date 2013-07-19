@@ -6,7 +6,7 @@ use warnings;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 102);
+    test_begin(-tests => 107);
     use_ok('Bio::Root::IO');
 }
 
@@ -84,12 +84,12 @@ ok my $rio = Bio::Root::IO->new( -file => $in_file ), 'Read from file';
 is $rio->file, $in_file;
 1 while $rio->_readline; # read entire file content
 is $rio->mode, 'r';
-$rio->close;
+ok $rio->close;
 
 ok my $wio = Bio::Root::IO->new( -file => ">$out_file" ), 'Write to file';
 is $wio->file, ">$out_file";
 is $wio->mode, 'w';
-$wio->close;
+ok $wio->close;
 
 # Test with handles
 
@@ -115,8 +115,7 @@ SKIP: {
     isa_ok $wio, 'Bio::Root::IO';
     is $wio->mode, 'w', 'is a write handle';
     warnings_like sub { $wio->close }, '', 'no warnings in ->close()';
-    $wio->close;
-
+    ok $wio->close;
 }
 
 
@@ -153,7 +152,7 @@ ok $fio->_print("line 2\n");
 ok $fio->_insert("insertion at line 2\n",2), '_insert at middle of file';
 ok $fio->_print("line 3\n");
 ok $fio->_print("line 4\n");
-$fio->close;
+ok $fio->close;
 
 open my $checkio, '<', $out_file;
 my @content = <$checkio>;
@@ -162,7 +161,7 @@ is_deeply \@content, ["line 1\n","insertion at line 2\n","line 2\n","line 3\n","
 
 ok $fio = Bio::Root::IO->new(-file=>">$out_file");
 ok $fio->_insert("insertion at line 1\n",1), '_insert in empty file';
-$fio->close;
+ok $fio->close;
 
 open $checkio, '<', $out_file;
 @content = <$checkio>;
