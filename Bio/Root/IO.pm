@@ -343,13 +343,13 @@ sub _fh {
  Function: Determine if the object was opened for reading or writing
  Example :
  Returns : Mode of the object:
-            'r' for readable
-            'w' for writable
-            '?' if mode could not be determined
+            'r'  for readable
+            'w'  for writable
+            'rw' for readable and writable
+            '?'  if mode could not be determined (e.g. for a -url)
  Args    : -force: Boolean. Once mode() has been called, the mode is cached for
                    further calls to mode(). Use this argument to override this
                    behavior and re-check the object's mode.
- Caveat  : Returns 'w' for streams opened in read+write mode!
 
 =cut
 
@@ -385,9 +385,9 @@ sub mode {
                 $mode = 'r'
             }
             if ( defined( syswrite $fh, '') ) {
-                # Succesfully wrote 0 bytes
-                $mode = 'w';
-                # TODO: Should append here, for stream in read+write access
+                # Successfully wrote 0 bytes
+                $mode ||= '';
+                $mode  .= 'w';
             }
         } else {
            # Stream does not have a filehandle... cannot determine mode

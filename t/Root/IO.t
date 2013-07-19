@@ -6,7 +6,7 @@ use warnings;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 116);
+    test_begin(-tests => 120);
     use_ok('Bio::Root::IO');
 }
 
@@ -96,6 +96,12 @@ is $wio->file, ">$out_file";
 is $wio->mode, 'w';
 ok $wio->close;
 
+ok $rio = Bio::Root::IO->new( -file => "+>$out_file" ), 'Read+write to file';
+is $rio->file, "+>$out_file";
+is $rio->mode, 'rw';
+ok $rio->close;
+
+
 # Test with handles
 
 my $in_fh;
@@ -118,7 +124,7 @@ SKIP: {
     $out_fh = File::Temp->new;
     ok $wio = Bio::Root::IO->new( -fh => $out_fh ), 'Read from File::Temp handle';
     isa_ok $wio, 'Bio::Root::IO';
-    is $wio->mode, 'w', 'is a write handle';
+    is $wio->mode, 'rw', 'is a write handle';
     warnings_like sub { $wio->close }, '', 'no warnings in ->close()';
     ok $wio->close;
 }
