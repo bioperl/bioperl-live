@@ -17,7 +17,7 @@ use base qw(Bio::Root::Root);
     # utilize stream I/O in your module
     $self->{'io'} = Bio::Root::IO->new(-file => "myfile");
     $self->{'io'}->_print("some stuff");
-    $line = $self->{'io'}->_readline();
+    my $line = $self->{'io'}->_readline();
     $self->{'io'}->_pushback($line);
     $self->{'io'}->close();
 
@@ -162,25 +162,25 @@ BEGIN {
     $ONMAC = "\015" eq "\n";
 }
 
+
 =head2 new
 
  Title   : new
  Usage   :
- Function: Overridden here to automatically call _initialize_io().
+ Function: Create new class instance. It automatically calls C<_initialize_io>.
  Example :
- Returns : new instance of this class
- Args    : named parameters
-
+ Returns : A Bio::Root::IO object
+ Args    : Same named parameters as C<_initialize_io>.
 
 =cut
 
 sub new {
     my ($caller, @args) = @_;
     my $self = $caller->SUPER::new(@args);
-
     $self->_initialize_io(@args);
     return $self;
 }
+
 
 =head2 _initialize_io
 
@@ -198,7 +198,6 @@ sub new {
               -noclose  boolean flag, when set to true will not close a
                         filehandle (must explicitly call close($io->_fh)
               -retries  number of times to try a web fetch before failure
-
               -ua_parms hashref of key => value parameters to pass
                         to LWP::UserAgent->new()
                         (only meaningful with -url is set)
@@ -206,7 +205,6 @@ sub new {
                         { timeout => 60 } (ua default is 180 sec)
  Returns : TRUE
  Args    : named parameters
-
 
 =cut
 
@@ -220,7 +218,7 @@ sub _initialize_io {
     $self->_rearrange([qw(INPUT NOCLOSE FILE FH STRING FLUSH URL RETRIES UA_PARMS)],
                       @args);
 
-    if($url){
+    if ($url) {
         $retries ||= 5;
 
         if($HAS_LWP) { #use LWP::UserAgent
@@ -254,14 +252,14 @@ sub _initialize_io {
     delete $self->{'_filehandle'};
     $self->noclose( $noclose) if defined $noclose;
     # determine whether the input is a file(name) or a stream
-    if($input) {
-        if(ref(\$input) eq "SCALAR") {
+    if ($input) {
+        if (ref(\$input) eq "SCALAR") {
             # we assume that a scalar is a filename
             if($file && ($file ne $input)) {
-            $self->throw("input file given twice: $file and $input disagree");
+                $self->throw("input file given twice: $file and $input disagree");
             }
             $file = $input;
-        } elsif(ref($input) &&
+        } elsif (ref($input) &&
             ((ref($input) eq "GLOB") || $input->isa('IO::Handle'))) {
             # input is a stream
             $fh = $input;
@@ -272,22 +270,22 @@ sub _initialize_io {
         }
     }
 
-    if(defined($file) && defined($fh)) {
+    if (defined($file) && defined($fh)) {
         $self->throw("Providing both a file and a filehandle for reading - ".
                      "only one please!");
     }
 
     if ($string) {
         if(defined($file) || defined($fh)) {
-            $self->throw("File or filehandle provided with -string,".
-                         " please unset if you are using -string as a file");
+            $self->throw("File or filehandle provided with -string, ".
+                         "please unset if you are using -string as a file");
         }
-        open($fh, "<", \$string)
+        open $fh, '<', \$string or $self->throw("Could not read string: $!");
     }
 
-    if(defined($file) && ($file ne '')) {
+    if (defined($file) && ($file ne '')) {
         $fh = Symbol::gensym();
-        open ($fh,$file) || $self->throw("Could not open $file: $!");
+        open $fh, $file or $self->throw("Could not open file $file: $!");
         $self->file($file);
     }
 
@@ -300,7 +298,7 @@ sub _initialize_io {
                  || ( ref $fh && ( UNIVERSAL::can( $fh, 'can' )
                     && ( $fh->isa('IO::Handle') || $fh->isa('IO::String') ) ) )
                ) {
-            $self->throw("file handle $fh doesn't appear to be a handle");
+            $self->throw("Object $fh does not appear to be a file handle");
         }
     }
     if ($HAS_EOL) {
@@ -317,18 +315,18 @@ sub _initialize_io {
 =head2 _fh
 
  Title   : _fh
- Usage   : $obj->_fh($newval)
+ Usage   : $obj->_fh($newval);
  Function: Get/set the file handle for the stream encapsulated.
  Example :
- Returns : value of _filehandle
- Args    : newvalue (optional)
+ Returns : Filehandle for the stream
+ Args    : Optional new filehandle to use
 
 =cut
 
 sub _fh {
     my ($obj, $value) = @_;
     if ( defined $value) {
-    $obj->{'_filehandle'} = $value;
+        $obj->{'_filehandle'} = $value;
     }
     return $obj->{'_filehandle'};
 }
@@ -337,18 +335,17 @@ sub _fh {
 =head2 mode
 
  Title   : mode
- Usage   : $obj->mode()
- Function:
+ Usage   : $obj->mode();
+           $obj->mode(-force => 1);
+ Function: Determine if the object was opened for reading or writing
  Example :
- Returns : mode of filehandle:
-           'r' for readable
-           'w' for writable
-           '?' if mode could not be determined
- Args    : -force (optional), see notes.
- Notes   : once mode() has been called, the filehandle's mode is cached
-           for further calls to mode().  to override this behavior so
-           that mode() re-checks the filehandle's mode, call with arg
-           -force
+ Returns : Mode of the object:
+            'r' for readable
+            'w' for writable
+            '?' if mode could not be determined
+ Args    : -force: Boolean. Once mode() has been called, the mode is cached for
+                   further calls to mode(). Use this argument to override this
+                   behavior and re-check the object's mode.
 
 =cut
 
@@ -358,9 +355,9 @@ sub mode {
     return $obj->{'_mode'} if defined $obj->{'_mode'} and !$param{-force};
 
     # Previous system of:
-    #  my $iotest = new IO::Handle;
-    #  $iotest->fdopen( dup(fileno($fh)) , 'r' );
-    #  if ($iotest->error == 0) { ... }
+    # my $iotest = new IO::Handle;
+    # $iotest->fdopen( dup(fileno($fh)) , 'r' );
+    # if ($iotest->error == 0) { ... }
     # didn't actually seem to work under any platform, since there would no
     # no error if the filehandle had been opened writable only. Couldn't be
     # hacked around when dealing with unseekable (piped) filehandles.
@@ -537,7 +534,7 @@ sub _insert {
  Usage   : $obj->_readline(%args)
  Function: Reads a line of input.
 
-           Note that this method implicitely uses the value of $/ that is
+           Note that this method implicitly uses the value of $/ that is
            in effect when called.
 
            Note also that the current implementation does not handle pushed
@@ -555,19 +552,19 @@ sub _insert {
 
 sub _readline {
     my $self = shift;
-    my %param =@_;
+    my %param = @_;
     my $fh = $self->_fh or return;
     my $line;
 
     # if the buffer been filled by _pushback then return the buffer
     # contents, rather than read from the filehandle
     if( @{$self->{'_readbuffer'} || [] } ) {
-    $line = shift @{$self->{'_readbuffer'}};
+        $line = shift @{$self->{'_readbuffer'}};
     } else {
-    $line = <$fh>;
+        $line = <$fh>;
     }
 
-    #don't strip line endings if -raw is specified
+    # don't strip line endings if -raw is specified
     # $line =~ s/\r\n/\n/g if( (!$param{-raw}) && (defined $line) );
     # Dave Howorth's fix
     if( !$HAS_EOL && !$param{-raw} && (defined $line) ) {
@@ -576,6 +573,7 @@ sub _readline {
     }
     return $line;
 }
+
 
 =head2 _pushback
 
@@ -608,6 +606,7 @@ sub _pushback {
     return unless $value;
     unshift @{$obj->{'_readbuffer'}}, $value;
 }
+
 
 =head2 close
 
@@ -668,6 +667,7 @@ sub flush {
   }
 }
 
+
 =head2 noclose
 
  Title   : noclose
@@ -682,12 +682,13 @@ sub flush {
 
 =cut
 
-sub noclose{
+sub noclose {
     my $self = shift;
 
     return $self->{'_noclose'} = shift if @_;
     return $self->{'_noclose'};
 }
+
 
 =head2 _io_cleanup
 
@@ -721,6 +722,7 @@ sub _io_cleanup {
     }
 }
 
+
 =head2 exists_exe
 
  Title   : exists_exe
@@ -751,7 +753,7 @@ sub exists_exe {
 
     # Not a full path, or does not exist. Let's see whether it's in the path.
     if($FILESPECLOADED) {
-        foreach my $dir (File::Spec->path()) {
+        for my $dir (File::Spec->path()) {
             my $f = Bio::Root::IO->catfile($dir, $exe);
             return $f if( -f $f && -x $f );
         }
@@ -759,13 +761,13 @@ sub exists_exe {
     return 0;
 }
 
+
 =head2 tempfile
 
  Title   : tempfile
  Usage   : my ($handle,$tempfile) = $io->tempfile();
  Function: Returns a temporary filename and a handle opened for writing and
            and reading.
-
  Caveats : If you do not have File::Temp on your system you should avoid
            specifying TEMPLATE and SUFFIX. (We don't want to recode
            everything, okay?)
@@ -776,78 +778,80 @@ sub exists_exe {
 
 =cut
 
-#'
 sub tempfile {
     my ($self, @args) = @_;
     my ($tfh, $file);
     my %params = @args;
 
     # map between naming with and without dash
-    foreach my $key (keys(%params)) {
-    if( $key =~ /^-/  ) {
-        my $v = $params{$key};
-        delete $params{$key};
-        $params{uc(substr($key,1))} = $v;
-    } else {
-        # this is to upper case
-        my $v = $params{$key};
-        delete $params{$key};
-        $params{uc($key)} = $v;
-    }
+    for my $key (keys(%params)) {
+        if( $key =~ /^-/  ) {
+            my $v = $params{$key};
+            delete $params{$key};
+            $params{uc(substr($key,1))} = $v;
+        } else {
+            # this is to upper case
+            my $v = $params{$key};
+            delete $params{$key};
+            $params{uc($key)} = $v;
+        }
     }
     $params{'DIR'} = $TEMPDIR if(! exists($params{'DIR'}));
     unless (exists $params{'UNLINK'} &&
-        defined $params{'UNLINK'} &&
-        ! $params{'UNLINK'} ) {
-    $params{'UNLINK'} = 1;
-    } else { $params{'UNLINK'} = 0 }
+            defined $params{'UNLINK'} &&
+            ! $params{'UNLINK'} ) {
+        $params{'UNLINK'} = 1;
+    } else {
+        $params{'UNLINK'} = 0;
+    }
 
     if($FILETEMPLOADED) {
-    if(exists($params{'TEMPLATE'})) {
-        my $template = $params{'TEMPLATE'};
-        delete $params{'TEMPLATE'};
-        ($tfh, $file) = File::Temp::tempfile($template, %params);
+        if(exists($params{'TEMPLATE'})) {
+            my $template = $params{'TEMPLATE'};
+            delete $params{'TEMPLATE'};
+            ($tfh, $file) = File::Temp::tempfile($template, %params);
+        } else {
+            ($tfh, $file) = File::Temp::tempfile(%params);
+        }
     } else {
-        ($tfh, $file) = File::Temp::tempfile(%params);
-    }
-    } else {
-    my $dir = $params{'DIR'};
-    $file = $self->catfile($dir,
-                   (exists($params{'TEMPLATE'}) ?
-                $params{'TEMPLATE'} :
-                sprintf( "%s.%s.%s",
-                     $ENV{USER} || 'unknown', $$,
-                     $TEMPCOUNTER++)));
+        my $dir = $params{'DIR'};
+        $file = $self->catfile(
+            $dir,
+            (exists($params{'TEMPLATE'}) ?
+             $params{'TEMPLATE'} :
+             sprintf( "%s.%s.%s", $ENV{USER} || 'unknown', $$, $TEMPCOUNTER++))
+        );
 
-    # sneakiness for getting around long filenames on Win32?
-    if( $HAS_WIN32 ) {
-        $file = Win32::GetShortPathName($file);
-    }
+        # sneakiness for getting around long filenames on Win32?
+        if( $HAS_WIN32 ) {
+            $file = Win32::GetShortPathName($file);
+        }
 
-    # Try to make sure this will be marked close-on-exec
-    # XXX: Win32 doesn't respect this, nor the proper fcntl,
-    #      but may have O_NOINHERIT. This may or may not be in Fcntl.
-    local $^F = 2;
-    # Store callers umask
-    my $umask = umask();
-    # Set a known umaskr
-    umask(066);
-    # Attempt to open the file
-    if ( sysopen($tfh, $file, $OPENFLAGS, 0600) ) {
-        # Reset umask
-        umask($umask);
-    } else {
-        $self->throw("Could not open tempfile $file: $!\n");
-    }
+        # Try to make sure this will be marked close-on-exec
+        # XXX: Win32 doesn't respect this, nor the proper fcntl,
+        #      but may have O_NOINHERIT. This may or may not be in Fcntl.
+        local $^F = 2;
+        # Store callers umask
+        my $umask = umask();
+        # Set a known umaskr
+        umask(066);
+        # Attempt to open the file
+        if ( sysopen($tfh, $file, $OPENFLAGS, 0600) ) {
+            # Reset umask
+            umask($umask);
+        } else {
+            $self->throw("Could not open tempfile $file: $!\n");
+        }
     }
 
     if(  $params{'UNLINK'} ) {
-    push @{$self->{'_rootio_tempfiles'}}, $file;
+        push @{$self->{'_rootio_tempfiles'}}, $file;
     }
 
 
     return wantarray ? ($tfh,$file) : $tfh;
 }
+
 
 =head2  tempdir
 
@@ -886,6 +890,7 @@ sub tempdir {
     return $tdir;
 }
 
+
 =head2 catfile
 
  Title   : catfile
@@ -918,6 +923,7 @@ sub catfile {
     }
     return join($PATHSEP, @args);
 }
+
 
 =head2 rmtree
 
@@ -1054,6 +1060,7 @@ sub rmtree {
     $count;
 }
 
+
 =head2 _flush_on_write
 
  Title   : _flush_on_write
@@ -1075,6 +1082,7 @@ sub _flush_on_write {
     return $self->{'_flush_on_write'};
 }
 
+
 =head2 save_tempfiles
 
  Title   : save_tempfiles
@@ -1093,5 +1101,6 @@ sub save_tempfiles {
     }
     return $self->{save_tempfiles} || 0;
 }
+
 
 1;
