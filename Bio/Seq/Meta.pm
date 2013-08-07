@@ -167,7 +167,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Heikki Lehvaslaiho
 
@@ -585,6 +585,7 @@ sub force_flush {
             $self->{force_flush} = 0;
         }
     }
+
     return $self->{force_flush};
 }
 
@@ -633,7 +634,6 @@ sub _do_flush {
 
 =cut
 
-
 sub is_flush {
 
     my ($self, $name) = shift;
@@ -647,7 +647,7 @@ sub is_flush {
         $sticky .= "$name " if $self->length != $self->named_meta_length($name);
     } else {
         foreach my $m ($self->meta_names) {
-            $sticky .= "$m " if $self->length != $self->named_meta_length($m);
+            $sticky .= "$m " if ($self->named_meta_length($m) > 0) && ($self->length != $self->named_meta_length($m));
         }
     }
 

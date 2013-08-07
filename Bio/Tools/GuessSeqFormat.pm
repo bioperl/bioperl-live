@@ -9,6 +9,8 @@
 # You may distribute this module under the same terms as perl itself
 #------------------------------------------------------------------
 
+=encoding utf-8
+
 =head1 NAME
 
 Bio::Tools::GuessSeqFormat - Module for determining the sequence
@@ -191,6 +193,10 @@ Swissprot ("swiss")
 
 Tab ("tab")
 
+=item *
+
+Variant Call Format ("vcf")
+
 =back
 
 =head1 FEEDBACK
@@ -222,15 +228,15 @@ Report bugs to the Bioperl bug tracking system to help us
 keep track the bugs and their resolution.  Bug reports can be
 submitted via the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR
 
-Andreas Kähäri, andreas.kahari@ebi.ac.uk
+Andreas KE<228>hE<228>ri, andreas.kahari@ebi.ac.uk
 
 =head1 CONTRIBUTORS
 
-Heikki Lehväslaiho, heikki-at-bioperl-dot-org
+Heikki LehvE<228>slaiho, heikki-at-bioperl-dot-org
 Mark A. Jensen, maj-at-fortinbras-dot-us
 
 =cut
@@ -440,7 +446,8 @@ our %formats = (
     selex       => { test => \&_possibly_selex      },
     stockholm   => { test => \&_possibly_stockholm  },
     swiss       => { test => \&_possibly_swiss      },
-    tab         => { test => \&_possibly_tab        }
+    tab         => { test => \&_possibly_tab        },
+    vcf         => { test => \&_possibly_vcf        }
 );
 
 sub guess
@@ -974,6 +981,23 @@ sub _possibly_tab
     my ($line, $lineno) = (shift, shift);
     return ($lineno == 1 && $line =~ /^[^\t]+\t[^\t]+/) ;
 }
+
+=head2 _possibly_vcf
+
+From "http://www.1000genomes.org/wiki/analysis/vcf4.0".
+
+Assumptions made about sanity - format and date lines are line 1 and 2
+respectively. This is not specified in the format document.
+
+=cut
+
+sub _possibly_vcf
+{
+    my ($line, $lineno) = (shift, shift);
+    return (($lineno == 1 && $line =~ /##fileformat=VCFv/) ||
+            ($lineno == 2 && $line =~ /##fileDate=/));
+}
+
 
 
 1;

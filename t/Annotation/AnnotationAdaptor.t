@@ -34,7 +34,7 @@ is($anncoll->get_num_of_annotations(), 4);
 is(scalar($anncoll->get_all_annotation_keys()), 2);
 
 my @anns = $anncoll->get_Annotations("tag1");
-my @vals = $feat->each_tag_value("tag1");
+my @vals = $feat->get_tag_values("tag1");
 
 is (scalar(@anns), scalar(@vals));
 for(my $i = 0; $i < @anns; $i++) {
@@ -43,7 +43,7 @@ for(my $i = 0; $i < @anns; $i++) {
 
 @anns = $anncoll->get_Annotations("tag2");
 my @fanns = $feat->annotation->get_Annotations("tag2");
-@vals = $feat->each_tag_value("tag2");
+@vals = $feat->get_tag_values("tag2");
 
 is (scalar(@fanns), 1);
 is (scalar(@anns), 2);
@@ -65,7 +65,7 @@ $anncoll->add_Annotation($tagval);
 
 @anns = $anncoll->get_Annotations("tag2");
 @fanns = $feat->annotation->get_Annotations("tag2");
-@vals = $feat->each_tag_value("tag2");
+@vals = $feat->get_tag_values("tag2");
 
 is (scalar(@fanns), 1);
 is (scalar(@anns), 3);

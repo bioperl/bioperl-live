@@ -8,9 +8,11 @@
 #
 # You may distribute this module under the same terms as perl itself
 # _history
-# December 2009     - initial version
-#   July 2 2010     - updated for SeqXML v0.2
+#     December 2009 - initial version
+#       July 2 2010 - updated for SeqXML v0.2
 #  November 11 2010 - added schemaLocation
+#  December  9 2010 - SeqXML v0.3
+# 
 
 # POD documentation - main docs before the code
 
@@ -90,7 +92,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHORS - Dave Messina
 
@@ -116,6 +118,7 @@ use Bio::Seq;
 use Bio::Seq::SeqFactory;
 use Bio::Species;
 use Bio::Annotation::DBLink;
+use Bio::Annotation::SimpleValue;
 use XML::LibXML;
 use XML::LibXML::Reader;
 use XML::Writer;
@@ -124,8 +127,8 @@ use base qw(Bio::SeqIO);
 
 # define seqXML header stuff
 # there's no API for XMLNS XMLNS_XSI; you must set them here.
-use constant SEQXML_VERSION => 0.2;
-use constant SCHEMA_LOCATION => 'http://seqXML.org/0.2 http://www.seqxml.org/0.2/seqxml.xsd';
+use constant SEQXML_VERSION => 0.3;
+use constant SCHEMA_LOCATION => 'http://www.seqxml.org/0.3/seqxml.xsd';
 use constant XMLNS_XSI => 'http://www.w3.org/2001/XMLSchema-instance';
 
 =head2 _initialize
@@ -213,7 +216,7 @@ sub _initialize {
                     'seqXML',
                     'seqXMLversion' => $self->seqXMLversion(SEQXML_VERSION),
                     'xmlns:xsi'     => XMLNS_XSI,
-                    'xsi:schemaLocation' => $self->schemaLocation(SCHEMA_LOCATION),
+                    'xsi:noNamespaceSchemaLocation' => $self->schemaLocation(SCHEMA_LOCATION),
                     'source'        => $self->source,
                     'sourceVersion' => $self->sourceVersion,
                 );                
@@ -223,7 +226,7 @@ sub _initialize {
                     'seqXML',
                     'seqXMLversion' => $self->seqXMLversion(SEQXML_VERSION),
                     'xmlns:xsi'     => XMLNS_XSI,
-                    'xsi:schemaLocation' => $self->schemaLocation(SCHEMA_LOCATION),
+                    'xsi:noNamespaceSchemaLocation' => $self->schemaLocation(SCHEMA_LOCATION),
                 );
             }
         }
@@ -284,9 +287,13 @@ sub write_seq {
             );
         }
 
-        # opening tag and ID
+        # opening tag, ID, and source (if present -- it's optional)
         my $id = $seqobj->display_id;
-        if ($id) {
+        my ($source_obj) = $seqobj->get_Annotations('source');
+        if (defined $source_obj && defined $id) {
+            $writer->startTag( 'entry', 'id' => $id, 'source' => $source_obj->value );
+        }
+        elsif (defined $id) {
             $writer->startTag( 'entry', 'id' => $id );
         }
         else {
@@ -364,6 +371,7 @@ sub write_seq {
         my @annotations = $seqobj->get_Annotations();
         foreach my $annot_obj (@annotations) {
             next if ( $annot_obj->tagname eq 'dblink' );
+            next if ( $annot_obj->tagname eq 'source' ); # handled above
 
             # SeqXML doesn't support references
             next if ( $annot_obj->tagname eq 'reference' );
@@ -989,7 +997,7 @@ sub end_element_entry {
         $self->throw("this entry lacks an alphabet");
     }
 
-    # create new sequnce object with minimum necessary parameters
+    # create new sequence object with minimum necessary parameters
     my $seq_obj = $self->sequence_factory->create(
         -seq        => $data->{'sequence'},
         -alphabet   => $data->{'alphabet'},
@@ -1013,6 +1021,13 @@ sub end_element_entry {
         foreach my $annotation_obj ( @{ $data->{'properties'} } ) {
             $seq_obj->add_Annotation($annotation_obj);
         }
+    }
+    if ( $data->{'source'} ) {
+        my $annotation_obj = Bio::Annotation::SimpleValue->new(
+            '-tagname' => 'source',
+            '-value'   => $data->{'source'},
+        );
+        $seq_obj->add_Annotation($annotation_obj);
     }
 
     # empty the temporary data store
@@ -1070,7 +1085,7 @@ sub DESTROY {
 
 sub close {
     my $self = shift;
-    if ( $self->mode eq 'w' ) {
+    if ( $self->mode eq 'w' && $self->{'_writer'}->within_element('seqXML') ) {
         $self->{'_writer'}->endTag("seqXML");
         $self->{'_writer'}->end();
     }

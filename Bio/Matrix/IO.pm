@@ -19,7 +19,7 @@ Bio::Matrix::IO - A factory for Matrix parsing
 
   use Bio::Matrix::IO;
   my $parser = Bio::Matrix::IO->new(-format => 'scoring',
-                                   -file   => 'BLOSUMN50');
+                                    -file   => 'BLOSUMN50');
 
   my $matrix = $parser->next_matrix;
 
@@ -58,7 +58,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -157,6 +157,19 @@ sub fh {
   tie $$s,$class,$self;
   return $s;
 }
+
+
+=head2 format
+
+ Title   : format
+ Usage   : $format = $obj->format()
+ Function: Get the matrix format
+ Returns : matrix format
+ Args    : none
+
+=cut
+
+# format() method inherited from Bio::Root::IO
 
 
 =head2 next_matrix

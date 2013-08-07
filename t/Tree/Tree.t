@@ -6,17 +6,15 @@ use strict;
 BEGIN { 
     use lib '.';
     use Bio::Root::Test;
-    
-#/maj    test_begin(-tests => 60);
-    test_begin(-tests => 62);	
+    test_begin(-tests => 64);
     use_ok('Bio::TreeIO');
 }
 
 my $verbose = test_debug();
 
 my $treeio = Bio::TreeIO->new(-verbose => $verbose,
-			     -format => 'nhx',
-			     -file   => test_input_file('test.nhx'));
+                              -format => 'nhx',
+                              -file   => test_input_file('test.nhx'));
 my $tree = $treeio->next_tree;
 
 # tests for tags
@@ -40,16 +38,16 @@ is(@nodes, 2,'Number of nodes that have ADH2 as name');
 
 if( $verbose ) {
     $treeio = Bio::TreeIO->new(-verbose => $verbose,
-			      -format => 'nhx',
-			      );
+                               -format => 'nhx',
+                              );
     $treeio->write_tree($tree);
     print "nodes are: \n",
     join(", ", map {  $_->id . ":". (defined $_->branch_length ? 
-				     $_->branch_length : '' ) } @nodes), "\n";
+                                     $_->branch_length : '' ) } @nodes), "\n";
 }
 
 $treeio = Bio::TreeIO->new(-format => 'newick',
-			  -file   => test_input_file('test.nh'));
+                           -file   => test_input_file('test.nh'));
 $tree = $treeio->next_tree;
 
 
@@ -60,16 +58,16 @@ if( $verbose ) {
 }
 
 my @hADH = ( $tree->find_node('hADH1'),
-	     $tree->find_node('hADH2') );
+             $tree->find_node('hADH2') );
 my ($n4) = $tree->find_node('yADH4');
 
 is($tree->is_monophyletic(-nodes    => \@hADH,
-			  -outgroup => $n4),1,'Test Monophyly');
+                          -outgroup => $n4),1,'Test Monophyly');
 
 my @mixgroup = ( $tree->find_node('hADH1'),
-		 $tree->find_node('yADH2'),
-		 $tree->find_node('yADH3'),
-		 );
+                 $tree->find_node('yADH2'),
+                 $tree->find_node('yADH3'),
+                 );
 
 my ($iADHX) = $tree->find_node('iADHX');
 
@@ -77,7 +75,7 @@ my ($iADHX) = $tree->find_node('iADHX');
 is($iADHX->height, 0,'Height');
 is($iADHX->depth,0.22,'Depth');
 isnt( $tree->is_monophyletic(-nodes   => \@mixgroup,
-			    -outgroup=> $iADHX),1, 'non-monophyletic group');
+                             -outgroup=> $iADHX),1, 'non-monophyletic group');
 
 # binary tree?
 is $tree->is_binary, 0, 'not a binary tree';
@@ -88,48 +86,48 @@ is $tree->is_binary, 1, 'after force_binary() it is';
 is scalar $tree->get_nodes, 17, 'and there are more nodes (17)';
 
 my $in = Bio::TreeIO->new(-format => 'newick',
-			 -fh     => \*DATA);
+                          -fh     => \*DATA);
 $tree = $in->next_tree;
 my ($a,$b,$c,$d) = ( $tree->find_node('A'),
-		     $tree->find_node('B'),
-		     $tree->find_node('C'),
-		     $tree->find_node('D'));
+                     $tree->find_node('B'),
+                     $tree->find_node('C'),
+                     $tree->find_node('D'));
 
 is($tree->is_monophyletic(-nodes => [$b,$c],
-			  -outgroup => $d),1, 'B,C are Monophyletic');
+                          -outgroup => $d),1, 'B,C are Monophyletic');
 
 is($tree->is_monophyletic(-nodes => [$b,$a],
-			  -outgroup => $d),1,'A,B are Monophyletic');
+                          -outgroup => $d),1,'A,B are Monophyletic');
 
 $tree = $in->next_tree;
 my ($e,$f,$i);
 ($a,$b,$c,$d,$e,$f,$i) = ( $tree->find_node('A'),
-			   $tree->find_node('B'),
-			   $tree->find_node('C'),
-			   $tree->find_node('D'),
-			   $tree->find_node('E'),
-			   $tree->find_node('F'),
-			   $tree->find_node('I'),
-			   );
+                           $tree->find_node('B'),
+                           $tree->find_node('C'),
+                           $tree->find_node('D'),
+                           $tree->find_node('E'),
+                           $tree->find_node('F'),
+                           $tree->find_node('I'),
+                           );
 isnt( $tree->is_monophyletic(-nodes => [$b,$f],
-			    -outgroup => $d),1,'B,F are not Monophyletic' );
+                             -outgroup => $d),1,'B,F are not Monophyletic' );
 
 is($tree->is_monophyletic(-nodes => [$b,$a],
-			  -outgroup => $f),1, 'A,B are Monophyletic');
+                          -outgroup => $f),1, 'A,B are Monophyletic');
 
 # test for paraphyly
 
 isnt(  $tree->is_paraphyletic(-nodes => [$a,$b,$c],
-			   -outgroup => $d), 1,'A,B,C are not Monophyletic w D as outgroup');
+                              -outgroup => $d), 1,'A,B,C are not Monophyletic w D as outgroup');
 
 is(  $tree->is_paraphyletic(-nodes => [$a,$f,$e],
-			   -outgroup => $i), 1, 'A,F,E are monophyletic with I as outgroup');
+                            -outgroup => $i), 1, 'A,F,E are monophyletic with I as outgroup');
 
 
 # test for rerooting the tree
 my $out = Bio::TreeIO->new(-format => 'newick', 
-			   -fh => \*STDERR, 
-			   -noclose => 1);
+                           -fh => \*STDERR, 
+                           -noclose => 1);
 $tree = $in->next_tree;
 $tree->verbose( -1 ) unless $verbose;
 my $node_cnt_orig = scalar($tree->get_nodes);
@@ -147,7 +145,7 @@ is($tree->reroot($a),1, 'Can re-root with A as outgroup');
 $out->write_tree($tree) if $verbose;
 is($node_cnt_orig, scalar($tree->get_nodes), 'Count the number of nodes');
 my $total_length_new = $tree->total_branch_length;
-my $eps = 0.001 * $total_length_new;	# tolerance for checking length
+my $eps = 0.001 * $total_length_new; # tolerance for checking length
 warn("orig total len ", $total_length_orig, "\n") if $verbose;
 warn("new  total len ", $tree->total_branch_length,"\n") if $verbose;
 # according to retree in phylip these branch lengths actually get larger
@@ -212,8 +210,8 @@ is($tree->get_root_node, $a,'Root is really the ancestor we asked for'); #mod /m
 
 # BFS and DFS search testing
 $treeio = Bio::TreeIO->new(-verbose => $verbose,
-			     -format => 'newick',
-			     -file   => test_input_file('test.nh'));
+                           -format  => 'newick',
+                           -file    => test_input_file('test.nh'));
 $tree = $treeio->next_tree;
 my ($ct,$n) = (0);
 my $let = ord('A');
@@ -238,7 +236,6 @@ is($DFSorder, '0,1,2,A,B,C,D,3,E,F,G,H', 'DFS travfersal order');
 $tree->remove_Node('H');
 $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
 is($DFSorder, '0,1,2,A,B,C,D,3,E,F,G', 'DFS traversal after removing H');
-#get_lineage_nodes tested during get_lca
 $tree->splice(-remove_id => 'G');
 $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
 is($DFSorder, '0,1,2,A,B,C,D,3,E,F', 'DFS traversal after removing G');
@@ -251,12 +248,12 @@ is($DFSorder, '0,1,2,A,B,C,D,3,F', 'DFS traversal after removing E');
 $tree->splice(-keep_id => [qw(0 1 2 A B C D)]);
 $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
 is($DFSorder, '0,1,2,A,B,C,D', 'DFS after removing all but 0,1,2,A,B,C,D');
-#get_lca, merge_lineage, contract_linear_paths tested in in Taxonomy.t
+#get_lineage_nodes, get_lineage_string, get_lca, merge_lineage, contract_linear_paths tested in Taxonomy.t
 
 
 # try out the id to bootstrap copy method
 $treeio = Bio::TreeIO->new(-format => 'newick',
-			   -file   => test_input_file('bootstrap.tre'));
+                           -file   => test_input_file('bootstrap.tre'));
 $tree = $treeio->next_tree;
 my ($test_node) = $tree->find_node(-id => 'A');
 is($test_node->ancestor->id, 90,'Testing bootstrap copy');
@@ -269,8 +266,8 @@ is($test_node->ancestor->ancestor->bootstrap, '25', 'Testing bootstrap copy');
 
 # change TreeIO to parse 
 $treeio = Bio::TreeIO->new(-format => 'newick',
-			   -file   => test_input_file('bootstrap.tre'),
-			   -internal_node_id => 'bootstrap');
+                           -file   => test_input_file('bootstrap.tre'),
+                           -internal_node_id => 'bootstrap');
 $tree = $treeio->next_tree;
 ($test_node) = $tree->find_node(-id => 'A');
 is($test_node->ancestor->id, '','Testing auto-boostrap copy during parse');
@@ -281,6 +278,10 @@ is($test_node->ancestor->bootstrap, '90',
 is($test_node->ancestor->ancestor->bootstrap, '25', 
    'Testing auto-boostrap copy during parse');
 
+# return an empty array when no nodes are found
+ok $tree = Bio::Tree::Tree->new();
+@nodes = $tree->get_nodes;
+is scalar @nodes, 0;
 
 
 __DATA__

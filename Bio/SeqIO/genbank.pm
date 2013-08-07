@@ -86,7 +86,7 @@ stores this information.
 
 Items listed as Annotation 'NAME' tell you the data is stored the
 associated Bio::AnnotationCollectionI object which is associated with
-Bio::Seq objects.  If it is explictly requested that no annotations
+Bio::Seq objects.  If it is explicitly requested that no annotations
 should be stored when parsing a record of course they will not be
 available when you try and get them.  If you are having this problem
 look at the type of SeqBuilder that is being used to contruct your
@@ -146,7 +146,7 @@ with code and data examples if at all possible.
 Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Bioperl Project
 
@@ -449,7 +449,7 @@ sub next_seq {
 		# Project
 		elsif (/^PROJECT\s+(\S.*)/) {
 			if ($annotation) {
-				my $project = new Bio::Annotation::SimpleValue->new(-value => $1);
+				my $project = Bio::Annotation::SimpleValue->new(-value => $1);
 				$annotation->add_Annotation('project',$project);
 			}
 		}
@@ -587,20 +587,30 @@ sub next_seq {
                       -version => $version,
                       -database => $db || 'GenBank',
                       -tagname => 'dblink'));
-                } elsif ( $dbsource =~ /(\S+)([\.:])\s*(\d+)/ ) {
-                    my ($id, $db, $version);
+                } elsif ( $dbsource =~ /(\S+)([\.:])\s*(\S+)/ ) {
+                    my ($db, $version);
+                    my @ids = ();
                     if ($2 eq ':') {
-                        ($db, $id) = ($1, $3);
+                        $db = $1;
+                        # Genbank 192 release notes say this: "The second field can consist of
+                        #     multiple comma-separated identifiers, if a sequence record has
+                        #     multiple DBLINK cross-references of a given type."
+                        #     For example: DBLINK      Project:100,200,300"
+                        @ids = split (/,/, $3);
                     } else {
-                        ($db, $id, $version) = ('GenBank', $1, $3);
+                        ($db, $version) = ('GenBank', $3);
+                        $ids[0] = $1;
                     }
-                    $annotation->add_Annotation('dblink',
-                        Bio::Annotation::DBLink->new(
-                            -primary_id => $id,
-                            -version => $version,
-                            -database => $db,
-                            -tagname => 'dblink')
+                    
+                    foreach my $id (@ids) {
+                        $annotation->add_Annotation('dblink',
+                            Bio::Annotation::DBLink->new(
+                               -primary_id => $id,
+                               -version => $version,
+                               -database => $db,
+                               -tagname => 'dblink')
                         );
+                    }
                 } else {
                     $self->warn("Unrecognized DBSOURCE data: $dbsource\n");
                 }
@@ -1523,7 +1533,7 @@ sub _read_FTHelper_GenBank {
 		    # to be a sequence (translation for example)
 		    # if(($value.$next) =~ /[^A-Za-z\"\-]/o) {
 		    # changed to explicitly look for translation tag - cjf 06/8/29
-		    if ($qualifier ne 'translation') {
+		    if ($qualifier !~ /^translation$/i ) {
 			$value .= " ";
 		    }
 		    $value .= $next;

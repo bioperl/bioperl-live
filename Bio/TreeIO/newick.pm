@@ -13,13 +13,13 @@
 
 =head1 NAME
 
-Bio::TreeIO::newick - TreeIO implementation for parsing 
-  Newick/New Hampshire/PHYLIP format.
+Bio::TreeIO::newick
 
 =head1 SYNOPSIS
 
   # do not use this module directly
   use Bio::TreeIO;
+
   my $treeio = Bio::TreeIO->new(-format => 'newick', 
                                -file => 't/data/LOAD_Ccd1.dnd');
   my $tree = $treeio->next_tree;
@@ -56,7 +56,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -80,12 +80,13 @@ use base qw(Bio::TreeIO Bio::TreeIO::NewickParser);
 
 =head2 new
 
- Title   : new
- Args    : -print_count     => boolean  default is false
+Title   : new
+Args    : -print_count     => boolean  default is false
            -bootstrap_style => set the bootstrap style (one of nobranchlength,
 							molphy, traditional)
-           -order_by        => set the order by sort method 
-                               (see L<Bio::Node::Node::each_Descendent()> )
+           -order_by => set the order by sort method 
+
+See L<Bio::Node::Node::each_Descendent()>
 
 =cut
 
@@ -104,12 +105,11 @@ sub _initialize {
 
 =head2 next_tree
 
- Title   : next_tree
- Usage   : my $tree = $treeio->next_tree
- Function: Gets the next tree in the stream
- Returns : L<Bio::Tree::TreeI>
- Args    : none
-
+Title   : next_tree
+Usage   : my $tree = $treeio->next_tree
+Function: Gets the next tree in the stream
+Returns : L<Bio::Tree::TreeI>
+Args    : none
 
 =cut
 
@@ -170,11 +170,11 @@ sub get_default_params {
 
 =head2 write_tree
 
- Title   : write_tree
- Usage   : $treeio->write_tree($tree);
- Function: Write a tree out to data stream in newick/phylip format
- Returns : none
- Args    : L<Bio::Tree::TreeI> object
+Title   : write_tree
+Usage   : $treeio->write_tree($tree);
+Function: Write a tree out to data stream in newick/phylip format
+Returns : none
+Args    : L<Bio::Tree::TreeI> object
 
 =cut
 
@@ -265,12 +265,11 @@ sub _node_as_string {
 
 =head2 print_tree_count
 
- Title   : print_tree_count
- Usage   : $obj->print_tree_count($newval)
- Function: Get/Set flag for printing out the tree count (paml,protml way)
- Returns : value of print_tree_count (a scalar)
- Args    : on set, new value (a scalar or undef, optional)
-
+Title   : print_tree_count
+Usage   : $obj->print_tree_count($newval)
+Function: Get/Set flag for printing out the tree count (paml,protml way)
+Returns : value of print_tree_count (a scalar)
+Args    : on set, new value (a scalar or undef, optional)
 
 =cut
 
@@ -282,9 +281,9 @@ sub print_tree_count {
 
 =head2 bootstrap_style
 
- Title   : bootstrap_style
- Usage   : $obj->bootstrap_style($newval)
- Function: A description of how bootstraps and branch lengths are
+Title   : bootstrap_style
+Usage   : $obj->bootstrap_style($newval)
+Function: A description of how bootstraps and branch lengths are
            written, as the ID part of the internal node or else in []
            in the branch length (Molphy-like; I am sure there is a
            better name for this but am not sure where to go for some
@@ -301,9 +300,8 @@ sub print_tree_count {
                                   (A:0.11,B:0.22):0.33[100];
            'traditional' --> draw bootstraps (100) like
                                   (A:0.11,B:0.22)100:0.33;
- Returns : value of bootstrap_style (a scalar)
- Args    : on set, new value (a scalar or undef, optional)
-
+Returns : value of bootstrap_style (a scalar)
+Args    : on set, new value (a scalar or undef, optional)
 
 =cut
 
@@ -326,13 +324,12 @@ sub bootstrap_style {
 
 =head2 order_by
 
- Title   : order_by
- Usage   : $obj->order_by($newval)
- Function: Allow node order to be specified (typically "alpha")
+Title   : order_by
+Usage   : $obj->order_by($newval)
+Function: Allow node order to be specified (typically "alpha")
            See L<Bio::Node::Node::each_Descendent()>
- Returns : value of order_by (a scalar)
- Args    : on set, new value (a scalar or undef, optional)
-
+Returns : value of order_by (a scalar)
+Args    : on set, new value (a scalar or undef, optional)
 
 =cut
 

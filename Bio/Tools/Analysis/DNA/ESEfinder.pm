@@ -123,7 +123,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHORS
 
@@ -205,7 +205,7 @@ sub _init {
 sub _run {
     my $self  = shift;
     my $seq_fasta;
-    my $stringfh = new IO::String($seq_fasta);
+    my $stringfh = IO::String->new($seq_fasta);
     my $seqout = Bio::SeqIO->new(-fh => $stringfh,
                                 -format => 'fasta');
     $seqout->write_seq($self->seq);

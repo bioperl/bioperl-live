@@ -17,11 +17,11 @@ Bio::Seq::EncodedSeq - subtype of L<Bio::LocatableSeq|Bio::LocatableSeq> to stor
 
 =head1 SYNOPSIS
 
-  $obj = Bio::Seq::EncodedSeq->new(-seq => $dna,
-                                  -encoding => "CCCCCCCIIIIICCCCC",
-                                  -start => 1,
-                                  -strand => 1,
-                                  -length => 17);
+  $obj = Bio::Seq::EncodedSeq->new( -seq      => $dna,
+                                    -encoding => "CCCCCCCIIIIICCCCC",
+                                    -start    => 1,
+                                    -strand   => 1,
+                                    -length   => 17 );
 
   # splice out (and possibly revcomp) the coding sequence
   $cds = obj->cds;
@@ -134,7 +134,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Aaron Mackey
 
@@ -148,14 +148,13 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 
-# Let the code begin...
 
 package Bio::Seq::EncodedSeq;
 
 use strict;
 
-
 use base qw(Bio::LocatableSeq);
+
 
 =head2 new
 
@@ -220,21 +219,19 @@ use base qw(Bio::LocatableSeq);
 
 =cut
 
-#'
-
 sub new {
-
     my ($self, @args) = @_;
     $self = $self->SUPER::new(@args, -alphabet => 'dna');
     my ($enc) = $self->_rearrange([qw(ENCODING)], @args);
     # set the real encoding:
     if ($enc) {
-	$self->encoding($enc);
+        $self->encoding($enc);
     } else {
-	$self->_recheck_encoding;
+        $self->_recheck_encoding;
     }
     return $self;
 }
+
 
 =head2 encoding
 
@@ -267,112 +264,111 @@ sub new {
 =cut
 
 sub encoding {
-
     my ($self, @args) = @_;
     my ($enc, $loc, $exp, $abs) = $self->_rearrange([qw(ENCODING LOCATION EXPLICIT ABSOLUTE)], @args);
 
     if (!$enc) {
-	# do nothing; _recheck_encoding will fix for us, if necessary
+        # do nothing; _recheck_encoding will fix for us, if necessary
     } elsif (ref $enc eq 'HASH') {
-	$self->throw( -class => 'Bio::Root::NotImplemented',
-		      -text  => "Hashref functionality not yet implemented;\nplease email me if you really need this.");
-	#TODO: finish all this
-	while (my ($char, $locs) = each %$enc) {
-	    if (ref $locs eq 'ARRAY') {
-	    } elsif (UNIVERSAL::isa($locs, "Bio::LocationI")) {
-	    } else {
-		$self->throw("Only a scalar or a ref to a hash; not a ref to a @{{lc ref $enc}}");
-	    }
-	}
+        $self->throw( -class => 'Bio::Root::NotImplemented',
+                      -text  => "Hashref functionality not yet implemented;\nplease email me if you really need this.");
+        #TODO: finish all this
+        while (my ($char, $locs) = each %$enc) {
+            if (ref $locs eq 'ARRAY') {
+            } elsif (UNIVERSAL::isa($locs, "Bio::LocationI")) {
+            } else {
+                $self->throw("Only a scalar or a ref to a hash; not a ref to a @{{lc ref $enc}}");
+            }
+        }
     } elsif (! ref $enc) {
-	$enc = uc $enc;
-	$exp = 1 if (!defined $exp && $enc =~ m/[DEJKV]/o);
+        $enc = uc $enc;
+        $exp = 1 if (!defined $exp && $enc =~ m/[DEJKV]/o);
 
-	if ($enc =~ m/\d/o) { # numerically "enhanced" encoding
-	    my $numenc = $enc;
-	    $enc = '';
-	    while ($numenc =~ m/\G(\d*)([CDEIJKUVGFB])/g) {
-		my ($num, $char) = ($1, $2);
-		$num = 1 unless $num;
-		$enc .= $char x $num;
-	    }
-	}
+        if ($enc =~ m/\d/o) { # numerically "enhanced" encoding
+            my $numenc = $enc;
+            $enc = '';
+            while ($numenc =~ m/\G(\d*)([CDEIJKUVGFB])/g) {
+                my ($num, $char) = ($1, $2);
+                $num = 1 unless $num;
+                $enc .= $char x $num;
+            }
+        }
 
-	if (defined $exp && $exp == 0 && $enc =~ m/([^CIUGFB])/) {
-	    $self->throw("Unrecognized character '$1' in implicit encoding");
-	} elsif ($enc =~ m/[^CDEIJKUVGFB]/) {
-	    $self->throw("Unrecognized character '$1' in explicit encoding");
-	}
+        if (defined $exp && $exp == 0 && $enc =~ m/([^CIUGFB])/) {
+            $self->throw("Unrecognized character '$1' in implicit encoding");
+        } elsif ($enc =~ m/[^CDEIJKUVGFB]/) {
+            $self->throw("Unrecognized character '$1' in explicit encoding");
+        }
 
-	if ($loc) { # a global location, over which to apply the specified encoding.
+        if ($loc) { # a global location, over which to apply the specified encoding.
 
-	    # balk if too many non-gap characters present in encoding:
-	    my ($ct) = $enc =~ tr/GB/GB/;
-	    $ct = length($enc) - $ct;
-	    $self->throw("Location length doesn't match number of coding chars in encoding!")
-		if ($loc->location_type eq 'EXACT' &&  $loc->length != $ct);
+            # balk if too many non-gap characters present in encoding:
+            my ($ct) = $enc =~ tr/GB/GB/;
+            $ct = length($enc) - $ct;
+            $self->throw("Location length doesn't match number of coding chars in encoding!")
+                if ($loc->location_type eq 'EXACT' &&  $loc->length != $ct);
 
-	    my $start = $loc->start;
-	    my $end = $loc->end;
+            my $start = $loc->start;
+            my $end = $loc->end;
 
-	    # strip any encoding that hangs off the ends of the sequence:
-	    if ($start < $self->start) {
-		my $diff = $self->start - $start;
-		$start = $self->start;
-		$enc = substr($enc, $diff);
-	    }
-	    if ($end > $self->end) {
-		my $diff = $end - $self->end;
-		$end = $self->end;
-		$enc = substr($enc, -$diff);
-	    }
+            # strip any encoding that hangs off the ends of the sequence:
+            if ($start < $self->start) {
+                my $diff = $self->start - $start;
+                $start = $self->start;
+                $enc = substr($enc, $diff);
+            }
+            if ($end > $self->end) {
+                my $diff = $end - $self->end;
+                $end = $self->end;
+                $enc = substr($enc, -$diff);
+            }
 
-	    my $currenc = $self->{_encoding};
-	    my $currseq = $self->seq;
+            my $currenc = $self->{_encoding};
+            my $currseq = $self->seq;
 
-	    my ($spanstart, $spanend) = ($self->column_from_residue_number($start),
-					 $self->column_from_residue_number($end) );
+            my ($spanstart, $spanend) = ($self->column_from_residue_number($start),
+                                         $self->column_from_residue_number($end) );
 
-	    if ($currseq) {
-		# strip any gaps in sequence spanned by this location:
-		($spanstart, $spanend) = ($spanend, $spanstart) if $self->strand < 0;
-		my ($before, $in, $after) = $currseq =~ m/(.{@{[ $spanstart - ($loc->location_type eq 'IN-BETWEEN' ? 0 : 1) ]}})
+            if ($currseq) {
+                # strip any gaps in sequence spanned by this location:
+                ($spanstart, $spanend) = ($spanend, $spanstart) if $self->strand < 0;
+                my ($before, $in, $after) = $currseq =~ m/(.{@{[ $spanstart - ($loc->location_type eq 'IN-BETWEEN' ? 0 : 1) ]}})
                                                           (.{@{[ $spanend - $spanstart + ($loc->location_type eq 'IN-BETWEEN' ? -1 : 1) ]}})
                                                           (.*)
                                                          /x;
                 $in ||= '';
-		$in =~ s/[\.\-]+//g;
-		$currseq = ($before||'') . $in. ($after||'');
-		# change seq without changing the alphabet
-		$self->seq($currseq,$self->alphabet());
-	    }
+                $in =~ s/[\.\-]+//g;
+                $currseq = ($before||'') . $in. ($after||'');
+                # change seq without changing the alphabet
+                $self->seq($currseq,$self->alphabet());
+            }
 
-	    $currenc = reverse $currenc if $self->strand < 0;
-	    substr($currenc, $spanstart, $spanend - $spanstart + ($loc->location_type eq 'IN-BETWEEN' ? -1 : 1),
-		   $self->strand >= 0 ? $enc : reverse $enc);
-	    $currenc = reverse $currenc if $self->strand < 0;
+            $currenc = reverse $currenc if $self->strand < 0;
+            substr($currenc, $spanstart, $spanend - $spanstart + ($loc->location_type eq 'IN-BETWEEN' ? -1 : 1),
+                   $self->strand >= 0 ? $enc : reverse $enc);
+            $currenc = reverse $currenc if $self->strand < 0;
 
-	    $self->{_encoding} = $currenc;
-	    $self->_recheck_encoding;
+            $self->{_encoding} = $currenc;
+            $self->_recheck_encoding;
 
-	    $currenc = $self->{_encoding};
-	    $currenc = reverse $currenc if $self->strand < 0;
-	    $enc = substr($currenc, $spanstart, length $enc);
-	    $enc = reverse $enc if $self->strand < 0;
+            $currenc = $self->{_encoding};
+            $currenc = reverse $currenc if $self->strand < 0;
+            $enc = substr($currenc, $spanstart, length $enc);
+            $enc = reverse $enc if $self->strand < 0;
 
-	    return $exp ? $enc: $self->_convert2implicit($enc);
+            return $exp ? $enc: $self->_convert2implicit($enc);
 
-	} else {
-	    # presume a global redefinition; strip any current gap
-	    # characters in the sequence so they don't corrupt the
-	    # encoding
-	    my $dna = $self->seq;
-	    $dna =~ s/[\.\-]//g;
-	    $self->seq($dna, 'dna');
-	    $self->{_encoding} = $enc;
-	}
+        } else {
+            # presume a global redefinition; strip any current gap
+            # characters in the sequence so they don't corrupt the
+            # encoding
+            my $dna = $self->seq;
+            $dna =~ s/[\.\-]//g;
+            $self->seq($dna, 'dna');
+            $self->{_encoding} = $enc;
+        }
     } else {
-	$self->throw("Only a scalar or a ref to a hash; not a ref to a @{{lc ref $enc}}");
+        $self->throw("Only a scalar or a ref to a hash; not a ref to a @{{lc ref $enc}}");
     }
 
     $self->_recheck_encoding();
@@ -380,8 +376,8 @@ sub encoding {
     return $exp ? $self->{_encoding} : $self->_convert2implicit($self->{_encoding});
 }
 
-sub _convert2implicit {
 
+sub _convert2implicit {
     my ($self, $enc) = @_;
 
     $enc =~ s/[DE]/C/g;
@@ -390,6 +386,7 @@ sub _convert2implicit {
 
     return $enc;
 }
+
 
 sub _recheck_encoding {
 
@@ -402,35 +399,35 @@ sub _recheck_encoding {
 
     # make sure an encoding exists!
     @enc = ('C') x scalar grep { !/[\.\-]/o } @nt
-	unless @enc;
+        unless @enc;
 
     # check for gaps to be truly present in the sequence
     # and vice versa
     my $i;
     for ($i = 0 ; $i < @nt && $i < @enc ; $i++) {
-	if ($nt[$i] =~ /[\.\-]/o && $enc[$i] !~ m/[GB]/o) {
-	    splice(@enc, $i, 0, 'G');
-	} elsif ($nt[$i] !~ /[\.\-]/o && $enc[$i] =~ m/[GB]/o) {
-	    splice(@nt, $i, 0, '-');
-	}
+        if ($nt[$i] =~ /[\.\-]/o && $enc[$i] !~ m/[GB]/o) {
+            splice(@enc, $i, 0, 'G');
+        } elsif ($nt[$i] !~ /[\.\-]/o && $enc[$i] =~ m/[GB]/o) {
+            splice(@nt, $i, 0, '-');
+        }
     }
     if ($i < @enc) {
-	# extra encoding; presumably all gaps?
-	for (  ; $i < @enc ; $i++) {
-	    if ($enc[$i] =~ m/[GB]/o) {
-		push @nt, '-';
-	    } else {
-		$self->throw("Extraneous encoding info: " . join('', @enc[$i..$#enc]));
-	    }
-	}
+        # extra encoding; presumably all gaps?
+        for (  ; $i < @enc ; $i++) {
+            if ($enc[$i] =~ m/[GB]/o) {
+                push @nt, '-';
+            } else {
+                $self->throw("Extraneous encoding info: " . join('', @enc[$i..$#enc]));
+            }
+        }
     } elsif ($i < @nt) {
-	for (  ; $i < @nt ; $i++) {
-	    if ($nt[$i] =~ m/[\.\-]/o) {
-		push @enc, 'G';
-	    } else {
-		push @enc, 'C';
-	    }
-	}
+        for (  ; $i < @nt ; $i++) {
+            if ($nt[$i] =~ m/[\.\-]/o) {
+                push @enc, 'G';
+            } else {
+                push @enc, 'C';
+            }
+        }
     }
 
     my @cde_array = qw(C D E);
@@ -438,35 +435,35 @@ sub _recheck_encoding {
     # convert any leftover implicit coding into explicit coding
     my ($Cct, $Ict, $Uct, $Vct, $Vwarned) = (0, 0, 0, 0);
     for ($i = 0 ; $i < @enc ; $i++) {
-	if ($enc[$i] =~ m/[CDE]/o) {
-	    my  $temp_index = $Cct %3;
-	    $enc[$i] = $cde_array[$temp_index];
-	    $Cct++; $Ict = 0; $Uct = 1;
-	    $self->warn("3' untranslated encoding (V) seen prior to other coding symbols")
-		if ($Vct && !$Vwarned++);
-	} elsif ($enc[$i] =~ m/[IJK]/o) {
-	    $enc[$i] = $ijk_array[$Ict % 3];
-	    $Ict++; $Uct = 1;
-	    $self->warn("3' untranslated encoding (V) seen before other coding symbols")
-		if ($Vct && !$Vwarned++);
-	} elsif ($enc[$i] =~ m/[UV]/o) {
-	    if ($Uct == 1) {
-		$enc[$i] = 'V';
-		$Vct = 1;
-	    }
-	} elsif ($enc[$i] eq 'B') {
-	    $Cct++; $Ict++
-	} elsif ($enc[$i] eq 'G') {
-	    # gap; leave alone
-	}
+        if ($enc[$i] =~ m/[CDE]/o) {
+            my  $temp_index = $Cct %3;
+            $enc[$i] = $cde_array[$temp_index];
+            $Cct++; $Ict = 0; $Uct = 1;
+            $self->warn("3' untranslated encoding (V) seen prior to other coding symbols")
+                if ($Vct && !$Vwarned++);
+        } elsif ($enc[$i] =~ m/[IJK]/o) {
+            $enc[$i] = $ijk_array[$Ict % 3];
+            $Ict++; $Uct = 1;
+            $self->warn("3' untranslated encoding (V) seen before other coding symbols")
+                if ($Vct && !$Vwarned++);
+        } elsif ($enc[$i] =~ m/[UV]/o) {
+            if ($Uct == 1) {
+                $enc[$i] = 'V';
+                $Vct = 1;
+            }
+        } elsif ($enc[$i] eq 'B') {
+            $Cct++; $Ict++
+        } elsif ($enc[$i] eq 'G') {
+            # gap; leave alone
+        }
     }
 
     @nt = reverse @nt if $self->strand && $self->strand < 0;
+    $self->seq(join('', @nt), 'dna');
 
-    $self->{'seq'} = join('', @nt);
-    # $self->seq(join('', @nt), 'dna');
     $self->{_encoding} = join '', @enc;
 }
+
 
 =head2 cds
 
@@ -484,46 +481,47 @@ sub _recheck_encoding {
 =cut
 
 sub cds {
-
     my ($self, @args) = @_;
 
     my ($nogaps, $loc) = $self->_rearrange([qw(NOGAPS LOCATION)], @args);
     $nogaps = 0 unless defined $nogaps;
 
-    my @nt = split //, $self->strand < 0 ? $self->revcom->seq : $self->seq;
+    my @nt  = split //, $self->strand < 0 ? $self->revcom->seq : $self->seq;
     my @enc = split //, $self->_convert2implicit($self->{_encoding});
 
     my ($start, $end) = (0, scalar @nt);
 
     if ($loc) {
-	$start = $loc->start;
-	$start++ if $loc->location_type eq 'IN-BETWEEN';
-	$start = $self->column_from_residue_number($start);
-	$start--;
+        $start = $loc->start;
+        $start++ if $loc->location_type eq 'IN-BETWEEN';
+        $start = $self->column_from_residue_number($start);
+        $start--;
 
-	$end = $loc->end;
-	$end = $self->column_from_residue_number($end);
+        $end = $loc->end;
+        $end = $self->column_from_residue_number($end);
 
-	($start, $end) = ($end, $start) if $self->strand < 0;
-	$start--;
+        ($start, $end) = ($end, $start) if $self->strand < 0;
+        $start--;
     }
 
     for (my $i = $start ; $i < $end ; $i++) {
-	if ($enc[$i] eq 'I' || $enc[$i] eq 'U' || $enc[$i] eq 'F') {
-	    # remove introns, untranslated and forward frameshift nucleotides
-	    $nt[$i] = undef;
-	} elsif ($enc[$i] eq 'G' || $enc[$i] eq 'B') {
-	    # replace gaps and backward frameshifts with N's, unless asked not to.
-	    $nt[$i] = $nogaps ? undef : 'N';
-	}
+        if ($enc[$i] eq 'I' || $enc[$i] eq 'U' || $enc[$i] eq 'F') {
+            # remove introns, untranslated and forward frameshift nucleotides
+            $nt[$i] = undef;
+        } elsif ($enc[$i] eq 'G' || $enc[$i] eq 'B') {
+            # replace gaps and backward frameshifts with N's, unless asked not to.
+            $nt[$i] = $nogaps ? undef : 'N';
+        }
     }
 
-    return ($self->can_call_new ? ref($self) : __PACKAGE__)->new
-	(-seq => join('', grep { defined } @nt[$start..--$end]),
-	 -start => $self->start,
-	 -end => $self->end,
-	 -strand => 1, -alphabet => 'dna');
+    return ($self->can_call_new ? ref($self) : __PACKAGE__)->new(
+        -seq      => join('', grep { defined } @nt[$start..--$end]),
+        -start    => $self->start,
+        -end      => $self->end,
+        -strand   => 1,
+        -alphabet => 'dna' );
 }
+
 
 =head2 translate
 
@@ -537,6 +535,7 @@ sub cds {
 =cut
 
 sub translate { shift->cds(-nogaps => 1, @_)->SUPER::translate(@_) };
+
 
 =head2 protseq
 
@@ -553,6 +552,7 @@ sub translate { shift->cds(-nogaps => 1, @_)->SUPER::translate(@_) };
 =cut
 
 sub protseq { shift->cds(-nogaps => 1, @_)->SUPER::translate(@_)->seq };
+
 
 =head2 dnaseq
 
@@ -580,17 +580,14 @@ sub protseq { shift->cds(-nogaps => 1, @_)->SUPER::translate(@_)->seq };
 =cut
 
 sub dnaseq {
-
     my ($self, @args) = @_;
     my ($seq, $enc, $loc) = $self->_rearrange([qw(DNASEQ ENCODING LOCATION)], @args);
-
-    $self
-
+    return $self;
 }
+
 
 # need to overload this so that we truncate both the seq and the encoding!
 sub trunc {
-
     my ($self, $start, $end) = @_;
     my $new = $self->SUPER::trunc($start, $end);
     $start--;

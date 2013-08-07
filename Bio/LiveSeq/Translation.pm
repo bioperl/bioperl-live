@@ -21,7 +21,7 @@ Bio::LiveSeq::Translation - Translation class for LiveSeq
 
 =head1 DESCRIPTION
 
-This stores informations about aminoacids translations of transcripts.
+This stores information about aminoacids translations of transcripts.
 The implementation is that a Translation object is the translation of
 a Transcript object, with different possibilities of manipulation,
 different coordinate system and eventually its own ranges (protein domains).

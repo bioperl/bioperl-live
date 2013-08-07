@@ -89,7 +89,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -220,7 +220,7 @@ sub _index_file {
 
 	# fencepost problem: we basically just find the top and the query
 	while( <$BLAST> ) {
-		
+
 		# in recent RPS-BLAST output the only delimiter between result
 		# sections is '^Query=' - in other BLAST outputs you
 		# can use '^(RPS-|T?)BLAST(P?|N?|X?)'

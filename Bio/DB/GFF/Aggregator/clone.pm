@@ -47,7 +47,7 @@ use base qw(Bio::DB::GFF::Aggregator);
 The WormBase GFF model is unusual in that clones aren't identified as
 a single feature with start and stop positions, but as two features, a
 "left end" and a "right end".  One or both of these features may be
-absent.  In order to accomodate this, the aggregator will return undef
+absent.  In order to accommodate this, the aggregator will return undef
 for the start and/or stop if one or both of the ends are missing.
 
 =cut

@@ -84,7 +84,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Sendu Bala
 
@@ -393,7 +393,7 @@ sub get_matrix {
     my $g_freq = ($seq =~ tr/g//) / length($seq);
     my $t_freq = ($seq =~ tr/t//) / length($seq);
     
-    my $psm = new Bio::Matrix::PSM::SiteMatrix( -pA => $a,
+    my $psm = Bio::Matrix::PSM::SiteMatrix->new(-pA => $a,
                                                 -pC => $c,
                                                 -pG => $g,
                                                 -pT => $t,
@@ -638,7 +638,7 @@ sub get_factor {
         #*** not always relative to gene start...
         #    we need Bio::Map::Gene s to have some default tss and atg positions
         #    that we can be relative to
-        my $rel = new Bio::Map::Relative(-element => $gene_map->gene, -description => $s_data[3]);
+        my $rel = Bio::Map::Relative->new(-element => $gene_map->gene, -description => $s_data[3]);
         Bio::Map::Position->new(-map => $gene_map, -element => $tf, -start => $s_data[4], -end => $s_data[5], -relative => $rel);
     }
     

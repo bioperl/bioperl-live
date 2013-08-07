@@ -32,7 +32,7 @@ necessary. These sequences typically override the length() method not
 to check the sequence.
 
 The seq() method is not resetable, if you want to add to the end of the
-sequence you have to use add_sequence_as_string(), for any other sequence chnages you'll
+sequence you have to use add_sequence_as_string(), for any other sequence changes you'll
 have to create a new object.
 
 =head1 FEEDBACK
@@ -63,7 +63,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 email or the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Albert Vilella
 

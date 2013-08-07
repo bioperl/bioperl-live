@@ -8,9 +8,8 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 14,
-               -requires_module => 'Clone');
-	
+    test_begin(-tests => 14);
+
     use_ok('Bio::Tools::Primer3');
 }
 
@@ -48,7 +47,7 @@ my $left_primer_seq = $primer->get_primer('left')->seq;
 is $left_primer_seq->seq, "GAGGGTAACACGCTGGTCAT";
 
 # bug 2862
-ok $p3 = Bio::Tools::Primer3->new(-file=>test_input_file('bug2862.pmr'));
-$num=0;
+ok $p3 = Bio::Tools::Primer3->new(-file => test_input_file('bug2862.pmr'));
+$num = 0;
 while ($p3->next_primer) { $num++ };
 is $p3->number_of_results, $num, 'bug 2862';

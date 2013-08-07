@@ -13,9 +13,7 @@
 
 =head1 NAME
 
-Bio::Index::Stockholm - Indexes Stockholm format alignments (such as those from
-Pfam and Rfam.  Retrieves raw stream data using the ID or a Bio::SimpleAlign
-(via Bio::AlignIO)
+Bio::Index::Stockholm
 
 =head1 SYNOPSIS
 
@@ -36,11 +34,11 @@ Pfam and Rfam.  Retrieves raw stream data using the ID or a Bio::SimpleAlign
 
 =head1 DESCRIPTION
 
-This object allows one to build an index for any file (or files)
-containing Stockholm alignment format (such as Rfam and Pfam) and provides
-quick access to the alignment based on the alignment ID.
+Indexes Stockholm format alignments such as those from Pfam and Rfam.  
+Returns raw stream data using the ID or a Bio::SimpleAlign object 
+(via Bio::AlignIO).
 
-This also allows for ID parsing using a callback:
+This module also allows for ID parsing using a callback:
 
    $inx->id_parser(\&get_id);
    # make the index
@@ -91,7 +89,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Chris Fields
 
@@ -203,82 +201,82 @@ sub fetch_report{
 =cut
 
 sub _index_file {
-	my( $self,
-		 $file, # File name
-		 $i,    # Index-number of file being indexed
-	  ) = @_;
+  my( $self,
+      $file,  # File name
+      $i      # Index-number of file being indexed
+  ) = @_;
 
-	my( $begin,  # Offset from start of file of the start
-		          # of the last found record.
-	  );
-    local $/ ="\n";
-	open(my $BLAST, '<', $file) or $self->throw("cannot open file $file\n");
-	my $indexpoint = 0;
-	my $lastline = 0;
-	while( <$BLAST> ) {
-		if(m{^#\sSTOCKHOLM} ) {
-            $indexpoint = tell($BLAST)-length $_;
-            $self->debug("Index:$indexpoint\n")
-		}
-        if(m{^#=GF\s+AC\s+(\S[^\n]+)}) {
-            foreach my $id ($self->id_parser()->($1)) {
-				$self->debug("id is $id, begin is $indexpoint\n");
-				#$self->add_record($id, $i, $indexpoint);
-			}
-        }
-	}
+  my $begin = 0;
+
+  my $id_parser = $self->id_parser;
+
+  open my $STOCKHOLM, '<', $file or 
+  $self->throw("Can't open file for read : $file");
+
+  my %done_ids;
+    
+  while (<$STOCKHOLM>) {
+  
+      if ( /^#\sSTOCKHOLM/ ) {
+        $begin = tell($STOCKHOLM) - length($_);
+      }
+
+      for my $id ( &$id_parser($_) ) {
+        next if exists $done_ids{$id};
+        $self->add_record($id, $i, $begin) if $id;
+        $done_ids{$id} = 1;
+      }
+
+      %done_ids = () if ( m{//} );    
+  }
+  close $STOCKHOLM;
+
+  1;
 }
 
-# shamelessly stolen from Bio::Index::Fasta
 
 =head2 id_parser
 
   Title   : id_parser
   Usage   : $index->id_parser( CODE )
   Function: Stores or returns the code used by record_id to
-            parse the ID for record from a string.  Useful
-            for (for instance) specifying a different
-            parser for different flavours of IDs (for instance,
-            custom stockholm-formated files). 
+            parse the ID for record from a string.
             Returns \&default_id_parser (see below) if not
-            set. If you supply your own id_parser
-            subroutine, then it should expect a fasta
-            description line.  An entry will be added to
+            set. An entry will be added to
             the index for each string in the list returned.
   Example : $index->id_parser( \&my_id_parser )
-  Returns : ref to CODE if called without arguments
+  Returns : reference to CODE if called without arguments
   Args    : CODE
 
 =cut
 
 sub id_parser {
-	my( $self, $code ) =@_;
+  my ($self,$code) = @_;
 
-	if ($code) {
-		$self->{'_id_parser'} = $code;
-	}
-	return $self->{'_id_parser'} || \&default_id_parser;
+  if ($code) {
+    $self->{'_id_parser'} = $code;
+  }
+  return $self->{'_id_parser'} || \&default_id_parser;
 }
 
 =head2 default_id_parser
 
   Title   : default_id_parser
-  Usage   : $id = default_id_parser( $header )
-  Function: The default Blast Query ID parser for Bio::Index::Blast.pm
-            Returns $1 from applying the regexp /^>\s*(\S+)/
-            to $header.
-  Returns : ID string
-  Args    : a header line string
+  Usage   : $id = default_id_parser($line)
+  Function: The default parser for Stockholm.pm
+  Returns : Array of specified ids
+  Args    : a line string
 
 =cut
 
-sub default_id_parser
-{
-	if ($_[0] =~ /^\s*(\S+)/) {
-		return $1;
-	} else {
-		return;
-	}
+sub default_id_parser {
+  my $line = shift;
+  my %accs;
+    
+  if ( $line =~ /^#=GF AC\s+(\S+)/ ) {
+    $accs{$1}++;
+  } 
+  keys %accs;
 }
 
 =head2 Bio::Index::Abstract methods

@@ -97,7 +97,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Stefan Kirov
 
@@ -1164,7 +1164,7 @@ sub _process_grif {
             $refergene = $grif->{source}->{src}->{tag}->{id};
             $refdb     = $grif->{source}->{src}->{db};
         }
-        my $grifobj = new Bio::Annotation::Comment( -text => $grif->{text} );
+        my $grifobj = Bio::Annotation::Comment->new( -text => $grif->{text} );
         $obj = Bio::Annotation::DBLink->new(
             -database   => 'generif',
             -primary_id => $ref->{pmid}
@@ -1177,7 +1177,7 @@ sub _process_grif {
         $type = 'dblink';
     }
     else {
-        $obj = new Bio::Annotation::SimpleValue( $grif->{text}, 'generif' );
+        $obj = Bio::Annotation::SimpleValue->new( $grif->{text}, 'generif' );
         $type = 'generif';
     }
     delete $grif->{text};

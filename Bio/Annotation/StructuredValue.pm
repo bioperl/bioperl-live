@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::Annotation::StructuredValue
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Hilmar Lapp <hlapp at gmx.net>
 #
@@ -48,15 +48,15 @@ of the Bioperl mailing lists. Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -65,7 +65,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via
 or the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Hilmar Lapp
 
@@ -103,7 +103,7 @@ sub new{
    my ($class,@args) = @_;
 
    my $self = $class->SUPER::new(@args);
-   
+
    my ($value,$tag) = $self->_rearrange([qw(VALUE TAGNAME)], @args);
    $self->{'values'} = [];
    defined $value  && $self->value($value);
@@ -219,7 +219,7 @@ sub tagname{
            SimpleValue. It is equivalent to calling
            add_value([0], $newval).
 
-           In get mode, this implementation allows to pass additional
+           In get mode, this implementation allows one to pass additional
            parameters that control how the structured annotation
            components will be joined together to form a
            string. Recognized are presently

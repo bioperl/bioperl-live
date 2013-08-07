@@ -52,7 +52,7 @@ Bio::Tools::TargetP - Results of one TargetP run
 
 =head1 DESCRIPTION
 
-TargetP modules will provides parsed informations about protein
+TargetP modules will provides parsed information about protein
 localization.  It reads in a targetp output file.  It parses the
 results, and returns a Bio::SeqFeature::Generic object for each
 seqeunces found to have a subcellular localization
@@ -85,7 +85,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHORS - Emmanuel Quevillon
 

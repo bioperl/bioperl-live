@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 459+5,
+    test_begin( -tests => 441+5,
                 -requires_modules => [
                     'DB_File',
                     'Bio::DB::Sam',
@@ -39,27 +39,26 @@ ok $aio = Bio::Assembly::IO->new( -file => test_input_file($file),
                                   -refdb => test_input_file($refdb),
                                   -format => 'sam' ),"reopen";
 ok $assembly = $aio->next_assembly, "get sam assy";
-is( $assembly->get_nof_contigs, 21, "got all contigs");
+cmp_ok( $assembly->get_nof_contigs, '>=', 21, "got all contigs");
 
 
 ok(@contig_seq_ids = $assembly->get_contig_seq_ids, "get_contig_seq_ids");
 is(@contig_seq_ids, 334);
 # trashing these for now; not much a test really anyway/maj
 # for my $contig_seq_id (@contig_seq_ids) {
-# 	ok ($contig_seq_id =~ m/^SRR/i);
+#     ok ($contig_seq_id =~ m/^SRR/i);
 # }
 
 ok(@contig_ids = $assembly->get_contig_ids, "get_contig_ids");
-is(@contig_ids, 21);
-for my $contig_id (@contig_ids) {
-    ok ($contig_id =~ m/sam_assy/i);
-}
+cmp_ok(@contig_ids, '>=', 21);
+my $correct_ids = grep {$_ =~ m/sam_assy/i} @contig_ids;
+is($correct_ids, scalar(@contig_ids));
 
 ok(@singlet_ids = $assembly->get_singlet_ids, "get_singlet_ids");
 is(@singlet_ids, 35);
 # trashing these/maj
 # for my $singlet_id (@singlet_ids) {
-# 	ok ($singlet_id =~ m/^SRR/i);
+#     ok ($singlet_id =~ m/^SRR/i);
 # }
 
 ok(@all_seq_ids = $assembly->get_all_seq_ids, "get_all_seq_ids");

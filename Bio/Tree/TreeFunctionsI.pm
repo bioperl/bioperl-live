@@ -11,6 +11,7 @@
 
 # POD documentation - main docs before the code
 
+
 =head1 NAME
 
 Bio::Tree::TreeFunctionsI - Decorated Interface implementing basic Tree exploration methods
@@ -61,7 +62,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich, Aaron Mackey, Justin Reese
 
@@ -87,10 +88,12 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-package Bio::Tree::TreeFunctionsI;
-use strict;
 
+package Bio::Tree::TreeFunctionsI;
+
+use strict;
 use base qw(Bio::Tree::TreeI);
+
 
 =head2 find_node
 
@@ -106,7 +109,7 @@ use base qw(Bio::Tree::TreeI);
 =cut
 
 sub find_node {
-   my ($self,$type,$field) = @_;
+   my ($self, $type, $field) = @_;
    if( ! defined $type ) { 
        $self->warn("Must request a either a string or field and string when searching");
    }
@@ -119,8 +122,8 @@ sub find_node {
 
    if( ! defined $field ) { 
        # only 1 argument, default to searching by id
-       $field= $type; 
-       $type = 'id';
+       $field = $type; 
+       $type  = 'id';
    } else {   
        $type =~ s/^-//;
    }
@@ -131,17 +134,18 @@ sub find_node {
    # leaf nodes.  Can't handle NHX tags right now
 
    my @nodes = grep { $_->can($type) && defined $_->$type() &&
-		     $_->$type() eq $field } $self->get_nodes();
+                      $_->$type() eq $field } $self->get_nodes();
 
    if ( wantarray) { 
        return @nodes;
    } else { 
        if( @nodes > 1 ) { 
-	   $self->warn("More than 1 node found but caller requested scalar, only returning first node");
+           $self->warn("More than 1 node found but caller requested scalar, only returning first node");
        }
        return shift @nodes;
    }
 }
+
 
 =head2 remove_Node
 
@@ -172,32 +176,34 @@ sub remove_Node {
    }
 }
 
+
 =head2 get_lineage_nodes
 
  Title   : get_lineage_nodes
  Usage   : my @nodes = $tree->get_lineage_nodes($node);
- Function: Get the full lineage of a node (all its ancestors, in the order
-           root->most recent ancestor)
+ Function: Given a node or its ID, get its full lineage, i.e. all its ancestors,
+           from the root to the most recent ancestor. Only use the node ID as
+           input if the nodes have been added to the tree.
  Returns : list of nodes
- Args    : either Bio::Tree::NodeI or string of the node id
+ Args    : either Bio::Tree::NodeI (or string of the node id)
 
 =cut
 
 sub get_lineage_nodes {
     my ($self, $input) = @_;
     my $node;
-    unless (ref $input) {
+
+    # Sanity checks
+    if (ref $input) {
+        if (not $input->isa('Bio::Tree::NodeI')) {
+            $self->throw("Did not provide a valid Bio::Tree::NodeI object or ID string to get_lineage_nodes");
+        }
+        $node = $input;
+    } else {
         $node = $self->find_node($input);
     }
-    elsif (! $input->isa('Bio::Tree::NodeI')) {
-        $self->warn("Did not provide either a valid Bio::Tree::NodeI object or id to get_lineage_nodes");
-        return;
-    }
-    else { 
-        $node = $input;
-    }
 
-    # when dealing with Bio::Taxon objects with databases, the root will always
+    # When dealing with Bio::Taxon objects with databases, the root will always
     # be the database's root, ignoring this Tree's set root node; prefer the
     # Tree's idea of root.
     my $root = $self->get_root_node || '';
@@ -210,6 +216,50 @@ sub get_lineage_nodes {
     }
     return @lineage;
 }
+
+
+=head2 get_lineage_string
+
+ Title   : get_lineage_string
+ Usage   : my $lineage = $tree->get_lineage_string($node);
+ Function: Get the string representation of the full lineage of a node, e.g.
+           for the Enterobacteriales node, return
+           Bacteria;Proteobacteria;Gammaproteobacteria;Enterobacteriales.
+           This method uses get_lineage_nodes internally and therefore inherits
+           of all of its caveats.
+ Returns : string
+ Args    : * either Bio::Tree::NodeI (or string of the node id)
+           * an optional separator (default: ';')
+
+=cut
+
+sub get_lineage_string {
+    my ($self, $input, $sep) = @_;
+    $sep ||= ';';
+    my $node;
+    unless (ref $input) {
+        $node = $self->find_node($input);
+    }
+    elsif (! $input->isa('Bio::Tree::NodeI')) {
+        $self->warn("Did not provide either a valid Bio::Tree::NodeI object or id to get_lineage_nodes");
+        return;
+    }
+    else {
+        $node = $input;
+    }
+    my @nodes = ($self->get_lineage_nodes($node), $node);
+    for my $i (0 .. scalar @nodes - 1) {
+        my $node_name = $nodes[$i]->node_name || '';
+        if ($node_name =~ m/$sep/) {
+           $self->warn("Separator '$sep' is not safe to use because the node ".
+               "called '$node_name' contains it. Consider using another separator".
+               " or sanitizing the node name.");
+        }
+        $nodes[$i] = $node_name;
+    }
+    return join $sep, @nodes;
+}
+
 
 =head2 splice
 
@@ -272,9 +322,9 @@ sub splice {
                     push(@keep_nodes, $self->find_node($key => $value));
                 }
             }
-	    elsif ($key =~ /preserve/) {
-		$preserve_lengths = $value;
-	    }
+            elsif ($key =~ /preserve/) {
+                $preserve_lengths = $value;
+            }
         }
 
         if ($remove_all) {
@@ -323,7 +373,7 @@ sub splice {
         # no ancestor of our own to remove us from the tree
         foreach my $desc (@descs) {
             $desc->ancestor($ancestor);
-	    $desc->branch_length($desc->branch_length + $node->branch_length) if $preserve_lengths;
+            $desc->branch_length($desc->branch_length + $node->branch_length) if $preserve_lengths;
         }
         $node->ancestor(undef);
     }
@@ -334,6 +384,7 @@ sub splice {
         $self->set_root_node($candidates[0]); # not sure its valid to use the reroot() method
     }
 }
+
 
 =head2 get_lca
 
@@ -369,9 +420,9 @@ sub get_lca {
     # be identical.
     my @paths;
     foreach my $node (@nodes) {
-	unless(ref($node) && $node->isa('Bio::Tree::NodeI')) {
-	    $self->throw("Cannot process get_lca() with a non-NodeI object ($node)\n");
-	}
+        unless(ref($node) && $node->isa('Bio::Tree::NodeI')) {
+            $self->throw("Cannot process get_lca() with a non-NodeI object ($node)\n");
+        }
         my @path = ($self->get_lineage_nodes($node), $node);
         push(@paths, \@path);
     }
@@ -408,12 +459,13 @@ sub get_lca {
     return $lca;
 }
 
+
 =head2 merge_lineage
 
  Title   : merge_lineage
  Usage   : merge_lineage($node)
  Function: Merge a lineage of nodes with this tree.
- Returns : n/a
+ Returns : true for success, false (and a warning) otherwise
  Args    : Bio::Tree::TreeI with only one leaf, OR
            Bio::Tree::NodeI which has an ancestor
 
@@ -443,38 +495,45 @@ sub merge_lineage {
     my ($self, $thing) = @_;
     $self->throw("Must supply an object reference") unless ref($thing);
 
-    my ($lineage_tree, $lineage_leaf);
+    my $lineage_leaf;
     if ($thing->isa('Bio::Tree::TreeI')) {
         my @leaves = $thing->get_leaf_nodes;
         $self->throw("The supplied Tree can only have one leaf") unless @leaves == 1;
-        $lineage_tree = $thing;
         $lineage_leaf = shift(@leaves);
     }
     elsif ($thing->isa('Bio::Tree::NodeI')) {
         $self->throw("The supplied Node must have an ancestor") unless $thing->ancestor;
-        $lineage_tree = $self->new(-node => $thing);
         $lineage_leaf = $thing;
     }
 
-    # see if any node in the supplied lineage is in our tree - that will be
-    # our lca and we can merge at the node below
+    # Find the lowest node in the supplied lineage that is in the tree
+    # That will be our lca and we can merge at the node below
     my @lineage = ($lineage_leaf, reverse($self->get_lineage_nodes($lineage_leaf)));
     my $merged = 0;
-    for my $i (0..$#lineage) {
-        my $lca = $self->find_node(-internal_id => $lineage[$i]->internal_id) || next;
-
-        if ($i == 0) {
-            # the supplied thing to merge is already in the tree, nothing to do
-            return;
+    my $node;
+    my $i = 0;
+    while ($i <= $#lineage) {
+        $node = $self->find_node(-internal_id => $lineage[$i]->internal_id);
+        if (defined $node) {
+            $merged = 1;
+            last;
         }
-        # $i is the lca, so the previous node is new to the tree and should
-        # be merged on
-        $lca->add_Descendent($lineage[$i-1]);
-        $merged = 1;
-        last;
+        $i++;
     }
-    $merged || ($self->warn("Couldn't merge the lineage of ".$lineage_leaf->id." with the rest of the tree!\n") && return);
+    if (not $merged) {
+        $self->warn("Could not merge the lineage of ".$lineage_leaf->id." with the rest of the tree");
+    }
+
+    # Merge descendents, recursively
+    while ($i > 0) {
+        $node->add_Descendent($lineage[$i-1]);
+        $node = $self->find_node(-internal_id => $lineage[$i-1]->internal_id);
+        $i--;
+    }
+
+    return $merged;
 }
+
 
 =head2 contract_linear_paths
 
@@ -533,6 +592,7 @@ sub contract_linear_paths {
     }
 }
 
+
 =head2 is_binary
 
   Example    : is_binary(); is_binary($node);
@@ -545,8 +605,6 @@ sub contract_linear_paths {
 
 
 =cut
-
-sub is_binary;
 
 sub is_binary {
     my $self = shift;
@@ -635,10 +693,12 @@ sub force_binary {
 
     my @descs = $node->each_Descendent;
     if (@descs > 2) {
-        $self->warn("Node ".($node->can('node_name') ? ($node->node_name || $node->id) : $node->id).
-                    " has more than two descendants\n(".
-                    join(", ", map { $node->can('node_name') ? ($node->node_name || $node->id || '') : $node->id || '' } @descs).
-                    ")\nWill do an arbitrary balanced split");
+        # Removed overly verbose warning - cjfields 3-12-11
+        
+        # Many nodes have no identifying names, a simple warning is probably
+        # enough.
+
+        $self->warn("Node has more than two descendants\nWill do an arbitrary balanced split");
         my @working = @descs;
         # create an even set of artifical nodes on which to later hang the descs
         my $half = @working / 2;
@@ -674,6 +734,7 @@ sub force_binary {
         $self->force_binary($desc);
     }
 }
+
 
 =head2 simplify_to_leaves_string
 
@@ -712,8 +773,10 @@ sub simplify_to_leaves_string {
     return join(',', @data);
 }
 
+
 # alias
 sub _clone { shift->clone(@_) }
+
 
 # safe node clone that doesn't seg fault, but deliberately loses ancestors and
 # descendents
@@ -730,6 +793,7 @@ sub _clone_node {
 
     return $clone;
 }
+
 
 # tree string generator for simplify_to_leaves_string, based on
 # Bio::TreeIO::newick::_write_tree_Helper
@@ -757,6 +821,7 @@ sub _simplify_helper {
     return @data;
 }
 
+
 =head2 distance
 
  Title   : distance
@@ -772,18 +837,18 @@ sub distance {
     my ($self,@args) = @_;
     my ($nodes) = $self->_rearrange([qw(NODES)],@args);
     if( ! defined $nodes ) {
-	$self->warn("Must supply two nodes or -nodes parameter to distance() method");
-	return;
+        $self->warn("Must supply two nodes or -nodes parameter to distance() method");
+        return;
     }
     elsif (ref($nodes) eq 'ARRAY') {
-	1;
+        1;
     }
     elsif ( @args == 2) { # assume these are nodes...
-	    $nodes = \@args;
+            $nodes = \@args;
     }
     else {
-	$self->warn("Must supply two nodes or -nodes parameter to distance() method");
-	return;
+        $self->warn("Must supply two nodes or -nodes parameter to distance() method");
+        return;
     }
     $self->throw("Must provide 2 nodes") unless @{$nodes} == 2;
 
@@ -813,17 +878,17 @@ sub distance {
     return $cumul_dist;
 }
 
+
 =head2 is_monophyletic
 
  Title   : is_monophyletic
  Usage   : if( $tree->is_monophyletic(-nodes => \@nodes, 
-				      -outgroup => $outgroup)
+                                      -outgroup => $outgroup)
  Function: Will do a test of monophyly for the nodes specified
            in comparison to a chosen outgroup
  Returns : boolean
  Args    : -nodes    => arrayref of nodes to test
            -outgroup => outgroup to serve as a reference
-
 
 =cut
 
@@ -857,11 +922,12 @@ is_monophyletic");
    return 1;
 }
 
+
 =head2 is_paraphyletic
 
  Title   : is_paraphyletic
  Usage   : if( $tree->is_paraphyletic(-nodes =>\@nodes,
-				      -outgroup => $node) ){ }
+                                      -outgroup => $node) ){ }
  Function: Tests whether or not a given set of nodes are paraphyletic
            (representing the full clade) given an outgroup
  Returns : [-1,0,1] , -1 if the group is not monophyletic
@@ -912,7 +978,7 @@ sub is_paraphyletic{
        $og_ancestor = $og_ancestor->ancestor;
    }
    my $tree = Bio::Tree::Tree->new(-root     => $clade_root,
-				  -nodelete => 1);
+                                   -nodelete => 1);
 
    foreach my $n ( $tree->get_nodes() ) { 
        next unless $n->is_Leaf();
@@ -942,17 +1008,18 @@ sub reroot {
         return 0;
     }
 
-	my $old_root = $self->get_root_node;
-	if( $new_root == $old_root ) {
-	    $self->warn("Node requested for reroot is already the root node!");
-	    return 0;
-	}
-        my $anc = $new_root->ancestor;
-        unless( $anc ) {
-	    # this is already the root
-	    $self->warn("Node requested for reroot is already the root node!");            return 0;
-        }
-        my $tmp_node = $new_root->create_node_on_branch(-position=>0,-force=>1);
+    my $old_root = $self->get_root_node;
+    if( $new_root == $old_root ) {
+        $self->warn("Node requested for reroot is already the root node!");
+        return 0;
+    }
+    my $anc = $new_root->ancestor;
+    unless( $anc ) {
+        # this is already the root
+        $self->warn("Node requested for reroot is already the root node!");
+        return 0;
+    }
+    my $tmp_node = $new_root->create_node_on_branch(-position=>0,-force=>1);
     # reverse the ancestor & children pointers
     my $former_anc = $tmp_node->ancestor;
     my @path_from_oldroot = ($self->get_lineage_nodes($tmp_node), $tmp_node);
@@ -962,7 +1029,7 @@ sub reroot {
         $current->remove_Descendent($next);
         $current->branch_length($next->branch_length);
         $current->bootstrap($next->bootstrap) if defined $next->bootstrap;
-	$next->remove_tag('B');
+        $next->remove_tag('B');
         $next->add_Descendent($current);
     }
 
@@ -977,6 +1044,7 @@ sub reroot {
 
     return 1;
 }
+
 
 =head2 reroot_at_midpoint
 
@@ -1002,12 +1070,13 @@ sub reroot_at_midpoint {
 
     my $midpt = $node->create_node_on_branch(-FRACTION=>0.5);
     if (defined $id) {
-	$self->warn("ID argument is not a scalar") if (ref $id);
-	$midpt->id($id) if defined($id) && !ref($id);
+        $self->warn("ID argument is not a scalar") if (ref $id);
+        $midpt->id($id) if defined($id) && !ref($id);
     }
     $self->reroot($midpt);
     return $midpt;
 }
+
 
 =head2 findnode_by_id
 
@@ -1021,11 +1090,10 @@ sub reroot_at_midpoint {
 
 =cut
 
-
 sub findnode_by_id {
     my $tree = shift;
     $tree->deprecated("use of findnode_by_id() is deprecated; ".
-		      "use find_node() instead");
+                      "use find_node() instead");
     my $id = shift;
     my $rootnode = $tree->get_root_node;
     if ( ($rootnode->id) and ($rootnode->id eq $id) ) {
@@ -1039,6 +1107,7 @@ sub findnode_by_id {
     }
 }
 
+
 =head2 move_id_to_bootstrap
 
  Title   : move_id_to_bootstrap
@@ -1046,7 +1115,6 @@ sub findnode_by_id {
  Function: Move internal IDs to bootstrap slot
  Returns : undef
  Args    : undef
-
 
 =cut
 
@@ -1061,69 +1129,86 @@ sub move_id_to_bootstrap{
 
 =head2 add_trait
 
-  Example    : $key = $tree->add_trait($trait_file, 3);
-  Description: Add traits to a Bio::Tree:Tree nodes
-               of a tree from a file.
-  Returns    : trait name
-  Exceptions : log an error if a node has no value in the file
-  Args       : name of trait file (scalar string), 
-               index of trait file column (scalar int)
-  Caller     : main()
-
-The trait file is a tab-delimited text file and needs to have a header
-line giving names to traits. The first column contains the leaf node
-ids. Subsequent columns contain different trait value sets. Columns
-numbering starts from 0. The default trait column is the second
-(1). The returned hashref has one special key, my_trait_name, that
-holds the trait name. Single or double quotes are removed.
+ Title   : add_trait
+ Usage   : my $key = $tree->add_trait($trait_file, 3);
+ Function: Add traits to the leaf nodes of a Bio::Tree:Tree from a file.
+           The trait file is a tab-delimited text file and needs to have a
+           header line giving names to traits. The first column contains the
+           leaf node ids. Subsequent columns contain different trait value sets.
+           Single or double quotes are removed from the trait values. Traits
+           are added to leaf nodes as a tag named $key using the add_tag_value()
+           method. This means that you can retrieve the trait values using the
+           get_tag_values() method (see the documentation for Bio::Tree::Node).
+ Returns : Trait name (a scalar) on success, undef on failure (for example, if
+           the column index requested was too large).
+ Args    : * Name of trait file (scalar string).
+           * Index of trait file column (scalar int). Note that numbering starts
+             at 0. Default: 1 (second column).
+           * Ignore missing values. Typically, if a leaf node has no value in
+             the trait file, an exception is thrown. If you set this option to
+             1, then no trait will be given to the node (no exception thrown).
 
 =cut
 
 sub _read_trait_file {
-    my $self = shift;
-    my $file = shift;
-    my $column = shift || 1;
+    my ($self, $file, $column) = @_;
+    $column ||= 1;
 
-    my $traits;
-    open my $TRAIT, "<", $file or $self->("Can't find file $file: $!\n");
+    my $trait_name;
+    my $trait_values;
+    open my $TRAIT, '<', $file or $self->throw("Could not open file $file: $!\n");
 
     my $first_line = 1;
     while (<$TRAIT>) {
-	if ($first_line) {
-	    $first_line = 0;
-	    s/['"]//g;
-	    my @line = split;
-	    $traits->{'my_trait_name'} = $line[$column];
-	    next;
-	}
-	s/['"]//g;
-	my @line = split;
-	last unless $line[0];
-	$traits->{$line[0]} = $line[$column];
+        chomp;
+        s/['"]//g;
+        my @line = split /\t/;
+        if ($first_line) {
+            $first_line = 0;
+            $trait_name = $line[$column];
+            next;
+        }
+
+        my $id = $line[0];
+        last if (not defined $id) or ($id eq '');
+
+        # Skip empty trait values
+        my $value = $line[$column];
+        next if (not defined $value) or ($value eq '');
+
+        $trait_values->{$id} = $value;
     }
-    return $traits;
+
+    close $TRAIT;
+    return $trait_name, $trait_values;
 }
 
 sub add_trait {
-    my $self = shift;
-    my $file = shift;
-    my $column = shift;
+    my ($self, $file, $column, $ignore) = @_;
+    $ignore = 0 if not defined $ignore;
 
-    my $traits = $self->_read_trait_file($file, $column); # filename, trait column
-    my $key = $traits->{'my_trait_name'};
-    #use YAML; print Dump $traits; exit;
-    foreach my $node ($self->get_leaf_nodes) {
-	# strip quotes from the node id
-	$node->id($1) if $node->id =~ /^['"]+(.*)['"]+$/;
-	eval {
-	    $node->verbose(2);
-	    $node->add_tag_value($key, $traits->{ $node->id } );
-	};
-	$self->throw("ERROR: No trait for node [".
-		     $node->id. "/".  $node->internal_id. "]")
-	    if $@;
+    my ($trait_name, $trait_values) = $self->_read_trait_file($file, $column);
+
+    if (defined $trait_name) {
+
+        for my $node ($self->get_leaf_nodes) {
+
+            # strip quotes from the node id
+            $node->id($1) if $node->id =~ /^['"]+(.*)['"]+$/;
+
+            if ( not exists $trait_values->{$node->id} ) {
+                if ($ignore) {
+                    next;
+                } else {
+                    $self->throw("No trait for node [".$node->id."/".$node->internal_id."]");
+                }
+            }
+
+            $node->add_tag_value($trait_name, $trait_values->{ $node->id } );
+
+        }
     }
-    return $key;
+    return $trait_name;
 }
 
 

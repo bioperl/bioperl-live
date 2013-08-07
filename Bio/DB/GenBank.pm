@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::DB::GenBank
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Aaron Mackey <amackey@virginia.edu>
 #
@@ -10,7 +10,7 @@
 # You may distribute this module under the same terms as perl itself
 #
 # POD documentation - main docs before the code
-# 
+#
 # Added LWP support - Jason Stajich 2000-11-6
 # completely reworked by Jason Stajich 2000-12-8
 # to use WebDBSeqI
@@ -32,7 +32,7 @@ Bio::DB::GenBank - Database object interface to GenBank
     use Bio::DB::GenBank;
     $gb = Bio::DB::GenBank->new();
 
-    $seq = $gb->get_Seq_by_id('MUSIGHBA1'); # Unique ID
+    $seq = $gb->get_Seq_by_id('J00522'); # Unique ID, *not always the LOCUS ID*
 
     # or ...
 
@@ -56,11 +56,11 @@ Bio::DB::GenBank - Database object interface to GenBank
 
     # also don't want features, just sequence so let's save bandwith
     # and request Fasta sequence
-    $gb = Bio::DB::GenBank->new(-retrievaltype => 'tempfile' , 
+    $gb = Bio::DB::GenBank->new(-retrievaltype => 'tempfile' ,
 			                      -format => 'Fasta');
     my $seqio = $gb->get_Stream_by_acc(['AC013798', 'AC021953'] );
     while( my $clone =  $seqio->next_seq ) {
-      print "cloneid is ", $clone->display_id, " ", 
+      print "cloneid is ", $clone->display_id, " ",
              $clone->accession_number, "\n";
     }
     # note that get_Stream_by_version is not implemented
@@ -130,15 +130,15 @@ of the Bioperl mailing lists. Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -147,7 +147,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Aaron Mackey, Jason Stajich
 
@@ -169,7 +169,7 @@ use strict;
 use vars qw(%PARAMSTRING $DEFAULTFORMAT $DEFAULTMODE);
 
 use base qw(Bio::DB::NCBIHelper);
-BEGIN {    
+BEGIN {
     $DEFAULTMODE   = 'single';
     $DEFAULTFORMAT = 'gbwithparts';
     %PARAMSTRING = (
@@ -191,7 +191,7 @@ BEGIN {
 				   'usehistory' => 'n',
 				   'tool'   => 'bioperl',
 				   'retmode' => 'text'},
-			 'webenv' => {    
+			 'webenv' => {
 				  'query_key'  => 'querykey',
 				  'WebEnv'  => 'cookie',
 				  'db'     => 'nucleotide',
@@ -352,7 +352,7 @@ instead.
  Title   : get_request
  Usage   : my $url = $self->get_request
  Function: HTTP::Request
- Returns : 
+ Returns :
  Args    : %qualifiers = a hash of qualifiers (ids, format, etc)
 
 =cut

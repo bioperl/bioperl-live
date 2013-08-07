@@ -274,7 +274,7 @@ in a vertebrate genome.  Others, such as predicted genes, correspond
 to named biological objects; you probably want to be able to fetch the
 positions of these objects by referring to them by name.
 
-To accomodate named annotations, the GFF format places the object
+To accommodate named annotations, the GFF format places the object
 class and name in the group field.  The name identifies the object,
 and the class prevents similarly-named objects, for example clones and
 sequences, from collding.
@@ -515,7 +515,7 @@ Three default aggregators are provided:
                    "similarity".
 
 In addition, this module provides the optional "wormbase_gene"
-aggregator, which accomodates the WormBase representation of genes.
+aggregator, which accommodates the WormBase representation of genes.
 This aggregator aggregates features of method "exon", "CDS", "5'UTR",
 "3'UTR", "polyA" and "TSS" into a single object.  It also expects to
 find a single feature of type "Sequence" that spans the entire gene.
@@ -2491,6 +2491,12 @@ sub _load_gff_line {
   my $lineend = $self->{load_data}{lineend};
 
   $self->{load_data}{gff3_flag}++           if $line =~ /^\#\#\s*gff-version\s+3/;
+
+  if (defined $self->{load_data}{gff3_flag} and !defined $self->{load_data}{gff3_warning}) {
+    $self->print_gff3_warning();
+    $self->{load_data}{gff3_warning}=1;
+  }
+
   $self->preferred_groups(split(/\s+/,$1))  if $line =~ /^\#\#\s*group-tags?\s+(.+)/;
 
   if ($line =~ /^\#\#\s*sequence-region\s+(\S+)\s+(-?\d+)\s+(-?\d+)/i) { # header line
@@ -3797,6 +3803,23 @@ sub unescape {
   $v =~ tr/+/ /;
   $v =~ s/%([0-9a-fA-F]{2})/chr hex($1)/ge;
   return $v;
+}
+
+sub print_gff3_warning {
+  my $self = shift;
+  print STDERR <<END
+
+You are loading a Bio::DB::GFF database with GFF3 formatted data.
+While this will likely work fine, the Bio::DB::GFF schema does not
+always faithfully capture the complexity represented in GFF3 files.
+Unless you have a specific reason for using Bio::DB::GFF, we suggest
+that you use a Bio::DB::SeqFeature::Store database and its corresponding
+loader, bp_seqfeature_load.pl.
+
+END
+;
+
+  return;
 }
 
 

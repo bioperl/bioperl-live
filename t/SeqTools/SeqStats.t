@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 44);
+    test_begin(-tests => 47);
 	
 	use_ok('Bio::SeqIO');
 	use_ok('Bio::Tools::SeqStats');
@@ -49,7 +49,6 @@ is $count->{'GTG'}, 1;
 is $count->{'GCG'}, 1;
 is $count->{'TCA'}, 1;
 
-
 $seqobj = Bio::PrimarySeq->new(-seq=>'ACTACTTCA', -alphabet=>'dna',
 			       -id=>'test');
 $seqobj_stats  =  Bio::Tools::SeqStats->new('-seq' => $seqobj);
@@ -62,7 +61,6 @@ $wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
 is &round($$wt[0]), 2693;
 is &round($$wt[1]), 2813;
 
-
 $seqobj = Bio::PrimarySeq->new(-seq=>'ACTGTGGCGTCAACTG',
 			       -alphabet=>'dna', -id=>'test');
 $count = Bio::Tools::SeqStats->count_monomers($seqobj);  # for DNA sequence
@@ -70,6 +68,8 @@ is $count->{'A'}, 3;
 is $count->{'C'}, 4;
 is $count->{'G'}, 5;
 is $count->{'T'}, 4;
+
+# protein
 
 $seqobj = Bio::PrimarySeq->new(-seq=>'MQSERGITIDISLWKFETSKYYVT',
                                -alphabet=>'protein', -id=>'test');
@@ -83,6 +83,24 @@ $wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
 is int $$wt[0], 2896;
 is int $$wt[1], 2896;
 
+# Issue 3185: https://redmine.open-bio.org/issues/3185
+
+$seqobj = Bio::PrimarySeq->new(-seq=>'MQSERGITIDISLWKFETSKYYVT*',
+                               -alphabet=>'protein', -id=>'test');
+is($seqobj->seq, 'MQSERGITIDISLWKFETSKYYVT*');
+$seqobj_stats  =  Bio::Tools::SeqStats->new('-seq' => $seqobj);
+$wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
+is int $$wt[0], 2896;
+is int $$wt[1], 2896;
+
+# selenocysteine
+ok $seqobj = Bio::PrimarySeq->new(-seq=>'MQSERGITIDISLWKFETSKYYVT',
+                                  -alphabet=>'protein');
+$wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
+is &round($$wt[0]), 2896 ;
+
+# RNA
+
 $seqobj = Bio::PrimarySeq->new(-seq=>'UYXUYNNYU', -alphabet=>'rna');
 $wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
 is &round($$wt[0]), 2768;
@@ -91,12 +109,6 @@ is &round($$wt[1]), 2891;
 ok $seqobj = Bio::PrimarySeq->new(-seq=>'TGCCGTGTGTGCTGCTGCT', -alphabet=>'rna');
 $wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
 is &round($$wt[0]), 6104 ;
-
-# selenocysteine
-ok $seqobj = Bio::PrimarySeq->new(-seq=>'MQSERGITIDISLWKFETSKYYVT',
-                                  -alphabet=>'protein');
-$wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
-is &round($$wt[0]), 2896 ;
 
 #
 # hydropathicity aka "gravy" score

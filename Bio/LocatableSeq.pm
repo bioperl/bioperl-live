@@ -50,11 +50,15 @@ There are all sorts of nasty gotcha's about interactions between coordinate
 systems when these sort of objects are used. Some mapping now occurs to deal
 with HSP data, however it can probably be integrated in better and most methods
 do not implement it correctly yet. Also, several PrimarySeqI methods (subseq(),
-trunc(), etc.) do not behave as expected and must be used with care.
+trunc(), etc.) do not behave as expected and must be used with care. Due to this,
+LocatableSeq functionality is to be refactored in a future BioPerl release.
+However, for alignment functionality it works adequately for the time being.
 
-Due to this, LocatableSeq functionality is to be refactored in a future BioPerl
-release. However, for alignment functionality it works adequately for the time
-being
+If you do not need alignment functionality, L<Bio::SeqfeatureI>-implementing
+modules may be a suitable alternative to L<Bio::LocatableSeq>. For example,
+L<Bio::SeqFeature::Generic> and L<Bio::SeqFeature::Lite> provide methods to
+attach a sequence to a specific region of a parent sequence and to set other
+useful attributes.
 
 =head1 FEEDBACK
 
@@ -84,7 +88,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 APPENDIX
 
@@ -93,8 +97,7 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-#'
-# Let the code begin...
+
 
 package Bio::LocatableSeq;
 use strict;
@@ -115,6 +118,7 @@ $RESIDUE_SYMBOLS = '0-9A-Za-z\*';
 $MATCHPATTERN = $RESIDUE_SYMBOLS.$GAP_SYMBOLS.$FRAMESHIFT_SYMBOLS.$OTHER_SYMBOLS;
 
 use base qw(Bio::PrimarySeq Bio::RangeI);
+
 
 sub new {
     my ($class, @args) = @_;
@@ -142,6 +146,7 @@ sub new {
     return $self; # success - we hope!
 }
 
+
 =head2 start
 
  Title   : start
@@ -153,7 +158,7 @@ sub new {
 
 =cut
 
-sub start{
+sub start {
     my $self = shift;
     if( @_ ) {
         my $value = shift;
@@ -163,6 +168,7 @@ sub start{
     return 1                if $self->seq;
     return;
 }
+
 
 =head2 end
 
@@ -210,6 +216,7 @@ sub end {
     }
 }
 
+
 # changed 08.10.26 to return ungapped length, not the calculated end
 # of the sequence
 sub _ungapped_len {
@@ -231,6 +238,7 @@ sub _ungapped_len {
 #    return CORE::length($string);
 #}
 
+
 =head2 strand
 
  Title   : strand
@@ -241,7 +249,7 @@ sub _ungapped_len {
 
 =cut
 
-sub strand{
+sub strand {
    my $self = shift;
    if( @_ ) {
         my $value = shift;
@@ -249,6 +257,7 @@ sub strand{
     }
     return $self->{'strand'};
 }
+
 
 =head2 mapping
 
@@ -278,6 +287,7 @@ sub mapping {
     return @{ $self->{'_mapping'} };
 }
 
+
 =head2 frameshifts
 
  Title   : frameshifts
@@ -303,6 +313,7 @@ sub frameshifts {
         return %{$self->{_frameshifts}} : return ();
 }
 
+
 =head2 get_nse
 
  Title   : get_nse
@@ -314,7 +325,7 @@ sub frameshifts {
 
 =cut
 
-sub get_nse{
+sub get_nse {
    my ($self,$char1,$char2) = @_;
 
    $char1 ||= "/";
@@ -342,6 +353,7 @@ sub get_nse{
    return join('',$id, $v, $char1, $st, $char2, $end);
 }
 
+
 =head2 force_nse
 
  Title   : force_nse
@@ -362,6 +374,7 @@ sub force_nse {
     }
     return $self->{'_force_nse'};
 }
+
 
 =head2 num_gaps
 
@@ -436,52 +449,53 @@ sub column_from_residue_number {
     unless $resnumber =~ /^\d+$/ and $resnumber > 0;
 
     if ($resnumber >= $self->start() and $resnumber <= $self->end()) {
-	my @chunks;
-	my $column_incr;
-	my $current_column;
-	my $current_residue = $self->start - 1;
-	my $seq = $self->seq;
-	my $strand = $self->strand || 0;
+        my @chunks;
+        my $column_incr;
+        my $current_column;
+        my $current_residue = $self->start - 1;
+        my $seq = $self->seq;
+        my $strand = $self->strand || 0;
 
-	if ($strand == -1) {
-#	    @chunks = reverse $seq =~ m/[^\.\-]+|[\.\-]+/go;
-	    @chunks = reverse $seq =~ m/[$RESIDUE_SYMBOLS]+|[$GAP_SYMBOLS]+/go;
-	    $column_incr = -1;
-	    $current_column = (CORE::length $seq) + 1;
-	}
-	else {
-#	    @chunks = $seq =~ m/[^\.\-]+|[\.\-]+/go;
-	    @chunks = $seq =~ m/[$RESIDUE_SYMBOLS]+|[$GAP_SYMBOLS]+/go;
-	    $column_incr = 1;
-	    $current_column = 0;
-	}
+        if ($strand == -1) {
+           #@chunks = reverse $seq =~ m/[^\.\-]+|[\.\-]+/go;
+            @chunks = reverse $seq =~ m/[$RESIDUE_SYMBOLS]+|[$GAP_SYMBOLS]+/go;
+            $column_incr = -1;
+            $current_column = (CORE::length $seq) + 1;
+        }
+        else {
+            #@chunks = $seq =~ m/[^\.\-]+|[\.\-]+/go;
+            @chunks = $seq =~ m/[$RESIDUE_SYMBOLS]+|[$GAP_SYMBOLS]+/go;
+            $column_incr = 1;
+            $current_column = 0;
+        }
 
-	while (my $chunk = shift @chunks) {
-#	    if ($chunk =~ m|^[\.\-]|o) {
-	    if ($chunk =~ m|^[$GAP_SYMBOLS]|o) {
-		$current_column += $column_incr * CORE::length($chunk);
-	    }
-	    else {
-		if ($current_residue + CORE::length($chunk) < $resnumber) {
-		    $current_column += $column_incr * CORE::length($chunk);
-		    $current_residue += CORE::length($chunk);
-		}
-		else {
-		    if ($strand == -1) {
-			$current_column -= $resnumber - $current_residue;
-		    }
-		    else {
-			$current_column += $resnumber - $current_residue;
-		    }
-		    return $current_column;
-		}
-	    }
-	}
+        while (my $chunk = shift @chunks) {
+            #if ($chunk =~ m|^[\.\-]|o) {
+            if ($chunk =~ m|^[$GAP_SYMBOLS]|o) {
+                $current_column += $column_incr * CORE::length($chunk);
+            }
+            else {
+                if ($current_residue + CORE::length($chunk) < $resnumber) {
+                    $current_column += $column_incr * CORE::length($chunk);
+                    $current_residue += CORE::length($chunk);
+                }
+                else {
+                    if ($strand == -1) {
+                        $current_column -= $resnumber - $current_residue;
+                    }
+                    else {
+                        $current_column += $resnumber - $current_residue;
+                    }
+                    return $current_column;
+                }
+            }
+        }
     }
 
     $self->throw("Could not find residue number $resnumber");
 
 }
+
 
 =head2 location_from_column
 
@@ -563,6 +577,7 @@ sub location_from_column {
     return $loc;
 }
 
+
 =head2 revcom
 
  Title   : revcom
@@ -592,17 +607,15 @@ sub revcom {
     return $new;
 }
 
+
 =head2 trunc
 
  Title   : trunc
  Usage   : $subseq = $myseq->trunc(10,100);
  Function: Provides a truncation of a sequence,
-
- Example :
  Returns : a fresh Bio::PrimarySeqI implementing object
  Args    : Two integers denoting first and last columns of the
            sequence to be included into sub-sequence.
-
 
 =cut
 
@@ -621,44 +634,43 @@ sub trunc {
     return $new;
 }
 
+
 =head2 validate_seq
 
  Title   : validate_seq
- Usage   : if(! $seq->validate_seq($seq_str) ) {
+ Usage   : if(! $seqobj->validate_seq($seq_str) ) {
                 print "sequence $seq_str is not valid for an object of
-                alphabet ",$seq->alphabet, "\n";
-            }
- Function: Validates a given sequence string. A validating sequence string
-           must be accepted by seq(). A string that does not validate will
-           lead to an exception if passed to seq().
-
-           The implementation provided here does not take alphabet() into
-           account. Allowed are all letters (A-Z), numbers [0-9] 
-           and common symbols used for gaps, stop codons, unknown residues,
-           and frameshifts, including '-','.','*','?','=',and '~'.
-
- Example :
- Returns : 1 if the supplied sequence string is valid for the object, and
-           0 otherwise.
- Args    : The sequence string to be validated.
+                alphabet ",$seqobj->alphabet, "\n";
+           }
+ Function: Test that the given sequence is valid, i.e. contains only valid
+           characters. The allowed characters are all letters (A-Z) and '-','.',
+           '*','?','=' and '~'. Spaces are not valid. Note that this
+           implementation does not take alphabet() into account.
+ Returns : 1 if the supplied sequence string is valid, 0 otherwise.
+ Args    : - Sequence string to be validated
+           - Boolean to throw an error if the sequence is invalid
 
 =cut
 
 sub validate_seq {
-    my ($self,$seqstr) = @_;
-    if( ! defined $seqstr ){ $seqstr = $self->seq(); }
-    return 0 unless( defined $seqstr);
-    
-    if((CORE::length($seqstr) > 0) &&
-       ($seqstr !~ /^([$MATCHPATTERN]+)$/)) {
-        $self->warn("seq doesn't validate with [$MATCHPATTERN], mismatch is " .
-            join(",",($seqstr =~ /([^$MATCHPATTERN]+)/g)));
+    my ($self, $seqstr, $throw) = @_;
+    $seqstr = '' if not defined $seqstr;
+    $throw  = 0  if not defined $throw ; # 0 for backward compatiblity
+    if ( (CORE::length $seqstr > 0         ) &&
+         ($seqstr !~ /^([$MATCHPATTERN]+)$/) ) {
+        if ($throw) {
+            $self->throw("Failed validation of sequence '".(defined($self->id) ||
+            '[unidentified sequence]')."'. Invalid characters were: " .
+            join('',($seqstr =~ /([^$MATCHPATTERN]+)/g)));
+        }
         return 0;
     }
     return 1;
 }
 
+
 ################## DEPRECATED METHODS ##################
+
 
 =head2 no_gap
 
@@ -678,12 +690,13 @@ sub validate_seq {
 =cut
 
 sub no_gaps {
-	my $self = shift;
-	$self->deprecated(-warn_version => 1.0069,
-					  -throw_version => 1.0075,
-                      -message => 'Use of method no_gaps() is deprecated, use num_gaps() instead');
-    $self->num_gaps(@_);
+    my $self = shift;
+    $self->deprecated( -warn_version  => 1.0069,
+                       -throw_version => 1.0075,
+                       -message => 'Use of method no_gaps() is deprecated, use num_gaps() instead' );
+    return $self->num_gaps(@_);
 }
+
 
 =head2 no_sequences
 
@@ -697,11 +710,11 @@ sub no_gaps {
 =cut
 
 sub no_sequences {
-	my $self = shift;
-	$self->deprecated(-warn_version => 1.0069,
-					  -throw_version => 1.0075,
-                      -message => 'Use of method no_sequences() is deprecated, use num_sequences() instead');
-    $self->num_sequences(@_);
+    my $self = shift;
+    $self->deprecated( -warn_version  => 1.0069,
+                       -throw_version => 1.0075,
+                       -message => 'Use of method no_sequences() is deprecated, use num_sequences() instead' );
+    return $self->num_sequences(@_);
 }
 
 1;

@@ -57,7 +57,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -86,50 +86,71 @@ use base qw(Bio::Root::Root);
 $DefaultSource = 'entrez';
 $TAXON_IIDS = {};
 
+
 =head2 new
 
  Title   : new
  Usage   : my $obj = Bio::DB::Taxonomy->new(-source => 'entrez');
  Function: Builds a new Bio::DB::Taxonomy object.
  Returns : an instance of Bio::DB::Taxonomy
- Args    : -source => which database source 'entrez' or 'flatfile' or 'list'
+ Args    : -source => which database source 'entrez' (NCBI taxonomy online),
+                      'flatfile' (local NCBI taxonomy), 'greengenes' (local
+                      GreenGenes taxonomy), 'silva' (local Silva taxonomy), or
+                      'list' (Do-It-Yourself taxonomy)
 
 =cut
 
 sub new {
-  my($class,@args) = @_;
+    my($class,@args) = @_;
 
-  if( $class =~ /Bio::DB::Taxonomy::(\S+)/ ) {
-      my ($self) = $class->SUPER::new(@args);
-      $self->_initialize(@args);
-      return $self;
-  } else { 
-      my %param = @args;
-      @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
-      my $source = $param{'-source'} || $DefaultSource;
+    if( $class =~ /Bio::DB::Taxonomy::(\S+)/ ) {
+        my ($self) = $class->SUPER::new(@args);
+        $self->_initialize(@args);
+        return $self;
+    } else { 
+        my %param = @args;
+        @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
+        my $source = $param{'-source'} || $DefaultSource;
 
-      $source = "\L$source";	# normalize capitalization to lower case
+        $source = "\L$source"; # normalize capitalization to lower case
 
-      # normalize capitalization
-      return unless( $class->_load_tax_module($source) );
-      return "Bio::DB::Taxonomy::$source"->new(@args);
-  }
+        # normalize capitalization
+        return unless( $class->_load_tax_module($source) );
+        return "Bio::DB::Taxonomy::$source"->new(@args);
+    }
 }
+
 
 # empty for now
 sub _initialize { }
 
+
+=head2 get_num_taxa
+
+ Title   : get_num_taxa
+ Usage   : my $num = $db->get_num_taxa();
+ Function: Get the number of taxa stored in the database.
+ Returns : A number
+ Args    : None
+
+=cut
+
+sub get_num_taxa {
+    shift->throw_not_implemented();
+}
+
+
 =head2 get_taxon
 
  Title   : get_taxon
- Usage   : my $taxon = $db->get_taxon(-taxonid => $taxonid)
+ Usage   : my $taxon = $db->get_taxon(-taxonid => $taxonid);
  Function: Get a Bio::Taxon object from the database.
  Returns : Bio::Taxon object
  Args    : just a single value which is the database id, OR named args:
            -taxonid => taxonomy id (to query by taxonid)
-            OR
+             OR
            -name    => string (to query by a taxonomy name: common name, 
-                               scientific name, etc)
+                       scientific name, etc)
 
 =cut
 
@@ -139,6 +160,7 @@ sub get_taxon {
 
 *get_Taxonomy_Node = \&get_taxon;
 
+
 =head2 get_taxonids
 
  Title   : get_taxonids
@@ -147,7 +169,7 @@ sub get_taxon {
            string. Note that multiple taxonids can match to the same supplied
            name.
  Returns : array of integer ids in list context, one of these in scalar context
- Args    : string representing taxon's name
+ Args    : string representing the taxon's name
 
 =cut
 
@@ -156,19 +178,21 @@ sub get_taxonids {
 }
 
 *get_taxonid = \&get_taxonids;
-*get_taxaid = \&get_taxonids;
+*get_taxaid  = \&get_taxonids;
+
 
 =head2 get_tree
 
  Title   : get_tree
- Usage   : my $tree = $db->get_tree(@species_names)
+ Usage   : my $tree = $db->get_tree(@species_names);
  Function: Generate a tree comprised of the full lineages of all the supplied
            species names. The nodes for the requested species are given
            name('supplied') values corresponding to the supplied name, such that
            they can be identified if the real species name in the database
-           (stored under node_name()) is different.
+           (stored under node_name()) is different. The nodes are also given an
+           arbitrary branch length of 1.
  Returns : Bio::Tree::Tree
- Args    : a list of species names (strings)
+ Args    : A list of species names (strings) to include in the tree.
 
 =cut
 
@@ -177,31 +201,35 @@ sub get_tree {
     
     # the full lineages of the species are merged into a single tree
     my $tree;
-    foreach my $name (@species_names) {
-        my $ncbi_id = $self->get_taxonid($name);
-        if ($ncbi_id) {
-            my $node = $self->get_taxon(-taxonid => $ncbi_id);
+    for my $name (@species_names) {
+        my @ids = $self->get_taxonids($name);
+        if (not scalar @ids) {
+            $self->throw("Could not find species $name in the taxonomy");
+        }
+        for my $id (@ids) {
+            my $node = $self->get_taxon(-taxonid => $id);
             $node->name('supplied', $name);
-            
             if ($tree) {
                 $tree->merge_lineage($node);
-            }
-            else {
+            } else {
                 $tree = Bio::Tree::Tree->new(-verbose => $self->verbose, -node => $node);
             }
         }
-        else {
-            $self->throw("No taxonomy database node for species ".$name);
-        }
+    }
+
+    # add arbitrary branch length
+    for my $node ($tree->get_nodes) {
+        $node->branch_length(1);
     }
     
     return $tree;
 }
 
+
 =head2 ancestor
 
  Title   : ancestor
- Usage   : my $ancestor_taxon = $db->ancestor($taxon)
+ Usage   : my $ancestor_taxon = $db->ancestor($taxon);
  Function: Retrieve the full ancestor taxon of a supplied Taxon from the
            database. 
  Returns : Bio::Taxon
@@ -212,6 +240,7 @@ sub get_tree {
 sub ancestor {
     shift->throw_not_implemented();
 }
+
 
 =head2 each_Descendent
 
@@ -228,6 +257,7 @@ sub each_Descendent {
     shift->throw_not_implemented();
 }
 
+
 =head2 get_all_Descendents
 
  Title   : get_all_Descendents
@@ -242,10 +272,11 @@ sub get_all_Descendents {
     my ($self, $taxon) = @_;
     my @taxa;
     foreach my $desc_taxon ($self->each_Descendent($taxon)) {
-      push @taxa, ($desc_taxon, $self->get_all_Descendents($desc_taxon));
+        push @taxa, ($desc_taxon, $self->get_all_Descendents($desc_taxon));
     }
     return @taxa;
 }
+
 
 =head2 _load_tax_module
 
@@ -262,8 +293,8 @@ sub _load_tax_module {
 
     eval { $ok = $self->_load_module($module) };
     if ( $@ ) {
-	print STDERR $@;
-	print STDERR <<END;
+        print STDERR $@;
+        print STDERR <<END;
 $self: $source cannot be found
 Exception $@
 For more information about the Bio::DB::Taxonomy system please see
@@ -275,45 +306,71 @@ END
     return $ok;
 }
 
+
 =head2 _handle_internal_id
 
  Title   : _handle_internal_id
  Usage   : *INTERNAL Bio::DB::Taxonomy stuff*
- Function: Tries to ensure that when a taxon is requested from any database,
-           the Taxon object returned will have the same internal id regardless
-           of database.
- Args    : Bio::Taxon, and optionally true value to try and do the job using
-           scientific name & rank if your ids aren't comparable to other dbs.
+ Function: Add an internal ID to a taxon object, ensuring that the taxon gets
+           the same internal ID, regardless of which database it is retrieved
+           from.
+ Returns : The assigned internal ID
+ Args    : * A Bio::Taxon
+           * An optional boolean to decide whether or not to try and do the job
+             using scientific name & rank in addition to taxon ID. This is
+             useful if your IDs are not comparable to that of other databases,
+             e.g. if they are arbitrary, as in the case of Bio::DB::Taxonomy::list.
+             CAVEAT: will handle ambiguous names within a database fine, but not
+             across multiple databases.
 
 =cut
 
 sub _handle_internal_id {
     my ($self, $taxon, $try_name) = @_;
     $self->throw("Must supply a Bio::Taxon") unless ref($taxon) && $taxon->isa('Bio::Taxon');
-    my $taxid = $taxon->id || return;
-    my $sci_name = $taxon->scientific_name || '';
-    my $rank = $taxon->rank || 'no rank';
-    
-    if ($try_name && $sci_name && defined $TAXON_IIDS->{names}->{$sci_name}) {
-        if (defined $TAXON_IIDS->{names}->{$sci_name}->{$rank}) {
-            $TAXON_IIDS->{taxids}->{$taxid} = $TAXON_IIDS->{names}->{$sci_name}->{$rank};
+
+    my $taxid = $taxon->id              || return;
+    my $name  = $taxon->scientific_name || '';
+    my $rank  = $taxon->rank            || 'no rank';
+    my $dbh   = $try_name ? $taxon->db_handle : 'any';
+
+    my $iid = $TAXON_IIDS->{taxids}->{$dbh}->{$taxid};
+    if ( (not defined $iid) && $try_name && $name && exists $TAXON_IIDS->{names}->{$name}) {
+        # Search for a suitable IID based on species name and ranks
+        my %test_ranks = map {$_ => undef} ($rank, 'no rank');
+        SEARCH: while (my ($test_rank, undef) = each %test_ranks) {
+            # Search at the specified rank first, then with 'no rank'
+            while ( my ($test_iid, $test_info) = each %{$TAXON_IIDS->{names}->{$name}->{$rank}} ) {
+                while (my ($test_db, $test_taxid) = each %$test_info) {
+                    if ( ($test_db eq $dbh) && not($test_taxid eq $taxid) ) {
+                        # Taxa are different (same database, different taxid)
+                        next;
+                    }
+                    # IID is acceptable since taxa are from different databases,
+                    # or from the same database but have the same taxid
+                    $iid = $test_iid;
+                    $TAXON_IIDS->{taxids}->{$dbh}->{$taxid} = $iid;
+                    last SEARCH;
+                }
+            }
         }
-        elsif ($rank eq 'no rank') {
-            # pick the internal id of one named rank taxa at random
-            my ($iid) = values %{$TAXON_IIDS->{names}->{$sci_name}};
-            $TAXON_IIDS->{taxids}->{$taxid} = $iid;
+    }
+
+    if (defined $iid) {
+        # Assign Bio::DB::Taxonomy IID with risky Bio::Tree::Node internal method
+        $taxon->_creation_id($iid);
+    } else {
+        # Register new IID in Bio::DB::Taxonomy
+        $iid = $taxon->internal_id;
+        $TAXON_IIDS->{taxids}->{$dbh}->{$taxid} = $iid;
+        if ($name) {
+            $TAXON_IIDS->{names}->{$name}->{$rank}->{$iid}->{$taxon->db_handle} = $taxid
         }
     }
-    
-    if (defined $TAXON_IIDS->{taxids}->{$taxid}) {
-        # a little dangerous to use this internal method of Bio::Tree::Node;
-        # but it is how internal_id() is set
-        $taxon->_creation_id($TAXON_IIDS->{taxids}->{$taxid});
-    }
-    else {
-        $TAXON_IIDS->{taxids}->{$taxid} = $taxon->internal_id;
-        $TAXON_IIDS->{names}->{$sci_name}->{$rank} = $taxon->internal_id if $sci_name;
-    }
+
+    return $iid;
+
 }
+
 
 1;

@@ -3,24 +3,25 @@
 
 use strict;
 
-BEGIN { 
+BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    
-    test_begin(-tests => 70);
-	
-	use_ok('Bio::Seq');
-	use_ok('Bio::Seq::RichSeq');
-	use_ok('Bio::SeqFeature::Generic');
-	use_ok('Bio::Species');
-	use_ok('Bio::Annotation::SimpleValue');
+
+    test_begin(-tests => 73);
+
+    use_ok('Bio::Seq');
+    use_ok('Bio::Seq::RichSeq');
+    use_ok('Bio::SeqFeature::Generic');
+    use_ok('Bio::Species');
+    use_ok('Bio::Annotation::SimpleValue');
 }
 
 ok my $seq = Bio::Seq->new(-seq=>'ACTGTGGCGTCAACT',
                         -desc=>'Sample Bio::Seq object',
-			-alphabet => 'dna',
+                        -alphabet => 'dna',
                         -is_circular => 1
                        );
+isa_ok($seq,"Bio::AnnotatableI");
 
 ok $seq->is_circular;
 ok not $seq->is_circular(0);
@@ -35,10 +36,10 @@ is $trunc->seq, 'ACTG', 'truncated sequence string';
 is $seq->seq(),  'ACTGTGGCGTCAACT' ;
 
 ok $seq = Bio::Seq->new(-seq=>'actgtggcgtcaact',
-		     -desc=>'Sample Bio::Seq object',
-		     -display_id => 'something',
-		     -accession_number => 'accnum',
-		     -alphabet => 'dna' );
+                        -desc=>'Sample Bio::Seq object',
+                        -display_id => 'something',
+                        -accession_number => 'accnum',
+                        -alphabet => 'dna' );
 
 is uc $seq->alphabet, 'DNA' , 'alphabet';
 
@@ -65,24 +66,24 @@ is scalar($seq->top_SeqFeatures()), 0;
 is scalar($seq->flush_SeqFeatures()), 0;
 
 my $newfeat = Bio::SeqFeature::Generic->new( -start => 10,
-					     -end => 12,
-					     -primary => 'silly',
-					     -source => 'stuff');
+                                             -end => 12,
+                                             -primary => 'silly',
+                                             -source => 'stuff');
 
 
 $seq->add_SeqFeature($newfeat);
 is $seq->feature_count, 1;
 
 my $species = Bio::Species->new
-    (-verbose => 1, 
+    (-verbose => 1,
      -classification => [ qw( sapiens Homo Hominidae
-			      Catarrhini Primates Eutheria
-			      Mammalia Vertebrata Chordata
-			      Metazoa Eukaryota )]);
+                              Catarrhini Primates Eutheria
+                              Mammalia Vertebrata Chordata
+                              Metazoa Eukaryota )]);
 $seq->species($species);
 is $seq->species->binomial, 'Homo sapiens';
 $seq->annotation->add_Annotation('description',
-		 Bio::Annotation::SimpleValue->new(-value => 'desc-here'));
+                 Bio::Annotation::SimpleValue->new(-value => 'desc-here'));
 my ($descr) = $seq->annotation->get_Annotations('description');
 is $descr->value(), 'desc-here';
 is $descr->tagname(), 'description';
@@ -94,10 +95,21 @@ is $descr->tagname(), 'description';
 my $trans = $seq->translate();
 is  $trans->seq(), 'TVAST' , 'translated sequence';
 
-# unambiguous two character codons like 'ACN' and 'GTN' should give out an amino acid
+# unambiguous two character codons like 'ACN' and 'GTN' should give out an amino
+# acid ...with the addendum that there should be no assumption by the method
+# to complete the codon unless specified, using the -complete_codons flag.
+
+$seq->seq('ACTGTGGCGTCAACN');
+$trans = $seq->translate();
+is $trans->seq(), 'TVAST', 'translated sequence with explicit unambiguous codons';
+
 $seq->seq('ACTGTGGCGTCAAC');
 $trans = $seq->translate();
-is $trans->seq(), 'TVAST', 'translated sequence with unambiguous codons';
+is $trans->seq(), 'TVAS', 'translated sequence with unknown unambiguous codons';
+
+$seq->seq('ACTGTGGCGTCAAC');
+$trans = $seq->translate(-complete_codons => 1);
+is $trans->seq(), 'TVAST', 'translated sequence with unknown unambiguous codons, completed';
 
 $seq->seq('ACTGTGGCGTCAACA');
 $trans = $seq->translate();
@@ -108,15 +120,15 @@ $trans = $seq->translate();
 is $trans->seq(), 'TVAST', 'translated sequence with unambiguous codons';
 
 $seq->seq('ACTGTGGCGTCAACAGT');
-$trans = $seq->translate();
-is $trans->seq(), 'TVASTV', 'translated sequence with unambiguous codons';
+$trans = $seq->translate(-complete_codons => 1);
+is $trans->seq(), 'TVASTV', 'translated sequence with unknown unambiguous codons, completed';
 
 $seq->seq('ACTGTGGCGTCAACAGTA');
 $trans = $seq->translate();
 is $trans->seq(), 'TVASTV', 'translated sequence with unambiguous codons';
 
 $seq->seq('AC');
-is $seq->translate->seq , 'T', 'translated sequence with unambigious 2 char codon';
+is $seq->translate(-complete_codons => 1)->seq , 'T', 'translated sequence with unknown unambiguous codons, completed';
 
 #difference between the default and full CDS translation
 
@@ -128,7 +140,7 @@ $seq->seq('atgtggtaa');
 $trans = $seq->translate(undef,undef,undef,undef,1);
 is $trans->seq(), 'MW', 'translated sequence';
 
-#frame 
+#frame
 my $string;
 my @frames = (0, 1, 2);
 foreach my $frame (@frames) {
@@ -157,15 +169,15 @@ is( $seq->translate('J', '-',)->seq, 'MWJJ');
 
 # tests for RichSeq
 ok my $richseq = Bio::Seq::RichSeq->new( -seq => 'atgtggtaataa',
-				      -accession_number => 'AC123',
-				      -alphabet => 'rna',
-				      -molecule => 'mRNA',		
-				      -id => 'id1',
-				      -dates => [ '2001/1/1' ],
-				      -pid => '887821',
-				      -keywords => 'JUNK1;JUNK2',
-				      -division => 'Fungi',
-				      -secondary_accessions => 'AC1152' );
+                                      -accession_number => 'AC123',
+                                      -alphabet => 'rna',
+                                      -molecule => 'mRNA',
+                                      -id => 'id1',
+                                      -dates => [ '2001/1/1' ],
+                                      -pid => '887821',
+                                      -keywords => 'JUNK1;JUNK2',
+                                      -division => 'Fungi',
+                                      -secondary_accessions => 'AC1152' );
 
 is ($richseq->seq, 'atgtggtaataa');
 is ($richseq->display_id, 'id1');
@@ -199,7 +211,7 @@ is $seq->display_id, 0, "Bug #2864";
 # transcribe/rev_transcribe
 
 $seq = Bio::Seq->new( -id => 'seq1', -alphabet=>'dna',
-		      -seq=> 'attTcgcatgT' );
+                      -seq=> 'attTcgcatgT' );
 ok my $xseq = $seq->transcribe;
 is $xseq->alphabet, 'rna';
 ok !($xseq->seq =~ /[tT]/);

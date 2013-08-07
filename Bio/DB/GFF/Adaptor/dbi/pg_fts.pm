@@ -86,7 +86,7 @@ like the one above, only executing the remove_TSearch2() method.
 =head1 NOTES ABOUT TSearch2 SEARCHING
 
 You should know a few things about how searching with TSearch2 works in
-the GBrowse enviroment:
+the GBrowse environment:
 
 =over
 

@@ -70,7 +70,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Sendu Bala
 
@@ -88,7 +88,7 @@ Internal methods are usually preceded with a _
 package Bio::Tools::Phylo::Gerp;
 use strict;
 
-use Bio::SeqFeature::Annotated;
+use Bio::SeqFeature::Generic;
 use Bio::Annotation::SimpleValue;
 
 use base qw(Bio::Root::Root Bio::Root::IO);
@@ -143,7 +143,7 @@ sub next_result {
     # code elsewhere adds seq_id on the end (not valid GERP), so we capture that
     # if present
     my ($start, $end, undef, $rs_score, $p_value, $seq_id) = split(/\s+/, $line);
-    my $feat = Bio::SeqFeature::Annotated->new(
+    my $feat = Bio::SeqFeature::Generic->new(
         $seq_id ? (-seq_id => $seq_id) : (),
         -start        => $start, 
         -end          => $end,

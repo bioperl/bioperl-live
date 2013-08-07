@@ -69,7 +69,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Pedro M. Gomez-Fabre
 
@@ -172,7 +172,7 @@ sub haplotype_block{
 
  Title   : input_block 
  Usage   : $obj->input_block()
- Function: returns haplotype block. By now will produce the same ouput than
+ Function: returns haplotype block. By now will produce the same output than
            $self->haplotype_block. but for compatiblity, this method is kept. 
            This method is deprecated.
  Returns : reference to array of array with the haplotype input value 

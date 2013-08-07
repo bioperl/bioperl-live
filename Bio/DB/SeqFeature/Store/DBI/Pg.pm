@@ -95,13 +95,13 @@ Bio::DB::SeqFeature::Store::DBI::Pg -- PostgreSQL implementation of Bio::DB::Seq
 
 =head1 DESCRIPTION
 
-Bio::DB::SeqFeature::Store::Pg is the Mysql adaptor for
+Bio::DB::SeqFeature::Store::Pg is the Pg adaptor for
 Bio::DB::SeqFeature::Store. You will not create it directly, but
 instead use Bio::DB::SeqFeature::Store-E<gt>new() to do so.
 
 See L<Bio::DB::SeqFeature::Store> for complete usage instructions.
 
-=head2 Using the Mysql adaptor
+=head2 Using the Pg adaptor
 
 Before you can use the adaptor, you must use the Pgadmin tool to
 create a database and establish a user account with write
@@ -115,7 +115,7 @@ additional arguments are as follows:
   Argument name       Description
   -------------       -----------
 
- -dsn              The database name. You can abbreviate 
+ -dsn              The database name. You can abbreviate
                    "dbi:Pg:foo" as "foo" if you wish.
 
  -user             Username for authentication.
@@ -277,9 +277,10 @@ END
   name         text  not null,
   display_name int       default 0
 );
-  CREATE INDEX name_id ON name(id);
-  CREATE INDEX name_name ON name(name);
-  CREATE INDEX name_name_varchar_patt_ops_idx ON name USING BTREE (lower(name) varchar_pattern_ops);
+  CREATE INDEX name_id ON name( id );
+  CREATE INDEX name_name ON name( name );
+  CREATE INDEX name_lcname ON name( lower(name) );
+  CREATE INDEX name_lcname_varchar_patt_ops ON name USING BTREE (lower(name) varchar_pattern_ops);
 END
 
 	  attribute => <<END,
@@ -304,7 +305,7 @@ END
   id               int       not null,
   child            int       not null
 );
-  CREATE INDEX parent2child_id_child ON parent2child(id,child);
+  CREATE UNIQUE INDEX parent2child_id_child ON parent2child(id,child);
 END
 
 	  meta => <<END,
@@ -395,7 +396,7 @@ sub _check_for_namespace {
   if (!scalar(@schema_exists)) {
       my $query = "CREATE SCHEMA $namespace";
 	  $dbh->do($query) or $self->throw($dbh->errstr);
-	  
+
 	  # if temp parameter is set and schema created for this process then enable removal in remove_namespace()
 	  if ($self->is_temp) {
 	      $self->{delete_schema} = 1;
@@ -421,6 +422,25 @@ sub remove_namespace {
       my $namespace = $self->namespace;
       $self->dbh->do("DROP SCHEMA $namespace") or $self->throw($self->dbh->errstr);
   }
+}
+
+####Overiding the inherited mysql function _prepare
+
+sub _prepare {
+   my $self = shift;
+   my $query = shift;
+   my $dbh   = $self->dbh;
+   my $schema = $self->{namespace};
+
+   if ($schema) {
+     $self->_check_for_namespace();
+     $dbh->do("SET search_path TO " . $self->{'schema'} );
+   } else {
+     $dbh->do("SET search_path TO public");
+   }
+   my $sth   = $dbh->prepare_cached($query, {}, 3) or
+   $self->throw($dbh->errstr);
+   $sth;
 }
 
 sub _finish_bulk_update {
@@ -472,10 +492,10 @@ sub _add_SeqFeature {
   my $sthdel = $self->_prepare($querydel);
   my $sth = $self->_prepare($query);
 
-  my $parent_id = (ref $parent ? $parent->primary_id : $parent) 
+  my $parent_id = (ref $parent ? $parent->primary_id : $parent)
     or $self->throw("$parent should have a primary_id");
 
-  $dbh->begin_work or $self->throw($dbh->errstr);
+  $self->begin_work or $self->throw($dbh->errstr);
   eval {
     for my $child (@children) {
       my $child_id = ref $child ? $child->primary_id : $child;
@@ -488,10 +508,10 @@ sub _add_SeqFeature {
 
   if ($@) {
     warn "Transaction aborted because $@";
-    $dbh->rollback;
+    $self->rollback;
   }
   else {
-    $dbh->commit;
+    $self->commit;
   }
   $sth->finish;
   $count;
@@ -536,7 +556,7 @@ END
   while (my($frag,$offset) = $sth->fetchrow_array) {
     substr($frag,0,$start-$offset) = '' if defined $start && $start > $offset;
     $seq .= $frag;
-  }  
+  }
   substr($seq,$end-$start+1) = '' if defined $end && $end-$start+1 < length($seq);
   if ($reversed) {
     $seq = reverse $seq;
@@ -691,7 +711,7 @@ sub _types_sql {
       ($primary_tag,$source_tag) = split ':',$type,2;
     }
 
-    if (defined $source_tag) {
+    if ($source_tag) {
       push @matches,"lower(tl.tag)=lower(?)";
       push @args,"$primary_tag:$source_tag";
     } else {
@@ -943,7 +963,7 @@ sub _add_interval_stats_table {
         my $query = "CREATE TABLE $interval_stats $tables->{interval_stats}";
         $dbh->do($query) or $self->throw($dbh->errstr);
     }
-}    
+}
 
 sub _fetch_indexed_features_sql {
     my $self     = shift;

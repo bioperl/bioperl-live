@@ -64,7 +64,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -138,23 +138,6 @@ BEGIN {
     );
 }
 
-=head2 new
-
- Title   : new
- Usage   : my $obj = Bio::SearchIO::hmmer2->new();
- Function: Builds a new Bio::SearchIO::hmmer2 object
- Returns : Bio::SearchIO::hmmer2
- Args    : -fh/-file => HMMER filename
-           -format   => 'hmmer2'
-
-=cut
-
-sub _initialize {
-    my ( $self, @args ) = @_;
-    $self->SUPER::_initialize(@args);
-    $self->{'_hmmidline'} = 'HMMER 2.2g (August 2001)';
-}
-
 =head2 next_result
 
  Title   : next_result
@@ -192,10 +175,11 @@ sub next_result {
             $seentop = 1;
             if ( defined $last ) {
                 ($reporttype) = split( /\s+/, $last );
+                $reporttype = uc($reporttype) if defined $reporttype;
                 $self->element(
                     {
                         'Name' => 'HMMER_program',
-                        'Data' => uc($reporttype)
+                        'Data' => $reporttype
                     }
                 );
             }
@@ -236,10 +220,10 @@ sub next_result {
             if ( !$seentop ) {
 
                 # we're in a multi-query report
-                $self->_pushback( $self->{'_hmmidline'} );
-                $self->_pushback( $self->{'_hmmfileline'} );
-                $self->_pushback( $self->{'_hmmseqline'} );
                 $self->_pushback($lineorig);
+                $self->_pushback( $self->{'_hmmseqline'} );
+                $self->_pushback( $self->{'_hmmfileline'} );
+                $self->_pushback( $self->{'_hmmidline'} );
                 next;
             }
             s/\s+$//;
@@ -879,7 +863,8 @@ sub next_result {
                         }
                         elsif (CORE::length($_) == 0
                             || ( $count != 1 && /^\s+$/o )
-                            || /^\s+\-?\*\s*$/ )
+                            || /^\s+\-?\*\s*$/
+                            || /^\s+\S+\s+\-\s+\-\s*$/ )
                         {
                             next;
                         }

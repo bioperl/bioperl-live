@@ -61,7 +61,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -301,10 +301,10 @@ sub _parse_simple {
             }
         );
         my $hsplen =
-          $q_base_insert +
+          ($q_base_insert +
           $t_base_insert +
           abs( $t_end - $t_start ) +
-          abs( $q_end - $q_start );
+          abs( $q_end - $q_start ));
         $self->element_hash({
                 'Hsp_hit-from' => $t_start + 1,
                 'Hsp_hit-to'   => $t_end,

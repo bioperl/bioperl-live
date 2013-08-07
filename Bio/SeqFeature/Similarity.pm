@@ -59,7 +59,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Hilmar Lapp
 
@@ -188,12 +188,12 @@ sub seqlength {
 =cut
 
 sub seqdesc {
-    my ($self, $value) = @_;
+    my ( $self, $value ) = @_;
 
-    if( defined $value ) { 
-	my $v = Bio::Annotation::SimpleValue->new();
-	$v->value($value);
-	$self->annotation->add_Annotation('description',$v);
+    if ( defined $value ) {
+        my $v = Bio::Annotation::SimpleValue->new();
+        $v->value($value);
+        $self->annotation->add_Annotation( 'description', $v );
     }
     my ($v) = $self->annotation()->get_Annotations('description');
     return defined $v ? $v->value : undef;

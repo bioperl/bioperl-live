@@ -4,20 +4,20 @@
 use strict;
 
 BEGIN {
-	use lib '.';
-	use lib '../..';
-	use Bio::Root::Test;
-	
-	test_begin(-tests => 87);
-	
+    use lib '.';
+    use lib '../..';
+    use Bio::Root::Test;
+
+    test_begin(-tests => 96);
+
     use_ok('Bio::SeqIO::embl');
 }
 
 my $verbose = test_debug();
 
 my $ast = Bio::SeqIO->new( -format => 'embl',
-			   -verbose => $verbose,
-			   -file => test_input_file('roa1.dat'));
+                           -verbose => $verbose,
+                           -file => test_input_file('roa1.dat'));
 $ast->verbose($verbose);
 my $as = $ast->next_seq();
 ok defined $as->seq;
@@ -35,8 +35,8 @@ is($as->species->binomial(), 'Homo sapiens');
 # EMBL Release 87 changes (8-17-06)
 
 $ast = Bio::SeqIO->new( -format => 'embl',
-			   -verbose => $verbose,
-			   -file => test_input_file('roa1_v2.dat'));
+                        -verbose => $verbose,
+                        -file => test_input_file('roa1_v2.dat'));
 $ast->verbose($verbose);
 $as = $ast->next_seq();
 ok defined $as->seq;
@@ -54,7 +54,7 @@ is($as->length, 1198);
 is($as->species->binomial(), 'Homo sapiens');
 
 my $ent = Bio::SeqIO->new( -file => test_input_file('test.embl'),
-			   -format => 'embl');
+                           -format => 'embl');
 my $seq = $ent->next_seq();
 
 is(defined $seq->seq(), 1,
@@ -63,13 +63,13 @@ is(scalar $seq->annotation->get_Annotations('reference'), 3);
 
 my $out_file = test_output_file();
 my $out = Bio::SeqIO->new(-file=> ">$out_file",
-			  -format => 'embl');
+                          -format => 'embl');
 is($out->write_seq($seq),1,
    'success writing Embl format with ^ < and > locations');
 
 # embl with no FT
 $ent = Bio::SeqIO->new( -file => test_input_file('test.embl'),
-			-format => 'embl');
+                        -format => 'embl');
 $seq = $ent->next_seq();
 
 ok($seq);
@@ -77,13 +77,13 @@ is(lc($seq->subseq(1,10)),'gatcagtaga');
 is($seq->length, 4870);
 
 # embl with no FH
-my $noFH = Bio::SeqIO->new(-file => test_input_file('no_FH.embl'),
-			-format => 'embl');
+my $noFH = Bio::SeqIO->new( -file => test_input_file('no_FH.embl'),
+                            -format => 'embl');
 is(scalar($noFH->next_seq->get_SeqFeatures), 4);
 
 # bug 1571
-$ent = Bio::SeqIO->new(-format => 'embl',
-		       -file   => test_input_file('test.embl2sq'));
+$ent = Bio::SeqIO->new( -format => 'embl',
+                        -file   => test_input_file('test.embl2sq'));
 is($ent->next_seq->length,4877);
 
 # embl repbase
@@ -92,8 +92,8 @@ $seq = $ent->next_seq;
 is($seq->display_id,'BEL16-LTR_AG');
 
 # test secondary accessions in EMBL (bug #1332)
-my $seqio = Bio::SeqIO->new(-format => 'embl',
-			   -file => test_input_file('ECAPAH02.embl'));
+my $seqio = Bio::SeqIO->new( -format => 'embl',
+                             -file => test_input_file('ECAPAH02.embl'));
 $seq = $seqio->next_seq;
 is($seq->accession_number, 'D10483');
 is($seq->seq_version, 2);
@@ -104,8 +104,8 @@ is($accs[-1], 'X56742');
 ### TPA TESTS - Thanks to Richard Adams ###
 # test Third Party Annotation entries in EMBL/Gb format 
 # to ensure compatability with parsers.
-my $str = Bio::SeqIO->new(-format =>'embl',
-			 -file => test_input_file('BN000066-tpa.embl'));
+my $str = Bio::SeqIO->new( -format =>'embl',
+                           -file => test_input_file('BN000066-tpa.embl'));
 $seq = $str->next_seq;
 ok(defined $seq);
 is($seq->accession_number, 'BN000066');
@@ -163,7 +163,7 @@ ok($embl->write_seq($primaryseq));
 # this should generate a warning
 my $scalar = "test";
 eval {
-	$embl->write_seq($scalar);
+    $embl->write_seq($scalar);
 };
 ok ($@);
 
@@ -192,8 +192,8 @@ is($cds_dblink->primary_id, '9606', 'CDS - OX primary_id');
 
 #bug 2982 - parsing contig descriptions sans sequence data
 
-ok( $embl = Bio::SeqIO->new(-file => test_input_file('bug2982.embl'),
-			    -format => 'embl') );
+ok( $embl = Bio::SeqIO->new( -file => test_input_file('bug2982.embl'),
+                             -format => 'embl') );
 my $i;
 for ($i=0; my $seq = $embl->next_seq; $i++) {
     ok !$seq->seq;
@@ -241,4 +241,90 @@ foreach my $feature ($seq->top_SeqFeatures) {
     $error=$@ if (!$ret);
     ok($ret, 'Parse long qualifier');
     is($error, undef);
+}
+
+# NCBI TaxIDs should roundtrip
+{
+    my $seq=Bio::Seq->new(-seq=>'actg');
+    my $species = Bio::Species->new(-ncbi_taxid => 7165, -classification=>
+                                    [ 'Anopheles gambiae', 'Anopheles', 'Culicoidea',
+                                      'Nematocera', 'Diptera', 'Endopterygota',
+                                      'Neoptera', 'Pterygota', 'Insecta', 'Hexapoda',
+                                      'Arthropoda', 'Metazoa', 'Eukaryota' ]);
+
+    $seq->species($species);
+    is($seq->species->ncbi_taxid, 7165, 'TaxID set correctly');
+
+    # Write EMBL
+    my $string;
+    open(my $str_fh, '>', \$string) || skip("Can't open string, skipping", 2);
+
+    my $out=Bio::SeqIO->new(-format=>'embl', -fh => $str_fh);
+    $out->write_seq($seq);
+
+    # Read EMBL
+    my $in=Bio::SeqIO->new(-format=>'embl', -string => $string);
+    my $embl_seq;
+    my $ret=eval { $embl_seq=$in->next_seq };
+    my $error;
+    $error=$@ if (!$ret);
+
+    # Check that TaxID has roundtripped
+    my $embl_species = $embl_seq->species;
+    ok(defined $embl_species, "The read sequence has a species object");
+    is($embl_species->ncbi_taxid, 7165, "NCBI TaxID has roundtripped");
+    is($embl_species->binomial(), 'Anopheles gambiae', "Name has roundtripped");
+}
+
+# a taxon db_xref on a source feature should override an OX line
+{
+    my $seq=Bio::Seq->new(-seq=>'actg');
+    my $species = Bio::Species->new(-ncbi_taxid => 7165, -classification=>
+                                    [ 'Anopheles gambiae', 'Anopheles', 'Culicoidea',
+                                      'Nematocera', 'Diptera', 'Endopterygota',
+                                      'Neoptera', 'Pterygota', 'Insecta', 'Hexapoda',
+                                      'Arthropoda', 'Metazoa', 'Eukaryota' ]);
+
+    $seq->species($species);
+    is($seq->species->ncbi_taxid, 7165, 'TaxID set correctly');
+
+    my $seq_feature = Bio::SeqFeature::Generic->new(-primary=>'source',
+                                                    -start => 1,
+                                                    -end=> length($seq->seq));
+
+    $seq_feature->add_tag_value('db_xref', 'taxon:9606');
+    $seq->add_SeqFeature($seq_feature);
+
+    # Write EMBL
+    my $string;
+    open(my $str_fh, '>', \$string) || skip("Can't open string, skipping", 2);
+
+    my $out=Bio::SeqIO->new(-format=>'embl', -fh => $str_fh);
+    $out->write_seq($seq);
+
+    # Read EMBL
+    my $in=Bio::SeqIO->new(-format=>'embl', -string => $string);
+    my $embl_seq;
+    my $ret=eval { $embl_seq=$in->next_seq };
+    my $error;
+    $error=$@ if (!$ret);
+
+    # Check that TaxID has roundtripped
+    my $embl_species = $embl_seq->species;
+    ok(defined $embl_species, "The read sequence has a species object");
+    is($embl_species->ncbi_taxid, 9606, "The taxid of the source feature overrides that of the OX line");
+    is($embl_species->binomial(), 'Anopheles gambiae', "Name has roundtripped");
+}
+
+# Handle Seq objects that only define an ID, not an accession number
+{
+    my $seq = Bio::Seq->new(-seq=>'actg', -id=>'test_id');
+
+    my $string;
+    open(my $str_fh, '>', \$string) || skip("Can't open string, skipping", 1);
+
+    my $out = Bio::SeqIO->new(-format=>'embl', -fh=>$str_fh);
+    $out->write_seq($seq);
+
+    ok($string =~ m/ID   test_id;/, "The ID field was written correctly");
 }

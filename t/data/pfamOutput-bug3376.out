@@ -1,0 +1,38 @@
+hmmpfam - search one or more sequences against HMM database
+HMMER 2.3.2 (Oct 2003)
+Copyright (C) 1992-2003 HHMI/Washington University School of Medicine
+Freely distributed under the GNU General Public License (GPL)
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+HMM file:                 testInput.hmm
+Sequence file:            testInput.fasta
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query sequence: Test
+Accession:      [none]
+Description:    [none]
+
+Scores for sequence family classification (score includes all domains):
+Model    Description                                    Score    E-value  N 
+-------- -----------                                    -----    ------- ---
+TEST                                                    184.7    2.5e-56   1
+
+Parsed for domains:
+Model    Domain  seq-f seq-t    hmm-f hmm-t      score  E-value
+-------- ------- ----- -----    ----- -----      -----  -------
+TEST       1/1       8    97 .]     1    95 []   184.7  2.5e-56
+
+Alignments of top-scoring domains:
+TEST: domain 1 of 1, from 8 to 97: score 184.7, E = 2.5e-56
+                   *->svfqqqqssksttgstvtAiAiAigYRYRYRAvtWnsGsLssGvnDn
+                      sv+qqqq+  +    +vtAiAiAigYRYRYRAv Wn GsLs G nDn
+        Test     8    SVYQQQQGGSA----MVTAIAIAIGYRYRYRAVVWNKGSLSTGTNDN 50   
+
+                   DnDqqsdgLYtiYYsvtvpssslpsqtviHHHaHkasstkiiikiePr<-
+                   DnDq +d LYtiYYsvtv +ss+p q+v+HHHaH+asstkiiiki P   
+        Test    51 DNDQAAD-LYTIYYSVTVSASSWPGQSVTHHHAHPASSTKIIIKIAPS   97   
+
+                   *
+                    
+        Test     -   -    
+
+//

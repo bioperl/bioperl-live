@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::SeqI
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
@@ -35,30 +35,27 @@ Bio::SeqI - [Developers] Abstract Interface of Sequence (with features)
     # Bio::SeqI has sequence features
     # features must implement Bio::SeqFeatureI
 
-    @features = $seqobj->get_SeqFeatures(); # just top level
+    @features = $seqobj->get_SeqFeatures();     # just top level
     @features = $seqobj->get_all_SeqFeatures(); # descend into sub features
-
-
 
 =head1 DESCRIPTION
 
 Bio::SeqI is the abstract interface of annotated Sequences. These
-methods are those which you can be guarenteed to get for any Bio::SeqI
-- for most users of the package the documentation (and methods) in
-this class are not at useful - this is a developers only class which
-defines what methods have to be implmented by other Perl objects to
+methods are those which you can be guaranteed to get for any Bio::SeqI.
+For most users of the package the documentation (and methods) in this
+class are not at useful - this is a developers only class which
+defines what methods have to be implemented by other Perl objects to
 comply to the Bio::SeqI interface. Go "perldoc Bio::Seq" or "man
 Bio::Seq" for more information.
 
-
-There aren't many here, because too many complicated functions here
-prevent implementations which are just wrappers around a database or
+There aren't many method here, because too many complicated functions here
+would prevent implementations which are just wrappers around a database or
 similar delayed mechanisms.
 
 Most of the clever stuff happens inside the SeqFeatureI system.
 
 A good reference implementation is Bio::Seq which is a pure perl
-implementation of this class with alot of extra pieces for extra
+implementation of this class with a lot of extra pieces for extra
 manipulation.  However, if you want to be able to use any sequence
 object in your analysis, if you can do it just using these methods,
 then you know you will be future proof and compatible with other
@@ -75,15 +72,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -92,7 +89,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Ewan Birney
 
@@ -114,7 +111,7 @@ package Bio::SeqI;
 use strict;
 
 
-# Object preamble - inheriets from Bio::PrimarySeqI
+# Object preamble - inherits from Bio::PrimarySeqI
 
 use base qw(Bio::PrimarySeqI Bio::AnnotatableI Bio::FeatureHolderI);
 
@@ -129,33 +126,27 @@ use base qw(Bio::PrimarySeqI Bio::AnnotatableI Bio::FeatureHolderI);
 This method comes through extension of Bio::FeatureHolderI. See
 L<Bio::FeatureHolderI> and L<Bio::SeqFeatureI> for more information.
 
-=cut
-
 =head2 get_all_SeqFeatures
 
  Title   : get_all_SeqFeatures
- Usage   : @features = $annseq->get_all_SeqFeatures()
- Function: returns all SeqFeatures, included sub SeqFeatures
+ Usage   : my @feats = $seq->get_all_SeqFeatures();
+ Function: returns all SeqFeatures, including sub SeqFeatures
  Returns : an array of Bio::SeqFeatureI objects
  Args    : none
 
 This method comes through extension of Bio::FeatureHolderI. See
 L<Bio::FeatureHolderI> and L<Bio::SeqFeatureI> for more information.
 
-=cut
-
 =head2 feature_count
 
  Title   : feature_count
- Usage   : $seq->feature_count()
+ Usage   : my $count = $seq->feature_count();
  Function: Return the number of SeqFeatures attached to a sequence
  Returns : integer representing the number of SeqFeatures
  Args    : none
 
 This method comes through extension of Bio::FeatureHolderI. See
 L<Bio::FeatureHolderI> for more information.
-
-=cut
 
 =head2 seq
 
@@ -168,7 +159,7 @@ L<Bio::FeatureHolderI> for more information.
 
 =cut
 
-sub seq{
+sub seq {
    my ($self) = @_;
    $self->throw_not_implemented();
 }
@@ -177,7 +168,7 @@ sub seq{
 
  Title   : write_GFF
  Usage   : $seq->write_GFF(\*FILEHANDLE);
- Function: Convience method to write out all the sequence features
+ Function: Convenience method to write out all the sequence features
            in GFF format to the provided filehandle (STDOUT by default)
  Returns : none
  Args    : [optional] filehandle to write to (default is STDOUT)
@@ -185,7 +176,7 @@ sub seq{
 
 =cut
 
-sub write_GFF{
+sub write_GFF {
    my ($self,$fh) = @_;
 
    $fh || do { $fh = \*STDOUT; };
@@ -199,7 +190,7 @@ sub write_GFF{
 =head2 annotation
 
  Title   : annotation
- Usage   : $obj->annotation($seq_obj)
+ Usage   : my $ann = $seq->annotation($seq_obj);
  Function: retrieve the attached annotation object
  Returns : Bio::AnnotationCollectionI or none;
 
@@ -207,14 +198,12 @@ See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection>
 for more information. This method comes through extension from
 L<Bio::AnnotatableI>.
 
-=cut
-
 =head2 species
 
  Title   : species
  Usage   :
  Function: Gets or sets the species
- Example : $species = $self->species();
+ Example : my $species = $seq->species();
  Returns : Bio::Species object
  Args    : Bio::Species object or none;
 
@@ -230,7 +219,7 @@ sub species {
 =head2 primary_seq
 
  Title   : primary_seq
- Usage   : $obj->primary_seq($newval)
+ Usage   : my $primaryseq = $seq->primary_seq($newval)
  Function: Retrieve the underlying Bio::PrimarySeqI object if available.
            This is in the event one has a sequence with lots of features
            but want to be able to narrow the object to just one with

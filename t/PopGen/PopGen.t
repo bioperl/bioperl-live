@@ -10,8 +10,9 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 100);
-	
+    test_begin(-tests => 105);
+
+    use_ok('IO::String');
     use_ok('Bio::PopGen::Individual');
     use_ok('Bio::PopGen::Genotype');
     use_ok('Bio::PopGen::Population');
@@ -104,6 +105,7 @@ is(($g[0]->get_Alleles())[0], 'C');
 my $marker = $population->get_Marker('Mkr3');
 ok($marker);
 
+is($marker->marker_coverage, 2);
 @alleles = $marker->get_Alleles;
 is(@alleles,2);
 my %af = $marker->get_Allele_Frequencies();
@@ -112,6 +114,7 @@ is($af{'A'}, 0.25);
 
 $population->remove_Individuals('10a');
 $marker = $population->get_Marker('Mkr3');
+is($marker->marker_coverage, 1);
 %af = $marker->get_Allele_Frequencies();
 
 is($af{'a'}, 1);
@@ -425,8 +428,23 @@ is(sprintf("%.3f",$stats->theta($population)),5.548);
     is(sprintf("%.3f",$stats->tajima_D($population)),'2.926');
     is(sprintf("%.3f",$stats->tajima_D($population->haploid_population)),3.468);
 #}
+
+# test converting from hapmap to phase
+my $string;
+my $out = IO::String->new($string);
+Bio::PopGen::IO->new(-fh => $out, -format => 'phase')->write_individual($population[0]);
+is($string, "1
+34
+P rs1022827 rs1323262 rs1359058 rs1475202 rs1570473 rs2025307 rs2025308 rs2296049 rs2296050 rs2296054 rs3739586 rs4400444 rs4584192 rs4740849 rs4740850 rs4740851 rs4740866 rs4742215 rs4742219 rs4742220 rs4742222 rs4742223 rs4742225 rs4742227 rs4742236 rs4742292 rs732118 rs732119 rs745876 rs745877 rs881684 rs912174 rs912175 rs962817
+SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+#NA06985
+G C A G G A A A C T C T A C A A T G C A A C G G A A A T A T A A C C
+G G T G G A A G G T C T G G G T T T T G G T T G G A A T A T A C G T
+");
+
+
 $io = Bio::PopGen::IO->new(-format => 'phase',
-			  -file   => test_input_file('example.phase'));
+			   -file   => test_input_file('example.phase'));
 
 # Some IO might support reading in a population at a time
 
@@ -434,8 +452,27 @@ $io = Bio::PopGen::IO->new(-format => 'phase',
 while( my $ind = $io->next_individual ) {
     push @population, $ind;
 }
-is(@population, 4);
+is(@population, 3);
 
+# test writing in phase format
+$population = Bio::PopGen::Population->new(-individuals => \@population);
+$string = '';
+$out = IO::String->new($string);
+Bio::PopGen::IO->new(-fh => $out, -format => 'phase')->write_population($population);
+is($string, "3
+5
+P 1313 1500 2023 300 5635
+SSSMM
+#1
+1 0 1 12 3
+0 1 0 11 3
+#2
+1 1 1 12 2
+0 0 0 12 3
+#3
+? 0 0 -1 2
+? 1 1 -1 13
+");
 
 # test diploid data
 

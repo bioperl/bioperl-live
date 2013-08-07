@@ -59,7 +59,7 @@ answer in the fields hash.
 
 How you implement your _discover_* methods is up to you, though you should never
 call a _discover_* method directly yourself; always use get_field(), since
-get_field() will deal with calling dependant methods for you if a forced
+get_field() will deal with calling dependent methods for you if a forced
 sequenctial read is in progress due to piped input. You will almost certainly
 want to make use of the various chunk-related methods of this class (that are
 denoted private by the leading '_'; this means you can use them as the author of
@@ -110,7 +110,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Sendu Bala
 
@@ -255,7 +255,7 @@ sub parent {
            treat as the chunk, or Bio::Root::IO.
            Optionally, also provide:
            -start => int : the byte position within the thing described by the
-                           first arguement to consider as the start of this
+                           first argument to consider as the start of this
                            chunk (default 0)
            -end   => int : the byte position to consider as the end (default
                            true end)

@@ -60,7 +60,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Chase Miller
 
@@ -389,7 +389,7 @@ sub create_bperl_seq {
             else {$seqID = $rowlabel;}
             
             #build the seq object using the factory create method
-            my $seqbuilder = new Bio::Seq::SeqFactory('-type' => 'Bio::Seq');
+            my $seqbuilder = Bio::Seq::SeqFactory->new('-type' => 'Bio::Seq');
             my $seq = $seqbuilder->create(
                        -seq         => $newSeq,
                        -id          => $rowlabel,

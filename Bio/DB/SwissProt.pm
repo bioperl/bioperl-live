@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::DB::SwissProt
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Jason Stajich <jason@bioperl.org>
 #
@@ -26,12 +26,12 @@ Bio::DB::SwissProt - Database object interface to SwissProt retrieval
     $seq = $sp->get_Seq_by_id('KPY1_ECOLI'); # SwissProt ID
     # <4-letter-identifier>_<species 5-letter code>
     # or ...
-    $seq = $sp->get_Seq_by_acc('P43780'); # SwissProt AC      
+    $seq = $sp->get_Seq_by_acc('P43780'); # SwissProt AC
     # [OPQ]xxxxx
 
 
-    # In fact in this implementation 
-    # these methods call the same webscript so you can use 
+    # In fact in this implementation
+    # these methods call the same webscript so you can use
     # then interchangeably
 
     # choose a different server to query
@@ -68,15 +68,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -85,7 +85,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -95,7 +95,7 @@ Thanks go to Alexandre Gattiker E<lt>gattiker@isb-sib.chE<gt> of Swiss
 Institute of Bioinformatics for helping point us in the direction of
 the correct expasy scripts and for swissknife references.
 
-Also thanks to Heikki Lehvaslaiho E<lt>heikki-at-bioperl-dot-orgE<gt> 
+Also thanks to Heikki Lehvaslaiho E<lt>heikki-at-bioperl-dot-orgE<gt>
 for help with adding EBI swall server.
 
 =head1 APPENDIX
@@ -121,12 +121,12 @@ our $DEFAULTFORMAT = 'swissprot';
 # our $DEFAULTIDTRACKER = 'http://www.expasy.ch';
 
 # you can add your own here theoretically.
-our %HOSTS = ( 
-	   'expasy' => { 
+our %HOSTS = (
+	   'expasy' => {
 	       'default' => 'us',
 	       'baseurl' => 'http://%s/cgi-bin/sprot-retrieve-list.pl',
-	       'hosts'   => 	       
-	       { 
+	       'hosts'   =>
+	       {
 		   'switzerland'  => 'ch.expasy.org',
 		   'canada' => 'ca.expasy.org',
 		   'china'  => 'cn.expasy.org',
@@ -138,12 +138,12 @@ our %HOSTS = (
 	       # ick, CGI variables
 	       'jointype' => ' ',
 	       'idvar'    => 'list',
-	       'basevars' => [ ],	       
+	       'basevars' => [ ],
 	   },
 	   'ebi'    => {
 	       'default' => 'uk',
 	       'baseurl' => 'http://%s/Tools/dbfetch/dbfetch',
-	       'hosts' => { 
+	       'hosts' => {
 		   'uk'   => 'www.ebi.ac.uk',
 	       },
 	       'jointype' => ',',
@@ -174,14 +174,14 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my ($format, $hostlocation,$servertype) = 
+    my ($format, $hostlocation,$servertype) =
 	$self->_rearrange([qw(FORMAT HOSTLOCATION SERVERTYPE)],
-			  @args);    
+			  @args);
 
     if( $format && $format !~ /(swiss)|(fasta)/i ) {
 	$self->warn("Requested Format $format is ignored because only SwissProt and Fasta formats are currently supported");
 	$format = $self->default_format;
-    } 
+    }
     $servertype = $DEFAULTSERVERTYPE unless $servertype;
     $servertype = lc $servertype;
     $self->servertype($servertype);
@@ -247,8 +247,8 @@ sub new {
   Title   : get_Stream_by_batch
   Usage   : $seq = $db->get_Stream_by_batch($ref);
   Function: Retrieves Seq objects from SwissProt 'en masse', rather than one
-            at a time.  This is implemented the same way as get_Stream_by_id, 
-            but is provided here in keeping with access methods of NCBI 
+            at a time.  This is implemented the same way as get_Stream_by_id,
+            but is provided here in keeping with access methods of NCBI
             modules.
   Example :
   Returns : a Bio::SeqIO stream object
@@ -259,10 +259,10 @@ NOTE: deprecated API.  Use get_Stream_by_id() instead.
 
 =cut
 
-*get_Stream_by_batch = sub { 
+*get_Stream_by_batch = sub {
    my $self = shift;
    $self->deprecated('get_Stream_by_batch() is deprecated; use get_Stream_by_id() instead');
-   $self->get_Stream_by_id(@_) 
+   $self->get_Stream_by_id(@_)
 };
 
 =head2 Implemented Routines from Bio::DB::WebDBSeqI interface
@@ -274,7 +274,7 @@ NOTE: deprecated API.  Use get_Stream_by_id() instead.
  Title   : get_request
  Usage   : my $url = $self->get_request
  Function: returns a HTTP::Request object
- Returns : 
+ Returns :
  Args    : %qualifiers = a hash of qualifiers (ids, format, etc)
 
 =cut
@@ -288,21 +288,21 @@ sub get_request {
 	$self->throw("Must specify a value for uids to query");
     }
     my ($f,undef) = $self->request_format($format);
-    
-    my %vars = ( 
-		 @{$HOSTS{$self->servertype}->{'basevars'}}, 
+
+    my %vars = (
+		 @{$HOSTS{$self->servertype}->{'basevars'}},
 		 ( 'format' => $f )
 		 );
-    
+
     my $url = $self->location_url;
-    
+
     my $uid;
     my $jointype = $HOSTS{$self->servertype}->{'jointype'} || ' ';
     my $idvar = $HOSTS{$self->servertype}->{'idvar'} || 'id';
-    
-    if( ref($uids) =~ /ARRAY/i ) {	
+
+    if( ref($uids) =~ /ARRAY/i ) {
 	# HTTP::Request automagically converts the ' ' to %20
-	$uid = join($jointype, @$uids);	
+	$uid = join($jointype, @$uids);
     } else {
 	$uid = $uids;
     }
@@ -319,15 +319,15 @@ sub get_request {
  Function: process downloaded data before loading into a Bio::SeqIO
  Returns : void
  Args    : hash with two keys - 'type' can be 'string' or 'file'
-                              - 'location' either file location or string 
+                              - 'location' either file location or string
                                            reference containing data
 
 =cut
 
-# don't need to do anything 
+# don't need to do anything
 
 sub postprocess_data {
-    my ($self, %args) = @_;    
+    my ($self, %args) = @_;
     return;
 }
 
@@ -362,17 +362,17 @@ sub default_format {
 
 sub servertype {
     my ($self, $servertype) = @_;
-    if( defined $servertype && $servertype ne '') {		
+    if( defined $servertype && $servertype ne '') {
 	$self->throw("You gave an invalid server type ($servertype)".
-			 " - available types are ".  
+			 " - available types are ".
 			 keys %HOSTS) unless( $HOSTS{$servertype} );
 	$self->{'_servertype'} = $servertype;
 	$self->{'_hostlocation'} = $HOSTS{$servertype}->{'default'};
-	
+
 	# make sure format is reset properly in that different
 	# servers have different syntaxes
 	my ($existingformat,$seqioformat) = $self->request_format;
-	$self->request_format($existingformat);		
+	$self->request_format($existingformat);
     }
     return $self->{'_servertype'} || $DEFAULTSERVERTYPE;
 }
@@ -381,9 +381,9 @@ sub servertype {
 =head2 hostlocation
 
  Title   : hostlocation
- Usage   : my $location = $self->hostlocation() 
-          $self->hostlocation($location) 
- Function: Set/Get Hostlocation 
+ Usage   : my $location = $self->hostlocation()
+          $self->hostlocation($location)
+ Function: Set/Get Hostlocation
  Returns : string representing hostlocation
  Args    : string specifying hostlocation [optional]
 
@@ -393,14 +393,14 @@ sub hostlocation {
     my ($self, $location ) = @_;
     my $servertype = $self->servertype;
     $self->throw("Must have a valid servertype defined not $servertype")
-	unless defined $servertype; 
+	unless defined $servertype;
     my %hosts = %{$HOSTS{$servertype}->{'hosts'}};
     if( defined $location && $location ne '' ) {
     $location = lc $location;
 	if( ! $hosts{$location} ) {
 	    $self->throw("Must specify a known host, not $location,".
 			 " possible values (".
-			 join(",", sort keys %hosts ). ")"); 
+			 join(",", sort keys %hosts ). ")");
 	}
 	$self->{'_hostlocation'} = $location;
     }
@@ -418,16 +418,16 @@ sub hostlocation {
 =cut
 
 sub location_url {
-    my ($self) = @_;    
+    my ($self) = @_;
     my $servertype = $self->servertype();
     my $location = $self->hostlocation();
 
-    if( ! defined $location || !defined $servertype )  {	
+    if( ! defined $location || !defined $servertype )  {
 	$self->throw("must have a valid hostlocation and servertype set before calling location_url");
     }
-    return sprintf($HOSTS{$servertype}->{'baseurl'}, 
+    return sprintf($HOSTS{$servertype}->{'baseurl'},
 		   $HOSTS{$servertype}->{'hosts'}->{$location});
-}		   
+}
 
 =head2 request_format
 
@@ -438,7 +438,7 @@ sub location_url {
  Function: Get/Set sequence format retrieval. The get-form will normally
            not be used outside of this and derived modules.
  Returns : Array of two strings, the first representing the format for
-           retrieval, and the second specifying the corresponding SeqIO 
+           retrieval, and the second specifying the corresponding SeqIO
            format.
  Args    : $format = sequence format
 
@@ -449,7 +449,7 @@ sub request_format {
     if( defined $value ) {
 	if( $self->servertype =~ /expasy/ ) {
 	    if( $value =~ /sprot/ || $value =~ /swiss/ ) {
-		$self->{'_format'} = [ 'sprot', 'swiss'];	    
+		$self->{'_format'} = [ 'sprot', 'swiss'];
 	    } elsif( $value =~ /^fa/ ) {
 		$self->{'_format'} = [ 'fasta', 'fasta'];
 	    } else {
@@ -457,11 +457,11 @@ sub request_format {
 		$self->{'_format'} = [ 'fasta', 'fasta'];
 	    }
 	} elsif( $self->servertype =~ /ebi/ ) {
-	    if( $value =~ /sprot/ || $value =~ /swiss/ ) {		
+	    if( $value =~ /sprot/ || $value =~ /swiss/ ) {
 		$self->{'_format'} = [ 'swissprot', 'swiss' ];
 	    } elsif( $value =~ /^fa/ ) {
 		$self->{'_format'} = [ 'fasta', 'fasta'];
-	    } else { 
+	    } else {
 		$self->warn("Unrecognized format $value requested");
 		$self->{'_format'} = [ 'swissprot', 'swiss'];
 	    }
@@ -474,9 +474,9 @@ sub request_format {
 
  Title   : idtracker
  Usage   : my ($newid) = $self->idtracker($oldid);
- Function: Retrieve new ID using old ID. 
+ Function: Retrieve new ID using old ID.
  Returns : single ID if one is found
- Args    : ID to look for 
+ Args    : ID to look for
 
 =cut
 
@@ -496,7 +496,7 @@ sub idtracker {
  Usage   : my $map = $self->id_mapper( -from => '',
                                        -to   => '',
                                        -ids  => \@ids);
- Function: Retrieve new ID using old ID. 
+ Function: Retrieve new ID using old ID.
  Returns : hash reference of successfully mapped IDs
  Args    : -from : database mapping from
            -to   : database mapped to
@@ -527,13 +527,13 @@ sub id_mapper {
         $self->_sleep;
         $response = $ua->get($response->base);
     }
-    
+
     my %map;
     if ($response->is_success) {
         for my $line (split("\n", $response->content)) {
             my ($id_from, $id_to) = split(/\s+/, $line, 2);
             next if $id_from eq 'From';
-            $map{$id_from} = $id_to;
+            push @{$map{$id_from}}, $id_to;
         }
     } else {
         $self->throw("Error: ".$response->status_line."\n");

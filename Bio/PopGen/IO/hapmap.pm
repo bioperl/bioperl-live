@@ -62,7 +62,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Rich Dobson
 
@@ -223,14 +223,15 @@ sub next_individual  {
 	} else { 
 	    $markername = "Marker$i";
 	}
-
+	
 	my @alleles = split($self->flag('allele_delimiter'), $m);
 	if( @alleles != 2 ) { 
 	    $self->warn("$m for $samp\n");
 	} else { 
-	    $m = Bio::PopGen::Genotype->new(-alleles      => \@alleles,
-					   -marker_name  => $markername,
-					   -individual_id=> $samp);
+	    $m = Bio::PopGen::Genotype->new(-alleles       => \@alleles,
+					    -marker_name   => $markername,
+					    -marker_type   => 'S',          # Guess hapmap only has SNP data
+					    -individual_id => $samp);
 	}
 	$i++; 
     }

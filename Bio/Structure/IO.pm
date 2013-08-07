@@ -194,7 +194,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.
 Bug reports can be submitted via the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHORS - Ewan Birney, Lincoln Stein, Kris Boulez
 
@@ -298,6 +298,19 @@ sub fh {
   tie $$s,$class,$self;
   return $s;
 }
+
+
+=head2 format
+
+ Title   : format
+ Usage   : $format = $obj->format()
+ Function: Get the structure format
+ Returns : structure format
+ Args    : none
+
+=cut
+
+# format() method inherited from Bio::Root::IO
 
 
 # _initialize is chained for all SeqIO classes

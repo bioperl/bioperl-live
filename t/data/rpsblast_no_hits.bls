@@ -1,0 +1,58 @@
+RPS-BLAST 2.2.18 [Mar-02-2008]
+
+Database: CDD.v.2.13 
+           24,083 sequences; 5,982,884 total letters
+
+Searching..................................................done
+
+Query= lcl|YP_134044.1|Plus1 F 4437 4742 NC_006391 hypothetical
+protein {Haloarcula marismortui ATCC 43049}
+         (101 letters)
+
+ ***** No hits found ******
+
+
+Query= lcl|YP_134045.1|Plus1 F 4742 5065 NC_006391 transcription
+regulator {Haloarcula marismortui ATCC 43049}
+         (107 letters)
+
+ ***** No hits found ******
+
+
+Query= lcl|YP_134046.1|Plus1 F 5275 5808 NC_006391 hypothetical
+protein {Haloarcula marismortui ATCC 43049}
+         (177 letters)
+
+ ***** No hits found ******
+
+
+  Database: CDD.v.2.13
+    Posted date:  Nov 8, 2007  6:30 PM
+  Number of letters in database: 5,982,884
+  Number of sequences in database:  24,083
+  
+Lambda     K      H
+   0.308    0.126    0.352 
+
+Gapped
+Lambda     K      H
+   0.267   0.0606    0.140 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Sequences: 24083
+Number of Hits to DB: 200,397,591
+Number of extensions: 14170162
+Number of successful extensions: 17150
+Number of sequences better than 1.0e-005: 6
+Number of HSP's gapped: 17124
+Number of HSP's successfully gapped: 29
+Length of database: 5,982,884
+Neighboring words threshold: 11
+Window for multiple hits: 40
+X1: 15 ( 6.7 bits)
+X2: 38 (14.6 bits)
+X3: 64 (24.7 bits)
+S1: 40 (20.8 bits)
+S2: 102 (43.3 bits)

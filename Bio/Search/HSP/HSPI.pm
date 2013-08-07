@@ -93,7 +93,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Steve Chervitz, Jason Stajich
 
@@ -460,22 +460,25 @@ These methods come from L<Bio::SeqFeature::SimilarityPair>
 
 sub strand {
     my $self = shift;
-    my $val = shift;
+    my $val  = shift;
     $val = 'query' unless defined $val;
     $val =~ s/^\s+//;
 
-    if( $val =~ /^q/i ) {
-	return $self->query->strand(@_);
-    } elsif( $val =~ /^hi|^s/i ) {
-	return $self->hit->strand(@_);
-    } elsif (  $val =~ /^list|array/i ) {
-	# do we really need to pass on additional arguments here? HL
-	# (formerly this was strand(shift) which is really bad coding because
-	# it breaks if the callee allows setting to undef)
-	return ($self->query->strand(@_), 
-		$self->hit->strand(@_) );
-    } else { 
-	$self->warn("unrecognized component '$val' requested\n");
+    if ( $val =~ /^q/i ) {
+        return $self->query->strand(@_);
+    }
+    elsif ( $val =~ /^hi|^s/i ) {
+        return $self->hit->strand(@_);
+    }
+    elsif ( $val =~ /^list|array/i ) {
+
+        # Do we really need to pass on additional arguments here? HL
+        # (formerly this was strand(shift) which is really bad coding because
+        # it breaks if the callee allows setting to undef)
+        return ( $self->query->strand(@_), $self->hit->strand(@_) );
+    }
+    else {
+        $self->warn("unrecognized component '$val' requested\n");
     }
     return 0;
 }

@@ -11,6 +11,7 @@
 
 # POD documentation - main docs before the code
 
+
 =head1 NAME
 
 Bio::DB::Taxonomy::list - An implementation of Bio::DB::Taxonomy
@@ -20,10 +21,11 @@ that accepts lists of words to build a database
 
   use Bio::DB::Taxonomy;
 
+  my $db = Bio::DB::Taxonomy->new( -source => 'list' );
+
+  my @ranks = ('superkingdom', 'class', 'genus', 'species');
   my @names = ('Eukaryota', 'Mammalia', 'Homo', 'Homo sapiens');
-  my @ranks = qw(superkingdom class genus species);
-  my $db = Bio::DB::Taxonomy->new(-source => 'list', -names => \@names,
-                                                    -ranks => \@ranks);
+  $db->add_lineage(-names => \@names, -ranks => \@ranks);
 
   @names = ('Eukaryota', 'Mammalia', 'Mus', 'Mus musculus');
   $db->add_lineage(-names => \@names, -ranks => \@ranks);
@@ -68,7 +70,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Sendu Bala
 
@@ -83,11 +85,16 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
+
 package Bio::DB::Taxonomy::list;
+
 use strict;
 use Bio::Taxon;
 
 use base qw(Bio::DB::Taxonomy);
+
+our $prefix = 'list';
+
 
 =head2 new
 
@@ -102,42 +109,44 @@ use base qw(Bio::DB::Taxonomy);
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    $self->{db} = {};
-    $self->add_lineage(@args) if @args;
+    my %args = @args;
+    delete $args{'-source'};
+
+    $self->add_lineage(%args) if %args;
     
     return $self;
 }
 
+
 =head2 add_lineage
 
  Title   : add_lineage
- Usage   : $db->add_lineage(-names => \@names)
+ Usage   : my @names = ('Eukaryota', 'Mammalia', 'Homo', 'Homo sapiens');
+           my @ranks = ('superkingdom', 'class', 'genus', 'species');
+           $db->add_lineage( -names => \@names, -ranks => \@ranks );
  Function: Add a lineage to the database, where the lineage is described by
            a list of scientific names in the order root->leaf. The rank of each
            name can optionally be described by supplying an additional list
            of rank names in the same order (eg. superkingdom->species).
- Returns : n/a
+ Returns : 1 for success
  Args    : -names => [] : array ref of scientific names, REQUIRED
            -ranks => [] : array ref of rank names, same order as above, OPTIONAL
 
 =cut
 
 sub add_lineage {
-    my $self = shift;
-    my ($names, $ranks) = $self->_rearrange([qw (NAMES RANKS)], @_);
-    $self->throw("-names must be supplied and its value must be an array reference") unless $names && ref($names) eq 'ARRAY';
-    my @names = @{$names};
-    
-    my @ranks;
+    my ($self, @args) = @_;
+    my ($names, $ranks) = $self->_rearrange([qw (NAMES RANKS)], @args);
+    $self->throw("-names must be supplied and its value must be an array reference")
+        unless $names && ref($names) eq 'ARRAY';
+
+    my $names_idx = scalar @$names - 1;
+
     if ($ranks) {
-        $self->throw("-ranks must be an array reference") unless ref($ranks) eq 'ARRAY';
-        $self->throw("The -names and -ranks lists must be of equal length") unless @{$names} == @{$ranks};
-        @ranks = @{$ranks};
-    }
-    else {
-        for (0..$#names) {
-            push(@ranks, 'no rank');
-        }
+        $self->throw("-ranks must be an array reference")
+            unless ref($ranks) eq 'ARRAY';
+        $self->throw("The -names and -ranks lists must be of equal length")
+            unless $names_idx == scalar @$ranks - 1;
     }
     
     # This is non-trivial because names are not guaranteed unique in a taxonomy,
@@ -153,133 +162,123 @@ sub add_lineage {
     # ('Mammalia', 'Hominidae', 'Homo', 'Homo sapiens')
     #
     # Clearly with limited information we can't do a perfect job, but we can try
-    # and do a reasonable one.
+    # and do a reasonable one. So, let's just do the trivial implementation now
+    # and see how bad it is! (assumes ranks are unique except for 'no rank')
     
-    
-    #...
-    
-    
-    # All that said, let's just do the trivial implementation now and see how
-    # bad it is! (assumes ranks are unique except for 'no rank')
-    
-    
-    my $first_lineage = $self->{db}->{node_ids} ? 0 : 1;
-    
-    my $ancestor_node_id;
+    my $ancestors  = $self->{ancestors};
+    my $node_data  = $self->{node_data};
+    my $name_to_id = $self->{name_to_id};
+    my $children   = $self->{children};
+
+    my $my_ancestor_id = '';
     my @node_ids;
-    for my $i (0..$#names) {
-        my $name = $names[$i];
-        my $rank = $ranks[$i];
-        
+    for my $i (0 .. $names_idx) {
+        my $name = $names->[$i];
+        my $rank = $ranks->[$i]; # if undef, this node has 'no rank'
+
         # This is a new node with a new id if we haven't seen this name before.
         # It's also always a new node if this is the first lineage going into
         # the db.
         #
         # We need to handle, however, situations in the future where we try to
         # merge in a new lineage but we have non-unique names in the lineage
-        # and possible missing classes in some lineages
-        # (eg.
-        # '... Anophelinae, Anopheles, Anopheles, Angusticorn, Anopheles...'
+        # and possible missing classes in some lineages, e.g.
+        #    '... Anophelinae, Anopheles, Anopheles, Angusticorn, Anopheles...'
         # merged with
-        # '... Anophelinae, Anopheles, Angusticorn, Anopheles...'),
+        #    '... Anophelinae, Anopheles, Angusticorn, Anopheles...'),
         # but still need the 'tree' to be correct
-        
-        my $is_new = 0;
-        if ($first_lineage || ! exists $self->{db}->{name_to_id}->{$name}) {
-            $is_new = 1;
-        }
-        
+
+        # Look for a node that is consistent with this lineage
         my $node_id;
-        unless ($is_new) {
-            my @same_named = @{$self->{db}->{name_to_id}->{$name}};
+        SAME_NAMED: for my $same_id (@{$name_to_id->{$name}}) {
+
+            # Taxa are the same if it they have the same ancestor or none
+            my $this_ancestor_id = $ancestors->{$same_id} || '';
+            if ($my_ancestor_id eq $this_ancestor_id) {
+                $node_id = $same_id;
+                last SAME_NAMED;
+            }
             
-            # look for the node that is consistent with this lineage
-            SAME_NAMED: foreach my $s_id (@same_named) {
-                my $this_ancestor_id;
-                if ($ancestor_node_id) {
-                    $this_ancestor_id = $self->{db}->{ancestors}->{$s_id};
-                    if ($ancestor_node_id eq $this_ancestor_id) {
-                        $node_id = $s_id;
+            # Compare children
+            next if $i >= $names_idx; # this taxon has no child
+            my $my_child_name = $names->[$i + 1];
+            #while ( my ($this_child_id, undef) = each %{$children->{$same_id}} ) {
+            for my $this_child_id (keys %{$children->{$same_id}}) {
+                if ($my_child_name eq $node_data->{$this_child_id}->[0]) { # both children have same name
+                    if ($my_ancestor_id) {
+                        my @s_ancestors;
+                        while ($this_ancestor_id = $ancestors->{$this_ancestor_id}) {
+                            if ($my_ancestor_id eq $this_ancestor_id) {
+                                $my_ancestor_id = $ancestors->{$same_id};
+                                push @node_ids, @s_ancestors, $my_ancestor_id;
+                                $node_id = $same_id;
+                                last SAME_NAMED;
+                            }
+                            unshift @s_ancestors, $this_ancestor_id;
+                        }
+                    } else {
+                        # This new lineage (@$names) doesn't start at the
+                        # same root as the existing lineages. Assuming
+                        # '$name' corresponds to node $same_id");
+                        $node_id = $same_id;
                         last SAME_NAMED;
                     }
                 }
-                
-                if ($names[$i + 1]) {
-                    my $my_child_name = $names[$i + 1];
-                    my @children_ids = keys %{$self->{db}->{children}->{$s_id} || {}};
-                    foreach my $c_id (@children_ids) {
-                        my $this_child_name = $self->{db}->{node_data}->{$c_id}->[0];
-                        if ($my_child_name eq $this_child_name) {
-                            
-                            if ($ancestor_node_id) {
-                                my @s_ancestors;
-                                while ($this_ancestor_id = $self->{db}->{ancestors}->{$this_ancestor_id}) {
-                                    if ($ancestor_node_id eq $this_ancestor_id) {
-                                        $node_id = $s_id;
-                                        $ancestor_node_id = $self->{db}->{ancestors}->{$s_id};
-                                        push(@node_ids, @s_ancestors, $ancestor_node_id);
-                                        last SAME_NAMED;
-                                    }
-                                    unshift(@s_ancestors, $this_ancestor_id);
-                                }
-                            }
-                            else {
-                                #$self->warn("This new lineage (@names) doesn't start at the same root as the existing lineages.".
-                                #            "\nI'm assuming '$name' corresponds to node $s_id");
-                                $node_id = $s_id;
-                                last SAME_NAMED;
-                            }
-                        }
-                    }
-                }
             }
-            
-            $node_id || $is_new++;
         }
         
-        if ($is_new) {
-            my $next_num = ++$self->{db}->{node_ids};
-            # 'list' so definitely not confused with ncbi taxonomy ids
-            $node_id = 'list'.$next_num;
-            push(@{$self->{db}->{name_to_id}->{$name}}, $node_id);
+        if (not defined $node_id) {
+            # This is a new node. Add it to the database, using the prefix 'list'
+            # for its ID to distinguish it from the IDs from other taxonomies.
+            my $next_num = ++$self->{node_ids};
+            $node_id = $prefix.$next_num;
+            push @{$self->{name_to_id}->{$name}}, $node_id;
+            $self->{node_data}->{$node_id}->[0] = $name;
         }
-        
-        unless (exists $self->{db}->{node_data}->{$node_id}) {
-            $self->{db}->{node_data}->{$node_id} = [($name, '')];
+
+        if ( (defined $rank) && (not defined $node_data->{$node_id}->[1]) ) {
+            # Save rank if node in database has no rank but the current node has one
+            $self->{node_data}->{$node_id}->[1] = $rank;
         }
-        my $node_data = $self->{db}->{node_data}->{$node_id};
-        
-        if (!$node_data->[1] || ($node_data->[1] eq 'no rank' && $rank ne 'no rank')) {
-            $node_data->[1] = $rank;
-        }
-        
-        if ($ancestor_node_id) {
-            if ($self->{db}->{ancestors}->{$node_id} && $self->{db}->{ancestors}->{$node_id} ne $ancestor_node_id) {
-                $self->throw("This lineage (".join(', ', @names).") and a previously computed lineage share a node name but have different ancestries for that node. Can't cope!");
+
+        if ($my_ancestor_id) {
+            if ($self->{ancestors}->{$node_id} && $self->{ancestors}->{$node_id} ne $my_ancestor_id) {
+                $self->throw("The lineage '".join(', ', @$names)."' and a ".
+                    "previously stored lineage share a node name but have ".
+                    "different ancestries for that node. Can't cope!");
             }
-            $self->{db}->{ancestors}->{$node_id} = $ancestor_node_id;
+            $self->{ancestors}->{$node_id} = $my_ancestor_id;
         }
         
-        $ancestor_node_id = $node_id;
-        push(@node_ids, $node_id);
+        $my_ancestor_id = $node_id;
+        push @node_ids, $node_id;
     }
     
-    # go through the lineage in reverse so we can remember the children
-    my $child_id;
-    foreach my $node_id (reverse @node_ids) {
-        unless ($child_id) {
-            $child_id = $node_id;
-            next;
-        }
-        
-        $self->{db}->{children}->{$node_id}->{$child_id} = 1;
-        $child_id = $node_id;
+    # Go through the lineage in reverse so we can remember the children
+    for (my $i = $names_idx - 1; $i >= 0; $i--) {
+        $self->{children}->{$node_ids[$i]}->{$node_ids[$i+1]} = undef;
     }
+    return 1;
 }
+
 
 =head2 Bio::DB::Taxonomy Interface implementation
 
+=head2 get_num_taxa
+
+ Title   : get_num_taxa
+ Usage   : my $num = $db->get_num_taxa();
+ Function: Get the number of taxa stored in the database.
+ Returns : A number
+ Args    : None
+
 =cut
+
+sub get_num_taxa {
+    my ($self) = @_;
+    return $self->{node_ids} || 0;
+}
+
 
 =head2 get_taxon
 
@@ -287,47 +286,104 @@ sub add_lineage {
  Usage   : my $taxon = $db->get_taxon(-taxonid => $taxonid)
  Function: Get a Bio::Taxon object from the database.
  Returns : Bio::Taxon object
- Args    : just a single value which is the database id, OR named args:
-           -taxonid => taxonomy id (to query by taxonid; NB: these are not
-                       NCBI taxonomy ids but 'list' pre-fixed ids unique to the
-                       list database)
-            OR
-           -name    => string (to query by a taxonomy name)
+ Args    : A single value which is the ID of the taxon to retrieve
+             OR named args, as follows:
+           -taxonid => Taxonomy ID (NB: these are not NCBI taxonomy ids but
+                       'list' pre-fixed ids unique to the list database).
+             OR
+           -name    => String (to query by a taxonomy name). A given taxon name
+                       can match different taxonomy objects. When that is the
+                       case, a warning is displayed and the first matching taxon
+                       is reported. See get_taxonids() to get all matching taxon
+                       IDs.
+             OR
+           -names   => Array ref of lineage names, like in add_lineage(). To
+                       overcome the limitations of -name, you can use -names to
+                       provide the full lineage of the taxon you want and get a
+                       unique, unambiguous taxon object.
 
 =cut
 
 sub get_taxon {
-    my $self = shift;
-    my ($taxonid, $name);
-    
-    if (@_ > 1) {
-        ($taxonid, $name) = $self->_rearrange([qw(TAXONID NAME)],@_);
+    my ($self, @args) = @_;
+
+    my $taxonid;
+    if (scalar @args == 1) {
+        # Argument is a taxon ID
+        $taxonid = $args[0];
+    } else {
+        # Got named arguments
+        my ($name, $names);
+        ($taxonid, $name, $names) = $self->_rearrange([qw(TAXONID NAME NAMES)], @args);
         if ($name) {
-            ($taxonid, my @others) = $self->get_taxonids($name);
-            $self->warn("There were multiple ids ($taxonid @others) matching '$name', using '$taxonid'") if @others > 0;
+            $names = [$name];
+        }
+        if ($names) {
+            $name = $names->[-1];
+
+            my @taxonids = $self->get_taxonids($name);
+            $taxonid = $taxonids[0];
+
+            # Use provided lineage to find correct ID amongst several matching IDs
+            if ( (scalar @taxonids > 1) && (scalar @$names > 1) ) {
+                for my $query_taxonid (@taxonids) {
+                    my $matched = 1;
+                    my $db_ancestor = $self->get_taxon($query_taxonid);
+                    for (my $i = $#$names-1; $i >= 0; $i--) {
+                        my $query_ancestor_name = $names->[$i];
+                        $db_ancestor = $db_ancestor->ancestor;
+                        my $db_ancestor_name = '';
+                        if ($db_ancestor) {
+                            $db_ancestor_name = $db_ancestor->node_name;
+                        }
+                        if (not ($query_ancestor_name eq $db_ancestor_name) ) {
+                            $matched = 0;
+                            last; # done testing this taxonid
+                        }
+                    }
+                    if ($matched == 1) {
+                       @taxonids = [$query_taxonid];
+                       $taxonid  =  $query_taxonid;
+                       last; # done testing all taxonids
+                    }
+                }
+            }
+
+            # Warn if several taxon IDs matched
+            if (scalar @taxonids > 1) {
+                $self->warn("There were multiple ids (@taxonids) matching '$name',".
+                    " using '$taxonid'") if scalar @taxonids > 1;
+            }
+
         }
     }
-    else {
-        $taxonid = shift;
+    
+    # Now that we have the taxon ID, retrieve the corresponding Taxon object
+    my $taxon;
+    my $node = $self->{node_data}->{$taxonid};
+    if ($node) {
+        my ($sci_name, $rank) = @$node;
+        $taxon = Bio::Taxon->new(
+            -name      => $sci_name,
+            -object_id => $taxonid, # not an ncbi taxid, simply an object id
+        );
+
+        if ($rank) {
+            $taxon->rank($rank);
+        }
+
+        # we can't use -dbh or the db_handle() method ourselves or we'll go
+        # infinite on the merge attempt
+        $taxon->{'db_handle'} = $self;
+    
+        $self->_handle_internal_id($taxon, 1);
     }
-    
-    my $node = $self->{db}->{node_data}->{$taxonid} || return;
-    my ($sci_name, $rank) = @{$node};
-    
-    my $taxon = Bio::Taxon->new(
-                        -name         => $sci_name,
-                        -object_id    => $taxonid, # since this is NOT a real ncbi taxid, set it as simply the object id
-                        -rank         => $rank );
-    # we can't use -dbh or the db_handle() method ourselves or we'll go
-    # infinite on the merge attempt
-    $taxon->{'db_handle'} = $self;
-    
-    $self->_handle_internal_id($taxon, 1);
-    
+
     return $taxon;
 }
 
 *get_Taxonomy_Node = \&get_taxon;
+
 
 =head2 get_taxonids
 
@@ -342,11 +398,12 @@ sub get_taxon {
 =cut
 
 sub get_taxonids {
-    my ($self, $query) = @_;
-    return @{$self->{db}->{name_to_id}->{$query} || []};
+    my ($self, $name) = @_;
+    return wantarray() ? @{$self->{name_to_id}->{$name} || []} : $self->{name_to_id}->{$name}->[0];
 }
 
 *get_taxonid = \&get_taxonids;
+
 
 =head2 ancestor
 
@@ -363,12 +420,14 @@ sub ancestor {
     my ($self, $taxon) = @_;
     $taxon || return; # for bug 2092, or something similar to it at least: shouldn't need this!
     $self->throw("Must supply a Bio::Taxon") unless ref($taxon) && $taxon->isa('Bio::Taxon');
-    $self->throw("The supplied Taxon must belong to this database") unless $taxon->db_handle && $taxon->db_handle eq $self;
+    $self->throw("The supplied Taxon must belong to this database")
+        unless $taxon->db_handle && $taxon->db_handle eq $self;
     my $id = $taxon->id || $self->throw("The supplied Taxon is missing its id!");
     
-    my $ancestor_id = $self->{db}->{ancestors}->{$id} || return;
+    my $ancestor_id = $self->{ancestors}->{$id} || return;
     return $self->get_taxon($ancestor_id);
 }
+
 
 =head2 each_Descendent
 
@@ -384,16 +443,17 @@ sub ancestor {
 sub each_Descendent {
     my ($self, $taxon) = @_;
     $self->throw("Must supply a Bio::Taxon") unless ref($taxon) && $taxon->isa('Bio::Taxon');
-    $self->throw("The supplied Taxon must belong to this database") unless $taxon->db_handle && $taxon->db_handle eq $self;
+    $self->throw("The supplied Taxon must belong to this database")
+        unless $taxon->db_handle && $taxon->db_handle eq $self;
     my $id = $taxon->id || $self->throw("The supplied Taxon is missing its id!");
     
-    my @children_ids = keys %{$self->{db}->{children}->{$id} || {}};
     my @children;
-    foreach my $child_id (@children_ids) {
-        push(@children, $self->get_taxon($child_id) || next);
+    while ( my ($child_id, undef) = each %{$self->{children}->{$id}} ) {
+        push @children, ($self->get_taxon($child_id) || next);
     }
     
     return @children;
 }
+
 
 1;

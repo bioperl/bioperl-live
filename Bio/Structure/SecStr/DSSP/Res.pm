@@ -75,7 +75,7 @@ The methods are roughly divided into 3 sections:
     etc.).  These methods do not require an argument.
 2.  Residue specific features ( amino acid, secondary structure,
     solvent exposed surface area, etc. ).  These methods do require an
-    arguement.  The argument is supposed to uniquely identify a
+    argument.  The argument is supposed to uniquely identify a
     residue described within the structure.  It can be of any of the
     following forms:
     ('#A:B') or ( #, 'A', 'B' )
@@ -135,7 +135,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Ed Green
 
@@ -246,7 +246,7 @@ sub new {
 =head2 totSurfArea
 
  Title         : totSurfArea
- Usage         : returns total accessible surface area in square Ang.
+ Usage         : returns total accessible surface area in square And.
  Function      :
  Example       : $surArea = $dssp_obj->totSurfArea();
  Returns       : scalar
@@ -465,7 +465,7 @@ sub resPsi {
 
  Title         : resSolvAcc
  Usage         : returns solvent exposed area of this residue in
-                 square Angstroms
+                 square Andstroms
  Function      :
  Example       : $solv_acc = $dssp_obj->resSolvAcc( RESIDUE_ID );
  Returns       : scalar
@@ -485,7 +485,7 @@ sub resSolvAcc {
 
  Title         : resSurfArea
  Usage         : returns solvent exposed area of this residue in
-                 square Angstroms
+                 square Andstroms
  Function      :
  Example       : $solv_acc = $dssp_obj->resSurfArea( RESIDUE_ID );
  Returns       : scalar

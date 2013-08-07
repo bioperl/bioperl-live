@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 177);
+    test_begin(-tests => 182);
 	
     use_ok('Bio::Restriction::Enzyme');
     use_ok('Bio::Restriction::Enzyme::MultiCut');
@@ -242,6 +242,11 @@ is $ra->cuts_by_enzyme('XxxI'), undef;
 is my @ss = $ra->sizes('PspEI'), 2, 'expected 2 sizes for PspEI';
 is $ss[0] + $ss[1], $seq->length;
 
+# Issue 3157
+$re = Bio::Restriction::Enzyme->new(-enzyme=>'PspEI', -site=>'G^GTNACC');
+is @ss = $ra->sizes($re), 2, 'expected 2 sizes for PspEI';
+is $ss[0] + $ss[1], $seq->length;
+
 is $ra->fragments('MwoI'), 1, 'not circular expected 1 fragments for MwoI as it doesnt cut';
 
 # circularise the sequence, regenerate the cuts and test again
@@ -292,3 +297,22 @@ eval {$re = Bio::Restriction::Enzyme->new(
 
 ok $@;
 like($@, qr(Unrecognized characters in site), 'bug 2139');
+
+# 0-pos bug (Elia Stupka)
+
+$seq = Bio::Seq->new(
+    -display_name   => 'foo',
+    -alphabet       => 'dna',
+    -seq            => 'GATCNNNNGATC'
+);
+
+$ra = Bio::Restriction::Analysis->new(-seq=>$seq);
+
+is $ra->fragments('HindIII'), 1, 'number of HindIII fragments';
+is $ra->fragments('BfuCI'), 2, 'number of EcoRI fragments';
+
+# passing a bad enzyme name
+
+is $ra->fragments('FooBarI'), 1, 'number of RsaI fragments';
+
+

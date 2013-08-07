@@ -3,13 +3,13 @@
 
 use strict;
 
-BEGIN { 
+BEGIN {
 	use lib '.';
 	use Bio::Root::Test;
-	
-	test_begin(-tests => 24,
-				  -requires_module => 'DB_File');
-	
+
+	test_begin(-tests => 25,
+                -requires_module => 'DB_File');
+
 	use_ok('Bio::DB::Flat');
 }
 
@@ -39,22 +39,25 @@ undef $db;
 $db = Bio::DB::Flat->new(-directory  => $tmpdir,
                          -index      => 'bdb',
                          -format     => 'embl',
-								 -dbname     => 'myembl',
+						 -dbname     => 'myembl',
                          -verbose    => $verbose,
                          -write_flag => 1 );
 
-$dir= test_input_file('factor7.embl');
+$dir= test_input_file('cds_sample.embl');
 
 $result = $db->build_index(glob($dir));
+
+is ($db->get_all_primary_ids, 1);
+#is ($db->get_all_accs, 1);
 ok($result);
-$seq = $db->get_Seq_by_id('HSCFVII');
+$seq = $db->get_Seq_by_id('EAL24309');
 ok($seq);
-is($seq->length,12850);
+is($seq->length,192);
 
 # deal with wantarray conditions
-$seq = $db->get_Seq_by_acc('J02933');
+$seq = $db->get_Seq_by_acc('CH236947.1');
 ok($seq && ref($seq));
-is($seq->length,12850);
+is($seq->length,192);
 
 
 undef $db;

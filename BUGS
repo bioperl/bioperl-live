@@ -3,7 +3,7 @@
 Known Bugs
 
 Bugs are tracked at this URL:
-http://bugzilla.bioperl.org/
+https://redmine.open-bio.org/projects/bioperl/
 
 Bioperl 1.6 series
 =============
@@ -11,7 +11,7 @@ Bioperl 1.6 series
 Though a stable release, some bugs and enhancements remain for this series
 that will be addressed in future point releases. For a full list please see:
 
-http://bugzilla.bioperl.org/
+https://redmine.open-bio.org/projects/bioperl/
 
 Bug     Summary (additional info)
 

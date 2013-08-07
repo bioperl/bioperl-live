@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::DB::NCBIHelper
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Jason Stajich
 #
@@ -10,8 +10,8 @@
 # You may distribute this module under the same terms as perl itself
 #
 # POD documentation - main docs before the code
-# 
-# Interfaces with new WebDBSeqI interface 
+#
+# Interfaces with new WebDBSeqI interface
 
 =head1 NAME
 
@@ -23,7 +23,7 @@ NCBI databases.
  # Do not use this module directly.
 
  # get a Bio::DB::NCBIHelper object somehow
- my $seqio = $db->get_Stream_by_acc(['MUSIGHBA1']);
+ my $seqio = $db->get_Stream_by_acc(['J00522']);
  foreach my $seq ( $seqio->next_seq ) {
      # process seq
  }
@@ -51,15 +51,15 @@ is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -68,7 +68,7 @@ Report bugs to the Bioperl bug tracking system to
 help us keep track the bugs and their resolution.
 Bug reports can be submitted via the web.
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -173,14 +173,14 @@ sub default_format {
  Title   : get_request
  Usage   : my $url = $self->get_request
  Function: HTTP::Request
- Returns : 
+ Returns :
  Args    : %qualifiers = a hash of qualifiers (ids, format, etc)
 
 =cut
 
 sub get_request {
 	my ($self, @qualifiers) = @_;
-	my ($mode, $uids, $format, $query, $seq_start, $seq_stop, $strand, $complexity) = 
+	my ($mode, $uids, $format, $query, $seq_start, $seq_stop, $strand, $complexity) =
 	  $self->_rearrange([qw(MODE UIDS FORMAT QUERY SEQ_START SEQ_STOP STRAND COMPLEXITY)],
 							  @qualifiers);
 	$mode = lc $mode;
@@ -188,7 +188,7 @@ sub get_request {
 	if( !defined $mode || $mode eq '' ) { $mode = 'single'; }
 	my %params = $self->get_params($mode);
 	if( ! %params ) {
-		$self->throw("must specify a valid retrieval mode 'single' or 'batch' not '$mode'") 
+		$self->throw("must specify a valid retrieval mode 'single' or 'batch' not '$mode'")
 	}
 	my $url = URI->new($HOSTBASE . $CGILOCATION{$mode}[1]);
 	unless( $mode eq 'webenv' || defined $uids || defined $query) {
@@ -258,10 +258,10 @@ NOTE: deprecated API.  Use get_Stream_by_id() instead.
 
 =cut
 
-*get_Stream_by_batch = sub { 
+*get_Stream_by_batch = sub {
    my $self = shift;
    $self->deprecated('get_Stream_by_batch() is deprecated; use get_Stream_by_id() instead');
-   $self->get_Stream_by_id(@_) 
+   $self->get_Stream_by_id(@_)
 };
 
 =head2 get_Stream_by_query
@@ -296,7 +296,7 @@ sub get_Stream_by_query {
  Function: process downloaded data before loading into a Bio::SeqIO
  Returns : void
  Args    : hash with two keys - 'type' can be 'string' or 'file'
-                              - 'location' either file location or string 
+                              - 'location' either file location or string
                                            reference containing data
 
 =cut
@@ -324,9 +324,9 @@ sub postprocess_data {
 =cut
 
 sub request_format {
-	my ($self, $value) = @_;    
+	my ($self, $value) = @_;
 	if( defined $value ) {
-		$value = lc $value;	
+		$value = lc $value;
 		if( defined $FORMATMAP{$value} ) {
 			$self->{'_format'} = [ $value, $FORMATMAP{$value}];
 		} else {
@@ -362,7 +362,7 @@ sub redirect_refseq {
 
  Title   : complexity
  Usage   : $db->complexity(3)
- Function: get/set complexity value 
+ Function: get/set complexity value
  Returns : value from 0-4 indicating level of complexity
  Args    : value from 0-4 (optional); if unset server assumes 1
  Throws  : if arg is not an integer or falls outside of noted range above
@@ -392,7 +392,7 @@ sub complexity {
 
  Title   : strand
  Usage   : $db->strand(1)
- Function: get/set strand value 
+ Function: get/set strand value
  Returns : strand value if set
  Args    : value of 1 (plus) or 2 (minus); if unset server assumes 1
  Throws  : if arg is not an integer or is not 1 or 2
@@ -408,7 +408,7 @@ sub strand {
             $str !~ /^\d+$/ || $str < 1 || $str > 2;
         $self->{'_strand'} = $str;
     }
-    return $self->{'_strand'};   
+    return $self->{'_strand'};
 }
 
 =head2 seq_start
@@ -429,7 +429,7 @@ sub seq_start {
             $start !~ /^\d+$/;
         $self->{'_seq_start'} = $start;
     }
-    return $self->{'_seq_start'};      
+    return $self->{'_seq_start'};
 }
 
 =head2 seq_stop
@@ -450,7 +450,7 @@ sub seq_stop {
             $stop !~ /^\d+$/;
         $self->{'_seq_stop'} = $stop;
     }
-    return $self->{'_seq_stop'};   
+    return $self->{'_seq_stop'};
 }
 
 =head2 Bio::DB::WebDBSeqI methods
@@ -483,8 +483,8 @@ sub get_Stream_by_acc {
 =head2 _check_id
 
   Title   : _check_id
-  Usage   : 
-  Function: 
+  Usage   :
+  Function:
   Returns : A Bio::DB::RefSeq reference or throws
   Args    : $id(s), $string
 
@@ -495,11 +495,11 @@ sub _check_id {
 
 	# NT contigs can not be retrieved
 	$self->throw("NT_ contigs are whole chromosome files which are not part of regular".
-					 "database distributions. Go to ftp://ftp.ncbi.nih.gov/genomes/.") 
+					 "database distributions. Go to ftp://ftp.ncbi.nih.gov/genomes/.")
 	  if $ids =~ /NT_/;
 
 	# Asking for a RefSeq from EMBL/GenBank
-   
+
 	if ($self->redirect_refseq) {
 		if ($ids =~ /N._/) {
 			$self->warn("[$ids] is not a normal sequence database but a RefSeq entry.".

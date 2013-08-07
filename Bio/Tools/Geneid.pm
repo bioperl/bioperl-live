@@ -9,6 +9,9 @@
 
 # POD documentation - main docs before the code
 
+
+=encoding utf-8
+
 =head1 NAME
 
 Bio::Tools::Geneid - Results of one geneid run
@@ -34,7 +37,7 @@ Bio::Tools::Geneid - Results of one geneid run
 =head1 DESCRIPTION
 
 This is the parser for the output of geneid by Enrique Blanco and
-Roderic Guigó (IMIM-UPF). See http://www1.imim.es/software/geneid. It
+Roderic GuigE<243> (IMIM-UPF). See http://www1.imim.es/software/geneid. It
 relies on native geneid output format internally and will work with
 geneid versions 1.0 and 1.1. Currently this module supports only the
 default mode of operation which is to predict exons and assemble an
@@ -71,7 +74,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Keith James
 

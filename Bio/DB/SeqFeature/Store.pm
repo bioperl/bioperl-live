@@ -10,29 +10,34 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
   use Bio::DB::SeqFeature::Store;
 
   # Open the feature database
-  my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'DBI::mysql',
-                                                 -dsn     => 'dbi:mysql:test',
-                                                 -create  => 1 );
+  my $db = Bio::DB::SeqFeature::Store->new( -adaptor => 'DBI::mysql',
+                                            -dsn     => 'dbi:mysql:test',
+                                            -create  => 1 );
 
-  # get a feature from somewhere
+  # Get a feature from somewhere
   my $feature = Bio::SeqFeature::Generic->new(...);
 
-  # store it
+  # Store it
   $db->store($feature) or die "Couldn't store!";
 
-  # primary ID of the feature is changed to indicate its primary ID
-  # in the database...
+  # If absent, a primary ID is added to the feature when it is stored in the
+  # database. Retrieve the primary ID
   my $id = $feature->primary_id;
 
-  # get the feature back out
-  my $f  = $db->fetch($id);
+  # Get the feature back out
+  my $feature = $db->fetch($id);
 
-  # change the feature and update it
+  # .... which is identical to
+  my $feature = $db->get_feature_by_primary_id($id);
+
+  # Change the feature and update it
   $f->start(100);
-  $db->update($f) or die "Couldn't update!";
+  $db->store($f) or die "Couldn't update!";
 
-  # searching...
-  # ...by id
+  # Get all features at once
+  my @features = $db->features( );
+
+  # Retrieve multiple features by primary id
   my @features = $db->fetch_many(@list_of_ids);
 
   # ...by name
@@ -50,9 +55,6 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
   # ...by attribute
   @features = $db->get_features_by_attribute({description => 'protein kinase'})
 
-  # ...by primary id
-  @features = $db->get_feature_by_primary_id(42); # note no plural!!!
-
   # ...by the GFF "Note" field
   @result_list = $db->search_notes('kinase');
 
@@ -64,7 +66,7 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
                             -end    => $end,
                             -attributes => $attributes);
 
-  # ...using an iterator
+  # Loop through the features using an iterator
   my $iterator = $db->get_seq_stream(-name => $name,
                                      -type => $types,
                                      -seq_id => $seqid,
@@ -80,26 +82,26 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
   my $segment  = $db->segment('Chr1',5000=>6000);
   my @features = $segment->features(-type=>['mRNA','match']);
 
-  # getting coverage statistics across a region
+  # Getting coverage statistics across a region
   my $summary = $db->feature_summary('Chr1',10_000=>1_110_000);
-  my $bins    = $summary->get_tag_values('coverage');
+  my ($bins)  = $summary->get_tag_values('coverage');
   my $first_bin = $bins->[0];
 
-  # getting & storing sequence information
+  # Getting & storing sequence information
   # Warning: this returns a string, and not a PrimarySeq object
   $db->insert_sequence('Chr1','GATCCCCCGGGATTCCAAAA...');
   my $sequence = $db->fetch_sequence('Chr1',5000=>6000);
 
-  # what feature types are defined in the database?
+  # What feature types are defined in the database?
   my @types    = $db->types;
 
-  # create a new feature in the database
+  # Create a new feature in the database
   my $feature = $db->new_feature(-primary_tag => 'mRNA',
                                  -seq_id      => 'chr3',
                                  -start      => 10000,
                                  -end        => 11000);
 
-  # load an entire GFF3 file, using the GFF3 loader...
+  # Load an entire GFF3 file, using the GFF3 loader...
   my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $db,
 							   -verbose  => 1,
 							   -fast     => 1);
@@ -193,7 +195,7 @@ used by default.
 When Bio::DB::SeqFeature::Store stores a Bio::SeqFeatureI object into
 the database, it serializes it into binary or text form. When it later
 fetches the feature from the database, it unserializes it. Two
-serializers are available: Recent versions of 
+serializers are available: Recent versions of
 
 =over 4
 
@@ -289,7 +291,7 @@ This class method creates a new database connection. The following
 
 The B<-index_subfeatures> argument, if true, tells the module to
 create indexes for a feature and all its subfeatures (and its
-subfeatues' subfeatures). Indexing subfeatures means that you will be
+subfeatures' subfeatures). Indexing subfeatures means that you will be
 able to search for the gene, its mRNA subfeatures and the exons inside
 each mRNA. It also means when you search the database for all features
 contained within a particular location, you will get the gene, the
@@ -339,7 +341,7 @@ ones:
 		    description of this. Default is the current
                     directory.
 
- -write             Make the database writeable (implied by -create)
+ -write             Make the database writable (implied by -create)
 
  -fasta             Provide an alternative DNA accessor object or path.
 
@@ -353,7 +355,7 @@ Bio::DB::Sam::Fai classes.
 
 =cut
 
-### 
+###
 # object constructor
 #
 sub new {
@@ -434,6 +436,23 @@ initialization. It is passed a copy of the init_database() args.
 
 sub post_init { }
 
+
+=head2 add_features
+
+ Title   : add_features
+ Usage   : $success = $db->add_features(\@features)
+ Function: store one or more features into the database
+ Returns : true if successful
+ Args    : array reference of Bio::SeqFeatureI objects
+ Status  : public
+
+=cut
+
+sub add_features {
+  my ($self, $feats) = @_;
+  my $result = $self->store_and_cache(1, @$feats);
+}
+
 =head2 store
 
  Title   : store
@@ -449,6 +468,12 @@ serialized feature stored in the database. If all features were
 successfully stored, the method returns true. In the DBI
 implementation, the store is performed as a single transaction and the
 transaction is rolled back if one or more store operations failed.
+
+In most cases, you should let the database assign the primary id. If
+the object you store already has a primary_id, then the ID must adhere
+to the datatype expected by the adaptor: an integer in the
+case of the various DB adaptors, and a string in the case of the
+memory and berkeley adaptors.
 
 You can find out what the primary ID of the feature has become by
 calling the feature's primary_id() method:
@@ -466,7 +491,7 @@ Subfeatures will be indexed for separate retrieval based on the
 current value of index_subfeatures().
 
 If you call store() with one or more features that already have valid
-primary_ids, then an existing object(s) will be B<replaced>. Note that
+primary_ids, then any existing objects will be B<replaced>. Note that
 when using normalized features such as Bio::DB::SeqFeature, the
 subfeatures are not recursively updated when you update the parent
 feature. You must manually update each subfeatures that has changed.
@@ -483,8 +508,13 @@ feature. You must manually update each subfeatures that has changed.
 # for search via attributes, name, type or location
 
 sub store {
-  my $self = shift;
-  my $result = $self->store_and_cache(1,@_);
+  my ($self, @feats) = @_;
+  for my $feat (@feats) {
+    if ( (not ref $feat) || (not $feat->isa('Bio::SeqFeatureI')) ) {
+      die "Cannot store non-Bio::SeqFeatureI object '$feat'\n";
+    }
+  }
+  my $result = $self->store_and_cache(1,@feats);
 }
 
 =head2 store_noindex
@@ -621,6 +651,11 @@ sub delete {
   my $success = 1;
   for my $object (@_) {
     my $id = $object->primary_id;
+    if ( not defined $id ) {
+      warn "Could not delete feature without primary_id: $object";
+      $success = 0;
+      next;
+    }
     my $result = $self->_deleteid($id);
     warn "Could not delete feature with id=$id" unless $result;
     $success &&= $result;
@@ -628,10 +663,12 @@ sub delete {
   $success;
 }
 
-=head2 get_feature_by_id
+=head2 fetch / get_feature_by_id / get_feature_by_primary_id
 
- Title   : get_feature_by_id
- Usage   : $feature = $db->get_feature_by_id($primary_id)
+ Title   : fetch
+           get_feature_by_id
+           get_feature_by_primary_id
+ Usage   : $feature = $db->fetch($primary_id)
  Function: fetch a feature from the database using its primary ID
  Returns : a feature
  Args    : primary ID of desired feature
@@ -639,24 +676,7 @@ sub delete {
 
 This method returns a previously-stored feature from the database
 using its primary ID. If the primary ID is invalid, it returns undef.
-
-=cut
-
-sub get_feature_by_id {
-    my $self = shift;
-    $self->fetch(@_);
-}
-
-=head2 fetch
-
- Title   : fetch
- Usage   : $feature = $db->fetch($primary_id)
- Function: fetch a feature from the database using its primary ID
- Returns : a feature
- Args    : primary ID of desired feature
- Status  : public
-
-This is an alias for get_feature_by_id().
+Use fetch_many() to rapidly retrieve multiple features.
 
 =cut
 
@@ -677,25 +697,7 @@ sub fetch {
     return $self->_fetch($primary_id);
   }
 }
-
-=head2 get_feature_by_primary_id
-
- Title   : get_feature_by_primary_id
- Usage   : $feature = $db->get_feature_by_primary_id($primary_id)
- Function: fetch a feature from the database using its primary ID
- Returns : a feature
- Args    : primary ID of desired feature
- Status  : public
-
-This method returns a previously-stored feature from the database
-using its primary ID. If the primary ID is invalid, it returns
-undef. This method is identical to fetch().
-
-=cut
-
-sub get_feature_by_primary_id {
-    shift->fetch(@_);
-}
+*get_feature_by_id = *get_feature_by_primary_id = \&fetch;
 
 =head2 fetch_many
 
@@ -932,7 +934,7 @@ features whose endpoints are both outside the indicated range.
 
 sub get_features_by_location {
   my $self = shift;
-  my ($seqid,$start,$end,$strand,$rangetype) = 
+  my ($seqid,$start,$end,$strand,$rangetype) =
     rearrange([['SEQ_ID','SEQID','REF'],'START',['STOP','END'],'STRAND','RANGE_TYPE'],@_);
   $self->_features(-seqid=>$seqid,
 		   -start=>$start||undef,
@@ -1030,6 +1032,9 @@ it will treat the list as a feature type filter.
 
 Examples:
 
+All features:
+ @features = $db->features( );
+
 All features on chromosome 1:
 
  @features = $db->features(-seqid=>'Chr1');
@@ -1056,8 +1061,6 @@ All confirmed mRNAs and repeats on chromosome 1 strictly contained within the ra
                            -attributes=> {confirmed=>1}
                            -range_type => 'contained_in',
                           );
-
-
 
 All genes and repeats:
 
@@ -1092,6 +1095,23 @@ sub features {
     @args = @_;
   }
   $self->_features(@args);
+}
+
+
+=head2 get_all_features
+
+ Title   : get_all_features
+ Usage   : @features = $db->get_all_features()
+ Function: get all feature in the database
+ Returns : list of features
+ Args    : none
+ Status  : Public
+
+=cut
+
+# for compatibility with Bio::SeqFeature::Collection
+sub get_all_features {
+  shift->features();
 }
 
 =head2 seq_ids
@@ -1488,9 +1508,10 @@ sub finish_bulk_update { shift->_finish_bulk_update(@_) }
 
  Title   : add_SeqFeature
  Usage   : $count = $db->add_SeqFeature($parent,@children)
- Function: store a parent/child relationship between $parent and @children
+ Function: store a parent/child relationship between a $parent and @children
+           features that are already stored in the database
  Returns : number of children successfully stored
- Args    : parent feature and one or more children
+ Args    : parent feature or primary ID and children features or primary IDs
  Status  : OPTIONAL; MAY BE IMPLEMENTED BY ADAPTORS
 
 If can_store_parentage() returns true, then some store-aware features
@@ -1509,7 +1530,7 @@ sub add_SeqFeature  { shift->_add_SeqFeature(@_)   }
  Usage   : @children = $db->fetch_SeqFeatures($parent_feature)
  Function: return the immediate subfeatures of the indicated feature
  Returns : list of subfeatures
- Args    : the parent feature
+ Args    : the parent feature and an optional list of children types
  Status  : OPTIONAL; MAY BE IMPLEMENTED BY ADAPTORS
 
 If can_store_parentage() returns true, then some store-aware features
@@ -1518,12 +1539,11 @@ feature/subfeature relationships from the database.
 
 =cut
 
-# _get_SeqFeatures($parent,@list_of_child_types)
+# _get_SeqFeatures($parent,@child_types)
 sub fetch_SeqFeatures {
-  my $self = shift;
-  my $obj  = shift;
-  return unless defined $obj->primary_id;
-  $self->_fetch_SeqFeatures($obj,@_);
+  my ($self, $parent, @child_types) = @_;
+  return unless defined $parent->primary_id;
+  $self->_fetch_SeqFeatures($parent,@child_types);
 }
 
 
@@ -1612,7 +1632,7 @@ sub dna_accessor {
 sub can_do_seq {
     my $self = shift;
     my $obj  = shift;
-    return 
+    return
 	UNIVERSAL::can($obj,'seq') ||
 	UNIVERSAL::can($obj,'fetch_sequence');
 }
@@ -1658,7 +1678,7 @@ sub do_compress {
 
 If true, the store() method will add a searchable index to both the
 top-level feature and all its subfeatures, allowing the search
-functions to return features at any level of the conainment
+functions to return features at any level of the containment
 hierarchy. If false, only the top level feature will be indexed,
 meaning that you will only be able to get at subfeatures by fetching
 the top-level feature and then traversing downward using
@@ -1774,7 +1794,7 @@ sub SCALAR {
 
 This method is the back end for init_database(). It must be
 implemented by an adaptor that inherits from
-Bio::DB::SeqFeature::Store. It returns true on success.
+Bio::DB::SeqFeature::Store. It returns true on success. @features = $db->features(-seqid=>'Chr1');
 
 =cut
 
@@ -2014,7 +2034,7 @@ sub _insert_sequence   { shift->throw_not_implemented }
 
  Title   : _fetch_sequence
  Usage   : $sequence = $db->_fetch_sequence(-seq_id=>$seqid,-start=>$start,-end=>$end)
- Function: Fetch the indicated subsequene from the database
+ Function: Fetch the indicated subsequence from the database
  Returns : The sequence string (not a Bio::PrimarySeq object!)
  Args    : see below
  Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY ADAPTOR
@@ -2338,7 +2358,7 @@ sub setup_segment_args {
  Usage   : $success = $db->store_and_cache(@features)
  Function: store features into database and update cache
  Returns : number of features stored
- Args    : list of features
+ Args    : index the features? (0 or 1) and  list of features
  Status  : private
 
 This private method stores the list of Bio::SeqFeatureI objects into
@@ -2571,10 +2591,13 @@ sub feature_names {
   my $obj  = shift;
 
   my $primary_id = $obj->primary_id;
-  my @names = $obj->display_name;
+  my @names;
+  push @names,$obj->display_name           if defined $obj->display_name;
   push @names,$obj->get_tag_values('Name') if $obj->has_tag('Name');
   push @names,$obj->get_tag_values('ID')   if $obj->has_tag('ID');
-  @names = grep {defined $_ && $_ ne $primary_id} @names;
+
+  # don't think this is desired behavior
+  # @names = grep {defined $_ && $_ ne $primary_id} @names;
 
   my @aliases = grep {defined} $obj->get_tag_values('Alias') if $obj->has_tag('Alias');
 
@@ -2623,7 +2646,7 @@ a single feature, so this is fairly useless.
 
 sub feature_summary {
     my $self = shift;
-    my ($seq_name,$start,$end,$types,$bins,$iterator) = 
+    my ($seq_name,$start,$end,$types,$bins,$iterator) =
 	rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],
 		   ['TYPES','TYPE','PRIMARY_TAG'],
 		   'BINS',
@@ -2643,10 +2666,10 @@ sub feature_summary {
 					     -end    => $end,
 					     -type   => $tag,
 					     -score  => $score,
-					     -attributes => 
+					     -attributes =>
 					     { coverage => [$coverage] });
-    return $iterator 
-	   ? Bio::DB::SeqFeature::Store::FeatureIterator->new($feature) 
+    return $iterator
+	   ? Bio::DB::SeqFeature::Store::FeatureIterator->new($feature)
 	   : $feature;
 }
 
@@ -2700,6 +2723,9 @@ sub next_seq {
   return shift @$self;
 }
 
+sub begin_work { }# noop
+sub commit     { }# noop
+sub rollback   { }# noop
 
 1;
 
@@ -2729,4 +2755,3 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
-

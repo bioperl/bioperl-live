@@ -102,7 +102,7 @@ SKIP: {
     $tobj->_session_id('');
     $tobj->map_db('');
     $tobj->url_base_address('http://socrates_jones_et_cie.us');
-    throws_ok {$tobj->get_Seq_by_id('17756')} qr/Connect failed/, 'bad url exception check';
+    throws_ok {$tobj->get_Seq_by_id('17756')} qr/Connect failed|Session not established/, 'bad url exception check';
     # wrong url exception 
     $tobj->url_base_address('http://fortinbras.us');
     throws_ok {$tobj->get_Seq_by_id('17756')} qr/Session not established/, 'wrong url exception check';
