@@ -451,101 +451,51 @@ sub _parse_distinct {
                         'Hsp_hit-strand'   => $hstrand,
                     }
                 );
-                #$self->element(
-                #    {
-                #        'Name' => 'Hsp_score',
-                #        'Data' => $score
-                #    }
-                #);
-                #$self->element(
-                #    {
-                #        'Name' => 'Hsp_identity',
-                #        'Data' => $identical
-                #    }
-                #);
-                #$self->element(
-                #    {
-                #        'Name' => 'Hsp_positive',
-                #        'Data' => $identical
-                #    }
-                #);
-                #$self->element(
-                #    {
-                #        'Name' => 'Hsp_mismatches',
-                #        'Data' => $mismatches
-                #    }
-                #);
-                #$self->element(
-                #    {
-                #        'Name' => 'Hsp_gaps',
-                #        'Data' => $q_base_insert + $t_base_insert
-                #    }
-                #);
-                #
+                $self->element_hash(
+                    {
+                        'Hsp_score'       => $score,
+                        #'Hsp_identity'  => $identical,
+                        #'Hsp_positive'  => $identical,
+                        'Hsp_mismatches' =>  $mismatches,
+                        'Hsp_gaps' => $q_base_insert + $t_base_insert
+                    }
+                );
+
                 ## query gaps are the number of target inserts and vice-versa
-                #$self->element(
-                #    {
-                #        'Name' => 'Hsp_querygaps',
-                #        'Data' => $t_base_insert
-                #    }
-                #);
-                #$self->element(
-                #    {
-                #        'Name' => 'Hsp_hitgaps',
-                #        'Data' => $q_base_insert
-                #    }
-                #);
-                #if ( $strand eq '+' ) {
-                #    $self->element(
-                #        {
-                #            'Name' => 'Hsp_query-from',
-                #            'Data' => $q_start + 1
-                #        }
-                #    );
-                #    $self->element(
-                #        {
-                #            'Name' => 'Hsp_query-to',
-                #            'Data' => $q_end
-                #        }
-                #    );
-                #}
-                #else {
-                #    $self->element(
-                #        {
-                #            'Name' => 'Hsp_query-to',
-                #            'Data' => $q_start + 1
-                #        }
-                #    );
-                #    $self->element(
-                #        {
-                #            'Name' => 'Hsp_query-from',
-                #            'Data' => $q_end
-                #        }
-                #    );
-                #}
-                #my $hsplen =
-                #  $q_base_insert +
-                #  $t_base_insert +
-                #  abs( $t_end - $t_start ) +
-                #  abs( $q_end - $q_start );
-                #$self->element(
-                #    {
-                #        'Name' => 'Hsp_hit-from',
-                #        'Data' => $t_start + 1
-                #    }
-                #);
-                #$self->element(
-                #    {
-                #        'Name' => 'Hsp_hit-to',
-                #        'Data' => $t_end
-                #    }
-                #);
-                #$self->element(
-                #    {
-                #        'Name' => 'Hsp_align-len',
-                #        'Data' => $hsplen
-                #    }
-                #);
+                $self->element_hash(
+                    {
+                        'Hsp_querygaps'     => $t_base_insert,
+                        'Hsp_hitgaps'       => $q_base_insert
+                    }
+                );
+                if ( $strand eq '+' ) {
+                    $self->element_hash(
+                        {
+                            'Hsp_query-from' => $q_start + 1,
+                            'Hsp_query-to'   => $q_end
+                        }
+                    );
+                }
+                else {
+                    $self->element_hash(
+                        {
+                            'Hsp_query-to'   => $q_start + 1,
+                            'Hsp_query-from' => $q_end
+                        }
+                    );
+                }
+                my $hsplen =
+                  $q_base_insert +
+                  $t_base_insert +
+                  abs( $t_end - $t_start ) +
+                  abs( $q_end - $q_start );
+                $self->element_hash(
+                    {
+                        'Hsp_hit-from'  =>  $t_start + 1,
+                        'Hsp_hit-to'    => $t_end,
+                        'Hsp_align-len' => $hsplen
+                    }
+                );
                 
                 $self->end_element( { 'Name' => 'Hsp' } );
             }
