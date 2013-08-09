@@ -285,7 +285,12 @@ sub _parse_simple {
                 }
             );
         }
-
+        my $hsplen =
+          ($q_base_insert +
+          $t_base_insert +
+          abs( $t_end - $t_start ) +
+          abs( $q_end - $q_start ));
+          
         my $identical = $matches + $rep_matches;
         $self->start_element( { 'Name' => 'Hsp' } );
         $self->element_hash({
@@ -300,11 +305,6 @@ sub _parse_simple {
                 'Hsp_query-to' => ( $strand eq '+' ) ? $q_end :$q_start + 1,
             }
         );
-        my $hsplen =
-          ($q_base_insert +
-          $t_base_insert +
-          abs( $t_end - $t_start ) +
-          abs( $q_end - $q_start ));
         $self->element_hash({
                 'Hsp_hit-from' => $t_start + 1,
                 'Hsp_hit-to'   => $t_end,
@@ -387,6 +387,7 @@ sub _parse_distinct {
         my $percent_id = sprintf("%.2f", 100 * ( $matches + $rep_matches ) / $match_total );
 
         # Remember Jim's code is 0 based
+
         if ( defined $lastquery && $lastquery ne $q_name )
         {
             $self->end_element( { 'Name' => 'PSLOutput' } );
@@ -412,7 +413,7 @@ sub _parse_distinct {
                 }
             );
 
-            #my $identical = $matches + $rep_matches;
+            my $identical = $matches + $rep_matches;
             
             my @blocksizes = split( /,/, $block_sizes );    # block sizes
             my @qstarts = split( /,/, $q_starts ); # starting position of each block
@@ -432,70 +433,36 @@ sub _parse_distinct {
                 $self->start_element( { 'Name' => 'Hsp' } );
                                 
                 my ($qstart, $qend) = ( $qstrand eq '+' ) ?
-                    ($qstarts[$i] + 1, $qstarts[$i] + $blocksizes[$i]) :
-                    ($q_length - $qstarts[$i] - $blocksizes[$i] + 1, $q_length - $qstarts[$i]);
-                my ($hstart, $hend) = ($tstarts[$i] + 1, $tstarts[$i] + $blocksizes[$i]);
+                    ($qstarts[$i] + 1,
+                     $qstarts[$i] + $blocksizes[$i])
+                    :
+                    ($q_length - $qstarts[$i] - $blocksizes[$i] + 1,
+                     $q_length - $qstarts[$i]);
                 
-                $self->debug(sprintf("Q: %d-%d:%s\nH: %d-%d:%s\n",
-                                     $qstart, $qend, $qstrand,
-                                     $hstart, $hend, $hstrand, $strand)) if $qstrand eq '-';
-                
+                my ($hstart, $hend) = ($tstarts[$i] + 1, $
+                                       tstarts[$i] + $blocksizes[$i]);
+
+                my $hsplen = $q_base_insert + $t_base_insert +
+                    abs( $t_end - $t_start ) + abs( $q_end - $q_start );
+
                 # no score for HSPs in this case
-                
                 $self->element_hash({
-                        'Hsp_query-from' => $qstart,
-                        'Hsp_query-to'   => $qend,
-                        'Hsp_query-strand'   => $qstrand,
-                        'Hsp_hit-from'   => $hstart,
-                        'Hsp_hit-to'     => $hend,
-                        'Hsp_hit-strand'   => $hstrand,
+                        'Hsp_query-from'    => $qstart,
+                        'Hsp_query-to'      => $qend,
+                        'Hsp_query-strand'  => $qstrand,
+                        'Hsp_hit-from'      => $hstart,
+                        'Hsp_hit-to'        => $hend,
+                        'Hsp_hit-strand'    => $hstrand,
+                        'Hsp_score'         => $score,
+                        'Hsp_identity'      => $identical,
+                        'Hsp_positive'      => $identical,
+                        'Hsp_mismatches'    => $mismatches,
+                        'Hsp_gaps'          => $q_base_insert + $t_base_insert,
+                        'Hsp_querygaps'     => $t_base_insert,
+                        'Hsp_hitgaps'       => $q_base_insert,
+                        'Hsp_align-len'     => $hsplen
                     }
                 );
-                $self->element_hash(
-                    {
-                        'Hsp_score'       => $score,
-                        #'Hsp_identity'  => $identical,
-                        #'Hsp_positive'  => $identical,
-                        'Hsp_mismatches' =>  $mismatches,
-                        'Hsp_gaps' => $q_base_insert + $t_base_insert
-                    }
-                );
-                
-                ### query gaps are the number of target inserts and vice-versa
-                #$self->element_hash(
-                #    {
-                #        'Hsp_querygaps'     => $t_base_insert,
-                #        'Hsp_hitgaps'       => $q_base_insert
-                #    }
-                #);
-                #if ( $strand eq '+' ) {
-                #    $self->element_hash(
-                #        {
-                #            'Hsp_query-from' => $q_start + 1,
-                #            'Hsp_query-to'   => $q_end
-                #        }
-                #    );
-                #}
-                #else {
-                #    $self->element_hash(
-                #        {
-                #            'Hsp_query-to'   => $q_start + 1,
-                #            'Hsp_query-from' => $q_end
-                #        }
-                #    );
-                #}
-                #my $hsplen =
-                #  $q_base_insert +
-                #  $t_base_insert +
-                #  abs( $t_end - $t_start ) +
-                #  abs( $q_end - $q_start );
-                #$self->element_hash(
-                #    {
-                #        'Hsp_hit-from'  =>  $t_start + 1,
-                #        'Hsp_hit-to'    => $t_end,
-                #        'Hsp_align-len' => $hsplen
-                #    }
-                #);
                 
                 $self->end_element( { 'Name' => 'Hsp' } );
             }
@@ -507,7 +474,6 @@ sub _parse_distinct {
         $self->end_element( { 'Name' => 'Result' } );
         return $self->end_document;
     }
-
 }
 
 =head2 element_hash
