@@ -1,0 +1,15 @@
+C4 Alignment:
+------------
+         Query: aly-miR169a MIMAT0017485 Arabidopsis lyrata miR169a
+        Target: contig15750__54-177
+         Model: ungapped:dna2dna
+     Raw score: -3
+   Query range: 0 -> 21
+  Target range: 19 -> 40
+
+  1 : CAGCCAAGGATGACTTGCCGA : 21
+       |||||||||||| ||||| |
+ 20 : TagccaaggaTgaaTTgccTa : 40
+
+vulgar: aly-miR169a 0 21 + contig15750__54-177 19 40 + -3 M 21 21
+-- completed exonerate analysis
