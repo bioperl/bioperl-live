@@ -192,6 +192,9 @@ use base qw(Bio::SeqIO);
 
 # Note that a qualifier that exceeds one line (i.e. a long label) will
 # automatically be quoted regardless:
+
+our $FTQUAL_LINE_LENGTH = 60;
+
 our %FTQUAL_NO_QUOTE = map {$_ => 1} qw(
     anticodon           citation
     codon               codon_start
@@ -1133,7 +1136,7 @@ sub _print_GenBank_FTHelper {
 	    # are more common too so we take quoted ones first
             #
             # Long qualifiers, that will be line wrapped, are always quoted
-	    elsif (!$FTQUAL_NO_QUOTE{$tag} or length("/$tag=$value")>=60) {
+	    elsif (!$FTQUAL_NO_QUOTE{$tag} or length("/$tag=$value") >= $FTQUAL_LINE_LENGTH) {
 		my ($pat) = ($value =~ /\s/ ? '\s|$' : '.|$');
 		$self->_write_line_GenBank_regex(" "x21,
 						 " "x21,
