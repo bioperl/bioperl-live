@@ -344,6 +344,7 @@ if ($verbose) {
 }
 
 TODO: {
+    # BUG #3445
     local $TODO= 'hash randomization problems lead to random switching of the assemblies';
     lives_ok { $xcontig->get_seq_coord($xcontig->get_seq_by_name('species1635|5973'))->start };
     lives_ok { $xcontig->get_seq_coord($xcontig->get_seq_by_name('species158|7890'))->start };
