@@ -161,7 +161,7 @@ is($tree->get_root_node, $a, "Root node is A");
 # former test expected the old behavior of reroot; here is the new
 # test/maj
 my $desc = ($a->each_Descendent)[0];
-my $newroot = $desc->create_node_on_branch(-FRACTION=>0.5, -ANNOT=>{id=>'newroot'});
+my $newroot = $desc->create_node_on_branch(-FRACTION=>0.5, -ANNOT=>{-id=>'newroot'});
 $tree->reroot($newroot);
 is($tree->get_root_node, $a->ancestor, "Root node is A's ancestor");
 
