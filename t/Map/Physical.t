@@ -95,7 +95,7 @@ sub test_markers
     is $pos, 36;
     is @ctgpos, 165;
     TODO: {
-        local $TODO = "Possible hash randomization bug, sum of contig pos values sometimes fails";
+        local $TODO = "Possible hash randomization-related bug, sum of contig pos values sometimes fails with off-by-one";
         my $sum = 0;
         $sum += $_ for @ctgpos;
         is $sum, 1249;
