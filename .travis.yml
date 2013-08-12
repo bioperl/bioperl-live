@@ -9,7 +9,7 @@ perl:
 env: PERL_CPANM_OPT="--notest --force --skip-satisfied"
 install:
     #This should solve problem installing Perl's DB_File & GraphViz
-    - "sudo apt-get install libdb-dev graphviz libgd2-xpm-dev libxml2-dev libbio-samtools-perl 2>&1 | tail -n 4"
+    - "sudo apt-get install libdb-dev graphviz libgd2-xpm-dev libxml2-dev samtools 2>&1 | tail -n 4"
     #These are recommended or required Perl libraries:
     - "cpanm GD 2>&1 | tail -n 1"
     - "cpanm HTML::TableExtract DBI Data::Stag DB_File 2>&1 | tail -n 1"
