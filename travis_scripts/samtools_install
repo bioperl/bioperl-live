@@ -4,6 +4,11 @@ git clone https://github.com/samtools/samtools.git
 cd samtools
 git checkout tags/0.1.18
 make
-export SAMTOOLS=$( pwd )
+
+echo "ENV:"
+env
+
+echo "PWD:"
+pwd
 
 exit 0
