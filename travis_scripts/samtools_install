@@ -3,12 +3,8 @@
 git clone https://github.com/samtools/samtools.git
 cd samtools
 git checkout tags/0.1.18
-make
+perl -p -i -e 's/^(CFLAGS=\s+)[^\n]*/$1-g -Wall -O2 -fPIC #-m64 #-arch ppc/' Makefile
 
-echo "ENV:"
-env
-
-echo "PWD:"
-pwd
+make 
 
 exit 0
