@@ -9,8 +9,7 @@ perl:
 env: PERL_CPANM_OPT="--notest --force --skip-satisfied"
 
 before_install:
-    - "bash ./travis_scripts/samtools_install"
-    - "bash ./travis_scripts/circ_dep_install"
+    - "bash ./travis_scripts/dependency_installs"
 
 install:
     #This should solve problem installing Perl's DB_File & GraphViz
