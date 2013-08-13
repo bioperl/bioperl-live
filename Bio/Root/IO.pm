@@ -301,11 +301,11 @@ sub _initialize_io {
                ) {
             $self->throw("Object $fh does not appear to be a file handle");
         }
+        if ($HAS_EOL) {
+            binmode $fh, ':raw:eol(LF-Native)';
+        }
+        $self->_fh($fh); # if $fh not provided, defaults to STDIN and STDOUT
     }
-    if ($HAS_EOL) {
-        binmode $fh, ':raw:eol(LF-Native)';
-    }
-    $self->_fh($fh) if $fh; # if not provided, defaults to STDIN and STDOUT
 
     $self->_flush_on_write(defined $flush ? $flush : 1);
 
