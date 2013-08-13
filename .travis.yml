@@ -7,6 +7,8 @@ perl:
   - "5.10"
 
 env: PERL_CPANM_OPT="--notest --force --skip-satisfied"
+
+before_script:
     
 install:
     #This should solve problem installing Perl's DB_File & GraphViz
@@ -24,6 +26,8 @@ install:
     - "cpanm Bio::Phylo | tail -n 1"
     #for some reason tests and deps aren't skipped here.  Will have to look into it more...
     - "cpanm -f -n Bio::ASN1::EntrezGene | tail -n 1"
+    #git repos, seems to only work for simple checkouts, so pure perl only (TODO: look into before_script for more detail)
+    - "git clone https://github.com/bioperl/Bio-Root.git; export PERL5LIB=$( pwd )/Bio-Root/lib:$PERL5LIB"
     #This installs BioPerl itself:
     - "perl ./Build.PL --accept"
 
