@@ -8,7 +8,7 @@ perl:
 
 env: PERL_CPANM_OPT="--notest --force --skip-satisfied"
 
-before_script:
+before_install:
     - "bash ./travis_scripts/samtools_install"
 
 install:
