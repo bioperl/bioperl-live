@@ -6,7 +6,7 @@ use warnings;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 120);
+    test_begin(-tests => 136);
     use_ok('Bio::Root::IO');
 }
 
@@ -195,12 +195,32 @@ is_deeply \@content, ["insertion at line 1\n"];
 ##############################################
 
 {
-my $unix_rio = Bio::Root::IO->new(-file => test_input_file('U71225.gb.unix'));
-my $win_rio = Bio::Root::IO->new(-file => test_input_file('U71225.gb.win'));
+    ok my $unix_rio = Bio::Root::IO->new(-file => test_input_file('U71225.gb.unix'));
+    ok my $win_rio  = Bio::Root::IO->new(-file => test_input_file('U71225.gb.win' ));
 
-for (1..5) {
-    is($unix_rio->_readline, $win_rio->_readline);
-}
+    my $expected = "LOCUS       U71225                  1164 bp    DNA     linear   VRT 27-NOV-2001\n";
+    is $unix_rio->_readline, $expected;
+    is $win_rio->_readline , $expected;
+
+    $expected = "DEFINITION  Desmognathus quadramaculatus 12S ribosomal RNA gene, partial\n";
+    is $unix_rio->_readline, $expected;
+    is $win_rio->_readline , $expected;
+
+    $expected = "            sequence; tRNA-Val gene, complete sequence; and 16S ribosomal RNA\n";
+    is $unix_rio->_readline, $expected;
+    is $win_rio->_readline , $expected;
+
+    $expected = "            gene, partial sequence, mitochondrial genes for mitochondrial RNAs.\n";
+    is $unix_rio->_readline, $expected;
+    is $win_rio->_readline , $expected;
+
+    $expected = "ACCESSION   U71225\n";
+    is $unix_rio->_readline, $expected;
+    is $win_rio->_readline , $expected;
+
+    is $win_rio->_readline( -raw => 1) , "VERSION     U71225.1  GI:2804359\r\n";
+    is $win_rio->_readline( -raw => 0) , "KEYWORDS    .\n";
+
 }
 
 
@@ -209,13 +229,32 @@ for (1..5) {
 ##############################################
 
 SKIP: {
-    test_skip(-tests => 7, -requires_module => 'PerlIO::eol');
+    test_skip(-tests => 14, -requires_module => 'PerlIO::eol');
     local $Bio::Root::IO::HAS_EOL = 1;
     ok my $unix_rio = Bio::Root::IO->new(-file => test_input_file('U71225.gb.unix'));
-    ok my $win_rio  = Bio::Root::IO->new(-file => test_input_file('U71225.gb.win'));
-    for (1..5) {
-        is $unix_rio->_readline, $win_rio->_readline;
-    }
+    ok my $win_rio  = Bio::Root::IO->new(-file => test_input_file('U71225.gb.win' ));
+    my $expected = "LOCUS       U71225                  1164 bp    DNA     linear   VRT 27-NOV-2001\n";
+    is $unix_rio->_readline, $expected;
+    is $win_rio->_readline , $expected;
+
+    $expected = "DEFINITION  Desmognathus quadramaculatus 12S ribosomal RNA gene, partial\n";
+    is $unix_rio->_readline, $expected;
+    is $win_rio->_readline , $expected;
+
+    $expected = "            sequence; tRNA-Val gene, complete sequence; and 16S ribosomal RNA\n";
+    is $unix_rio->_readline, $expected;
+    is $win_rio->_readline , $expected;
+
+    $expected = "            gene, partial sequence, mitochondrial genes for mitochondrial RNAs.\n";
+    is $unix_rio->_readline, $expected;
+    is $win_rio->_readline , $expected;
+
+    $expected = "ACCESSION   U71225\n";
+    is $unix_rio->_readline, $expected;
+    is $win_rio->_readline , $expected;
+
+    is $win_rio->_readline( -raw => 1) , "VERSION     U71225.1  GI:2804359\n";
+    is $win_rio->_readline( -raw => 0) , "KEYWORDS    .\n";
 }
 
 

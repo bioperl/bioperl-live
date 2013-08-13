@@ -547,19 +547,20 @@ sub _insert {
 
  Title   : _readline
  Usage   : $io->_readline(%args)
- Function: Reads a line of input.
+ Function: Read a line of input and convert the line ending to "\n".
 
-           Note that this method implicitly uses the value of $/ that is
-           in effect when called.
+           By default, this method uses the value of $/, Perl's input record
+           separator, to detect the end of each line. Note that the current
+           implementation does not handle pushed back input correctly unless
+           the pushed back input ends with the value of $/.
 
-           Note also that the current implementation does not handle pushed
-           back input correctly unless the pushed back input ends with the
-           value of $/.
+           When the PerlIO::eol module is installed, you can use it to convert
+           line endings by setting $Bio::Root::IO::HAS_EOL to 1.
 
- Args    : A hash of arguments. Currently only -raw is recognized
-           passing (-raw => 1) prevents \r\n sequences from being changed
-           to \n.  The default value of -raw is undef, allowing \r\n to be
-           converted to \n.
+ Args    : A hash of arguments:
+             -raw: 1 to do not convert line endings, i.e. keep them as "\r\n"
+                   in Windows-formatted files. This option has no effect when
+                   using $Bio::Root::IO::HAS_EOL = 1.
  Returns : Line of input, or undef when there is nothing to read anymore
 
 =cut
