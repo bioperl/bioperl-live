@@ -546,21 +546,28 @@ sub _insert {
 =head2 _readline
 
  Title   : _readline
- Usage   : $io->_readline(%args)
- Function: Read a line of input and convert the line ending to "\n".
+ Usage   : local $Bio::Root::IO::HAS_EOL = 1;
+           my $io = Bio::Root::IO->new(-file => 'data.txt');
+           my $line = $io->_readline();
+           $io->close;
+ Function: Read a line of input and normalize all end of line characters.
 
-           By default, this method uses the value of $/, Perl's input record
-           separator, to detect the end of each line. Note that the current
-           implementation does not handle pushed back input correctly unless
-           the pushed back input ends with the value of $/.
+           End of line characters are typically "\n" on Linux platforms, "\r\n"
+           on Windows and "\r" on older Mac OS. By default, the _readline()
+           method uses the value of $/, Perl's input record separator, to
+           detect the end of each line. This means that you will not get the
+           expected lines if your input has Mac-formatted end of line characters.
+           Also, note that the current implementation does not handle pushed
+           back input correctly unless the pushed back input ends with the
+           value of $/. For each line parsed, its line ending, e.g. "\r\n" is
+           converted to "\n", unless you provide the -raw argument.
 
-           When the PerlIO::eol module is installed, you can use it to convert
-           line endings by setting $Bio::Root::IO::HAS_EOL to 1.
+           Altogether it is easier to let the PerlIO::eol module automatically
+           detect the proper end of line character and normalize it to "\n". Do
+           so by setting $Bio::Root::IO::HAS_EOL to 1.
 
- Args    : A hash of arguments:
-             -raw: 1 to do not convert line endings, i.e. keep them as "\r\n"
-                   in Windows-formatted files. This option has no effect when
-                   using $Bio::Root::IO::HAS_EOL = 1.
+ Args    : -raw : Avoid converting end of line characters to "\n" This option
+                  has no effect when using $Bio::Root::IO::HAS_EOL = 1.
  Returns : Line of input, or undef when there is nothing to read anymore
 
 =cut
@@ -578,11 +585,9 @@ sub _readline {
         $line = <$fh>;
     }
 
-    # don't strip line endings if -raw is specified
-    # $line =~ s/\r\n/\n/g if( (!$param{-raw}) && (defined $line) );
-    # Dave Howorth's fix
     if( !$HAS_EOL && !$param{-raw} && (defined $line) ) {
-        $line =~ s/\015\012/\012/g; # Change all CR/LF pairs to LF
+        # don't strip line endings if -raw or $HAS_EOL is specified
+        $line =~ s/\015\012/\012/g;         # Change all CR/LF pairs to LF
         $line =~ tr/\015/\n/ unless $ONMAC; # Change all single CRs to NEWLINE
     }
     return $line;
