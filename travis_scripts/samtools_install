@@ -5,3 +5,5 @@ cd samtools
 git checkout tags/0.1.18
 make
 export SAMTOOLS=$( pwd )
+
+exit 0

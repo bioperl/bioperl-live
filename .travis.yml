@@ -9,7 +9,7 @@ perl:
 env: PERL_CPANM_OPT="--notest --force --skip-satisfied"
 
 before_script:
-    - travis_scripts/samtools_install
+    - "bash ./travis_scripts/samtools_install"
 
 install:
     #This should solve problem installing Perl's DB_File & GraphViz
@@ -25,6 +25,7 @@ install:
     - "cpanm PostScript::TextBlock Set::Scalar Sort::Naturally YAML | tail -n 1"
     - "cpanm Math::Random SOAP::Lite Spreadsheet::ParseExcel | tail -n 1"
     - "cpanm Bio::Phylo | tail -n 1"
+    - "export SAMTOOLS=$TRAVIS/samtools; cpanm Bio::DB::Sam | tail -n 1"
     #for some reason tests and deps aren't skipped here.  Will have to look into it more...
     - "cpanm -f -n Bio::ASN1::EntrezGene | tail -n 1"
     #git repos, seems to only work for simple checkouts, so pure perl only (TODO: look into before_script for more detail)
