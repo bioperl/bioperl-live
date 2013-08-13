@@ -28,7 +28,7 @@ install:
     # these will have to be tweaked to get working downstream when we start pulling
     # things out into separate repos
     #This installs BioPerl itself:
-    - "perl ./Build.PL --accept"
+    - "perl -I$( pwd )/travis_builds/Bio-Root/lib ./Build.PL --accept"
 
 script:
     - "./Build test"
