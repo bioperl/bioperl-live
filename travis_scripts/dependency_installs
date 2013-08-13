@@ -16,9 +16,11 @@ cd ..
 git clone https://github.com/bioperl/Bio-Root.git
 export PERL5LIB=$( pwd )/Bio-Root/lib:$( pwd ):$PERL5LIB
 
-cpanm Bio::ASN1::EntrezGene 2>&1 | tail -n 1
+echo "Bio::ASN1::EntrezGene installation"
+cpanm Bio::ASN1::EntrezGene 2>&1 | tail -n 10
 export SAMTOOLS=$( pwd )/samtools
 
-cpanm Bio::DB::Sam 2>&1 | tail -n 1
+echo "Bio::DB::Sam installation"
+cpanm Bio::DB::Sam 2>&1 | tail -n 10
 
 exit 0
