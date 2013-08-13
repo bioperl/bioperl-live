@@ -22,9 +22,9 @@ install:
     - "cpanm Graph SVG SVG::Graph GraphViz 2>&1 | tail -n 1"
     - "cpanm XML::DOM::XPath XML::Parser XML::Parser::PerlSAX 2>&1 | tail -n 1"
     - "cpanm XML::SAX XML::SAX::Writer XML::Simple XML::LibXML XML::Twig XML::Writer 2>&1 | tail -n 1"
-    - "cpanm PostScript::TextBlock Set::Scalar Sort::Naturally YAML | tail -n 1"
-    - "cpanm Math::Random SOAP::Lite Spreadsheet::ParseExcel | tail -n 1"
-    - "cpanm Bio::Phylo | tail -n 1"
+    - "cpanm PostScript::TextBlock Set::Scalar Sort::Naturally YAML 2>&1 | tail -n 1"
+    - "cpanm Math::Random SOAP::Lite Spreadsheet::ParseExcel 2>&1 | tail -n 1"
+    - "cpanm Bio::Phylo 2>&1 | tail -n 1"
     # these will have to be tweaked to get working downstream when we start pulling
     # things out into separate repos
     #This installs BioPerl itself:
