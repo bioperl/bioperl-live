@@ -25,6 +25,8 @@ install:
     - "cpanm PostScript::TextBlock Set::Scalar Sort::Naturally YAML | tail -n 1"
     - "cpanm Math::Random SOAP::Lite Spreadsheet::ParseExcel | tail -n 1"
     - "cpanm Bio::Phylo | tail -n 1"
+    # these will have to be tweaked to get working downstream when we start pulling
+    # things out into separate repos
     - "cpanm Bio::ASN1::EntrezGene 2>&1 | tail -n 1"
     - "export SAMTOOLS=$( pwd )/samtools; cpanm -v Bio::DB::Sam"
     #for some reason tests and deps aren't skipped here.  Will have to look into it more...
