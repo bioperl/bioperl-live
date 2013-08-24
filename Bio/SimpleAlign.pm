@@ -2778,7 +2778,7 @@ sub set_displayname_count {
  Title     : set_displayname_flat
  Usage     : $ali->set_displayname_flat()
  Function  : Makes all the sequences be displayed as just their name,
-             not name/start-end
+             not name/start-end (NSE)
  Returns   : 1
  Argument  :
 
@@ -2786,20 +2786,21 @@ sub set_displayname_count {
 
 sub set_displayname_flat {
     my $self = shift;
-    my ($nse,$seq);
+    my ( $nse, $seq );
 
     foreach $seq ( $self->each_seq() ) {
-	$nse = $seq->get_nse();
-	$self->displayname($nse,$seq->id());
+        $nse = $seq->get_nse();
+        $self->displayname( $nse, $seq->id() );
     }
     return 1;
 }
+
 
 =head2 set_displayname_normal
 
  Title     : set_displayname_normal
  Usage     : $ali->set_displayname_normal()
- Function  : Makes all the sequences be displayed as name/start-end
+ Function  : Makes all the sequences be displayed as name/start-end (NSE)
  Returns   : 1, on success
  Argument  :
 
@@ -2807,14 +2808,15 @@ sub set_displayname_flat {
 
 sub set_displayname_normal {
     my $self = shift;
-    my ($nse,$seq);
+    my ( $nse, $seq );
 
     foreach $seq ( $self->each_seq() ) {
-	$nse = $seq->get_nse();
-	$self->displayname($nse,$nse);
+        $nse = $seq->get_nse();
+        $self->displayname( $nse, $nse );
     }
     return 1;
 }
+
 
 =head2 source
 
@@ -2853,25 +2855,28 @@ sub source{
 sub set_displayname_safe {
     my $self = shift;
     my $idlength = shift || 10;
-    my ($seq, %phylip_name);
-    my $ct=0;
-    my $new=Bio::SimpleAlign->new();
+    my ( $seq, %phylip_name );
+    my $ct  = 0;
+    my $new = Bio::SimpleAlign->new();
     foreach $seq ( $self->each_seq() ) {
-	$ct++;
-	my $pname="S". sprintf "%0" . ($idlength-1) . "s", $ct;
-	$phylip_name{$pname}=$seq->id();
-	my $new_seq= Bio::LocatableSeq->new(-id       => $pname,
-					    -seq      => $seq->seq(),
-					    -alphabet => $seq->alphabet,
-					    -start    => $seq->{_start},
-					    -end      => $seq->{_end}
-					    );
-	$new->add_seq($new_seq);
+        $ct++;
+        my $pname = "S" . sprintf "%0" . ( $idlength - 1 ) . "s", $ct;
+        $phylip_name{$pname} = $seq->id();
+        my $new_seq = Bio::LocatableSeq->new(
+            -id       => $pname,
+            -seq      => $seq->seq(),
+            -alphabet => $seq->alphabet,
+            -start    => $seq->{_start},
+            -end      => $seq->{_end}
+        );
+        $new->add_seq($new_seq);
     }
 
-    $self->debug("$ct seq names changed. Restore names by using restore_displayname.");
-    return ($new, \%phylip_name);
+    $self->debug(
+        "$ct seq names changed. Restore names by using restore_displayname.");
+    return ( $new, \%phylip_name );
 }
+
 
 =head2 restore_displayname
 
@@ -2891,7 +2896,7 @@ sub restore_displayname {
     my $new=Bio::SimpleAlign->new();
     foreach my $seq ( $self->each_seq() ) {
       $self->throw("No sequence with name") unless defined $name{$seq->id()};
-      my $new_seq= Bio::LocatableSeq->new(-id       => $name{$seq->id()},
+      my $new_seq= Bio::LocatableSeq->new(-id => $name{$seq->id()},
 					  -seq      => $seq->seq(),
 					  -alphabet => $seq->alphabet,
 					  -start    => $seq->{_start},
@@ -2929,8 +2934,7 @@ sub sort_by_start {
     1;
 }
 
-sub _startend
-{
+sub _startend {
     my ($aname,$arange) = split (/[\/]/,$a);
     my ($bname,$brange) = split (/[\/]/,$b);
     my ($astart,$aend) = split(/\-/,$arange);
@@ -3033,17 +3037,18 @@ would get from NEXUS represented data.
 =cut
 
 sub get_SeqFeatures {
-    my $self = shift;
+    my $self      = shift;
     my $filter_cb = shift;
-    $self->throw("Arg (filter callback) must be a coderef") unless 
-	!defined($filter_cb) or ref($filter_cb) eq 'CODE';
-    if( !defined $self->{'_as_feat'} ) {
-	$self->{'_as_feat'} = [];
+    $self->throw("Arg (filter callback) must be a coderef")
+        unless !defined($filter_cb)
+        or ref($filter_cb) eq 'CODE';
+    if ( !defined $self->{'_as_feat'} ) {
+        $self->{'_as_feat'} = [];
     }
     if ($filter_cb) {
-	return grep { $filter_cb->($_) } @{$self->{'_as_feat'}};
+        return grep { $filter_cb->($_) } @{ $self->{'_as_feat'} };
     }
-    return @{$self->{'_as_feat'}};
+    return @{ $self->{'_as_feat'} };
 }
 
 
