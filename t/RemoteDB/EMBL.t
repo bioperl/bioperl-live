@@ -33,7 +33,7 @@ SKIP: {
     is( $seq->length, 200); 
     ok( defined($db = Bio::DB::EMBL->new(-verbose=>$verbose, 
 					-retrievaltype => 'tempfile')));
-    eval {ok(defined($seqio = $db->get_Stream_by_id(['BUM'])))};
+    eval {ok(defined($seqio = $db->get_Stream_by_id(['AEE33958'])))};
 	skip('could not connect to embl',2) if $@;
     undef $db; # testing to see if we can remove gb
     ok( defined($seq = $seqio->next_seq()));
