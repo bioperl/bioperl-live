@@ -179,7 +179,7 @@ is_deeply [map {ref($_)} @taxa], [('Bio::Taxon')x4];
 is_deeply [map {$_->rank} @taxa], \@ranks, 'Ranks';
 
 # Make a tree
-my $tree = $db_list->get_tree('Homo sapiens', 'Homo erectus');
+ok my $tree = $db_list->get_tree('Homo sapiens', 'Homo erectus');
 isa_ok $tree, 'Bio::Tree::TreeI';
 is $tree->number_nodes, 5;
 is $tree->total_branch_length, 4;
@@ -317,7 +317,11 @@ Culicoidea, Culicidae, Anophelinae, Anopheles, Anopheles, Angusticorn,
 Anopheles, maculipennis group, maculipennis species complex, Anopheles daciae"))]);
 
 my @taxonids = $db_list->get_taxonids('Anopheles');
-is @taxonids, 3;
+is @taxonids, 3, 'List context';
+
+my $taxonid = $db_list->get_taxonids('Anopheles');
+isa_ok \$taxonid, 'SCALAR', 'Scalar context';
+ok exists { map({$_ => undef} @taxonids) }->{$taxonid};
 
 # but we should still be able to merge in an incomplete lineage of a sister
 # species and have the 'tree' remain consistent:
