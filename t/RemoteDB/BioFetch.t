@@ -49,7 +49,7 @@ SKIP: {
 
 SKIP: {
 	eval {
-		$seqio = $db->get_Stream_by_id(['BUM']);
+		$seqio = $db->get_Stream_by_id(['AEE33958']);
 	};
 	skip($dbwarn, 3) if $@;
 	undef $db; # testing to see if we can remove gb
