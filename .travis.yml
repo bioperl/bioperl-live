@@ -1,17 +1,20 @@
 language: perl
 perl:
   - "5.18"
-  - "5.16"
-  - "5.14"
-  - "5.12"
-  - "5.10"
+  #- "5.16"
+  #- "5.14"
+  #- "5.12"
+  #- "5.10"
 
 env: PERL_CPANM_OPT="--notest --force --skip-satisfied"
+
+before_install:
+    - "bash ./travis_scripts/dependency_installs"
 
 install:
     #This should solve problem installing Perl's DB_File & GraphViz
     - "sudo apt-get install libdb-dev graphviz libgd2-xpm-dev libxml2-dev 2>&1 | tail -n 4"
-    #These are recommended or required Perl libraries:
+    #These are recommended or required Perl libraries
     - "cpanm GD 2>&1 | tail -n 1"
     - "cpanm HTML::TableExtract DBI Data::Stag DB_File 2>&1 | tail -n 1"
     - "cpanm DBD::mysql DBD::Pg DBD::SQLite 2>&1 | tail -n 1"
@@ -19,15 +22,12 @@ install:
     - "cpanm Graph SVG SVG::Graph GraphViz 2>&1 | tail -n 1"
     - "cpanm XML::DOM::XPath XML::Parser XML::Parser::PerlSAX 2>&1 | tail -n 1"
     - "cpanm XML::SAX XML::SAX::Writer XML::Simple XML::LibXML XML::Twig XML::Writer 2>&1 | tail -n 1"
-    - "cpanm PostScript::TextBlock Set::Scalar Sort::Naturally YAML | tail -n 1"
-    - "cpanm Math::Random SOAP::Lite Spreadsheet::ParseExcel | tail -n 1"
-    - "cpanm Bio::Phylo | tail -n 1"
-    #for some reason tests and deps aren't skipped here.  Will have to look into it more...
-    - "cpanm -f -n Bio::ASN1::EntrezGene | tail -n 1"
-    #git repos, seems to only work for simple checkouts, so pure perl only (TODO: look into before_script for more detail)
-    - "git clone https://github.com/bioperl/Bio-Root.git; export PERL5LIB=$( pwd )/Bio-Root/lib:$PERL5LIB"
+    - "cpanm PostScript::TextBlock Set::Scalar Sort::Naturally YAML 2>&1 | tail -n 1"
+    - "cpanm Math::Random SOAP::Lite Spreadsheet::ParseExcel 2>&1 | tail -n 1"
+    - "cpanm Bio::Phylo 2>&1 | tail -n 1"
+    - "export PERL5LIB=$( pwd )/travis_builds/Bio-Root/lib:$( pwd ):$PERL5LIB; cpanm Bio::ASN1::EntrezGene 2>&1 | tail -n 1"
     #This installs BioPerl itself:
-    - "perl ./Build.PL --accept"
+    - "perl -I$( pwd )/travis_builds/Bio-Root/lib ./Build.PL --accept"
 
 script:
     - "./Build test"
@@ -40,5 +40,4 @@ notifications:
 branches:
   only:
     - master
-    - v1
-    - v1_cherry
+    - topic/travis-scripts
