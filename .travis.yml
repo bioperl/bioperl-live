@@ -40,4 +40,4 @@ notifications:
 branches:
   only:
     - master
-    - v1
+    - v1_cherry
