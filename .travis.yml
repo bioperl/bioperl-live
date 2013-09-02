@@ -40,4 +40,3 @@ notifications:
 branches:
   only:
     - master
-    - topic/travis-scripts
