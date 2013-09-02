@@ -50,9 +50,14 @@ SKIP: {
 		skip("Batch access test failed. Error: $@", 7);
 	}
 	
+    my %ids = map {$_ => 1} @$ids;
+
 	ok(defined($refio));
-	is($refio->next_bibref->identifier, '9613206');
-	is($refio->next_bibref->identifier, '10592273');
+
+    my $bibref = $refio->next_bibref;
+    ok(exists($ids{$bibref->identifier}));
+    $bibref = $refio->next_bibref;
+    ok(exists($ids{$bibref->identifier}));
 	
 	ok defined($db = Bio::Biblio->new(-access => 'biofetch',
 									  -verbose => $verbose)); 
@@ -65,6 +70,8 @@ SKIP: {
 	}
 	
 	ok(defined($refio));	
-	is($refio->next_bibref->identifier, '9613206');
-	is($refio->next_bibref->identifier, '10592273');
+    $bibref = $refio->next_bibref;
+    ok(exists($ids{$bibref->identifier}));
+    $bibref = $refio->next_bibref;
+    ok(exists($ids{$bibref->identifier}));
 }

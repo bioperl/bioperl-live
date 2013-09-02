@@ -629,6 +629,6 @@ sub bad_n_sites {
 
     # test nsites smaller than next hap
     $msout->set_n_sites(1);
-    throws_ok{$msout->get_next_seq} 'Bio::Root::Exception', 'too few n_sites failed OK';
+    throws_ok{$msout->get_next_seq} qr/n_sites needs to be at least the number of segsites of every run/, 'too few n_sites failed OK';
     
 }

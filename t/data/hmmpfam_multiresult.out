@@ -1,0 +1,106 @@
+hmmpfam - search one or more sequences against HMM database
+HMMER 2.3.2 (Oct 2003)
+Copyright (C) 1992-2003 HHMI/Washington University School of Medicine
+Freely distributed under the GNU General Public License (GPL)
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+HMM file:                 testInput.hmm
+Sequence file:            testInput.fasta
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query sequence: Test
+Accession:      [none]
+Description:    [none]
+
+Scores for sequence family classification (score includes all domains):
+Model    Description                                    Score    E-value  N 
+-------- -----------                                    -----    ------- ---
+TEST                                                    184.7    2.5e-56   1
+
+Parsed for domains:
+Model    Domain  seq-f seq-t    hmm-f hmm-t      score  E-value
+-------- ------- ----- -----    ----- -----      -----  -------
+TEST       1/1       8    97 .]     1    95 []   184.7  2.5e-56
+
+Alignments of top-scoring domains:
+TEST: domain 1 of 1, from 8 to 97: score 184.7, E = 2.5e-56
+                   *->svfqqqqssksttgstvtAiAiAigYRYRYRAvtWnsGsLssGvnDn
+                      sv+qqqq+  +    +vtAiAiAigYRYRYRAv Wn GsLs G nDn
+        Test     8    SVYQQQQGGSA----MVTAIAIAIGYRYRYRAVVWNKGSLSTGTNDN 50   
+
+                   DnDqqsdgLYtiYYsvtvpssslpsqtviHHHaHkasstkiiikiePr<-
+                   DnDq +d LYtiYYsvtv +ss+p q+v+HHHaH+asstkiiiki P   
+        Test    51 DNDQAAD-LYTIYYSVTVSASSWPGQSVTHHHAHPASSTKIIIKIAPS   97   
+
+                   *
+                    
+        Test     -   -    
+
+//
+Sequence 0
+
+Query sequence: lcl|gi|340783625|Plus1
+Accession:      [none]
+Description:    megaplasmid, complete sequence [UNKNOWN]
+
+Scores for sequence family classification (score includes all domains):
+Model                Description                        Score    E-value  N 
+--------             -----------                        -----    ------- ---
+IS66_ORF3.uniq                                          -30.0    1.7e-15   1
+
+Parsed for domains:
+Model                Domain  seq-f seq-t    hmm-f hmm-t      score  E-value
+--------             ------- ----- -----    ----- -----      -----  -------
+IS66_ORF3.uniq         1/1   60792 61184 ..     1   558 []   -30.0  1.7e-15
+
+Alignments of top-scoring domains:
+IS66_ORF3.uniq: domain 1 of 1, from 60792 to 61184: score -30.0, E = 1.7e-15
+                   *->mSSPLDLSLFPNLmtevvkmnaalpddlslLkAalqkqQavvea..l
+                          L  S FP + +      aa+p+ l +    l    + v  + +
+  lcl|gi|340 60792    SCTGLWDSEFPPVFPVNGSQRAATPF-LPVGPDELSSPPSSVLXscY 60837
+
+                   dakianleelIEkLka.qldkLRRmkFGkrSEKkRhkLeldiaQiekale
+                   d  +     l  +L ++q   LR    ++r                    
+  lcl|gi|340 60838 DFPLCQSLSLCFRLGFpQALALRVRQRAPRGCH----------------- 60870
+
+                   dLEddLnetqaeiaeaekkieaPAssppkeaPiaskPesPRqerkRkPLP
+                         +  +a+    +      A+ +p++            + +   LP
+  lcl|gi|340 60871 ------AHRRARGLFFTDTPHPVAVPRPQR----------DLTGSLVTLP 60904
+
+                   eeLPReerRlePestvCPcggGqLkriGEDvsEqLDlvpaaFeVIqTvRp
+                   + +P  e    P + + P             + + D vp+  +       
+  lcl|gi|340 60905 APMPCSET---PVESQHPGH-----------TGRSDAVPTPNTMKTS--- 60937
+
+                   KyACrqCdtiVQAPaPakpIErGiptaGLLArvlVSKyaEHlPLYRQsEI
+                                                                     
+  lcl|gi|340     - -------------------------------------------------- -    
+
+                   yaRqGVeiaRstLadWVgrtgarLaPLvdALaeyVLkeGklHADeTPVqV
+                         +i  s L   V++ + r                           
+  lcl|gi|340 60938 ------AIMISGLIHGVSARCLRF-------------------------- 60955
+
+                   LaPGnkKTKTGyLWAYvRDDRnagsSlppaVvfayspdRkGEHaqvhLae
+                        k   TG      R D     Slp+ +    +  R G        e
+  lcl|gi|340 60956 -----KRSVTG-----PRQD-----SLPADGL---RLCREG-------VE 60980
+
+                   ysGkLqaDAyaGYnalyesgRVGGDpikEAgCwAHaRRKifDlhvrnpSe
+                    sG      +   +   +           ++ wAH RR ++D+    pS+
+  lcl|gi|340 60981 PSGSQXKVSVTSILLSRTXP---------VASWAHVRRHFYDVNQGAPSP 61021
+
+                   lteEALerIaaLYeIEaeIRGspaEdRlavRqelSvPlvkslseWLtaqr
+                    ++ AL rI +LYeIEaeI   p+E+    Rq+++ Pl+ s+  WL   r
+  lcl|gi|340 61022 VAQTALLRIHELYEIEAEIKDDPPEQKMLARQQRAAPLLESFWTWLNDTR 61071
+
+                   KtlsrgseLAKALaYlLnrWdALtryldDGqVpIDNNivENAiRrvAlGR
+                     +  +s+ AKA  Y+L+rW ALt+yl+ G+  IDNN vE A+R vA+GR
+  lcl|gi|340 61072 AQVAPKSAIAKAIGYALKRWKALTLYLQEGHLGIDNNPVERALRGVAIGR 61121
+
+                   kNyLFaGSDrGGeraAliySLIgTCKmNgVePyaYLrdVltrLadwplnk
+                   kN+LFaG D GGeraA++y LI TCK+NgVeP aYL+dVl++L++wp  +
+  lcl|gi|340 61122 KNFLFAGNDAGGERAAAFYTLIETCKLNGVEPFAYLCDVLEKLPTWPNKR 61171
+
+                   DideLLPWayasai<-*
+                     +eLLPW++       
+  lcl|gi|340 61172 -LHELLPWNWKNLT    61184
+
+//
+Sequence 1

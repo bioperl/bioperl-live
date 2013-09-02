@@ -28,7 +28,7 @@ Bio::PopGen::Population - A population of individuals
   }
 
   for my $name ( $population->get_marker_names ) {
-    my $marker = $population->get_Marker();
+    my $marker = $population->get_Marker($name);
   }
 
   my $num_inds = $population->get_number_individuals;

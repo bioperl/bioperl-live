@@ -499,7 +499,7 @@ sub _compare {
             $required{$self} = 1;
         }
     }
-    my @required = keys %required;
+    my @required = sort keys %required;
     
     foreach my $compare (@compares) {
         if ($compare->isa('Bio::Map::PositionI')) {
@@ -601,9 +601,9 @@ sub _compare {
             }
             
             my @groups;
-            GROUPS: foreach my $group_range (keys %all_groups) { # sort keys %all_groups might help, but causes test fails
+            GROUPS: foreach my $group_range (sort keys %all_groups) { 
                 my $group = $all_groups{$group_range};
-                my @group = values %{$group};
+                my @group = sort values %{$group};
                 #print "* in group $group_range, there are ", scalar(@group), " members\n";
                 
                 @group >= $min_pos_num or next;
@@ -615,14 +615,14 @@ sub _compare {
                     my $mappable = $pos->element || next;
                     $mappables{$mappable} = 1;
                 }
-                keys %mappables >= $min_pables_num or next;
+                keys %mappables >= $min_pables_num || next;
                 
                 my %maps;
                 foreach my $pos (@group) {
                     my $map = $pos->map || next;
                     $maps{$map->unique_id} = 1;
                 }
-                keys %maps >= $min_map_num or next;
+                keys %maps >= $min_map_num || next;
                 
                 foreach my $required (@required) {
                     exists $mappables{$required} or next GROUPS;

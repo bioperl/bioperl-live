@@ -228,7 +228,7 @@ sub _calculate_offsets {
             }
             $linelen ||= length $line;
             $qual_lines++;
-            $numres += scalar split /\s+/, $line;
+            $numres += scalar(split /\s+/, $line);
         }
         $last_line = $line;
     }

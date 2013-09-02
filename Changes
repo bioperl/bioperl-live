@@ -17,7 +17,15 @@ Bugs and requested features list:
 CPAN releases are branched from 'master'.
 ---------------------------------------------------------
 
-1.?.?
+1.6.910
+
+    [New features]
+
+    * Hash randomization fixes for perl 5.18.x
+      - Note: at least one module (Bio::Map::Physical) still has a failing test;
+        this is documented in bug #3446 and has been TODO'd; we will be pulling
+        Bio::Map and similar modules out of core into separate distributions in the
+        1.7.x release series [cjfields]
 
     [New features]
 
@@ -66,9 +74,18 @@ CPAN releases are branched from 'master'.
         - moved from bioperl-live into the separate distribution Bio-FeatureIO
     * Bio::SeqFeature::Annotated
         - moved from bioperl-live into the separate distribution Bio-FeatureIO
+    * Bio::Cluster::SequenceFamily
+        - improved performance when using get_members with overlapping multiple
+          criteria
+    * Bio::SearchIO::hmmer3
+        - now supports nhmmer [bosborne]
 
     [Bug fixes]
 
+    * [3302] Fixes bug in Bio::SearchIO::hmmer2.pm to correctly parse
+      multi-query hmmer output [Francisco J. Ossandon, Paul Cantalupo]
+    * [3421] Fixes bug in Bio::SearchIO::hmmer2.pm to correctly parse an HSP
+      with a line full of dashes [Francisco J. Ossandon, Paul Cantalupo]
     * [3298] Fix bug in Bio::SearchIO::blast.pm where algorithm version
       information was lost in a multi-result blast file [Paul Cantalupo]
     * [3343] Fix bug in Bio::SearchIO::blasttable.pm to correctly calculate
@@ -113,6 +130,8 @@ CPAN releases are branched from 'master'.
       [fangly]
     * Fixed bp_genbank2gff3.pl crash when missing source feature date [fangly]
     * Bio::PrimarySeq constructor -direct works for -seq or -ref_to_seq [fangly]
+    * Bio::Cluster::SequenceFamily - checks if the sequence has a Bio::Species
+      object before trying to access, and no longer returns repeated sequences.
 
 
 1.6.901 May 18, 2011

@@ -6,7 +6,7 @@ use strict;
 BEGIN { 
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 64);
+    test_begin(-tests => 66);
     use_ok('Bio::TreeIO');
 }
 
@@ -161,7 +161,7 @@ is($tree->get_root_node, $a, "Root node is A");
 # former test expected the old behavior of reroot; here is the new
 # test/maj
 my $desc = ($a->each_Descendent)[0];
-my $newroot = $desc->create_node_on_branch(-FRACTION=>0.5, -ANNOT=>{id=>'newroot'});
+my $newroot = $desc->create_node_on_branch(-FRACTION=>0.5, -ANNOT=>{-id=>'newroot'});
 $tree->reroot($newroot);
 is($tree->get_root_node, $a->ancestor, "Root node is A's ancestor");
 
@@ -258,11 +258,13 @@ $tree = $treeio->next_tree;
 my ($test_node) = $tree->find_node(-id => 'A');
 is($test_node->ancestor->id, 90,'Testing bootstrap copy');
 is($test_node->ancestor->ancestor->id, '25','Testing bootstrap copy');
+is($test_node->ancestor->ancestor->ancestor->id, '0','Testing bootstrap copy');
 $tree->move_id_to_bootstrap;
 is($test_node->ancestor->id, '','Testing bootstrap copy');
 is($test_node->ancestor->bootstrap, '90', 'Testing bootstrap copy');
 is($test_node->ancestor->ancestor->id, '', 'Testing bootstrap copy');
 is($test_node->ancestor->ancestor->bootstrap, '25', 'Testing bootstrap copy');
+is($test_node->ancestor->ancestor->ancestor->bootstrap, '0','Testing bootstrap copy');
 
 # change TreeIO to parse 
 $treeio = Bio::TreeIO->new(-format => 'newick',

@@ -227,7 +227,7 @@ sub next {
 
     # create new parser object
     my $twig_handlers = {'seqDiff' =>  \&_seqDiff };
-    my $t = new XML::Twig ( TwigHandlers => $twig_handlers,
+    my $t = XML::Twig->new ( TwigHandlers => $twig_handlers,
 			    KeepEncoding => 1 );
     $t->parse($entry);
 
@@ -252,7 +252,7 @@ sub write {
     }
     my $str;
     my $output = IO::String->new($str);
-    my $w = new XML::Writer(OUTPUT => $output, DATA_MODE => 1, DATA_INDENT => 4 );
+    my $w = XML::Writer->new(OUTPUT => $output, DATA_MODE => 1, DATA_INDENT => 4 );
 
     foreach my $h (@h) {
 	#

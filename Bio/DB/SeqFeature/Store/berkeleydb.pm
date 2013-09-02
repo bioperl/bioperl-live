@@ -26,19 +26,19 @@ Bio::DB::SeqFeature::Store::berkeleydb -- Storage and retrieval of sequence anno
 
   # Create a database from the feature files located in /home/fly4.3 and store
   # the database index in the same directory:
-  $db =  Bio::DB::SeqFeature::Store->new( -adaptor => 'berkeleydb',
-                                          -dir     => '/home/fly4.3');
+  my $db = Bio::DB::SeqFeature::Store->new( -adaptor => 'berkeleydb',
+                                            -dir     => '/home/fly4.3');
 
   # Create a database that will monitor the files in /home/fly4.3, but store
   # the indexes in /var/databases/fly4.3
-  $db      = Bio::DB::SeqFeature::Store->new( -adaptor    => 'berkeleydb',
-                                              -dsn        => '/var/databases/fly4.3',
-                                              -dir        => '/home/fly4.3');
+  $db    = Bio::DB::SeqFeature::Store->new( -adaptor => 'berkeleydb',
+                                            -dir     => '/home/fly4.3',
+                                            -dsn     => '/var/databases/fly4.3');
 
   # Create a feature database from scratch
-  $db     = Bio::DB::SeqFeature::Store->new( -adaptor => 'berkeleydb',
-                                             -dsn     => '/var/databases/fly4.3',
-                                             -create  => 1);
+  $db    = Bio::DB::SeqFeature::Store->new( -adaptor => 'berkeleydb',
+                                            -dsn     => '/var/databases/fly4.3',
+                                            -create  => 1);
 
   # get a feature from somewhere
   my $feature = Bio::SeqFeature::Generic->new(...);
@@ -347,8 +347,8 @@ sub auto_reindex {
     if ($result && %$result) {
 	$self->flag_autoindexing(1);
 	$self->lock('exclusive');
-	$self->reindex_wigfiles($result->{wig},$autodir)  if $result->{wig};
-	$self->reindex_ffffiles($result->{fff},$autodir)  if $result->{fff};
+	$self->reindex_wigfiles($result->{wig},$autodir) if $result->{wig};
+	$self->reindex_ffffiles($result->{fff},$autodir) if $result->{fff};
 	$self->reindex_gfffiles($result->{gff},$autodir) if $result->{gff};
 	$self->dna_db(Bio::DB::Fasta::Subdir->new($autodir));
 	$self->unlock;
@@ -1523,19 +1523,26 @@ sub next_seq {
   return $store->fetch($id);
 }
 
+
 package Bio::DB::Fasta::Subdir;
 
 use base 'Bio::DB::Fasta';
 
-# alter calling arguments so that the fasta file is placed in a subdirectory
+# alter calling arguments so that the index file is placed in a subdirectory
 # named "indexes"
 
-sub index_name {
-    my $self = shift;
-    my ($path,$isdir) = @_;
-    return $self->SUPER::index_name($path,$isdir)
-	unless $isdir;
-    return File::Spec->catfile($path,'indexes','fasta.index');
+sub new {
+    my ($class, $path, %opts) = @_;
+    if (-d $path) {
+        $opts{-index_name} = File::Spec->catfile($path,'indexes','fasta.index');
+    }
+    return Bio::DB::Fasta->new($path, %opts);
+}
+
+
+sub _calculate_offsets {
+    my ($self, @args) = @_;
+    return $self->SUPER::_calculate_offsets(@args);
 }
 
 

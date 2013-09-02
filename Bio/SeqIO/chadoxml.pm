@@ -1779,9 +1779,9 @@ sub next_seq {
 sub _create_writer {
     my $self = shift;
 
-    $self->{'writer'} = new XML::Writer(OUTPUT => $self->_fh,
-                                        DATA_MODE => 1,
-                                        DATA_INDENT => 3);
+    $self->{'writer'} = XML::Writer->new(OUTPUT => $self->_fh,
+                                         DATA_MODE => 1,
+                                         DATA_INDENT => 3);
 
     #print header
     $self->{'writer'}->xmlDecl("UTF-8");

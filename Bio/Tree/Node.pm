@@ -135,7 +135,7 @@ sub new {
   defined $branchlen && $self->branch_length($branchlen);
   if( defined $children ) {
       if( ref($children) !~ /ARRAY/i ) {
-	  $self->warn("Must specify a valid ARRAY reference to initialize a Node's Descendents");
+	  $self->throw("Must specify a valid ARRAY reference to initialize a Node's Descendents");
       }
       foreach my $c ( @$children ) { 	
 	  $self->add_Descendent($c);

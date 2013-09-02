@@ -7,8 +7,10 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 142,
-        -requires_module => 'XML::Twig');
+    test_begin(
+        -tests => 191,
+        -requires_module => 'XML::Twig'
+    );
 
     use_ok('Bio::DB::Taxonomy');
     use_ok('Bio::Tree::Tree');
@@ -164,6 +166,27 @@ ok $db_list = Bio::DB::Taxonomy->new(
 );
 is $db_list->get_num_taxa, 4;
 
+my @taxa;
+ok @taxa = map {$db_list->get_taxon(-name=>$_)} @h_lineage;
+is_deeply [map {ref($_)} @taxa], [('Bio::Taxon')x4];
+is_deeply [map {$_->rank} @taxa], \@ranks, 'Ranks';
+
+@h_lineage = ('Eukaryota', 'Mammalia', 'Homo', 'Homo erectus');
+$db_list->add_lineage(-names => \@h_lineage, -ranks => \@ranks);
+
+ok @taxa = map {$db_list->get_taxon(-name=>$_)} @h_lineage;
+is_deeply [map {ref($_)} @taxa], [('Bio::Taxon')x4];
+is_deeply [map {$_->rank} @taxa], \@ranks, 'Ranks';
+
+# Make a tree
+ok my $tree = $db_list->get_tree('Homo sapiens', 'Homo erectus');
+isa_ok $tree, 'Bio::Tree::TreeI';
+is $tree->number_nodes, 5;
+is $tree->total_branch_length, 4;
+ok my $node1 = $tree->find_node( -scientific_name => 'Homo sapiens' );
+ok my $node2 = $tree->find_node( -scientific_name => 'Homo erectus' );
+is $tree->distance($node1, $node2), 2;
+
 ok my $h_list = $db_list->get_taxon(-name => 'Homo sapiens');
 ok my $h_flat = $db_flatfile->get_taxon(-name => 'Homo sapiens');
 
@@ -189,7 +212,7 @@ $h_list->db_handle($db_list);
 my $ancestors_ancestor = $h_list->ancestor->ancestor;
 is $ancestors_ancestor->scientific_name, 'Mammalia';
 
-my $tree = Bio::Tree::Tree->new(-node => $h_list);
+$tree = Bio::Tree::Tree->new(-node => $h_list);
 $h_list->db_handle($db_flatfile);
 $ancestors_ancestor = $h_list->ancestor->ancestor;
 is $ancestors_ancestor->scientific_name, 'Mammalia';
@@ -251,7 +274,7 @@ for my $name ('Human', 'Hominidae') {
     my $node = $db_flatfile->get_taxon(-taxonid => $ncbi_id);
 
     if ($tree) {
-        $tree->merge_lineage($node);
+        ok $tree->merge_lineage($node);
     }
     else {
         ok $tree = Bio::Tree::Tree->new(-node => $node);
@@ -262,6 +285,15 @@ is $tree->get_nodes, 30;
 $tree->contract_linear_paths;
 my $ids = join(",", map { $_->id } $tree->get_nodes);
 is $ids, '131567,9606';
+
+# More thorough tests of merge_lineage
+ok my $node = $db_list->get_taxon(-name => 'Eukaryota');
+$tree = Bio::Tree::Tree->new(-node => $node);
+ok $node = $db_list->get_taxon(-name => 'Homo erectus');
+ok $tree->merge_lineage($node);
+for my $name ('Eukaryota', 'Mammalia', 'Homo', 'Homo erectus') {
+   ok $node = $tree->find_node(-scientific_name => $name);
+}
 
 # we can recursively fetch all descendents of a taxon
 SKIP: {
@@ -285,7 +317,11 @@ Culicoidea, Culicidae, Anophelinae, Anopheles, Anopheles, Angusticorn,
 Anopheles, maculipennis group, maculipennis species complex, Anopheles daciae"))]);
 
 my @taxonids = $db_list->get_taxonids('Anopheles');
-is @taxonids, 3;
+is @taxonids, 3, 'List context';
+
+my $taxonid = $db_list->get_taxonids('Anopheles');
+isa_ok \$taxonid, 'SCALAR', 'Scalar context';
+ok exists { map({$_ => undef} @taxonids) }->{$taxonid};
 
 # but we should still be able to merge in an incomplete lineage of a sister
 # species and have the 'tree' remain consistent:
@@ -294,8 +330,9 @@ is @taxonids, 3;
 $db_list->add_lineage(-names => [
 (split(/,\s+/, "Anophelinae, Anopheles, Anopheles, Angusticorn,
 maculipennis group, maculipennis species complex, Anopheles labranchiae"))]);
-my $node = $db_list->get_taxon(-name => 'Anopheles labranchiae');
+$node = $db_list->get_taxon(-name => 'Anopheles labranchiae');
 is $node->ancestor->ancestor->ancestor->ancestor->ancestor->ancestor->ancestor->scientific_name, 'Anophelinae';
+is $node->rank, undef;
 
 # missing 'subgenus' Anopheles
 $db_list->add_lineage(-names => [
@@ -317,7 +354,7 @@ is scalar @taxonids, 3;
 # bug: duplicate topmost taxa
 $db_list = Bio::DB::Taxonomy->new( -source => 'list',
                                    -names => ['Bacteria', 'Tenericutes'] );
-$db_list->add_lineage( -names => ['Bacteria'] );
+$db_list->add_lineage(  -names => ['Bacteria'] );
 @taxonids = $db_list->get_taxonids('Bacteria');
 is scalar @taxonids, 1;
 
@@ -331,6 +368,44 @@ is scalar @taxonids, 2; # multiple taxa would match using $db_list->get_taxon(-n
 
 ok $node = $db_list->get_taxon( -names => ['c__Gammaproteobacteria', 'o__Alteromonadales'  , 'f__Alteromonadaceae'] );
 is $node->ancestor->node_name, 'o__Alteromonadales';
+my $iid = $node->internal_id;
 
-ok $node = $db_list->get_taxon( -names => ['c__Gammaproteobacteria', 'o__Oceanospirillales'  , 'f__Alteromonadaceae'] );
+ok $node = $db_list->get_taxon( -names => ['c__Gammaproteobacteria', 'o__Oceanospirillales', 'f__Alteromonadaceae'] );
 is $node->ancestor->node_name, 'o__Oceanospirillales';
+isnt $node->internal_id, $iid;
+
+
+# More tests with ambiguous names, internal IDs and multiple databases
+my ($node3, $node4, $db_list_2);
+ok $db_list = Bio::DB::Taxonomy->new( -source => 'list' );
+ok $db_list->add_lineage( -names => [ 'o__Enterobacteriales', 'g__Escherichia' ] );
+ok $db_list->add_lineage( -names => [ 'o__Pseudomonadales'  , 'g__Pseudomonas' ] );
+ok $db_list->add_lineage( -names => [ 'o__Chroococcales'    , 'g__Microcoleus' ] );
+ok $node1 = $db_list->get_taxon( -names => [ 'k__Chroococcales', 'g__Microcoleus' ] );
+
+ok $db_list_2 = Bio::DB::Taxonomy->new( -source => 'list' );
+ok $db_list_2->add_lineage( -names => [ 'o__Chroococcales', 'g__Microcoleus' ] );
+ok $node2 = $db_list_2->get_taxon( -names => [ 'o__Chroococcales', 'g__Microcoleus' ] );
+
+is $node1->scientific_name, 'g__Microcoleus';
+is $node2->scientific_name, 'g__Microcoleus'; # same taxon name
+isnt $node1->id, $node2->id;                  # but different dbs and hence taxids
+is $node1->internal_id, $node1->internal_id;  # but same cross-database internal ID
+
+ok $db_list->add_lineage( -names => [ 'o__Oscillatoriales' , 'g__Microcoleus' ] );
+ok $db_list->add_lineage( -names => [ 'o__Acidobacteriales', 'g__Microcoleus' ] );
+
+ok $node1 = $db_list->get_taxon( -names => [ 'o__Chroococcales', 'g__Microcoleus' ] );
+ok $node2 = $db_list->get_taxon( -names => [ 'o__Oscillatoriales'  , 'g__Microcoleus' ] );
+ok $node3 = $db_list->get_taxon( -names => [ 'o__Acidobacteriales'    , 'g__Microcoleus' ] );
+my @nodes = ($node1, $node2, $node3);
+
+is map({$_->id          => undef} @nodes), 6; # 3 distinct taxids
+is map({$_->internal_id => undef} @nodes), 6; # 3 distinct iids
+
+ok $db_list->add_lineage( -names => [ 'o__Chroococcales'  , 'g__Microcoleus' ] );
+ok $node2 = $db_list->get_taxon( -names => [ 'o__Chroococcales', 'g__Microcoleus' ] );
+is $node2->scientific_name, $node1->scientific_name;
+is $node2->id, $node1->id;
+is $node2->internal_id, $node1->internal_id;
+

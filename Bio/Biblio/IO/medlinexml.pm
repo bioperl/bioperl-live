@@ -132,7 +132,7 @@ sub _initialize {
 
     # create an instance of the XML parser
     # (unless it is already there...)
-    $self->{'_xml_parser'} = new XML::Parser (Handlers => {Init  => \&handle_doc_start,
+    $self->{'_xml_parser'} = XML::Parser->new (Handlers => {Init  => \&handle_doc_start,
 							   Start => \&handle_start,
 							   End   => \&handle_end,
 							   Char  => \&handle_char,

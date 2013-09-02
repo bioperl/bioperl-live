@@ -83,7 +83,7 @@ use Bio::Seq::SequenceTrace;
 use Bio::Annotation::Comment;
 use Dumpvalue;
 
-my $dumper = new Dumpvalue();
+my $dumper = Dumpvalue->new();
 $dumper->veryCompact(1);
 
 BEGIN {

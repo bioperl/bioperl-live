@@ -518,7 +518,7 @@ sub revcom {
 
 #    $self->{'_rev'} = $fixrev;
 
-     return new Bio::Tools::SeqPattern(-seq =>$fixrev, -type =>$self->type);
+     return Bio::Tools::SeqPattern->new(-seq =>$fixrev, -type =>$self->type);
 }
 
 =head1 backtranslate

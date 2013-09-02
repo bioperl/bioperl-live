@@ -323,8 +323,8 @@ See documentation in L<Bio::Search::Hit::HitI::overlap()|Bio::Search::Hit::HitI>
 
 sub overlap {
     my $self = shift;
-    if(@_) { $self->{'_overlap'} = shift; }
-    defined $self->{'_overlap'} ? $self->{'_overlap'} : 0;
+    $self->{'_overlap'} = shift if @_;
+    return exists $self->{'_overlap'} ? $self->{'_overlap'} : 0;
 }
 
 
@@ -351,15 +351,10 @@ See Also   : L<num_hsps()|num_hsps>
 
 sub n {
     my $self = shift;
-
     $self->{'_n'} = shift if @_;
-
-    if (defined $self->{'_n'}) {
-        return $self->{'_n'}
-    } else {
-        return $self->num_hsps;
-    }
+    return exists $self->{'_n'} ? $self->{'_n'} : $self->num_hsps;
 }
+
 
 =head2 p
 
