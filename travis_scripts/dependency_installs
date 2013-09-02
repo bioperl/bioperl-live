@@ -1,0 +1,24 @@
+#!/bin/bash
+
+mkdir travis_builds
+
+cd travis_builds
+
+# samtools
+git clone https://github.com/samtools/samtools.git
+cd samtools
+git checkout tags/0.1.18
+perl -p -i -e 's/^(CFLAGS=\s+)[^\n]*/$1-g -Wall -O2 -fPIC #-m64 #-arch ppc/' Makefile
+make 2>&1 | tail -n 1
+cd ..
+
+# push Bio-Root to front
+git clone https://github.com/bioperl/Bio-Root.git
+export PERL5LIB=$( pwd )/Bio-Root/lib:$( pwd ):$PERL5LIB
+
+export SAMTOOLS=$( pwd )/samtools
+
+echo "Bio::DB::Sam installation"
+cpanm Bio::DB::Sam 2>&1 | tail -n 10
+
+exit 0
