@@ -41,4 +41,3 @@ notifications:
 branches:
   only:
     - master
-    - v1_cherry
