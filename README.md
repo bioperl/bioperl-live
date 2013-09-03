@@ -82,18 +82,23 @@ BioPerl releases are always available from the website at
 http://www.bioperl.org/DIST or in CPAN. The latest code can be found at
 https://github.com/bioperl.
 
-* BioPerl formerly used a numbering scheme to indicate stable release series vs.
-  development release series. A release number is a three digit number like
-  `1.2.0`. The *first digit indicates the major release*, the idea being that all
-  the API calls in a major release are reasonably consistent. The *second number
-  is the release series*. This is probably the most important number.  The *third
-  number is the point release* and 
+* BioPerl currently uses a sematic numbering scheme to indicate stable release
+  series vs. development release series. A release number is a three digit
+  number like `1.2.0`.
+  * The *first digit indicates the major release*, the idea being that all the
+    API calls in a major release are reasonably consistent.
+  * The *second number is the release series*. This is probably the most
+    important number, and represents added functionality that is
+    backwards-compatible.
+  * The *third number is the point or patch release* and represents mainly bug
+    fixes or additional code that doesn't add significant functionality to the
+    code base.
 
-* From the **1.0 release until the 1.6 release**, even numbers (1.0, 1.2 etc)
+* From the **1.0 release until the 1.6 release**, even numbers (`1.0`, `1.2`, etc)
   indicated stable releases. Stable releases were well tested and recommended
-  for most uses. Odd numbers (1.1, 1.3 etc) were development releases which one
+  for most uses. Odd numbers (`1.1`, `1.3`, etc) were development releases which one
   would only use if one were interested in the latest and greatest features. The
-  final number (e.g. 1.2.0, 1.2.1) is the bug fix release. The higher the number
+  final number (e.g. `1.2.0`, `1.2.1`) is the bug fix release. The higher the number
   the more bug fixes has been incorporated. In theory you can upgrade from one
   bug fix release to the next with no changes to your own code (for production
   cases, obviously check things out carefully before you switch over).
@@ -101,11 +106,11 @@ https://github.com/bioperl.
 * The upcoming **1.7 release** will be the last release series to utilize the
   alternating 'stable'/'developer' convention. Starting immediately after the
   final 1.6 branch, we will start splitting BioPerl into several smaller
-  easier-to-manage distributions, including a developer distribution for
-  cutting-edge (in development) code, untested modules, and alternative
-  implementations. These will have independent versions, all likely starting
-  with v1.7.0.  *We do not anticipate major API changes in the 1.7.x release
-  series*
+  easier-to-manage distributions. These will have independent versions, all
+  likely starting with v1.7.0. **We do not anticipate major API changes in the
+  1.7.x release series*, merely that the code will be restructured in a way to
+  make maintenance more feasible. We anticipate retaining semantic versioning
+  until the **v2.x** release.
 
 # Caveats and warnings
 
