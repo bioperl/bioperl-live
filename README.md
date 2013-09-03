@@ -82,26 +82,30 @@ BioPerl releases are always available from the website at
 http://www.bioperl.org/DIST or in CPAN. The latest code can be found at
 https://github.com/bioperl.
 
-BioPerl formerly used a numbering scheme to indicate stable release series vs.
-development release series. A release number is a three digit number like 1.2.0.
-The first digit indicates the major release, the idea being that all the API
-calls in a major release are reasonably consistent. The second number is the
-release series. This is probably the most important number.
+* BioPerl formerly used a numbering scheme to indicate stable release series vs.
+  development release series. A release number is a three digit number like
+  `1.2.0`. The *first digit indicates the major release*, the idea being that all
+  the API calls in a major release are reasonably consistent. The *second number
+  is the release series*. This is probably the most important number.  The *third
+  number is the point release* and 
 
-From the 1.0 release until the 1.6 release, even numbers (1.0, 1.2 etc)
-indicated stable releases. Stable releases were well tested and recommended for
-most uses. Odd numbers (1.1, 1.3 etc) were development releases which one would
-only use if one were interested in the latest and greatest features. The final
-number (e.g. 1.2.0, 1.2.1) is the bug fix release. The higher the number the
-more bug fixes has been incorporated. In theory you can upgrade from one bug fix
-release to the next with no changes to your own code (for production cases,
-obviously check things out carefully before you switch over).
+* From the **1.0 release until the 1.6 release**, even numbers (1.0, 1.2 etc)
+  indicated stable releases. Stable releases were well tested and recommended
+  for most uses. Odd numbers (1.1, 1.3 etc) were development releases which one
+  would only use if one were interested in the latest and greatest features. The
+  final number (e.g. 1.2.0, 1.2.1) is the bug fix release. The higher the number
+  the more bug fixes has been incorporated. In theory you can upgrade from one
+  bug fix release to the next with no changes to your own code (for production
+  cases, obviously check things out carefully before you switch over).
 
-The 1.7 release will be the last release series to utilize the alternating
-'stable'/'developer' convention. Starting immediately after the final 1.6
-branch, we will start splitting BioPerl into several smaller easier-to-manage
-distributions, including a developer distribution for cutting-edge (in
-development) code, untested modules, and alternative implementations.
+* The upcoming **1.7 release** will be the last release series to utilize the
+  alternating 'stable'/'developer' convention. Starting immediately after the
+  final 1.6 branch, we will start splitting BioPerl into several smaller
+  easier-to-manage distributions, including a developer distribution for
+  cutting-edge (in development) code, untested modules, and alternative
+  implementations. These will have independent versions, all likely starting
+  with v1.7.0.  *We do not anticipate major API changes in the 1.7.x release
+  series*
 
 # Caveats and warnings
 
@@ -132,10 +136,10 @@ laid out:
 
 All modules are in the **`Bio/`** namespace,
 
-* **`Perl`** is for **new users**, and gives a functional interface to the main
+* **`Perl`** is for *new users*, and gives a functional interface to the main
   parts of the package.
 
-* **`Seq`** is for **Sequences** (protein and DNA).
+* **`Seq`** is for *Sequences* (protein and DNA).
     * `Bio::PrimarySeq` is a plain sequence (sequence data + identifiers)
     * `Bio::Seq` is a fancier `PrimarySeq`, in that it has annotation (via
     `Bio::Annotation::Collection`) and sequence features (via `Bio::SeqFeatureI` objects, attached via
@@ -144,19 +148,19 @@ All modules are in the **`Bio/`** namespace,
     * `Bio::Seq::LargeSeq` is for sequences which are too big for
     fitting into memory.
 
-* **`SeqIO`** is for **reading and writing Sequences**. It is a front end module
+* **`SeqIO`** is for *reading and writing Sequences*. It is a front end module
   for separate driver modules supporting the different sequence formats
 
-* **`SeqFeature`** represent **start/stop/strand-based localized annotations (features) of sequences**
+* **`SeqFeature`** represent *start/stop/strand-based localized annotations (features) of sequences*
     * **`Bio::SeqFeature::Generic`** is basic catchall
     * **`Bio::SeqFeature::Similarity`** a similarity sequence feature
     * **`Bio::SeqFeature::FeaturePair`** a sequence feature which is pairwise
     such as query/hit pairs
 
-* **`SearchIO`** is for **reading and writing pairwise alignment reports**, like
+* **`SearchIO`** is for *reading and writing pairwise alignment reports*, like
   BLAST or FASTA
 
-* **`Search`** is where the **alignment objects for `SearchIO` are defined**
+* **`Search`** is where the *alignment objects for `SearchIO` are defined*
     * **`Bio::Search::Result::GenericResult`** is the result object (a blast
     query is a `Result` object)
     * **`Bio::Search::Hit::GenericHit`** is the `Hit` object (a query will have
@@ -164,15 +168,15 @@ All modules are in the **`Bio/`** namespace,
     * **`Bio::Search::HSP::GenericHSP`** is the High-scoring Segment Pair
     object defining the alignment(s) of the query and hit.
 
-* **`SimpleAlign`** is for **multiple sequence alignments**
+* **`SimpleAlign`** is for *multiple sequence alignments*
 
-* **`AlignIO`** is for **reading and writing multiple sequence alignment
-  formats**
+* **`AlignIO`** is for *reading and writing multiple sequence alignment
+  formats*
 
-* **`Assembly`** provides the start of an **infrastructure for assemblies** and
-  **`Assembly::IO`** IO converters for them
+* **`Assembly`** provides the start of an *infrastructure for assemblies* and
+  **`Assembly::IO`** *IO converters* for them
 
-* **`DB`** is the namespace for **all the database query classes**
+* **`DB`** is the namespace for *all the database query classes*
     * **`Bio::DB::GenBank/GenPept`** are two modules which query NCBI entrez for
       sequences
     * **`Bio::DB::SwissProt/EMBL`** query various EMBL and SwissProt
@@ -193,15 +197,15 @@ All modules are in the **`Bio/`** namespace,
     * **`Bio::DB::EUtilities`** is the initial set of modules used for generic
       queried using NCBI's eUtils.
 
-* **`Annotation`** collection of **annotation objects** (comments, DBlinks,
+* **`Annotation`** collection of *annotation objects* (comments, DBlinks,
   References, and misc key/value pairs)
 
-* **`Coordinate`** is a system for **mapping between different coordinate systems**
+* **`Coordinate`** is a system for *mapping between different coordinate systems*
   such as DNA to protein or between assemblies
 
-* **`Index`** is for **locally indexed flatfiles** with BerkeleyDB
+* **`Index`** is for *locally indexed flatfiles* with BerkeleyDB
 
-* **`Tools`** contains many **miscellaneous parsers and functions** for different
+* **`Tools`** contains many *miscellaneous parsers and functions* for different
   bioinformatics needs
     * Gene prediction parser (Genscan, MZEF, Grail, Genemark)
     * Annotation format (GFF)
@@ -209,11 +213,11 @@ All modules are in the **`Bio/`** namespace,
     IUPAC)
     * Phylogenetic program parsing (PAML, Molphy, Phylip)
 
-* **`Map`** represents **genetic and physical map representations**
+* **`Map`** represents *genetic and physical map representations*
 
-* **`Structure`** - parse and represent **protein structure data**
+* **`Structure`** - parse and represent *protein structure data*
 
-* **`TreeIO`** is for reading and writing **Tree formats**
+* **`TreeIO`** is for reading and writing *Tree formats*
 
 * **`Tree`** is the namespace for **all associated Tree classes**
     * **`Bio::Tree::Tree`** is the basic tree object
@@ -225,10 +229,10 @@ All modules are in the **`Bio/`** namespace,
 * **`Bio::Biblio`** is where *bibliographic data and database access objects*
   are kept
 
-* **`Variation`** represent sequences with mutations and variations applied so
+* **`Variation`** represent *sequences with mutations and variations* applied so
   one can compare and represent wild-type and mutation versions of a sequence.
 
-* **`Root`**, basic objects for the internals of BioPerl
+* **`Root`**, basic objects for the *internals of BioPerl*
 
 # Upgrading from an older version
 
@@ -236,7 +240,7 @@ If you have a previously installed version of BioPerl on your system some of
 these notes may help you.
 
 * Some modules have been removed because they have been superceded by new
-  development efforts. They are documented in the `DEPRECATED` file that is
+  development efforts. They are documented in the **`DEPRECATED`** file that is
   included in the release.
 
 * Some methods, or the Application Programming Interface (API), have changed or
