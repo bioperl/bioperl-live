@@ -41,3 +41,4 @@ notifications:
 branches:
   only:
     - master
+    - v1.6.x
