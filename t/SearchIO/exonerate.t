@@ -116,5 +116,5 @@ $searchio = Bio::SearchIO->new(
     -file   => test_input_file('exonerate.output.negativescore.works'),
 );
 my $r   = $searchio->next_result;
-my $hit = $r->next_hit;
+$hit = $r->next_hit;
 is( $hit->score, "-3" );
