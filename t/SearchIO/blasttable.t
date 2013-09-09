@@ -72,7 +72,7 @@ while(my $res = $searchio->next_result) {
     is($hsp->start('query'), 5);
     is($hsp->end('query'), 812);
     is($hsp->length, 821);
-    is($hsp->percent_identity, 30.0852618757613, 'fixed bug 3343 (percent identity)');
+    float_is($hsp->percent_identity, 30.0852618757613, 'fixed bug 3343 (percent identity)');
     is($hsp->gaps, 44, 'side effect of fixing bug 3343 (number of gaps)');
 	my $hit_sf = $hsp->hit;
 	my $query_sf = $hsp->query;

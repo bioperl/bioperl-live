@@ -77,7 +77,7 @@ is $test_csp->score, 0;
 $spectrum = {120=>1};
 ok $test_csp = Bio::Assembly::Tools::ContigSpectrum->new(-spectrum=>$spectrum);
 is $test_csp->score, 1;
-is $test_csp->score(240), 0.248953974895397;
+float_is $test_csp->score(240), 0.248953974895397;
 $spectrum = {1=>120, 120=>1};
 ok $test_csp = Bio::Assembly::Tools::ContigSpectrum->new(-spectrum=>$spectrum);
 float_is $test_csp->score, 0.248953974895397;
@@ -316,15 +316,15 @@ SKIP: {
    ok $large_csp->avg_overlap >= 88.7692;
    ok $large_csp->avg_overlap <= 88.8077;
    float_is $large_csp->min_identity, 33.3333;
-   ok $large_csp->avg_identity >= 74.7270;
-   ok $large_csp->avg_identity <= 74.7486;
+   cmp_ok($large_csp->avg_identity, '>=', 74.7, $large_csp->avg_identity);
+   cmp_ok($large_csp->avg_identity, '<=', 74.9, $large_csp->avg_identity);
 
    ok my $large_xcsp = Bio::Assembly::Tools::ContigSpectrum->new(
       -cross          => $large_csp,
       -eff_asm_params => 1           ), 'large cross-contig spectrum';
    is $large_xcsp->nof_overlaps, 26;
-   ok $large_xcsp->avg_overlap >= 88.7692;
-   ok $large_xcsp->avg_overlap <= 88.8077;
+   cmp_ok($large_xcsp->avg_overlap, '>=', 88.7, $large_xcsp->avg_overlap);
+   cmp_ok($large_xcsp->avg_overlap, '<=', 88.9, $large_xcsp->avg_overlap);
    is_deeply $large_xcsp->spectrum, {1=>21, 27=>1};
 
    ok $large_xcsp = Bio::Assembly::Tools::ContigSpectrum->new(
