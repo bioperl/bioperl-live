@@ -17,6 +17,16 @@ Bugs and requested features list:
 CPAN releases are branched from 'master'.
 ---------------------------------------------------------
 
+1.6.921
+
+    * Minor update to address CPAN test failures
+
+1.6.920
+
+    * Remove Bio::Biblio and related files [carandraug]
+      - this cause version clashes with an independently-released
+        version of Bio::Biblio
+
 1.6.910
 
     [New features]
