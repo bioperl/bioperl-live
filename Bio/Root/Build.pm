@@ -92,7 +92,7 @@ BEGIN {
 use strict;
 use warnings;
 
-our $VERSION = '1.006920'; # pre-1.7
+our $VERSION = '1.006921'; # pre-1.7
 our @extra_types = qw(options excludes_os feature_requires test); # test must always be last in the list!
 our $checking_types = "requires|conflicts|".join("|", @extra_types);
 

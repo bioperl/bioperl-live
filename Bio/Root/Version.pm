@@ -97,7 +97,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Root::Version;
 use strict;
 
-our $VERSION = '1.006920'; # pre-1.7
+our $VERSION = '1.006921'; # pre-1.7
 $VERSION = eval $VERSION;
 
 sub import {
