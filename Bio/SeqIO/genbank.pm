@@ -592,6 +592,14 @@ sub next_seq {
                       -version => $version,
                       -database => $db || 'GenBank',
                       -tagname => 'dblink'));
+		} elsif ( $dbsource =~ /^(\S*?):?\s*accession\s+(\S+)/ ) {
+                    my ($db,$id) = ($1,$2);
+                    $annotation->add_Annotation
+			('dblink',
+			 Bio::Annotation::DBLink->new
+			 (-primary_id => $id,
+			  -database => $db || 'GenBank',
+			  -tagname => 'dblink'));
                 } elsif ( $dbsource =~ /(\S+)([\.:])\s*(\S+)/ ) {
                     my ($db, $version);
                     my @ids = ();
