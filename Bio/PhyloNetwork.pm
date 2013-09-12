@@ -1428,7 +1428,7 @@ sub optimal_alignment_noelementary {
     push @matrix,\@row;
   }
   my @alignment=();
-  assign(\@matrix,\@alignment);
+  Algorithm::Munkres::assign(\@matrix,\@alignment);
   my %alignmenthash;
   my %weighthash;
   my $totalw=0;
