@@ -454,7 +454,7 @@ sub next_seq {
 		# Project
 		elsif (/^PROJECT\s+(\S.*)/) {
 			if ($annotation) {
-				my $project = new Bio::Annotation::SimpleValue->new(-value => $1);
+				my $project = Bio::Annotation::SimpleValue->new(-value => $1);
 				$annotation->add_Annotation('project',$project);
 			}
 		}
@@ -592,6 +592,14 @@ sub next_seq {
                       -version => $version,
                       -database => $db || 'GenBank',
                       -tagname => 'dblink'));
+		} elsif ( $dbsource =~ /^(\S*?):?\s*accession\s+(\S+)/ ) {
+                    my ($db,$id) = ($1,$2);
+                    $annotation->add_Annotation
+			('dblink',
+			 Bio::Annotation::DBLink->new
+			 (-primary_id => $id,
+			  -database => $db || 'GenBank',
+			  -tagname => 'dblink'));
                 } elsif ( $dbsource =~ /(\S+)([\.:])\s*(\S+)/ ) {
                     my ($db, $version);
                     my @ids = ();
