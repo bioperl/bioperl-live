@@ -95,6 +95,7 @@ package Bio::SearchIO::hmmer3;
 use strict;
 use Data::Dumper;
 use Bio::Factory::ObjectFactory;
+use Bio::Tools::IUPAC;
 use vars qw(%MAPPING %MODEMAP);
 use base qw(Bio::SearchIO::hmmer);
 
@@ -165,6 +166,9 @@ sub next_result {
     my ( $last, @hit_list, @hsp_list, %hspinfo, %hitinfo, %domaincounter );
     local $/ = "\n";
     local $_;
+
+    my @ambiguous_nt = keys %Bio::Tools::IUPAC::IUB;
+    my $ambiguous_nt = join '', @ambiguous_nt;
 
     my $verbose = $self->verbose;    # cache for speed? JES's idea in hmmer.pm
     $self->start_document();
@@ -629,10 +633,10 @@ sub next_result {
                                 || $_ =~ /^\s+Alignment:/
                                 || $_ =~ /^\s+score:/
                                 || $_ =~ /^\s+score\s+bias/
-                                || $_ =~ /^\s+\S+\s+\d+\s+([\s+.gatc-]+)/i  # Alignment, line 1
-                                || $_ =~ /^\s{20,}([\s+gatc-]+)/i           # Alignment, line 2
-                                || $_ =~ /^\s+$name\s+\d+\s+([\s+gatc-]+)/i # Alignment, line 3
-                                || $_ =~ /^\s+[\d.\*]+/                     # Alignment, line 4
+                                || $_ =~ /^\s+\S+\s+\d+\s+([\s+.$ambiguous_nt-]+)/i  # Alignment, line 1
+                                || $_ =~ /^\s{20,}([\s+gatc-]+)/i                     # Alignment, line 2
+                                || $_ =~ /^\s+$name\s+\d+\s+([\s+$ambiguous_nt-]+)/i # Alignment, line 3
+                                || $_ =~ /^\s+[\d.\*]+/                               # Alignment, line 4
                                 )
                             {
                                 next;
