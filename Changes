@@ -17,6 +17,12 @@ Bugs and requested features list:
 CPAN releases are branched from 'master'.
 ---------------------------------------------------------
 
+1.6.922
+
+    * Address CPAN test failures [cjfields]
+    * Add BIOPROJECT support for Genbank files [hyphaltip]
+    * Better regex support for HMMER3 output [bosborne]
+
 1.6.921
 
     * Minor update to address CPAN test failures
