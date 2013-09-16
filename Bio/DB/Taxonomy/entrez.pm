@@ -118,7 +118,7 @@ if( $@ ) {
 
 use base qw(Bio::WebAgent Bio::DB::Taxonomy);
 
-$EntrezLocation = 'http://www.ncbi.nih.gov/entrez/eutils/';
+$EntrezLocation = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
 $EntrezGet      = 'esearch.fcgi';
 $EntrezFetch    = 'efetch.fcgi';
 $EntrezSummary  = 'esummary.fcgi';
