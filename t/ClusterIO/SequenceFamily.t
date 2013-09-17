@@ -6,9 +6,9 @@ use strict;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    
-    test_begin(-tests => 19);
-	
+
+    test_begin(-tests => 17);
+
     use_ok('Bio::SeqIO');
     use_ok('Bio::Cluster::SequenceFamily');
 }
@@ -19,12 +19,14 @@ my @mem;
 while(my $seq = $seqio->next_seq){
     push @mem, $seq;
 }
-my $family = Bio::Cluster::SequenceFamily->new(-family_id=>"Family_1",
-                                       -description=>"SomeFamily",
-                                       -annotation_score=>"100",
-                                       -family_score=>"50",
-                                       -version=>"1.0",
-                                       -members=>\@mem);
+my $family = Bio::Cluster::SequenceFamily->new(
+    -family_id=>"Family_1",
+    -description=>"SomeFamily",
+    -annotation_score=>"100",
+    -family_score=>"50",
+    -version=>"1.0",
+    -members=>\@mem,
+);
 is $family->description, "SomeFamily";
 is $family->annotation_score,100;
 is $family->size, 5;

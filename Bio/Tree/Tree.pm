@@ -371,8 +371,7 @@ sub score {
  Title   : as_text
  Usage   : my $tree_as_string = $tree->as_text($format)
  Function: Returns the tree as a string representation in the 
-           desired format (currently 'newick', 'nhx', or 
-          'tabtree')
+           desired format, e.g.: 'newick', 'nhx' or 'tabtree' (the default)
  Returns : scalar string
  Args    : format type as specified by Bio::TreeIO
  Note    : This method loads the Bio::TreeIO::$format module
@@ -383,21 +382,21 @@ sub score {
 
 sub as_text {
     my $self = shift;
-    my $format = shift;
+    my $format = shift || 'tabtree';
     my $params_input = shift || {};
 
     my $iomod = "Bio::TreeIO::$format";
     $self->_load_module($iomod);
 
     my $string = '';
-    open(my $fh,">",\$string) or die ("Couldn't open $string as file: $!\n");
+    open my $fh, '>', \$string or die "Couldn't open $string as file: $!\n";
     my $test = $iomod->new( -format => $format, -fh => $fh );
 
     # Get the default params for the given IO module.
     $test->set_params($params_input);
 
     $test->write_tree($self);
-    close($fh);
+    close $fh;
     return $string;
 }
 

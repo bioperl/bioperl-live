@@ -175,10 +175,11 @@ sub next_result {
             $seentop = 1;
             if ( defined $last ) {
                 ($reporttype) = split( /\s+/, $last );
+                $reporttype = uc($reporttype) if defined $reporttype;
                 $self->element(
                     {
                         'Name' => 'HMMER_program',
-                        'Data' => uc($reporttype)
+                        'Data' => $reporttype
                     }
                 );
             }

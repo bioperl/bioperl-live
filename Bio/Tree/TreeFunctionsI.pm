@@ -465,7 +465,7 @@ sub get_lca {
  Title   : merge_lineage
  Usage   : merge_lineage($node)
  Function: Merge a lineage of nodes with this tree.
- Returns : n/a
+ Returns : true for success, false (and a warning) otherwise
  Args    : Bio::Tree::TreeI with only one leaf, OR
            Bio::Tree::NodeI which has an ancestor
 
@@ -495,37 +495,43 @@ sub merge_lineage {
     my ($self, $thing) = @_;
     $self->throw("Must supply an object reference") unless ref($thing);
 
-    my ($lineage_tree, $lineage_leaf);
+    my $lineage_leaf;
     if ($thing->isa('Bio::Tree::TreeI')) {
         my @leaves = $thing->get_leaf_nodes;
         $self->throw("The supplied Tree can only have one leaf") unless @leaves == 1;
-        $lineage_tree = $thing;
         $lineage_leaf = shift(@leaves);
     }
     elsif ($thing->isa('Bio::Tree::NodeI')) {
         $self->throw("The supplied Node must have an ancestor") unless $thing->ancestor;
-        $lineage_tree = $self->new(-node => $thing);
         $lineage_leaf = $thing;
     }
 
-    # see if any node in the supplied lineage is in our tree - that will be
-    # our lca and we can merge at the node below
+    # Find the lowest node in the supplied lineage that is in the tree
+    # That will be our lca and we can merge at the node below
     my @lineage = ($lineage_leaf, reverse($self->get_lineage_nodes($lineage_leaf)));
     my $merged = 0;
-    for my $i (0..$#lineage) {
-        my $lca = $self->find_node(-internal_id => $lineage[$i]->internal_id) || next;
-
-        if ($i == 0) {
-            # the supplied thing to merge is already in the tree, nothing to do
-            return;
+    my $node;
+    my $i = 0;
+    while ($i <= $#lineage) {
+        $node = $self->find_node(-internal_id => $lineage[$i]->internal_id);
+        if (defined $node) {
+            $merged = 1;
+            last;
         }
-        # $i is the lca, so the previous node is new to the tree and should
-        # be merged on
-        $lca->add_Descendent($lineage[$i-1]);
-        $merged = 1;
-        last;
+        $i++;
     }
-    $merged || ($self->warn("Couldn't merge the lineage of ".$lineage_leaf->id." with the rest of the tree!\n") && return);
+    if (not $merged) {
+        $self->warn("Could not merge the lineage of ".$lineage_leaf->id." with the rest of the tree");
+    }
+
+    # Merge descendents, recursively
+    while ($i > 0) {
+        $node->add_Descendent($lineage[$i-1]);
+        $node = $self->find_node(-internal_id => $lineage[$i-1]->internal_id);
+        $i--;
+    }
+
+    return $merged;
 }
 
 
@@ -1115,7 +1121,7 @@ sub findnode_by_id {
 sub move_id_to_bootstrap{
    my ($tree) = shift;
    for my $node ( grep { ! $_->is_Leaf } $tree->get_nodes ) {
-       $node->bootstrap($node->id || '');
+       $node->bootstrap(defined $node->id ? $node->id : '');
        $node->id('');
    }
 }

@@ -11,7 +11,7 @@ BEGIN {
     $home = '../../..'; # set to '.' for Build use, 
                       # '../../..' for debugging from .t file
     unshift @INC, $home;
-    test_begin(-tests => 22,
+    test_begin(-tests => 25,
 	       -requires_modules => [qw(Bio::Tools::Run::WrapperBase
                                         Bio::Tools::Run::WrapperBase::CommandExts)]);
 }
@@ -30,7 +30,16 @@ is $fac->program_name, 'flurb', "correct prog name";
 ok $fac->is_pseudo, "is pseudo";
 is $fac->narf, 42, "correct parm set";
 ok !$fac->parameters_changed, "parm flag cleared";
-is join(' ',@{$fac->_translate_params}), '--schlurb breb -n 42 -f', "translate opts to command line";
+my $param_str = join(' ',@{$fac->_translate_params});
+
+like ($param_str, qr/--schlurb breb/, 'translate opts to command line');
+like ($param_str, qr/-n 42/, 'translate opts to command line');
+like ($param_str, qr/-f/, 'translate opts to command line');
+
+TODO: {
+    local $TODO ='Determine whether the order of the parameters should be set somehow; this sporadically breaks hash randomization introduced in perl 5.17+';
+    is join(' ',@{$fac->_translate_params}), '--schlurb breb -n 42 -f', "translate opts to command line";
+}
 
 ok $fac->reset_parameters, "parm reset";
 ok !$fac->narf, "parm cleared after reset";

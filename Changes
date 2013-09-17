@@ -17,7 +17,31 @@ Bugs and requested features list:
 CPAN releases are branched from 'master'.
 ---------------------------------------------------------
 
-1.?.?
+1.6.922
+
+    * Address CPAN test failures [cjfields]
+    * Add BIOPROJECT support for Genbank files [hyphaltip]
+    * Better regex support for HMMER3 output [bosborne]
+
+1.6.921
+
+    * Minor update to address CPAN test failures
+
+1.6.920
+
+    * Remove Bio::Biblio and related files [carandraug]
+      - this cause version clashes with an independently-released
+        version of Bio::Biblio
+
+1.6.910
+
+    [New features]
+
+    * Hash randomization fixes for perl 5.18.x
+      - Note: at least one module (Bio::Map::Physical) still has a failing test;
+        this is documented in bug #3446 and has been TODO'd; we will be pulling
+        Bio::Map and similar modules out of core into separate distributions in the
+        1.7.x release series [cjfields]
 
     [New features]
 
@@ -63,6 +87,8 @@ CPAN releases are branched from 'master'.
     * Bio::Cluster::SequenceFamily
         - improved performance when using get_members with overlapping multiple
           criteria
+    * Bio::SearchIO::hmmer3
+        - now supports nhmmer [bosborne]
 
     [Bug fixes]
 

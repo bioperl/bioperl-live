@@ -623,6 +623,7 @@ sub get_aln {
     my ($self) = @_;
     require Bio::LocatableSeq;
     require Bio::SimpleAlign;
+
     my $aln = Bio::SimpleAlign->new();
     my $hs = $self->hit_string();
     my $qs = $self->query_string();
@@ -642,24 +643,26 @@ sub get_aln {
     #}
     
     # mapping: 1 residues for every x coordinate positions
-    my $query = Bio::LocatableSeq->new('-seq'   => $qs,
-                                      '-id'    => $q_nm,
-                                      '-start' => $self->query->start,
-                                      '-end'   => $self->query->end,
-                                      '-strand'   => $self->query->strand,
-                                      '-force_nse' => $q_nm ? 0 : 1,
-                                      '-mapping' => [1, $self->{_query_mapping}]
-                                      );
+    my $query = Bio::LocatableSeq->new(
+        -seq       => $qs,
+        -id        => $q_nm,
+        -start     => $self->query->start,
+        -end       => $self->query->end,
+        -strand    => $self->query->strand,
+        -force_nse => $q_nm ? 0 : 1,
+        -mapping   => [ 1, $self->{_query_mapping} ]
+    );
     $seqonly = $hs;
     $seqonly =~ s/[\-\s]//g;
-    my $hit =  Bio::LocatableSeq->new('-seq'    => $hs,
-                                      '-id'    => $s_nm,
-                                      '-start' => $self->hit->start,
-                                      '-end'   => $self->hit->end,
-                                      '-strand'   => $self->hit->strand,
-                                      '-force_nse' => $s_nm ? 0 : 1,
-                                      '-mapping' => [1, $self->{_hit_mapping}]
-                                      );
+    my $hit = Bio::LocatableSeq->new(
+        -seq       => $hs,
+        -id        => $s_nm,
+        -start     => $self->hit->start,
+        -end       => $self->hit->end,
+        -strand    => $self->hit->strand,
+        -force_nse => $s_nm ? 0 : 1,
+        -mapping   => [ 1, $self->{_hit_mapping} ]
+    );
     $aln->add_seq($query);
     $aln->add_seq($hit);
     return $aln;
@@ -971,6 +974,29 @@ sub significance {
     return $self->{SIGNIFICANCE};
 }
 
+=head2 strand
+
+ Title   : strand
+ Usage   : $hsp->strand('query')
+ Function: Retrieves the strand for the HSP component requested
+ Returns : +1 or -1
+ Args    : 'hit' or 'subject' or 'sbjct' to retrieve the strand of the subject,
+           'query' to retrieve the query strand (default)
+
+=cut
+
+sub strand {
+    my ($self,$type) = @_;
+
+    if( $type =~ /^q/i && defined $self->{'QUERY_STRAND'} ) {
+        return $self->{'QUERY_STRAND'};
+    } elsif( $type =~ /^(hit|subject|sbjct)/i && defined $self->{'HIT_STRAND'} ) {
+        return $self->{'HIT_STRAND'};
+    } 
+
+    return $self->SUPER::strand($type)
+}
+
 =head2 score
 
  Title   : score
@@ -980,7 +1006,6 @@ sub significance {
  Returns : numeric
  Args    : [optional] new value to set
 
-
 =head2 bits
 
  Title   : bits
@@ -989,18 +1014,6 @@ sub significance {
  Function: Get/Set the bits value
  Returns : numeric
  Args    : [optional] new value to set
-
-
-=head2 strand
-
- Title   : strand
- Usage   : $hsp->strand('query')
- Function: Retrieves the strand for the HSP component requested
- Returns : +1 or -1 (0 if unknown)
- Args    : 'hit' or 'subject' or 'sbjct' to retrieve the strand of the subject
-           'query' to retrieve the query strand (default)
-
-=cut
 
 =head1 Private methods
 

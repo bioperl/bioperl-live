@@ -1,11 +1,13 @@
 language: perl
 perl:
+  - "5.18"
   - "5.16"
   - "5.14"
   - "5.12"
   - "5.10"
 
 env: PERL_CPANM_OPT="--notest --force --skip-satisfied"
+
 install:
     #This should solve problem installing Perl's DB_File & GraphViz
     - "sudo apt-get install libdb-dev graphviz libgd2-xpm-dev libxml2-dev 2>&1 | tail -n 4"
@@ -19,9 +21,11 @@ install:
     - "cpanm XML::SAX XML::SAX::Writer XML::Simple XML::LibXML XML::Twig XML::Writer 2>&1 | tail -n 1"
     - "cpanm PostScript::TextBlock Set::Scalar Sort::Naturally YAML | tail -n 1"
     - "cpanm Math::Random SOAP::Lite Spreadsheet::ParseExcel | tail -n 1"
-    - "cpanm Bio::ASN1::EntrezGene | tail -n 1"
+    #- "cpanm Bio::ASN1::EntrezGene | tail -n 1"
     - "cpanm Bio::Phylo | tail -n 1"
-    - "cpanm -f Bio::ASN1::EntrezGene | tail -n 1"
+    #for some reason tests and deps aren't skipped here.  Will have to look into it more...
+    #git repos, seems to only work for simple checkouts, so pure perl only (TODO: look into before_script for more detail)
+    - "git clone https://github.com/bioperl/Bio-Root.git; export PERL5LIB=$( pwd )/Bio-Root/lib:$PERL5LIB"
     #This installs BioPerl itself:
     - "perl ./Build.PL --accept"
 
@@ -36,4 +40,3 @@ notifications:
 branches:
   only:
     - master
-    - v1

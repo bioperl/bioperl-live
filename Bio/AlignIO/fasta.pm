@@ -79,42 +79,43 @@ See L<Bio::Align::AlignI>
 
 sub next_aln {
     my $self = shift;
-    my ($width) = $self->_rearrange([qw(WIDTH)],@_);
-    $self->width($width || $WIDTH);
+    my ($width) = $self->_rearrange( [qw(WIDTH)], @_ );
+    $self->width( $width || $WIDTH );
 
-    my ($start, $end, $name, $seqname, $seq, $seqchar, $entry,
-         $tempname, $tempdesc, %align, $desc, $maxlen);
+    my ($start, $end,      $name,     $seqname, $seq,  $seqchar,
+        $entry, $tempname, $tempdesc, %align,   $desc, $maxlen
+    );
     my $aln = Bio::SimpleAlign->new();
 
-    while (defined ($entry = $self->_readline) ) {
+    while ( defined( $entry = $self->_readline ) ) {
         chomp $entry;
         if ( $entry =~ s/^>\s*(\S+)\s*// ) {
-        $tempname  = $1;
-        chomp($entry);
-        $tempdesc = $entry;
+            $tempname = $1;
+            chomp($entry);
+            $tempdesc = $entry;
             if ( defined $name ) {
                 $seqchar =~ s/\s//g;
                 $seqname = $name;
-                $start = 1;
-                $end = $self->_get_len($seqchar);
-                $seq = Bio::LocatableSeq->new
-                (
-                  -seq         => $seqchar,
-                  -display_id  => $seqname,
-                  -description => $desc,
-                  -start       => $start,
-                  -end         => $end,
-                  -alphabet    => $self->alphabet,
-                  );
+                $start   = 1;
+                $end     = $self->_get_len($seqchar);
+                $seq     = Bio::LocatableSeq->new(
+                    -seq         => $seqchar,
+                    -display_id  => $seqname,
+                    -description => $desc,
+                    -start       => $start,
+                    -end         => $end,
+                    -alphabet    => $self->alphabet,
+                );
                 $aln->add_seq($seq);
                 $self->debug("Reading $seqname\n");
             }
-        $desc = $tempdesc;
-        $name = $tempname;
-        $desc = $entry;
-        $seqchar = "";
-        next;
+            $desc    = $tempdesc;
+            $name    = $tempname;
+            $desc    = $entry;
+            $seqchar = "";
+            next;
         }
+
         # removed redundant symbol validation
         # this is already done in Bio::PrimarySeq
         $seqchar .= $entry;
@@ -122,46 +123,48 @@ sub next_aln {
 
     #  Next two lines are to silence warnings that
     #  otherwise occur at EOF when using <$fh>
-    $name = "" if (!defined $name);
-    $seqchar="" if (!defined $seqchar);
+    $name    = "" if ( !defined $name );
+    $seqchar = "" if ( !defined $seqchar );
     $seqchar =~ s/\s//g;
 
     #  Put away last name and sequence
-    if ( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
+    if ( $name =~ /(\S+)\/(\d+)-(\d+)$/ ) {
         $seqname = $1;
-        $start = $2;
-        $end = $3;
-    } else {
+        $start   = $2;
+        $end     = $3;
+    }
+    else {
         $seqname = $name;
-        $start = 1;
-        $end = $self->_get_len($seqchar);
+        $start   = 1;
+        $end     = $self->_get_len($seqchar);
     }
 
     # This logic now also reads empty lines at the
     # end of the file. Skip this is seqchar and seqname is null
     unless ( length($seqchar) == 0 && length($seqname) == 0 ) {
-        $seq = Bio::LocatableSeq->new
-        (-seq         => $seqchar,
-         -display_id  => $seqname,
-         -description => $desc,
-         -start       => $start,
-         -end         => $end,
-         -alphabet    => $self->alphabet,
-         );
+        $seq = Bio::LocatableSeq->new(
+            -seq         => $seqchar,
+            -display_id  => $seqname,
+            -description => $desc,
+            -start       => $start,
+            -end         => $end,
+            -alphabet    => $self->alphabet,
+        );
         $aln->add_seq($seq);
         $self->debug("Reading $seqname\n");
     }
     my $alnlen = $aln->length;
     foreach my $seq ( $aln->each_seq ) {
         if ( $seq->length < $alnlen ) {
-            my ($diff) = ($alnlen - $seq->length);
-            $seq->seq( $seq->seq() . "-" x $diff);
+            my ($diff) = ( $alnlen - $seq->length );
+            $seq->seq( $seq->seq() . "-" x $diff );
         }
     }
 
     # no sequences means empty alignment (possible EOF)
     return $aln if $aln->num_sequences;
 }
+
 
 =head2 write_aln
 

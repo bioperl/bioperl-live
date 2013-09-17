@@ -8,7 +8,7 @@ BEGIN {
 #    use List::MoreUtils qw(uniq);
     use Bio::Root::Test;
     
-    test_begin(-tests => 128);
+    test_begin(-tests => 133);
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::SeqUtils');
@@ -203,7 +203,7 @@ my $ft3 = Bio::SeqFeature::Generic->new( -start => 3,
 $seq2->add_SeqFeature($ft2);
 $seq2->add_SeqFeature($ft3);
 
-
+my $seq1_length = $seq1->length;
 ok (Bio::SeqUtils->cat($seq1, $seq2));
 is $seq1->seq, 'aaaattttcccctttt';
 is scalar $seq1->annotation->get_Annotations, 5;
@@ -214,6 +214,10 @@ lives_ok {
   @tags = map{$_->get_tag_values(q(note))}$seq1->get_SeqFeatures ;
 } 'cat - note tag transfered (no throw)';
 cmp_ok(scalar(@tags),'==',3, 'cat - note tag values transfered (correct count)') ;
+my ($ft3_precat) = grep ($_->primary_tag eq 'hotspot', $seq2->get_SeqFeatures);
+is ($ft3_precat->start, 3, "get correct start of feature before 'cat'");
+my ($ft3_cat) = grep ($_->primary_tag eq 'hotspot', $seq1->get_SeqFeatures);
+is ($ft3_cat->start, 3+$seq1_length, "get correct start of feature after 'cat'");
 
 
 my $protseq = Bio::PrimarySeq->new(-id => 2, -seq => 'MVTF'); # protein seq
@@ -375,9 +379,13 @@ my $feature5 = Bio::SeqFeature::Generic->new(
   -end         => 20
 );
 
-for ($composite_feat1, $feature1, $feature2, $feature3, $feature4, $feature5) {
-   $seq_obj->add_SeqFeature( $_ );
-}
+my $feature6 = Bio::SeqFeature::Generic->new(
+  -primary_tag => 'feat6',
+  -seq_id      => 'seq1',
+  -start       => 11,
+  -end         => 25
+);
+$seq_obj->add_SeqFeature( $composite_feat1, $feature1, $feature2, $feature3, $feature4, $feature5, $feature6);
 
 my $coll = Bio::Annotation::Collection->new;
 $coll->add_Annotation(
@@ -471,6 +479,12 @@ is( @fd2_notes,1, 'feature 2 now has a note');
 is (shift @fd2_notes, "6bp deleted from feature 3' end", "note added to feature2 about deletion at 3' end");
 
 ok (!grep ($_->primary_tag eq 'feat5', $product->get_SeqFeatures), 'a feature that was completely positioned inside the deletion site is not present on the new molecule');
+
+my ($feature6_del) = grep ($_->primary_tag eq 'feat6', $product->get_SeqFeatures);
+ok ($feature6_del, "feature6 is till present");
+is ( $feature6_del->start, 11, 'start pos of a feature that started in the deletion site has been altered accordingly');
+is ( $feature6_del->end, 15, 'end pos of a feature that started in the deletion site has been altered accordingly');
+
 
 # insert
 lives_ok(
@@ -570,74 +584,79 @@ my ($fragment_feat_lig) = grep ($_->primary_tag eq 'frag_feat1', $product->get_S
 ok( $fragment_feat_lig, 'the fragment feature1 is now a feature of the product');
 is_deeply( [$fragment_feat_lig->start, $fragment_feat_lig->end], [17,19], 'start and end of a feature on the fragment are correct after insertion with "flip" option');
 
-# test clone_obj option (create new objects via clone not 'new')
-my $foo_seq_obj = Bio::Seq::Foo->new( 
-  -seq =>'aaaaaaaaaaccccccccccggggggggggtttttttttt',
-  -display_id => 'seq1',
-  -desc       => 'some sequence for testing'
-);
-for ($composite_feat1, $feature1, $feature2, $feature3, $feature4, $feature5) {
-    $foo_seq_obj->add_SeqFeature( $_ );
+
+SKIP: {
+    skip("Storable::dclone not supported yet for Bio::SeqUtils, see ", 9) if $Bio::Root::Root::CLONE_CLASS eq 'Storable';
+
+    # test clone_obj option (create new objects via clone not 'new')
+    my $foo_seq_obj = Bio::Seq::Foo->new(
+      -seq =>'aaaaaaaaaaccccccccccggggggggggtttttttttt',
+      -display_id => 'seq1',
+      -desc       => 'some sequence for testing'
+    );
+    for ($composite_feat1, $feature1, $feature2, $feature3, $feature4, $feature5) {
+        $foo_seq_obj->add_SeqFeature( $_ );
+    }
+    $foo_seq_obj->annotation($coll);
+
+    dies_ok(
+      sub {
+        $product = Bio::SeqUtils->delete( $foo_seq_obj, 11, 20, { clone_obj => 0} );
+      },
+      "Trying to delete from an object of a custom Bio::Seq subclass that doesn't allow calling 'new' throws an error"
+    );
+
+    lives_ok(
+      sub {
+        $product = Bio::SeqUtils->delete( $foo_seq_obj, 11, 20, { clone_obj => 1} );
+      },
+      "Deleting from Bio::Seq::Foo does not throw an error when using the 'clone_obj' option to clone instead of calling 'new'"
+    );
+
+    isa_ok( $product, 'Bio::Seq::Foo');
+
+    # just repeat some of the tests for the cloned feature
+    ok(
+      grep ($_ eq 'deletion of 10bp',
+        map ($_->get_tag_values('note'),
+          grep ($_->primary_tag eq 'misc_feature', $product->get_SeqFeatures)
+        )
+      ),
+      "the product has an additional 'misc_feature' and the note specifies the lengths of the deletion'"
+    );
+    ($composite_feat1_del) = grep ($_->primary_tag eq 'comp_feat1', $product->get_SeqFeatures);
+    ok ($composite_feat1_del, "The composite feature is still present");
+    isa_ok( $composite_feat1_del, 'Bio::SeqFeature::Generic');
+    isa_ok( $composite_feat1_del->location, 'Bio::Location::Split', "a composite feature that spanned the deletion site has been split up, Location");
+
+    # ligate with clone_obj
+    dies_ok(
+      sub {
+        $product = Bio::SeqUtils->ligate(
+          -recipient => $foo_seq_obj,
+          -fragment  => $fragment_obj,
+          -left      => 10,
+          -right     => 31,
+          -flip      => 1
+        );
+      },
+      "'ligate' without clone_obj option dies with a Bio::Seq::Foo object that can't call new"
+    );
+
+    lives_ok(
+      sub {
+        $product = Bio::SeqUtils->ligate(
+          -recipient => $foo_seq_obj,
+          -fragment  => $fragment_obj,
+          -left      => 10,
+          -right     => 31,
+          -flip      => 1,
+          -clone_obj => 1,
+        );
+      },
+      "'ligate' with clone_obj option works with a Bio::Seq::Foo object that can't call new"
+    );
 }
-$foo_seq_obj->annotation($coll);
-
-dies_ok(
-  sub {
-    $product = Bio::SeqUtils->delete( $foo_seq_obj, 11, 20, { clone_obj => 0} );
-  },
-  "Trying to delete from an object of a custom Bio::Seq subclass that doesn't allow calling 'new' throws an error"
-);
-
-lives_ok(
-  sub {
-    $product = Bio::SeqUtils->delete( $foo_seq_obj, 11, 20, { clone_obj => 1} );
-  },
-  "Deleting from Bio::Seq::Foo does not throw an error when using the 'clone_obj' option to clone instead of calling 'new'"
-);
-
-isa_ok( $product, 'Bio::Seq::Foo');
-
-# just repeat some of the tests for the cloned feature
-ok( 
-  grep ($_ eq 'deletion of 10bp', 
-    map ($_->get_tag_values('note'), 
-      grep ($_->primary_tag eq 'misc_feature', $product->get_SeqFeatures)
-    )
-  ),
-  "the product has an additional 'misc_feature' and the note specifies the lengths of the deletion'"
-);
-($composite_feat1_del) = grep ($_->primary_tag eq 'comp_feat1', $product->get_SeqFeatures);
-ok ($composite_feat1_del, "The composite feature is still present");
-isa_ok( $composite_feat1_del, 'Bio::SeqFeature::Generic');
-isa_ok( $composite_feat1_del->location, 'Bio::Location::Split', "a composite feature that spanned the deletion site has been split up, Location");
-
-# ligate with clone_obj
-dies_ok(
-  sub {
-    $product = Bio::SeqUtils->ligate( 
-      -recipient => $foo_seq_obj, 
-      -fragment  => $fragment_obj, 
-      -left      => 10, 
-      -right     => 31,
-      -flip      => 1
-    ); 
-  },
-  "'ligate' without clone_obj option dies with a Bio::Seq::Foo object that can't call new"
-);
-
-lives_ok(
-  sub {
-    $product = Bio::SeqUtils->ligate( 
-      -recipient => $foo_seq_obj, 
-      -fragment  => $fragment_obj, 
-      -left      => 10, 
-      -right     => 31,
-      -flip      => 1,
-      -clone_obj => 1,
-    ); 
-  },
-  "'ligate' with clone_obj option works with a Bio::Seq::Foo object that can't call new"
-);
 
 sub uniq_sort {
     my @args = @_;
@@ -648,7 +667,9 @@ sub uniq_sort {
 }
 
 package Bio::Seq::Foo;
+
 use base 'Bio::Seq';
+
 sub can_call_new { 0 }
 
 

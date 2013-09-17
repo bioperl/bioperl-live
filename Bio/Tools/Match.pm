@@ -85,7 +85,7 @@ Internal methods are usually preceded with a _
 package Bio::Tools::Match;
 use strict;
 
-use Bio::SeqFeature::Annotated;
+use Bio::SeqFeature::Generic;
 use Bio::Annotation::SimpleValue;
 
 use base qw(Bio::Root::Root Bio::Root::IO);
@@ -164,7 +164,7 @@ sub next_result {
     # Frequency of sites per nucleotide=32.347243
     
     my ($matrix_id, $start, $strand, $core_score, $matrix_score, $seq) = $line =~ /^\s(\S+)\s+\|\s+(\d+)\s+\(([+-])\)\s+\|\s+(\S+)\s+\|\s+(\S+)\s+\|\s+(\S+)/;
-    my $feat = Bio::SeqFeature::Annotated->new(
+    my $feat = Bio::SeqFeature::Generic->new(
         -seq_id => $self->{found_seq_id},
         -start  => $start, 
         -end    => $start + length($seq) - 1,

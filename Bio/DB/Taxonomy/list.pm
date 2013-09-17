@@ -233,12 +233,12 @@ sub add_lineage {
             my $next_num = ++$self->{node_ids};
             $node_id = $prefix.$next_num;
             push @{$self->{name_to_id}->{$name}}, $node_id;
-            $self->{node_data}->{$node_id} = [$name];
+            $self->{node_data}->{$node_id}->[0] = $name;
         }
 
         if ( (defined $rank) && (not defined $node_data->{$node_id}->[1]) ) {
             # Save rank if node in database has no rank but the current node has one
-            $node_data->{$node_id}->[1] = $rank;
+            $self->{node_data}->{$node_id}->[1] = $rank;
         }
 
         if ($my_ancestor_id) {
@@ -399,7 +399,7 @@ sub get_taxon {
 
 sub get_taxonids {
     my ($self, $name) = @_;
-    return @{$self->{name_to_id}->{$name} || []};
+    return wantarray() ? @{$self->{name_to_id}->{$name} || []} : $self->{name_to_id}->{$name}->[0];
 }
 
 *get_taxonid = \&get_taxonids;

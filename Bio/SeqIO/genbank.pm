@@ -190,6 +190,11 @@ use Bio::Annotation::DBLink;
 
 use base qw(Bio::SeqIO);
 
+# Note that a qualifier that exceeds one line (i.e. a long label) will
+# automatically be quoted regardless:
+
+our $FTQUAL_LINE_LENGTH = 60;
+
 our %FTQUAL_NO_QUOTE = map {$_ => 1} qw(
     anticodon           citation
     codon               codon_start
@@ -587,6 +592,14 @@ sub next_seq {
                       -version => $version,
                       -database => $db || 'GenBank',
                       -tagname => 'dblink'));
+		} elsif ( $dbsource =~ /^(\S*?):?\s*accession\s+(\S+)/ ) {
+                    my ($db,$id) = ($1,$2);
+                    $annotation->add_Annotation
+			('dblink',
+			 Bio::Annotation::DBLink->new
+			 (-primary_id => $id,
+			  -database => $db || 'GenBank',
+			  -tagname => 'dblink'));
                 } elsif ( $dbsource =~ /(\S+)([\.:])\s*(\S+)/ ) {
                     my ($db, $version);
                     my @ids = ();
@@ -1129,7 +1142,9 @@ sub _print_GenBank_FTHelper {
 	    }
 	    # there are almost 3x more quoted qualifier values and they
 	    # are more common too so we take quoted ones first
-	    elsif (!$FTQUAL_NO_QUOTE{$tag}) {
+            #
+            # Long qualifiers, that will be line wrapped, are always quoted
+	    elsif (!$FTQUAL_NO_QUOTE{$tag} or length("/$tag=$value") >= $FTQUAL_LINE_LENGTH) {
 		my ($pat) = ($value =~ /\s/ ? '\s|$' : '.|$');
 		$self->_write_line_GenBank_regex(" "x21,
 						 " "x21,
@@ -1533,7 +1548,7 @@ sub _read_FTHelper_GenBank {
 		    # to be a sequence (translation for example)
 		    # if(($value.$next) =~ /[^A-Za-z\"\-]/o) {
 		    # changed to explicitly look for translation tag - cjf 06/8/29
-		    if ($qualifier ne 'translation') {
+		    if ($qualifier !~ /^translation$/i ) {
 			$value .= " ";
 		    }
 		    $value .= $next;
