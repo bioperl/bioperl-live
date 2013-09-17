@@ -105,8 +105,8 @@ use vars qw($EntrezLocation $UrlParamSeparatorValue %EntrezParams
             $EntrezGet $EntrezSummary $EntrezFetch %SequenceParams
             $XMLTWIG $DATA_CACHE $RELATIONS);
 use strict;
-
 use Bio::Taxon;
+use Bio::DB::NCBIHelper;
 
 eval {
     require XML::Twig;
@@ -118,7 +118,7 @@ if( $@ ) {
 
 use base qw(Bio::WebAgent Bio::DB::Taxonomy);
 
-$EntrezLocation = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
+$EntrezLocation = $Bio::DB::NCBIHelper::HOSTBASE . '/entrez/eutils/';
 $EntrezGet      = 'esearch.fcgi';
 $EntrezFetch    = 'efetch.fcgi';
 $EntrezSummary  = 'esummary.fcgi';

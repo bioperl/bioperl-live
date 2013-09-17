@@ -98,11 +98,12 @@ preceded with a _
 package Bio::DB::Query::GenBank;
 use strict;
 use URI::Escape 'uri_unescape';
+use Bio::DB::NCBIHelper;
 
-use constant EPOST               => 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/epost.fcgi';
-use constant ESEARCH             => 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi';
-use constant DEFAULT_DB          => 'protein';
-use constant MAXENTRY            => 100;
+use constant EPOST       => $Bio::DB::NCBIHelper::HOSTBASE . '/entrez/eutils/epost.fcgi';
+use constant ESEARCH     => $Bio::DB::NCBIHelper::HOSTBASE . '/entrez/eutils/esearch.fcgi';
+use constant DEFAULT_DB  => 'protein';
+use constant MAXENTRY    => 100;
 
 use vars qw(@ATTRIBUTES);
 
