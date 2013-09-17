@@ -99,24 +99,26 @@ use base qw(Bio::DB::WebDBSeqI Bio::Root::Root);
 
 BEGIN {
     $MAX_ENTRIES = 19000;
-    $HOSTBASE = 'http://eutils.ncbi.nlm.nih.gov';
+    $HOSTBASE    = 'http://eutils.ncbi.nlm.nih.gov';
     %CGILOCATION = (
-			'batch'  => ['post' => '/entrez/eutils/epost.fcgi'],
-		    'query'  => ['get'  => '/entrez/eutils/efetch.fcgi'],
-		    'single' => ['get'  => '/entrez/eutils/efetch.fcgi'],
-		    'version'=> ['get'  => '/entrez/eutils/efetch.fcgi'],
-		    'gi'   =>   ['get'  => '/entrez/eutils/efetch.fcgi'],
-			'webenv' => ['get'  => '/entrez/eutils/efetch.fcgi']
-		     );
+        'batch'   => [ 'post' => '/entrez/eutils/epost.fcgi' ],
+        'query'   => [ 'get'  => '/entrez/eutils/efetch.fcgi' ],
+        'single'  => [ 'get'  => '/entrez/eutils/efetch.fcgi' ],
+        'version' => [ 'get'  => '/entrez/eutils/efetch.fcgi' ],
+        'gi'      => [ 'get'  => '/entrez/eutils/efetch.fcgi' ],
+        'webenv'  => [ 'get'  => '/entrez/eutils/efetch.fcgi' ]
+    );
 
-    %FORMATMAP = ( 'gb' => 'genbank',
-						   'gp' => 'genbank',
-						   'fasta' => 'fasta',
-						   'asn.1' => 'entrezgene',
-						   'gbwithparts' => 'genbank',
-					  );
+    %FORMATMAP = (
+        'gb'          => 'genbank',
+        'gp'          => 'genbank',
+        'fasta'       => 'fasta',
+        'asn.1'       => 'entrezgene',
+        'gbwithparts' => 'genbank',
+    );
     $DEFAULTFORMAT = 'gb';
 }
+
 
 # the new way to make modules a little more lightweight
 
