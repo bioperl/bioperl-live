@@ -180,17 +180,48 @@ sub from_string {
                     my @splitlocs = split(q(,), $sub);
                     $loc_obj = Bio::Location::Split->new(-verbose => 1,
                                                          -splittype => $oparg);
-                    while (my $splitloc = shift @splitlocs) {
+                    # Store strand values for later consistency check
+                    my @subloc_strands;
+                    my @s_objs;
+                    foreach my $splitloc (@splitlocs) {
                         next unless $splitloc;
                         my $sobj;
                         if ($splitloc =~ m{\(($LOCREG)\)}) {
                             my $comploc = $1;
                             $sobj = $self->_parse_location($comploc);
                             $sobj->strand(-1);
+                            push @subloc_strands, -1;
                         } else {
                             $sobj = $self->_parse_location($splitloc);
+                            push @subloc_strands, 1;
                         }
-                        $loc_obj->add_sub_Location($sobj);
+                        push @s_objs, $sobj;
+                    }
+
+                    # Sublocations strand values consistency check to set
+                    # Guide Strand and sublocations adding order
+                    if (scalar @s_objs > 0) {
+                        my $identical   = 0;
+                        my $first_value = $subloc_strands[0];
+                        foreach my $strand (@subloc_strands) {
+                            $identical++ if ($strand == $first_value);
+                        }
+
+                        if ($identical == scalar @subloc_strands) {
+                            $loc_obj->guide_strand($first_value);
+                            if ($first_value == -1) {
+                                @s_objs = reverse @s_objs;
+                            }
+                        }
+                        else {
+                            # Mixed strand values
+                            $loc_obj->guide_strand(undef);
+                        }
+
+                        # Add sublocations
+                        foreach my $s_obj (@s_objs) {
+                            $loc_obj->add_sub_Location($s_obj);
+                        }
                     }
                 } else {
                     $loc_obj = $self->from_string($sub, $oparg);
@@ -204,6 +235,7 @@ sub from_string {
                 $loc_obj = $self->from_string($subloc,1);
             }
             $loc_obj->strand(-1) if ($op && $op eq 'complement');
+
             push @loc_objs, $loc_obj;
         }
         my $ct = @loc_objs;
