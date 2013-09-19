@@ -82,7 +82,7 @@ use GD::Simple;
 
 sub new {
 	my ($class, @args) = @_;
-	my $self = {};
+	my $self = $class->SUPER::new(@args);
 	$self->{_fileInput}	= undef,
 	$self->{_fileOutput}	= undef,
 	$self->{_pencolor}	= 'blue',
