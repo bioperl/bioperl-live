@@ -66,7 +66,7 @@ Bio::SeqUtils - Additional methods for PrimarySeq objects
       -flip => 1 
     );
 
-    # delete a segment of a seqence (from pos 1000 to 1100, inclusive), 
+    # delete a segment of a sequence (from pos 1000 to 1100, inclusive),
     # again preserving features and annotations
     my $new_molecule = Bio::SeqUtils->cut( $seq, 1000, 1100 );
 
@@ -592,6 +592,11 @@ sub trunc_with_features {
     my $trunc = $seq->trunc( $start, $end );
     my $truncrange =
       Bio::Range->new( -start => $start, -end => $end, -strand => 0 );
+
+    # make sure that there is no annotation or features in $trunc
+    # (->trunc() now clone objects except for Bio::Seq::LargePrimarySeq)
+    $trunc->annotation->remove_Annotations;
+    $trunc->remove_SeqFeatures;
 
     # move annotations
     foreach my $key ( $seq->annotation->get_all_annotation_keys() ) {
@@ -1469,6 +1474,11 @@ sub revcom_with_features {
           . '] should be a Bio::SeqI ' )
       unless $seq->isa('Bio::SeqI');
     my $revcom = $seq->revcom;
+
+    # make sure that there is no annotation or features in $trunc
+    # (->revcom() now clone objects except for Bio::Seq::LargePrimarySeq)
+    $revcom->annotation->remove_Annotations;
+    $revcom->remove_SeqFeatures;
 
     #move annotations
     foreach my $key ( $seq->annotation->get_all_annotation_keys() ) {
