@@ -349,7 +349,7 @@ are encouraged to override these methods
            The id is the same id as the original sequence, and the
            accession number is also indentical. If someone wants to
            track that this sequence has be reversed, it needs to
-           define its own extensionsj.
+           define its own extensions.
 
            To do an inplace edit of an object you can go:
 
@@ -373,7 +373,8 @@ sub revcom {
     my $out;
     if (   $self->isa('Bio::Seq::LargePrimarySeq')
         or $self->isa('Bio::Seq::LargeSeq')
-        ) {my ($seqclass, $opts) = $self->_setup_class;
+        ) {
+        my ($seqclass, $opts) = $self->_setup_class;
         $out = $seqclass->new(
             -seq              => $self->_revcom_from_string($self->seq, $self->alphabet),
             -is_circular      => $self->is_circular,
