@@ -390,7 +390,10 @@ sub subseq {
         # pass the sublocations in reverse
         my $order = 0;
         if ($loc->isa('Bio::Location::SplitLocationI')) {
-            $order = ($loc->guide_strand() == -1) ? -1 : 0;
+            # guide_strand can return undef, so don't compare directly
+            # to avoid 'uninitialized value' warning
+            my $guide_strand = defined ($loc->guide_strand) ? ($loc->guide_strand) : 0;
+            $order = ($guide_strand == -1) ? -1 : 0;
         }
         # Reversing order using ->each_Location(-1) does not work well for
         # cut by origin-splits (like "complement(join(1900..END,START..50))"),
@@ -402,7 +405,11 @@ sub subseq {
                                       -replace_with => $replace,
                                       -nogap        => $nogap);
             $piece =~ s/[$GAP_SYMBOLS]//g if $nogap;
-            if ($subloc->strand() < 0) {
+
+            # strand can return undef, so don't compare directly
+            # to avoid 'uninitialized value' warning
+            my $strand = defined ($subloc->strand) ? ($subloc->strand) : 0;
+            if ($strand < 0) {
                 $piece = $self->_revcom_from_string($piece, $self->alphabet);
             }
             $seq .= $piece;
