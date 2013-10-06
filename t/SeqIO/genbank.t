@@ -6,7 +6,7 @@ use strict;
 BEGIN {
     use lib '.';
 	use Bio::Root::Test;
-	test_begin(-tests => 282 );
+	test_begin(-tests => 287 );
     use_ok('Bio::SeqIO::genbank');
 }
 
@@ -640,3 +640,20 @@ is($dblinks[4]->version, '3');
     my ($read_label)=$read_feature->get_tag_values('label');
     is($read_label, $label, 'Label is the same');
 }
+
+# bug 3448
+
+$in = Bio::SeqIO->new(-format => 'genbank',
+        -file => test_input_file('YP_007988852.gp'),
+        -verbose => $verbose);
+$seq = $in->next_seq();     # should not throw a warning now
+is($seq->length, 205);
+
+my @anns = $seq->annotation->get_Annotations('contig');
+is(@anns, 1);
+isa_ok($anns[0], 'Bio::Annotation::SimpleValue');
+is($anns[0]->value, 'join(WP_015639704.1:1..205)');
+
+is($seq->seq, 'MENRKFGYIRVSSKDQNEGRQLEAMRKIGITERDIYLDKQSGKNFERANYQLLKRIIRKGDI'.
+   'LYIHSLDRFGRNKEEILQEWNDLTKNIEADIVVLDMPLLDTTQYKDSMGTFIADLVLQILSWMAEEERERIRK'.
+   'RQREGIDLALQNGIQFGRSPVVVSDEFKEVYRKWKAKELTAVEAMQEAGVKKTSFYKLVKAHENSIKVNS');
