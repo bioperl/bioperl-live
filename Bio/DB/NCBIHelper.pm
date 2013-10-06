@@ -86,7 +86,6 @@ preceded with a _
 
 package Bio::DB::NCBIHelper;
 use strict;
-use vars qw($HOSTBASE %CGILOCATION %FORMATMAP $DEFAULTFORMAT $MAX_ENTRIES);
 
 use Bio::DB::Query::GenBank;
 use HTTP::Request::Common;
@@ -97,11 +96,10 @@ use URI::Escape qw(uri_unescape);
 
 use base qw(Bio::DB::WebDBSeqI Bio::Root::Root);
 
-BEGIN {
-    $MAX_ENTRIES   = 19000;
-    $HOSTBASE      = 'http://eutils.ncbi.nlm.nih.gov';
-    $REQUEST_DELAY = 3;
-    %CGILOCATION = (
+our $HOSTBASE = 'http://eutils.ncbi.nlm.nih.gov';
+our $MAX_ENTRIES = 19000;
+our $REQUEST_DELAY = 3;
+our %CGILOCATION = (
         'batch'   => [ 'post' => '/entrez/eutils/epost.fcgi' ],
         'query'   => [ 'get'  => '/entrez/eutils/efetch.fcgi' ],
         'single'  => [ 'get'  => '/entrez/eutils/efetch.fcgi' ],
@@ -109,16 +107,14 @@ BEGIN {
         'gi'      => [ 'get'  => '/entrez/eutils/efetch.fcgi' ],
         'webenv'  => [ 'get'  => '/entrez/eutils/efetch.fcgi' ]
     );
-
-    %FORMATMAP = (
+our %FORMATMAP = (
         'gb'          => 'genbank',
         'gp'          => 'genbank',
         'fasta'       => 'fasta',
         'asn.1'       => 'entrezgene',
         'gbwithparts' => 'genbank',
     );
-    $DEFAULTFORMAT = 'gb';
-}
+our $DEFAULTFORMAT = 'gb';
 
 =head2 new
 
