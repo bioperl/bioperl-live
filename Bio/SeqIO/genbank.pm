@@ -838,15 +838,14 @@ s/\s+(sequence|annotation)\s+updated:\s+([^\.]+)\.\n//g
             $_ = $buffer;
         }
 
-        # CONTIG lines
         if ( defined($_) ) {
-            if (/^CONTIG/o) {
-                my @contig;
-                my $ctg = '';
-                while ( $_ !~ m{^//} ) {    # end of file
-                    $_ =~ /^(?:CONTIG)?\s+(.*)/;
-                    $ctg .= $1;
-                    $_ = $self->_readline;
+            # CONTIG lines: TODO, this needs to be cleaned up
+            if (/^CONTIG\s+(.*)/o) {
+                my $ctg = $1;
+                while ( defined( $_ = $self->_readline)) {
+                    last if m{^ORIGIN|//}o;
+                    s/\s+(.*)/$1/;
+                    $ctg .= $_;
                 }
                 if ($ctg) {
                     $annotation->add_Annotation(
@@ -856,7 +855,6 @@ s/\s+(sequence|annotation)\s+updated:\s+([^\.]+)\.\n//g
                         )
                     );
                 }
-                $self->_pushback($_);
             }
             elsif (/^WGS|WGS_SCAFLD\s+/o) {    # catch WGS/WGS_SCAFLD lines
                 while ( $_ =~ s/(^WGS|WGS_SCAFLD)\s+// ) {    # gulp lines
@@ -870,7 +868,7 @@ s/\s+(sequence|annotation)\s+updated:\s+([^\.]+)\.\n//g
                     $_ = $self->_readline;
                 }
             }
-            elsif ( !m{^(ORIGIN|//)} ) {    # advance to the sequence, if any
+            elsif ( !m{^ORIGIN|//}o ) {    # advance to the sequence, if any
                 while ( defined( $_ = $self->_readline ) ) {
                     last if m{^(ORIGIN|//)};
                 }
@@ -881,11 +879,9 @@ s/\s+(sequence|annotation)\s+updated:\s+([^\.]+)\.\n//g
             next RECORDSTART;
         }
         if ( $builder->want_slot('seq') ) {
-
             # the fact that we want a sequence does not necessarily mean that
             # there also is a sequence ...
             if ( defined($_) && s/^ORIGIN\s+// ) {
-                chomp;
                 if ( $annotation && length($_) > 0 ) {
                     $annotation->add_Annotation(
                         'origin',
@@ -897,13 +893,12 @@ s/\s+(sequence|annotation)\s+updated:\s+([^\.]+)\.\n//g
                 }
                 my $seqc = '';
                 while ( defined( $_ = $self->_readline ) ) {
-                    m{^//} && last;
+                    last if m{^//};
                     $_ = uc($_);
                     s/[^A-Za-z]//g;
                     $seqc .= $_;
                 }
 
-                #$self->debug("sequence length is ". length($seqc) ."\n");
                 $builder->add_slot_value( -seq => $seqc );
             }
         }
