@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 61);
+    test_begin(-tests => 71);
 
     use_ok('Bio::Tools::CodonTable');
     use_ok('Bio::CodonUsage::IO');
@@ -177,7 +177,7 @@ my @custom_table =
     );
 
 ok my $custct = $myCodonTable->add_table(@custom_table);
-is $custct, 24;
+is $custct, 25;
 is $myCodonTable->translate('atgaaraayacmacracwacka'), 'MKNTTTT';
 ok $myCodonTable->id($custct);
 is $myCodonTable->translate('atgaaraayacmacracwacka'), 'MKXXTTT';
@@ -208,3 +208,24 @@ ok $seq = Bio::PrimarySeq->new(-seq =>'ACDEFGHIKLMNPQRSTVWY');
 ok my $io = Bio::CodonUsage::IO->new(-file => test_input_file('MmCT'));
 ok my $cut = $io->next_data();
 is $myCodonTable->reverse_translate_best($seq,$cut), 'GCCTGCGACGAGTTCGGCCACATCAAGCTGATGAACCCCCAGCGCTCCACCGTGTGGTAC';
+
+#
+# test 'Strict' table, requires a Bio::CodonUsage::Table object
+#
+
+$myCodonTable = Bio::Tools::CodonTable->new();
+
+#  boolean tests
+is $myCodonTable->is_start_codon('ATG'), 1;
+is $myCodonTable->is_start_codon('GTG'), 0;
+is $myCodonTable->is_start_codon('TTG'), 1;
+is $myCodonTable->is_start_codon('CTG'), 1;
+is $myCodonTable->is_start_codon('CCC'), 0;
+
+$myCodonTable->id(24);
+
+is $myCodonTable->is_start_codon('ATG'), 1;
+is $myCodonTable->is_start_codon('GTG'), 0;
+is $myCodonTable->is_start_codon('TTG'), 0;
+is $myCodonTable->is_start_codon('CTG'), 0;
+is $myCodonTable->is_start_codon('CCC'), 0;
