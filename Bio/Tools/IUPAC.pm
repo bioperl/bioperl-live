@@ -45,26 +45,26 @@ described below:
     IUPAC-IUB SYMBOLS FOR NUCLEOTIDE (DNA OR RNA) NOMENCLATURE:
       Cornish-Bowden (1985) Nucl. Acids Res. 13: 3021-3030
 
-    ------------------------------------------
+    ---------------------------------------------------------------
     Symbol       Meaning      Nucleic Acid
-    ------------------------------------------
+    ---------------------------------------------------------------
      A            A           Adenine
      C            C           Cytosine
      G            G           Guanine
      T            T           Thymine
      U            U           Uracil
-     M          A or C
-     R          A or G
-     W          A or T
-     S          C or G
-     Y          C or T
-     K          G or T
-     V        A or C or G
-     H        A or C or T
-     D        A or G or T
-     B        C or G or T
-     X      G or A or T or C
-     N      G or A or T or C
+     M          A or C        aMino
+     R          A or G        puRine
+     W          A or T        Weak
+     S          C or G        Strong
+     Y          C or T        pYrimidine
+     K          G or T        Keto
+     V        A or C or G     not T (closest unused char after T)
+     H        A or C or T     not G (closest unused char after G)
+     D        A or G or T     not C (closest unused char after C)
+     B        C or G or T     not A (closest unused char after A)
+     X      G or A or T or C  Unknown (very rarely used)
+     N      G or A or T or C  Unknown (commonly used)
 
 
     IUPAC-IUP AMINO ACID SYMBOLS:
