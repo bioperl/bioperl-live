@@ -220,7 +220,8 @@ BEGIN {
      '', '',  '', '',
      'Trematode Mitochondrial',# 21
      'Scenedesmus obliquus Mitochondrial', #22
-     'Thraustochytrium Mitochondrial' #23
+     'Thraustochytrium Mitochondrial', #23
+     'Strict', #24, option for only ATG start
      );
 
     @TABLES =
@@ -244,6 +245,7 @@ BEGIN {
        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG
        FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        );
 
    #           (bases used for these tables, for reference)
@@ -272,6 +274,7 @@ BEGIN {
        -----------------------------------M---------------M------------
        -----------------------------------M----------------------------
        --------------------------------M--M---------------M------------
+       -----------------------------------M----------------------------
        );
 
     my @nucs = qw(t c a g);
