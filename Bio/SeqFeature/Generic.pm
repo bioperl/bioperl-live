@@ -240,7 +240,7 @@ sub set_attributes {
         $self->warn("-seqname is deprecated. Please use -seq_id instead.");
         $seqid = $seqname unless $seqid;
     }
-    $seqid          && $self->seq_id($seqid);
+    $self->seq_id($seqid) if (defined($seqid));
     $tag            && do {
         foreach my $t ( keys %$tag ) {
             $self->add_tag_value($t, UNIVERSAL::isa($tag->{$t}, "ARRAY") ? @{$tag->{$t}} : $tag->{$t});
