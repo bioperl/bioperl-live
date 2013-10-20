@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 # Deob_detail.cgi
 # part of the Deobfuscator package
@@ -79,7 +79,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  https://redmine.open-bio.org/projects/bioperl/
+  http://bugzilla.bioperl.org/
 
 
 =head1 SEE ALSO
