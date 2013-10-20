@@ -10,7 +10,7 @@ package Deobfuscator;
 # part of the Deobfuscator package
 # by Laura Kavanaugh and Dave Messina
 #
-# cared for by Dave Messina <dave-pause@davemessina.net>
+# cared for by Dave Messina <dave-pause@davemessina.com>
 #
 # POD documentation - main docs before the code
 
@@ -87,6 +87,15 @@ transient filesystem error.
 
 =back
 
+=item C<< error: couldn't load [module] >>
+
+The BioPerl modules aren't in the Perl lib (PERL5LIB) and so can't be searched
+(the Deobfuscator uses I<Class::Inspector> for this. Check that the value of
+your PERL5LIB includes BioPerl's modules. If need be, you can set a use lub directive
+at the beginning of deob_interface.cgi.
+
+=back
+
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -139,24 +148,13 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                       - General discussion
   http://www.bioperl.org/wiki/Mailing_lists   - About the mailing lists
 
-=head2 Support 
- 
-Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
-with code and data examples if at all possible.
-
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  https://redmine.open-bio.org/projects/bioperl/
+  http://bugzilla.bioperl.org/
 
 
 =head1 SEE ALSO
@@ -248,7 +246,8 @@ sub return_methods {
     foreach my $class (@input) {
 
         # fancy eval so that we can loop through different modules
-        _load_module($class);
+        my $retval = _load_module($class);
+	if ($retval) { die "error: couldn't load $class: $retval\n"; }
 
         # methods returned from Class::Inspector as:
         # [
@@ -293,7 +292,8 @@ sub print_methods {
     foreach my $class (@input) {
 
         # fancy eval so that we can loop through different modules
-        _load_module($class);
+        my $retval = _load_module($class);
+	if ($retval) { die "error: couldn't load $class: $retval\n"; }
 
         # methods returned as
         # [
