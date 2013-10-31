@@ -9,11 +9,11 @@ BEGIN {
 
     test_begin(-tests => 62);
 
-    use_ok('Bio::Root::Root');
+    use_ok 'Bio::Root::Root';
 }
 
 ok my $obj = Bio::Root::Root->new();
-isa_ok($obj, 'Bio::Root::RootI');
+isa_ok $obj, 'Bio::Root::RootI';
 
 throws_ok { $obj->throw('Testing throw') } qr/Testing throw/;# 'throw failed';
 
@@ -94,7 +94,7 @@ is shift @vals, 'stairs';
 {
     local $Bio::Root::Root::VERSION = 8.9;
     warning_like{ Bio::Root::Root->deprecated('Test1') } qr/Test1/, 'simple';
-    warning_like{ Bio::Root::Root->deprecated(-message => 'Test2') } qr/Test2/, 'simple';
+    warning_like{ Bio::Root::Root->deprecated(-message => 'Test2') } qr/Test2/;
     warning_like{ Bio::Root::Root->deprecated('Test3', 999.999) } qr/Test3/,
         'warns for versions below current version';
     warning_like{ Bio::Root::Root->deprecated(-message => 'Test4',
@@ -171,7 +171,7 @@ ok $obj->can('t3'), 'arg callable since method was created';
 ok $obj->can('test_4'), 'mal-formed arg callable since method was created with good name';
 for my $m (qw(t3 test_4)) {
     can_ok('Bio::Foo2',$m);
-    ok (!Bio::Root::Root->can($m), "Methods don't pollute original Bio::Root::Root namespace");
+    ok ! Bio::Root::Root->can($m), "Methods don't pollute original Bio::Root::Root namespace";
 }
 
 {
@@ -189,11 +189,11 @@ for my $m (qw(t3 test_4)) {
 }
 
 $obj = Bio::Foo3->new(-verbose => 1, t5 => 1, '--Test-6' => 2);
-can_ok($obj, 't5');
+can_ok $obj, 't5';
 ok ! $obj->can('test_6'), 'arg not in method list not created';
 
 can_ok ('Bio::Foo3','t5');
-ok (!UNIVERSAL::can('Bio::Root::Root','t5'), "Methods don't pollute original Bio::Root::Root namespace");
+ok ! UNIVERSAL::can('Bio::Root::Root','t5'), "Methods don't pollute original Bio::Root::Root namespace";
 
 {
     package Bio::Foo4;
@@ -224,27 +224,29 @@ is $obj->test_8, 2, 'mal-formed arg correctly resolved to created method';
 is $obj->t8, 2, 'synonym of set method was set correctly';
 
 for my $m (qw(t7 test7 test_8 t8)) {
-    can_ok('Bio::Foo4',$m);
-    ok(!UNIVERSAL::can('Bio::Root::Root','t7'), "Methods don't pollute original Bio::Root::Root namespace");
+    can_ok 'Bio::Foo4', $m;
+    ok ! UNIVERSAL::can('Bio::Root::Root','t7'), "Methods don't pollute original Bio::Root::Root namespace";
 }
 
 # test basic Root::clone()
 
 my $clone = $obj->clone;
 
-is($clone->t7, $obj->t7, 'clone');
-is($clone->test7, $obj->test7, 'clone');
-is($clone->test_8, $obj->test_8, 'clone');
+is $clone->t7, $obj->t7, 'clone';
+is $clone->test7, $obj->test7, 'clone';
+is $clone->test_8, $obj->test_8, 'clone';
 $clone->test_8('xyz');
-isnt($clone->test_8, $obj->test_8, 'clone changed, original didn\'t');
+isnt $clone->test_8, $obj->test_8, 'clone changed, original didn\'t';
 
 # test Root::clone() with parameter passing, only works for methods
 # (introspection via can())
 
 my $clone2 = $obj->clone(-t7 => 'foo');
 
-is($clone2->t7, 'foo', 'parameters passed to clone() modify object');
-is($obj->t7, 1, 'original is not modified');
+is $clone2->t7, 'foo', 'parameters passed to clone() modify object';
+is $obj->t7, 1, 'original is not modified';
+
+
 
 # test deprecations using start_version
 {
