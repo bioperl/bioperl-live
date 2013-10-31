@@ -64,7 +64,6 @@ use warnings;
 use base qw(Bio::Root::Root);
 
 use Bio::PhyloNetwork;
-use Math::Random;
 use Bio::Tree::RandomFactory;
 
 =head2 new
