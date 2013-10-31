@@ -31,6 +31,7 @@ Most of the code is based on the C implementation of these routines in
 Mike Sanderson's r8s's package.  See http://loco.biosci.arizona.edu/r8s/ for
 information on his software.
 
+=for comment
 This code tries to be fast and use available faster BigInt and GMP
 library methods when those modules are available.
 
@@ -89,7 +90,7 @@ require Exporter;
 use vars qw(%LOADED @EXPORT_OK); use strict;
 
 #use Math::BigFloat lib => 'GMP,Bit::Vector';
-#use Math::BigInt lib  => 'GMP,Bit::Vector';
+#use Math::BigInt   lib => 'GMP,Bit::Vector';
 use POSIX;
 
 use base qw(Bio::Root::Root);
