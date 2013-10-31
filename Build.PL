@@ -105,9 +105,6 @@ my %recommends = (
     'LWP::UserAgent'            => [0,
         'Remote access/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::WebAgent'],
 
-    'Math::Random'              => [0,
-        'Random Phylogenetic Networks/Bio::PhyloNetwork::RandomFactory'],
-
     'PostScript::TextBlock'     => [0,
         'EPS output/Bio::Tree::Draw::Cladogram'],
 
