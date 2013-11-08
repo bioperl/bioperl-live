@@ -364,7 +364,7 @@ sub new {
             $offsets = $self->index_file($path, $opts{-reindex});
             $dirname = dirname($path);
         } else {
-            $self->throw( "$path: Invalid file or dirname");
+            $self->throw( "No file or directory called '$path'");
         }
     }
     @{$self}{qw(dirname offsets)} = ($dirname, $offsets);
