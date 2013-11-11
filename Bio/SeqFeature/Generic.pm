@@ -321,7 +321,7 @@ sub start {
     return $self->location->start() if not defined $self->{'_gsf_seq'};
     # Check circular sequences cut by origin
     my $start;
-    if (    $self->{'_gsf_seq'}->is_circular == 1
+    if (    $self->{'_gsf_seq'}->is_circular
         and $self->location->isa('Bio::Location::SplitLocationI')
         ) {
         my $primary_seq_length = $self->{'_gsf_seq'}->length;
@@ -374,7 +374,7 @@ sub end {
     return $self->location->end() if not defined $self->{'_gsf_seq'};
     # Check circular sequences cut by origin
     my $end;
-    if (    $self->{'_gsf_seq'}->is_circular == 1
+    if (    $self->{'_gsf_seq'}->is_circular
         and $self->location->isa('Bio::Location::SplitLocationI')
         ) {
         my $primary_seq_length = $self->{'_gsf_seq'}->length;
