@@ -597,17 +597,25 @@ sub spliced_seq {
 		# in turn returns a string.  Confused?
 	    $seqstr .= $called_seq->subseq($s,$e)->seq()->seq();
 	} else {
-	    # This is dumb, subseq should work on locations...
-	    if( $loc->strand == 1 ) {
+	    # If guide_strand is defined, assemble the sequence first and revcom later if needed,
+	    # if its not defined, apply revcom immediately to proper locations
+	    if (defined $self->location->guide_strand) {
 		$seqstr .= $called_seq->subseq($loc->start,$loc->end);
 	    } else {
-		if( $nosort ) {
-		    $seqstr = $called_seq->trunc($loc->start,$loc->end)->revcom->seq() . $seqstr;
+		my $strand = defined ($loc->strand) ? ($loc->strand) : 0;
+		if ($strand == -1) {
+		    $seqstr .= $called_seq->trunc($loc->start,$loc->end)->revcom->seq;
 		} else {
-		    $seqstr .= $called_seq->trunc($loc->start,$loc->end)->revcom->seq();
+		    $seqstr .= $called_seq->subseq($loc->start,$loc->end);
 		}
 	    }
 	}
+    }
+    # Use revcom only after the whole sequence has been assembled
+    my $guide_strand = defined ($self->location->guide_strand) ? ($self->location->guide_strand) : 0;
+    if ($guide_strand == -1) {
+	my $seqstr_obj = Bio::Seq->new(-seq => $seqstr);
+	$seqstr = $seqstr_obj->revcom->seq;
     }
     
     if (defined($phase)) {

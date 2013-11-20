@@ -190,6 +190,11 @@ use Bio::Annotation::DBLink;
 
 use base qw(Bio::SeqIO);
 
+# Note that a qualifier that exceeds one line (i.e. a long label) will
+# automatically be quoted regardless:
+
+our $FTQUAL_LINE_LENGTH = 60;
+
 our %FTQUAL_NO_QUOTE = map {$_ => 1} qw(
     anticodon           citation
     codon               codon_start
@@ -251,532 +256,667 @@ sub _initialize {
 =cut
 
 sub next_seq {
-    my ($self,@args) = @_;
-    my %args = @args;
+    my ( $self, @args ) = @_;
+    my %args    = @args;
     my $builder = $self->sequence_builder();
     my $seq;
     my %params;
 
   RECORDSTART:
     while (1) {
-	my $buffer;
-	my (@acc, @features);
-	my ($display_id, $annotation);
-	my $species;
+        my $buffer;
+        my ( @acc,        @features );
+        my ( $display_id, $annotation );
+        my $species;
 
-	# initialize; we may come here because of starting over
-	@features = ();
-	$annotation = undef;
-	@acc = ();
-	$species = undef;
-	%params = (-verbose => $self->verbose);	# reset hash
-	local($/) = "\n";
-	while(defined($buffer = $self->_readline())) {
-	    last if index($buffer,'LOCUS       ') == 0;
-	}
-	return unless defined $buffer; # end of file
-	$buffer =~ /^LOCUS\s+(\S.*)$/o ||
-	    $self->throw("GenBank stream with bad LOCUS line. Not GenBank in my book. Got '$buffer'");
+        # initialize; we may come here because of starting over
+        @features   = ();
+        $annotation = undef;
+        @acc        = ();
+        $species    = undef;
+        %params     = ( -verbose => $self->verbose );    # reset hash
+        local ($/) = "\n";
+        while ( defined( $buffer = $self->_readline() ) ) {
+            last if index( $buffer, 'LOCUS       ' ) == 0;
+        }
+        return unless defined $buffer;                   # end of file
+        $buffer =~ /^LOCUS\s+(\S.*)$/o
+          || $self->throw(
+"GenBank stream with bad LOCUS line. Not GenBank in my book. Got '$buffer'"
+          );
 
-	my @tokens = split(' ', $1);
-    
-	# this is important to have the id for display in e.g. FTHelper,
-	# otherwise you won't know which entry caused an error
-	$display_id = shift(@tokens);
-	$params{'-display_id'} = $display_id;
-	# may still be useful if we don't want the seq
-    my $seqlength = shift(@tokens);
-    if (exists $VALID_ALPHABET{$seqlength}) {
-        # moved one token too far.  No locus name?
-        $self->warn("Bad LOCUS name?  Changing [$params{'-display_id'}] to 'unknown' and length to $display_id");
-        $params{'-display_id'} = 'unknown';
-        $params{'-length'} = $display_id;
-        # add token back...
-        unshift @tokens, $seqlength;
-    } else {
-    	$params{'-length'} = $seqlength;
-    }
-	# the alphabet of the entry
-    # shouldn't assign alphabet unless one is specifically designated (such as for rc files)
-    my $alphabet = lc(shift @tokens);
-	$params{'-alphabet'} = (exists $VALID_ALPHABET{$alphabet}) ? $VALID_ALPHABET{$alphabet} :
-                           $self->warn("Unknown alphabet: $alphabet");
-	# for aa there is usually no 'molecule' (mRNA etc)
-    if ($params{'-alphabet'} eq 'protein') {
-	    $params{'-molecule'} = 'PRT'
-    } else {
-        $params{'-molecule'} = shift(@tokens);
-    }
-    # take care of lower case issues
-    if ($params{'-molecule'} eq 'dna' || $params{'-molecule'} eq 'rna') {
-        $params{'-molecule'} = uc $params{'-molecule'};
-    }
-    $self->debug("Unrecognized molecule type:".$params{'-molecule'}) if
-        !exists($VALID_MOLTYPE{$params{'-molecule'}});
-	my $circ = shift(@tokens);
-    if ($circ eq 'circular') {
-        $params{'-is_circular'} = 1;
-        $params{'-division'} = shift(@tokens);
-    } else {
-        # 'linear' or 'circular' may actually be omitted altogether
-        $params{'-division'} =
-            (CORE::length($circ) == 3 ) ? $circ : shift(@tokens);
-    }
-	my $date = join(' ', @tokens); # we lump together the rest
+        my @tokens = split( ' ', $1 );
 
-	# this is per request bug #1513
-	# we can handle
-	# 9-10-2003
-	# 9-10-03
-	# 09-10-2003
-	# 09-10-03
-	if($date =~ s/\s*((\d{1,2})-(\w{3})-(\d{2,4})).*/$1/) {
-	    if( length($date) < 11 ) {
-            # improperly formatted date
-            # But we'll be nice and fix it for them
-            my ($d,$m,$y) = ($2,$3,$4);
-            if( length($d) == 1 ) {
-                $d = "0$d";
-            }
-            # guess the century here
-            if( length($y) == 2 ) {
-                if( $y > 60 ) { # arbitrarily guess that '60' means 1960
-                    $y = "19$y";
-                } else {
-                    $y = "20$y";
+        # this is important to have the id for display in e.g. FTHelper,
+        # otherwise you won't know which entry caused an error
+        $display_id = shift(@tokens);
+        $params{'-display_id'} = $display_id;
+
+        # may still be useful if we don't want the seq
+        my $seqlength = shift(@tokens);
+        if ( exists $VALID_ALPHABET{$seqlength} ) {
+
+            # moved one token too far.  No locus name?
+            $self->warn(
+"Bad LOCUS name?  Changing [$params{'-display_id'}] to 'unknown' and length to $display_id"
+            );
+            $params{'-display_id'} = 'unknown';
+            $params{'-length'}     = $display_id;
+
+            # add token back...
+            unshift @tokens, $seqlength;
+        }
+        else {
+            $params{'-length'} = $seqlength;
+        }
+
+# the alphabet of the entry
+# shouldn't assign alphabet unless one is specifically designated (such as for rc files)
+        my $alphabet = lc( shift @tokens );
+        $params{'-alphabet'} =
+          ( exists $VALID_ALPHABET{$alphabet} )
+          ? $VALID_ALPHABET{$alphabet}
+          : $self->warn("Unknown alphabet: $alphabet");
+
+        # for aa there is usually no 'molecule' (mRNA etc)
+        if ( $params{'-alphabet'} eq 'protein' ) {
+            $params{'-molecule'} = 'PRT';
+        }
+        else {
+            $params{'-molecule'} = shift(@tokens);
+        }
+
+        # take care of lower case issues
+        if ( $params{'-molecule'} eq 'dna' || $params{'-molecule'} eq 'rna' ) {
+            $params{'-molecule'} = uc $params{'-molecule'};
+        }
+        $self->debug( "Unrecognized molecule type:" . $params{'-molecule'} )
+          if !exists( $VALID_MOLTYPE{ $params{'-molecule'} } );
+        my $circ = shift(@tokens);
+        if ( $circ eq 'circular' ) {
+            $params{'-is_circular'} = 1;
+            $params{'-division'}    = shift(@tokens);
+        }
+        else {
+            # 'linear' or 'circular' may actually be omitted altogether
+            $params{'-division'} =
+              ( CORE::length($circ) == 3 ) ? $circ : shift(@tokens);
+        }
+        my $date = join( ' ', @tokens );    # we lump together the rest
+
+        # this is per request bug #1513
+        # we can handle
+        # 9-10-2003
+        # 9-10-03
+        # 09-10-2003
+        # 09-10-03
+        if ( $date =~ s/\s*((\d{1,2})-(\w{3})-(\d{2,4})).*/$1/ ) {
+            if ( length($date) < 11 ) {
+
+                # improperly formatted date
+                # But we'll be nice and fix it for them
+                my ( $d, $m, $y ) = ( $2, $3, $4 );
+                if ( length($d) == 1 ) {
+                    $d = "0$d";
                 }
-                $self->warn("Date was malformed, guessing the century for $date to be $y\n");
-            }
-            $params{'-dates'} = [join('-',$d,$m,$y)];
-        } else {
-            $params{'-dates'} = [$date];
-	    }
-	}
-	# set them all at once
-	$builder->add_slot_value(%params);
-	%params = ();
 
-	# parse the rest if desired, otherwise start over
-	if(! $builder->want_object()) {
-	    $builder->make_object();
-	    next RECORDSTART;
-	}
-
-	# set up annotation depending on what the builder wants
-	if($builder->want_slot('annotation')) {
-	    $annotation = Bio::Annotation::Collection->new();
-	}
-	$buffer = $self->_readline();
-	until( !defined ($buffer) ) {
-	    $_ = $buffer;
-	    # Description line(s)
-	    if (/^DEFINITION\s+(\S.*\S)/) {
-		my @desc = ($1);
-		while ( defined($_ = $self->_readline) ) {
-		    if( /^\s+(.*)/ ) { push (@desc, $1); next };
-		    last;
-		}
-		$builder->add_slot_value(-desc => join(' ', @desc));
-				# we'll continue right here because DEFINITION always comes
-				# at the top of the entry
-		$buffer= $_;
-	    }
-	    # accession number (there can be multiple accessions)
-	    if( /^ACCESSION\s+(\S.*\S)/ ) {
-		push(@acc, split(/\s+/,$1));
-		while( defined($_ = $self->_readline) ) {
-		    /^\s+(.*)/ && do { push (@acc, split(/\s+/,$1)); next };
-		    last;
-		}
-		$buffer = $_;
-		next;
-	    }
-	    # PID
-	    elsif( /^PID\s+(\S+)/ ) {
-		$params{'-pid'} = $1;
-	    }
-	    # Version number
-	    elsif( /^VERSION\s+(\S.+)$/ ) {
-		my ($acc,$gi) = split(' ',$1);
-		if($acc =~ /^\w+\.(\d+)/) {
-		    $params{'-version'} = $1;
-		    $params{'-seq_version'} = $1;
-		}
-		if($gi && (index($gi,"GI:") == 0)) {
-		    $params{'-primary_id'} = substr($gi,3);
-		}
-	    }
-	    # Keywords
-	    elsif( /^KEYWORDS\s+(\S.*)/ ) {
-		my @kw = split(/\s*\;\s*/,$1);
-		while( defined($_ = $self->_readline) ) {
-		    chomp;
-		    /^\s+(.*)/ && do { push (@kw, split(/\s*\;\s*/,$1)); next };
-		    last;
-		}
-
-		@kw && $kw[-1] =~ s/\.$//;
-		$params{'-keywords'} = \@kw;
-		$buffer = $_;
-		next;
-	    }
-	    # Organism name and phylogenetic information
-	    elsif (/^SOURCE\s+\S/) {
-		if($builder->want_slot('species')) {
-		    $species = $self->_read_GenBank_Species(\$buffer);
-		    $builder->add_slot_value(-species => $species);
-		} else {
-		    while(defined($buffer = $self->_readline())) {
-			last if substr($buffer,0,1) ne ' ';
-		    }
-		}
-		next;
-	    }
-	    # References
-	    elsif (/^REFERENCE\s+\S/) {
-		if($annotation) {
-		    my @refs = $self->_read_GenBank_References(\$buffer);
-		    foreach my $ref ( @refs ) {
-			$annotation->add_Annotation('reference',$ref);
-		    }
-		} else {
-		    while(defined($buffer = $self->_readline())) {
-			last if substr($buffer,0,1) ne ' ';
-		    }
-		}
-		next;
-	    }
-		# Project
-		elsif (/^PROJECT\s+(\S.*)/) {
-			if ($annotation) {
-				my $project = Bio::Annotation::SimpleValue->new(-value => $1);
-				$annotation->add_Annotation('project',$project);
-			}
-		}
-	    # Comments
-	    elsif (/^COMMENT\s+(\S.*)/) {
-		if($annotation) {
-		    my $comment = $1;
-		    while (defined($_ = $self->_readline)) {
-			last if (/^\S/);
-			$comment .= $_;
-		    }
-		    $comment =~ s/\n/ /g;
-		    $comment =~ s/  +/ /g;
-		    $annotation->add_Annotation('comment',
-						Bio::Annotation::Comment->new(-text => $comment,
-									      -tagname => 'comment'));
-		    $buffer = $_;
-		} else {
-		    while(defined($buffer = $self->_readline())) {
-			last if substr($buffer,0,1) ne ' ';
-		    }
-		}
-		next;
-	    }
-	    # Corresponding Genbank nucleotide id, Genpept only
-	    elsif( /^DB(?:SOURCE|LINK)\s+(\S.+)/ ) {
-		if ($annotation) {
-		    my $dbsource = $1;
-		    while (defined($_ = $self->_readline)) {
-			last if (/^\S/);
-			$dbsource .= $_;
-		    }
-				# deal with UniProKB dbsources
-		    if( $dbsource =~ s/(UniProt(?:KB)?|swissprot):\s+locus\s+(\S+)\,.+\n// ) {
-			$annotation->add_Annotation
-			    ('dblink',
-			     Bio::Annotation::DBLink->new
-			     (-primary_id => $2,
-			      -database => $1,
-			      -tagname => 'dblink'));
-			if( $dbsource =~ s/\s+created:\s+([^\.]+)\.\n// ) {
-			    $annotation->add_Annotation
-				('swissprot_dates',
-				 Bio::Annotation::SimpleValue->new
-				 (-tagname => 'date_created',
-				  -value => $1));
-			}
-			while( $dbsource =~ s/\s+(sequence|annotation)\s+updated:\s+([^\.]+)\.\n//g ) {
-			    $annotation->add_Annotation
-				('swissprot_dates',
-				 Bio::Annotation::SimpleValue->new
-				 (-tagname => 'date_updated',
-				  -value => $2));
-			}
-			$dbsource =~ s/\n/ /g;
-			if( $dbsource =~ s/\s+xrefs:\s+((?:\S+,\s+)+\S+)\s+xrefs/xrefs/ ) {
-			    # will use $i to determine even or odd
-			    # for swissprot the accessions are paired
-			    my $i = 0;
-			    for my $dbsrc ( split(/,\s+/,$1) ) {
-				if( $dbsrc =~ /(\S+)\.(\d+)/ ||
-				    $dbsrc =~ /(\S+)/ ) {
-				    my ($id,$version) = ($1,$2);
-				    $version ='' unless defined $version;
-				    my $db;
-				    if( $id =~ /^\d\S{3}/) {
-					$db = 'PDB';
-				    } else {
-					$db = ($i++ % 2 ) ? 'GenPept' : 'GenBank';
-				    }
-				    $annotation->add_Annotation
-					('dblink',
-					 Bio::Annotation::DBLink->new
-					 (-primary_id => $id,
-					  -version => $version,
-					  -database => $db,
-					  -tagname => 'dblink'));
-				}
-			    }
-			} elsif( $dbsource =~ s/\s+xrefs:\s+(.+)\s+xrefs/xrefs/i ) {
-			    # download screwed up and ncbi didn't put acc in for gi numbers
-			    my $i = 0;
-			    for my $id ( split(/\,\s+/,$1) ) {
-				my ($acc,$db);
-				if( $id =~ /gi:\s+(\d+)/ ) {
-				    $acc= $1;
-				    $db = ($i++ % 2 ) ? 'GenPept' : 'GenBank';
-				} elsif( $id =~ /pdb\s+accession\s+(\S+)/ ) {
-				    $acc= $1;
-				    $db = 'PDB';
-				} else {
-				    $acc= $id;
-				    $db = '';
-				}
-				$annotation->add_Annotation
-				    ('dblink',
-				     Bio::Annotation::DBLink->new
-				     (-primary_id => $acc,
-				      -database => $db,
-				      -tagname => 'dblink'));
-			    }
-			} else {
-			    $self->debug("Cannot match $dbsource\n");
-			}
-			if( $dbsource =~ s/xrefs\s+\(non\-sequence\s+databases\):\s+
-			    ((?:\S+,\s+)+\S+)//x ) {
-			    for my $id ( split(/\,\s+/,$1) ) {
-				my $db;
-				# this is because GenBank dropped the spaces!!!
-				# I'm sure we're not going to get this right
-				##if( $id =~ s/^://i ) {
-				##    $db = $1;
-				##}
-                                $db = substr($id,0,index($id,':'));
-                                if (! exists $DBSOURCE{ $db }) {
-                                      $db = '';   # do we want 'GenBank' here?
-				}
-                                $id = substr($id,index($id,':')+1);
-				$annotation->add_Annotation
-				    ('dblink',
-				     Bio::Annotation::DBLink->new
-				     (-primary_id => $id,
-				      -database => $db,
-				      -tagname => 'dblink'));
-			    }
-			}
-
-		    } else {
-                if( $dbsource =~ /^(\S*?):?\s*accession\s+(\S+)\.(\d+)/ ) {
-                    my ($db,$id,$version) = ($1,$2,$3);
-                    $annotation->add_Annotation
-                    ('dblink',
-                     Bio::Annotation::DBLink->new
-                     (-primary_id => $id,
-                      -version => $version,
-                      -database => $db || 'GenBank',
-                      -tagname => 'dblink'));
-                } elsif ( $dbsource =~ /(\S+)([\.:])\s*(\S+)/ ) {
-                    my ($db, $version);
-                    my @ids = ();
-                    if ($2 eq ':') {
-                        $db = $1;
-                        # Genbank 192 release notes say this: "The second field can consist of
-                        #     multiple comma-separated identifiers, if a sequence record has
-                        #     multiple DBLINK cross-references of a given type."
-                        #     For example: DBLINK      Project:100,200,300"
-                        @ids = split (/,/, $3);
-                    } else {
-                        ($db, $version) = ('GenBank', $3);
-                        $ids[0] = $1;
+                # guess the century here
+                if ( length($y) == 2 ) {
+                    if ( $y > 60 ) {    # arbitrarily guess that '60' means 1960
+                        $y = "19$y";
                     }
-                    
-                    foreach my $id (@ids) {
-                        $annotation->add_Annotation('dblink',
+                    else {
+                        $y = "20$y";
+                    }
+                    $self->warn(
+"Date was malformed, guessing the century for $date to be $y\n"
+                    );
+                }
+                $params{'-dates'} = [ join( '-', $d, $m, $y ) ];
+            }
+            else {
+                $params{'-dates'} = [$date];
+            }
+        }
+
+        # set them all at once
+        $builder->add_slot_value(%params);
+        %params = ();
+
+        # parse the rest if desired, otherwise start over
+        if ( !$builder->want_object() ) {
+            $builder->make_object();
+            next RECORDSTART;
+        }
+
+        # set up annotation depending on what the builder wants
+        if ( $builder->want_slot('annotation') ) {
+            $annotation = Bio::Annotation::Collection->new();
+        }
+        $buffer = $self->_readline();
+        until ( !defined($buffer) ) {
+            $_ = $buffer;
+
+            # Description line(s)
+            if (/^DEFINITION\s+(\S.*\S)/) {
+                my @desc = ($1);
+                while ( defined( $_ = $self->_readline ) ) {
+                    if (/^\s+(.*)/) { push( @desc, $1 ); next }
+                    last;
+                }
+                $builder->add_slot_value( -desc => join( ' ', @desc ) );
+
+                # we'll continue right here because DEFINITION always comes
+                # at the top of the entry
+                $buffer = $_;
+            }
+
+            # accession number (there can be multiple accessions)
+            if (/^ACCESSION\s+(\S.*\S)/) {
+                push( @acc, split( /\s+/, $1 ) );
+                while ( defined( $_ = $self->_readline ) ) {
+                    /^\s+(.*)/ && do { push( @acc, split( /\s+/, $1 ) ); next };
+                    last;
+                }
+                $buffer = $_;
+                next;
+            }
+
+            # PID
+            elsif (/^PID\s+(\S+)/) {
+                $params{'-pid'} = $1;
+            }
+
+            # Version number
+            elsif (/^VERSION\s+(\S.+)$/) {
+                my ( $acc, $gi ) = split( ' ', $1 );
+                if ( $acc =~ /^\w+\.(\d+)/ ) {
+                    $params{'-version'}     = $1;
+                    $params{'-seq_version'} = $1;
+                }
+                if ( $gi && ( index( $gi, "GI:" ) == 0 ) ) {
+                    $params{'-primary_id'} = substr( $gi, 3 );
+                }
+            }
+
+            # Keywords
+            elsif (/^KEYWORDS\s+(\S.*)/) {
+                my @kw = split( /\s*\;\s*/, $1 );
+                while ( defined( $_ = $self->_readline ) ) {
+                    chomp;
+                    /^\s+(.*)/
+                      && do { push( @kw, split( /\s*\;\s*/, $1 ) ); next };
+                    last;
+                }
+
+                @kw && $kw[-1] =~ s/\.$//;
+                $params{'-keywords'} = \@kw;
+                $buffer = $_;
+                next;
+            }
+
+            # Organism name and phylogenetic information
+            elsif (/^SOURCE\s+\S/) {
+                if ( $builder->want_slot('species') ) {
+                    $species = $self->_read_GenBank_Species( \$buffer );
+                    $builder->add_slot_value( -species => $species );
+                }
+                else {
+                    while ( defined( $buffer = $self->_readline() ) ) {
+                        last if substr( $buffer, 0, 1 ) ne ' ';
+                    }
+                }
+                next;
+            }
+
+            # References
+            elsif (/^REFERENCE\s+\S/) {
+                if ($annotation) {
+                    my @refs = $self->_read_GenBank_References( \$buffer );
+                    foreach my $ref (@refs) {
+                        $annotation->add_Annotation( 'reference', $ref );
+                    }
+                }
+                else {
+                    while ( defined( $buffer = $self->_readline() ) ) {
+                        last if substr( $buffer, 0, 1 ) ne ' ';
+                    }
+                }
+                next;
+            }
+
+            # Project
+            elsif (/^PROJECT\s+(\S.*)/) {
+                if ($annotation) {
+                    my $project =
+                      Bio::Annotation::SimpleValue->new( -value => $1 );
+                    $annotation->add_Annotation( 'project', $project );
+                }
+            }
+
+            # Comments
+            elsif (/^COMMENT\s+(\S.*)/) {
+                if ($annotation) {
+                    my $comment = $1;
+                    while ( defined( $_ = $self->_readline ) ) {
+                        last if (/^\S/);
+                        $comment .= $_;
+                    }
+                    $comment =~ s/\n/ /g;
+                    $comment =~ s/  +/ /g;
+                    $annotation->add_Annotation(
+                        'comment',
+                        Bio::Annotation::Comment->new(
+                            -text    => $comment,
+                            -tagname => 'comment'
+                        )
+                    );
+                    $buffer = $_;
+                }
+                else {
+                    while ( defined( $buffer = $self->_readline() ) ) {
+                        last if substr( $buffer, 0, 1 ) ne ' ';
+                    }
+                }
+                next;
+            }
+
+            # Corresponding Genbank nucleotide id, Genpept only
+            elsif (/^DB(?:SOURCE|LINK)\s+(\S.+)/) {
+                if ($annotation) {
+                    my $dbsource = $1;
+                    while ( defined( $_ = $self->_readline ) ) {
+                        last if (/^\S/);
+                        $dbsource .= $_;
+                    }
+
+                    # deal with UniProKB dbsources
+                    if ( $dbsource =~
+                        s/(UniProt(?:KB)?|swissprot):\s+locus\s+(\S+)\,.+\n// )
+                    {
+                        $annotation->add_Annotation(
+                            'dblink',
                             Bio::Annotation::DBLink->new(
-                               -primary_id => $id,
-                               -version => $version,
-                               -database => $db,
-                               -tagname => 'dblink')
+                                -primary_id => $2,
+                                -database   => $1,
+                                -tagname    => 'dblink'
+                            )
                         );
+                        if ( $dbsource =~ s/\s+created:\s+([^\.]+)\.\n// ) {
+                            $annotation->add_Annotation(
+                                'swissprot_dates',
+                                Bio::Annotation::SimpleValue->new(
+                                    -tagname => 'date_created',
+                                    -value   => $1
+                                )
+                            );
+                        }
+                        while ( $dbsource =~
+s/\s+(sequence|annotation)\s+updated:\s+([^\.]+)\.\n//g
+                          )
+                        {
+                            $annotation->add_Annotation(
+                                'swissprot_dates',
+                                Bio::Annotation::SimpleValue->new(
+                                    -tagname => 'date_updated',
+                                    -value   => $2
+                                )
+                            );
+                        }
+                        $dbsource =~ s/\n/ /g;
+                        if ( $dbsource =~
+                            s/\s+xrefs:\s+((?:\S+,\s+)+\S+)\s+xrefs/xrefs/ )
+                        {
+                            # will use $i to determine even or odd
+                            # for swissprot the accessions are paired
+                            my $i = 0;
+                            for my $dbsrc ( split( /,\s+/, $1 ) ) {
+                                if (   $dbsrc =~ /(\S+)\.(\d+)/
+                                    || $dbsrc =~ /(\S+)/ )
+                                {
+                                    my ( $id, $version ) = ( $1, $2 );
+                                    $version = '' unless defined $version;
+                                    my $db;
+                                    if ( $id =~ /^\d\S{3}/ ) {
+                                        $db = 'PDB';
+                                    }
+                                    else {
+                                        $db =
+                                          ( $i++ % 2 ) ? 'GenPept' : 'GenBank';
+                                    }
+                                    $annotation->add_Annotation(
+                                        'dblink',
+                                        Bio::Annotation::DBLink->new(
+                                            -primary_id => $id,
+                                            -version    => $version,
+                                            -database   => $db,
+                                            -tagname    => 'dblink'
+                                        )
+                                    );
+                                }
+                            }
+                        }
+                        elsif (
+                            $dbsource =~ s/\s+xrefs:\s+(.+)\s+xrefs/xrefs/i )
+                        {
+                 # download screwed up and ncbi didn't put acc in for gi numbers
+                            my $i = 0;
+                            for my $id ( split( /\,\s+/, $1 ) ) {
+                                my ( $acc, $db );
+                                if ( $id =~ /gi:\s+(\d+)/ ) {
+                                    $acc = $1;
+                                    $db = ( $i++ % 2 ) ? 'GenPept' : 'GenBank';
+                                }
+                                elsif ( $id =~ /pdb\s+accession\s+(\S+)/ ) {
+                                    $acc = $1;
+                                    $db  = 'PDB';
+                                }
+                                else {
+                                    $acc = $id;
+                                    $db  = '';
+                                }
+                                $annotation->add_Annotation(
+                                    'dblink',
+                                    Bio::Annotation::DBLink->new(
+                                        -primary_id => $acc,
+                                        -database   => $db,
+                                        -tagname    => 'dblink'
+                                    )
+                                );
+                            }
+                        }
+                        else {
+                            $self->debug("Cannot match $dbsource\n");
+                        }
+                        if (
+                            $dbsource =~
+                            s/xrefs\s+\(non\-sequence\s+databases\):\s+
+                ((?:\S+,\s+)+\S+)//x
+                          )
+                        {
+                            for my $id ( split( /\,\s+/, $1 ) ) {
+                                my $db;
+
+                                # this is because GenBank dropped the spaces!!!
+                                # I'm sure we're not going to get this right
+                                ##if( $id =~ s/^://i ) {
+                                ##    $db = $1;
+                                ##}
+                                $db = substr( $id, 0, index( $id, ':' ) );
+                                if ( !exists $DBSOURCE{$db} ) {
+                                    $db = '';    # do we want 'GenBank' here?
+                                }
+                                $id = substr( $id, index( $id, ':' ) + 1 );
+                                $annotation->add_Annotation(
+                                    'dblink',
+                                    Bio::Annotation::DBLink->new(
+                                        -primary_id => $id,
+                                        -database   => $db,
+                                        -tagname    => 'dblink'
+                                    )
+                                );
+                            }
+                        }
+
                     }
-                } else {
-                    $self->warn("Unrecognized DBSOURCE data: $dbsource\n");
+                    else {
+                        if ( $dbsource =~
+                            /^(\S*?):?\s*accession\s+(\S+)\.(\d+)/ )
+                        {
+                            my ( $db, $id, $version ) = ( $1, $2, $3 );
+                            $annotation->add_Annotation(
+                                'dblink',
+                                Bio::Annotation::DBLink->new(
+                                    -primary_id => $id,
+                                    -version    => $version,
+                                    -database   => $db || 'GenBank',
+                                    -tagname    => 'dblink'
+                                )
+                            );
+                        }
+                        elsif ( $dbsource =~ /^(\S*?):?\s*accession\s+(\S+)/ ) {
+                            my ( $db, $id ) = ( $1, $2 );
+                            $annotation->add_Annotation(
+                                'dblink',
+                                Bio::Annotation::DBLink->new(
+                                    -primary_id => $id,
+                                    -database   => $db || 'GenBank',
+                                    -tagname    => 'dblink'
+                                )
+                            );
+                        }
+                        elsif ( $dbsource =~ /(\S+)([\.:])\s*(\S+)/ ) {
+                            my ( $db, $version );
+                            my @ids = ();
+                            if ( $2 eq ':' ) {
+                                $db = $1;
+
+          # Genbank 192 release notes say this: "The second field can consist of
+          #     multiple comma-separated identifiers, if a sequence record has
+          #     multiple DBLINK cross-references of a given type."
+          #     For example: DBLINK      Project:100,200,300"
+                                @ids = split( /,/, $3 );
+                            }
+                            else {
+                                ( $db, $version ) = ( 'GenBank', $3 );
+                                $ids[0] = $1;
+                            }
+
+                            foreach my $id (@ids) {
+                                $annotation->add_Annotation(
+                                    'dblink',
+                                    Bio::Annotation::DBLink->new(
+                                        -primary_id => $id,
+                                        -version    => $version,
+                                        -database   => $db,
+                                        -tagname    => 'dblink'
+                                    )
+                                );
+                            }
+                        }
+                        else {
+                            $self->warn(
+                                "Unrecognized DBSOURCE data: $dbsource\n");
+                        }
+                    }
+
+                    $buffer = $_;
                 }
-		    }
+                else {
+                    while ( defined( $buffer = $self->_readline() ) ) {
+                        last if substr( $buffer, 0, 1 ) ne ' ';
+                    }
+                }
+                next;
+            }
 
-		    $buffer = $_;
-		} else {
-		    while(defined($buffer = $self->_readline())) {
-			last if substr($buffer,0,1) ne ' ';
-		    }
-		}
-		next;
-	    }
-	    # Exit at start of Feature table, or start of sequence
-	    last if( /^(FEATURES|ORIGIN)/ );
-	    # Get next line and loop again
-	    $buffer = $self->_readline;
-	}
-	return unless defined $buffer;
+            # Exit at start of Feature table, or start of sequence
+            last if (/^(FEATURES|ORIGIN)/);
 
-	# add them all at once for efficiency
-	$builder->add_slot_value(-accession_number => shift(@acc),
-				 -secondary_accessions => \@acc,
-				 %params);
-	$builder->add_slot_value(-annotation => $annotation) if $annotation;
-	%params = (); # reset before possible re-use to avoid setting twice
+            # Get next line and loop again
+            $buffer = $self->_readline;
+        }
+        return unless defined $buffer;
 
-	# start over if we don't want to continue with this entry
-	if(! $builder->want_object()) {
-	    $builder->make_object();
-	    next RECORDSTART;
-	}
-	# some "minimal" formats may not necessarily have a feature table
-	if($builder->want_slot('features') && defined($_) && /^FEATURES/o) {
-	    # need to read the first line of the feature table
-	    $buffer = $self->_readline;
-	    # DO NOT read lines in the while condition -- this is done as a side
-	    # effect in _read_FTHelper_GenBank!
+        # add them all at once for efficiency
+        $builder->add_slot_value(
+            -accession_number     => shift(@acc),
+            -secondary_accessions => \@acc,
+            %params
+        );
+        $builder->add_slot_value( -annotation => $annotation ) if $annotation;
+        %params = ();    # reset before possible re-use to avoid setting twice
 
-#	    part of new circular spec: 
-#	    commented out for now until kinks worked out
-	    #my $sourceEnd = 0;
-	    #$sourceEnd = $2 if ($buffer =~ /(\d+?)\.\.(\d+?)$/);
+        # start over if we don't want to continue with this entry
+        if ( !$builder->want_object() ) {
+            $builder->make_object();
+            next RECORDSTART;
+        }
 
-	    while( defined($buffer) ) {
-				# check immediately -- not at the end of the loop
-				# note: GenPept entries obviously do not have a BASE line
-		last if( $buffer =~ /^BASE|ORIGIN|CONTIG|WGS/o);
+        # some "minimal" formats may not necessarily have a feature table
+        if ( $builder->want_slot('features') && defined($_) && /^FEATURES/o ) {
 
-				# slurp in one feature at a time -- at return, the start of
-				# the next feature will have been read already, so we need
-				# to pass a reference, and the called method must set this
-				# to the last line read before returning
+            # need to read the first line of the feature table
+            $buffer = $self->_readline;
 
-		my $ftunit = $self->_read_FTHelper_GenBank(\$buffer);
+            # DO NOT read lines in the while condition -- this is done as a side
+            # effect in _read_FTHelper_GenBank!
 
-#		implement new circular spec: features that cross the origin are now
-#		seamless instead of being 2 separate joined features
-#		commented out until kinks get worked out
-		#if ((! $args{'-nojoin'}) && $ftunit->{'loc'} =~ /^join\((\d+?)\.\.(\d+?),(\d+?)..(\d+?)\)$/ 
-		#&& $sourceEnd == $2 && $3 == 1) {
-			#my $start = $1;
-			#my $end = $2 + $4;
-			#$ftunit->{'loc'} = "$start..$end";
-		#}
+            #	    part of new circular spec:
+            #	    commented out for now until kinks worked out
+            #my $sourceEnd = 0;
+            #$sourceEnd = $2 if ($buffer =~ /(\d+?)\.\.(\d+?)$/);
 
-				# fix suggested by James Diggans
+            while ( defined($buffer) ) {
 
-		if( !defined $ftunit ) {
-		    # GRRRR. We have fallen over. Try to recover
-		    $self->warn("Unexpected error in feature table for ".$params{'-display_id'}." Skipping feature, attempting to recover");
-		    unless( ($buffer =~ /^\s{5,5}\S+/o) or
-			    ($buffer =~ /^\S+/o)) {
-			$buffer = $self->_readline();
-		    }
-		    next;	# back to reading FTHelpers
-		}
+                # check immediately -- not at the end of the loop
+                # note: GenPept entries obviously do not have a BASE line
+                last if ( $buffer =~ /^BASE|ORIGIN|CONTIG|WGS/o );
 
-				# process ftunit
-		my $feat =
-		    $ftunit->_generic_seqfeature($self->location_factory(),
-						 $display_id);
-				# add taxon_id from source if available
-		if($species && ($feat->primary_tag eq 'source') &&
-		   $feat->has_tag('db_xref') && (! $species->ncbi_taxid() ||
-						 ($species->ncbi_taxid && $species->ncbi_taxid =~ /^list/))) {
-		    foreach my $tagval ($feat->get_tag_values('db_xref')) {
-			if(index($tagval,"taxon:") == 0) {
-			    $species->ncbi_taxid(substr($tagval,6));
-			    last;
-			}
-		    }
-		}
-				# add feature to list of features
-		push(@features, $feat);
-	    }
-	    $builder->add_slot_value(-features => \@features);
-	    $_ = $buffer;
-	}
-	if( defined ($_) ) {
-	    if( /^CONTIG/o ) {
-		my @contig;
-		my $ctg = '';
-		while($_ !~ m{^//}) { # end of file
-		    $_ =~ /^(?:CONTIG)?\s+(.*)/;
-		    $ctg .= $1;
-		    $_ = $self->_readline;
-		}
-		if ($ctg) {
-		    $annotation->add_Annotation( 
-			Bio::Annotation::SimpleValue->new(-tagname => 'contig',
-							  -value => $ctg )
-			);
-		}
-		$self->_pushback($_);
-	    } elsif( /^WGS|WGS_SCAFLD\s+/o ) { # catch WGS/WGS_SCAFLD lines
-		while($_ =~ s/(^WGS|WGS_SCAFLD)\s+//){ # gulp lines
-		    chomp;
-		    $annotation->add_Annotation(
-						Bio::Annotation::SimpleValue->new(-value => $_,
-										  -tagname => lc($1)));
-		    $_ = $self->_readline;
-		}
-	    } elsif(! m{^(ORIGIN|//)} ) { # advance to the sequence, if any
-		while (defined( $_ = $self->_readline) ) {
-		    last if m{^(ORIGIN|//)};
-		}
-	    }
-	}
-	if(! $builder->want_object()) {
-	    $builder->make_object(); # implicit end-of-object
-	    next RECORDSTART;
-	}
-	if($builder->want_slot('seq')) {
-	    # the fact that we want a sequence does not necessarily mean that
-	    # there also is a sequence ...
-	    if(defined($_) && s/^ORIGIN\s+//) {
-		chomp;
-		if( $annotation && length($_) > 0 ) {
-		    $annotation->add_Annotation('origin',
-						Bio::Annotation::SimpleValue->new(-tagname => 'origin',
-										  -value => $_));
-		}
-		my $seqc = '';
-		while( defined($_ = $self->_readline) ) {
-		    m{^//} && last;
-		    $_ = uc($_);
-		    s/[^A-Za-z]//g;
-		    $seqc .= $_;
-		}
-		#$self->debug("sequence length is ". length($seqc) ."\n");
-		$builder->add_slot_value(-seq => $seqc);
-	    }
-	} elsif ( defined($_) && (substr($_,0,2) ne '//')) {
-	    # advance to the end of the record
-	    while( defined($_ = $self->_readline) ) {
-		last if substr($_,0,2) eq '//';
-	    }
-	}
-	# Unlikely, but maybe the sequence is so weird that we don't want it
-	# anymore. We don't want to return undef if the stream's not exhausted
-	# yet.
-	$seq = $builder->make_object();
-	next RECORDSTART unless $seq;
-	last RECORDSTART;
-    }				# end while RECORDSTART
+                # slurp in one feature at a time -- at return, the start of
+                # the next feature will have been read already, so we need
+                # to pass a reference, and the called method must set this
+                # to the last line read before returning
+
+                my $ftunit = $self->_read_FTHelper_GenBank( \$buffer );
+
+                #		implement new circular spec: features that cross the origin are now
+                #		seamless instead of being 2 separate joined features
+                #		commented out until kinks get worked out
+                #if ((! $args{'-nojoin'}) && $ftunit->{'loc'} =~ /^join\((\d+?)\.\.(\d+?),(\d+?)..(\d+?)\)$/
+                #&& $sourceEnd == $2 && $3 == 1) {
+                #my $start = $1;
+                #my $end = $2 + $4;
+                #$ftunit->{'loc'} = "$start..$end";
+                #}
+
+                # fix suggested by James Diggans
+
+                if ( !defined $ftunit ) {
+
+                    # GRRRR. We have fallen over. Try to recover
+                    $self->warn( "Unexpected error in feature table for "
+                          . $params{'-display_id'}
+                          . " Skipping feature, attempting to recover" );
+                    unless ( ( $buffer =~ /^\s{5,5}\S+/o )
+                        or ( $buffer =~ /^\S+/o ) )
+                    {
+                        $buffer = $self->_readline();
+                    }
+                    next;    # back to reading FTHelpers
+                }
+
+                # process ftunit
+                my $feat =
+                  $ftunit->_generic_seqfeature( $self->location_factory(),
+                    $display_id );
+
+                # add taxon_id from source if available
+                if (
+                       $species
+                    && ( $feat->primary_tag eq 'source' )
+                    && $feat->has_tag('db_xref')
+                    && (
+                        !$species->ncbi_taxid()
+                        || (   $species->ncbi_taxid
+                            && $species->ncbi_taxid =~ /^list/ )
+                    )
+                  )
+                {
+                    foreach my $tagval ( $feat->get_tag_values('db_xref') ) {
+                        if ( index( $tagval, "taxon:" ) == 0 ) {
+                            $species->ncbi_taxid( substr( $tagval, 6 ) );
+                            last;
+                        }
+                    }
+                }
+
+                # add feature to list of features
+                push( @features, $feat );
+            }
+            $builder->add_slot_value( -features => \@features );
+            $_ = $buffer;
+        }
+
+        if ( defined($_) ) {
+            # CONTIG lines: TODO, this needs to be cleaned up
+            if (/^CONTIG\s+(.*)/o) {
+                my $ctg = $1;
+                while ( defined( $_ = $self->_readline)) {
+                    last if m{^ORIGIN|//}o;
+                    s/\s+(.*)/$1/;
+                    $ctg .= $_;
+                }
+                if ($ctg) {
+                    $annotation->add_Annotation(
+                        Bio::Annotation::SimpleValue->new(
+                            -tagname => 'contig',
+                            -value   => $ctg
+                        )
+                    );
+                }
+            }
+            elsif (/^WGS|WGS_SCAFLD\s+/o) {    # catch WGS/WGS_SCAFLD lines
+                while ( $_ =~ s/(^WGS|WGS_SCAFLD)\s+// ) {    # gulp lines
+                    chomp;
+                    $annotation->add_Annotation(
+                        Bio::Annotation::SimpleValue->new(
+                            -value   => $_,
+                            -tagname => lc($1)
+                        )
+                    );
+                    $_ = $self->_readline;
+                }
+            }
+            elsif ( !m{^ORIGIN|//}o ) {    # advance to the sequence, if any
+                while ( defined( $_ = $self->_readline ) ) {
+                    last if m{^(ORIGIN|//)};
+                }
+            }
+        }
+        if ( !$builder->want_object() ) {
+            $builder->make_object();        # implicit end-of-object
+            next RECORDSTART;
+        }
+        if ( $builder->want_slot('seq') ) {
+            # the fact that we want a sequence does not necessarily mean that
+            # there also is a sequence ...
+            if ( defined($_) && s/^ORIGIN\s+// ) {
+                if ( $annotation && length($_) > 0 ) {
+                    $annotation->add_Annotation(
+                        'origin',
+                        Bio::Annotation::SimpleValue->new(
+                            -tagname => 'origin',
+                            -value   => $_
+                        )
+                    );
+                }
+                my $seqc = '';
+                while ( defined( $_ = $self->_readline ) ) {
+                    last if m{^//};
+                    $_ = uc($_);
+                    s/[^A-Za-z]//g;
+                    $seqc .= $_;
+                }
+
+                $builder->add_slot_value( -seq => $seqc );
+            }
+        }
+        elsif ( defined($_) && ( substr( $_, 0, 2 ) ne '//' ) ) {
+
+            # advance to the end of the record
+            while ( defined( $_ = $self->_readline ) ) {
+                last if substr( $_, 0, 2 ) eq '//';
+            }
+        }
+
+        # Unlikely, but maybe the sequence is so weird that we don't want it
+        # anymore. We don't want to return undef if the stream's not exhausted
+        # yet.
+        $seq = $builder->make_object();
+        next RECORDSTART unless $seq;
+        last RECORDSTART;
+    }    # end while RECORDSTART
 
     return $seq;
 }
@@ -1129,7 +1269,9 @@ sub _print_GenBank_FTHelper {
 	    }
 	    # there are almost 3x more quoted qualifier values and they
 	    # are more common too so we take quoted ones first
-	    elsif (!$FTQUAL_NO_QUOTE{$tag}) {
+            #
+            # Long qualifiers, that will be line wrapped, are always quoted
+	    elsif (!$FTQUAL_NO_QUOTE{$tag} or length("/$tag=$value") >= $FTQUAL_LINE_LENGTH) {
 		my ($pat) = ($value =~ /\s/ ? '\s|$' : '.|$');
 		$self->_write_line_GenBank_regex(" "x21,
 						 " "x21,

@@ -50,7 +50,7 @@ my $fuzzy = Bio::Location::Fuzzy->new(-start => '<10',
 is( $pseq->subseq($fuzzy), 'GGTGAAACC');
 
 
-is($pseq->trunc(8,15)->seq, 'GGGGTGAA', 
+is($pseq->trunc(8,15)->seq, 'GGGGTGAA',
     'trunc seq was ' . $pseq->trunc(8,15)->seq);
 
 
@@ -96,4 +96,3 @@ is ($seq->trunc(8,12)->seq, 'GGGGT',
 
 is $seq->alphabet('dna'), 'dna'; # so translate will not complain
 is $seq->translate()->seq, 'MGWG';
-

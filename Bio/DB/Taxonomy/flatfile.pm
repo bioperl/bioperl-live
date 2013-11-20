@@ -373,6 +373,7 @@ sub _build_index {
             $self->throw("Cannot tie to file '$parent2childindex': $!");
         
         while (<NODES>) {
+            next if /^$/;
             chomp;
             my ($taxid,$parent,$rank,$code,$divid,undef,$gen_code,undef,$mito) = split(/\t\|\t/,$_);
             # don't include the fake root node 'root' with id 1; we essentially have multiple roots here
@@ -405,6 +406,7 @@ sub _build_index {
             $self->throw("Cannot tie to file '$name2idindex': $!");
         
         while (<NAMES>) {
+            next if /^$/;
             chomp; 
             my ($taxid, $name, $unique_name, $class) = split(/\t\|\t/,$_);
             # don't include the fake root node 'root' or 'all' with id 1

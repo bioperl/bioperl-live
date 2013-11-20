@@ -86,7 +86,7 @@ SKIP: {
     # get reports)
     
     ok(0,'Exceeded maximum attempts on server to retrieve report');
-    skip("Timeout, did not return report after ".($attempt - 1)." attempts", 1);
+    diag("Timeout, did not return report after ".($attempt - 1)." attempts");
     } else {
     # have a test fail here (whatever is returned should be eval as true and
     # be a SearchIO)
@@ -210,45 +210,40 @@ SKIP: {
     diag("waiting [$rids[0]]...") if $v;
     my $rc;
     while (defined($rc = $remote_blast->retrieve_blast($rids[0]))) {
-    if ( !ref($rc) ) {
-        if ( $rc < 0 ) {
-        skip("need a better solution for when 'Server failed to return any data'",2);
+        if ( !ref($rc) ) {
+            if ( $rc < 0 ) {
+                skip("need a better solution for when 'Server failed to return any data'",2);
+            }
+            sleep 5;
+            diag("Retrieval attempt: $attempt") if $v;
+            $attempt++ < 10 ? next : last;
+        } else {
+            last
         }
-        sleep 5;
-        diag("Retrieval attempt: $attempt") if $v;
-        $attempt++ < 10 ? next : last;
-    } else {
-        last
-    }
     }
 
     if ($rc) {
-    ok(1,'retrieve_blast succeeded');
-    $remote_blast->remove_rid($rids[0]);
-    my $count = 0;
-    isa_ok($rc, 'Bio::SearchIO');
-    while (my $result = $rc->next_result) {
-        while ( my $hit = $result->next_hit ) {
-        $count++;
-        #next unless ( $v > 0);
-        #print "sbjct name is ", $hit->name, "\n";
-        #while ( my $hsp = $hit->next_hsp ) {
-        #    print "score is ", $hsp->bits, "\n";
-        #} 
+        ok(1,'retrieve_blast succeeded');
+        $remote_blast->remove_rid($rids[0]);
+        my $count = 0;
+        isa_ok($rc, 'Bio::SearchIO');
+        while (my $result = $rc->next_result) {
+            while ( my $hit = $result->next_hit ) {
+                $count++;
+            }
         }
-    }
-    is($count, 3, 'HSPs returned');
+        is($count, 3, 'HSPs returned');
     } elsif ($attempt > 10) {
-    # have a test fail here (there should not be repeated failed attempts to
-    # get reports)
-    
-    ok(0,'Exceeded maximum attempts on server to retrieve report');
-    skip("Timeout, did not return report after ".($attempt - 1)." attempts", 1);
+        # have a test fail here (there should not be repeated failed attempts to
+        # get reports)
+
+        ok(0,'Exceeded maximum attempts on server to retrieve report');
+        diag("Timeout, did not return report after ".($attempt - 1)." attempts");
     } else {
-    # have a test fail here (whatever is returned should be eval as true and
-    # be a SearchIO)
-    
-    ok(0,"Other problem on remote server, no report returned: $rc");
-    skip('Possible remote server problems', 1);
+        # have a test fail here (whatever is returned should be eval as true and
+        # be a SearchIO)
+
+        ok(0,"Other problem on remote server, no report returned: $rc");
+        diag('Possible remote server problems');
     }
 }

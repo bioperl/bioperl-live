@@ -155,6 +155,9 @@ cross contig spectrum), make sure that the sequences used for the
 assembly have a name header, e.g.  E<gt>metagenome1|seq1,
 E<gt>metagenome2|seq1, ...
 
+Note: The following operations require the C<Graph::Undirected> module:
+   eff_asm_params, cross, dissolve
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists

@@ -309,9 +309,29 @@ sub is_single_sequence {
 =cut
 
 sub guide_strand {
-	my $self = shift;
-	return $self->{'strand'} = shift if @_;
-	return $self->{'strand'};
+    my $self = shift;
+    return $self->{'strand'} = shift if @_;
+
+    # Sublocations strand values consistency check to set Guide Strand
+    my @subloc_strands;
+    foreach my $loc ($self->sub_Location(0)) {
+        push @subloc_strands, $loc->strand || 1;
+    }
+    if ($self->isa('Bio::Location::SplitLocationI')) {
+        my $identical   = 0;
+        my $first_value = $subloc_strands[0];
+        foreach my $strand (@subloc_strands) {
+            $identical++ if ($strand == $first_value);
+        }
+
+        if ($identical == scalar @subloc_strands) {
+            $self->{'strand'} = $first_value;
+        }
+        else {
+            $self->{'strand'} = undef;
+        }
+    }
+    return $self->{'strand'};
 }
 
 =head1 LocationI methods
@@ -370,8 +390,9 @@ sub strand{
 
   Title   : flip_strand
   Usage   : $location->flip_strand();
-  Function: Flip-flop a strand to the opposite.  Also switch Split strand
-            from undef to -1 or -1 to undef
+  Function: Flip-flop a strand to the opposite.  Also sets Split strand
+            to be consistent with the sublocation strands
+            (1, -1 or undef for mixed strand values)
   Returns : None
   Args    : None
 
@@ -379,12 +400,34 @@ sub strand{
 
 sub flip_strand {
     my $self = shift;
+    my @sublocs;
+    my @subloc_strands;
+
     for my $loc ( $self->sub_Location(0) ) {
-		$loc->flip_strand;
-		if ($loc->isa('Bio::Location::SplitLocationI')) {
-			my $gs = ($self->guide_strand == -1) ? undef : -1;
-			$loc->guide_strand($gs);
-		}
+        # Atomic "flip_strand" now initialize strand if necessary
+        my $new_strand = $loc->flip_strand;
+
+        # Store strand values for later consistency check
+        push @sublocs, $loc;
+        push @subloc_strands, $new_strand;
+    }
+
+    # Sublocations strand values consistency check to set Guide Strand
+    if ($self->isa('Bio::Location::SplitLocationI')) {
+        my $identical   = 0;
+        my $first_value = $subloc_strands[0];
+        foreach my $strand (@subloc_strands) {
+            $identical++ if ($strand == $first_value);
+        }
+
+        if ($identical == scalar @subloc_strands) {
+            $self->guide_strand($first_value);
+        }
+        else {
+            # Mixed strand values, must reverse the sublocations order
+            $self->guide_strand(undef);
+            @{ $self->{_sublocations} } = reverse @sublocs;
+        }
     }
 }
 
@@ -626,19 +669,13 @@ sub to_FTstring {
     my @strs;
 	my $strand = $self->strand() || 0;
 	my $stype = lc($self->splittype());
-	my $guide = $self->guide_strand();
 
     if( $strand < 0 ) {
 		$self->flip_strand; # this will recursively set the strand
 							# to +1 for all the sub locations
     }
-	# If the split type is join, the order is important;
-	# otherwise must be 5'->3' regardless
-	
-	my @locs = ($stype eq 'join' && (!$guide && $strand == -1)) ?
-	           reverse $self->sub_Location() : $self->sub_Location() ;
-	
-    foreach my $loc ( @locs ) {
+    
+    foreach my $loc ( $self->sub_Location(0) ) {
 		$loc->verbose($self->verbose);
 		my $str = $loc->to_FTstring();
 		# we only append the remote seq_id if it hasn't been done already

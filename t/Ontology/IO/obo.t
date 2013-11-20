@@ -30,7 +30,7 @@ is (scalar(@roots), 1);
 is ($roots[0]->name(), "Sequence_Ontology");
 is ($roots[0]->identifier(), "SO:0000000");
 
-my @terms = $ont->get_child_terms($roots[0]);
+my @terms = sort {$a->name cmp $b->name} $ont->get_child_terms($roots[0]);
 is (scalar(@terms), 5);
 my ($term) = grep { $_->name() eq "variation_operation"; } @terms;
 ok $term;
@@ -43,7 +43,7 @@ ok $term;
 ($term) = grep { $_->name() eq "located_sequence_feature"; } @terms;
 ok $term;
 
-@terms = $ont->get_child_terms($terms[0]);
+@terms = sort {$a->name cmp $b->name} $ont->get_child_terms($terms[4]);
 is (scalar(@terms), 5);
 ($term) = grep { $_->name() eq "translocate"; } @terms;
 ok $term;
@@ -57,7 +57,7 @@ ok $term;
 ok $term;
 
 my $featterm = $terms[0];
-@terms = $ont->get_child_terms($featterm);
+@terms = sort {$a->name cmp $b->name} $ont->get_child_terms($featterm);
 is (scalar(@terms), 2);
 
 # substitution has two parents, see whether this is handled
@@ -174,12 +174,12 @@ is($bioont->get_relationship_type('POSITIVELY_REGULATES')->name,'POSITIVELY_REGU
 
 
 ## -- getting relationships for various ontologies
-my @onto_pred = $ontologies[0]->get_predicate_terms();
-my @bio_pred =  $bioont->get_predicate_terms();
+my @onto_pred = sort {$a->name cmp $b->name} $ontologies[0]->get_predicate_terms();
+my @bio_pred =  sort {$a->name cmp $b->name} $bioont->get_predicate_terms();
 is(scalar @onto_pred,6,'Got predicates for gene_ontology');
 is(scalar @bio_pred,2,'Got predicates for biological_process');
-is($onto_pred[3]->name(),'REGULATES','Got regulates predicate');
-is($bio_pred[1]->name(),'POSITIVELY_REGULATES','Got positively regulates predicate');
+is($onto_pred[4]->name(),'REGULATES','Got regulates predicate');
+is($bio_pred[0]->name(),'POSITIVELY_REGULATES','Got positively regulates predicate');
 
 
 my @bio_rel = $bioont->get_relationships();

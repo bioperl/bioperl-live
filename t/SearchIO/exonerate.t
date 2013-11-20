@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 51 );
+    test_begin( -tests => 52 );
 
     use_ok('Bio::SearchIO');
 }
@@ -111,3 +111,10 @@ sub parse {
     }
 }
 
+$searchio = Bio::SearchIO->new(
+    -format => 'exonerate',
+    -file   => test_input_file('exonerate.output.negativescore.works'),
+);
+my $r   = $searchio->next_result;
+$hit = $r->next_hit;
+is( $hit->score, "-3" );

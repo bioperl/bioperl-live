@@ -6,9 +6,7 @@ use strict;
 BEGIN {
     use lib '.';
 	use Bio::Root::Test;
-
-	test_begin(-tests => 281 );
-
+	test_begin(-tests => 287 );
     use_ok('Bio::SeqIO::genbank');
 }
 
@@ -618,3 +616,44 @@ is($dblinks[3]->primary_id, '300');
 is($dblinks[4]->database, 'GenBank');
 is($dblinks[4]->primary_id, 'NC_002058');
 is($dblinks[4]->version, '3');
+
+# long labels handled
+{
+    # Create sequence with feature with a long label qualifier
+    my $seq=Bio::Seq->new(-seq  => 'actg',
+                          -id   => 'abacab');
+    my $feature=Bio::SeqFeature::Generic->new(-primary=>'CDS', -start=>1, -end=>4);
+    my $label='1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r';
+    $feature->add_tag_value(label=>$label);
+    $seq->add_SeqFeature($feature);
+
+    # Write genbank
+    my $string;
+    open(my $str_fh, '>', \$string) || skip("Can't open string, skipping", 2);
+    my $out=Bio::SeqIO->new(-format=>'genbank', -fh => $str_fh);
+    $out->write_seq($seq);
+
+    # Read genbank
+    my $in=Bio::SeqIO->new(-format=>'genbank', -string => $string);
+    my $genbank=$in->next_seq;
+    my ($read_feature)=$genbank->get_SeqFeatures;
+    my ($read_label)=$read_feature->get_tag_values('label');
+    is($read_label, $label, 'Label is the same');
+}
+
+# bug 3448
+
+$in = Bio::SeqIO->new(-format => 'genbank',
+        -file => test_input_file('YP_007988852.gp'),
+        -verbose => $verbose);
+$seq = $in->next_seq();     # should not throw a warning now
+is($seq->length, 205);
+
+my @anns = $seq->annotation->get_Annotations('contig');
+is(@anns, 1);
+isa_ok($anns[0], 'Bio::Annotation::SimpleValue');
+is($anns[0]->value, 'join(WP_015639704.1:1..205)');
+
+is($seq->seq, 'MENRKFGYIRVSSKDQNEGRQLEAMRKIGITERDIYLDKQSGKNFERANYQLLKRIIRKGDI'.
+   'LYIHSLDRFGRNKEEILQEWNDLTKNIEADIVVLDMPLLDTTQYKDSMGTFIADLVLQILSWMAEEERERIRK'.
+   'RQREGIDLALQNGIQFGRSPVVVSDEFKEVYRKWKAKELTAVEAMQEAGVKKTSFYKLVKAHENSIKVNS');

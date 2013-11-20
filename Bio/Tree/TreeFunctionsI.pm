@@ -1121,7 +1121,7 @@ sub findnode_by_id {
 sub move_id_to_bootstrap{
    my ($tree) = shift;
    for my $node ( grep { ! $_->is_Leaf } $tree->get_nodes ) {
-       $node->bootstrap($node->id || '');
+       $node->bootstrap(defined $node->id ? $node->id : '');
        $node->id('');
    }
 }

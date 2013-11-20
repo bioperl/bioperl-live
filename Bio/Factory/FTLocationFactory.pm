@@ -158,12 +158,12 @@ sub from_string {
     }
     
     if ($locstr =~ m{(.*?)\(($LOCREG)\)(.*)}o) { # any matching parentheses?
-
         my ($beg, $mid, $end) = ($1, $2, $3);
         my (@sublocs) = (split(q(,),$beg), $mid, split(q(,),$end));
         
         my @loc_objs;
         my $loc_obj;
+        my @gl_subloc_strands;
         
         SUBLOCS:
         while (@sublocs) {
@@ -180,17 +180,65 @@ sub from_string {
                     my @splitlocs = split(q(,), $sub);
                     $loc_obj = Bio::Location::Split->new(-verbose => 1,
                                                          -splittype => $oparg);
-                    while (my $splitloc = shift @splitlocs) {
+                    # Store strand values for later consistency check
+                    my @subloc_strands;
+                    my @s_objs;
+                    foreach my $splitloc (@splitlocs) {
                         next unless $splitloc;
                         my $sobj;
                         if ($splitloc =~ m{\(($LOCREG)\)}) {
                             my $comploc = $1;
                             $sobj = $self->_parse_location($comploc);
                             $sobj->strand(-1);
+                            push @subloc_strands,    -1;
+                            push @gl_subloc_strands, -1;
                         } else {
                             $sobj = $self->_parse_location($splitloc);
+                            push @subloc_strands,    1;
+                            push @gl_subloc_strands, 1;
                         }
-                        $loc_obj->add_sub_Location($sobj);
+                        push @s_objs, $sobj;
+                    }
+
+                    # Sublocations strand values consistency check to set
+                    # Guide Strand and sublocations adding order
+                    if (scalar @s_objs > 0) {
+                        my $identical    = 0;
+                        my $gl_identical = 0;
+
+                        my $first_value = $subloc_strands[0];
+                        foreach my $strand (@subloc_strands) {
+                            $identical++ if ($strand == $first_value);
+                        }
+
+                        my $first_gl_value = $gl_subloc_strands[0];
+                        foreach my $gl_strand (@gl_subloc_strands) {
+                            $gl_identical++ if ($gl_strand == $first_gl_value);
+                        }
+
+                        if ($identical == scalar @subloc_strands) {
+                            # Set guide_strand if all sublocations have the same strand
+                            $loc_obj->guide_strand($first_value);
+
+                            # Reverse sublocation order for negative strand locations in cases like this:
+                            # join(1..11,join(complement(40..50),complement(60..70)))
+                            # But not this:
+                            # join(complement(10..20),complement(30..40))
+                            if (    $gl_identical != scalar @gl_subloc_strands
+                                and $first_value  == -1
+                                ) {
+                                @s_objs = reverse @s_objs;
+                            }
+                        }
+                        else {
+                            # Mixed strand values
+                            $loc_obj->guide_strand(undef);
+                        }
+
+                        # Add sublocations
+                        foreach my $s_obj (@s_objs) {
+                            $loc_obj->add_sub_Location($s_obj);
+                        }
                     }
                 } else {
                     $loc_obj = $self->from_string($sub, $oparg);
@@ -203,7 +251,14 @@ sub from_string {
             else {
                 $loc_obj = $self->from_string($subloc,1);
             }
-            $loc_obj->strand(-1) if ($op && $op eq 'complement');
+            if ($op && $op eq 'complement') {
+                $loc_obj->strand(-1);
+                push @gl_subloc_strands, -1;
+            }
+            else {
+                push @gl_subloc_strands, 1;
+            }
+
             push @loc_objs, $loc_obj;
         }
         my $ct = @loc_objs;
