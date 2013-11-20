@@ -6,7 +6,7 @@ use warnings;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 148);
+    test_begin(-tests => 150);
     use_ok('Bio::Root::IO');
 }
 
@@ -76,6 +76,8 @@ rmdir $out_dir or die "Could not delete dir '$out_dir': $!\n";
 ok my $in_file = Bio::Root::IO->catfile(qw(t data test.waba));
 is $in_file, test_input_file('test.waba');
 
+ok my $in_file_2 = Bio::Root::IO->catfile(qw(t data test.txt));
+
 $out_file = test_output_file();
 
 # Test with files
@@ -131,13 +133,15 @@ SKIP: {
 
 # Exclusive arguments
 open $in_fh , '<', $in_file  or die "Could not read file $in_file: $!\n", 'Read from GLOB handle';
-throws_ok {$rio = Bio::Root::IO->new( -input => $in_file, -fh     => $in_fh   )} qr//, 'Exclusive arguments';
-throws_ok {$rio = Bio::Root::IO->new( -input => $in_file, -file   => $in_file )} qr//;
-throws_ok {$rio = Bio::Root::IO->new( -input => $in_file, -string => 'abcedf' )} qr//;
-throws_ok {$rio = Bio::Root::IO->new( -fh    => $in_fh  , -file   => $in_file )} qr//;
-throws_ok {$rio = Bio::Root::IO->new( -fh    => $in_fh  , -string => 'abcedf' )} qr//;
-throws_ok {$rio = Bio::Root::IO->new( -file  => $in_file, -string => 'abcedf' )} qr//;
+throws_ok {$rio = Bio::Root::IO->new( -input => $in_file, -fh     => $in_fh     )} 'Bio::Root::Exception', 'Exclusive arguments';
+throws_ok {$rio = Bio::Root::IO->new( -input => $in_file, -file   => $in_file_2 )} 'Bio::Root::Exception';
+throws_ok {$rio = Bio::Root::IO->new( -input => $in_file, -string => 'abcedf'   )} 'Bio::Root::Exception';
+throws_ok {$rio = Bio::Root::IO->new( -fh    => $in_fh  , -file   => $in_file   )} 'Bio::Root::Exception';
+throws_ok {$rio = Bio::Root::IO->new( -fh    => $in_fh  , -string => 'abcedf'   )} 'Bio::Root::Exception';
+throws_ok {$rio = Bio::Root::IO->new( -file  => $in_file, -string => 'abcedf'   )} 'Bio::Root::Exception';
 close $in_fh;
+
+lives_ok  {$rio = Bio::Root::IO->new( -input => $in_file, -file   => $in_file   )}, 'Same file';
 
 
 ##############################################
