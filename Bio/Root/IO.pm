@@ -3,6 +3,7 @@ package Bio::Root::IO;
 use strict;
 use Symbol;
 use IO::Handle;
+use File::Copy;
 use Fcntl;
 use base qw(Bio::Root::Root);
 
@@ -513,19 +514,30 @@ sub _insert {
     $file =~ s/^\+?[><]?//; # transform '+>output.ace' into 'output.ace'
     # Everything that needs to be written is written before we read it
     $self->flush;
-    # Edit the file in place, line by line (no slurping)
-    {
-        local @ARGV = ($file);     # input file
-        #local $^I = '~';          # backup file extension, e.g. ~, .bak, .ori
-        local $^I = '';            # no backup file
-        while (<>) {
-            if ($. == $line_num) { # right line for new data
-                print $string.$_;
-            } else {
-                print;
-            }
+
+    # Edit the file line by line (no slurping)
+    $self->close;
+    my $temp_file;
+    my $number = 0;
+    while (-e "$file.$number.temp") {
+        $number++;
+    }
+    $temp_file = "$file.$number.temp";
+    copy($file, $temp_file);
+    open my $fh1, "<$temp_file" or $self->throw("Cannot read file $temp_file: $!");
+    open my $fh2, ">$file"      or $self->throw("Cannot write to file $file: $!");
+    while (my $line = <$fh1>) {
+        if ($. == $line_num) { # right line for new data
+            print $fh2 $string . $line;
+        }
+        else {
+            print $fh2 $line;
         }
     }
+    CORE::close $fh1;
+    CORE::close $fh2;
+    unlink $temp_file or die "Could not delete temporal $temp_file: $!\n";
+
     # Line number check (again)
     if ( $. > 0 && $line_num > $. ) {
         $self->throw("Cannot insert text at line $line_num because there are ".
@@ -585,6 +597,9 @@ sub _readline {
         $line = <$fh>;
     }
 
+    # Note: In Windows the "-raw" parameter has no effect, because Perl already discards
+    # the '\r' from the line when reading in text mode from the filehandle
+    # ($line = <$fh>), and put it back automatically when printing
     if( !$HAS_EOL && !$param{-raw} && (defined $line) ) {
         # don't strip line endings if -raw or $HAS_EOL is specified
         $line =~ s/\015\012/\012/g;         # Change all CR/LF pairs to LF
@@ -654,7 +669,7 @@ sub close {
         );
 
         # don't close IO::Strings
-        close $fh unless ref $fh && $fh->isa('IO::String');
+        CORE::close $fh unless ref $fh && $fh->isa('IO::String');
     }
     $self->{'_filehandle'} = undef;
     delete $self->{'_readbuffer'};
@@ -1119,4 +1134,3 @@ sub save_tempfiles {
 
 
 1;
-

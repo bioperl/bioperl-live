@@ -51,13 +51,30 @@ my $out_fh;
 open  $out_fh, '>', $out_file or die "Could not write file '$out_file': $!\n";
 print $out_fh 'test';
 close $out_fh;
-chmod 0777, $out_file or die "Could not change permission of file '$out_file': $!\n";
-ok $obj->exists_exe($out_file), 'executable file';
+# -X test file will fail in Windows regardless of chmod,
+# because it looks for the executable suffix (like ".exe")
+if ($^O =~ m/mswin/i) {
+    # An executable file
+    my $exec_file = 'test_exec.exe';
+    open my $exe_fh, '>', $exec_file or die "Could not write file '$exec_file': $!\n";
+    close $exe_fh;
+    ok $obj->exists_exe($exec_file), 'executable file';
+    unlink $exec_file or die "Could not delete file '$exec_file': $!\n";
 
-# A not executable file
-chmod 0444, $out_file or die "Could not change permission of file '$out_file': $!\n";
-ok (! $obj->exists_exe($out_file), 'non-executable file');
-unlink $out_file or die "Could not delete file '$out_file': $!\n";
+    # A not executable file
+    ok (! $obj->exists_exe($out_file), 'non-executable file');
+    unlink $out_file  or die "Could not delete file '$out_file': $!\n";
+}
+else {
+    # An executable file
+    chmod 0777, $out_file or die "Could not change permission of file '$out_file': $!\n";
+    ok $obj->exists_exe($out_file), 'executable file';
+
+    # A not executable file
+    chmod 0444, $out_file or die "Could not change permission of file '$out_file': $!\n";
+    ok (! $obj->exists_exe($out_file), 'non-executable file');
+    unlink $out_file or die "Could not delete file '$out_file': $!\n";
+}
 
 # An executable dir
 my $out_dir = 'test_dir';
@@ -141,7 +158,7 @@ throws_ok {$rio = Bio::Root::IO->new( -fh    => $in_fh  , -string => 'abcedf'   
 throws_ok {$rio = Bio::Root::IO->new( -file  => $in_file, -string => 'abcedf'   )} 'Bio::Root::Exception';
 close $in_fh;
 
-lives_ok  {$rio = Bio::Root::IO->new( -input => $in_file, -file   => $in_file   )}, 'Same file';
+lives_ok  {$rio = Bio::Root::IO->new( -input => $in_file, -file   => $in_file   )} 'Same file';
 
 
 ##############################################
@@ -229,7 +246,15 @@ is_deeply \@content, ["insertion at line 1\n"];
     is $win_rio->_readline , $expected;
     is $mac_rio->_readline , undef;
 
-    is $win_rio->_readline( -raw => 1) , "VERSION     U71225.1  GI:2804359\r\n";
+    # In Windows the "-raw" parameter has no effect, because Perl already discards
+    # the '\r' from the line when reading in text mode from the filehandle
+    # ($line = <$fh>), and put it back automatically when printing
+    if ($^O =~ m/mswin/i) {
+        is $win_rio->_readline( -raw => 1) , "VERSION     U71225.1  GI:2804359\n";
+    }
+    else {
+        is $win_rio->_readline( -raw => 1) , "VERSION     U71225.1  GI:2804359\r\n";
+    }
     is $win_rio->_readline( -raw => 0) , "KEYWORDS    .\n";
 }
 
