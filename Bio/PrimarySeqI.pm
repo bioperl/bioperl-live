@@ -367,6 +367,7 @@ are encouraged to override these methods
 
 sub revcom {
     my ($self) = @_;
+
     # Create a new fresh object if $self is 'Bio::Seq::LargePrimarySeq'
     # or 'Bio::Seq::LargeSeq', if not take advantage of
     # Bio::Root::clone to get an object copy
@@ -772,7 +773,6 @@ sub rev_transcribe {
     return unless $self->alphabet eq 'rna';
     my $s = $self->seq;
     $s =~ tr/uU/tT/;
-
     my $desc = $self->desc || '';
 
     # Create a new fresh object if $self is 'Bio::Seq::LargePrimarySeq'

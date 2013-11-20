@@ -205,6 +205,10 @@ sub strand {
 
 sub flip_strand {
     my $self= shift;
+    # Initialize strand if necessary to flip it
+    if (not defined $self->strand) {
+	$self->strand(1)
+    }
     $self->strand($self->strand * -1);
 }
 
@@ -558,4 +562,3 @@ sub trunc {
 }
 
 1;
-
