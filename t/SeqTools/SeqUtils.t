@@ -671,5 +671,3 @@ package Bio::Seq::Foo;
 use base 'Bio::Seq';
 
 sub can_call_new { 0 }
-
-

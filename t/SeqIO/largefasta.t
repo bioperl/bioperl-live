@@ -8,15 +8,15 @@ BEGIN {
     use Bio::Root::Test;
     
     test_begin(-tests => 16);
-	
-	use_ok('Bio::SeqIO::largefasta');
+
+    use_ok('Bio::SeqIO::largefasta');
 }
 
 my $tmpfile = test_output_file();
 
 my $seqio = Bio::SeqIO->new('-format' => 'largefasta',
-							'-file'   => test_input_file('genomic-seq.fasta'),
-						   );
+                            '-file'   => test_input_file('genomic-seq.fasta'),
+                            );
 isa_ok($seqio, 'Bio::SeqIO');
 
 my $pseq = $seqio->next_seq();
@@ -37,14 +37,14 @@ is $pseq->desc, 'this is my description';
 is open(OUT, ">$tmpfile"), 1;
 
 my $seqout = Bio::SeqIO->new('-format' => 'largefasta',
-			    '-fh'     => \*OUT );
+                             '-fh'     => \*OUT );
 is defined $seqout, 1;
 
 is $seqout->write_seq($pseq), 1;
 $seqout->close();
 close(OUT);
 my $seqin = Bio::SeqIO->new('-format' => 'largefasta',
-			'-file'   => $tmpfile);
+                            '-file'   => $tmpfile);
 my $pseq2 = $seqin->next_seq;
 is ($plength, $pseq2->length());
 is ($pseq->display_id(), $pseq2->display_id());

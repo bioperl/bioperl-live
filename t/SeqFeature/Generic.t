@@ -304,7 +304,7 @@ my %sf_data = (
     #       start
     'A'  => [3981, 136, 1, 1542, 'join(3981..5386,1..136)', 'ATGGTTCGTT'],
     'A*' => [4497, 136, 1, 1026, 'join(4497..5386,1..136)', 'ATGAAATCGC'],
-    'B'  => [5075, 136, 1, 363,  'join(5075..5386,1..51)',  'ATGGAACAAC'],
+    'B'  => [5075, 51,  1, 363,  'join(5075..5386,1..51)',  'ATGGAACAAC'],
 );
 
 ok my @split_sfs = grep {
@@ -318,16 +318,10 @@ for my $sf (@split_sfs) {
     ok my ($tag) = $sf->get_tag_values('product');
     my ($start, $end, $strand, $length, $ftstring, $first_ten) = @{$sf_data{$tag}};
     
-    # these pass
     is $sf->location->to_FTstring, $ftstring, 'Feature string';
     is $sf->spliced_seq->subseq(1,10), $first_ten, 'First ten nucleotides';
     is $sf->strand, $strand, 'Strand';
-
-    TODO: {
-        local $TODO = "Need to define how to deal with start, end length for circular sequences";
-        is $sf->start, $start, 'Start';
-        is $sf->end, $end, 'End';
-        is $sf->length, $length, 'Expected length';
-    }
+    is $sf->start, $start, 'Start';
+    is $sf->end, $end, 'End';
+    is $sf->length, $length, 'Expected length';
 }
-

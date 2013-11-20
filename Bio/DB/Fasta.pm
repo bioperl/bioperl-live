@@ -331,7 +331,10 @@ sub header {
     my $fh = $self->_fh($id) or return;
     seek($fh, $offset, 0);
     read($fh, $data, $headerlen);
-    chomp $data;
+    # On Windows chomp remove '\n' but leaves '\r'
+    # when reading '\r\n' in binary mode
+    $data =~ s/\n//g;
+    $data =~ s/\r//g;
     substr($data, 0, 1) = '';
     return $data;
 }

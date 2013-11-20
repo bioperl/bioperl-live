@@ -7,7 +7,7 @@ use Data::Dumper;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin( -tests => 181 );
+    test_begin( -tests => 287 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -48,7 +48,7 @@ is $seq->display_id(),       'new-id';
 is $seq->alphabet(),         'dna';
 is $seq->is_circular(),      undef;
 ok $seq->is_circular(1);
-is $seq->is_circular(0), 0;
+is $seq->is_circular(0),     0;
 
 # check IdentifiableI and DescribableI interfaces
 isa_ok $seq, 'Bio::IdentifiableI';
@@ -131,6 +131,45 @@ is $seq->subseq($fuzzy), 'GGTGGC';
     is $seq->subseq( -start => 7, -end => 10 ), 'TTAA';
 }
 
+### Test for Bug #2936
+# Without strand input argument (case: user don't think is necessary)
+my $split_loc_obj1 = Bio::Location::Split->new();
+$split_loc_obj1->add_sub_Location(
+    Bio::Location::Simple->new(
+        '-start'  => 1,
+        '-end'    => 10
+    )
+);
+$split_loc_obj1->add_sub_Location(
+    Bio::Location::Simple->new(
+        '-start'  => 20,
+        '-end'    => 30
+    )
+);
+# With strand input argument (case: user provides the argument)
+my $split_loc_obj2 = Bio::Location::Split->new();
+$split_loc_obj2->add_sub_Location(
+    Bio::Location::Simple->new(
+        '-start'  => 1,
+        '-end'    => 10,
+        '-strand' => 1
+    )
+);
+$split_loc_obj2->add_sub_Location(
+    Bio::Location::Simple->new(
+        '-start'  => 20,
+        '-end'    => 30,
+        '-strand' => 1
+    )
+);
+is $split_loc_obj1->to_FTstring, "join(1..10,20..30)";
+is $split_loc_obj2->to_FTstring, "join(1..10,20..30)";
+$split_loc_obj1->flip_strand;
+$split_loc_obj2->flip_strand;
+is $split_loc_obj1->to_FTstring, "complement(join(1..10,20..30))";
+is $split_loc_obj2->to_FTstring, "complement(join(1..10,20..30))";
+###
+
 # Test trunc
 my $trunc = $seq->trunc( 1, 4 );
 isa_ok $trunc, 'Bio::PrimarySeqI';
@@ -150,24 +189,16 @@ isa_ok $rev, 'Bio::PrimarySeqI';
 is $rev->seq(), 'AGTTGACGCCACCAA'
   or diag( 'revcom() failed, was ' . $rev->seq() );
 
-is $rev->display_id, 'new-id';
-is $rev->display_name(), 'new-id';
+is $rev->display_id,         'new-id';
+is $rev->display_name(),     'new-id';
 is $rev->accession_number(), 'X677667';
-is $rev->alphabet, 'dna';
-is $rev->description, 'Sample Bio::Seq object';
-
-
-TODO: {
-    local $TODO =
-      'all attributes of primaryseqs are not currently copied through revcom()';
-    # Probably also not copied through trunc(), transcribe() and rev_transcribe()
-    is $rev->is_circular(), 0,           'is_circular copied through revcom';
-    is $rev->version, 47,                'version copied through revcom';
-    is $rev->authority, 'bioperl.org',   'authority copied through revcom';
-    is $rev->namespace, 't',             'namespace copied through revcom';
-    is $rev->namespace_string(),
-        "t:X677667.47", 'namespace_string copied through revcom';
-}
+is $rev->alphabet,           'dna';
+is $rev->description,        'Sample Bio::Seq object';
+is $rev->is_circular(),      0;
+is $rev->version,            47;
+is $rev->authority,          'bioperl.org';
+is $rev->namespace,          't';
+is $rev->namespace_string(), 't:X677667.47';
 
 #
 # Translate
@@ -439,3 +470,252 @@ is $seq->seq, 'AAAACCCCGGGGTTTT';
            );
     }
 }
+
+#####
+# Extensive location and subsequence tests
+ok $seq = Bio::PrimarySeq->new('-seq' => 'AAAAACCCCCGGGGGTTTTT',);
+ok $seq->is_circular(1);
+
+# NOTE: "_no_strand" variables tests the possibility that the user didn't set
+# Strand for positive coordinates (or the object comes from
+# Bio::Factory::FTLocationFactory->from_string)
+
+# Single location
+# Coordinates: 1..5 => AAAAA
+# Revcom: complement(1..5) => TTTTT
+ok my $loc1_strand    = Bio::Location::Simple->new('-start' => 1, '-end' => 5,'-strand' => 1);
+ok my $loc1_no_strand = Bio::Location::Simple->new('-start' => 1, '-end' => 5);
+is $seq->subseq($loc1_strand),    'AAAAA';
+is $seq->subseq($loc1_no_strand), 'AAAAA';
+is $loc1_strand->to_FTstring,     '1..5';
+is $loc1_no_strand->to_FTstring,  '1..5';
+$loc1_strand->flip_strand;
+$loc1_no_strand->flip_strand;
+is $seq->subseq($loc1_strand),    'TTTTT';
+is $seq->subseq($loc1_no_strand), 'TTTTT';
+is $loc1_strand->to_FTstring,     'complement(1..5)';
+is $loc1_no_strand->to_FTstring,  'complement(1..5)';
+
+# Basic split, both locations in positive strand
+# Coords: join(6..10,16..20) => CCCCCTTTTT
+# Revcom: complement(join(6..10,16..20)) => AAAAAGGGGG
+ok my $loc2_strand    = Bio::Location::Split->new();
+ok my $loc2_no_strand = Bio::Location::Split->new();
+ok $loc2_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 6,  '-end' => 10, '-strand' => 1) );
+ok $loc2_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 16, '-end' => 20, '-strand' => 1) );
+ok $loc2_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 6,  '-end' => 10) );
+ok $loc2_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 16, '-end' => 20) );
+is $seq->subseq($loc2_strand),    'CCCCCTTTTT';
+is $seq->subseq($loc2_no_strand), 'CCCCCTTTTT';
+is $loc2_strand->to_FTstring,     'join(6..10,16..20)';
+is $loc2_no_strand->to_FTstring,  'join(6..10,16..20)';
+$loc2_strand->flip_strand;
+$loc2_no_strand->flip_strand;
+is $seq->subseq($loc2_strand),    'AAAAAGGGGG';
+is $seq->subseq($loc2_no_strand), 'AAAAAGGGGG';
+is $loc2_strand->to_FTstring,     'complement(join(6..10,16..20))';
+is $loc2_no_strand->to_FTstring,  'complement(join(6..10,16..20))';
+
+# Basic split, both locations in negative strand
+# Coords: complement(join(6..10,16..20)) => AAAAAGGGGG
+# Revcom: join(6..10,16..20) => CCCCCTTTTT
+my $loc3_strand    = Bio::Location::Split->new();
+$loc3_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 6,  '-end' => 10, '-strand' => -1) );
+$loc3_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 16, '-end' => 20, '-strand' => -1) );
+is $seq->subseq($loc3_strand),    'AAAAAGGGGG';
+is $loc3_strand->to_FTstring,     'complement(join(6..10,16..20))';
+$loc3_strand->flip_strand;
+is $seq->subseq($loc3_strand),    'CCCCCTTTTT';
+is $loc3_strand->to_FTstring,     'join(6..10,16..20)';
+
+## Cut by origin-split, same strand, single sequence that pass through origin
+#Coords: join(16..20,1..2) => TTTTTAA
+#Revcom: complement(join(16..20,1..2)) => TTAAAAA
+my $loc4_strand    = Bio::Location::Split->new();
+my $loc4_no_strand = Bio::Location::Split->new();
+$loc4_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 16, '-end' => 20, '-strand' => 1) );
+$loc4_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 1,  '-end' => 2,  '-strand' => 1) );
+$loc4_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 16, '-end' => 20) );
+$loc4_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 1,  '-end' => 2)  );
+is $seq->subseq($loc4_strand),    'TTTTTAA';
+is $seq->subseq($loc4_no_strand), 'TTTTTAA';
+is $loc4_strand->to_FTstring,     'join(16..20,1..2)';
+is $loc4_no_strand->to_FTstring,  'join(16..20,1..2)';
+$loc4_strand->flip_strand;
+$loc4_no_strand->flip_strand;
+is $seq->subseq($loc4_strand),    'TTAAAAA';
+is $seq->subseq($loc4_no_strand), 'TTAAAAA';
+is $loc4_strand->to_FTstring,     'complement(join(16..20,1..2))';
+is $loc4_no_strand->to_FTstring,  'complement(join(16..20,1..2))';
+
+## Cut by origin-combo split, same strand, 2 sequences with 1st passing through origin
+#Coords: join(19..20,1..2,11..13) => TTAAGGG
+#Revcom: complement(join(19..20,1..2,11..13)) => CCCTTAA
+my $loc5_strand    = Bio::Location::Split->new();
+my $loc5_no_strand = Bio::Location::Split->new();
+$loc5_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 19, '-end' => 20, '-strand' => 1) );
+$loc5_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 1,  '-end' => 2,  '-strand' => 1) );
+$loc5_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 11, '-end' => 13, '-strand' => 1) );
+$loc5_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 19, '-end' => 20) );
+$loc5_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 1,  '-end' => 2)  );
+$loc5_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 11, '-end' => 13) );
+is $seq->subseq($loc5_strand),    'TTAAGGG';
+is $seq->subseq($loc5_no_strand), 'TTAAGGG';
+is $loc5_strand->to_FTstring,     'join(19..20,1..2,11..13)';
+is $loc5_no_strand->to_FTstring,  'join(19..20,1..2,11..13)';
+$loc5_strand->flip_strand;
+$loc5_no_strand->flip_strand;
+is $seq->subseq($loc5_strand),    'CCCTTAA';
+is $seq->subseq($loc5_no_strand), 'CCCTTAA';
+is $loc5_strand->to_FTstring,     'complement(join(19..20,1..2,11..13))';
+is $loc5_no_strand->to_FTstring,  'complement(join(19..20,1..2,11..13))';
+
+## Cut by origin-combo split, same strand, 2 sequences with 2nd passing through origin
+#Coords: join(6..10,19..20,1..4) => CCCCCTTAAAA
+#Revcom: complement(join(6..10,19..20,1..4)) => TTTTAAGGGGG
+my $loc6_strand    = Bio::Location::Split->new();
+my $loc6_no_strand = Bio::Location::Split->new();
+$loc6_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 6,  '-end' => 10, '-strand' => 1) );
+$loc6_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 19, '-end' => 20, '-strand' => 1) );
+$loc6_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 1,  '-end' => 4,  '-strand' => 1) );
+$loc6_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 6,  '-end' => 10) );
+$loc6_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 19, '-end' => 20) );
+$loc6_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 1,  '-end' => 4)  );
+is $seq->subseq($loc6_strand),    'CCCCCTTAAAA';
+is $seq->subseq($loc6_no_strand), 'CCCCCTTAAAA';
+is $loc6_strand->to_FTstring,     'join(6..10,19..20,1..4)';
+is $loc6_no_strand->to_FTstring,  'join(6..10,19..20,1..4)';
+$loc6_strand->flip_strand;
+$loc6_no_strand->flip_strand;
+is $seq->subseq($loc6_strand),    'TTTTAAGGGGG';
+is $seq->subseq($loc6_no_strand), 'TTTTAAGGGGG';
+is $loc6_strand->to_FTstring,     'complement(join(6..10,19..20,1..4))';
+is $loc6_no_strand->to_FTstring,  'complement(join(6..10,19..20,1..4))';
+
+## Trans-splicing, 2 sequences in different strands, 2nd in complement
+#Coords: join(6..10,complement(16..20)) => CCCCCAAAAA
+#Revcom: join(16..20,complement(6..10)) => TTTTTGGGGG
+my $loc7_strand    = Bio::Location::Split->new();
+my $loc7_no_strand = Bio::Location::Split->new();
+$loc7_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 6,  '-end' => 10, '-strand' =>  1) );
+$loc7_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 16, '-end' => 20, '-strand' => -1) );
+$loc7_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 6,  '-end' => 10) );
+$loc7_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 16, '-end' => 20, '-strand' => -1) );
+is $seq->subseq($loc7_strand),    'CCCCCAAAAA';
+is $seq->subseq($loc7_no_strand), 'CCCCCAAAAA';
+is $loc7_strand->to_FTstring,     'join(6..10,complement(16..20))';
+is $loc7_no_strand->to_FTstring,  'join(6..10,complement(16..20))';
+$loc7_strand->flip_strand;
+$loc7_no_strand->flip_strand;
+is $seq->subseq($loc7_strand),    'TTTTTGGGGG';
+is $seq->subseq($loc7_no_strand), 'TTTTTGGGGG';
+is $loc7_strand->to_FTstring,     'join(16..20,complement(6..10))';
+is $loc7_no_strand->to_FTstring,  'join(16..20,complement(6..10))';
+
+## Trans-splicing, 2 sequences in different strands, 1st in complement
+#Coords: join(complement(16..20),6..10) => AAAAACCCCC
+#Revcom: join(complement(6..10),16..20) => GGGGGTTTTT
+my $loc8_strand    = Bio::Location::Split->new();
+my $loc8_no_strand = Bio::Location::Split->new();
+$loc8_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 16, '-end' => 20, '-strand' => -1) );
+$loc8_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 6,  '-end' => 10, '-strand' =>  1) );
+$loc8_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 16, '-end' => 20, '-strand' => -1) );
+$loc8_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 6,  '-end' => 10) );
+is $seq->subseq($loc8_strand),    'AAAAACCCCC';
+is $seq->subseq($loc8_no_strand), 'AAAAACCCCC';
+is $loc8_strand->to_FTstring,     'join(complement(16..20),6..10)';
+is $loc8_no_strand->to_FTstring,  'join(complement(16..20),6..10)';
+$loc8_strand->flip_strand;
+$loc8_no_strand->flip_strand;
+is $seq->subseq($loc8_strand),    'GGGGGTTTTT';
+is $seq->subseq($loc8_no_strand), 'GGGGGTTTTT';
+is $loc8_strand->to_FTstring,     'join(complement(6..10),16..20)';
+is $loc8_no_strand->to_FTstring,  'join(complement(6..10),16..20)';
+
+## Trans-splicing w/cut by origin, 2 sequences with 1st passing through origin, 2nd in complement
+#Coords: join(19..20,1..3,complement(11..13)) => TTAAACCC
+#Revcom: join(11..13,complement(1..3),complement(19..20)) => GGGTTTAA
+my $loc9_strand    = Bio::Location::Split->new();
+my $loc9_no_strand = Bio::Location::Split->new();
+$loc9_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 19, '-end' => 20, '-strand' =>  1) );
+$loc9_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 1,  '-end' => 3,  '-strand' =>  1) );
+$loc9_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 11, '-end' => 13, '-strand' => -1) );
+$loc9_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 19, '-end' => 20) );
+$loc9_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 1,  '-end' => 3)  );
+$loc9_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 11, '-end' => 13, '-strand' => -1) );
+is $seq->subseq($loc9_strand),    'TTAAACCC';
+is $seq->subseq($loc9_no_strand), 'TTAAACCC';
+is $loc9_strand->to_FTstring,     'join(19..20,1..3,complement(11..13))';
+is $loc9_no_strand->to_FTstring,  'join(19..20,1..3,complement(11..13))';
+$loc9_strand->flip_strand;
+$loc9_no_strand->flip_strand;
+is $seq->subseq($loc9_strand),    'GGGTTTAA';
+is $seq->subseq($loc9_no_strand), 'GGGTTTAA';
+is $loc9_strand->to_FTstring,     'join(11..13,complement(1..3),complement(19..20))';
+is $loc9_no_strand->to_FTstring,  'join(11..13,complement(1..3),complement(19..20))';
+
+## Trans-splicing w/cut by origin, 2 sequences with 1st passing through origin, 1st in complement
+#Coords: join(complement(1..3),complement(19..20),11..13) => TTTAAGGG
+#Revcom: join(complement(11..13),19..20,1..3) => CCCTTAAA
+my $loc10_strand    = Bio::Location::Split->new();
+my $loc10_no_strand = Bio::Location::Split->new();
+$loc10_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 1,  '-end' => 3,  '-strand' => -1) );
+$loc10_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 19, '-end' => 20, '-strand' => -1) );
+$loc10_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 11, '-end' => 13, '-strand' =>  1) );
+$loc10_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 1,  '-end' => 3,  '-strand' => -1) );
+$loc10_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 19, '-end' => 20, '-strand' => -1) );
+$loc10_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 11, '-end' => 13) );
+is $seq->subseq($loc10_strand),    'TTTAAGGG';
+is $seq->subseq($loc10_no_strand), 'TTTAAGGG';
+is $loc10_strand->to_FTstring,     'join(complement(1..3),complement(19..20),11..13)';
+is $loc10_no_strand->to_FTstring,  'join(complement(1..3),complement(19..20),11..13)';
+$loc10_strand->flip_strand;
+$loc10_no_strand->flip_strand;
+is $seq->subseq($loc10_strand),    'CCCTTAAA';
+is $seq->subseq($loc10_no_strand), 'CCCTTAAA';
+is $loc10_strand->to_FTstring,     'join(complement(11..13),19..20,1..3)';
+is $loc10_no_strand->to_FTstring,  'join(complement(11..13),19..20,1..3)';
+
+## Trans-splicing w/cut by origin, 2 sequences with 2nd passing through origin, 2nd in complement
+#Coords: join(6..10,complement(1..2),complement(18..20)) => CCCCCTTAAA
+#Revcom: join(18..20,1..2,complement(6..10)) => TTTAAGGGGG
+my $loc11_strand    = Bio::Location::Split->new();
+my $loc11_no_strand = Bio::Location::Split->new();
+$loc11_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 6,  '-end' => 10, '-strand' =>  1) );
+$loc11_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 1,  '-end' => 2,  '-strand' => -1) );
+$loc11_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 18, '-end' => 20, '-strand' => -1) );
+$loc11_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 6,  '-end' => 10) );
+$loc11_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 1,  '-end' => 2,  '-strand' => -1) );
+$loc11_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 18, '-end' => 20, '-strand' => -1) );
+is $seq->subseq($loc11_strand),    'CCCCCTTAAA';
+is $seq->subseq($loc11_no_strand), 'CCCCCTTAAA';
+is $loc11_strand->to_FTstring,     'join(6..10,complement(1..2),complement(18..20))';
+is $loc11_no_strand->to_FTstring,  'join(6..10,complement(1..2),complement(18..20))';
+$loc11_strand->flip_strand;
+$loc11_no_strand->flip_strand;
+is $seq->subseq($loc11_strand),    'TTTAAGGGGG';
+is $seq->subseq($loc11_no_strand), 'TTTAAGGGGG';
+is $loc11_strand->to_FTstring,     'join(18..20,1..2,complement(6..10))';
+is $loc11_no_strand->to_FTstring,  'join(18..20,1..2,complement(6..10))';
+
+## Trans-splicing w/cut by origin, 2 sequences with 2nd passing through origin, 1st in complement
+#Coords: join(complement(6..10),18..20,1..2) => GGGGGTTTAA
+#Revcom: join(complement(1..2),complement(18..20),6..10) => TTAAACCCCC
+my $loc12_strand    = Bio::Location::Split->new();
+my $loc12_no_strand = Bio::Location::Split->new();
+$loc12_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 6,  '-end' => 10, '-strand' => -1) );
+$loc12_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 18, '-end' => 20, '-strand' =>  1) );
+$loc12_strand->add_sub_Location(    Bio::Location::Simple->new('-start'  => 1,  '-end' => 2,  '-strand' =>  1) );
+$loc12_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 6,  '-end' => 10, '-strand' => -1) );
+$loc12_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 18, '-end' => 20) );
+$loc12_no_strand->add_sub_Location( Bio::Location::Simple->new('-start'  => 1,  '-end' => 2)  );
+is $seq->subseq($loc12_strand),    'GGGGGTTTAA';
+is $seq->subseq($loc12_no_strand), 'GGGGGTTTAA';
+is $loc12_strand->to_FTstring,     'join(complement(6..10),18..20,1..2)';
+is $loc12_no_strand->to_FTstring,  'join(complement(6..10),18..20,1..2)';
+$loc12_strand->flip_strand;
+$loc12_no_strand->flip_strand;
+is $seq->subseq($loc12_strand),    'TTAAACCCCC';
+is $seq->subseq($loc12_no_strand), 'TTAAACCCCC';
+is $loc12_strand->to_FTstring,     'join(complement(1..2),complement(18..20),6..10)';
+is $loc12_no_strand->to_FTstring,  'join(complement(1..2),complement(18..20),6..10)';

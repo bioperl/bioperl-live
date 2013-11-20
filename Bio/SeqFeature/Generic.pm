@@ -312,8 +312,44 @@ sub location {
 =cut
 
 sub start {
-    my ($self,$value) = @_;
-    return $self->location->start($value);
+    my ($self, $value) = @_;
+    # Return soon if setting value
+    if (defined $value) {
+        return $self->location->start($value);
+    }
+
+    return $self->location->start() if not defined $self->{'_gsf_seq'};
+    # Check circular sequences cut by origin
+    my $start;
+    if (    $self->{'_gsf_seq'}->is_circular
+        and $self->location->isa('Bio::Location::SplitLocationI')
+        ) {
+        my $primary_seq_length = $self->{'_gsf_seq'}->length;
+        my @sublocs = $self->location->sub_Location;
+
+        my $cut_by_origin = 0;
+        my ($a_end,   $a_strand) = (0, 0);
+        my ($b_start, $b_strand) = (0, 0);
+        for (my $i = 1; $i < scalar @sublocs; $i++) {
+            $a_end    = $sublocs[$i-1]->end;
+            $a_strand = $sublocs[$i-1]->strand;
+            $b_start  = $sublocs[$i]->start;
+            $b_strand = $sublocs[$i]->strand;
+            # cut by origin condition
+            if (    $a_end    == $primary_seq_length
+                and $b_start  == 1
+                and $a_strand == $b_strand
+                ) {
+                $cut_by_origin = 1;
+                last;
+            }
+        }
+        $start = ($cut_by_origin == 1) ? ($sublocs[0]->start) : ($self->location->start);
+    }
+    else {
+        $start = $self->location->start;
+    }
+    return $start;
 }
 
 
@@ -329,8 +365,44 @@ sub start {
 =cut
 
 sub end {
-    my ($self,$value) = @_;
-    return $self->location->end($value);
+    my ($self, $value) = @_;
+    # Return soon if setting value
+    if (defined $value) {
+        return $self->location->end($value);
+    }
+
+    return $self->location->end() if not defined $self->{'_gsf_seq'};
+    # Check circular sequences cut by origin
+    my $end;
+    if (    $self->{'_gsf_seq'}->is_circular
+        and $self->location->isa('Bio::Location::SplitLocationI')
+        ) {
+        my $primary_seq_length = $self->{'_gsf_seq'}->length;
+        my @sublocs = $self->location->sub_Location;
+
+        my $cut_by_origin = 0;
+        my ($a_end,   $a_strand) = (0, 0);
+        my ($b_start, $b_strand) = (0, 0);
+        for (my $i = 1; $i < scalar @sublocs; $i++) {
+            $a_end    = $sublocs[$i-1]->end;
+            $a_strand = $sublocs[$i-1]->strand;
+            $b_start  = $sublocs[$i]->start;
+            $b_strand = $sublocs[$i]->strand;
+            # cut by origin condition
+            if (    $a_end    == $primary_seq_length
+                and $b_start  == 1
+                and $a_strand == $b_strand
+                ) {
+                $cut_by_origin = 1;
+                last;
+            }
+        }
+        $end = ($cut_by_origin == 1) ? ($sublocs[-1]->end) : ($self->location->end);
+    }
+    else {
+        $end = $self->location->end;
+    }
+    return $end;
 }
 
 
@@ -346,8 +418,16 @@ sub end {
 =cut
 
 sub length {
-    my $self = shift;
-    return $self->end - $self->start() + 1;
+    my $self   = shift;
+    my $length = $self->end() - $self->start() + 1;
+
+    # In circular sequences cut by origin $start > $end,
+    # e.g., join(5075..5386,1..51)), $start = 5075, $end = 51,
+    # then adjust using the primary_seq length (5386)
+    if ($length < 0 and defined $self->{'_gsf_seq'}) {
+        $length += $self->{'_gsf_seq'}->length;
+    }
+    return $length;
 }
 
 
