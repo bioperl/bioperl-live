@@ -218,20 +218,28 @@ sub _index_file {
 	my $lastline = 0;
 	my $prefix = '';
 
+	# In Windows, text files have '\r\n' as line separator, but when reading in
+	# text mode Perl will only show the '\n'. This means that for a line "ABC\r\n",
+	# "length $_" will report 4 although the line is 5 bytes in length.
+	# We assume that all lines have the same line separator and only check the first line.
+	my $first_line = <$BLAST>;
+	my $correction = tell($BLAST) - length $first_line;
+	seek $BLAST, 0, 0; # Rewind position to proceed to read the file
+
 	# fencepost problem: we basically just find the top and the query
-	while( <$BLAST> ) {
+	while( my $line = <$BLAST> ) {
 
 		# in recent RPS-BLAST output the only delimiter between result
 		# sections is '^Query=' - in other BLAST outputs you
 		# can use '^(RPS-|T?)BLAST(P?|N?|X?)'
 
-		if ( /^(RPS-|T?)BLAST(P?|N?|X?)/ ) {
+		if ( $line =~ /^(RPS-|T?)BLAST(P?|N?|X?)/ ) {
 			$prefix = $1;
-			$indexpoint = tell($BLAST) - length $_;
+			$indexpoint = tell($BLAST) - length($line) - $correction;
 		}
-		if ( /^Query=\s*([^\n]+)$/ ) {
+		if ( $line =~ /^Query=\s*([^\n]+)$/ ) {
 
-			$indexpoint = tell($BLAST) - length $_ if ( $prefix eq 'RPS-' );
+			$indexpoint = tell($BLAST) - length($line) - $correction if ( $prefix eq 'RPS-' );
 
 			foreach my $id ($self->id_parser()->($1)) {
 				$self->debug("id is $id, begin is $indexpoint\n");
