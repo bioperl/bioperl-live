@@ -773,8 +773,13 @@ sub add_record {
 =cut
 
 sub pack_record {
-	my( $self, @args ) = @_;
-	return join "\034", @args;
+    my( $self, @args ) = @_;
+    # Silence undefined warnings
+    @args = map {
+                 $_ = (defined $_) ? $_ : '';
+                 $_ ;
+                 } @args;
+    return join "\034", @args;
 }
 
 =head2 unpack_record
