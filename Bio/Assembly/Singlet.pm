@@ -157,6 +157,10 @@ sub _seq_to_singlet {
         -start  => 1,
         #-end   => we let Bio::LocatableSeq calculate it (Seq and LocatableSeq)
     );
+    # Get End from $seq if $lseq can't figure it out (e.g. phrap output)
+    if (not defined $lseq->end) {
+        $lseq->end($seq->end);
+    }
     # Add new sequence and its coordinates to the contig
     my $lcoord = Bio::SeqFeature::Generic->new( -start => $lseq->start,
                                                 -end   => $lseq->end    );
