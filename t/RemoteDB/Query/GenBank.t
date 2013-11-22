@@ -82,4 +82,3 @@ $seq = $seqio = undef;
 $query = Bio::DB::Query::GenBank->new('-query'  => 'AF303112',
                                       '-ids' => [qw(J00522 AF303112 2981014)]);
 is $query->query, 'J00522[PACC]|AF303112[PACC]|2981014[UID]';
-

@@ -24,8 +24,8 @@ BEGIN {
 }
 
 my $ind = Bio::Index::Fasta->new(-filename => 'Wibbl',
-											-write_flag => 1,
-											-verbose => 0);
+                                 -write_flag => 1,
+                                 -verbose => 0);
 $ind->make_index(test_input_file('multifa.seq'));
 $ind->make_index(test_input_file('seqs.fas'));
 
@@ -47,15 +47,15 @@ $seq = $stream->next_seq;
 isa_ok $seq, 'Bio::PrimarySeqI';
 
 $ind = Bio::Index::Fasta->new(-filename => 'multifa_index',
-										-write_flag => 1,
-										-verbose => 0);
+                              -write_flag => 1,
+                              -verbose => 0);
 $ind->make_index(test_input_file('multifa.seq.qual'));
 
 ok ( -e "multifa_index" );
 
 $ind = Bio::Index::Qual->new(-filename => 'multifa_qual_index',
-									  -write_flag => 1,
-									  -verbose => 0);
+                             -write_flag => 1,
+                             -verbose => 0);
 $ind->make_index(test_input_file('multifa.seq.qual'));
 
 ok ( -e "multifa_qual_index" );
@@ -75,19 +75,19 @@ $seq = $ind->fetch('NONEXISTENT_SEQ');
 ok(! defined $seq);
 
 $ind = Bio::Index::SwissPfam->new(-filename => 'Wibbl2',
-											 -write_flag =>1);
+                                  -write_flag =>1);
 $ind->make_index(test_input_file('swisspfam.data'));
 
 ok ( -e "Wibbl2" || -e "Wibbl2.pag" );
 
 $ind = Bio::Index::EMBL->new(-filename   => 'Wibbl3',
-			     -write_flag =>1);
+                             -write_flag =>1);
 $ind->make_index(test_input_file('test.embl'));
 ok ( -e "Wibbl3" || -e "Wibbl3.pag" );
 is ($ind->fetch('AL031232')->length, 4870);
 
 $ind = Bio::Index::Swissprot->new(-filename   => 'Wibbl4',
-											 -write_flag => 1);
+                                  -write_flag => 1);
 $ind->make_index(test_input_file('roa1.swiss'));
 ok ( -e "Wibbl4" || -e "Wibbl4.pag" );
 $seq = $ind->fetch('ROA1_HUMAN');
@@ -97,7 +97,7 @@ is ($seq->display_id(), 'ROA1_HUMAN');
 
 # test id_parser
 $ind = Bio::Index::Swissprot->new(-filename   => 'Wibbl4',
-								-write_flag => 1);
+                                  -write_flag => 1);
 $ind->id_parser(\&get_id);
 $ind->make_index(test_input_file('roa1.swiss'));
 ok ( -e "Wibbl4" || -e "Wibbl4.pag" );
@@ -106,8 +106,8 @@ is ($seq->length,371);
 
 
 my $gb_ind = Bio::Index::GenBank->new(-filename => 'Wibbl5',
-												  -write_flag =>1,
-												  -verbose    => 0);
+                                      -write_flag =>1,
+                                      -verbose    => 0);
 $gb_ind->make_index(test_input_file('roa1.genbank'));
 ok ( -e "Wibbl5" || -e "Wibbl5.pag" );
 $seq = $gb_ind->fetch('AI129902');
@@ -124,8 +124,8 @@ SKIP: {
    test_skip(-tests => 22, -requires_module => 'Bio::DB::FileCache');
 
    $cache = Bio::DB::FileCache->new(-seqdb => $gb_ind,
-												-keep  => 1,
-												-file  => 'filecache.idx');
+                                    -keep  => 1,
+                                    -file  => 'filecache.idx');
    # problem:
    my $seq = $cache->get_Seq_by_id('AI129902');
    ok ( $seq);
@@ -147,8 +147,8 @@ SKIP: {
 
    $cache = undef;
    $cache = Bio::DB::FileCache->new(-seqdb => $gb_ind,
-												-keep  => 0,
-												-file  => 'filecache.idx');
+                                    -keep  => 0,
+                                    -file  => 'filecache.idx');
    $seq = $cache->get_Seq_by_id('AI129902');
    ok ( $seq);
    is ( $seq->length, 37);
@@ -170,8 +170,8 @@ SKIP: {
 
 # test id_parser
 $gb_ind = Bio::Index::GenBank->new(-filename => 'Wibbl5',
-											  -write_flag =>1,
-											  -verbose    => 0);
+                                   -write_flag =>1,
+                                   -verbose    => 0);
 $gb_ind->id_parser(\&get_id);
 $gb_ind->make_index(test_input_file('roa1.genbank'));
 ok ( -e "Wibbl5" || -e "Wibbl5.pag" );
@@ -180,8 +180,8 @@ is ($seq->length,141);
 
 # test Stockholm
 my $st_ind = Bio::Index::Stockholm->new(-filename => 'Wibbl6',
-                                   -write_flag => 1,
-                                   -verbose    => 0);
+                                        -write_flag => 1,
+                                        -verbose    => 0);
 isa_ok $st_ind, 'Bio::Index::Stockholm';
 $st_ind->make_index(test_input_file('testaln.stockholm'));
 ok ( -e "Wibbl6" );
@@ -192,20 +192,20 @@ isa_ok($aln,'Bio::SimpleAlign');
 
 
 sub get_id {
-	my $line = shift;
-	return $1 if ($line =~ /product="([^"]+)"/);
-	return $1 if ($line =~ /^DR\s+EMBL;\s+([^;]+)/);
+   my $line = shift;
+   return $1 if ($line =~ /product="([^"]+)"/);
+   return $1 if ($line =~ /^DR\s+EMBL;\s+([^;]+)/);
 }
 
 END {
-	cleanup();
+   cleanup();
 }
 
 sub cleanup {
-	for my $root ( qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5 Wibbl6
+   for my $root ( qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5 Wibbl6
                       multifa_index multifa_qual_index ) ) {
-		unlink $root if( -e $root );
-		unlink "$root.pag" if( -e "$root.pag");
-		unlink "$root.dir" if( -e "$root.dir");
-	}
+      unlink $root if( -e $root );
+      unlink "$root.pag" if( -e "$root.pag");
+      unlink "$root.dir" if( -e "$root.dir");
+   }
 }

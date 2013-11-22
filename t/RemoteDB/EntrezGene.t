@@ -38,4 +38,3 @@ SKIP: {
     is $seq->display_id, "RP";
     is $seq->accession_number, 6099;
 }
-
