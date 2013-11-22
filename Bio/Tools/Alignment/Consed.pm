@@ -148,7 +148,8 @@ sub new {
     # this is special to UNIX and should probably use catfile : DONE!
 #    if (!($self->{'filename'} =~ m{/})) { 
 #	$self->{'filename'} = "./".$self->{'filename'}; 
-#    } 
+#    }
+#    $self->{'filename'} =~ s#\\#\/#g if $^O =~ m/mswin/i;
 #    $self->{'filename'} =~ m/(.*\/)(.*)ace.*$/;
 #    $self->{'path'} = $1;
 
@@ -977,6 +978,7 @@ sub set_singlets {
     $self->debug("Bio::Tools::Alignment::Consed Adding singlets to the contig hash...\n"); 
     my $full_filename = $self->{'filename'};
     $self->debug("Bio::Tools::Alignment::Consed::set_singlets: \$full_filename is $full_filename\n");
+    $full_filename =~ s#\\#\/#g if $^O =~ m/mswin/i;
     $full_filename =~ m/(.*\/)(.*ace.*)$/; 			       
     my ($base_path,$filename) = ($1,$2);
     $self->debug("Bio::Tools::Alignment::Consed::set_singlets: singlets filename is $filename and \$base_path is $base_path\n");
@@ -1105,6 +1107,7 @@ sub set_quality_by_name {
 sub set_singlet_quality {
     my $self = shift;
     my $full_filename = $self->{'filename'};
+    $full_filename =~ s#\\#\/#g if $^O =~ m/mswin/i;
     $full_filename =~ m/(.*\/)(.*)ace.*$/;
     my ($base_path,$filename) = ($1,"$2"."qual");
     my $singletsfile = $base_path.$filename;
@@ -1156,6 +1159,7 @@ sub set_contig_quality {
     my $full_filename = $self->{'filename'};
     # Run_SRC3700_2000-08-01_73+74.fasta.screen.contigs.qual
     # from Consed.pm
+    $full_filename =~ s#\\#\/#g if $^O =~ m/mswin/i;
     $full_filename =~ m/(.*\/)(.*)ace.*$/;
     my ($base_path,$filename) = ($1,"$2"."contigs.qual");
     my $singletsfile = $base_path.$filename;
@@ -1846,4 +1850,3 @@ sub show_missing_sequence() {
 
 
 1;
-

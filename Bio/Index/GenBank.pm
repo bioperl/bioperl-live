@@ -153,9 +153,20 @@ sub _index_file {
 	$self->throw("Can't open file for read : $file");
 
     my %done_ids;
+
+    # In Windows, text files have '\r\n' as line separator, but when reading in
+    # text mode Perl will only show the '\n'. This means that for a line "ABC\r\n",
+    # "length $_" will report 4 although the line is 5 bytes in length.
+    # We assume that all lines have the same line separator and only read current line.
+    my $init_pos   = tell($GENBANK);
+    my $curr_line  = <$GENBANK>;
+    my $pos_diff   = tell($GENBANK) - $init_pos;
+    my $correction = $pos_diff - length $curr_line;
+    seek $GENBANK, $init_pos, 0; # Rewind position to proceed to read the file
+
     while (<$GENBANK>) {
         if (/^LOCUS/) {
-            $begin = tell($GENBANK) - length($_);
+            $begin = tell($GENBANK) - length($_) - $correction;
         }
         for my $id (&$id_parser($_)) {
             next if exists $done_ids{$id};

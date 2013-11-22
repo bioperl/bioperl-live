@@ -241,10 +241,21 @@ sub _index_file {
   my $fh     = $self->_fhcache($file) or $self->throw("could not open $file for indexing: $!");
   my $offset = 0;
   my $count  = 0;
+
+  # In Windows, text files have '\r\n' as line separator, but when reading in
+  # text mode Perl will only show the '\n'. This means that for a line "ABC\r\n",
+  # "length $_" will report 4 although the line is 5 bytes in length.
+  # We assume that all lines have the same line separator and only read current line.
+  my $init_pos   = tell($fh);
+  my $curr_line  = <$fh>;
+  my $pos_diff   = tell($fh) - $init_pos;
+  my $correction = $pos_diff - length $curr_line;
+  seek $fh, $init_pos, 0; # Rewind position to proceed to read the file
+
   while (!eof($fh)) {
     my ($ids,$adjustment)  = $self->parse_one_record($fh) or next;
     $adjustment ||= 0;  # prevent uninit variable warning
-    my $pos = tell($fh) + $adjustment;
+    my $pos = tell($fh) + $adjustment - $correction;
     $self->_store_index($ids,$file,$offset,$pos-$offset);
     $offset = $pos;
     $count++;

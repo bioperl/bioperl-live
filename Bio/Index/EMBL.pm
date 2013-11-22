@@ -146,6 +146,16 @@ sub _index_file {
 
     open my $EMBL, '<', $file or $self->throw("Can't open file for read : $file");
 
+    # In Windows, text files have '\r\n' as line separator, but when reading in
+    # text mode Perl will only show the '\n'. This means that for a line "ABC\r\n",
+    # "length $_" will report 4 although the line is 5 bytes in length.
+    # We assume that all lines have the same line separator and only read current line.
+    my $init_pos   = tell($EMBL);
+    my $curr_line  = <$EMBL>;
+    my $pos_diff   = tell($EMBL) - $init_pos;
+    my $correction = $pos_diff - length $curr_line;
+    seek $EMBL, $init_pos, 0; # Rewind position to proceed to read the file
+
     # Main indexing loop
     $id = undef;
     @accs = ();
@@ -170,7 +180,7 @@ sub _index_file {
 	    $id = $1;
 	    # not sure if I like this. Assummes tell is in bytes.
 	    # we could tell before each line and save it.
-            $begin = tell($EMBL) - length( $_ );
+            $begin = tell($EMBL) - length( $_ ) - $correction;
 	
 	} elsif (/^AC\s+(.*)?/) {
             push @accs , split (/[; ]+/, $1);
@@ -204,13 +214,3 @@ sub _file_format{
 
 
 1;
-
-
-
-
-
-
-
-
-
-

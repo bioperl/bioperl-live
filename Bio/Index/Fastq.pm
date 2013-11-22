@@ -157,10 +157,21 @@ sub _index_file {
     my $id_parser = $self->id_parser;
     my $c = 0;
     open my $FASTQ, '<', $file or $self->throw("Can't open file for read : $file");
+
+    # In Windows, text files have '\r\n' as line separator, but when reading in
+    # text mode Perl will only show the '\n'. This means that for a line "ABC\r\n",
+    # "length $_" will report 4 although the line is 5 bytes in length.
+    # We assume that all lines have the same line separator and only read current line.
+    my $init_pos   = tell($FASTQ);
+    my $curr_line  = <$FASTQ>;
+    my $pos_diff   = tell($FASTQ) - $init_pos;
+    my $correction = $pos_diff - length $curr_line;
+    seek $FASTQ, $init_pos, 0; # Rewind position to proceed to read the file
+
     # Main indexing loop
     while (<$FASTQ>) {
         if (/^@/) {
-            my $begin = tell($FASTQ) - length( $_ );
+            my $begin = tell($FASTQ) - length( $_ ) - $correction;
             foreach my $id (&$id_parser($_)) {
                 $self->add_record($id, $i, $begin);
                 $c++;
