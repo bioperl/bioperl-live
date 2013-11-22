@@ -215,10 +215,19 @@ sub _index_file {
 
   my %done_ids;
     
+  # In Windows, text files have '\r\n' as line separator, but when reading in
+  # text mode Perl will only show the '\n'. This means that for a line "ABC\r\n",
+  # "length $_" will report 4 although the line is 5 bytes in length.
+  # We assume that all lines have the same line separator and only read current line.
+  my $init_pos   = tell($STOCKHOLM);
+  my $curr_line  = <$STOCKHOLM>;
+  my $pos_diff   = tell($STOCKHOLM) - $init_pos;
+  my $correction = $pos_diff - length $curr_line;
+  seek $STOCKHOLM, $init_pos, 0; # Rewind position to proceed to read the file
+
   while (<$STOCKHOLM>) {
-  
       if ( /^#\sSTOCKHOLM/ ) {
-        $begin = tell($STOCKHOLM) - length($_);
+        $begin = tell($STOCKHOLM) - length($_) - $correction;
       }
 
       for my $id ( &$id_parser($_) ) {

@@ -194,18 +194,29 @@ sub _index_file {
 	my $lastline = 0;
     my $last_query = '';
     my $is_m9;
+
+    # In Windows, text files have '\r\n' as line separator, but when reading in
+    # text mode Perl will only show the '\n'. This means that for a line "ABC\r\n",
+    # "length $_" will report 4 although the line is 5 bytes in length.
+    # We assume that all lines have the same line separator and only read current line.
+    my $init_pos   = tell($BLAST);
+    my $curr_line  = <$BLAST>;
+    my $pos_diff   = tell($BLAST) - $init_pos;
+    my $correction = $pos_diff - length $curr_line;
+    seek $BLAST, $init_pos, 0; # Rewind position to proceed to read the file
+
 	while( <$BLAST> ) {
         if (m{^#}) {
             $is_m9 ||= 1;
             if(m{^#\s+T?BLAST[PNX]}i ) {
-                $indexpoint = tell($BLAST) - length($_);
+                $indexpoint = tell($BLAST) - length($_) - $correction;
             }
             next
         }
         
         if (/^(?:([^\t]+)\t)(?:[^\t]+\t){7,}/) {
             next if $last_query eq $1;
-            $indexpoint = tell($BLAST) - length($_) unless $is_m9;
+            $indexpoint = tell($BLAST) - length($_) - $correction unless $is_m9;
             foreach my $id ($self->id_parser()->($1)) {
 				$self->debug("id is $id, begin is $indexpoint\n");
 				$self->add_record($id, $i, $indexpoint);

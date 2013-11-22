@@ -221,10 +221,12 @@ sub _index_file {
 	# In Windows, text files have '\r\n' as line separator, but when reading in
 	# text mode Perl will only show the '\n'. This means that for a line "ABC\r\n",
 	# "length $_" will report 4 although the line is 5 bytes in length.
-	# We assume that all lines have the same line separator and only check the first line.
-	my $first_line = <$BLAST>;
-	my $correction = tell($BLAST) - length $first_line;
-	seek $BLAST, 0, 0; # Rewind position to proceed to read the file
+	# We assume that all lines have the same line separator and only read current line.
+	my $init_pos   = tell($BLAST);
+	my $curr_line  = <$BLAST>;
+	my $pos_diff   = tell($BLAST) - $init_pos;
+	my $correction = $pos_diff - length $curr_line;
+	seek $BLAST, $init_pos, 0; # Rewind position to proceed to read the file
 
 	# fencepost problem: we basically just find the top and the query
 	while( my $line = <$BLAST> ) {
