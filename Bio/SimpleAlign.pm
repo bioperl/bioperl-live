@@ -1140,11 +1140,17 @@ sub slice {
 	    my $slice_seq = $seq->subseq($start, $seq_end);
 	    $new_seq->seq( $slice_seq );
 
-	    $slice_seq =~ s/\W//g;
+	    # Allowed extra characters in string
+		my $allowed_chars = '';
+		if (exists $self->{_mask_char}) {
+			$allowed_chars = $self->{_mask_char};
+			$allowed_chars = quotemeta $allowed_chars;
+		}
+		$slice_seq =~ s/[^\w$allowed_chars]//g;
 
 	    if ($start > 1) {
             my $pre_start_seq = $seq->subseq(1, $start - 1);
-            $pre_start_seq =~ s/\W//g;
+            $pre_start_seq =~ s/[^\w$allowed_chars]//g;
             if (!defined($seq->strand)) {
                 $new_seq->start( $seq->start + CORE::length($pre_start_seq) );
             } elsif ($seq->strand < 0){
@@ -3286,6 +3292,8 @@ sub mask_columns {
         $new_seq->seq($new_dna_string);
         $aln->add_seq($new_seq);
     }
+	# Preserve chosen mask character, it may be need later (like in 'slice')
+	$aln->{_mask_char} = $mask_char;
     return $aln;
 }
 
