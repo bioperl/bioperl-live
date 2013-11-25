@@ -503,4 +503,42 @@ sub cat {
     return $aln;
 }
 
+
+=head2 most_common_sequences
+
+ Title     : most_common_sequences
+ Usage     : @common = most_common_sequences ($align, $case_sensitivity)
+ Function  : Returns an array of the sequences that appear most often in the
+             alignment (although this probably makes more sense when there is
+             only a single most common sequence).  Sequences are compared after
+             removing any "-" (gap characters), and ambiguous units (e.g., R
+             for purines) are only compared to themselves.  The returned
+             sequence is also missing the "-" since they don't actually make
+             part of the sequence.
+ Returns   : Array of text strings.
+ Arguments : Optional argument defining whether the comparison between sequences
+             to find the most common should be case sensitive. Defaults to
+             false, i.e, not case sensitive.
+
+=cut
+
+sub most_common_sequences {
+    my $align          = shift
+      or croak ("Must provide Bio::AlignI object to Bio::Align::Utilities::most_common_sequences");
+    my $case_sensitive = shift; # defaults to false (we get undef if nothing)
+
+    ## We keep track of the number of most repeated sequence most often repeated on the first
+    ## loop to save transversing it again later on, to find the max
+    ## and the another to get the ones
+    my $max = 0;
+    my %counts;
+    foreach ($align->each_seq) {
+        my $seq = $_->seq =~ tr/-//dr;
+        $seq = uc ($seq) unless $case_sensitive;
+        $max++ if (++$counts{$seq} > $max);
+    }
+    my @common = grep ($counts{$_} == $max, keys %counts);
+    return @common;
+}
+
 1;
