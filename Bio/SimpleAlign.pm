@@ -1,3 +1,12 @@
+package Bio::SimpleAlign;
+use strict;
+use warnings;
+use Bio::LocatableSeq;  # uses Seq's as list
+use Bio::Seq;
+use Bio::SeqFeature::Generic;
+
+use parent qw(Bio::Root::Root Bio::Align::AlignI Bio::AnnotatableI Bio::FeatureHolderI);
+
 # BioPerl module for SimpleAlign
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
@@ -145,51 +154,16 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-# 'Let the code begin...
+## This data should probably be in a more centralized module...
+## it is taken from Clustalw documentation.
+## These are all the positively scoring groups that occur in the
+## Gonnet Pam250 matrix. The strong and weak groups are
+## defined as strong score >0.5 and weak score =<0.5 respectively.
+our %CONSERVATION_GROUPS = (
+  'strong' => [qw(STA NEQK NHQK NDEQ QHRK MILV MILF HY FYW )],
+  'weak'   => [qw(CSA ATV SAG STNK STPA SGND SNDEQK NDEQHK NEQHRK FVLIM HFY)],
+);
 
-package Bio::SimpleAlign;
-use vars qw(%CONSERVATION_GROUPS);
-use strict;
-
-use Bio::LocatableSeq;  # uses Seq's as list
-
-use Bio::Seq;
-use Bio::SeqFeature::Generic;
-
-BEGIN {
-    # This data should probably be in a more centralized module...
-    # it is taken from Clustalw documentation.
-    # These are all the positively scoring groups that occur in the
-    # Gonnet Pam250 matrix. The strong and weak groups are
-    # defined as strong score >0.5 and weak score =<0.5 respectively.
-
-    %CONSERVATION_GROUPS = (
-            'strong' => [ qw(
-						 STA
-						 NEQK
-						 NHQK
-						 NDEQ
-						 QHRK
-						 MILV
-						 MILF
-						 HY
-						 FYW )],
-				'weak' => [ qw(
-                      CSA
-					       ATV
-					       SAG
-					       STNK
-					       STPA
-					       SGND
-					       SNDEQK
-					       NDEQHK
-					       NEQHRK
-					       FVLIM
-					       HFY )],);
-}
-
-use base qw(Bio::Root::Root Bio::Align::AlignI Bio::AnnotatableI 
-	    Bio::FeatureHolderI);
 
 =head2 new
 
