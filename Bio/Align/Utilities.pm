@@ -525,9 +525,8 @@ sub most_common_sequences {
       or croak ("Must provide Bio::AlignI object to Bio::Align::Utilities::most_common_sequences");
     my $case_sensitive = shift; # defaults to false (we get undef if nothing)
 
-    ## We keep track of the number of most repeated sequence most often repeated on the first
-    ## loop to save transversing it again later on, to find the max
-    ## and the another to get the ones
+    ## We keep track of the max on this loop. Saves us having to
+    ## transverse the hash table later to find the maximum value.
     my $max = 0;
     my %counts;
     foreach ($align->each_seq) {
