@@ -530,7 +530,7 @@ sub most_common_sequences {
     my $max = 0;
     my %counts;
     foreach ($align->each_seq) {
-        my $seq = $_->seq =~ tr/-//dr;
+        (my $seq = $_->seq) =~ tr/-//d;
         $seq = uc ($seq) unless $case_sensitive;
         $max++ if (++$counts{$seq} > $max);
     }
