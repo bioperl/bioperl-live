@@ -34,7 +34,12 @@ script:
 
 #TODO - send emails to bioperl-guts-l
 notifications:
-  email: false
+  email: 
+    recipients:
+      - bioperl-guts-l@lists.open-bio.org
+      - cjfields1@gmail.com
+    on_success: change
+    on_failure: change
 
 # whitelist branches
 branches:
