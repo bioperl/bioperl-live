@@ -8,10 +8,12 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 1360);
+    test_begin(-tests => 1361);
 
     use_ok('Bio::SearchIO');
 }
+
+ok(0, 'testing testing');
 
 SKIP: {
     test_skip(-tests => 4, -requires_module => 'Path::Class');
