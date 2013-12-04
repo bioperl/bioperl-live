@@ -258,7 +258,7 @@ BEGIN {
           { 'RESULT-statistics' => 'num_successful_extensions' },
         'Statistics_length_adjustment' => { 'RESULT-statistics' => 'length_adjustment' },
         'Statistics_number_of_hsps_better_than_expect_value_cutoff_without_gapping' =>
-		  { 'RESULT-statistics' => 'number_of_hsps_better_than_expect_value_cutoff_without_gapping' },
+          { 'RESULT-statistics' => 'number_of_hsps_better_than_expect_value_cutoff_without_gapping' },
         'Statistics_number_of_hsps_gapped' => { 'RESULT-statistics' => 'number_of_hsps_gapped' },
         'Statistics_number_of_hsps_successfully_gapped' => { 'RESULT-statistics' => 'number_of_hsps_successfully_gapped' },
 
@@ -652,15 +652,15 @@ sub next_result {
                 }
             ) if $self->{'_blsdb_letters'};
         }
-		# added check for WU-BLAST -echofilter option (bug 2388)
-		elsif (/^>Unfiltered[+-]1$/) {
-        	# skip all of the lines of unfiltered sequence
-			while($_ !~ /^Database:/) {
-				$self->debug("Bypassing features line: $_");
-        		$_ = $self->_readline;
-        	}
-			$self->_pushback($_);
-		}
+        # added check for WU-BLAST -echofilter option (bug 2388)
+        elsif (/^>Unfiltered[+-]1$/) {
+            # skip all of the lines of unfiltered sequence
+            while($_ !~ /^Database:/) {
+                $self->debug("Bypassing features line: $_");
+                $_ = $self->_readline;
+            }
+            $self->_pushback($_);
+        }
         elsif (/Sequences producing significant alignments:/) {
             $self->debug("blast.pm: Processing NCBI-BLAST descriptions\n");
             $flavor = 'ncbi';
@@ -891,10 +891,10 @@ sub next_result {
         elsif (
             ( $self->in_element('hit') || $self->in_element('hsp') )
             &&    # paracel genewise BTK
-            m/Score\s*=\s*(\S+)\s*bits\s* # Bit score
-                (?:\((\d+)\))?,                 # Raw score
-		\s+Log\-Length\sScore\s*=\s*(\d+) # Log-Length score
-                /ox
+            m/Score\s*=\s*(\S+)\s*bits\s*       # Bit score
+              (?:\((\d+)\))?,                   # Raw score
+              \s+Log\-Length\sScore\s*=\s*(\d+) # Log-Length score
+              /ox
           )
         {
             $self->in_element('hsp')
@@ -928,10 +928,10 @@ sub next_result {
         elsif (
             ( $self->in_element('hit') || $self->in_element('hsp') )
             &&    # paracel hframe BTK
-            m/Score\s*=\s*([^,\s]+),     # Raw score
-		\s*Expect\s*=\s*([^,\s]+),  # E-value
-                \s*P(?:\(\S+\))?\s*=\s*([^,\s]+) # P-value
-                /ox
+            m/Score\s*=\s*([^,\s]+),           # Raw score
+              \s*Expect\s*=\s*([^,\s]+),       # E-value
+              \s*P(?:\(\S+\))?\s*=\s*([^,\s]+) # P-value
+              /ox
           )
         {
             $self->in_element('hsp')
@@ -1338,7 +1338,7 @@ sub next_result {
                 }
                 elsif ( $blast eq 'wublast' ) {
 
-                    #		   warn($_);
+                    # warn($_);
                     if (/E=(\S+)/) {
                         $self->element(
                             {
@@ -1551,7 +1551,7 @@ sub next_result {
                     }
                     elsif (
                         m/^\s+Time to generate neighborhood:\s+
-			    (\S+\s+\S+\s+\S+)/x
+                          (\S+\s+\S+\s+\S+)/x
                       )
                     {
                         $self->element(
@@ -1570,9 +1570,9 @@ sub next_result {
                         );
                     }
                     elsif (
-                        m/^\s+(\S+)\s+cpu\s+time:\s+# cputype
-			    (\S+\s+\S+\s+\S+)           # cputime
-			    \s+Elapsed:\s+(\S+)/x
+                        m/^\s+(\S+)\s+cpu\s+time:\s+ # cputype
+                          (\S+\s+\S+\s+\S+)          # cputime
+                          \s+Elapsed:\s+(\S+)/x
                       )
                     {
                         my $cputype = lc($1);
@@ -1703,7 +1703,7 @@ sub next_result {
                     }
                     elsif (
                         m/Gap\s+Penalties:\s+Existence:\s+(\d+)\,
-			    \s+Extension:\s+(\d+)/ox
+                          \s+Extension:\s+(\d+)/ox
                       )
                     {
                         $self->element(
@@ -1802,7 +1802,7 @@ sub next_result {
                     }
                     elsif (
                         m/frameshift\s+window\,
-			    \s+decay\s+const:\s+(\d+)\,\s+([\.\d]+)/x
+                          \s+decay\s+const:\s+(\d+)\,\s+([\.\d]+)/x
                       )
                     {
                         $self->element(
@@ -1836,7 +1836,7 @@ sub next_result {
                     }
                     elsif (
                         m/^Number\s+of\s+successful\s+extensions:\s+
-			    (\S+)/ox
+                          (\S+)/ox
                       )
                     {
                         $self->element(
@@ -1848,7 +1848,7 @@ sub next_result {
                     }
                     elsif (
                         m/^Number\s+of\s+sequences\s+better\s+than\s+
-			    (\S+):\s+(\d+)/ox
+                          (\S+):\s+(\d+)/ox
                       )
                     {
                         $self->element(
@@ -1894,8 +1894,8 @@ sub next_result {
             for ( my $i = 0 ; defined($_) && $i < 3 ; $i++ ) {
                 # $self->debug("$i: $_") if $v;
                 if ( ( $i == 0 && /^\s+$/) ||
-		     /^\s*(?:Lambda|Minus|Plus|Score)/i )
-                {
+                     /^\s*(?:Lambda|Minus|Plus|Score)/i
+                    ) {
                     $self->_pushback($_) if defined $_;
                     $self->end_element( { 'Name' => 'Hsp' } );
                     last;
@@ -2177,7 +2177,7 @@ sub end_element {
     $self->{'_last_data'} = '';    # remove read data if we are at
                                    # end of an element
     $self->{'_result'} = $rc if ( defined $type && $type eq 'result' );
-	$self->{'_seen_hsp_features'} = 0;
+    $self->{'_seen_hsp_features'} = 0;
     return $rc;
 }
 
