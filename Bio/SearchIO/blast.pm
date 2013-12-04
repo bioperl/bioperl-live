@@ -1174,29 +1174,60 @@ sub next_result {
         elsif ( $self->in_element('hsp')
             && /Frame\s*=\s*([\+\-][1-3])\s*(\/\s*([\+\-][1-3]))?/ )
         {
-
+            my $frame1 = $1 || 0;
+            my $frame2 = $2 || 0;
             # this is for bl2seq only
-            unless ( defined $reporttype ) {
+            if ( not defined $reporttype ) {
                 $bl2seq_fix = 1;
-                if ( $1 && $2 ) { $reporttype = 'TBLASTX' }
+                if ( $frame1 && $frame2 ) {
+                    $reporttype = 'TBLASTX'
+                }
                 else {
-                    $reporttype = 'BLASTX';
+                    # We can distinguish between BLASTX and TBLASTN from the report
+                    # (and assign $frame1 properly) by using the start/end from query.
+                    # If the report is BLASTX, the coordinates distance from query
+                    # will be 3 times the length of the alignment shown (coordinates in nt,
+                    # alignment in aa); if not then subject is the nucleotide sequence (TBLASTN).
+                    # Will have to fast-forward to query alignment line and then go back.
+                    my $fh = $self->_fh;
+                    my $file_pos = tell $fh;
 
-    # we can't distinguish between BLASTX and TBLASTN straight from the report }
+                    my $a_position = '';
+                    my $ali_length = '';
+                    my $b_position = '';
+                    while (my $line = <$fh>) {
+                        if ($line =~ m/^(?:Query|Sbjct):?\s+(\-?\d+)?\s*(\S+)\s+(\-?\d+)?/) {
+                            $a_position   = $1;
+                            my $alignment = $2;
+                            $b_position   = $3;
+
+                            use Bio::LocatableSeq;
+                            my $gap_symbols = $Bio::LocatableSeq::GAP_SYMBOLS;
+                            $alignment =~ s/[$gap_symbols]//g;
+                            $ali_length = length($alignment);
+                            last;
+                        }
+                    }
+                    my $coord_length = ($a_position < $b_position) ? ($b_position - $a_position + 1)
+                                     : ($a_position - $b_position + 1);
+                    ($coord_length == ($ali_length * 3)) ? ($reporttype = 'BLASTX') : ($reporttype = 'TBLASTN');
+
+                    # Rewind filehandle to its original position to continue parsing
+                    seek $fh, $file_pos, 0;
                 }
                 $self->{'_reporttype'} = $reporttype;
             }
 
             my ( $queryframe, $hitframe );
             if ( $reporttype eq 'TBLASTX' ) {
-                ( $queryframe, $hitframe ) = ( $1, $2 );
+                ( $queryframe, $hitframe ) = ( $frame1, $frame2 );
                 $hitframe =~ s/\/\s*//g;
             }
             elsif ( $reporttype eq 'TBLASTN' || $reporttype eq 'PSITBLASTN') {
-                ( $hitframe, $queryframe ) = ( $1, 0 );
+                ( $hitframe, $queryframe ) = ( $frame1, 0 );
             }
             elsif ( $reporttype eq 'BLASTX' || $reporttype eq 'RPS-BLAST(BLASTP)') {
-                ( $queryframe, $hitframe ) = ( $1, 0 );
+                ( $queryframe, $hitframe ) = ( $frame1, 0 );
                 # though NCBI doesn't report it, this is a special BLASTX-like
                 # RPS-BLAST; should be handled differently
                 if ($reporttype eq 'RPS-BLAST(BLASTP)') {
