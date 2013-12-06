@@ -123,7 +123,9 @@ sub next_seq {
     local $/ = "\n>";
     return unless my $entry = $self->_readline;
 
-    chomp($entry);
+    # Replacing chomp for s///, since chomp is not working in some cases
+    $entry =~ s/\n$//;
+    $entry =~ s/\r$//;
     if ($entry =~ m/\A\s*\Z/s)  { # very first one
         return unless $entry = $self->_readline;
         chomp($entry);
