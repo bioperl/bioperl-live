@@ -181,11 +181,7 @@ package Bio::DB::NextProt;
 
 use strict;
 use warnings;
-use JSON;
 use REST::Client;
-
-use Data::Printer;
-
 sub new {
 	my ($class, @args) = @_;
 	#my $self = $class->SUPER::new(@args);
