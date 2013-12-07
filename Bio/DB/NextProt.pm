@@ -2,11 +2,9 @@
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
-# Cared for by Aaron Mackey <amackey@virginia.edu>
-#
 # Copyright Felipe da Veiga Leprevost
 #
-# You may distribute this module under the same terms as perl itself
+# You may distribute this module under the same terms as perl itself.
 
 =head1 NAME
 
@@ -26,6 +24,8 @@ Bio::DB::NextProt - Object interface to NextProt REST API.
 
 The module allows the dynamic retrieval of information from the NextProt Database
 through its API service. All the information below was extracted from the API webpage.
+For the moment the results obtained from the API are in pure HTML, XML or JSON, so
+you will have to parse them yourself. 
 
 =head2 Search functionalities
 
