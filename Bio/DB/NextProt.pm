@@ -5,6 +5,8 @@ use warnings;
 use JSON;
 use REST::Client;
 
+use Data::Printer;
+
 sub new {
 	my ($class, @args) = @_;
 	#my $self = $class->SUPER::new(@args);
@@ -18,6 +20,7 @@ sub new {
 }
 
 sub search_protein() {
+	
 	my $self  = shift;
     my %param = @_;
 
@@ -48,7 +51,6 @@ sub search_cv() {
 	my %param = @_;
 	
 	my $path   = "/rest/cv/list";
-	my $string = '';
 
     if (defined $param{'-query'} && defined $param{'-filter'}) {
 
@@ -74,9 +76,64 @@ sub get_protein_info() {
 	my %param = @_;
 
 	my $path   = "/rest/entry/";
-	my $string = '';
+
+	if (defined $param{'-id'} && $param{'-retrieve'}) {
+
+		$self->{_client}->GET($path.$param{'-id'}."/".$param{'-retrieve'}."?format=".$self->{_format});
+
+	} elsif (defined $param{'-id'}) {
+
+		$self->{_client}->GET($path.$param{'-id'}."?format=".$self->{_format});
+	}
+
+	&reset_params();
+
+	return $self->{_client}->responseContent();
 
 }
+
+sub get_isoform_info() {
+	my $self  = shift;
+	my %param = @_;
+
+	my $path = "/rest/isoform/";
+
+    if (defined $param{'-id'} && $param{'-retrieve'}) {
+
+        $self->{_client}->GET($path.$param{'-id'}."/".$param{'-retrieve'}."?format=".$self->{_format});
+
+	} elsif (defined $param{'-id'}) {
+
+	    $self->{_client}->GET($path.$param{'-id'}."?format=".$self->{_format});
+	}
+
+	&reset_params();
+
+	return $self->{_client}->responseContent();
+
+}
+
+sub get_protein_cv_info() {
+	my $self  = shift;
+	my %param = @_;
+
+	my $path = "/rest/cv/";
+
+	if (defined $param{'id'} && $param{'-retrieve'}) {
+		
+		$self->{_client}->GET($path.$param{'-id'}."/".$param{'-retrieve'}."?format=".$self->{_format});
+
+    } elsif (defined $param{'-id'}) {
+
+        $self->{_client}->GET($path.$param{'-id'}."?format=".$self->{_format});
+    }
+
+	&reset_params();
+    
+	return $self->{_client}->responseContent();
+
+}
+
 
 sub reset_params() {
 	my $self = shift;
