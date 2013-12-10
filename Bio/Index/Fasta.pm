@@ -180,8 +180,6 @@ sub _index_file {
 
     open my $FASTA, '<', $file or $self->throw("Can't open file for read : $file");
 
-    my $offset = ( $^O =~ /mswin/i ) ? 1 : 0;
-
     # In Windows, text files have '\r\n' as line separator, but when reading in
     # text mode Perl will only show the '\n'. This means that for a line "ABC\r\n",
     # "length $_" will report 4 although the line is 5 bytes in length.
@@ -199,7 +197,7 @@ sub _index_file {
             # the following was fixed to allow validation - cjfields
             
             # $begin is the position of the first character after the '>'
-            $begin = tell($FASTA) - length( $_ ) - $offset - $correction;
+            $begin = tell($FASTA) - length( $_ ) - $correction;
             
             foreach my $id (&$id_parser($_)) {
                 $self->add_record($id, $i, $begin);
