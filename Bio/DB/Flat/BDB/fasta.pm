@@ -85,7 +85,7 @@ sub parse_one_record {
     my $fh    = shift;
     
     # fasta parses by changing $/ to '\n>', need to adjust accordingly
-    my $adj = ( $^O =~ /mswin/i ) ? -2 : -1; 
+    my $adj = -1;
     my $parser =
       $self->{cached_parsers}{fileno($fh)}
         ||= Bio::SeqIO->new(-fh=>$fh,-format=>$self->default_file_format);
