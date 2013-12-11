@@ -350,7 +350,15 @@ sub start_hit{
 =cut
 
 sub end_hit{
-    my ($self,$type,$data) = @_;   
+    my ($self,$type,$data) = @_;
+
+    # Skip process unless there is HSP data or Hit Significance (e.g. a bl2seq with no similarity
+    # gives a hit with the subject, but shows a "no hits found" message instead
+    # of the alignment data and don't have a significance value).
+    # This way, we avoid false positives
+    my @hsp_data = grep { /^HSP/ } keys %{$data};
+    return unless (scalar @hsp_data > 0 or exists $data->{'HIT-significance'});
+
     my %args = map { my $v = $data->{$_}; s/HIT//; ($_ => $v); } grep { /^HIT/ } keys %{$data};
 
     # I hate special cases, but this is here because NCBI BLAST XML
