@@ -480,8 +480,8 @@ sub _skip {
     }
 
     if ($req_exe) {
-        eval {$req_exe->executable};
-        if ($@) {
+        my $eval = eval {$req_exe->executable};
+        if ($@ or not defined $eval) {
             my $msg = 'Required executable for '.ref($req_exe).' is not present';
             diag($msg);
             return ($msg, $tests, $framework);
