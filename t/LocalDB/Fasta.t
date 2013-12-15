@@ -172,6 +172,9 @@ my $test_files = [
     is $db3->file('AW057336'), '3.fa';
     is $db1->file('AW057231'), '1.fa';
     is $db4->file('AW057410'), '3.fa';
+    unlink $db1->index_name;
+    unlink $db2->index_name;
+    unlink $db3->index_name;
 }
 
 
