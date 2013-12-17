@@ -1065,6 +1065,13 @@ sub NEXTKEY {
 
 sub DESTROY {
     my $self = shift;
+
+    # Close filehandles
+    while (my ($file, $fh) = each %{ $self->{fhcache} }) {
+      $fh->close;
+    }
+    $self->_close_index($self->{offsets});
+
     if ( $self->{clean} || $self->{indexing} ) {
       # Indexing aborted or cleaning requested. Delete the index file.
       unlink $self->{index_name};
