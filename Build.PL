@@ -176,7 +176,7 @@ my $build = Bio::Root::Build->new(
     dist_author         => 'BioPerl Team <bioperl-l@bioperl.org>',
     dist_abstract       => 'Bioinformatics Toolkit',
     license             => 'perl',
-    no_index            => {'dir'       => [qw(examples/root/lib)]},
+    no_index            => {'x_dir'       => [qw(examples/root/lib)]},
     requires            => {
                             'perl'                      => '5.6.1',
                             'IO::String'                => 0,    # why is this required?
