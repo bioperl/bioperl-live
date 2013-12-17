@@ -319,9 +319,10 @@ is(scalar @results,2,'keyword search; 2 terms');
 my $fasta_dir = make_fasta_testdir();
 my $dbfa = Bio::DB::Fasta->new($fasta_dir, -reindex => 1);
 ok($dbfa);
+
 ok(my $contig1=$dbfa->seq('Contig1'));
 
-$db        = Bio::DB::SeqFeature::Store->new(@args,-fasta=>$dbfa);
+$db     = Bio::DB::SeqFeature::Store->new(@args,-fasta=>$dbfa);
 $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store=>$db);
 ok($loader->load($gff_file));
 
@@ -333,6 +334,18 @@ ok(my $contig2 = $dbfa->seq('Contig2'));
 ($f) = $db->get_feature_by_name('match4');
 my $length = $f->length;
 ok(substr($contig2,0,$length) eq $f->dna);
+
+# DESTROY for $dbfa sometimes is not being called at script end,
+# so call it explicitly to close temporal filehandles
+# and allow their deletion
+$dbfa->DESTROY;
+
+# Remove temporal database file used for SQLite tests
+if ($db->isa('Bio::DB::SeqFeature::Store::DBI::SQLite')) {
+    $db->DESTROY;
+    unlink $db->{dbh_file};
+}
+
 
 # testing namespaces for mysql and Pg adaptor
 
