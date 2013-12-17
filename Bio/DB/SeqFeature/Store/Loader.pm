@@ -720,6 +720,28 @@ sub unescape {
 
 sub DESTROY {
     my $self = shift;
+    # Close filehandles, so temporal files can be properly deleted
+    my $store = $self->store;
+    if (   $store->isa('Bio::DB::SeqFeature::Store::memory')
+	or $store->isa('Bio::DB::SeqFeature::Store::berkeleydb3')
+	) {
+      $store->private_fasta_file->close;
+
+      if ($store->{fasta_db}) {
+	while (my ($file, $fh) = each %{ $store->{fasta_db}->{fhcache} }) {
+	  $fh->close;
+	}
+	$store->{fasta_db}->_close_index($store->{fasta_db}->{offsets});
+      }
+    }
+    elsif ($store->isa('Bio::DB::SeqFeature::Store::DBI::SQLite')) {
+      if (%DBI::installed_drh) {
+	DBI->disconnect_all;
+	%DBI::installed_drh = ();
+      }
+      undef $store->{dbh};
+    }
+
     if (my $ld = $self->{temp_load}) {
 	unlink $ld;
     }
@@ -755,5 +777,3 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
-
-
