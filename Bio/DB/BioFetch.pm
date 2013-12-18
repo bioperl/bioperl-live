@@ -435,10 +435,10 @@ sub postprocess_data {
     # this is dumb, but the error may be anywhere on the first three lines because the
     # CGI headers are sometimes printed out by the server...
     my @data = grep {defined $_} (scalar <F>,scalar <F>,scalar <F>);
+    close F;
     if (join('',@data) =~ /^ERROR (\d+) (.+)/m) {
       $self->throw("BioFetch Error $1: $2");
     }
-    close F;
   }
 
   else {
