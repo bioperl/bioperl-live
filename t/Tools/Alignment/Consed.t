@@ -14,8 +14,7 @@ BEGIN {
     use lib '.';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 15,
-			   -excludes_os => 'mswin');
+	test_begin(-tests => 15);
     
 	use_ok('Bio::Tools::Alignment::Consed');
 }
