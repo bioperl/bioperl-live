@@ -87,7 +87,7 @@ is_deeply([Bio::Root::HTTPget->authentication], [undef, undef]);
 Bio::Root::HTTPget::proxy('http', $TEST_PROXY);
 Bio::Root::HTTPget::authentication(@TEST_AUTHENTICATION);
 is (Bio::Root::HTTPget::proxy('http'), $TEST_PROXY);
-is_deeply([Bio::Root::HTTPget::authentication], \@TEST_AUTHENTICATION);
+is_deeply([Bio::Root::HTTPget->authentication], \@TEST_AUTHENTICATION);
 
 # check to make sure new instance attributes are not polluted by class attrbutes
 # from previous tests
