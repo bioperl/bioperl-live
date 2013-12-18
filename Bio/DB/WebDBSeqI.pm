@@ -164,6 +164,11 @@ sub get_Seq_by_id {
     }
     my @seqs;
     while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
+
+    # Since $seqio will not be used anymore, explicitly close its filehandle
+    # or it will cause trouble later on cleanup
+    $seqio->close;
+
     $self->throw("id '$seqid' does not exist") unless @seqs;
     if( wantarray ) { return @seqs } else { return shift @seqs }
 }
