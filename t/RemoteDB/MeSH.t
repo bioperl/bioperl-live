@@ -27,6 +27,6 @@ SKIP: {
     is $t->each_twig(), 2;
     eval {$t = $mesh->get_exact_term("Sinus Thrombosis, Intracranial");};
     skip "Couldn't connect to MeSH with Bio::DB::MeSH. Skipping those tests", 2 if $@;
-    is $t->description, "Thrombus formation in an intracranial venous sinus, including the superior sagittal, cavernous, lateral, and petrous sinuses. Etiologies include thrombosis due to infection,  DEHYDRATION, coagulation disorders (see  THROMBOPHILIA), and  CRANIOCEREBRAL TRAUMA.";
+    is $t->description, "Formation or presence of a blood clot (THROMBUS) in the CRANIAL SINUSES, large endothelium-lined venous channels situated within the SKULL. Intracranial sinuses, also called cranial venous sinuses, include the superior sagittal, cavernous, lateral, petrous sinuses, and many others. Cranial sinus thrombosis can lead to severe HEADACHE; SEIZURE; and other neurological defects.";
     is $t->id, "D012851";
 }
