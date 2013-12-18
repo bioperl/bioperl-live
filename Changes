@@ -17,6 +17,16 @@ Bugs and requested features list:
 CPAN releases are branched from 'master'.
 ---------------------------------------------------------
 
+1.6.923
+    
+    * Major Windows support updates! [fjossandon]
+    * MAKER update to allow for stricter standard codon table [cjfields]
+    * Better support for circular sequences [fjossandon]
+    * Fixes for some complex location types [fjossandon]
+    * Address CONTIG bug in GenBank format, bug #3448 [cjfields]
+    * Fix bug #2978 related to BLAST report type [fjossandon]
+    * Deobfuscator fixes [DaveMessina]
+
 1.6.922
 
     * Address CPAN test failures [cjfields]
