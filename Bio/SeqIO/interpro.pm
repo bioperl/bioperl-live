@@ -137,8 +137,8 @@ sub next_seq {
 		$xml_fragment .= $finishedline;
 		last if $finishedline =~ m!</protein>!;
 	}
-
-	return unless $xml_fragment =~ /<protein/;
+	# Match <protein> but not other similar elements like <protein-matches>
+	return unless $xml_fragment =~ /<protein[\s>]/;
 
 	$self->_parse_xml($xml_fragment);
 
@@ -229,7 +229,8 @@ sub _initialize {
   my $line = undef;
   # fast forward to first <protein/> record.
   while($line = $self->_readline()){
-    if($line =~ /<protein/){
+    # Match <protein> but not other similar elements like <protein-matches>
+    if($line =~ /<protein[\s>]/){
       $self->_pushback($line);
       last;
     }

@@ -1,0 +1,90 @@
+Query= 
+         (15 letters)
+
+>WAN03UHTX_1 pSMED2_VHP_GVHS-001 Homo sapiens
+          Length = 2367
+
+ Score = 42.4 bits (98), Expect = 4e-09
+ Identities = 15/15 (100%), Positives = 15/15 (100%)
+ Frame = -1
+
+Query: 1   EPKSCDKTHTCPPCP 15
+           EPKSCDKTHTCPPCP
+Sbjct: 990 EPKSCDKTHTCPPCP 946
+
+
+
+ Score = 19.6 bits (39), Expect = 0.026
+ Identities = 5/9 (55%), Positives = 6/9 (66%)
+ Frame = -1
+
+Query: 7   KTHTCPPCP 15
+           + H C PCP
+Sbjct: 390 ENHRCTPCP 364
+
+
+
+ Score = 16.9 bits (32), Expect = 0.17
+ Identities = 5/10 (50%), Positives = 6/10 (60%)
+ Frame = +2
+
+Query: 5   CDKTHTCPPC 14
+           C +  TC PC
+Sbjct: 542 CWRPCTCTPC 571
+
+
+
+ Score = 16.5 bits (31), Expect = 0.22
+ Identities = 6/12 (50%), Positives = 6/12 (50%)
+ Frame = +3
+
+Query: 2    PKSCDKTHTCPP 13
+            P SC  T  C P
+Sbjct: 2154 PDSCSCT*ECTP 2189
+
+
+
+ Score = 15.8 bits (29), Expect = 0.37
+ Identities = 5/12 (41%), Positives = 5/12 (41%)
+ Frame = +1
+
+Query: 4   SCDKTHTCPPCP 15
+           SC     C P P
+Sbjct: 250 SCSPAAHCSPTP 285
+
+
+Lambda     K      H
+   0.316    0.138    0.541 
+
+Gapped
+Lambda     K      H
+   0.267   0.0410    0.140 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 303
+Number of Sequences: 0
+Number of extensions: 5
+Number of successful extensions: 5
+Number of sequences better than 10.0: 2
+Number of HSP's better than 10.0 without gapping: 4
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 0
+Number of HSP's gapped (non-prelim): 5
+length of query: 15
+length of database: 789
+effective HSP length: 0
+effective length of query: 24
+effective length of database: 789
+effective search space:    18936
+effective search space used:    18936
+frameshift window, decay const: 50,  0.1
+T: 13
+A: 40
+X1: 16 ( 7.3 bits)
+X2: 38 (14.6 bits)
+X3: 64 (24.7 bits)
+S1: 17 (10.6 bits)
+S2: 17 (11.2 bits)
+

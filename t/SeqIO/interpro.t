@@ -8,7 +8,7 @@ BEGIN {
   use Bio::Root::Test;
   
   test_begin(-tests => 20,
-			 -requires_module => 'XML::DOM::XPath');
+             -requires_module => 'XML::DOM::XPath');
   
   use_ok('Bio::SeqIO::interpro');
 }
@@ -16,9 +16,9 @@ BEGIN {
 my $verbose = test_debug();
 
 my $t_file = test_input_file('test.interpro');
-my $a_in = Bio::SeqIO->new( -file => $t_file,
-							-verbose => $verbose,
-							-format => 'interpro');
+my $a_in = Bio::SeqIO->new( -file    => $t_file,
+                            -verbose => $verbose,
+                            -format  => 'interpro');
 isa_ok($a_in, 'Bio::SeqIO');
 
 my $seq = $a_in->next_seq();
@@ -38,9 +38,9 @@ ok(!($seq = $a_in->next_seq()), 'there is no next_seq (correctly)');
 
 # Bug 1908 (enhancement)
 $t_file = test_input_file('interpro_ebi.xml');
-my $b_in = Bio::SeqIO->new( -file => $t_file,
-									 -verbose => $verbose,
-									 -format => 'interpro');
+my $b_in = Bio::SeqIO->new( -file    => $t_file,
+                            -verbose => $verbose,
+                            -format  => 'interpro');
 $seq = $b_in->next_seq();
 ok($seq, 'bug 1908');
 
@@ -56,13 +56,12 @@ is($dblinks[1]->primary_id, 'IPR009366', 'first primary_id');
 is($dblinks[2]->primary_id, 'PF06257.1', 'second primary_id');
 
 my $other_t_file = test_input_file('test.interpro-go.xml');
-my $ipr_in = Bio::SeqIO->new( -file => $other_t_file,
+my $ipr_in = Bio::SeqIO->new( -file    => $other_t_file,
                               -verbose => $verbose,
-                              -format => 'interpro');
+                              -format  => 'interpro');
 
 $seq = $ipr_in->next_seq();
 @features = $seq->get_SeqFeatures;
 @dblinks = $features[0]->annotation->get_Annotations('dblink');
 is(scalar @dblinks, 4, 'right number of dblinks');
 is($dblinks[3]->primary_id, 'GO:0003677', 'primary_id via dblinks');
-

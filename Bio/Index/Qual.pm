@@ -180,12 +180,20 @@ sub _index_file {
 
 	open my $QUAL, '<', $file or $self->throw("Can't open file for read : $file");
 
+	# In Windows, text files have '\r\n' as line separator, but when reading in
+	# text mode Perl will only show the '\n'. This means that for a line "ABC\r\n",
+	# "length $_" will report 4 although the line is 5 bytes in length.
+	# We assume that all lines have the same line separator and only read current line.
+	my $init_pos   = tell($QUAL);
+	my $curr_line  = <$QUAL>;
+	my $pos_diff   = tell($QUAL) - $init_pos;
+	my $correction = $pos_diff - length $curr_line;
+	seek $QUAL, $init_pos, 0; # Rewind position to proceed to read the file
+
 	# Main indexing loop
 	while (<$QUAL>) {
 		if (/^>/) {
-			# $begin is the position of the first character after the '>'
-                        my $offset = ( $^O =~ /mswin/i ) ? 0 : 1;
-			my $begin = tell($QUAL) - length( $_ ) + $offset;
+			my $begin = tell($QUAL) - length( $_ ) + 1 - $correction;
 
 			foreach my $id (&$id_parser($_)) {
 				$self->add_record($id, $i, $begin);

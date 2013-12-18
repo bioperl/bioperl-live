@@ -747,9 +747,18 @@ sub _calc_termination_length {
     # Account for crlf-terminated Windows and Mac files
     my ($self, $file) = @_;
     my $fh = IO::File->new($file) or $self->throw( "Could not open $file: $!");
-    my $line = <$fh>;
+
+    # In Windows, text files have '\r\n' as line separator, but when reading in
+    # text mode Perl will only show the '\n'. This means that for a line "ABC\r\n",
+    # "length $_" will report 4 although the line is 5 bytes in length.
+    # We assume that all lines have the same line separator and only read current line.
+    my $init_pos   = tell($fh);
+    my $curr_line  = <$fh>;
+    my $pos_diff   = tell($fh) - $init_pos;
+    my $correction = $pos_diff - length $curr_line;
     close $fh;
-    $self->{termination_length} = ($line =~ /\r\n$/) ? 2 : 1;
+
+    $self->{termination_length} = ($curr_line =~ /\r\n$/) ? 2 : 1+$correction;
     return $self->{termination_length};
 }
 
@@ -1056,9 +1065,18 @@ sub NEXTKEY {
 
 sub DESTROY {
     my $self = shift;
+
+    # Close filehandles
+    while (my ($file, $fh) = each %{ $self->{fhcache} }) {
+        if (defined $fh) {
+            $fh->close;
+        }
+    }
+    $self->_close_index($self->{offsets});
+
     if ( $self->{clean} || $self->{indexing} ) {
-      # Indexing aborted or cleaning requested. Delete the index file.
-      unlink $self->{index_name};
+        # Indexing aborted or cleaning requested. Delete the index file.
+        unlink $self->{index_name};
     }
     return 1;
 }

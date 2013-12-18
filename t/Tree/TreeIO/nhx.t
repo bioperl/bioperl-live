@@ -86,6 +86,7 @@ sub read_file {
   $string = <IN>;
   close IN;
   $string =~ s/\n//g;
+  $string =~ s/\r//g; # For files with Windows line-endings
   #print STDERR "STR: $string\n";
   return $string;
 }

@@ -241,6 +241,7 @@ sub _index_file {
   my $fh     = $self->_fhcache($file) or $self->throw("could not open $file for indexing: $!");
   my $offset = 0;
   my $count  = 0;
+
   while (!eof($fh)) {
     my ($ids,$adjustment)  = $self->parse_one_record($fh) or next;
     $adjustment ||= 0;  # prevent uninit variable warning

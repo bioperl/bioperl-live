@@ -426,11 +426,9 @@ my @slice_lens = qw(1 1 2 2);
 for my $feature ( $aln->get_SeqFeatures ) {
     for my $loc ( $feature->location->each_Location ) {
         my $masked = $aln->mask_columns( $loc->start, $loc->end, '?');
-        TODO: {
-            local $TODO = "This should pass but dies; see bug 2842";
-            $masked->verbose(2);
-            lives_ok {my $fslice = $masked->slice( $loc->start, $loc->end )};
-        }
+        $masked->verbose(2);
+        lives_ok {my $fslice = $masked->slice( $loc->start, $loc->end )};
+
         $masked->verbose(-1);
         my $fslice = $masked->slice( $loc->start, $loc->end );
         is( $fslice->length, $slice_lens[ $i++ ], "slice $i len" );

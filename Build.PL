@@ -176,7 +176,7 @@ my $build = Bio::Root::Build->new(
     dist_author         => 'BioPerl Team <bioperl-l@bioperl.org>',
     dist_abstract       => 'Bioinformatics Toolkit',
     license             => 'perl',
-    no_index            => {'dir'       => [qw(examples/root/lib)]},
+    no_index            => {'x_dir'       => [qw(examples/root/lib)]},
     requires            => {
                             'perl'                      => '5.6.1',
                             'IO::String'                => 0,    # why is this required?
@@ -256,22 +256,22 @@ my $build = Bio::Root::Build->new(
 my $accept = $build->args('accept');
 
 # how much do I hate this?  Let me count the ways.....
-if (!$build->feature('EntrezGene')) {
-    warn <<WARN;
-############################# WARNING #############################
-
-Bio::ASN1::EntrezGene not found. This is an *optional* module;
-however, because it has a circular dependency with BioPerl we do not
-include it on our list of recommended modules.
-
-If you require EntrezGene functionality, you can install
-Bio::ASN1::EntrezGene after BioPerl has finished installing.
-
-############################# WARNING #############################
-
-WARN
-    sleep 3;
-}
+#if (!$build->feature('EntrezGene')) {
+#    warn <<WARN;
+############################## WARNING #############################
+#
+#Bio::ASN1::EntrezGene not found. This is an *optional* module;
+#however, because it has a circular dependency with BioPerl we do not
+#include it on our list of recommended modules.
+#
+#If you require EntrezGene functionality, you can install
+#Bio::ASN1::EntrezGene after BioPerl has finished installing.
+#
+############################## WARNING #############################
+#
+#WARN
+#    sleep 3;
+#}
 
 my $proceed = prompt_for_biodb($accept)
     if $build->feature('Bio::DB::GFF') || $build->feature('MySQL Tests') ||

@@ -102,4 +102,3 @@ $newobj->proxy('http', $TEST_PROXY);
 $newobj->authentication(@TEST_AUTHENTICATION);
 is ($newobj->proxy(), $TEST_PROXY);
 is_deeply([$newobj->authentication], \@TEST_AUTHENTICATION);
-

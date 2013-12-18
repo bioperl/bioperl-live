@@ -621,6 +621,7 @@ sub _open_databases {
     return if $ignore_errors;  # autoindex set, so defer this
     $self->throw("Couldn't tie: ".$self->_features_path . " $!");
   }
+
   if ($create) {
     %h = ();
     $h{'.next_id'} = 1;
@@ -701,6 +702,7 @@ sub _close_databases {
   $self->db(undef);
   $self->dna_db(undef);
   $self->notes_db(undef);
+  $self->parentage_db(undef);
   $self->index_db($_=>undef) foreach $self->_index_files;
 }
 
@@ -1449,6 +1451,7 @@ sub db_version {
 sub DESTROY {
   my $self = shift;
   $self->_close_databases();
+  $self->private_fasta_file->close;
   rmtree($self->directory,0,1) if $self->temporary && -e $self->directory;
 }
 
@@ -1575,4 +1578,3 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
-

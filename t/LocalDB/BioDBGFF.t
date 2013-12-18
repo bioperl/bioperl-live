@@ -9,8 +9,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 275,
-               -excludes_os => 'mswin');
+    test_begin(-tests => 275);
 	
 	use_ok('Bio::DB::GFF');
 }

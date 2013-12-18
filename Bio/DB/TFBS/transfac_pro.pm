@@ -1884,4 +1884,15 @@ sub _species_to_taxid {
     return $ncbi_taxid;
 }
 
+sub DESTROY {
+    my $self = shift;
+    # Destroy tied references to close filehandles
+    # and allow proper temporary files deletion
+    undef $self->{_tax_db}->{'_nodes'};
+    undef $self->{_tax_db}->{'_id2name'};
+    undef $self->{_tax_db}->{'_name2id'};
+    undef $self->{_tax_db}->{'_parent2children'};
+    undef $self->{_tax_db}->{'_parentbtree'};
+}
+
 1;

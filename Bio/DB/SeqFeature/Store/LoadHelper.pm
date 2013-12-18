@@ -59,6 +59,13 @@ sub new {
 
 sub DESTROY {
     my $self = shift;
+    # Destroy all filehandle references
+    # before trying to delete files and folder
+    %DBHandles = ();
+    undef $self->{IndexIt};
+    undef $self->{TopLevel};
+    undef $self->{Local2Global};
+    undef $self->{Parent2Child};
     rmtree $self->{tmppath};
 #    File::Temp::cleanup() unless $self->{keep};
 }

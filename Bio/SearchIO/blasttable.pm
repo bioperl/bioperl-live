@@ -270,6 +270,11 @@ sub next_result{
 			   'Data' => $evalue});
        }
        my $identical = $hsp_len - $mismatches - $gapsm;
+       # If $positives value is absent, try to recover it from $percent_pos,
+       # this is better than letting the program to assume "conserved == identical"
+       if (not defined $positives and defined $percent_pos) {
+	   $positives = sprintf "%d", ($percent_pos * $hsp_len / 100);
+       }
        $self->start_element({'Name' => 'Hsp'});
        $self->element({'Name' => 'Hsp_evalue',			   
 		       'Data' => $evalue});       

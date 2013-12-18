@@ -146,7 +146,7 @@ use base 'Bio::DB::SeqFeature::Store::DBI::mysql';
 use Bio::DB::SeqFeature::Store::DBI::Iterator;
 use DBI qw(:sql_types);
 use Memoize;
-use Cwd 'abs_path';
+use Cwd qw(abs_path getcwd);
 use Bio::DB::GFF::Util::Rearrange 'rearrange';
 use Bio::SeqFeature::Lite;
 use File::Spec;
@@ -254,6 +254,10 @@ sub init {
     $dbh->do("PRAGMA synchronous = OFF;"); # makes writes much faster
     $dbh->do("PRAGMA temp_store = MEMORY;"); # less disk I/O; some speedup
     $dbh->do("PRAGMA cache_size = 20000;"); # less disk I/O; some speedup
+    # Keep track of database file location
+    my $cwd = getcwd;
+    my ($db_file) = ($dsn =~ m/(?:db(?:name)?|database)=(.+)$/);
+    $self->{dbh_file} = "$cwd/$db_file";
   }
   $self->{dbh}       = $dbh;
   $self->{is_temp}   = $is_temporary;
@@ -1194,6 +1198,16 @@ sub _dump_update_location_index {
     my @args = $self->_has_spatial_index ? ($id,$seqid,$bin,$start,$end)
 	                                 : ($id,$seqid,$bin,$start,$end);
     print $fh join("\t",@args),"\n";
+}
+
+sub DESTROY {
+    my $self = shift;
+    # Remove filehandles, so temporal files can be properly deleted
+    if (%DBI::installed_drh) {
+	DBI->disconnect_all;
+	%DBI::installed_drh = ();
+    }
+    undef $self->{dbh};
 }
 
 1;
