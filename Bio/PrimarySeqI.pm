@@ -771,18 +771,7 @@ sub rev_transcribe {
     return unless $self->alphabet eq 'rna';
     my $s = $self->seq;
     $s =~ tr/uU/tT/;
-<<<<<<< HEAD
-    my ($seqclass, $opts) = $self->_setup_class;
-    return $seqclass->new(
-        -seq              => $s,
-        -alphabet         => 'dna',
-        -display_id       => $self->display_id,
-        -accession_number => $self->accession_number,
-        -desc             => $self->desc . "[REVERSE TRANSCRIBED]",
-        -verbose          => $self->verbose,
-        %$opts,
-    );
-=======
+
     my $desc = $self->desc || '';
 
     # Create a new fresh object if $self is 'Bio::Seq::LargePrimarySeq'
@@ -810,7 +799,6 @@ sub rev_transcribe {
         $out->desc($desc . "[REVERSE TRANSCRIBED]");
     }
     return $out;
->>>>>>> b463cdd... PrimarySeqI.pm: Avoid using Bio::Root::clone when object
 }
 
 
