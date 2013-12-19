@@ -64,11 +64,11 @@ while ( $result = $searchio->next_result ) {
             );
             is( length( $hsp->homology_string ),
                 length( $hsp->hit_string ),
-                'Check if homology string and hit string have an equal lenght'
+                'Check if homology string and hit string have an equal length'
             );
             is( length( $hsp->query_string ),
                 length( $hsp->homology_string ),
-                'Check if query string and homology string have an equal lenght'
+                'Check if query string and homology string have an equal length'
             );
         }
     }
@@ -95,11 +95,11 @@ while ( $result = $searchio->next_result ) {
             );
             is( length( $hsp->homology_string ),
                 length( $hsp->hit_string ),
-                'Check if homology string and hit string have an equal lenght'
+                'Check if homology string and hit string have an equal length'
             );
             is( length( $hsp->query_string ),
                 length( $hsp->homology_string ),
-                'Check if query string and homology string have an equal lenght'
+                'Check if query string and homology string have an equal length'
             );
         }
         last;
@@ -624,7 +624,8 @@ is( ref( $searchio->next_result ),
     'Check for the correct result reference type'
 );
 
-my $pipestr = "cat " . test_input_file('hmmpfam.out') . " |";
+my $cat_command = ($^O =~ m/mswin/i) ? 'type' : 'cat';
+my $pipestr = "$cat_command " . test_input_file('hmmpfam.out') . " |";
 open( my $pipefh, $pipestr );
 
 $searchio = Bio::SearchIO->new(
@@ -727,4 +728,3 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     is( $hsp->strand('query'), '1',   "Check nhmmer hsp query strand" );
 }
 # end HMMER 3.1 nhmmer output
-
