@@ -264,7 +264,7 @@ is_deeply \@content, ["insertion at line 1\n"];
 ##############################################
 
 SKIP: {
-    test_skip(-tests => 19, -requires_module => 'PerlIO::eol');
+    test_skip(-tests => 20, -requires_module => 'PerlIO::eol');
 
     local $Bio::Root::IO::HAS_EOL = 1;
     ok my $unix_rio = Bio::Root::IO->new(-file => test_input_file('U71225.gb.unix'));
