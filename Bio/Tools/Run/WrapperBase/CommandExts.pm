@@ -215,7 +215,7 @@ Here is an example config file. Further details in prose are below.
  
  our @program_commands = qw(
   rpsblast
-  cat
+  find
   goob
   blorb
   multiglob
