@@ -408,4 +408,3 @@ ok $node2 = $db_list->get_taxon( -names => [ 'o__Chroococcales', 'g__Microcoleus
 is $node2->scientific_name, $node1->scientific_name;
 is $node2->id, $node1->id;
 is $node2->internal_id, $node1->internal_id;
-

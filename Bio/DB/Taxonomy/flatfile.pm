@@ -519,4 +519,19 @@ sub index_directory {
 }
 
 
+sub DESTROY {
+    my $self = shift;
+    # Destroy all filehandle references
+    # to be able to remove temporary files
+    undef $self->{_id2name};
+    undef $self->{_name2id};
+    undef $self->{_nodes};
+    undef $self->{_parent2children};
+    undef $self->{_parentbtree};
+    unlink catfile($self->{index_directory},'id2names');
+    unlink catfile($self->{index_directory},'names2id');
+    unlink catfile($self->{index_directory},'nodes');
+    unlink catfile($self->{index_directory},'parents');
+}
+
 1;
