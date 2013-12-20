@@ -111,6 +111,7 @@ SKIP: {
 		open HP, $hlpf;
 		$h->parse(<HP>);
 		is_deeply([$a, $html], [0, 2], "help html parsed");
+		close HP; # Always explicitly close filehandles
 		1;
 	}
 
