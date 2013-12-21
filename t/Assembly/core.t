@@ -326,7 +326,7 @@ ok defined $2;
 
 # Writing ACE files
 my $asm_infile  = '27-contig_Newbler.ace';
-my $asm_outfile = test_output_file().'.ace';
+my $asm_outfile = test_output_file();
 my $asm_out = Bio::Assembly::IO->new(
     -file    => ">$asm_outfile",
     -format  =>'ace',
