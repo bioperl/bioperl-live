@@ -78,7 +78,7 @@ my $verbobj = Bio::Root::Root->new(-verbose=>1,-strict=>1);
 is $verbobj->verbose(), 1;
 
 $Bio::Root::Root::DEBUG = 1;
-my $seq = Bio::Seq->new();
+my $seq = Bio::Root::Root->new();
 is $seq->verbose, 1;
 
 # test for bug #1343
@@ -91,36 +91,41 @@ is shift @vals, 'stairs';
 # test deprecated()
 
 # class method
-warning_like{ Bio::Root::Root->deprecated('Test1') } qr/Test1/, 'simple';
-warning_like{ Bio::Root::Root->deprecated(-message => 'Test2') } qr/Test2/, 'simple';
-warning_like{ Bio::Root::Root->deprecated('Test3', 999.999) } qr/Test3/,
-	'warns for versions below current version '.$Bio::Root::Version::VERSION;
-warning_like{ Bio::Root::Root->deprecated(-message => 'Test4',
-								-version => 999.999) } qr/Test4/,
-	'warns for versions below current version '.$Bio::Root::Version::VERSION;
-throws_ok{ Bio::Root::Root->deprecated('Test5', 0.001) } qr/Test5/,
-	'throws for versions above '.$Bio::Root::Version::VERSION;
-throws_ok{ Bio::Root::Root->deprecated(-message => 'Test6',
-								-version => 0.001) } qr/Test6/,
-	'throws for versions above '.$Bio::Root::Version::VERSION;
-throws_ok{ Bio::Root::Root->deprecated(-message => 'Test6',
-								-version => $Bio::Root::Version::VERSION) } qr/Test6/,
-	'throws for versions equal to '.$Bio::Root::Version::VERSION;
+{
+    local $Bio::Root::Root::VERSION = 8.9;
+    warning_like{ Bio::Root::Root->deprecated('Test1') } qr/Test1/, 'simple';
+    warning_like{ Bio::Root::Root->deprecated(-message => 'Test2') } qr/Test2/, 'simple';
+    warning_like{ Bio::Root::Root->deprecated('Test3', 999.999) } qr/Test3/,
+        'warns for versions below current version';
+    warning_like{ Bio::Root::Root->deprecated(-message => 'Test4',
+                                              -version => 999.999) } qr/Test4/,
+        'warns for versions below current version';
+    throws_ok{ Bio::Root::Root->deprecated('Test5', 0.001) } qr/Test5/,
+        'throws for versions above current version';
+    throws_ok{ Bio::Root::Root->deprecated(-message => 'Test6',
+                                       -version => 0.001) } qr/Test6/,
+        'throws for versions above current version';
 
-# object method
-my $root = Bio::Root::Root->new();
-warning_like{ $root->deprecated('Test1') } qr/Test1/, 'simple';
-warning_like{ $root->deprecated(-message => 'Test2') } qr/Test2/, 'simple';
-warning_like{ $root->deprecated('Test3', 999.999) } qr/Test3/,
-	'warns for versions below current version '.$Bio::Root::Version::VERSION;
-warning_like{ $root->deprecated(-message => 'Test4',
-								-version => 999.999) } qr/Test4/,
-	'warns for versions below current version '.$Bio::Root::Version::VERSION;
-throws_ok{ $root->deprecated('Test5', 0.001) } qr/Test5/,
-	'throws for versions above '.$Bio::Root::Version::VERSION;
-throws_ok{ $root->deprecated(-message => 'Test6',
-								-version => 0.001) } qr/Test6/,
-	'throws for versions above '.$Bio::Root::Version::VERSION;
+    throws_ok{ Bio::Root::Root->deprecated(-message => 'Test6',
+                                           -version => $Bio::Root::Root::VERSION) } qr/Test6/,
+        'throws for versions equal to current version';
+
+    # object method
+    my $root = Bio::Root::Root->new();
+    warning_like{ $root->deprecated('Test1') } qr/Test1/, 'simple';
+    warning_like{ $root->deprecated(-message => 'Test2') } qr/Test2/, 'simple';
+    warning_like{ $root->deprecated('Test3', 999.999) } qr/Test3/,
+        'warns for versions below current version';
+    warning_like{ $root->deprecated(-message => 'Test4',
+                                    -version => 999.999) } qr/Test4/,
+                                'warns for versions below current version';
+    throws_ok{ $root->deprecated('Test5', 0.001) } qr/Test5/,
+      'throws for versions above current version';
+    throws_ok{ $root->deprecated(-message => 'Test6',
+                                 -version => 0.001) } qr/Test6/,
+                             'throws for versions above current version';
+
+}
 
 # tests for _set_from_args()
 # Let's not pollute Bio::Root::Root namespace if possible
@@ -130,6 +135,7 @@ throws_ok{ $root->deprecated(-message => 'Test6',
 
     package Bio::Foo1;
     use base qw(Bio::Root::Root);
+    our $VERSION = '2.00';
     sub new {
         my $class = shift;
         my $self = {};
@@ -244,9 +250,10 @@ is($obj->t7, 1, 'original is not modified');
 {
     package Bio::Foo5;
     use base qw(Bio::Root::Root);
-    
-    our $v = $Bio::Root::Version::VERSION;
-    
+
+    our $v = '18.001';
+    our $VERSION = $v;
+
     sub not_good {
         my $self = shift;
         $self->deprecated(-message => 'This is not good',
@@ -307,3 +314,5 @@ throws_ok { $foo->really_not_good } qr/This is really not good/,
 throws_ok { $foo->still_very_bad } qr/This is still very bad/,
     'throws for versions >= current version';
 lives_ok { $foo->okay_for_now } 'No warnings/exceptions below current version';
+
+
