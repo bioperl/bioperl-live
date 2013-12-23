@@ -114,7 +114,6 @@ sub next_aln {
             if ( $line =~ /^\s*MEME\s+version\s+(\S+)/ ) {
                 $self->{'meme_vers'} = $1;
                 my ($vers) = $self->{'meme_vers'} =~ /^(\d)/;
-
                 $self->throw($MEME_VERS_ERR) unless ( $vers >= 3 );
                 $self->{'seen_header'} = 1;
             }

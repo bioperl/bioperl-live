@@ -472,7 +472,7 @@ sub get_taxonids {
         $DATA_CACHE->{name_to_id}->{$query} = [@data];
     }
     
-    wantarray() ? @data : shift @data;
+    return wantarray() ? @data : shift @data;
 }
 
 *get_taxonid = \&get_taxonids;

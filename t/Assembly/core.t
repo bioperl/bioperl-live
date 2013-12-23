@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 890,
+    test_begin( -tests => 892,
                 -requires_module => 'DB_File' );
 
     use_ok('Bio::Seq');
@@ -487,5 +487,15 @@ ok $aio = Bio::Assembly::IO->new( -file => test_input_file($file),
 while (my $contig = $aio->next_contig) {
     isa_ok $contig, 'Bio::Assembly::Contig';
 }
+
+##############################################
+# test format() and variant() in Bio::RootIO
+##############################################
+
+$in = Bio::Assembly::IO->new(
+   -file   => test_input_file('assembly_with_singlets.ace'),
+);
+is $in->format, 'ace';
+is $in->variant, 'consed';
 
 exit;

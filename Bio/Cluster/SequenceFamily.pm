@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::Cluster::SequenceFamily
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Shawn Hoon <shawnh@fugu-sg.org>
 #
@@ -68,15 +68,15 @@ of the Bioperl mailing lists. Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -123,22 +123,21 @@ See L<Bio::Cluster::SequenceFamily>.
 =cut
 
 sub new {
-	my ($class,@args) = @_;
-  my $self = $class->SUPER::new(@args);
-  my ($id,$description,$version,$annot_score,
-  $family_score,$members) = $self->_rearrange([qw(FAMILY_ID DESCRIPTION VERSION 
-                                                   ANNOTATION_SCORE 
-                                                   FAMILY_SCORE MEMBERS)],@args);
-  $self->{'_members'} = [];
-  $id && $self->family_id($id);
-  $description && $self->description($description);
-  $version && $self->version($version);
-  $annot_score && $self->annotation_score($annot_score);
-  $family_score && $self->family_score($family_score);
-  $members && $self->add_members($members);
+    my ($class,@args) = @_;
+    my $self = $class->SUPER::new(@args);
+    my ($id,$description,$version,$annot_score,
+    $family_score,$members) = $self->_rearrange([qw(FAMILY_ID DESCRIPTION VERSION
+                                                    ANNOTATION_SCORE
+                                                    FAMILY_SCORE MEMBERS)],@args);
+    $self->{'_members'} = [];
+    $id             && $self->family_id($id);
+    $description    && $self->description($description);
+    $version        && $self->version($version);
+    $annot_score    && $self->annotation_score($annot_score);
+    $family_score   && $self->family_score($family_score);
+    $members        && $self->add_members($members);
 
-  return $self;
-
+    return $self;
 }
 
 =head2 version
@@ -146,16 +145,16 @@ sub new {
  Title   : version
  Usage   : $family->version("1.0");
  Function: get/set for version
- Returns : a string version of the family generated. 
+ Returns : a string version of the family generated.
 
 =cut
 
 sub version{
-  my ($self,$value) = @_;
-  if($value){
-    $self->{'_version'} =$value;
-  }
-  return $self->{'_version'};
+    my ($self,$value) = @_;
+    if($value){
+        $self->{'_version'} =$value;
+    }
+    return $self->{'_version'};
 }
 
 =head2 annotation_score
@@ -163,7 +162,7 @@ sub version{
  Title   : annotation_score
  Usage   : $family->annotation_score(100);
  Function: get/set for annotation_score which
-           represent the confidence in which the 
+           represent the confidence in which the
            consensus description has been assigned
            to the family.
  Returns : Bio::SimpleAlign
@@ -173,11 +172,11 @@ See L<Bio::SimpleAlign>
 =cut
 
 sub annotation_score{
-  my ($self,$score) = @_;
-  if($score){
-    $self->{'_annotation_score'} = $score;
-  }
-  return $self->{'_annotation_score'};
+    my ($self,$score) = @_;
+    if($score){
+        $self->{'_annotation_score'} = $score;
+    }
+    return $self->{'_annotation_score'};
 }
 
 =head2 alignment
@@ -193,10 +192,10 @@ See L<Bio::SimpleAlign>
 =cut
 
 sub alignment {
-	my ($self,$align) = @_;
-  if($align){
-    $self->{'_alignment'} = $align;
-  }
+    my ($self,$align) = @_;
+    if($align){
+        $self->{'_alignment'} = $align;
+    }
     return $self->{'_alignment'};
 }
 
@@ -205,7 +204,7 @@ sub alignment {
  Title   : tree
  Usage   : $family->tree($tree);
  Function: get/set for an tree object representing
-           the phylogenetic tree of the family. 
+           the phylogenetic tree of the family.
  Returns : Bio::Tree
 
 See L<Bio::Tree>
@@ -213,11 +212,11 @@ See L<Bio::Tree>
 =cut
 
 sub tree {
-  my ($self,$tree) = @_;
-  if($tree) {
-    $self->{'_tree'} = $tree;
-  }
-  return $self->{'_tree'};
+    my ($self,$tree) = @_;
+    if($tree) {
+        $self->{'_tree'} = $tree;
+    }
+    return $self->{'_tree'};
 }
 
 =head1 L<Bio::Cluster::FamilyI> methods
@@ -246,17 +245,17 @@ sub family_score {
 =head2 family_id
 
  Title   : family_id
- Usage   : $family->family_id("Family_1"); 
- Function: get/set for family id 
+ Usage   : $family->family_id("Family_1");
+ Function: get/set for family id
 
            This is aliased to display_id().
 
- Returns : a string specifying identifier of the family 
+ Returns : a string specifying identifier of the family
 
 =cut
 
 sub family_id{
-	return shift->display_id(@_);
+    return shift->display_id(@_);
 }
 
 =head1 L<Bio::ClusterI> methods
@@ -266,7 +265,7 @@ sub family_id{
 =head2 display_id
 
  Title   : display_id
- Usage   : 
+ Usage   :
  Function: Get/set the display name or identifier for the cluster
  Returns : a string
  Args    : optional, on set the display ID ( a string)
@@ -274,11 +273,11 @@ sub family_id{
 =cut
 
 sub display_id{
-	my ($self,$id) = @_;
-	if($id){
-		$self->{'_cluster_id'} = $id;
-	}
-	return $self->{'_cluster_id'};
+    my ($self,$id) = @_;
+    if($id){
+        $self->{'_cluster_id'} = $id;
+    }
+    return $self->{'_cluster_id'};
 }
 
 =head2 description
@@ -286,17 +285,17 @@ sub display_id{
  Title   : description
  Usage   : $fam->description("POLYUBIQUITIN")
  Function: get/set for the consensus description of the cluster
- Returns : the description string 
- Args    : Optional the description string 
+ Returns : the description string
+ Args    : Optional the description string
 
 =cut
 
 sub description{
-	my ($self,$desc) = @_;
-	if($desc){
-		$self->{'_description'} = $desc;
-	}
-	return $self->{'_description'};
+    my ($self,$desc) = @_;
+    if($desc){
+        $self->{'_description'} = $desc;
+    }
+    return $self->{'_description'};
 }
 
 =head2 get_members
@@ -317,7 +316,7 @@ sub description{
 
  Function: get members using methods from L<Bio::Species>
            the phylogenetic tree of the family.
- Returns : an array of objects that are member of this family. 
+ Returns : an array of objects that are member of this family.
 
 =cut
 
@@ -345,18 +344,16 @@ sub get_members {
 
  Title   : size
  Usage   : $fam->size();
- Function: get/set for the size of the family, 
+ Function: get/set for the size of the family,
            calculated from the number of members
- Returns : the size of the family 
- Args    : 
+ Returns : the size of the family
+ Args    :
 
 =cut
 
 sub size {
-  my ($self) = @_;
-
-  return scalar(@{$self->{'_members'}});
-
+    my ($self) = @_;
+    return scalar(@{$self->{'_members'}});
 }
 
 =head2 cluster_score
@@ -371,11 +368,11 @@ sub size {
 =cut
 
 sub cluster_score{
-  my ($self,$score) = @_;
-  if($score){
-    $self->{'_cluster_score'} = $score;
-  }
-  return $self->{'_cluster_score'};
+    my ($self,$score) = @_;
+    if($score){
+        $self->{'_cluster_score'} = $score;
+    }
+    return $self->{'_cluster_score'};
 }
 
 
@@ -390,7 +387,7 @@ sub cluster_score{
  Title   : add_members
  Usage   : $fam->add_member([$seq1,$seq1]);
  Function: add members to a family
- Returns : 
+ Returns :
  Args    : the member(s) to add, as an array or arrayref
 
 =cut
@@ -414,7 +411,7 @@ sub add_members{
 
  Title   : remove_members
  Usage   : $fam->remove_members();
- Function: remove all members from a family 
+ Function: remove all members from a family
  Returns : the previous array of members
  Args    : none
 
@@ -445,15 +442,15 @@ sub remove_members{
 sub members{
     my $self = shift;
     if(@_) {
-	# this is in set mode
-	$self->warn("setting members() in ".ref($self)." is deprecated.\n".
-		    "Use add_members() instead.");
-	return $self->add_members(@_);
+        # this is in set mode
+        $self->warn("setting members() in ".ref($self)." is deprecated.\n".
+                    "Use add_members() instead.");
+        return $self->add_members(@_);
     } else {
-	# get mode
-	$self->warn("members() in ".ref($self)." is deprecated.\n".
-		    "Use get_members() instead.");
-	return $self->get_members();
+        # get mode
+        $self->warn("members() in ".ref($self)." is deprecated.\n".
+                    "Use get_members() instead.");
+        return $self->get_members();
     }
 }
 
