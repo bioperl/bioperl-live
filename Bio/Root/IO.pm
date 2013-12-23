@@ -1,8 +1,9 @@
 package Bio::Root::IO;
+
 use strict;
 use Symbol;
-use POSIX qw(dup);
 use IO::Handle;
+use Fcntl;
 use base qw(Bio::Root::Root);
 
 # ABSTRACT: module providing several methods often needed when dealing with file IO
@@ -62,11 +63,10 @@ stream is reached.  In general you won't want to play with this flag.
 =cut
 
 our ($FILESPECLOADED,   $FILETEMPLOADED,
-    $FILEPATHLOADED,    $TEMPDIR,
-    $PATHSEP,           $ROOTDIR,
-    $OPENFLAGS,         $VERBOSE,
-    $ONMAC,             $HAS_LWP,
-    $HAS_EOL);
+     $FILEPATHLOADED,   $TEMPDIR,
+     $PATHSEP,          $ROOTDIR,
+     $OPENFLAGS,        $VERBOSE,
+     $ONMAC,            $HAS_EOL,       );
 
 my $TEMPCOUNTER;
 my $HAS_WIN32 = 0;
@@ -125,39 +125,35 @@ BEGIN {
         $FILETEMPLOADED = 1;
     };
     if( $@ ) {
-    if(! defined($TEMPDIR)) { # File::Spec failed
-        # determine tempdir
-        if (defined $ENV{'TEMPDIR'} && -d $ENV{'TEMPDIR'} ) {
-            $TEMPDIR = $ENV{'TEMPDIR'};
-        } elsif( defined $ENV{'TMPDIR'} && -d $ENV{'TMPDIR'} ) {
-            $TEMPDIR = $ENV{'TMPDIR'};
+        if(! defined($TEMPDIR)) { # File::Spec failed
+            # determine tempdir
+            if (defined $ENV{'TEMPDIR'} && -d $ENV{'TEMPDIR'} ) {
+                $TEMPDIR = $ENV{'TEMPDIR'};
+            } elsif( defined $ENV{'TMPDIR'} && -d $ENV{'TMPDIR'} ) {
+                $TEMPDIR = $ENV{'TMPDIR'};
+            }
+            if($^O =~ /mswin/i) {
+                $TEMPDIR = 'C:\TEMP' unless $TEMPDIR;
+                $ROOTDIR = 'C:';
+            } elsif($^O =~ /macos/i) {
+                $TEMPDIR = "" unless $TEMPDIR; # what is a reasonable default on Macs?
+                $ROOTDIR = ""; # what is reasonable??
+            } else { # unix
+                $TEMPDIR = "/tmp" unless $TEMPDIR;
+                $ROOTDIR = "/";
+            }
+            if (!( -d $TEMPDIR && -w $TEMPDIR )) {
+                $TEMPDIR = '.'; # last resort
+            }
         }
-        if($^O =~ /mswin/i) {
-            $TEMPDIR = 'C:\TEMP' unless $TEMPDIR;
-            $ROOTDIR = 'C:';
-        } elsif($^O =~ /macos/i) {
-            $TEMPDIR = "" unless $TEMPDIR; # what is a reasonable default on Macs?
-            $ROOTDIR = ""; # what is reasonable??
-        } else { # unix
-            $TEMPDIR = "/tmp" unless $TEMPDIR;
-            $ROOTDIR = "/";
+        # File::Temp failed (alone, or File::Spec already failed)
+        # determine open flags for tempfile creation using Fcntl
+        $OPENFLAGS = O_CREAT | O_EXCL | O_RDWR;
+        for my $oflag (qw/FOLLOW BINARY LARGEFILE EXLOCK NOINHERIT TEMPORARY/){
+            my ($bit, $func) = (0, "Fcntl::O_" . $oflag);
+            no strict 'refs';
+            $OPENFLAGS |= $bit if eval { $bit = &$func(); 1 };
         }
-        if (!( -d $TEMPDIR && -w $TEMPDIR )) {
-            $TEMPDIR = '.'; # last resort
-        }
-    }
-    # File::Temp failed (alone, or File::Spec already failed)
-    #
-    # determine open flags for tempfile creation -- we'll have to do this
-    # ourselves
-    use Fcntl;
-    use Symbol;
-    $OPENFLAGS = O_CREAT | O_EXCL | O_RDWR;
-    for my $oflag (qw/FOLLOW BINARY LARGEFILE EXLOCK NOINHERIT TEMPORARY/){
-        my ($bit, $func) = (0, "Fcntl::O_" . $oflag);
-        no strict 'refs';
-        $OPENFLAGS |= $bit if eval { $bit = &$func(); 1 };
-    }
     }
     $ONMAC = "\015" eq "\n";
 }
@@ -193,7 +189,7 @@ sub new {
               -string   a string that is to be converted to a filehandle
               -url      name of URL to open
               -input    name of file, or GLOB, or IO::Handle object
-              -fh       file handle (mutually exclusive with -file)
+              -fh       file handle (mutually exclusive with -file and -string)
               -flush    boolean flag to autoflush after each write
               -noclose  boolean flag, when set to true will not close a
                         filehandle (must explicitly call close($io->_fh)
@@ -346,37 +342,54 @@ sub _fh {
  Args    : -force: Boolean. Once mode() has been called, the mode is cached for
                    further calls to mode(). Use this argument to override this
                    behavior and re-check the object's mode.
+ Caveat  : Returns 'w' for streams opened in read+write mode!
 
 =cut
 
 sub mode {
-    my ($obj, @arg) = @_;
-    my %param = @arg;
-    return $obj->{'_mode'} if defined $obj->{'_mode'} and !$param{-force};
+    my ($self, %arg) = @_;
 
-    # Previous system of:
-    # my $iotest = new IO::Handle;
-    # $iotest->fdopen( dup(fileno($fh)) , 'r' );
-    # if ($iotest->error == 0) { ... }
-    # didn't actually seem to work under any platform, since there would no
-    # no error if the filehandle had been opened writable only. Couldn't be
+    # Method 1: IO::Handle::fdopen
+    #    my $iotest = new IO::Handle;
+    #    $iotest->fdopen( dup(fileno($fh)) , 'r' );
+    #    if ($iotest->error == 0) { ... }
+    # It did not actually seem to work under any platform, since there would no
+    # error if the filehandle had been opened writable only. It could not be
     # hacked around when dealing with unseekable (piped) filehandles.
-    #
-    # Just try and do a simple readline, turning io warnings off, instead:
 
-    my $fh = $obj->_fh || return '?';
+    # Method 2: readline, a.k.a. the <> operator
+    #    no warnings "io";
+    #    my $line = <$fh>;
+    #    if (defined $line) {
+    #       $obj->{'_mode'} = 'r';
+    #    ...
+    # It did not work well either because <> returns undef, i.e. querying the
+    # mode() after having read an entire file returned 'w'.
 
-    no warnings "io"; # we expect a warning if this is writable only
-    my $line = <$fh>;
-    if (defined $line) {
-        $obj->_pushback($line);
-        $obj->{'_mode'} = 'r';
+    if ( $arg{-force} || not exists $self->{'_mode'} ) {
+        # Determine stream mode
+        my $mode;
+        my $fh = $self->_fh;
+        if (defined $fh) {
+            # Determine read/write status of filehandle
+            no warnings 'io';
+            if ( defined( read $fh, my $content, 0 ) ) {
+                # Successfully read 0 bytes
+                $mode = 'r'
+            }
+            if ( defined( syswrite $fh, '') ) {
+                # Succesfully wrote 0 bytes
+                $mode = 'w';
+                # TODO: Should append here, for stream in read+write access
+            }
+        } else {
+           # Stream does not have a filehandle... cannot determine mode
+           $mode = '?';
+        }
+        # Save mode for future use
+        $self->{'_mode'} = $mode;
     }
-    else {
-        $obj->{'_mode'} = 'w';
-    }
-
-    return $obj->{'_mode'};
+    return $self->{'_mode'};
 }
 
 
@@ -766,8 +779,8 @@ sub exists_exe {
 
  Title   : tempfile
  Usage   : my ($handle,$tempfile) = $io->tempfile();
- Function: Returns a temporary filename and a handle opened for writing and
-           and reading.
+ Function: Returns a temporary filename and a handle opened for reading and
+           writing.
  Caveats : If you do not have File::Temp on your system you should avoid
            specifying TEMPLATE and SUFFIX. (We don't want to recode
            everything, okay?)
