@@ -183,22 +183,21 @@ sub new {
  Title   : _initialize_io
  Usage   : $self->_initialize_io(@params);
  Function: Initializes filehandle and other properties from the parameters.
-
-           Currently recognizes the following named parameters:
-              -file     name of file to open
-              -string   a string that is to be converted to a filehandle
+           The following named parameters are currently recognized:
+              -file     name of file to read or write to
+              -fh       file handle to read or write to (mutually exclusive
+                        with -file and -string)
+              -input    name of file, or filehandle (GLOB or IO::Handle object)
+                        to read of write to
+              -string   string to read from (will be converted to filehandle)
               -url      name of URL to open
-              -input    name of file, or GLOB, or IO::Handle object
-              -fh       file handle (mutually exclusive with -file and -string)
               -flush    boolean flag to autoflush after each write
               -noclose  boolean flag, when set to true will not close a
                         filehandle (must explicitly call close($io->_fh)
               -retries  number of times to try a web fetch before failure
-              -ua_parms hashref of key => value parameters to pass
-                        to LWP::UserAgent->new()
-                        (only meaningful with -url is set)
-                        A useful value might be, for example,
-                        { timeout => 60 } (ua default is 180 sec)
+              -ua_parms when using -url, hashref of key => value parameters
+                        to pass to LWP::UserAgent->new(). A useful value might
+                        be, for example, {timeout => 60 } (ua defaults to 180s)
  Returns : TRUE
  Args    : named parameters
 
@@ -217,13 +216,21 @@ sub _initialize_io {
     if ($url) {
         $retries ||= 5;
 
-        if($HAS_LWP) { #use LWP::UserAgent
-            require LWP::UserAgent;
-            my $ua = LWP::UserAgent->new(%$ua_parms);
-            my $http_result;
-            my($handle,$tempfile) = $self->tempfile();
-            CORE::close($handle);
+        require LWP::UserAgent;
+        my $ua = LWP::UserAgent->new(%$ua_parms);
+        my $http_result;
+        my($handle,$tempfile) = $self->tempfile();
+        CORE::close($handle);
 
+        for (my $try = 1 ; $try <= $retries ; $try++) {
+            $http_result = $ua->get($url, ':content_file' => $tempfile);
+            $self->warn("[$try/$retries] tried to fetch $url, but server ".
+                    "threw ". $http_result->code . ".  retrying...")
+              if !$http_result->is_success;
+            last if $http_result->is_success;
+        }
+        $self->throw("failed to fetch $url, server threw ".$http_result->code)
+          if !$http_result->is_success;
 
             for(my $try = 1 ; $try <= $retries ; $try++){
                 $http_result = $ua->get($url, ':content_file' => $tempfile);
@@ -249,19 +256,19 @@ sub _initialize_io {
     $self->noclose( $noclose) if defined $noclose;
     # determine whether the input is a file(name) or a stream
     if ($input) {
-        if (ref(\$input) eq "SCALAR") {
+        if (ref(\$input) eq 'SCALAR') {
             # we assume that a scalar is a filename
             if($file && ($file ne $input)) {
                 $self->throw("input file given twice: $file and $input disagree");
             }
             $file = $input;
         } elsif (ref($input) &&
-            ((ref($input) eq "GLOB") || $input->isa('IO::Handle'))) {
+            ((ref($input) eq 'GLOB') || $input->isa('IO::Handle'))) {
             # input is a stream
             $fh = $input;
         } else {
             # let's be strict for now
-            $self->throw("unable to determine type of input $input: ".
+            $self->throw("Unable to determine type of input $input: ".
                  "not string and not GLOB");
         }
     }

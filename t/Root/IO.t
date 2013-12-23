@@ -6,7 +6,7 @@ use warnings;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 107);
+    test_begin(-tests => 116);
     use_ok('Bio::Root::IO');
 }
 
@@ -80,7 +80,12 @@ $out_file = test_output_file();
 
 # Test with files
 
-ok my $rio = Bio::Root::IO->new( -file => $in_file ), 'Read from file';
+ok my $rio = Bio::Root::IO->new( -input => $in_file ), 'Read from file';
+is $rio->file, $in_file;
+is $rio->mode, 'r';
+ok $rio->close;
+
+ok $rio = Bio::Root::IO->new( -file => $in_file );
 is $rio->file, $in_file;
 1 while $rio->_readline; # read entire file content
 is $rio->mode, 'r';
@@ -94,13 +99,13 @@ ok $wio->close;
 # Test with handles
 
 my $in_fh;
-ok open $in_fh , '<', $in_file  or die "Could not read file $in_file: $!\n", 'Read from GLOB handle';
+open $in_fh , '<', $in_file  or die "Could not read file $in_file: $!\n", 'Read from GLOB handle';
 ok $rio = Bio::Root::IO->new( -fh => $in_fh );
 is $rio->_fh, $in_fh;
 is $rio->mode, 'r';
 close $in_fh;
 
-ok open $out_fh, '>', $out_file or die "Could not write file $out_file: $!\n", 'Write to GLOB handle';
+open $out_fh, '>', $out_file or die "Could not write file $out_file: $!\n", 'Write to GLOB handle';
 ok $wio = Bio::Root::IO->new( -fh => $out_fh );
 is $wio->_fh, $out_fh;
 is $wio->mode, 'w';
@@ -117,6 +122,16 @@ SKIP: {
     warnings_like sub { $wio->close }, '', 'no warnings in ->close()';
     ok $wio->close;
 }
+
+# Exclusive arguments
+open $in_fh , '<', $in_file  or die "Could not read file $in_file: $!\n", 'Read from GLOB handle';
+throws_ok {$rio = Bio::Root::IO->new( -input => $in_file, -fh     => $in_fh   )} qr//, 'Exclusive arguments';
+throws_ok {$rio = Bio::Root::IO->new( -input => $in_file, -file   => $in_file )} qr//;
+throws_ok {$rio = Bio::Root::IO->new( -input => $in_file, -string => 'abcedf' )} qr//;
+throws_ok {$rio = Bio::Root::IO->new( -fh    => $in_fh  , -file   => $in_file )} qr//;
+throws_ok {$rio = Bio::Root::IO->new( -fh    => $in_fh  , -string => 'abcedf' )} qr//;
+throws_ok {$rio = Bio::Root::IO->new( -file  => $in_file, -string => 'abcedf' )} qr//;
+close $in_fh;
 
 
 ##############################################
@@ -216,6 +231,8 @@ SKIP: {
 
 my $teststring = "Foo\nBar\nBaz";
 ok $rio = Bio::Root::IO->new(-string => $teststring), 'Read string';
+
+is $rio->mode, 'r';
 
 ok $line1 = $rio->_readline;
 is $line1, "Foo\n";
