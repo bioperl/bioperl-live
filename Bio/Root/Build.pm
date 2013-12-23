@@ -44,7 +44,7 @@ our $VERSION = '1.006924'; # pre-1.7
 our @extra_types = qw(options excludes_os feature_requires test); # test must always be last in the list!
 our $checking_types = "requires|conflicts|".join("|", @extra_types);
 
-=func find_pm_files
+=head2 find_pm_files
 
 Our modules are in Bio, not lib
 =cut
@@ -58,7 +58,7 @@ sub find_pm_files {
     $self->_find_file_by_type('pm', 'lib');
 }
 
-=func choose_scripts
+=head2 choose_scripts
 
 Ask what scripts to install (this method is unique to bioperl)
 =cut
@@ -130,7 +130,7 @@ sub choose_scripts {
     print "\n";
 }
 
-=func script_files
+=head2 script_files
 
 Our version of script_files doesn't take args but just installs those scripts
 requested by the user after choose_scripts() is called. If it wasn't called,
@@ -502,7 +502,7 @@ sub script_files {
 #    return $self->{under_cpan};
 #}
 
-=func prompt
+=head2 prompt
 
 Overridden simply to not print the default answer if chosen by hitting return
 =cut
@@ -535,7 +535,7 @@ EOF
     return $ans;
 }
 
-=func find_dist_packages
+=head2 find_dist_packages
 
 Like the Module::Build version, except that we always get version from
 dist_version
@@ -756,7 +756,7 @@ sub find_dist_packages {
 #    $self->{phash}{manifest_skip}->write(\%files);
 #}
 
-=func ACTION_manifest
+=head2 ACTION_manifest
 
 We always generate a new MANIFEST instead of allowing existing files to remain
 MANIFEST.SKIP is left alone
@@ -790,7 +790,7 @@ sub ACTION_manifest {
 #}
 
 
-=func ACTION_install
+=head2 ACTION_install
 
 Extended to run scripts post-installation
 =cut
@@ -817,7 +817,7 @@ sub ACTION_install {
 #    }
 #}
 
-=func test_internet
+=head2 test_internet
 
 For use with auto_features, which should require LWP::UserAgent as one of
 its reqs
@@ -844,7 +844,7 @@ sub test_internet {
     return;
 }
 
-=func dist_dir
+=head2 dist_dir
 
 Nice directory names for dist-related actions
 =cut
@@ -901,7 +901,7 @@ sub dist_dir {
 #    #$self->add_to_manifest_skip('pod2htm*');
 #}
 
-=func ACTION_ppmdist
+=head2 ACTION_ppmdist
 
 Don't copy across man3 docs since they're of little use under Windows and
 have bad filenames
@@ -914,7 +914,7 @@ sub ACTION_ppmdist {
     $self->install_types(0);
 }
 
-=func install_types
+=head2 install_types
 
 When supplied a true value, pretends libdoc doesn't exist (preventing man3
 installation for ppmdist). when supplied false, they exist again
@@ -1062,7 +1062,7 @@ sub install_types {
 #    return $ppd_file;
 #}
 
-=func ACTION_dist
+=head2 ACTION_dist
 
 We make all archive formats we want, not just .tar.gz
 we also auto-run manifest action, since we always want to re-create
@@ -1082,7 +1082,7 @@ sub ACTION_dist {
     $self->delete_filetree($dist_dir);
 }
 
-=func ACTION_clean
+=head2 ACTION_clean
 
 Define custom clean/realclean actions to rearrange config file cleanup
 =cut
@@ -1097,7 +1097,7 @@ sub ACTION_clean {
     $self->delete_filetree($self->config_dir);
 }
 
-=func ACTION_realclean
+=head2 ACTION_realclean
 
 Define custom clean/realclean actions to rearrange config file cleanup
 =cut
@@ -1113,7 +1113,7 @@ sub ACTION_realclean {
     }
 }
 
-=func make_zip
+=head2 make_zip
 
 Makes zip file for windows users and bzip2 files as well
 =cut
@@ -1136,7 +1136,7 @@ sub make_zip {
     $self->do_system($self->split_like_shell("bzip2"), "-k", "$file.tar");
 }
 
-=func prompt_for_network
+=head2 prompt_for_network
 
 A method that can be called in a Build.PL script to ask the user if they want
 internet tests.
@@ -1164,7 +1164,7 @@ sub prompt_for_network {
     }
 }
 
-=func print_build_script
+=head2 print_build_script
 
 Override the build script warnings flag
 =cut
