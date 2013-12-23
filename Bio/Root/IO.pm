@@ -89,16 +89,6 @@ BEGIN {
         # do nothing
     }
 
-    eval {
-        require LWP::UserAgent;
-    };
-    if( $@ ) {
-        print STDERR "Cannot load LWP::UserAgent: $@" if( $VERBOSE > 0 );
-        $HAS_LWP = 0;
-    } else {
-        $HAS_LWP = 1;
-    }
-
     # If on Win32, attempt to find Win32 package
 
     if($^O =~ /mswin/i) {
@@ -231,24 +221,9 @@ sub _initialize_io {
         $self->throw("failed to fetch $url, server threw ".$http_result->code)
           if !$http_result->is_success;
 
-            for(my $try = 1 ; $try <= $retries ; $try++){
-                $http_result = $ua->get($url, ':content_file' => $tempfile);
-                $self->warn("[$try/$retries] tried to fetch $url, but server ".
-                            "threw ". $http_result->code . ".  retrying...")
-                            if !$http_result->is_success;
-                last if $http_result->is_success;
-            }
-            $self->throw("failed to fetch $url, server threw ".
-                         $http_result->code) if !$http_result->is_success;
-
-            $input = $tempfile;
-            $file  = $tempfile;
-        } else { #use Bio::Root::HTTPget
-            #$self->warn("no lwp");
-
-            $fh = Bio::Root::HTTPget::getFH($url);
-        }
-        }
+        $input = $tempfile;
+        $file  = $tempfile;
+    }
 
     delete $self->{'_readbuffer'};
     delete $self->{'_filehandle'};
@@ -910,6 +885,7 @@ sub tempdir {
     # we have to do this ourselves, not good
     # we are planning to cleanup temp files no matter what
     my %params = @args;
+    print "cleanup is " . $params{CLEANUP} . "\n";
     $self->{'_cleanuptempdir'} = ( defined $params{CLEANUP} &&
                    $params{CLEANUP} == 1);
     my $tdir = $self->catfile($TEMPDIR,
