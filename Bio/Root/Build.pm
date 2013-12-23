@@ -44,7 +44,7 @@ our $VERSION = '1.006902'; # pre-1.7
 our @extra_types = qw(options excludes_os feature_requires test); # test must always be last in the list!
 our $checking_types = "requires|conflicts|".join("|", @extra_types);
 
-=func find_pm_build
+=func find_pm_files
 
 Our modules are in Bio, not lib
 =cut

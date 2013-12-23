@@ -17,7 +17,7 @@ BEGIN {
 }
 
 use Error qw(:try);
-$Error::Debug = test_debug(); 
+$Error::Debug = test_debug();
 
 # Set up a tester object.
 ok my $test = TestObject->new(-verbose => test_debug());
@@ -27,7 +27,7 @@ is $test->data('Eeny meeny miney moe.'), 'Eeny meeny miney moe.';
 # This demonstrates what will happen if a method defined in an
 # interface that is not implemented in the implementating object.
 
-eval { 
+eval {
     try {
         $test->foo();
     }
@@ -37,7 +37,7 @@ eval {
     };
 };
 
-# TestObject::bar() deliberately throws a Bio::TestException, 
+# TestObject::bar() deliberately throws a Bio::TestException,
 # which is defined in TestObject.pm
 try {
     $test->bar;
@@ -68,4 +68,4 @@ try {
 otherwise {
     my $err = shift;
     is ref $err, 'Error::Simple';
-}; 
+};

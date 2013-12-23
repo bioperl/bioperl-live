@@ -6,11 +6,10 @@ use strict;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    
-    test_begin(-tests => 63);
-	
-	use_ok('Bio::Root::Root');
-    use_ok('Bio::Seq');
+
+    test_begin(-tests => 62);
+
+    use_ok('Bio::Root::Root');
 }
 
 ok my $obj = Bio::Root::Root->new();
@@ -29,7 +28,7 @@ throws_ok { $obj->throw_not_implemented() } qr/EXCEPTION: Bio::Root::NotImplemen
             my $self = {};
             bless $self, ref($class) || $class;
             return $self;
-	};
+    };
 }
 $obj = Bio::FooI->new();
 throws_ok { $obj->throw_not_implemented() } qr/EXCEPTION /;
@@ -41,8 +40,8 @@ $obj = Bio::Root::Root->new();
 #    my ($tfh,$tfile) = $obj->tempfile();
 #    local * STDERR = $tfh;
 #    $obj->warn('Testing warn');
-#    close $tfh;    
-#    open(IN, $tfile) or die("cannot open $tfile");    
+#    close $tfh;
+#    open(IN, $tfile) or die("cannot open $tfile");
 #    $val = join("", <IN>) ;
 #    close IN;
 #    unlink $tfile;
@@ -65,7 +64,7 @@ throws_ok { $obj->throw('Testing throw') } qr/Testing throw/;# 'verbose(1) throw
 #    local * STDERR = $tfh;
 #    $obj->warn('Testing warn');
 #    close $tfh;
-#    open(IN, $tfile) or die("cannot open $tfile");    
+#    open(IN, $tfile) or die("cannot open $tfile");
 #    $val = join("", <IN>);
 #    close IN;
 #    unlink $tfile;
@@ -83,9 +82,9 @@ my $seq = Bio::Seq->new();
 is $seq->verbose, 1;
 
 # test for bug #1343
-my @vals = Bio::Root::RootI->_rearrange([qw(apples pears)], 
-					-apples => 'up the',
-					-pears  => 'stairs');
+my @vals = Bio::Root::RootI->_rearrange([qw(apples pears)],
+                                        -apples => 'up the',
+                                        -pears  => 'stairs');
 is shift @vals, 'up the';
 is shift @vals, 'stairs';
 
@@ -135,11 +134,11 @@ throws_ok{ $root->deprecated(-message => 'Test6',
         my $class = shift;
         my $self = {};
         bless $self, ref($class) || $class;
-    
+
         $self->_set_from_args(\@_);
-        
+
         return $self;
-	};
+    };
 }
 
 $obj = Bio::Foo1->new(-verbose => 1, t1 => 1, '--Test-2' => 2);
@@ -150,14 +149,14 @@ $obj = Bio::Foo1->new(-verbose => 1, t1 => 1, '--Test-2' => 2);
     package Bio::Foo2;
     use base qw(Bio::Root::Root);
     sub new {
-		my $class = shift;
-		my $self = {};
-		bless $self, ref($class) || $class;
-	
-		$self->_set_from_args(\@_, -create => 1);
-		
-		return $self;
-	};
+        my $class = shift;
+        my $self = {};
+        bless $self, ref($class) || $class;
+
+        $self->_set_from_args(\@_, -create => 1);
+
+        return $self;
+    };
 
 }
 
@@ -176,9 +175,9 @@ for my $m (qw(t3 test_4)) {
         my $class = shift;
         my $self = {};
         bless $self, ref($class) || $class;
-    
+
         $self->_set_from_args(\@_, -methods => ['verbose', 't5'], -create => 1);
-        
+
         return $self;
     };
 }
@@ -197,16 +196,16 @@ ok (!UNIVERSAL::can('Bio::Root::Root','t5'), "Methods don't pollute original Bio
             my $class = shift;
             my $self = {};
             bless $self, ref($class) || $class;
-            
+
             my %args = @_;
-            
+
             $self->_set_from_args(\%args, -methods => {(verbose => 'v',
                                                         test7 => 't7',
                                                         test_8 => 't8')},
                                           -create => 1);
-            
+
             return $self;
-	};
+    };
 }
 
 # with synonyms
@@ -254,20 +253,20 @@ is($obj->t7, 1, 'original is not modified');
                           -warn_version  => $v,
                           -throw_version => $v + 0.001);
     }
-    
+
     sub not_good2 {
         my $self = shift;
         # note, due to _rearrange, ordering is throw version, then warn version
         $self->deprecated('This is not good',$v + 0.001,$v);
     }
-    
+
     sub really_not_good {
         my $self = shift;
         $self->deprecated(-message => 'This is really not good',
                           -warn_version  => $v - 0.001,
                           -throw_version => $v,);
     }
-    
+
     # version is the same as throw_version (and vice versa)
     sub still_very_bad {
         my $self = shift;
@@ -275,14 +274,14 @@ is($obj->t7, 1, 'original is not modified');
                           -warn_version  => $v - 0.001,
                           -version => $v);
     }
-    
+
     sub okay_for_now {
         my $self = shift;
         $self->deprecated(-message => 'This is okay for now',
                           -warn_version  => $v + 0.001,
                           -throw_version => $v + 0.002);
     }
-    
+
     sub plain_incorrect {
         my $self = shift;
         $self->deprecated(-message => 'This is not going to work',
@@ -294,19 +293,17 @@ is($obj->t7, 1, 'original is not modified');
 my $foo = Bio::Foo5->new();
 
 throws_ok { $foo->plain_incorrect } qr/Version must be numerical/,
-	'must use proper versioning scheme';
+    'must use proper versioning scheme';
 
 warning_like{ $foo->not_good } qr/This is not good/,
-	'warns for versions >= '.$Bio::Root::Version::VERSION;
+    'warns for versions >= current version';
 # this tests the three-arg (non-named) form just to make sure it works, even
 # though we probably won't support it
 warning_like{ $foo->not_good2 } qr/This is not good/,
-	'warns for versions >= '.$Bio::Root::Version::VERSION;
-	
+    'warns for versions >= current version';
+
 throws_ok { $foo->really_not_good } qr/This is really not good/,
-	'throws for versions >= '.$Bio::Root::Version::VERSION;
+    'throws for versions >= current version';
 throws_ok { $foo->still_very_bad } qr/This is still very bad/,
-	'throws for versions >= '.$Bio::Root::Version::VERSION;
-lives_ok { $foo->okay_for_now } 'No warnings/exceptions below '.$Bio::Root::Version::VERSION;
-
-
+    'throws for versions >= current version';
+lives_ok { $foo->okay_for_now } 'No warnings/exceptions below current version';

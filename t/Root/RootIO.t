@@ -117,7 +117,7 @@ SKIP: {
 # tests _pushback for multi-line buffering
 ##############################################
 
-my $rio1 = 
+my $rio1 =
 
 my $line1 = $rio->_readline;
 my $line2 = $rio->_readline;

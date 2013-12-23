@@ -88,6 +88,10 @@ BEGIN {
     $VERBOSITY = 0;
 }
 
+=head2 new
+
+=cut
+
 sub new {
   my $class = shift;
   my @args = @_;

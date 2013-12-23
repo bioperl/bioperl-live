@@ -3,13 +3,13 @@
 
 use strict;
 
-BEGIN { 
+BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    
+
     test_begin(-tests => 18);
-	
-	use_ok('Bio::Root::IO');
+
+    use_ok('Bio::Root::IO');
 }
 
 ok my $obj = Bio::Root::IO->new(-verbose => 0);
@@ -22,19 +22,19 @@ my ($tfh,$tfile);
 
 eval {
     ($tfh,$tfile) = $obj->tempfile();
-    print $tfh $TEST_STRING; 
+    print $tfh $TEST_STRING;
     close($tfh);
-    open(my $IN, $tfile) or die("cannot open $tfile");    
+    open(my $IN, $tfile) or die("cannot open $tfile");
     my $val = join("", <$IN>) ;
     ok( $val eq $TEST_STRING );
     close $IN;
     ok( -e $tfile );
-    undef $obj; 
+    undef $obj;
 };
 undef $obj;
 if( $@ ) {
     ok(0);
-} else { 
+} else {
    ok( ! -e $tfile, 'auto UNLINK => 1' );
 }
 
@@ -49,14 +49,14 @@ eval {
     undef $obj; # see Bio::Root::IO::_io_cleanup
 };
 
-if( $@ ) { ok(0); } 
+if( $@ ) { ok(0); }
 else { ok( ! -e $tfile, 'tempfile deleted' ); }
 
 eval {
     $obj = Bio::Root::IO->new(-verbose => 0);
     ($tfh, $tfile) = $obj->tempfile(UNLINK => 0);
     close $tfh;
-    ok( -e $tfile );   
+    ok( -e $tfile );
     undef $obj; # see Bio::Root::IO::_io_cleanup
 };
 

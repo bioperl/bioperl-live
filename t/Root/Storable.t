@@ -6,15 +6,15 @@ use strict;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    
+
     test_begin(-tests => 35);
-	
+
     use_ok('Bio::Root::Storable');
 }
 
 foreach my $mode( "BINARY", "ASCII" ){
     if( $mode eq "ASCII" ){
-		no warnings;
+        no warnings;
         $Bio::Root::Storable::BINARY = 0;
     }
 
@@ -27,7 +27,7 @@ foreach my $mode( "BINARY", "ASCII" ){
     ok $@ =~ /Testing throw/;   # 'throw failed';
 
     $obj->{_test}  = "_TEST";   # Provide test attributes
-    $obj->{__test} = "__TEST";  # 
+    $obj->{__test} = "__TEST";  #
 
     my $state = $obj->serialise;
     ok length($state) > 0;
@@ -37,7 +37,7 @@ foreach my $mode( "BINARY", "ASCII" ){
     ok $clone->{_test} eq "_TEST" && $clone->{__test}  eq "__TEST";
 
     #------------------------------
-    # Test standard file IO 
+    # Test standard file IO
     my $file = $obj->store;
     ok $file && -f $obj->statefile;
 

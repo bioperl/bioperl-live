@@ -39,8 +39,8 @@ sub data {
     my ($self, $data) = @_;
     print "Setting test data ($data)\n" if $data && $self->verbose;
     $self->{'data'} = $data if $data;
- 
-   return $self->{'data'} 
+
+   return $self->{'data'}
 }
 
 sub bar {
@@ -53,7 +53,7 @@ sub bar {
     my $message = "A Test error";
 
     # Bio::Root::Root::throw() will make use of Error.pm if present.
-    # The type of Error is specified with a -class parameter. 
+    # The type of Error is specified with a -class parameter.
     # If -class is not supplied, a Bio::Root::Exception is throw.
     # In this case, the argument can consist of a simple string.
 
