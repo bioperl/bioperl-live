@@ -1,19 +1,14 @@
-#
-# BioPerl module for Bio::Root::Storable
-#
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
-#
-# Cared for by Will Spooner <whs@sanger.ac.uk>
-#
-# Copyright Will Spooner <whs@sanger.ac.uk>
-#
-# You may distribute this module under the same terms as perl itself
+package Bio::Root::Storable;
+use strict;
+use Bio::Root::IO;
+use Data::Dumper qw( Dumper );
+use File::Spec;
+use base qw(Bio::Root::Root);
 
-# POD documentation - main docs before the code
-
-=head1 NAME
-
-Bio::Root::Storable - object serialisation methods
+# ABSTRACT: object serialisation methods
+# AUTHOR:   Will Spooner <whs@sanger.ac.uk>
+# OWNER:    Will Spooner
+# LICENSE:  Perl_5
 
 =head1 SYNOPSIS
 
@@ -51,61 +46,9 @@ Perl Data::Dumper module) is used instead.
 ASCII storage can be enabled by default by setting the value of
 $Bio::Root::Storable::BINARY to false.
 
-
-
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to one
-of the Bioperl mailing lists.  Your participation is much appreciated.
-
-  bioperl-l@bio.perl.org
-
-=head2 Support 
-
-Please direct usage questions or support issues to the mailing list:
-
-I<bioperl-l@bioperl.org>
-
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
-with code and data examples if at all possible.
-
-=head2 Reporting Bugs
-
-Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution. Bug reports can be submitted via the
-web:
-
-  https://redmine.open-bio.org/projects/bioperl/
-
-=head1 AUTHOR - Will Spooner
-
-Email whs@sanger.ac.uk
-
-
-=head1 APPENDIX
-
-The rest of the documentation details each of the object methods.
-Internal methods are usually preceded with a _
-
 =cut
 
-
-# Let the code begin...
-package Bio::Root::Storable;
-
-use strict;
-use Data::Dumper qw( Dumper );
-
-use File::Spec;
-use Bio::Root::IO;
-
 use vars qw( $BINARY );
-use base qw(Bio::Root::Root);
 
 BEGIN{
   if( eval "require Storable" ){
@@ -123,8 +66,8 @@ BEGIN{
               -suffix   => tmpfile suffix,
   Function  : Builds a new Bio::Root::Storable inhereting object
   Returntype: Bio::Root::Storable inhereting object
-  Exceptions: 
-  Caller    : 
+  Exceptions:
+  Caller    :
   Example   : $storable = Bio::Root::Storable->new()
 
 =cut
@@ -143,9 +86,9 @@ sub new {
   Arg [1]   : See 'new' method
   Function  : Initialises storable-specific attributes
   Returntype: boolean
-  Exceptions: 
-  Caller    : 
-  Example   : 
+  Exceptions:
+  Caller    :
+  Example   :
 
 =cut
 
@@ -170,7 +113,7 @@ sub _initialise_storable {
               Should not normaly use as a setter - let Root::IO
               do this for you.
   Returntype: string
-  Exceptions: 
+  Exceptions:
   Caller    : Bio::Root::Storable->store
   Example   : my $statefile = $obj->statefile();
 
@@ -210,8 +153,8 @@ sub statefile{
   Arg [1]   : string (optional) (TODO - convert to array for x-platform)
   Function  : Accessor for the statefile directory. Defaults to File::Spec->tmpdir
   Returntype: string
-  Exceptions: 
-  Caller    : 
+  Exceptions:
+  Caller    :
   Example   : $obj->workdir('/tmp/foo');
 
 =cut
@@ -236,8 +179,8 @@ sub workdir {
   Arg [1]   : string (optional)
   Function  : Accessor for the statefile template. Defaults to XXXXXXXX
   Returntype: string
-  Exceptions: 
-  Caller    : 
+  Exceptions:
+  Caller    :
   Example   : $obj->workdir('RES_XXXXXXXX');
 
 =cut
@@ -257,8 +200,8 @@ sub template {
   Arg [1]   : string (optional)
   Function  : Accessor for the statefile template.
   Returntype: string
-  Exceptions: 
-  Caller    : 
+  Exceptions:
+  Caller    :
   Example   : $obj->suffix('.state');
 
 =cut
@@ -280,9 +223,9 @@ sub suffix {
               The skeleton can be repopulated by calling 'retrieve'. This
               will be a clone of the original object.
   Returntype: Bio::Root::Storable inhereting object
-  Exceptions: 
-  Caller    : 
-  Example   : my $skel = $obj->new_retrievable(); # skeleton 
+  Exceptions:
+  Caller    :
+  Example   : my $skel = $obj->new_retrievable(); # skeleton
               $skel->retrieve();                  # clone
 
 =cut
@@ -295,10 +238,10 @@ sub new_retrievable{
 
    if( $self->retrievable ){ return $self->clone } # Clone retrievable
    return bless( { _statefile   => $self->store(@args),
-		   _workdir     => $self->workdir,
-		   _suffix      => $self->suffix,
-		   _template    => $self->template,
-		   _retrievable => 1 }, ref( $self ) );
+                   _workdir     => $self->workdir,
+                   _suffix      => $self->suffix,
+                   _template    => $self->template,
+                   _retrievable => 1 }, ref( $self ) );
 }
 
 #----------------------------------------------------------------------
@@ -309,8 +252,8 @@ sub new_retrievable{
   Function  : Reports whether the object is in 'skeleton' state, and the
               'retrieve' method can be called.
   Returntype: boolean
-  Exceptions: 
-  Caller    : 
+  Exceptions:
+  Caller    :
   Example   : if( $obj->retrievable ){ $obj->retrieve }
 
 =cut
@@ -329,8 +272,8 @@ sub retrievable {
   Function  : Accessor for token attribute
   Returntype: string. Whatever retrieve needs to retrieve.
               This base implementation returns the statefile
-  Exceptions: 
-  Caller    : 
+  Exceptions:
+  Caller    :
   Example   : my $token = $obj->token();
 
 =cut
@@ -351,8 +294,8 @@ sub token{
               saved to.
   Returntype: string
 
-  Exceptions: 
-  Caller    : 
+  Exceptions:
+  Caller    :
   Example   : my $token = $obj->store();
 
 =cut
@@ -379,8 +322,8 @@ sub store{
               Attributes are examined for other storable objects. If these
               are found they are serialised separately using 'new_retrievable'
   Returntype: string
-  Exceptions: 
-  Caller    : 
+  Exceptions:
+  Caller    :
   Example   : my $serialised = $obj->serialise();
 
 =cut
@@ -392,8 +335,8 @@ sub serialise{
   my $store_obj = bless( {}, ref( $self ) );
 
   my %retargs = ( -workdir =>$self->workdir,
-		  -suffix  =>$self->suffix,
-		  -template=>$self->template );
+                  -suffix  =>$self->suffix,
+                  -template=>$self->template );
   # Assume that other storable bio objects held by this object are
   # only 1-deep.
 
@@ -417,10 +360,10 @@ sub serialise{
     elsif( ref( $value ) eq 'ARRAY' ){
       my @ary;
       foreach my $val( @$value ){
-	if( ref($val) =~ /^Bio::/ and $val->isa('Bio::Root::Storable') ){
-	  push(  @ary, $val->new_retrievable( %retargs ) );
-	}
-	else{ push(  @ary, $val ) }
+        if( ref($val) =~ /^Bio::/ and $val->isa('Bio::Root::Storable') ){
+          push(  @ary, $val->new_retrievable( %retargs ) );
+        }
+        else{ push(  @ary, $val ) }
       }
       $store_obj->{$key} = \@ary;
     }
@@ -429,11 +372,11 @@ sub serialise{
     elsif( ref( $value ) eq 'HASH' ){
       my %hash;
       foreach my $k2( keys %$value ){
-	my $val = $value->{$k2};
-	if( ref($val) =~ /^Bio::/ and $val->isa('Bio::Root::Storable') ){
-	  $hash{$k2} = $val->new_retrievable( %retargs );
-	}
-	else{ $hash{$k2} = $val }
+        my $val = $value->{$k2};
+        if( ref($val) =~ /^Bio::/ and $val->isa('Bio::Root::Storable') ){
+          $hash{$k2} = $val->new_retrievable( %retargs );
+        }
+        else{ $hash{$k2} = $val }
       }
       $store_obj->{$key} = \%hash;
     }
@@ -455,8 +398,8 @@ sub serialise{
               Note that the retrieved object will be blessed into its original
               class, and not the
   Returntype: Bio::Root::Storable inhereting object
-  Exceptions: 
-  Caller    : 
+  Exceptions:
+  Caller    :
   Example   : my $obj = Bio::Root::Storable->retrieve( $token );
 
 =cut
@@ -521,8 +464,8 @@ sub retrieve{
   Arg [1]   : none
   Function  : Returns a clone of the calling object
   Returntype: Bio::Root::Storable inhereting object
-  Exceptions: 
-  Caller    : 
+  Exceptions:
+  Caller    :
   Example   : my $clone = $obj->clone();
 
 =cut
@@ -542,8 +485,8 @@ sub clone {
   Arg [1]   : none
   Function  : Clears the stored object from disk
   Returntype: boolean
-  Exceptions: 
-  Caller    : 
+  Exceptions:
+  Caller    :
   Example   : $obj->remove();
 
 =cut
@@ -564,10 +507,10 @@ sub remove {
   Function  : Converts whatever is in the the arg into a string.
               Uses either Storable::freeze or Data::Dumper::Dump
               depending on the value of $Bio::Root::BINARY
-  Returntype: 
-  Exceptions: 
-  Caller    : 
-  Example   : 
+  Returntype:
+  Exceptions:
+  Caller    :
+  Example   :
 
 =cut
 
@@ -591,12 +534,12 @@ sub _freeze {
   Function  : Converts the string into a perl 'whatever'.
               Uses either Storable::thaw or eval depending on the
               value of $Bio::Root::BINARY.
-              Note; the string arg should have been created with 
+              Note; the string arg should have been created with
               the _freeze method, or strange things may occur!
   Returntype: variable
-  Exceptions: 
-  Caller    : 
-  Example   : 
+  Exceptions:
+  Caller    :
+  Example   :
 
 =cut
 
@@ -604,20 +547,16 @@ sub _thaw {
   my $self = shift;
   my $data = shift;
   if( $BINARY ){ return thaw( $data ) }
-  else{ 
-    my $code; 
+  else{
+    my $code;
     $code = eval( $data ) ;
     if($@) {
       $self->throw( "eval: $@" );
-    }   
-    ref( $code ) eq 'REF' || 
+    }
+    ref( $code ) eq 'REF' ||
       $self->throw( "Serialised string was not a scalar ref" );
     return $$code;
   }
 }
 
-
-
-
-#----------------------------------------------------------------------
 1;

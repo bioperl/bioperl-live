@@ -1,19 +1,10 @@
-#
-# BioPerl module for Bio::Root::Version
-#
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
-#
-# Cared for by Aaron Mackey <amackey@virginia.edu>
-#
-# Copyright Aaron Mackey
-#
-# You may distribute this module under the same terms as perl itself
+package Bio::Root::Version;
+use strict;
 
-# POD documentation - main docs before the code
-
-=head1 NAME
-
-Bio::Root::Version - provide global, distribution-level versioning
+# ABSTRACT: provide global, distribution-level versioning
+# AUTHOR:   Aaron Mackey <amackey@virginia.edu>
+# OWNER:    Aaron Mackey
+# LICENSE:  Perl_5
 
 =head1 SYNOPSIS
 
@@ -48,56 +39,9 @@ Bio::Root::RootI itself uses this module, so any module that directly
 (or indirectly) uses Bio::Root::RootI will get a global $VERSION
 variable set if it's not already.
 
-
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to one
-of the Bioperl mailing lists.  Your participation is much appreciated.
-
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
-
-=head2 Support 
-
-Please direct usage questions or support issues to the mailing list:
-
-I<bioperl-l@bioperl.org>
-
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
-with code and data examples if at all possible.
-
-=head2 Reporting Bugs
-
-Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via the
-web:
-
-  https://redmine.open-bio.org/projects/bioperl/
-
-=head1 AUTHOR - Aaron Mackey
-
-Email amackey@virginia.edu
-
-=head1 APPENDIX
-
-The rest of the documentation details each of the object
-methods. Internal methods are usually preceded with a _
-
 =cut
 
-
-# Let the code begin...
-
-
-package Bio::Root::Version;
-use strict;
-
-our $VERSION = '1.006923'; # pre-1.7
+our $VERSION = '1.006902'; # pre-1.7
 $VERSION = eval $VERSION;
 
 sub import {
@@ -106,10 +50,10 @@ sub import {
     my $pkg = caller($i);
     no strict 'refs';
     while ($pkg) {
-	if ($pkg =~ m/^Bio::/o &&
-	    not defined ${$pkg . "::VERSION"}) {
-	    ${$pkg . "::VERSION"} = $VERSION;
-	}
+    if ($pkg =~ m/^Bio::/o &&
+        not defined ${$pkg . "::VERSION"}) {
+        ${$pkg . "::VERSION"} = $VERSION;
+    }
         $pkg = caller(++$i);
     }
 }

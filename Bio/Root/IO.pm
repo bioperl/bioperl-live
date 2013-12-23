@@ -1,19 +1,16 @@
-#
-# BioPerl module for Bio::Root::IO
-#
-# Please direct questions and support issues to <bioperl-l@bioperl.org>
-#
-# Cared for by Hilmar Lapp <hlapp@gmx.net>
-#
-# Copyright Hilmar Lapp
-#
-# You may distribute this module under the same terms as perl itself
+package Bio::Root::IO;
+use strict;
+use Symbol;
+use POSIX qw(dup);
+use IO::Handle;
+use base qw(Bio::Root::Root);
 
-# POD documentation - main docs before the code
+# ABSTRACT: module providing several methods often needed when dealing with file IO
+# AUTHOR:   Hilmar Lapp <hlapp@gmx.net>
+# OWNER:    Hilmar Lapp
+# LICENSE:  Perl_5
 
-=head1 NAME
-
-Bio::Root::IO - module providing several methods often needed when dealing with file IO
+# CONTRIBUTOR: Mark A. Jensen <maj@fortinbras.us>
 
 =head1 SYNOPSIS
 
@@ -62,56 +59,7 @@ filehandle with an object like an indexer where it is not proper to
 close the filehandle as it will continue to be reused until the end of the
 stream is reached.  In general you won't want to play with this flag.
 
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
-
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
-
-=head2 Support
-
-Please direct usage questions or support issues to the mailing list:
-
-I<bioperl-l@bioperl.org>
-
-rather than to the module maintainer directly. Many experienced and
-reponsive experts will be able look at the problem and quickly
-address it. Please include a thorough description of the problem
-with code and data examples if at all possible.
-
-=head2 Reporting Bugs
-
-Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via the
-web:
-
-  https://redmine.open-bio.org/projects/bioperl/
-
-=head1 AUTHOR - Hilmar Lapp
-
-Email hlapp@gmx.net
-
-=head1 CONTRIBUTORS
-
-Mark A. Jensen ( maj -at- fortinbras -dot- us )
-
-=head1 APPENDIX
-
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
-
 =cut
-
-
-# Let the code begin...
-
-
-package Bio::Root::IO;
 
 our ($FILESPECLOADED,   $FILETEMPLOADED,
     $FILEPATHLOADED,    $TEMPDIR,
@@ -119,15 +67,6 @@ our ($FILESPECLOADED,   $FILETEMPLOADED,
     $OPENFLAGS,         $VERBOSE,
     $ONMAC,             $HAS_LWP,
     $HAS_EOL);
-
-use strict;
-
-use Symbol;
-use POSIX qw(dup);
-use IO::Handle;
-use Bio::Root::HTTPget;
-
-use base qw(Bio::Root::Root);
 
 my $TEMPCOUNTER;
 my $HAS_WIN32 = 0;
@@ -749,6 +688,10 @@ sub noclose{
     return $self->{'_noclose'} = shift if @_;
     return $self->{'_noclose'};
 }
+
+=head2 _io_cleanup
+
+=cut
 
 sub _io_cleanup {
     my ($self) = @_;

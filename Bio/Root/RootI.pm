@@ -1,29 +1,22 @@
-#
-# BioPerl module for Bio::Root::RootI
-#
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
-#
-# Cared for by Ewan Birney <birney@ebi.ac.uk>
-#
-# Copyright Ewan Birney
-#
-# You may distribute this module under the same terms as perl itself
+package Bio::Root::RootI;
+use strict;
+use Carp 'confess','carp';
 
-# POD documentation - main docs before the code
-# 
-# This was refactored to have chained calls to new instead
-# of chained calls to _initialize
-#
-# added debug and deprecated methods --Jason Stajich 2001-10-12
-# 
+# ABSTRACT: abstract interface to root object code
+# AUTHOR:   Steve Chervitz <sac@bioperl.org>
+# AUTHOR:   Ewan Birney <birney@ebi.ac.uk>
+# AUTHOR:   Lincoln Stein
+# OWNER:    Steve Chervitz
+# OWNER:    Ewan Birney
+# OWNER:    Lincoln Stein
+# LICENSE:  Perl_5
 
-=head1 NAME
-
-Bio::Root::RootI - Abstract interface to root object code
+# CONTRIBUTOR: Sendu Bala <bix@sendu.me.uk>
+# CONTRIBUTOR: Jason Stajich
 
 =head1 SYNOPSIS
 
-  # any bioperl or bioperl compliant object is a RootI 
+  # any bioperl or bioperl compliant object is a RootI
   # compliant object
 
   $obj->throw("This is an exception");
@@ -86,29 +79,10 @@ running C<perl -wc> on it). So it should be standard practice for a test
 of an implementation to check each method and verify that it doesn't
 throw a L<Bio::Exception::NotImplemented>.
 
-=head1 CONTACT
-
-Functions originally from Steve Chervitz. Refactored by Ewan
-Birney. Re-refactored by Lincoln Stein. Added to by Sendu Bala.
-
-=head1 APPENDIX
-
-The rest of the documentation details each of the object
-methods. Internal methods are usually preceded with a _
-
 =cut
 
-# Let the code begin...
-
-package Bio::Root::RootI;
-
 use vars qw($DEBUG $ID $VERBOSITY);
-use strict;
-use Carp 'confess','carp';
-
-use Bio::Root::Version;
-
-BEGIN { 
+BEGIN {
     $ID        = 'Bio::Root::RootI';
     $DEBUG     = 0;
     $VERBOSITY = 0;
@@ -159,7 +133,7 @@ sub throw{
  Title   : warn
  Usage   : $object->warn("Warning message");
  Function: Places a warning. What happens now is down to the
-           verbosity of the object  (value of $obj->verbose) 
+           verbosity of the object  (value of $obj->verbose)
             verbosity 0 or not set => small warning
             verbosity -1 => no warning
             verbosity 1 => warning with stack trace
@@ -171,12 +145,12 @@ sub throw{
 
 sub warn {
     my ($self,$string) = @_;
-    
+
     my $verbose = $self->verbose;
-    
+
     my $header = "\n--------------------- WARNING ---------------------\nMSG: ";
     my $footer =   "---------------------------------------------------\n";
-    
+
     if ($verbose >= 2) {
         $self->throw($string);
     }
@@ -186,8 +160,8 @@ sub warn {
     elsif ($verbose == 1) {
         CORE::warn $header, $string, "\n", $self->stack_trace_dump, $footer;
         return;
-    }    
-    
+    }
+
     CORE::warn $header, $string, "\n", $footer;
 }
 
@@ -205,36 +179,36 @@ sub warn {
  Args    : Message string to print to STDERR
            Version of BioPerl where use of the method results in an exception
  Notes   : The method can be called two ways, either by positional arguments:
-           
+
            $obj->deprecated('This module is deprecated', 1.006);
-           
+
            or by named arguments:
-           
+
            $obj->deprecated(
                 -message => 'use of the method foo() is deprecated, use bar() instead',
                 -version => 1.006  # throw if $VERSION is >= this version
                 );
 
            or timed to go off at a certain point:
-           
+
            $obj->deprecated(
                 -message => 'use of the method foo() is deprecated, use bar() instead',
                 -warn_version    => 1.006 # warn if $VERSION is >= this version
                 -throw_version   => 1.007 # throw if $VERSION is >= this version
                 );
-           
+
            Using the last two named argument versions is suggested and will
            likely be the only supported way of calling this method in the future
            Yes, we see the irony of deprecating that particular usage of
            deprecated().
-           
+
            The main difference between usage of the two named argument versions
            is that by designating a 'warn_version' one indicates the
            functionality is officially deprecated beginning in a future version
            of BioPerl (so warnings are issued only after that point), whereas
            setting either 'version' or 'throw_version' (synonyms) converts the
            deprecation warning to an exception.
-           
+
            For proper comparisons one must use a version in lines with the
            current versioning scheme for Perl and BioPerl, (i.e. where 1.006000
            indicates v1.6.0, 5.010000 for v5.10.0, etc.).
@@ -272,7 +246,7 @@ sub deprecated{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -289,7 +263,7 @@ sub stack_trace_dump{
 
    my $out;
    my ($module,$function,$file,$position);
-   
+
 
    foreach my $stack ( @stack) {
        ($module,$file,$position,$function) = @{$stack};
@@ -349,7 +323,7 @@ sub stack_trace{
            : @param : an array of parameters, either as a list (in
            :          which case the function simply returns the list),
            :          or as an associative array with hyphenated tags
-           :          (in which case the function sorts the values 
+           :          (in which case the function sorts the values
            :          according to @{$order} and returns that new array.)
            :          The tags can be upper, lower, or mixed case
            :          but they must start with a hyphen (at least the
@@ -359,7 +333,7 @@ sub stack_trace{
            : then adapted for use in Bio::Root::Object.pm by Steve Chervitz,
            : then migrated into Bio::Root::RootI.pm by Ewan Birney.
  Comments  :
-           : Uppercase tags are the norm, 
+           : Uppercase tags are the norm,
            : (SAC)
            : This method may not be appropriate for method calls that are
            : within in an inner loop if efficiency is a concern.
@@ -369,12 +343,12 @@ sub stack_trace{
            :  @param = (-NAME=>'me', -COLOR=>'blue');
            :  @param = (-Name=>'me', -Color=>'blue');
            :  @param = ('me', 'blue');
-           : A leading hyphenated argument is used by this function to 
+           : A leading hyphenated argument is used by this function to
            : indicate that named parameters are being used.
            : Therefore, the ('me', 'blue') list will be returned as-is.
            :
-           : Note that Perl will confuse unquoted, hyphenated tags as 
-           : function calls if there is a function of the same name 
+           : Note that Perl will confuse unquoted, hyphenated tags as
+           : function calls if there is a function of the same name
            : in the current namespace:
            :    -name => 'foo' is interpreted as -&name => 'foo'
            :
@@ -386,7 +360,7 @@ sub stack_trace{
            :
            : Personal note (SAC): I have found all uppercase tags to
            : be more manageable: it involves less single-quoting,
-           : the key names stand out better, and there are no method naming 
+           : the key names stand out better, and there are no method naming
            : conflicts.
            : The drawbacks are that it's not as easy to type as lowercase,
            : and lots of uppercase can be hard to read.
@@ -498,7 +472,7 @@ sub _rearrange {
 sub _set_from_args {
     my ($self, $args, @own_args) = @_;
     $self->throw("a hash/array ref of arguments must be supplied") unless ref($args);
-    
+
     my ($methods, $force, $create, $code, $case);
     if (@own_args) {
         ($methods, $force, $create, $code, $case) =
@@ -511,7 +485,7 @@ sub _set_from_args {
     my $default_code = 'my $self = shift;
                         if (@_) { $self->{\'_\'.$method} = shift }
                         return $self->{\'_\'.$method};';
-    
+
     my %method_names = ();
     my %syns = ();
     if ($methods) {
@@ -526,7 +500,7 @@ sub _set_from_args {
         }
         %method_names = map { $case ? $_ : lc($_) => $_ } @names;
     }
-    
+
     # deal with hyphens
     my %orig_args = ref($args) eq 'HASH' ? %{$args} : @{$args};
     my %args;
@@ -535,33 +509,33 @@ sub _set_from_args {
         $method =~ s/-/_/g;
         $args{$method} = $value;
     }
-    
+
     # create non-existing methods on request
     if ($create) {
         unless ($methods) {
             %syns = map { $_ => $case ? $_ : lc($_) } keys %args;
         }
-        
+
         foreach my $method (keys %syns) {
             $self->can($method) && next;
-            
+
             my $string = $code || $default_code;
             if (ref($code) && ref($code) eq 'HASH') {
                 $string = $code->{$method} || $default_code;
             }
-            
+
             my $sub = eval "sub { $string }";
             $self->throw("Compilation error for $method : $@") if $@;
-            
+
             no strict 'refs';
             *{ref($self).'::'.$method} = $sub;
         }
     }
-    
+
     # create synonyms of existing methods
     while (my ($method, $syn_ref) = each %syns) {
         my $method_ref = $self->can($method) || next;
-        
+
         foreach my $syn (@{ ref($syn_ref) ? $syn_ref : [$syn_ref] }) {
             next if $syn eq $method;
             $method_names{$case ? $syn : lc($syn)} = $syn;
@@ -570,7 +544,7 @@ sub _set_from_args {
             *{ref($self).'::'.$syn} = $method_ref;
         }
     }
-    
+
     # set values for methods
     while (my ($method, $value) = each %args) {
         $method = $method_names{$case ? $method : lc($method)} || ($methods ? next : $method);
@@ -579,11 +553,16 @@ sub _set_from_args {
     }
 }
 
+
+=head2 _rearrange_old
+
+=cut
+
 #----------------'
 sub _rearrange_old {
 #----------------
     my($self,$order,@param) = @_;
-    
+
     # JGRG -- This is wrong, because we don't want
     # to assign empty string to anything, and this
     # code is actually returning an array 1 less
@@ -592,13 +571,13 @@ sub _rearrange_old {
     ## If there are no parameters, we simply wish to return
     ## an empty array which is the size of the @{$order} array.
     #return ('') x $#{$order} unless @param;
-    
+
     # ...all we need to do is return an empty array:
     # return unless @param;
-    
+
     # If we've got parameters, we need to check to see whether
     # they are named or simply listed. If they are listed, we
-    # can just return them. 
+    # can just return them.
 
     # The mod test fixes bug where a single string parameter beginning with '-' gets lost.
     # This tends to happen in error messages such as: $obj->throw("-id not defined")
@@ -615,18 +594,18 @@ sub _rearrange_old {
         $param[$i]=~s/^\-//;
         $param[$i]=~tr/a-z/A-Z/;
     }
-    
+
     # Now we'll convert the @params variable into an associative array.
     # local($^W) = 0;  # prevent "odd number of elements" warning with -w.
     my(%param) = @param;
-    
+
     # my(@return_array);
-    
+
     # What we intend to do is loop through the @{$order} variable,
     # and for each value, we use that as a key into our associative
     # array, pushing the value at that key onto our return array.
     # my($key);
-    
+
     #foreach (@{$order}) {
     # my($value) = $param{$key};
     # delete $param{$key};
@@ -634,7 +613,7 @@ sub _rearrange_old {
     #}
 
     return @param{@{$order}};
-    
+
 #    print "\n_rearrange() after processing:\n";
 #    my $i; for ($i=0;$i<@return_array;$i++) { printf "%20s => %s\n", ${$order}[$i], $return_array[$i]; } <STDIN>;
 
@@ -648,7 +627,7 @@ sub _rearrange_old {
  Function: Register a method to be called at DESTROY time. This is useful
            and sometimes essential in the case of multiple inheritance for
            classes coming second in the sequence of inheritance.
- Returns : 
+ Returns :
  Args    : a code reference
 
 The code reference will be invoked with the object as the first
@@ -700,12 +679,12 @@ sub _cleanup_methods {
 =head2 throw_not_implemented
 
  Purpose : Throws a Bio::Root::NotImplemented exception.
-           Intended for use in the method definitions of 
+           Intended for use in the method definitions of
            abstract interface modules where methods are defined
            but are intended to be overridden by subclasses.
  Usage   : $object->throw_not_implemented();
- Example : sub method_foo { 
-             $self = shift; 
+ Example : sub method_foo {
+             $self = shift;
              $self->throw_not_implemented();
            }
  Returns : n/a
@@ -717,7 +696,7 @@ sub _cleanup_methods {
              - the name of the implementing class
 
            If this object has a throw() method, $self->throw will be used.
-           If the object doesn't have a throw() method, 
+           If the object doesn't have a throw() method,
            Carp::confess() will be used.
 
 
@@ -756,12 +735,12 @@ sub throw_not_implemented {
 =head2 warn_not_implemented
 
  Purpose : Generates a warning that a method has not been implemented.
-           Intended for use in the method definitions of 
+           Intended for use in the method definitions of
            abstract interface modules where methods are defined
            but are intended to be overridden by subclasses.
            Generally, throw_not_implemented() should be used,
            but warn_not_implemented() may be used if the method isn't
-           considered essential and convenient no-op behavior can be 
+           considered essential and convenient no-op behavior can be
            provided within the interface.
  Usage   : $object->warn_not_implemented( method-name-string );
  Example : $self->warn_not_implemented( "get_foobar" );
@@ -785,7 +764,11 @@ sub warn_not_implemented {
     }
 }
 
-# Unify 'not implemented' message. -Juguang
+=head2 _not_implemented_msg
+
+Unify 'not implemented' message. -Juguang
+=cut
+
 sub _not_implemented_msg {
     my $self = shift;
     my $package = ref $self;

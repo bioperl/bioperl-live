@@ -1,11 +1,17 @@
 package Bio::Root::Root;
 use strict;
+use Bio::Root::IO;
 use Scalar::Util qw(blessed reftype);
+use base qw(Bio::Root::RootI);
 
-
-=head1 NAME
-
-Bio::Root::Root - Hash-based implementation of Bio::Root::RootI
+# ABSTRACT: hash-based implementation of L<Bio::Root::RootI>
+# AUTHOR:   Steve Chervitz <sac@bioperl.org>
+# AUTHOR:   Ewan Birney
+# AUTHOR:   Lincoln Stein
+# OWNER:    Steve Chervitz
+# OWNER:    Ewan Birney
+# OWNER:    Lincoln Stein
+# LICENSE:  Perl_5
 
 =head1 SYNOPSIS
 
@@ -132,57 +138,7 @@ other pre-defined exception types:
    };
    # the ending semicolon is essential!
 
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
-to one of the Bioperl mailing lists.
-
-Your participation is much appreciated.
-
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
-
-=head2 Support
-
-Please direct usage questions or support issues to the mailing list:
-
-I<bioperl-l@bioperl.org>
-
-rather than to the module maintainer directly. Many experienced and
-reponsive experts will be able look at the problem and quickly
-address it. Please include a thorough description of the problem
-with code and data examples if at all possible.
-
-=head2 Reporting Bugs
-
-Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via the
-web:
-
-  https://redmine.open-bio.org/projects/bioperl/
-
-=head1 AUTHOR
-
-Functions originally from Steve Chervitz.
-Refactored by Ewan Birney.
-Re-refactored by Lincoln Stein.
-
-=head1 APPENDIX
-
-The rest of the documentation details each of the object
-methods. Internal methods are usually preceded with a _
-
 =cut
-
-#'
-
-use strict;
-use Bio::Root::IO;
-
-use base qw(Bio::Root::RootI);
 
 our ($DEBUG, $ID, $VERBOSITY, $ERRORLOADED, $CLONE_CLASS);
 
@@ -377,6 +333,9 @@ sub verbose {
     return $self->{'_root_verbose'};
 }
 
+=head2 _register_for_cleanup
+
+=cut
 
 sub _register_for_cleanup {
     my ($self,$method) = @_;
@@ -388,6 +347,9 @@ sub _register_for_cleanup {
     }
 }
 
+=head2 _unregister_for_cleanup
+
+=cut
 
 sub _unregister_for_cleanup {
     my ($self,$method) = @_;
@@ -395,6 +357,9 @@ sub _unregister_for_cleanup {
     $self->{'_root_cleanup_methods'} = \@methods;
 }
 
+=head2 _cleanup_methods
+
+=cut
 
 
 sub _cleanup_methods {
@@ -563,6 +528,9 @@ sub _load_module {
     return 1;
 }
 
+=head2 DESTROY
+
+=cut
 
 sub DESTROY {
     my $self = shift;
@@ -573,4 +541,3 @@ sub DESTROY {
 }
 
 1;
-

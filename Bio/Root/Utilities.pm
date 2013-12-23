@@ -1,10 +1,13 @@
-package	Bio::Root::Utilities;
+package Bio::Root::Utilities;
 use strict;
+use Bio::Root::IO;
+use Bio::Root::Exception;
+use base qw(Bio::Root::Root Exporter);
 
-
-=head1 NAME
-
-Bio::Root::Utilities - General-purpose utility module
+# ABSTRACT: general-purpose utility module
+# AUTHOR:   Steve Chervitz <sac@bioperl.org>
+# OWNER:    1996-2007 Steve Chervitz
+# LICENSE:  Perl_5
 
 =head1 SYNOPSIS
 
@@ -56,88 +59,30 @@ Follow the installation instructions included in the README file.
 
 =head1 DEPENDENCIES
 
-Inherits from L<Bio::Root::Root>, and uses L<Bio::Root::IO> 
+Inherits from L<Bio::Root::Root>, and uses L<Bio::Root::IO>
 and L<Bio::Root::Exception>.
 
-Relies on external executables for file compression/uncompression 
-and sending mail. No paths to these are hard coded but are located 
+Relies on external executables for file compression/uncompression
+and sending mail. No paths to these are hard coded but are located
 as needed.
 
 =head1 SEE ALSO
 
   http://bioperl.org  - Bioperl Project Homepage
 
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-User feedback is an integral part of the evolution of this and other Bioperl modules.
-Send your comments and suggestions preferably to one of the Bioperl mailing lists.
-Your participation is much appreciated.
-
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
-
-=head2 Support 
-
-Please direct usage questions or support issues to the mailing list:
-
-I<bioperl-l@bioperl.org>
-
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
-with code and data examples if at all possible.
-
-=head2 Reporting Bugs
-
-Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution. Bug reports can be submitted via the
-web:
-
-  https://redmine.open-bio.org/projects/bioperl/
-
-=head1 AUTHOR
-
-Steve Chervitz E<lt>sac@bioperl.orgE<gt>
-
-See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comments.
-
-
 =head1 ACKNOWLEDGEMENTS
 
 This module was originally developed under the auspices of the
 Saccharomyces Genome Database: http://www.yeastgenome.org/
 
-=head1 COPYRIGHT
-
-Copyright (c) 1996-2007 Steve Chervitz. All Rights Reserved.
-This module is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
-
 =cut
-
-=head1 APPENDIX
-
-Methods beginning with a leading underscore are considered private
-and are intended for internal use by this module. They are
-B<not> considered part of the public interface and are described here
-for documentation purposes only.
-
-=cut
-
-# Let the code begin...
-
-use Bio::Root::IO;
-use Bio::Root::Exception;
 
 use vars qw(@EXPORT_OK %EXPORT_TAGS);
-use base qw(Bio::Root::Root Exporter);
 @EXPORT_OK   = qw($Util);
 %EXPORT_TAGS = ( obj => [qw($Util)],
-		   std => [qw($Util)],);
+                 std => [qw($Util)],);
 
-use vars qw($ID $Util $GNU_PATH $TIMEOUT_SECS 
+use vars qw($ID $Util $GNU_PATH $TIMEOUT_SECS
             @COMPRESSION_UTILS @UNCOMPRESSION_UTILS
             $DEFAULT_NEWLINE $NEWLINE $AUTHORITY
             @MONTHS @DAYS $BASE_YEAR $DEFAULT_CENTURY
@@ -186,7 +131,7 @@ $Util = Bio::Root::Root->new();
  Purpose   : -- Get a string containing the formated date or time
            :    taken when this routine is invoked.
            : -- Provides a way to avoid using `date`.
-	   : -- Provides an interface to localtime().
+           : -- Provides an interface to localtime().
            : -- Interconverts some date formats.
            :
            : (For additional functionality, use Date::Manip or
@@ -205,7 +150,7 @@ $Util = Bio::Root::Root->new();
            :   'ymd'         = 96may3
            :   'md'          = may3
            :   'year'        = 1996
-           :   'hms'         = 23:01:59  # when not converting a format, 'hms' can be 
+           :   'hms'         = 23:01:59  # when not converting a format, 'hms' can be
            :                             # tacked on to any of the above options
            :                             # to add the time stamp: eg 'dmyhms'
            :   'full' | 'unix' = UNIX-style date: Tue May  5 22:00:00 1998
@@ -214,7 +159,7 @@ $Util = Bio::Root::Root->new();
            : FMT  = yyyy-mm-dd | yyyy-dd-mm | yyyy-mmm-dd |
            :        mdy | ymd | md | d-m-y | hms | hm
            :        ('hms' may be appended to any of these to
-	   :        add a time stamp)
+           :        add a time stamp)
            :
            : DATE = String containing date to be converted.
            :        Acceptable input formats:
@@ -249,19 +194,19 @@ sub date_format {
     # Load a supplied date for conversion:
     if(defined($date) && ($date =~ /[\D-]+/)) {
         $converting = 1;
-	if( $date =~ m{/}) {
-	    ($mon,$mday,$year) = split(m{/}, $date);
-	} elsif($date =~ /(\d{4})-(\d{1,2})-(\d{1,2})/) {
-	    ($year,$mon,$mday) = ($1, $2, $3);
-	} elsif($date =~ /(\d{4})-(\w{3,})-(\d{1,2})/) {
-	    ($year,$mon,$mday) = ($1, $2, $3);
-	    $mon = $self->month2num($2);
-	} else {
-	    print STDERR "\n*** Unsupported input date format: $date\n";
-	}
-	if(length($year) == 4) { 
+        if( $date =~ m{/}) {
+            ($mon,$mday,$year) = split(m{/}, $date);
+        } elsif($date =~ /(\d{4})-(\d{1,2})-(\d{1,2})/) {
+            ($year,$mon,$mday) = ($1, $2, $3);
+        } elsif($date =~ /(\d{4})-(\w{3,})-(\d{1,2})/) {
+            ($year,$mon,$mday) = ($1, $2, $3);
+            $mon = $self->month2num($2);
+        } else {
+            print STDERR "\n*** Unsupported input date format: $date\n";
+        }
+        if(length($year) == 4) {
             $fullYear = $year;
-            $year = substr $year, 2; 
+            $year = substr $year, 2;
         } else {
             # Heuristics to guess what century was intended when a 2-digit year is given
             # If number is over 50, assume it's for prev century; under 50 = default century.
@@ -272,11 +217,11 @@ sub date_format {
                 $fullYear = $DEFAULT_CENTURY + $year;
             }
         }
-	$mon -= 1;
+        $mon -= 1;
     } else {
-	($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = @date =
-	    localtime(($date ? $date : time()));
-	return @date if $option =~ /list/i;
+        ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = @date =
+            localtime(($date ? $date : time()));
+        return @date if $option =~ /list/i;
         $fullYear = $BASE_YEAR+$year;
     }
     $month_txt = $MONTHS[$mon];
@@ -286,36 +231,36 @@ sub date_format {
 #    print "sec: $sec, min: $min, hour: $hour, month: $mon, m-day: $mday, year: $year\nwday: $wday, yday: $yday, dst: $isdst";<STDIN>;
 
     if( $option =~ /yyyy-mm-dd/i ) {
-	$date = sprintf "%4d-%02d-%02d",$fullYear,$month_num,$mday;
+        $date = sprintf "%4d-%02d-%02d",$fullYear,$month_num,$mday;
     } elsif( $option =~ /yyyy-dd-mm/i ) {
-	$date = sprintf "%4d-%02d-%02d",$fullYear,$mday,$month_num;
+        $date = sprintf "%4d-%02d-%02d",$fullYear,$mday,$month_num;
     } elsif( $option =~ /yyyy-mmm-dd/i ) {
-	$date = sprintf "%4d-%3s-%02d",$fullYear,$month_txt,$mday;
+        $date = sprintf "%4d-%3s-%02d",$fullYear,$month_txt,$mday;
     } elsif( $option =~ /full|unix/i ) {
-	$date = sprintf "%3s %3s %2d %02d:%02d:%02d %d",$day_txt, $month_txt, $mday, $hour, $min, $sec, $fullYear;
+        $date = sprintf "%3s %3s %2d %02d:%02d:%02d %d",$day_txt, $month_txt, $mday, $hour, $min, $sec, $fullYear;
     } elsif( $option =~ /mdy/i ) {
-	$date = "$month_txt $mday, $fullYear";
+        $date = "$month_txt $mday, $fullYear";
     } elsif( $option =~ /ymd/i ) {
-	$date = $year."\l$month_txt$mday";
+        $date = $year."\l$month_txt$mday";
     } elsif( $option =~ /dmy/i ) {
-	$date = $mday."\l$month_txt$year";
+        $date = $mday."\l$month_txt$year";
     } elsif( $option =~ /md/i ) {
-	$date = "\l$month_txt$mday";
+        $date = "\l$month_txt$mday";
     } elsif( $option =~ /d-m-y/i ) {
-	$date = "$mday-$month_txt-$fullYear";
+        $date = "$mday-$month_txt-$fullYear";
     } elsif( $option =~ /d m y/i ) {
-	$date = "$mday $month_txt $fullYear";
+        $date = "$mday $month_txt $fullYear";
     } elsif( $option =~ /year/i ) {
-	$date = $fullYear;
+        $date = $fullYear;
     } elsif( $option =~ /dmy/i ) {
-	$date = $mday.'-'.$month_txt.'-'.$fullYear;
+        $date = $mday.'-'.$month_txt.'-'.$fullYear;
     } elsif($option and $option !~ /hms/i) {
-	print STDERR "\n*** Unrecognized date format request: $option\n";
+        print STDERR "\n*** Unrecognized date format request: $option\n";
     }
 
     if( $option =~ /hms/i and not $converting) {
-	$date .= " $hour:$min:$sec" if $date;
-	$date ||= "$hour:$min:$sec";
+        $date .= " $hour:$min:$sec" if $date;
+        $date ||= "$hour:$min:$sec";
     }
 
     return $date || join(" ", @date);
@@ -343,7 +288,7 @@ sub month2num {
     # Get string in proper format for conversion.
     $str = substr($str, 0, 3);
     for(0..$#MONTHS) {
-	return $_+1 if $str =~ /$MONTHS[$_]/i;
+        return $_+1 if $str =~ /$MONTHS[$_]/i;
     }
     $self->throw("Invalid month name: $str");
 }
@@ -390,17 +335,17 @@ sub num2month {
            :            gzip, which is the default)
            :   -OUTFILE => String (name of the output compressed file, full path).
            :   -EXE  => Name of executable for compression utility to use.
-           :            Will supercede those in @COMPRESSION_UTILS defined by 
+           :            Will supercede those in @COMPRESSION_UTILS defined by
            :            this module. If the absolute path to the executable is not provided,
            :            it will be searched in the PATH env variable.
  Throws    : Exception if file cannot be compressed.
            : If user is not owner of the file, generates a warning and compresses to
-           : a tmp file. To avoid this warning, use the -o file test operator 
+           : a tmp file. To avoid this warning, use the -o file test operator
            : and call this function with -TMP=>1.
- Comments  : Attempts to compress using utilities defined in the @COMPRESSION_UTILS 
-           : defined by this module, in the order defined. The first utility that is 
+ Comments  : Attempts to compress using utilities defined in the @COMPRESSION_UTILS
+           : defined by this module, in the order defined. The first utility that is
            : found to be executable will be used. Any utility defined in optional -EXE param
-           : will be tested for executability first. 
+           : will be tested for executability first.
            : To minimize security risks, the -EXE parameter value is untained using
            : the untaint() method of this module (in 'relaxed' mode to permit path separators).
 
@@ -456,9 +401,9 @@ sub compress {
         } elsif ($exe eq 'zip') {
             @cmd = ("$exe -r \"$fileName.zip\" \"$fileName\"");
         }
-	not $tmp and
-	    $self->warn("Not owner of file $fileName. Compressing to temp file $compressed.");
-	$tmp = 1;
+        not $tmp and
+            $self->warn("Not owner of file $fileName. Compressing to temp file $compressed.");
+        $tmp = 1;
     } else {
         # Need to compute the compressed name based on exe since we're returning it.
         $compressed = $fileName;
@@ -509,17 +454,17 @@ sub compress {
            :            gzip, which is the default)
            :   -OUTFILE => String (name of the output uncompressed file, full path).
            :   -EXE  => Name of executable for uncompression utility to use.
-           :            Will supercede those in @UNCOMPRESSION_UTILS defined by 
+           :            Will supercede those in @UNCOMPRESSION_UTILS defined by
            :            this module. If the absolute path to the executable is not provided,
            :            it will be searched in the PATH env variable.
  Throws    : Exception if file cannot be uncompressed.
            : If user is not owner of the file, generates a warning and uncompresses to
-           : a tmp file. To avoid this warning, use the -o file test operator 
+           : a tmp file. To avoid this warning, use the -o file test operator
            : and call this function with -TMP=>1.
- Comments  : Attempts to uncompress using utilities defined in the @UNCOMPRESSION_UTILS 
-           : defined by this module, in the order defined. The first utility that is 
+ Comments  : Attempts to uncompress using utilities defined in the @UNCOMPRESSION_UTILS
+           : defined by this module, in the order defined. The first utility that is
            : found to be executable will be used. Any utility defined in optional -EXE param
-           : will be tested for executability first. 
+           : will be tested for executability first.
            : To minimize security risks, the -EXE parameter value is untained using
            : the untaint() method of this module (in 'relaxed' mode to permit path separators).
 
@@ -577,9 +522,9 @@ sub uncompress {
         } elsif ($exe eq 'unzip') {
             @cmd = ("$exe -p \"$fileName\" > \"$uncompressed\"");
         }
-	not $tmp and
-	    $self->warn("Not owner of file $fileName. Uncompressing to temp file $uncompressed.");
-	$tmp = 1;
+        not $tmp and
+            $self->warn("Not owner of file $fileName. Uncompressing to temp file $uncompressed.");
+        $tmp = 1;
     } else {
         if ($exe =~ /gunzip|bunzip2|uncompress/) {
             @cmd = ($exe, '-f', $fileName);
@@ -663,14 +608,14 @@ sub untaint {
     }
 
     if( $relax ) {
-	$value =~ /([-\w.\', ()\/=%:^<>*]+)/;
-	$untainted = $1
+        $value =~ /([-\w.\', ()\/=%:^<>*]+)/;
+        $untainted = $1
 #    } elsif( $relax == 2 ) {  # Could have several degrees of relax.
-#	$value =~ /([-\w.\', ()\/=%:^<>*]+)/;
-#	$untainted = $1
+#        $value =~ /([-\w.\', ()\/=%:^<>*]+)/;
+#        $untainted = $1
     } else {
-	$value =~ /([-\w.\', ()]+)/;
-	$untainted = $1
+        $value =~ /([-\w.\', ()]+)/;
+        $untainted = $1
     }
 
     $self->debug("UNTAINTED: $untainted\n");
@@ -750,34 +695,34 @@ sub count_files {
     $$href{-B_FILE_NAMES} = [];
     $$href{-DIR_NAMES} = [];
     while( <$PIPE> ) {
-	chomp();
-	$$href{-TOTAL}++;
-	if( -T $dir.$_ ) {
-	    $$href{-NUM_TEXT_FILES}++; push @{$$href{-T_FILE_NAMES}}, $_; }
-	if( -B $dir.$_ and not -d $dir.$_) {
-	    $$href{-NUM_BINARY_FILES}++; push @{$$href{-B_FILE_NAMES}}, $_; }
-	if( -d $dir.$_ ) {
-	    $$href{-NUM_DIRS}++; push @{$$href{-DIR_NAMES}}, $_; }
+        chomp();
+        $$href{-TOTAL}++;
+        if( -T $dir.$_ ) {
+            $$href{-NUM_TEXT_FILES}++; push @{$$href{-T_FILE_NAMES}}, $_; }
+        if( -B $dir.$_ and not -d $dir.$_) {
+            $$href{-NUM_BINARY_FILES}++; push @{$$href{-B_FILE_NAMES}}, $_; }
+        if( -d $dir.$_ ) {
+            $$href{-NUM_DIRS}++; push @{$$href{-DIR_NAMES}}, $_; }
     }
     close $PIPE;
 
     if( $print) {
-	printf( "\n%4d %s\n", $$href{-TOTAL}, "total files+dirs in $dir");
-	printf( "%4d %s\n", $$href{-NUM_TEXT_FILES}, "text files");
-	printf( "%4d %s\n", $$href{-NUM_BINARY_FILES}, "binary files");
-	printf( "%4d %s\n", $$href{-NUM_DIRS}, "directories");
+        printf( "\n%4d %s\n", $$href{-TOTAL}, "total files+dirs in $dir");
+        printf( "%4d %s\n", $$href{-NUM_TEXT_FILES}, "text files");
+        printf( "%4d %s\n", $$href{-NUM_BINARY_FILES}, "binary files");
+        printf( "%4d %s\n", $$href{-NUM_DIRS}, "directories");
     }
 }
 
 
-#=head2 file_info
-#
-# Title   : file_info
-# Purpose : Obtains a variety of date for a given file.
-#	  : Provides an interface to Perl's stat().
-# Status  : Under development. Not ready. Don't use!
-#
-#=cut
+=head2 file_info
+
+ Title   : file_info
+ Purpose : Obtains a variety of date for a given file.
+         : Provides an interface to Perl's stat().
+ Status  : Under development. Not ready. Don't use!
+
+=cut
 
 #--------------
 sub file_info {
@@ -791,20 +736,26 @@ sub file_info {
        $atime, $mtime, $ctime, $blksize, $blocks) = stat $file;
 
     if($get =~ /date/i) {
-	## I can  get the elapsed time since the file was modified but
-	## it's not so straightforward to get the date in a nice format...
+        ## I can  get the elapsed time since the file was modified but
+        ## it's not so straightforward to get the date in a nice format...
         ## Think about using a standard CPAN module for this, like
         ## Date::Manip or Date::DateCalc.
 
-	my $date = $mtime;
-	my $elsec = time - $mtime;
-	printf "\nFile age: %.0f sec %.0f hrs %.0f days", $elsec, $elsec/3600, $elsec/(3600*24);<STDIN>;
-	my $days = sprintf "%.0f", $elsec/(3600*24);
+        my $date = $mtime;
+        my $elsec = time - $mtime;
+        printf "\nFile age: %.0f sec %.0f hrs %.0f days", $elsec, $elsec/3600, $elsec/(3600*24);<STDIN>;
+        my $days = sprintf "%.0f", $elsec/(3600*24);
     } elsif($get eq 'all') {
-	return stat $file;
+        return stat $file;
     }
 }
 
+=head2 delete
+
+ Title   : delete
+ Purpose :
+
+=cut
 
 #------------
 sub delete {
@@ -854,12 +805,12 @@ sub create_filehandle {
 #---------------------
     my($self, @param) = @_;
     my($client, $file, $handle) =
-	$self->_rearrange([qw( CLIENT FILE HANDLE )], @param);
+        $self->_rearrange([qw( CLIENT FILE HANDLE )], @param);
 
     if(not ref $client) {  $client = $self; }
     $file ||= $handle;
     if( $client->can('file')) {
-	$file = $client->file($file);
+        $file = $client->file($file);
     }
 
     my $FH;
@@ -867,11 +818,11 @@ sub create_filehandle {
 
     if($handle_ref = ref($file)) {
       if($handle_ref eq 'FileHandle') {
-	$FH = $file;
-	$client->{'_input_type'} = "FileHandle";
+        $FH = $file;
+        $client->{'_input_type'} = "FileHandle";
       } elsif($handle_ref eq 'GLOB') {
-	$FH = $file;
-	$client->{'_input_type'} = "Glob";
+        $FH = $file;
+        $client->{'_input_type'} = "Glob";
       } else {
         $self->throw(-class=>'Bio::Root::IOException',
                      -text =>"Can't read from $file: Not a FileHandle or GLOB ref.");
@@ -883,9 +834,9 @@ sub create_filehandle {
 
       # Use gzip -cd to access compressed data.
       if( -B $file ) {
-	$client->{'_input_type'} .= " (compressed)";
+        $client->{'_input_type'} .= " (compressed)";
         my $gzip = $self->find_exe('gzip');
-	$file = "$gzip -cd $file |"
+        $file = "$gzip -cd $file |"
       }
 
       require FileHandle;
@@ -927,7 +878,7 @@ sub get_newline {
     return $NEWLINE if defined $NEWLINE;
 
     my($client ) =
-	$self->_rearrange([qw( CLIENT )], @param);
+        $self->_rearrange([qw( CLIENT )], @param);
 
     my $FH = $self->create_filehandle(@param);
 
@@ -939,9 +890,9 @@ sub get_newline {
       # Attempt to guess newline based on platform.
       # Not robust since we could be reading Unix files on a Mac, e.g.
       if(defined $ENV{'MACPERL'}) {
-	$NEWLINE = "\015";  # \r
+        $NEWLINE = "\015";  # \r
       } else {
-	$NEWLINE = "\012";  # \n
+        $NEWLINE = "\012";  # \n
       }
     } else {
       $NEWLINE = $self->taste_file($FH);
@@ -1008,7 +959,7 @@ sub taste_file {
   };
   if($@ =~ /Timed out!/) {
     $self->throw("Timed out while waiting for input.",
-		 "Timeout period = $TIMEOUT_SECS seconds.\nFor longer time before timing out, edit \$TIMEOUT_SECS in Bio::Root::Utilities.pm.");
+                 "Timeout period = $TIMEOUT_SECS seconds.\nFor longer time before timing out, edit \$TIMEOUT_SECS in Bio::Root::Utilities.pm.");
 
   } elsif(not $result) {
     my $err = $@;
@@ -1027,11 +978,11 @@ sub taste_file {
   for ($i = 0; $i <$BUFSIZ; $i++) {
     if (($chars[$i] eq "\012")) {
       unless ($chars[$i-1] eq "\015") {
-	$flavor='Unix';
-	$octal = "\012";
-	$str = '\n';
-	$irs = "^J";
-	last;
+        $flavor='Unix';
+        $octal = "\012";
+        $str = '\n';
+        $irs = "^J";
+        last;
       }
     } elsif (($chars[$i] eq "\015") && ($chars[$i+1] eq "\012")) {
       $flavor='DOS';
@@ -1170,7 +1121,7 @@ sub send_mail {
     my($recipient,$subj,$message,$cc) = $self->_rearrange([qw(TO SUBJ MSG CC)],@param);
 
     $self->throw("Invalid or missing e-mail address: $recipient")
-	if not $recipient =~ /\S+\@\S+/;
+        if not $recipient =~ /\S+\@\S+/;
 
     $subj ||= 'empty subject'; $message ||= '';
 
@@ -1310,6 +1261,14 @@ sub request_data {
     $data;
 }
 
+=head2 quit_reply
+
+ Title   : quit_reply
+ Usage   :
+ Purpose :
+
+=cut
+
 sub quit_reply {
 # Not much used since you can use request_data()
 # and test for an empty string.
@@ -1335,16 +1294,12 @@ sub verify_version {
     my $reqVersion  = shift;
 
     $] < $reqVersion and do {
-	printf STDERR ( "\a\n%s %0.3f.\n", "** Sorry. This Perl script requires at least version", $reqVersion);
-	printf STDERR ( "%s %0.3f %s\n\n", "You are running Perl version", $], "Please update your Perl!\n\n" );
-	exit(1);
+        printf STDERR ( "\a\n%s %0.3f.\n", "** Sorry. This Perl script requires at least version", $reqVersion);
+        printf STDERR ( "%s %0.3f %s\n\n", "You are running Perl version", $], "Please update your Perl!\n\n" );
+        exit(1);
     }
 }
 
-
 1;
 
-
 __END__
-
-
