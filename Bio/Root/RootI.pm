@@ -221,27 +221,43 @@ sub warn {
 
 sub deprecated{
     my ($self) = shift;
-    my ($msg, $version, $warn_version, $throw_version) =
-        $self->_rearrange([qw(MESSAGE VERSION WARN_VERSION THROW_VERSION)], @_);    
-    $version ||= $throw_version;
-    for my $v ($warn_version, $version) {
-        next unless defined $v;
-        $self->throw('Version must be numerical, such as 1.006000 for v1.6.0, not '.
-                     $v) unless $v =~ /^\d+\.\d+$/;
+
+    my $class = ref $self || $self;
+    my $class_version = do {
+        no strict 'refs';
+        ${"${class}::VERSION"}
+    };
+
+    if( $class_version && $class_version =~ /set by/ ) {
+        $class_version = 0.0001;
     }
-    return if ($warn_version && $Bio::Root::Version::VERSION < $warn_version);
+
+    my ($msg, $version, $warn_version, $throw_version) =
+        $self->_rearrange([qw(MESSAGE VERSION WARN_VERSION THROW_VERSION)], @_);
+
+    $throw_version ||= $version;
+    $warn_version  ||= $class_version;
+
+    for my $v ( $warn_version, $throw_version) {
+        no warnings 'numeric';
+        $self->throw("Version must be numerical, such as 1.006000 for v1.6.0, not $v")
+            unless !defined $v || $v + 0 eq $v;
+    }
+
     # below default insinuates we're deprecating a method and not a full module
     # but it's the most common use case
-    $msg ||= "Use of ".(caller(1))[3]."() is deprecated";
-    # delegate to either warn or throw based on whether a version is given
-    if ($version) {
-        $msg .= "\nTo be removed in $version";
-        if ($Bio::Root::Version::VERSION >= $version) {
-            $self->throw($msg)
-        } 
+    $msg ||= "Use of ".(caller(1))[3]."() is deprecated.";
+
+    if( $throw_version && $class_version && $class_version >= $throw_version ) {
+        $self->throw($msg)
     }
-    # passing this on to warn() should deal properly with verbosity issues
-    $self->warn($msg);
+    elsif( $warn_version && $class_version && $class_version >= $warn_version ) {
+
+        $msg .= "\nTo be removed in $throw_version." if $throw_version;
+
+        # passing this on to warn() should deal properly with verbosity issues
+        $self->warn($msg);
+    }
 }
 
 =head2 stack_trace_dump

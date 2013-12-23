@@ -142,7 +142,6 @@ other pre-defined exception types:
 
 our ($DEBUG, $ID, $VERBOSITY, $ERRORLOADED, $CLONE_CLASS);
 
-
 BEGIN {
     $ID        = 'Bio::Root::Root';
     $DEBUG     = 0;
@@ -206,7 +205,6 @@ BEGIN {
     $main::DONT_USE_ERROR;  # so that perl -w won't warn "used only once"
 }
 
-
 =head2 new
 
  Purpose   : generic instantiation function can be overridden if
@@ -215,7 +213,7 @@ BEGIN {
 =cut
 
 sub new {
-    #my ($class, %param) = @_;
+#    my ($class, %param) = @_;
     my $class = shift;
     my $self = {};
     bless $self, ref($class) || $class;
@@ -285,7 +283,6 @@ sub clone {
     return $clone;
 }
 
-
 =head2 _dclone
 
  Title   : clone
@@ -304,7 +301,6 @@ sub clone {
            arises. At the moment, code ref cloning is not supported.
 
 =cut
-
 
 =head2 verbose
 
@@ -361,14 +357,12 @@ sub _unregister_for_cleanup {
 
 =cut
 
-
 sub _cleanup_methods {
     my $self = shift;
     return unless ref $self && $self->isa('HASH');
     my $methods = $self->{'_root_cleanup_methods'} or return;
     @$methods;
 }
-
 
 =head2 throw
 
@@ -463,7 +457,6 @@ sub throw {
     }
 }
 
-
 =head2 debug
 
  Title   : debug
@@ -476,6 +469,7 @@ sub throw {
 
 sub debug {
     my ($self, @msgs) = @_;
+
     # using CORE::warn doesn't give correct backtrace information; we want the
     # line from the previous call in the call stack, not this call (similar to
     # cluck).  For now, just add a stack trace dump and simple comment under the
@@ -488,7 +482,6 @@ sub debug {
         CORE::warn @msgs;
     }
 }
-
 
 =head2 _load_module
 
