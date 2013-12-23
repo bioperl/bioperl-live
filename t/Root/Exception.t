@@ -12,7 +12,7 @@ BEGIN {
     test_begin(-tests => 8,
                -requires_module => 'Error');
 
-    use lib './eg';
+    use lib './examples/root/lib';
     use_ok('TestObject');
 }
 
