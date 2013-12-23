@@ -4,16 +4,16 @@
 use strict;
 
 BEGIN {
-	eval {require Error;};
-	
-	use lib '.';
-	use Bio::Root::Test;
-	
-	test_begin(-tests => 8,
-			   -requires_module => 'Error');
-	
-	use lib './examples/root/lib';
-	use_ok('TestObject');
+    eval {require Error;};
+
+    use lib '.';
+    use Bio::Root::Test;
+
+    test_begin(-tests => 8,
+               -requires_module => 'Error');
+
+    use lib './eg';
+    use_ok('TestObject');
 }
 
 use Error qw(:try);
@@ -29,11 +29,11 @@ is $test->data('Eeny meeny miney moe.'), 'Eeny meeny miney moe.';
 
 eval { 
     try {
-		$test->foo();
+        $test->foo();
     }
     catch Bio::Root::NotImplemented with {
-		my $err = shift;
-		is ref $err, 'Bio::Root::NotImplemented';
+        my $err = shift;
+        is ref $err, 'Bio::Root::NotImplemented';
     };
 };
 
@@ -63,9 +63,9 @@ catch Bio::Root::Exception with {
 # capture it. Handy eh?
 
 try {
-	$test->foobar();
+    $test->foobar();
 }
 otherwise {
-	my $err = shift;
-	is ref $err, 'Error::Simple';
+    my $err = shift;
+    is ref $err, 'Error::Simple';
 }; 
