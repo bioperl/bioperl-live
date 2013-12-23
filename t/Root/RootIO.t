@@ -6,41 +6,38 @@ use warnings;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-
-    test_begin(-tests => 77);
-
+    test_begin(-tests => 84);
     use_ok('Bio::Root::IO');
     use_ok('Bio::SeqIO');
     use_ok('Bio::Assembly::IO');
 }
 
-my $obj = Bio::Root::IO->new();
-ok defined($obj) && $obj->isa('Bio::Root::IO');
+
+ok my $obj = Bio::Root::IO->new();
+isa_ok $obj, 'Bio::Root::IO';
+
 
 
 #############################################
 # tests for exceptions/debugging/verbosity
 #############################################
 
-eval { $obj->throw('Testing throw') };
-like $@, qr/Testing throw/, 'throw()'; # 'throw failed';
+throws_ok { $obj->throw('Testing throw') } qr/Testing throw/, 'Throw';
 
 $obj->verbose(-1);
-eval { $obj->throw('Testing throw') };
-like $@, qr/Testing throw/, 'throw() verbose(-1)'; # 'verbose(-1) throw did not work properly' . $@;
+throws_ok { $obj->throw('Testing throw') } qr/Testing throw/;
 
 eval { $obj->warn('Testing warn') };
-ok !$@, 'warn()';
+ok !$@, 'Warn';
 
 $obj->verbose(1);
-eval { $obj->throw('Testing throw') };
-like $@, qr/Testing throw/, 'throw() verbose(1)'; # 'verbose(1) throw did not work properly' . $@;
+throws_ok { $obj->throw('Testing throw') } qr/Testing throw/;
 
-my @stack = $obj->stack_trace();
-is scalar @stack, 2, 'stack_trace()';
+ok my @stack = $obj->stack_trace(), 'Stack trace';
+is scalar @stack, 2;
 
-my $verbobj = Bio::Root::IO->new(-verbose=>1,-strict=>1);
-is $verbobj->verbose(), 1, 'set verbosity to 1';
+ok my $verbobj = Bio::Root::IO->new( -verbose => 1, -strict => 1 ), 'Verbosity';
+is $verbobj->verbose(), 1;
 
 ok $obj->verbose(-1);
 
@@ -49,65 +46,73 @@ ok $obj->verbose(-1);
 # tests for finding executables
 #############################################
 
-ok(my $io = Bio::Root::IO->new());
+ok my $io = Bio::Root::IO->new();
+
 # An executable file
-my $test_file = 'test_file.txt';
-open FILE, '>', $test_file or die "Could not write file '$test_file': $!\n";
-print FILE 'test';
-close FILE;
-chmod 0777, $test_file or die "Could not change permission of file '$test_file': $!\n";
-ok ($obj->exists_exe($test_file), 'executable file');
+my $out_file = 'test_file.txt';
+my $out_fh;
+open  $out_fh, '>', $out_file or die "Could not write file '$out_file': $!\n";
+print $out_fh 'test';
+close $out_fh;
+chmod 0777, $out_file or die "Could not change permission of file '$out_file': $!\n";
+ok $obj->exists_exe($out_file), 'executable file';
+
 # A not executable file
-chmod 0444, $test_file or die "Could not change permission of file '$test_file': $!\n";
-ok (! $obj->exists_exe($test_file), 'non-executable file');
-unlink $test_file or die "Could not delete file '$test_file': $!\n";
+chmod 0444, $out_file or die "Could not change permission of file '$out_file': $!\n";
+ok (! $obj->exists_exe($out_file), 'non-executable file');
+unlink $out_file or die "Could not delete file '$out_file': $!\n";
+
 # An executable dir
-my $test_dir = 'test_dir';
-mkdir $test_dir or die "Could not write dir '$test_dir': $!\n";
-chmod 0777, $test_dir or die "Could not change permission of dir '$test_dir': $!\n";
-ok (! $obj->exists_exe($test_dir), 'executable dir');
-rmdir $test_dir or die "Could not delete dir '$test_dir': $!\n";
+my $out_dir = 'test_dir';
+mkdir $out_dir or die "Could not write dir '$out_dir': $!\n";
+chmod 0777, $out_dir or die "Could not change permission of dir '$out_dir': $!\n";
+ok (! $obj->exists_exe($out_dir), 'executable dir');
+rmdir $out_dir or die "Could not delete dir '$out_dir': $!\n";
 
 
 #############################################
 # tests for handle read and write abilities
 #############################################
 
-ok my $TESTINFILE = Bio::Root::IO->catfile(qw(t data test.waba));
+ok my $in_file = Bio::Root::IO->catfile(qw(t data test.waba));
+my $in_fh;
 
-my($handle,$file) = $obj->tempfile;
-ok $handle;
-ok $file;
+($out_fh, $out_file) = $obj->tempfile;
+ok $out_fh;
+ok $out_file;
 
-#test with files
+# test with files
 
-ok my $rio = Bio::Root::IO->new(-file=>$TESTINFILE);
-is $rio->file, $TESTINFILE;
-is $rio->mode, 'r', 'filename, read';
+ok my $rio = Bio::Root::IO->new( -file => $in_file ), 'Read from file';
+is $rio->file, $in_file;
+is $rio->mode, 'r';
 
-ok my $wio = Bio::Root::IO->new(-file=>">$file");
-is $wio->file, ">$file";
-is $wio->mode, 'w', 'filename, write';
+ok my $wio = Bio::Root::IO->new( -file => ">$out_file" ), 'Write to file';
+is $wio->file, ">$out_file";
+is $wio->mode, 'w';
 
 # test with handles
 
-ok open(my $I, $TESTINFILE);
-ok open(my $O, '>', $file);
+ok open($in_fh, $in_file);
+ok open($out_fh, '>', $out_file);
 
-ok $rio = Bio::Root::IO->new(-fh=>$I);
-is $rio->_fh, $I;
-is $rio->mode, 'r', 'handle, read';
+ok $rio = Bio::Root::IO->new( -fh => $in_fh ), 'Read from handle';
+is $rio->_fh, $in_fh;
+is $rio->mode, 'r';
 
-ok $wio = Bio::Root::IO->new(-fh=>$O);
-is $wio->_fh, $O;
-is $wio->mode, 'w', 'handle, write';
+ok $wio = Bio::Root::IO->new( -fh => $out_fh ), 'Write to handle';
+is $wio->_fh, $out_fh;
+is $wio->mode, 'w';
+
+ok close $in_fh;
+ok close $out_fh;
 
 SKIP: {
     my $tempfile = eval { require File::Temp; File::Temp->new }
        or skip 'could not create File::Temp object, maybe your File::Temp is 10 years old', 3;
 
     my $temp_io = Bio::Root::IO->new( -fh => $tempfile );
-    isa_ok($temp_io, 'Bio::Root::IO');
+    isa_ok $temp_io, 'Bio::Root::IO';
     is $temp_io->mode, 'w', 'is a write handle';
     warnings_like sub { $temp_io->close }, '', 'no warnings in ->close call';
 }
@@ -117,31 +122,31 @@ SKIP: {
 # tests _pushback for multi-line buffering
 ##############################################
 
-my $rio1 =
+ok $rio = Bio::Root::IO->new( -file => $in_file ), 'Pushback';
 
-my $line1 = $rio->_readline;
-my $line2 = $rio->_readline;
+ok my $line1 = $rio->_readline;
+ok my $line2 = $rio->_readline;
 
 ok $rio->_pushback($line2);
 ok $rio->_pushback($line1);
 
-my $line3 = $rio->_readline;
-my $line4 = $rio->_readline;
-my $line5 = $rio->_readline;
+ok my $line3 = $rio->_readline;
+ok my $line4 = $rio->_readline;
+ok my $line5 = $rio->_readline;
 
 is $line1, $line3;
 is $line2, $line4;
 isnt $line5, $line4;
 
-ok close($I);
-ok close($O);
+ok $rio->close;
+
 
 
 ##############################################
 # test _print and _insert
 ##############################################
 
-ok my $fio = Bio::Root::IO->new(-file=>">$file");
+ok my $fio = Bio::Root::IO->new( -file => ">$out_file" );
 ok $fio->_print("line 1\n"), '_print';
 ok $fio->_print("line 2\n");
 ok $fio->_insert("insertion at line 2\n",2), '_insert at middle of file';
@@ -149,16 +154,16 @@ ok $fio->_print("line 3\n");
 ok $fio->_print("line 4\n");
 $fio->close;
 
-open my $checkio, '<', $file;
+open my $checkio, '<', $out_file;
 my @content = <$checkio>;
 close $checkio;
 is_deeply \@content, ["line 1\n","insertion at line 2\n","line 2\n","line 3\n","line 4\n"];
 
-ok $fio = Bio::Root::IO->new(-file=>">$file");
+ok $fio = Bio::Root::IO->new(-file=>">$out_file");
 ok $fio->_insert("insertion at line 1\n",1), '_insert in empty file';
 $fio->close;
 
-open $checkio, '<', $file;
+open $checkio, '<', $out_file;
 @content = <$checkio>;
 close $checkio;
 is_deeply \@content, ["insertion at line 1\n"];
@@ -167,15 +172,14 @@ is_deeply \@content, ["insertion at line 1\n"];
 ##############################################
 # test Win vs UNIX line ending
 ##############################################
-{
 
+{
 my $unix_rio = Bio::Root::IO->new(-file => test_input_file('U71225.gb.unix'));
 my $win_rio = Bio::Root::IO->new(-file => test_input_file('U71225.gb.win'));
 
 for (1..5) {
     is($unix_rio->_readline, $win_rio->_readline);
 }
-
 }
 
 
@@ -184,12 +188,12 @@ for (1..5) {
 ##############################################
 
 SKIP: {
-    test_skip(-tests => 5, -requires_module => 'PerlIO::eol');
+    test_skip(-tests => 7, -requires_module => 'PerlIO::eol');
     local $Bio::Root::IO::HAS_EOL = 1;
-    my $unix_rio = Bio::Root::IO->new(-file => test_input_file('U71225.gb.unix'));
-    my $win_rio = Bio::Root::IO->new(-file => test_input_file('U71225.gb.win'));
+    ok my $unix_rio = Bio::Root::IO->new(-file => test_input_file('U71225.gb.unix'));
+    ok my $win_rio  = Bio::Root::IO->new(-file => test_input_file('U71225.gb.win'));
     for (1..5) {
-        is($unix_rio->_readline, $win_rio->_readline);
+        is $unix_rio->_readline, $win_rio->_readline;
     }
 }
 
@@ -200,7 +204,6 @@ SKIP: {
 
 SKIP: {
     test_skip(-tests => 2, -requires_module => 'Path::Class');
-
     my $f = sub { Bio::Root::IO->new( -file => Path::Class::file(test_input_file('U71225.gb.unix') ) ) };
     lives_ok(sub { $f->() } , 'Bio::Root::IO->new can handle a Path::Class object');
     isa_ok($f->(), 'Bio::Root::IO');
@@ -228,43 +231,16 @@ SKIP: {
 ##############################################
 
 my $teststring = "Foo\nBar\nBaz";
-ok $rio = Bio::Root::IO->new(-string =>$teststring), 'default -string method';
+ok $rio = Bio::Root::IO->new(-string => $teststring), 'default -string method';
 
-$line1 = $rio->_readline;
-is($line1, "Foo\n");
+ok $line1 = $rio->_readline;
+is $line1, "Foo\n";
 
-$line2 = $rio->_readline;
-is($line2, "Bar\n");
-$rio->_pushback($line2);
+ok $line2 = $rio->_readline;
+is $line2, "Bar\n";
+ok $rio->_pushback($line2);
 
-$line3 = $rio->_readline;
-is($line3, "Bar\n");
-$line3 = $rio->_readline;
-is($line3, "Baz");
-
-
-##############################################
-# test format() and variant()
-##############################################
-
-my $in = Bio::SeqIO->new(
-   -file    => test_input_file('bug2901.fa'),
-   -format  => "fasta",
-);
-is $in->format, 'fasta';
-is $in->variant, undef;
-
-$in = Bio::SeqIO->new(
-   -file    => test_input_file('fastq', 'illumina_faked.fastq'),
-   -format  => "fastq",
-   -variant => 'illumina',
-);
-is $in->format, 'fastq';
-is $in->variant, 'illumina';
-
-$in = Bio::Assembly::IO->new(
-   -file   => test_input_file('assembly_with_singlets.ace'),
-);
-is $in->format, 'ace';
-is $in->variant, 'consed';
-
+ok $line3 = $rio->_readline;
+is $line3, "Bar\n";
+ok $line3 = $rio->_readline;
+is $line3, 'Baz';
