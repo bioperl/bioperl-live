@@ -6,16 +6,13 @@ use warnings;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 84);
+    test_begin(-tests => 104);
     use_ok('Bio::Root::IO');
-    use_ok('Bio::SeqIO');
-    use_ok('Bio::Assembly::IO');
 }
 
 
 ok my $obj = Bio::Root::IO->new();
 isa_ok $obj, 'Bio::Root::IO';
-
 
 
 #############################################
@@ -74,47 +71,51 @@ rmdir $out_dir or die "Could not delete dir '$out_dir': $!\n";
 # tests for handle read and write abilities
 #############################################
 
+# Test catfile
+
 ok my $in_file = Bio::Root::IO->catfile(qw(t data test.waba));
-my $in_fh;
+is $in_file, test_input_file('test.waba');
 
-($out_fh, $out_file) = $obj->tempfile;
-ok $out_fh;
-ok $out_file;
+$out_file = test_output_file();
 
-# test with files
+# Test with files
 
 ok my $rio = Bio::Root::IO->new( -file => $in_file ), 'Read from file';
 is $rio->file, $in_file;
 is $rio->mode, 'r';
+$rio->close;
 
 ok my $wio = Bio::Root::IO->new( -file => ">$out_file" ), 'Write to file';
 is $wio->file, ">$out_file";
 is $wio->mode, 'w';
+$wio->close;
 
-# test with handles
+# Test with handles
 
-ok open($in_fh, $in_file);
-ok open($out_fh, '>', $out_file);
-
-ok $rio = Bio::Root::IO->new( -fh => $in_fh ), 'Read from handle';
+my $in_fh;
+ok open $in_fh , '<', $in_file  or die "Could not read file $in_file: $!\n", 'Read from GLOB handle';
+ok $rio = Bio::Root::IO->new( -fh => $in_fh );
 is $rio->_fh, $in_fh;
 is $rio->mode, 'r';
+ok close $in_fh;
 
-ok $wio = Bio::Root::IO->new( -fh => $out_fh ), 'Write to handle';
+ok open $out_fh, '>', $out_file or die "Could not write file $out_file: $!\n", 'Write to GLOB handle';
+ok $wio = Bio::Root::IO->new( -fh => $out_fh );
 is $wio->_fh, $out_fh;
 is $wio->mode, 'w';
-
-ok close $in_fh;
 ok close $out_fh;
 
 SKIP: {
-    my $tempfile = eval { require File::Temp; File::Temp->new }
-       or skip 'could not create File::Temp object, maybe your File::Temp is 10 years old', 3;
+    eval { require File::Temp; }
+       or skip 'could not create File::Temp object, maybe your File::Temp is 10 years old', 4;
 
-    my $temp_io = Bio::Root::IO->new( -fh => $tempfile );
-    isa_ok $temp_io, 'Bio::Root::IO';
-    is $temp_io->mode, 'w', 'is a write handle';
-    warnings_like sub { $temp_io->close }, '', 'no warnings in ->close call';
+    $out_fh = File::Temp->new;
+    ok $wio = Bio::Root::IO->new( -fh => $out_fh ), 'Read from File::Temp handle';
+    isa_ok $wio, 'Bio::Root::IO';
+    is $wio->mode, 'w', 'is a write handle';
+    warnings_like sub { $wio->close }, '', 'no warnings in ->close()';
+    $wio->close;
+
 }
 
 
@@ -139,7 +140,6 @@ is $line2, $line4;
 isnt $line5, $line4;
 
 ok $rio->close;
-
 
 
 ##############################################
@@ -211,27 +211,11 @@ SKIP: {
 
 
 ##############################################
-# tests http retrieval
-##############################################
-
-SKIP: {
-  test_skip(-tests => 2, -requires_networking => 1);
-
-  my $TESTURL = 'http://www.google.com/index.html';
-  
-  ok $rio = Bio::Root::IO->new(-url=>$TESTURL), 'default -url method';
-  
-  $Bio::Root::IO::HAS_LWP = 0;
-  lives_ok {$rio = Bio::Root::IO->new(-url=>$TESTURL)};
-}
-
-
-##############################################
 # test -string
 ##############################################
 
 my $teststring = "Foo\nBar\nBaz";
-ok $rio = Bio::Root::IO->new(-string => $teststring), 'default -string method';
+ok $rio = Bio::Root::IO->new(-string => $teststring), 'Read string';
 
 ok $line1 = $rio->_readline;
 is $line1, "Foo\n";
@@ -244,3 +228,85 @@ ok $line3 = $rio->_readline;
 is $line3, "Bar\n";
 ok $line3 = $rio->_readline;
 is $line3, 'Baz';
+
+
+##############################################
+# test tempfile()
+##############################################
+{
+ok my $obj = Bio::Root::IO->new(-verbose => 0);
+
+isa_ok $obj, 'Bio::Root::IO';
+
+my $TEST_STRING = "Bioperl rocks!\n";
+
+my ($tfh,$tfile);
+
+eval {
+    ($tfh, $tfile) = $obj->tempfile();
+    isa_ok $tfh, 'GLOB';
+    print $tfh $TEST_STRING;
+    close $tfh;
+    open my $IN, '<', $tfile or die "Could not open file $tfile: $!\n";
+    my $val = join '', <$IN>;
+    is $val, $TEST_STRING;
+    close $IN;
+    ok -e $tfile;
+    undef $obj;
+};
+undef $obj;
+if ( $@ ) {
+    ok 0;
+} else {
+    ok ! -e $tfile, 'auto UNLINK => 1';
+}
+
+$obj = Bio::Root::IO->new();
+
+eval {
+    my $tdir = $obj->tempdir(CLEANUP=>1);
+    ok -d $tdir;
+    ($tfh, $tfile) = $obj->tempfile(dir => $tdir);
+    close $tfh;
+    ok -e $tfile;
+    undef $obj; # see Bio::Root::IO::_io_cleanup
+};
+
+if ( $@ ) {
+    ok 0;
+} else {
+    ok ! -e $tfile, 'tempfile deleted';
+}
+
+eval {
+    $obj = Bio::Root::IO->new(-verbose => 0);
+    ($tfh, $tfile) = $obj->tempfile(UNLINK => 0);
+    isa_ok $tfh, 'GLOB';
+    close $tfh;
+    ok -e $tfile;
+    undef $obj; # see Bio::Root::IO::_io_cleanup
+};
+
+if ( $@ ) {
+   ok 0;
+} else {
+   ok -e $tfile, 'UNLINK => 0';
+}
+
+ok unlink( $tfile) == 1 ;
+
+
+ok $obj = Bio::Root::IO->new;
+
+# check suffix is applied
+my ($fh1, $fn1) = $obj->tempfile(SUFFIX => '.bioperl');
+isa_ok $fh1, 'GLOB';
+like $fn1, qr/\.bioperl$/, 'tempfile suffix';
+ok close $fh1;
+
+# check single return value mode of File::Temp
+my $fh2 = $obj->tempfile;
+isa_ok $fh2, 'GLOB';
+ok $fh2, 'tempfile() in scalar context';
+ok close $fh2;
+}
