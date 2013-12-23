@@ -406,6 +406,7 @@ XML_END
 
     #chop up XML into edible bits for the parser
     while( defined( my $line = <$fh>) ) {
+        next if $line =~ /^\s*$/;
         next if $line =~ m{^\s*</BlastOutput_iterations>}xmso || $line =~ m{^</BlastOutput>}xmso;
         if( $line =~ m{^RPS-BLAST}i ) {
             $self->{'_type'} = 'RPS-BLAST';
