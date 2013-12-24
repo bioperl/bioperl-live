@@ -1,8 +1,10 @@
 package Bio::Coordinate::Chain;
+use utf8;
 use strict;
+use warnings;
 use Bio::Root::Root;
 use Bio::Coordinate::Result;
-use base qw(Bio::Coordinate::Collection Bio::Coordinate::MapperI);
+use parent qw(Bio::Coordinate::Collection Bio::Coordinate::MapperI);
 
 # ABSTRACT: Mapping locations through a chain of coordinate mappers.
 # AUTHOR:   Heikki Lehvaslaiho <heikki@bioperl.org>

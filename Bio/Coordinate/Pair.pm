@@ -1,9 +1,11 @@
 package Bio::Coordinate::Pair;
+use utf8;
 use strict;
+use warnings;
 use Bio::Coordinate::Result;
 use Bio::Coordinate::Result::Match;
 use Bio::Coordinate::Result::Gap;
-use base qw(Bio::Root::Root Bio::Coordinate::MapperI);
+use parent qw(Bio::Root::Root Bio::Coordinate::MapperI);
 
 # ABSTRACT: Continuous match between two coordinate sets.
 # AUTHOR:   Heikki Lehvaslaiho <heikki@bioperl.org>

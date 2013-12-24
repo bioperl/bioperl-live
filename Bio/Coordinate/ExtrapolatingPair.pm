@@ -1,8 +1,10 @@
 package Bio::Coordinate::ExtrapolatingPair;
+use utf8;
 use strict;
+use warnings;
 use Bio::Root::Root;
 use Bio::LocationI;
-use base qw(Bio::Coordinate::Pair);
+use parent qw(Bio::Coordinate::Pair);
 
 # ABSTRACT: Continuous match between two coordinate sets.
 # AUTHOR:   Heikki Lehvaslaiho <heikki@bioperl.org>

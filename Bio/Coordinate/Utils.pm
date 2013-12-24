@@ -1,9 +1,11 @@
 package Bio::Coordinate::Utils;
+use utf8;
 use strict;
+use warnings;
 use Bio::Location::Simple;
 use Bio::Coordinate::Pair;
 use Bio::Coordinate::Collection;
-use base qw(Bio::Root::Root);
+use parent qw(Bio::Root::Root);
 
 # ABSTRACT: Additional methods to create Bio::Coordinate objects.
 # AUTHOR:   Heikki Lehvaslaiho <heikki@bioperl.org>

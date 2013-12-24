@@ -1,8 +1,10 @@
 package Bio::Coordinate::Collection;
+use utf8;
 use strict;
+use warnings;
 use Bio::Coordinate::Result;
 use Bio::Coordinate::Result::Gap;
-use base qw(Bio::Root::Root Bio::Coordinate::MapperI);
+use parent qw(Bio::Root::Root Bio::Coordinate::MapperI);
 
 # ABSTRACT: Noncontinuous match between two coordinate sets.
 # AUTHOR:   Heikki Lehvaslaiho <heikki@bioperl.org>

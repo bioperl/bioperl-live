@@ -1,6 +1,8 @@
 package Bio::Coordinate::MapperI;
+use utf8;
 use strict;
-use base qw(Bio::Root::RootI);
+use warnings;
+use parent qw(Bio::Root::RootI);
 
 # ABSTRACT: Interface describing coordinate mappers.
 # AUTHOR:   Heikki Lehvaslaiho <heikki@bioperl.org>

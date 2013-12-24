@@ -1,6 +1,8 @@
 package Bio::Coordinate::Result::Gap;
+use utf8;
 use strict;
-use base qw(Bio::Location::Simple Bio::Coordinate::ResultI);
+use warnings;
+use parent qw(Bio::Location::Simple Bio::Coordinate::ResultI);
 
 # ABSTRACT: Another name for L<Bio::Location::Simple>.
 # AUTHOR:   Heikki Lehvaslaiho <heikki@bioperl.org>

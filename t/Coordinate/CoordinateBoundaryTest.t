@@ -1,6 +1,7 @@
 ## Test for a suspected bug and tests for debugging.
 
 use strict;
+use warnings;
 use Data::Dumper;
 
 BEGIN {

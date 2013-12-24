@@ -1,6 +1,8 @@
 package Bio::Coordinate::Result;
+use utf8;
 use strict;
-use base qw(Bio::Location::Split Bio::Coordinate::ResultI);
+use warnings;
+use parent qw(Bio::Location::Split Bio::Coordinate::ResultI);
 
 # ABSTRACT: Results from coordinate transformation.
 # AUTHOR:   Heikki Lehvaslaiho <heikki@bioperl.org>

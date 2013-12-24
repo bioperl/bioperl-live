@@ -1,12 +1,14 @@
 package Bio::Coordinate::GeneMapper;
+use utf8;
 use strict;
+use warnings;
 use Bio::Coordinate::Result;
 use Bio::Location::Simple;
 use Bio::Coordinate::Graph;
 use Bio::Coordinate::Collection;
 use Bio::Coordinate::Pair;
 use Bio::Coordinate::ExtrapolatingPair;
-use base qw(Bio::Root::Root Bio::Coordinate::MapperI);
+use parent qw(Bio::Root::Root Bio::Coordinate::MapperI);
 
 # ABSTRACT: Transformations between gene related coordinate systems.
 # AUTHOR:   Heikki Lehvaslaiho <heikki@bioperl.org>
@@ -103,55 +105,62 @@ stuck.
 
 =cut
 
-use vars qw(%COORDINATE_SYSTEMS %COORDINATE_INTS $TRANSLATION $DAG
-            $NOZERO_VALUES $NOZERO_KEYS);
-
 # first set internal values for all translation tables
 
-%COORDINATE_SYSTEMS = (
-                       peptide          => 10,
-                       propeptide       => 9,
-                       frame            => 8,
-                       cds              => 7,
-                       negative_intron  => 6,
-                       intron           => 5,
-                       exon             => 4,
-                       inex             => 3,
-                       gene             => 2,
-                       chr              => 1
-                      );
+our %COORDINATE_SYSTEMS = (
+    peptide          => 10,
+    propeptide       => 9,
+    frame            => 8,
+    cds              => 7,
+    negative_intron  => 6,
+    intron           => 5,
+    exon             => 4,
+    inex             => 3,
+    gene             => 2,
+    chr              => 1,
+);
 
-%COORDINATE_INTS = (
-                    10 => 'peptide',
-                    9 => 'propeptide',
-                    8 => 'frame',
-                    7 => 'cds',
-                    6 => 'negative_intron',
-                    5 => 'intron',
-                    4 => 'exon',
-                    3 => 'inex',
-                    2 => 'gene',
-                    1 => 'chr'
-                   );
+our %COORDINATE_INTS = (
+    10 => 'peptide',
+    9  => 'propeptide',
+    8  => 'frame',
+    7  => 'cds',
+    6  => 'negative_intron',
+    5  => 'intron',
+    4  => 'exon',
+    3  => 'inex',
+    2  => 'gene',
+    1  => 'chr'
+);
 
-$TRANSLATION = $COORDINATE_SYSTEMS{'cds'}. "-".
-    $COORDINATE_SYSTEMS{'propeptide'};
+our $TRANSLATION = $COORDINATE_SYSTEMS{'cds'}. "-". $COORDINATE_SYSTEMS{'propeptide'};
 
-$DAG = {
-        10 => [],
-        9  => [10],
-        8  => [],
-        7  => [8, 9],
-        6  => [],
-        5  => [6],
-        4  => [7],
-        3  => [4, 5],
-        2  => [3, 4, 5, 7],
-        1  => [2]
-       };
+our $DAG = {
+    10 => [],
+    9  => [10],
+    8  => [],
+    7  => [8, 9],
+    6  => [],
+    5  => [6],
+    4  => [7],
+    3  => [4, 5],
+    2  => [3, 4, 5, 7],
+    1  => [2],
+};
 
-$NOZERO_VALUES = {0 => 0, 'in' => 1, 'out' => 2, 'in&out' => 3 };
-$NOZERO_KEYS = { 0 => 0, 1 => 'in', 2 => 'out', 3 => 'in&out' };
+our $NOZERO_VALUES = {
+    0        => 0,
+    'in'     => 1,
+    'out'    => 2,
+    'in&out' => 3,
+};
+
+our $NOZERO_KEYS = {
+    0 => 0,
+    1 => 'in',
+    2 => 'out',
+    3 => 'in&out',
+};
 
 =head2 new
 =cut

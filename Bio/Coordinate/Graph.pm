@@ -1,6 +1,8 @@
 package Bio::Coordinate::Graph;
+use utf8;
 use strict;
-use base qw(Bio::Root::Root);
+use warnings;
+use parent qw(Bio::Root::Root);
 
 # ABSTRACT: Finds shortest path between nodes in a graph.
 # AUTHOR:   Heikki Lehvaslaiho <heikki@bioperl.org>

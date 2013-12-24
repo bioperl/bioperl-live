@@ -1,4 +1,5 @@
 use strict;
+use warnings;
 
 BEGIN {
     use Bio::Root::Test;
