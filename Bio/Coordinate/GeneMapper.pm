@@ -1,19 +1,17 @@
-#
-# bioperl module for Bio::Coordinate::GeneMapper
-#
-# Please direct questions and support issues to <bioperl-l@bioperl.org>
-#
-# Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
-#
-# Copyright Heikki Lehvaslaiho
-#
-# You may distribute this module under the same terms as perl itself
+package Bio::Coordinate::GeneMapper;
+use strict;
+use Bio::Coordinate::Result;
+use Bio::Location::Simple;
+use Bio::Coordinate::Graph;
+use Bio::Coordinate::Collection;
+use Bio::Coordinate::Pair;
+use Bio::Coordinate::ExtrapolatingPair;
+use base qw(Bio::Root::Root Bio::Coordinate::MapperI);
 
-# POD documentation - main docs before the code
-
-=head1 NAME
-
-Bio::Coordinate::GeneMapper - transformations between gene related coordinate systems
+# ABSTRACT: Transformations between gene related coordinate systems.
+# AUTHOR:   Heikki Lehvaslaiho <heikki@bioperl.org>
+# OWNER:    Heikki Lehvaslaiho
+# LICENSE:  Perl_5
 
 =head1 SYNOPSIS
 
@@ -40,7 +38,6 @@ Bio::Coordinate::GeneMapper - transformations between gene related coordinate sy
 
   # map the location into output coordinates and get a new location object
   $newloc = $gene->map($loc);
-
 
 =head1 DESCRIPTION
 
@@ -81,7 +78,6 @@ between them:
                              |
                             chr (or entry)
 
-
 This structure is kept in the global variable $DAG which is a
 representation of a Directed Acyclic Graph. The path calculations
 traversing this graph are done in a helper class. See
@@ -99,73 +95,16 @@ starts counting backwards from -1 as the last nucleotide in the
 intron. This used when only exon and a few flanking intron nucleotides
 are known.
 
-
 This class models coordinates within one transcript of a gene, so to
 tackle multiple transcripts you need several instances of the
 class. It is therefore valid to argue that the name of the class
 should be TranscriptMapper. GeneMapper is a catchier name, so it
 stuck.
 
-
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to the
-Bioperl mailing lists  Your participation is much appreciated.
-
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
-
-=head2 Support
-
-Please direct usage questions or support issues to the mailing list:
-
-I<bioperl-l@bioperl.org>
-
-rather than to the module maintainer directly. Many experienced and
-reponsive experts will be able look at the problem and quickly
-address it. Please include a thorough description of the problem
-with code and data examples if at all possible.
-
-=head2 Reporting Bugs
-
-Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via the
-web:
-
-  https://redmine.open-bio.org/projects/bioperl/
-
-=head1 AUTHOR - Heikki Lehvaslaiho
-
-Email:  heikki-at-bioperl-dot-org
-
-=head1 APPENDIX
-
-The rest of the documentation details each of the object
-methods. Internal methods are usually preceded with a _
-
 =cut
 
-
-# Let the code begin...
-
-package Bio::Coordinate::GeneMapper;
 use vars qw(%COORDINATE_SYSTEMS %COORDINATE_INTS $TRANSLATION $DAG
             $NOZERO_VALUES $NOZERO_KEYS);
-use strict;
-
-# Object preamble - inherits from Bio::Root::Root
-
-use Bio::Coordinate::Result;
-use Bio::Location::Simple;
-use Bio::Coordinate::Graph;
-use Bio::Coordinate::Collection;
-use Bio::Coordinate::Pair;
-use Bio::Coordinate::ExtrapolatingPair;
-
-use base qw(Bio::Root::Root Bio::Coordinate::MapperI);
 
 # first set internal values for all translation tables
 
@@ -214,6 +153,8 @@ $DAG = {
 $NOZERO_VALUES = {0 => 0, 'in' => 1, 'out' => 2, 'in&out' => 3 };
 $NOZERO_KEYS = { 0 => 0, 1 => 'in', 2 => 'out', 3 => 'in&out' };
 
+=head2 new
+=cut
 
 sub new {
     my($class,@args) = @_;
@@ -273,7 +214,6 @@ sub in {
    return $COORDINATE_INTS{ $self->{'_in'} };
 }
 
-
 =head2 out
 
  Title   : out
@@ -318,7 +258,6 @@ sub strict {
    }
    return $self->{'_strict'} || 0 ;
 }
-
 
 =head2 nozero
 
@@ -452,7 +391,6 @@ sub peptide_offset {
 
 =cut
 
-
 sub peptide_length {
    my ($self, $len) = @_;
    if( defined $len) {
@@ -462,7 +400,6 @@ sub peptide_length {
    }
    return $self->{'_peptide_length'};
 }
-
 
 =head2 exons
 
@@ -722,7 +659,6 @@ sub exons {
 
 =cut
 
-
 sub _clone_loc { # clone a simple location
    my ($self,$loc) = @_;
 
@@ -738,7 +674,6 @@ sub _clone_loc { # clone a simple location
         -location_type => $loc->location_type
        );
 }
-
 
 =head2 cds
 
@@ -793,7 +728,6 @@ sub cds {
    }
    return $self->{'_cds'} || 0;
 }
-
 
 =head2 map
 
@@ -950,7 +884,6 @@ sub direction {
    return $self->{'_direction'};
 }
 
-
 =head2 swap
 
  Title   : swap
@@ -974,7 +907,6 @@ sub swap {
 
    return 1;
 }
-
 
 =head2 to_string
 
@@ -1027,7 +959,6 @@ sub to_string {
        $i++;
    }
 
-
    # gene-exon
    $mapper_str = 'gene-exon';
    $mapper = $self->_mapper_string2code($mapper_str);
@@ -1039,7 +970,6 @@ sub to_string {
        printf "%8s :%8s -> %-12s\n", '', $pair->in->end, $pair->out->end ;
        $i++;
    }
-
 
    # gene-cds
    $mapper_str = 'gene-cds';
@@ -1059,14 +989,11 @@ sub to_string {
    printf "\n     %-12s (%s)\n", $mapper_str, $mapper ;
    printf "%9s%-12s\n", "", '"translate"';
 
-
    # propeptide-peptide
    $mapper_str = 'propeptide-peptide';
    $mapper = $self->_mapper_string2code($mapper_str);
    printf "\n     %-12s (%s)\n", $mapper_str, $mapper ;
    printf "%16s%s: %s\n", ' ', "peptide offset", $self->peptide_offset;
-
-
 
    print "\nin : ", $self->in, "\n";
    print "out: ", $self->out, "\n";
@@ -1078,6 +1005,9 @@ sub to_string {
    1;
 }
 
+=head2 _mapper_code2string
+=cut
+
 sub _mapper_code2string {
     my ($self, $code) = @_;
     my ($a, $b) = $code =~ /(\d+)-(\d+)/;
@@ -1085,12 +1015,14 @@ sub _mapper_code2string {
 
 }
 
+=head2 _mapper_string2code
+=cut
+
 sub _mapper_string2code {
     my ($self, $string) =@_;
     my ($a, $b) = $string =~ /([^-]+)-(.*)/;
     return $COORDINATE_SYSTEMS{$a}. '-'.  $COORDINATE_SYSTEMS{$b};
 }
-
 
 =head2 _create_pair
 
@@ -1136,9 +1068,7 @@ sub _create_pair {
        );
 
    return $pair;
-
 }
-
 
 =head2 _translate
 
@@ -1186,6 +1116,9 @@ sub _translate {
    }
 }
 
+=head2 _frame
+=cut
+
 sub _frame {
    my ($self,$value) = @_;
 
@@ -1219,7 +1152,6 @@ sub _frame {
    }
 }
 
-
 =head2 _reverse_translate
 
  Title   : _reverse_translate
@@ -1236,7 +1168,6 @@ sub _frame {
 
 sub _reverse_translate {
    my ($self,$value) = @_;
-
 
    $self->throw("Need to pass me a Bio::Location::Simple or ".
                 "Bio::Location::SplitLocationI, not [". ref($value). "]")
@@ -1270,7 +1201,6 @@ sub _reverse_translate {
    }
 }
 
-
 =head2 _check_direction
 
  Title   : _check_direction
@@ -1296,7 +1226,6 @@ sub _check_direction {
    }
    1;
 }
-
 
 =head2 _get_path
 
@@ -1345,6 +1274,5 @@ sub _get_path {
 
    $reverse ? return reverse @mappers : return @mappers;
 }
-
 
 1;

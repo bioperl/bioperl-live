@@ -1,19 +1,15 @@
-#
-# bioperl module for Bio::Coordinate::Collection
-#
-# Please direct questions and support issues to <bioperl-l@bioperl.org>
-#
-# Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
-#
-# Copyright Heikki Lehvaslaiho
-#
-# You may distribute this module under the same terms as perl itself
+package Bio::Coordinate::Collection;
+use strict;
+use Bio::Coordinate::Result;
+use Bio::Coordinate::Result::Gap;
+use base qw(Bio::Root::Root Bio::Coordinate::MapperI);
 
-# POD documentation - main docs before the code
+# ABSTRACT: Noncontinuous match between two coordinate sets.
+# AUTHOR:   Heikki Lehvaslaiho <heikki@bioperl.org>
+# OWNER:    Heikki Lehvaslaiho
+# LICENSE:  Perl_5
 
-=head1 NAME
-
-Bio::Coordinate::Collection - Noncontinuous match between two coordinate sets
+# CONTRIBUTOR: Ewan Birney <birney@ebi.ac.uk>
 
 =head1 SYNOPSIS
 
@@ -52,65 +48,10 @@ To map coordinates to the other direction, you have to swap() the
 collection. Keeping track of the direction and ID restrictions
 are left to the calling code.
 
-
-
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to the
-Bioperl mailing lists  Your participation is much appreciated.
-
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
-
-=head2 Support
-
-Please direct usage questions or support issues to the mailing list:
-
-I<bioperl-l@bioperl.org>
-
-rather than to the module maintainer directly. Many experienced and
-reponsive experts will be able look at the problem and quickly
-address it. Please include a thorough description of the problem
-with code and data examples if at all possible.
-
-=head2 Reporting Bugs
-
-report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via the
-web:
-
-  https://redmine.open-bio.org/projects/bioperl/
-
-=head1 AUTHOR - Heikki Lehvaslaiho
-
-Email:  heikki-at-bioperl-dot-org
-
-=head1 CONTRIBUTORS
-
-Ewan Birney, birney@ebi.ac.uk
-
-=head1 APPENDIX
-
-The rest of the documentation details each of the object
-methods. Internal methods are usually preceded with a _
-
 =cut
 
-
-# Let the code begin...
-
-package Bio::Coordinate::Collection;
-use strict;
-
-# Object preamble - inherits from Bio::Root::Root
-use Bio::Coordinate::Result;
-use Bio::Coordinate::Result::Gap;
-
-use base qw(Bio::Root::Root Bio::Coordinate::MapperI);
-
+=head2 new
+=cut
 
 sub new {
     my($class,@args) = @_;
@@ -133,7 +74,6 @@ sub new {
     $return_match && $self->return_match('return_match');
     return $self; # success - we hope!
 }
-
 
 =head2 add_mapper
 
@@ -189,7 +129,6 @@ sub mappers{
         return @{$self->{'_mappers'}};
 }
 
-
 =head2 each_mapper
 
  Title   : each_mapper
@@ -216,14 +155,12 @@ sub each_mapper{
  Returns : integer
  Args    : none
 
-
 =cut
 
 sub mapper_count{
    my $self = shift;
    return scalar @{$self->{'_mappers'} || []};
 }
-
 
 =head2 swap
 
@@ -275,7 +212,6 @@ sub test {
    $res;
 }
 
-
 =head2 map
 
  Title   : map
@@ -300,7 +236,6 @@ sub map {
 
    $self->sort unless $self->_is_sorted;
 
-
    if ($value->isa("Bio::Location::SplitLocationI")) {
 
        my $result = Bio::Coordinate::Result->new();
@@ -316,9 +251,7 @@ sub map {
        return $self->_map($value);
    }
 
-
 }
-
 
 =head2 _map
 
@@ -375,7 +308,6 @@ IDMATCH: {
    }
    return $result;
 }
-
 
 =head2 sort
 

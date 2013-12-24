@@ -1,19 +1,14 @@
-#
-# bioperl module for Bio::Coordinate::Pair
-#
-# Please direct questions and support issues to <bioperl-l@bioperl.org>
-#
-# Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
-#
-# Copyright Heikki Lehvaslaiho
-#
-# You may distribute this module under the same terms as perl itself
+package Bio::Coordinate::Pair;
+use strict;
+use Bio::Coordinate::Result;
+use Bio::Coordinate::Result::Match;
+use Bio::Coordinate::Result::Gap;
+use base qw(Bio::Root::Root Bio::Coordinate::MapperI);
 
-# POD documentation - main docs before the code
-
-=head1 NAME
-
-Bio::Coordinate::Pair - Continuous match between two coordinate sets
+# ABSTRACT: Continuous match between two coordinate sets.
+# AUTHOR:   Heikki Lehvaslaiho <heikki@bioperl.org>
+# OWNER:    Heikki Lehvaslaiho
+# LICENSE:  Perl_5
 
 =head1 SYNOPSIS
 
@@ -43,7 +38,6 @@ Bio::Coordinate::Pair - Continuous match between two coordinate sets
   $res->match->strand == -1;
   $res->match->seq_id eq 'peptide';
 
-
 =head1 DESCRIPTION
 
 This class represents a one continuous match between two coordinate
@@ -56,60 +50,10 @@ The map() method returns Bio::Coordinate::Results with
 Bio::Coordinate::Result::Gaps. The calling code have to deal (process
 or ignore) them.
 
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to the
-Bioperl mailing lists  Your participation is much appreciated.
-
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
-
-=head2 Support
-
-Please direct usage questions or support issues to the mailing list:
-
-I<bioperl-l@bioperl.org>
-
-rather than to the module maintainer directly. Many experienced and
-reponsive experts will be able look at the problem and quickly
-address it. Please include a thorough description of the problem
-with code and data examples if at all possible.
-
-=head2 Reporting Bugs
-
-report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via the
-web:
-
-  https://redmine.open-bio.org/projects/bioperl/
-
-=head1 AUTHOR - Heikki Lehvaslaiho
-
-Email:  heikki-at-bioperl-dot-org
-
-=head1 APPENDIX
-
-The rest of the documentation details each of the object
-methods. Internal methods are usually preceded with a _
-
 =cut
 
-
-# Let the code begin...
-
-package Bio::Coordinate::Pair;
-use strict;
-
-# Object preamble - inherits from Bio::Root::Root
-use Bio::Coordinate::Result;
-use Bio::Coordinate::Result::Match;
-use Bio::Coordinate::Result::Gap;
-
-use base qw(Bio::Root::Root Bio::Coordinate::MapperI);
-
+=head2 new
+=cut
 
 sub new {
     my($class,@args) = @_;
@@ -117,7 +61,7 @@ sub new {
 
     my($in, $out) =
         $self->_rearrange([qw(IN
-                                                   OUT
+                              OUT
                              )],
                          @args);
 
@@ -168,7 +112,6 @@ sub out {
    }
    return $self->{'_out'};
 }
-
 
 =head2 swap
 
@@ -228,7 +171,6 @@ sub test {
    return ($self->in->end - $self->in->start) == ($self->out->end - $self->out->start);
 }
 
-
 =head2 map
 
  Title   : map
@@ -253,7 +195,6 @@ sub map {
    $self->throw("Output coordinate system not set")
        unless $self->out;
 
-
    if ($value->isa("Bio::Location::SplitLocationI")) {
 
        my $result = Bio::Coordinate::Result->new();
@@ -266,7 +207,6 @@ sub map {
        return $self->_map($value);
    }
 }
-
 
 =head2 _map
 
@@ -436,6 +376,5 @@ sub _map {
    }
    return $result;
 }
-
 
 1;

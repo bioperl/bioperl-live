@@ -1,26 +1,18 @@
-#
-# bioperl module for Bio::Coordinate::ExtrapolatingPair
-#
-# Please direct questions and support issues to <bioperl-l@bioperl.org>
-#
-# Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
-#
-# Copyright Heikki Lehvaslaiho
-#
-# You may distribute this module under the same terms as perl itself
+package Bio::Coordinate::ExtrapolatingPair;
+use strict;
+use Bio::Root::Root;
+use Bio::LocationI;
+use base qw(Bio::Coordinate::Pair);
 
-# POD documentation - main docs before the code
-
-=head1 NAME
-
-Bio::Coordinate::ExtrapolatingPair - Continuous match between two coordinate sets
+# ABSTRACT: Continuous match between two coordinate sets.
+# AUTHOR:   Heikki Lehvaslaiho <heikki@bioperl.org>
+# OWNER:    Heikki Lehvaslaiho
+# LICENSE:  Perl_5
 
 =head1 SYNOPSIS
 
-
   use Bio::Location::Simple;
   use Bio::Coordinate::ExtrapolatingPair;
-
 
   $match1 = Bio::Location::Simple->new
     (-seq_id => 'propeptide', -start => 21, -end => 40, -strand=>1 );
@@ -55,60 +47,10 @@ the chromosomal coordinate system and extends indefinetely in both
 directions. If you want to define the matching regions exactly, you
 can do that and set strict() to true.
 
-
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to the
-Bioperl mailing lists  Your participation is much appreciated.
-
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
-
-=head2 Support
-
-Please direct usage questions or support issues to the mailing list:
-
-I<bioperl-l@bioperl.org>
-
-rather than to the module maintainer directly. Many experienced and
-reponsive experts will be able look at the problem and quickly
-address it. Please include a thorough description of the problem
-with code and data examples if at all possible.
-
-=head2 Reporting Bugs
-
-report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via the
-web:
-
-  https://redmine.open-bio.org/projects/bioperl/
-
-=head1 AUTHOR - Heikki Lehvaslaiho
-
-Email:  heikki-at-bioperl-dot-org
-
-=head1 APPENDIX
-
-The rest of the documentation details each of the object
-methods. Internal methods are usually preceded with a _
-
 =cut
 
-
-# Let the code begin...
-
-package Bio::Coordinate::ExtrapolatingPair;
-use strict;
-
-# Object preamble - inherits from Bio::Root::Root
-use Bio::Root::Root;
-use Bio::LocationI;
-
-use base qw(Bio::Coordinate::Pair);
-
+=head2 new
+=cut
 
 sub new {
     my($class,@args) = @_;
@@ -122,7 +64,6 @@ sub new {
     $strict  && $self->strict($strict);
     return $self;
 }
-
 
 =head2 strict
 
@@ -142,7 +83,6 @@ sub strict {
    }
    return $self->{'_strict'};
 }
-
 
 =head2 map
 
@@ -189,7 +129,6 @@ sub map {
        return $self->_map($value);
    }
 }
-
 
 =head2 _map
 

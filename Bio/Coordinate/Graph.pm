@@ -1,19 +1,11 @@
-#
-# bioperl module for Bio::Coordinate::Graph
-#
-# Please direct questions and support issues to <bioperl-l@bioperl.org>
-#
-# Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
-#
-# Copyright Heikki Lehvaslaiho
-#
-# You may distribute this module under the same terms as perl itself
+package Bio::Coordinate::Graph;
+use strict;
+use base qw(Bio::Root::Root);
 
-# POD documentation - main docs before the code
-
-=head1 NAME
-
-Bio::Coordinate::Graph - Finds shortest path between nodes in a graph
+# ABSTRACT: Finds shortest path between nodes in a graph.
+# AUTHOR:   Heikki Lehvaslaiho <heikki@bioperl.org>
+# OWNER:    Heikki Lehvaslaiho
+# LICENSE:  Perl_5
 
 =head1 SYNOPSIS
 
@@ -41,7 +33,6 @@ Bio::Coordinate::Graph - Finds shortest path between nodes in a graph
   my $b = 6;
   my @path = $graph->shortest_paths($a);
   print join (", ", @path), "\n";
-
 
 =head1 DESCRIPTION
 
@@ -71,8 +62,7 @@ account if needed at some later time.
 The graph needs to be primed using a hash of hashes where there is a
 key for each node. The second keys are the names of the downstream
 neighboring nodes and values are the weights for reaching them. Here
-is part of the gene coordiante system graph::
-
+is part of the gene coordiante system graph:
 
     $hash = {
              '6' => undef,
@@ -93,7 +83,6 @@ is part of the gene coordiante system graph::
              '5' => undef
             };
 
-
 Note that the names need to be positive integers. Root should be '1'
 and directness of the graph is taken advantage of to speed
 calculations by assuming that downsream nodes always have larger
@@ -102,58 +91,10 @@ number as name.
 An alternative (shorter) way of describing input is to use hash of
 arrays. See L<Bio::Coordinate::Graph::hash_of_arrays>.
 
-
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to the
-Bioperl mailing lists  Your participation is much appreciated.
-
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
-
-=head2 Support
-
-Please direct usage questions or support issues to the mailing list:
-
-I<bioperl-l@bioperl.org>
-
-rather than to the module maintainer directly. Many experienced and
-reponsive experts will be able look at the problem and quickly
-address it. Please include a thorough description of the problem
-with code and data examples if at all possible.
-
-=head2 Reporting Bugs
-
-report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via the
-web:
-
-  https://redmine.open-bio.org/projects/bioperl/
-
-=head1 AUTHOR - Heikki Lehvaslaiho
-
-Email:  heikki-at-bioperl-dot-org
-
-=head1 APPENDIX
-
-The rest of the documentation details each of the object
-methods. Internal methods are usually preceded with a _
-
 =cut
 
-
-# Let the code begin...
-
-package Bio::Coordinate::Graph;
-use strict;
-
-# Object preamble - inherits from Bio::Root::Root
-
-use base qw(Bio::Root::Root);
-
+=head2 new
+=cut
 
 sub new {
     my($class,@args) = @_;
@@ -172,12 +113,7 @@ sub new {
     $self->{'_root'} = undef;
 
     return $self; # success - we hope!
-
 }
-
-=head2 Graph structure input methods
-
-=cut
 
 =head2 graph
 
@@ -207,7 +143,6 @@ sub graph {
   return $self->{'_dag'};
 
 }
-
 
 =head2 hash_of_arrays
 
@@ -260,10 +195,6 @@ sub hash_of_arrays {
 
 }
 
-=head2 Methods for determining the shortest path in the graph
-
-=cut
-
 =head2 shortest_path
 
  Title   : shortest_path
@@ -278,7 +209,6 @@ sub hash_of_arrays {
          : name of the end node
 
 =cut
-
 
 sub shortest_path {
     my ($self, $root, $end) = @_;
@@ -316,7 +246,6 @@ sub shortest_path {
     $reverse ? return reverse @res : return @res;
 }
 
-
 =head2 dijkstra
 
  Title   : dijkstra
@@ -344,8 +273,6 @@ sub shortest_path {
  Args    : name of the start node
 
 =cut
-
-#' keep emacs happy
 
 sub dijkstra {
     my ($self,$root) = @_;
@@ -403,6 +330,5 @@ sub dijkstra {
     }
     return $self->{'_paths'} = \%res;
 }
-
 
 1;
