@@ -135,12 +135,14 @@ sub map {
  Returns : boolean
  Args    :
 
+=cut
+
 =head2 sort
- 
+
 You do not really want to sort your chain, do you! This function does nothing
 other than a warning.
 =cut
- 
+
 sub sort{
    my ($self) = @_;
    $self->warn("You do not really want to sort your chain, do you!\nDoing nothing.");

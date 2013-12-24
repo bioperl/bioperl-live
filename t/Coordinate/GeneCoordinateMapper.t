@@ -558,7 +558,7 @@ sub read_gene_data {
             (-seq_id => 'gene', -start => $exon_start,
              -end => $exon_end, -strand=>$strand, -verbose=>2);
         push @exons, $exon;
-    }
+        }
 
     if ($cds_start > $cds_end) {
         ($cds_start, $cds_end) = ($cds_end, $cds_start);

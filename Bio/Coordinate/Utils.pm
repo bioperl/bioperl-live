@@ -40,6 +40,7 @@ L<Bio::PrimarySeq>, and L<Bio::Seq> for more.
 =cut
 
 =head2 new
+
 new() inherited from Root
 =cut
 

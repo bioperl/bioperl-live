@@ -343,7 +343,6 @@ sub peptide {
            unless defined $value->end;
        $self->{'_peptide_length'} = $value->end - $self->{'_peptide_offset'};
 
-
        my $a = $self->_create_pair
            ('propeptide', 'peptide', $self->strict,
             $self->{'_peptide_offset'}, $self->{'_peptide_length'} );
