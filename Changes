@@ -57,6 +57,12 @@ CPAN releases are branched from 'master'.
 
     * Bio::Seq::SimulatedRead
         - New module to represent reads taken from other sequences [fangly]
+    * Bio::Root::Root
+        - Support of Clone::Fast as a faster cloning alternative [fangly]
+    * Bio::Root::IO
+        - Moved the format() and variant() methods from Bio::*IO modules to
+          Bio::Root::IO [fangly]
+        - Can now use format() to get the type of IO format in use [fangly]
     * Bio::Tools::IUPAC
         - New regexp() method to create regular expressions from IUPAC sequences
           [fangly]
