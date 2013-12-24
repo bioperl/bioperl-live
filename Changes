@@ -17,6 +17,14 @@ Bugs and requested features list:
 CPAN releases are branched from 'master'.
 ---------------------------------------------------------
 
+1.6.924
+    
+    * Updated files from Bio-Root, Bio-Coordinate and Bio-SearchIO-blastxml
+      with the latest changes made in their own repositories [fjossandon]
+    * Fixed tests failing in Windows because of using Linux commands [fjossandon]
+    * Closed many open filehandles that prevented temporary files deletion [fjossandon]
+    * Fixed broken MeSH parser [fjossandon]
+
 1.6.923
     
     * Major Windows support updates! [fjossandon]
