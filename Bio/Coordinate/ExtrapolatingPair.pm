@@ -1,7 +1,7 @@
 #
 # bioperl module for Bio::Coordinate::ExtrapolatingPair
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 #
@@ -22,18 +22,18 @@ Bio::Coordinate::ExtrapolatingPair - Continuous match between two coordinate set
   use Bio::Coordinate::ExtrapolatingPair;
 
 
-  $match1 = Bio::Location::Simple->new 
+  $match1 = Bio::Location::Simple->new
     (-seq_id => 'propeptide', -start => 21, -end => 40, -strand=>1 );
   $match2 = Bio::Location::Simple->new
     (-seq_id => 'peptide', -start => 1, -end => 20, -strand=>1 );
 
   $pair = Bio::Coordinate::ExtrapolatingPair->
     new(-in => $match1,
-    	-out => $match2,
-    	-strict => 1
+        -out => $match2,
+        -strict => 1
        );
 
-  $pos = Bio::Location::Simple->new 
+  $pos = Bio::Location::Simple->new
       (-start => 40, -end => 60, -strand=> 1 );
   $res = $pair->map($pos);
   $res->start eq 20;
@@ -67,15 +67,15 @@ Bioperl mailing lists  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -115,9 +115,9 @@ sub new {
     my $self = $class->SUPER::new(@args);
 
     my($strict) =
-	$self->_rearrange([qw(STRICT
-			     )],
-			 @args);
+        $self->_rearrange([qw(STRICT
+                             )],
+                         @args);
 
     $strict  && $self->strict($strict);
     return $self;
@@ -230,11 +230,11 @@ sub _map {
 
    my $match = Bio::Location::Simple->
        new(-start => $start,
-	   -end => $end,
-	   -strand => $self->strand,
-	   -seq_id => $self->out->seq_id,
-	   -location_type => $value->location_type
-	  );
+           -end => $end,
+           -strand => $self->strand,
+           -seq_id => $self->out->seq_id,
+           -location_type => $value->location_type
+          );
    $match->strand($match->strand * $value->strand) if $value->strand;
    bless $match, 'Bio::Coordinate::Result::Match';
 

@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::Coordinate::Utils
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 #
@@ -24,8 +24,8 @@ Bio::Coordinate::Utils - Additional methods to create Bio::Coordinate objects
     $mapper = Bio::Coordinate::Utils->from_align($aln, 1);
 
     # Build a set of mappers which will map, for each sequence,
-    # that sequence position in the alignment (exon position to alignment 
-    # position) 
+    # that sequence position in the alignment (exon position to alignment
+    # position)
     my @mappers = Bio::Coordinate::Utils->from_seq_to_alignmentpos($aln);
 
 
@@ -50,15 +50,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -123,7 +123,7 @@ sub from_align {
 
    # default reference sequence to the first sequence
    $ref ||= 1;
-   
+
    my $collection = Bio::Coordinate::Collection->new(-return_match=>1);
 
    # this works only for pairs, so split the MSA
@@ -132,35 +132,35 @@ sub from_align {
    $aln->map_chars('\.','-');
    my $cs = $aln->gap_line;
    my $seq1 = $aln->get_seq_by_pos(1);
-   my $seq2 = $aln->get_seq_by_pos(2);   
+   my $seq2 = $aln->get_seq_by_pos(2);
    while ( $cs =~ /([^\-]+)/g) {
        # alignment coordinates
        my $lenmatch = length($1);
        my $start = pos($cs) - $lenmatch +1;
        my $end   = $start + $lenmatch -1;
        my $match1 = Bio::Location::Simple->new
-	   (-seq_id => $seq1->id,
-	    -start  => $seq1->location_from_column($start)->start,
-	    -end    => $seq1->location_from_column($end)->start,
-	    -strand => $seq1->strand );
+           (-seq_id => $seq1->id,
+            -start  => $seq1->location_from_column($start)->start,
+            -end    => $seq1->location_from_column($end)->start,
+            -strand => $seq1->strand );
 
        my $match2 = Bio::Location::Simple->new
-	   (-seq_id => $seq2->id,
-	    -start  => $seq2->location_from_column($start)->start,
-	    -end    => $seq2->location_from_column($end)->start,
-	    -strand => $seq2->strand );       
-       
+           (-seq_id => $seq2->id,
+            -start  => $seq2->location_from_column($start)->start,
+            -end    => $seq2->location_from_column($end)->start,
+            -strand => $seq2->strand );
+
        my $pair = Bio::Coordinate::Pair->new
-	   (-in  => $match1,
-	    -out => $match2
-	    );
+           (-in  => $match1,
+            -out => $match2
+            );
        unless( $pair->test ) {
-	   $self->warn(join("",
-			    "pair align did not pass test ($start..$end):\n",
-			    "\tm1=",$match1->to_FTstring(), " len=",
-			    $match1->length, 
-			    " m2=", $match2->to_FTstring()," len=", 
-			    $match2->length,"\n"));
+           $self->warn(join("",
+                            "pair align did not pass test ($start..$end):\n",
+                            "\tm1=",$match1->to_FTstring(), " len=",
+                            $match1->length,
+                            " m2=", $match2->to_FTstring()," len=",
+                            $match2->length,"\n"));
        }
        $collection->add_mapper($pair);
    }
@@ -178,7 +178,7 @@ sub from_align {
            The mapper will map the position of a sequence into that position
            in the alignment.
 
-           Will work on alignments of >= 2 sequences 
+           Will work on alignments of >= 2 sequences
  Returns : An array of Bio::Coordinate::MapperI
  Args    : Bio::Align::AlignI object
 
@@ -189,52 +189,52 @@ sub from_seq_to_alignmentpos {
     my ($self, $aln ) = @_;
 
     $aln->isa('Bio::Align::AlignI') ||
-	$self->throw('Not a Bio::Align::AlignI object but ['. ref($aln). ']');
+        $self->throw('Not a Bio::Align::AlignI object but ['. ref($aln). ']');
 
     # default reference sequence to the first sequence
     my @mappers;
     $aln->map_chars('\.','-');
-    for my $seq ( $aln->each_seq ) { 
-	my $collection = Bio::Coordinate::Collection->new(-return_match=>1);
-	my $cs = $seq->seq();
-	# do we change this over to use index and substr for speed?
-	while ( $cs =~ /([^\-]+)/g) {
-	    # alignment coordinates
-	    my $lenmatch = length($1);
-	    my $start = pos($cs) - $lenmatch +1;
-	    my $end   = $start + $lenmatch -1;
+    for my $seq ( $aln->each_seq ) {
+        my $collection = Bio::Coordinate::Collection->new(-return_match=>1);
+        my $cs = $seq->seq();
+        # do we change this over to use index and substr for speed?
+        while ( $cs =~ /([^\-]+)/g) {
+            # alignment coordinates
+            my $lenmatch = length($1);
+            my $start = pos($cs) - $lenmatch +1;
+            my $end   = $start + $lenmatch -1;
 
-	    my $match1 = Bio::Location::Simple->new
-		(-seq_id => $seq->id,
-		 -start  => $seq->location_from_column($start)->start,
-		 -end    => $seq->location_from_column($end)->start,
-		 -strand => $seq->strand );
+            my $match1 = Bio::Location::Simple->new
+                (-seq_id => $seq->id,
+                 -start  => $seq->location_from_column($start)->start,
+                 -end    => $seq->location_from_column($end)->start,
+                 -strand => $seq->strand );
 
-	    my $match2 = Bio::Location::Simple->new
-		(-seq_id => 'alignment',
-		 -start  => $start,
-		 -end    => $end,
-		 -strand => 0 );
+            my $match2 = Bio::Location::Simple->new
+                (-seq_id => 'alignment',
+                 -start  => $start,
+                 -end    => $end,
+                 -strand => 0 );
 
-	    my $pair = Bio::Coordinate::Pair->new
-		(-in  => $match1,
-		 -out => $match2
-		 );
-	    unless ( $pair->test ) {
-		$self->warn(join("",
-				 "pair align did not pass test ($start..$end):\n",
-				 "\tm1=",$match1->to_FTstring(), " len=",
-				 $match1->length, 
-				 " m2=", $match2->to_FTstring()," len=", 
-				 $match2->length,"\n"));
-	    }
-	    $collection->add_mapper($pair);
-	}
-	if( $collection->mapper_count == 1) {
-	    push @mappers, ($collection->each_mapper)[0];
-	} else { 
-	    push @mappers, $collection;
-	}
+            my $pair = Bio::Coordinate::Pair->new
+                (-in  => $match1,
+                 -out => $match2
+                 );
+            unless ( $pair->test ) {
+                $self->warn(join("",
+                                 "pair align did not pass test ($start..$end):\n",
+                                 "\tm1=",$match1->to_FTstring(), " len=",
+                                 $match1->length,
+                                 " m2=", $match2->to_FTstring()," len=",
+                                 $match2->length,"\n"));
+            }
+            $collection->add_mapper($pair);
+        }
+        if( $collection->mapper_count == 1) {
+            push @mappers, ($collection->each_mapper)[0];
+        } else {
+            push @mappers, $collection;
+        }
     }
     return @mappers;
 }

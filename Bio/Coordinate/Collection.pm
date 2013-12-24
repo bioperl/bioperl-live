@@ -119,13 +119,13 @@ sub new {
     $self->{'_mappers'} = [];
 
     my($in, $out, $strict, $mappers, $return_match) =
-	$self->_rearrange([qw(IN
+        $self->_rearrange([qw(IN
                               OUT
                               STRICT
                               MAPPERS
                               RETURN_MATCH
-			     )],
-			 @args);
+                             )],
+                         @args);
 
     $in  && $self->in($in);
     $out  && $self->out($out);
@@ -155,8 +155,8 @@ sub add_mapper {
 
   # test pair range lengths
   $self->warn("Coordinates in pair [". $value . ":" .
-	      $value->in->seq_id . "/". $value->out->seq_id .
-	      "] are not right.")
+              $value->in->seq_id . "/". $value->out->seq_id .
+              "] are not right.")
       unless $value->test;
 
   $self->_is_sorted(0);
@@ -175,18 +175,18 @@ sub add_mapper {
 =cut
 
 sub mappers{
-	my ($self,@args) = @_;
+        my ($self,@args) = @_;
 
-	if (@args) {
-		if (@args == 1 && ref $args[0] eq 'ARRAY') {
-			@args = @{$args[0]};
-		}
-		$self->throw("Is not a Bio::Coordinate::MapperI but a [$self]")
-			unless defined $args[0] && $args[0]->isa('Bio::Coordinate::MapperI');
-		push(@{$self->{'_mappers'}}, @args);
-	}
+        if (@args) {
+                if (@args == 1 && ref $args[0] eq 'ARRAY') {
+                        @args = @{$args[0]};
+                }
+                $self->throw("Is not a Bio::Coordinate::MapperI but a [$self]")
+                        unless defined $args[0] && $args[0]->isa('Bio::Coordinate::MapperI');
+                push(@{$self->{'_mappers'}}, @args);
+        }
 
-	return @{$self->{'_mappers'}};
+        return @{$self->{'_mappers'}};
 }
 
 
@@ -266,10 +266,10 @@ sub test {
 
    foreach my $mapper ($self->each_mapper) {
        unless( $mapper->test ) {
-	   $self->warn("Coordinates in pair [". $mapper . ":" .
-		       $mapper->in->seq_id . "/". $mapper->out->seq_id .
-		       "] are not right.");
-	   $res = 0;
+           $self->warn("Coordinates in pair [". $mapper . ":" .
+                       $mapper->in->seq_id . "/". $mapper->out->seq_id .
+                       "] are not right.");
+           $res = 0;
        }
    }
    $res;
@@ -343,20 +343,20 @@ IDMATCH: {
        # bail out now we if are forcing the use of an ID
        # and it is not in this collection
        last IDMATCH if defined $value->seq_id &&
-	   ! $self->{'_in_ids'}->{$value->seq_id};
+           ! $self->{'_in_ids'}->{$value->seq_id};
 
        foreach my $pair ($self->each_mapper) {
 
-	   # if we are limiting input to a certain ID
-	   next if defined $value->seq_id && $value->seq_id ne $pair->in->seq_id;
+           # if we are limiting input to a certain ID
+           next if defined $value->seq_id && $value->seq_id ne $pair->in->seq_id;
 
-	   # if we haven't even reached the start, move on
-	   next if $pair->in->end < $value->start;
-	   # if we have over run, break
-	   last if $pair->in->start > $value->end;
+           # if we haven't even reached the start, move on
+           next if $pair->in->end < $value->start;
+           # if we have over run, break
+           last if $pair->in->start > $value->end;
 
-	   my $subres = $pair->map($value);
-	   $result->add_result($subres);
+           my $subres = $pair->map($value);
+           $result->add_result($subres);
        }
    }
 
@@ -364,10 +364,10 @@ IDMATCH: {
    unless ($result->each_Location) {
        #build one gap;
        my $gap = Bio::Location::Simple->new(-start => $value->start,
-					    -end => $value->end,
-					    -strand => $value->strand,
-					    -location_type => $value->location_type
-					   );
+                                            -end => $value->end,
+                                            -strand => $value->strand,
+                                            -location_type => $value->location_type
+                                           );
        $gap->seq_id($value->seq_id) if defined $value->seq_id;
        bless $gap, 'Bio::Coordinate::Result::Gap';
        $result->seq_id($value->seq_id) if defined $value->seq_id;

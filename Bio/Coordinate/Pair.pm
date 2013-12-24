@@ -1,7 +1,7 @@
 #
 # bioperl module for Bio::Coordinate::Pair
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 #
@@ -20,15 +20,15 @@ Bio::Coordinate::Pair - Continuous match between two coordinate sets
   use Bio::Location::Simple;
   use Bio::Coordinate::Pair;
 
-  my $match1 = Bio::Location::Simple->new 
+  my $match1 = Bio::Location::Simple->new
       (-seq_id => 'propeptide', -start => 21, -end => 40, -strand=>1 );
   my $match2 = Bio::Location::Simple->new
       (-seq_id => 'peptide', -start => 1, -end => 20, -strand=>1 );
   my $pair = Bio::Coordinate::Pair->new(-in => $match1,
-  					-out => $match2
+                                        -out => $match2
                                         );
   # location to match
-  $pos = Bio::Location::Simple->new 
+  $pos = Bio::Location::Simple->new
       (-start => 25, -end => 25, -strand=> -1 );
 
   # results are in a Bio::Coordinate::Result
@@ -67,15 +67,15 @@ Bioperl mailing lists  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -116,10 +116,10 @@ sub new {
     my $self = $class->SUPER::new(@args);
 
     my($in, $out) =
-	$self->_rearrange([qw(IN
-                              OUT
-			     )],
-			 @args);
+        $self->_rearrange([qw(IN
+                                                   OUT
+                             )],
+                         @args);
 
     $in  && $self->in($in);
     $out  && $self->out($out);
@@ -141,7 +141,7 @@ sub in {
    my ($self,$value) = @_;
    if( defined $value) {
        $self->throw("Not a valid input Bio::Location [$value] ")
-	   unless $value->isa('Bio::LocationI');
+           unless $value->isa('Bio::LocationI');
        $self->{'_in'} = $value;
    }
    return $self->{'_in'};
@@ -163,7 +163,7 @@ sub out {
    my ($self,$value) = @_;
    if( defined $value) {
        $self->throw("Not a valid output coordinate Bio::Location [$value] ")
-	   unless $value->isa('Bio::LocationI');
+           unless $value->isa('Bio::LocationI');
        $self->{'_out'} = $value;
    }
    return $self->{'_out'};
@@ -177,7 +177,7 @@ sub out {
  Function: Swap the direction of mapping; input <-> output
  Example :
  Returns : 1
- Args    : 
+ Args    :
 
 =cut
 
@@ -289,7 +289,7 @@ sub _map {
    my $offset = $self->in->start - $self->out->start;
    my $start  = $value->start - $offset;
    my $end    = $value->end - $offset;
-   
+
    my $match = Bio::Location::Simple->new;
    $match->location_type($value->location_type);
    $match->strand($self->strand);
@@ -303,15 +303,15 @@ sub _map {
        $result->seq_id($self->out->seq_id);
 
        if ($self->strand >= 0) {
-	   $match->start($start);
-	   $match->end($end);
+           $match->start($start);
+           $match->end($end);
        } else {
-	   $match->start($self->out->end - $end + $self->out->start);
-	   $match->end($self->out->end - $start + $self->out->start);
+           $match->start($self->out->end - $end + $self->out->start);
+           $match->end($self->out->end - $start + $self->out->start);
        }
        if ($value->strand) {
-	   $match->strand($match->strand * $value->strand);
-	   $result->strand($match->strand);
+           $match->strand($match->strand * $value->strand);
+           $result->strand($match->strand);
        }
        bless $match, 'Bio::Coordinate::Result::Match';
        $result->add_sub_Location($match);
@@ -320,9 +320,9 @@ sub _map {
    #       |-------------------------|
    #   |-|              or              |-|
    elsif ( ($end < $self->out->start or $start > $self->out->end ) or
-	   #insertions just outside the range need special settings
-	   ($value->location_type eq 'IN-BETWEEN' and 
-	    ($end = $self->out->start or $start = $self->out->end)))  {
+           #insertions just outside the range need special settings
+           ($value->location_type eq 'IN-BETWEEN' and
+            ($end = $self->out->start or $start = $self->out->end)))  {
 
        $match->seq_id($self->in->seq_id);
        $result->seq_id($self->in->seq_id);
@@ -340,8 +340,8 @@ sub _map {
 
        $result->seq_id($self->out->seq_id);
        if ($value->strand) {
-	   $match->strand($match->strand * $value->strand);
-	   $result->strand($match->strand);
+           $match->strand($match->strand * $value->strand);
+           $result->strand($match->strand);
        }
        my $gap = Bio::Location::Simple->new;
        $gap->start($value->start);
@@ -356,11 +356,11 @@ sub _map {
        $match->seq_id($self->out->seq_id);
 
        if ($self->strand >= 0) {
-	   $match->start($self->out->start);
-	   $match->end($end);
+           $match->start($self->out->start);
+           $match->end($end);
        } else {
-	   $match->start($self->out->end - $end + $self->out->start);
-	   $match->end($self->out->end);
+           $match->start($self->out->end - $end + $self->out->start);
+           $match->end($self->out->end);
        }
        bless $match, 'Bio::Coordinate::Result::Match';
        $result->add_sub_Location($match);
@@ -373,15 +373,15 @@ sub _map {
        $match->seq_id($self->out->seq_id);
        $result->seq_id($self->out->seq_id);
        if ($value->strand) {
-	   $match->strand($match->strand * $value->strand);
-	   $result->strand($match->strand);
+           $match->strand($match->strand * $value->strand);
+           $result->strand($match->strand);
        }
        if ($self->strand >= 0) {
-	   $match->start($start);
-	   $match->end($self->out->end);
+           $match->start($start);
+           $match->end($self->out->end);
        } else {
-	   $match->start($self->out->start);
-	   $match->end($self->out->end - $start + $self->out->start);
+           $match->start($self->out->start);
+           $match->end($self->out->end - $start + $self->out->start);
        }
        bless $match, 'Bio::Coordinate::Result::Match';
        $result->add_sub_Location($match);
@@ -402,8 +402,8 @@ sub _map {
 
        $result->seq_id($self->out->seq_id);
        if ($value->strand) {
-	   $match->strand($match->strand * $value->strand);
-	   $result->strand($match->strand);
+           $match->strand($match->strand * $value->strand);
+           $result->strand($match->strand);
        }
        # gap1
        my $gap1 = Bio::Location::Simple->new;

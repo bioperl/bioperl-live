@@ -1,7 +1,7 @@
 #
 # bioperl module for Bio::Coordinate::Result
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 #
@@ -43,15 +43,15 @@ Bioperl mailing lists  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -87,11 +87,11 @@ use base qw(Bio::Location::Split Bio::Coordinate::ResultI);
 
  Title   : add_sub_Location
  Usage   : $obj->add_sub_Location($variant)
- Function: 
+ Function:
 
            Pushes one Bio::LocationI into the list of variants.
 
- Example : 
+ Example :
  Returns : 1 when succeeds
  Args    : Location object
 
@@ -121,7 +121,7 @@ sub add_sub_Location {
  Title   : add_result
  Usage   : $obj->add_result($result)
  Function: Adds the contents of one Bio::Coordinate::Result
- Example : 
+ Example :
  Returns : 1 when succeeds
  Args    : Result object
 
@@ -156,9 +156,9 @@ sub seq_id {
 
     my @ls = $self->each_Location;
     if (@ls) {
-	return $ls[0]->seq_id;
+        return $ls[0]->seq_id;
     } else {
-	return;
+        return;
     }
 }
 
@@ -173,7 +173,7 @@ These methods are shortcuts to Match and Gap locations.
 
  Title   : each_gap
  Usage   : $obj->each_gap();
- Function: 
+ Function:
 
             Returns a list of Bio::Coordianate::Result::Gap objects.
 
@@ -198,7 +198,7 @@ sub each_gap {
 
  Title   : each_match
  Usage   : $obj->each_match();
- Function: 
+ Function:
 
             Returns a list of Bio::Coordinate::Result::Match objects.
 
@@ -224,7 +224,7 @@ sub each_match {
            $gstart = $obj->gap->start;
  Function: Read only method for retrieving or accessing the match object.
  Returns : one Bio::Coordinate::Result::Match
- Args    : 
+ Args    :
 
 =cut
 
@@ -247,7 +247,7 @@ sub match {
            $gstart = $obj->gap->start;
  Function: Read only method for retrieving or accessing the gap object.
  Returns : one Bio::Coordinate::Result::Gap
- Args    : 
+ Args    :
 
 =cut
 
@@ -270,7 +270,7 @@ sub gap {
  Usage   : $gap_count = $obj->purge_gaps;
  Function: remove all gaps from the Result
  Returns : count of removed gaps
- Args    : 
+ Args    :
 
 =cut
 

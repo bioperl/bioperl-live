@@ -1,7 +1,7 @@
 #
 # bioperl module for Bio::Coordinate::Chain
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 #
@@ -64,15 +64,15 @@ Bioperl mailing lists  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -126,19 +126,19 @@ sub map {
     my ($self,$value) = @_;
 
     $self->throw("Need to pass me a value.")
-	unless defined $value;
+        unless defined $value;
     $self->throw("I need a Bio::Location, not [$value]")
-	unless $value->isa('Bio::LocationI');
+        unless $value->isa('Bio::LocationI');
     $self->throw("No coordinate mappers!")
-	unless $self->each_mapper;
+        unless $self->each_mapper;
 
     my $res = Bio::Coordinate::Result->new();
 
     foreach my $mapper ($self->each_mapper) {
 
-	my $res = $mapper->map($value);
-	return unless $res->each_match;
-	$value = $res->match;
+        my $res = $mapper->map($value);
+        return unless $res->each_match;
+        $value = $res->match;
     }
 
    return $value;
@@ -155,7 +155,7 @@ sub map {
  Usage   : $obj->add_mapper($mapper)
  Function: Pushes one Bio::Coodinate::MapperI into the list of mappers.
            Sets _is_sorted() to false.
- Example : 
+ Example :
  Returns : 1 when succeeds, 0 for failure.
  Args    : mapper object
 
@@ -166,7 +166,7 @@ sub map {
  Title   : mappers
  Usage   : $obj->mappers();
  Function: Returns or sets a list of mappers.
- Example : 
+ Example :
  Returns : array of mappers
  Args    : array of mappers
 
@@ -177,7 +177,7 @@ sub map {
  Title   : each_mapper
  Usage   : $obj->each_mapper();
  Function: Returns a list of mappers.
- Example : 
+ Example :
  Returns : array of mappers
  Args    : none
 
@@ -190,7 +190,7 @@ sub map {
  Function: Swap the direction of mapping;input <-> output
  Example :
  Returns : 1
- Args    : 
+ Args    :
 
 =cut
 
@@ -214,4 +214,3 @@ sub sort{
 }
 
 1;
-
