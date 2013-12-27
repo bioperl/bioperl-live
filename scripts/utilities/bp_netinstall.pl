@@ -268,7 +268,8 @@ CPAN::Shell->install('Bio::Graphics');
 exit 0;
 
 END {
-  open STDERR,">/dev/null"; # windows has an annoying message when cleaning up temp file
+  my $null = ($^O =~ m/mswin/i) ? 'NUL' : '/dev/null';
+  open STDERR,">$null"; # windows has an annoying message when cleaning up temp file
 }
 
 sub do_install {
@@ -424,4 +425,3 @@ sub find_bioperl_ppm {
   print STDERR $blessed_version ? "found $blessed_version\n" : "not found\n";
   return $blessed_one;
 }
-

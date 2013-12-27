@@ -873,10 +873,12 @@ sub _checkfeatureproximity {
 
 sub _get_alignment {
   my ($self,$seq1,$seq2)=@_;
+
+  my $null = ($^O =~ m/mswin/i) ? 'NUL' : '/dev/null';
   my $fastafile1="/tmp/tmpfastafile1";
   my $fastafile2="/tmp/tmpfastafile2";
   my $grepcut='egrep -v "[[:digit:]]|^ *$|sequences" | cut -c8-'; # grep/cut
-  my $alignprogram="/usr/local/etc/bioinfo/fasta2/align -s /usr/local/etc/bioinfo/fasta2/idnaa.mat $fastafile1 $fastafile2 2>/dev/null | $grepcut"; # ALIGN
+  my $alignprogram="/usr/local/etc/bioinfo/fasta2/align -s /usr/local/etc/bioinfo/fasta2/idnaa.mat $fastafile1 $fastafile2 2>$null | $grepcut"; # ALIGN
   open my $TMPFASTAFILE1,">$fastafile1" || croak "Cannot write into $fastafile1 for aa alignment";
   open my $TMPFASTAFILE2,">$fastafile2" || croak "Cannot write into $fastafile1 for aa alignment";
   print $TMPFASTAFILE1 ">firstseq\n$seq1\n";
