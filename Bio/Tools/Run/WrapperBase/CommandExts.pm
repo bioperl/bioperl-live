@@ -972,6 +972,11 @@ sub _run {
     # Get program executable
     my $exe = $self->executable;
     $self->throw("Can't find executable for '".($self->is_pseudo ? $self->command : $self->program_name)."'; can't continue") unless $exe;
+    # Use double quotes if executable path have empty spaces
+    if ($exe =~ m/ /) {
+        $exe = "\"$exe\"";
+    }
+
     # Get command-line options
     my $options = $self->_translate_params();
     # Get file specs sans redirects in correct order
