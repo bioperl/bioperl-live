@@ -4,13 +4,13 @@
 use strict;
 
 BEGIN {
-	use lib '.';
-	use Bio::Root::Test;
-	
-	test_begin(-tests => 1422,
-			   -requires_module => 'Bio::ASN1::EntrezGene');
-	
-	use_ok('Bio::SeqIO::entrezgene');
+    use lib '.';
+    use Bio::Root::Test;
+
+    test_begin(-tests => 1427,
+               -requires_module => 'Bio::ASN1::EntrezGene');
+
+    use_ok('Bio::SeqIO::entrezgene');
 }
 
 my @species=('Homo sapiens','Mus musculus', 'Caenorhabditis elegans');
@@ -492,7 +492,7 @@ my @llsp =('OFFICIAL_GENE_NAME','CHR','MAP','OFFICIAL_SYMBOL');
 ok my $eio_b=Bio::SeqIO->new(-file=>test_input_file('entrezgene.dat'),-format=>'entrezgene', -debug=>'on',-service_record=>'yes',-locuslink=>'convert');
 my $loop_count = 0;
 while (my $seq=$eio_b->next_seq) {
-	$loop_count++;
+    $loop_count++;
     ok $seq;
     my $acc=$seq->accession_number;
     is grep(/\b$acc\b/,@ids),1;
@@ -504,3 +504,19 @@ while (my $seq=$eio_b->next_seq) {
     }
 }
 is $loop_count, 4, "correct number of loops for T18";
+
+# Test for Bug #3453
+ok my $eio_c = Bio::SeqIO->new(-format => 'entrezgene',
+                               -file   => test_input_file('entrezgene_bug3453.dat') );
+my $entry = 0;
+while ( my ( $gene, $genestructure, $uncaptured ) = $eio_c->next_seq ) {
+    $entry++;
+    if ($entry == 1) {
+        is $gene->accession_number, 3581;
+        is scalar @{ $uncaptured }, 55;
+    }
+    elsif ($entry == 2) {
+        is $gene->accession_number, 56111;
+        is scalar @{ $uncaptured }, 32;
+    }
+}
