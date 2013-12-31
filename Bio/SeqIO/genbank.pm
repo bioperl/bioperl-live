@@ -1130,6 +1130,8 @@ sub write_seq {
 	    $self->_write_line_GenBank_regex("COMMENT     "," "x12,
 					     $comment->text,"\\s\+\|\$",80);
 	}
+
+    # FEATURES section
 	$self->_print("FEATURES             Location/Qualifiers\n");
 
 	if( defined $self->_post_sort ) {
@@ -1139,27 +1141,27 @@ sub write_seq {
 	    my @fth;
 
 	    foreach my $sf ( $seq->top_SeqFeatures ) {
-		push(@fth,Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq));
+		  push(@fth,Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq));
 	    }
 
 	    @fth = sort { &$post_sort_func($a,$b) } @fth;
 
 	    foreach my $fth ( @fth ) {
-		$self->_print_GenBank_FTHelper($fth);
+		  $self->_print_GenBank_FTHelper($fth);
 	    }
 	} else {
 	    # not post sorted. And so we can print as we get them.
 	    # lower memory load...
 
 	    foreach my $sf ( $seq->top_SeqFeatures ) {
-		my @fth = Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq);
-		foreach my $fth ( @fth ) {
-		    if( ! $fth->isa('Bio::SeqIO::FTHelper') ) {
-			$sf->throw("Cannot process FTHelper... $fth");
-		    }
-		    $self->_print_GenBank_FTHelper($fth);
-		}
-	    }
+		  my @fth = Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq);
+		  foreach my $fth ( @fth ) {
+		      if( ! $fth->isa('Bio::SeqIO::FTHelper') ) {
+		          $sf->throw("Cannot process FTHelper... $fth");
+		      }
+		      $self->_print_GenBank_FTHelper($fth);
+		  }
+	   }
 	}
 
 	# deal with WGS; WGS_SCAFLD present only if WGS is also present
@@ -1246,45 +1248,61 @@ sub write_seq {
  Returns :
  Args    :
 
-
 =cut
 
 sub _print_GenBank_FTHelper {
-    my ($self,$fth) = @_;
+    my ( $self, $fth ) = @_;
 
-    if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
-	$fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
+    if ( !ref $fth || !$fth->isa('Bio::SeqIO::FTHelper') ) {
+        $fth->warn(
+            "$fth is not a FTHelper class. Attempting to print but there could be issues"
+        );
     }
-    my $spacer = (length $fth->key >= 15) ? ' ' : '';
-    $self->_write_line_GenBank_regex(sprintf("     %-16s%s",$fth->key,$spacer),
-				     " "x21,
-				     $fth->loc,"\,\|\$",80);
-    foreach my $tag ( keys %{$fth->field} ) {
-	foreach my $value ( @{$fth->field->{$tag}} ) {
-	    $value =~ s/\"/\"\"/g;
-	    if ($value eq "_no_value") {
-		$self->_write_line_GenBank_regex(" "x21,
-						 " "x21,
-						 "/$tag","\.\|\$",80);
-	    }
-	    # there are almost 3x more quoted qualifier values and they
-	    # are more common too so we take quoted ones first
-            #
-            # Long qualifiers, that will be line wrapped, are always quoted
-	    elsif (!$FTQUAL_NO_QUOTE{$tag} or length("/$tag=$value") >= $FTQUAL_LINE_LENGTH) {
-		my ($pat) = ($value =~ /\s/ ? '\s|$' : '.|$');
-		$self->_write_line_GenBank_regex(" "x21,
-						 " "x21,
-						 "/$tag=\"$value\"",$pat,80);
 
-	    } else {
-		$self->_write_line_GenBank_regex(" "x21,
-						 " "x21,
-						 "/$tag=$value","\.\|\$",80);
-	    }
-	}
+    my $spacer = ( length $fth->key >= 15 ) ? ' ' : '';
+    $self->_write_line_GenBank_regex(
+        sprintf( "     %-16s%s", $fth->key, $spacer ),
+        " " x 21, $fth->loc, "\,\|\$", 80 );
+
+    foreach my $tag ( keys %{ $fth->field } ) {
+        # Account for hash structure in Annotation::DBLink, not the expected array
+        if ( $tag eq 'db_xref' && grep /HASH/, @{ $fth->field->{$tag} }) {
+            for my $ref ( @{ $fth->field->{$tag} } ) {
+                my $db = $ref->{'database'};
+                my $id = $ref->{'primary_id'};
+                $self->_write_line_GenBank_regex( " " x 21, " " x 21,
+                        "/$tag=\"$db:$id\"", "\.\|\$", 80 );
+            }
+        }
+        # The usual case, where all values are found in an array
+        else {
+            foreach my $value ( @{ $fth->field->{$tag} } ) {
+                $value =~ s/\"/\"\"/g;
+                if ( $value eq "_no_value" ) {
+                    $self->_write_line_GenBank_regex( " " x 21, " " x 21,
+                        "/$tag", "\.\|\$", 80 );
+                }
+
+               # There are almost 3x more quoted qualifier values and they
+               # are more common too so we take quoted ones first.
+               # Long qualifiers, that will be line wrapped, are always quoted
+                elsif ( !$FTQUAL_NO_QUOTE{$tag}
+                    or length("/$tag=$value") >= $FTQUAL_LINE_LENGTH )
+                {
+                    my ($pat) = ( $value =~ /\s/ ? '\s|$' : '.|$' );
+                    $self->_write_line_GenBank_regex( " " x 21, " " x 21,
+                        "/$tag=\"$value\"", $pat, 80 );
+
+                }
+                else {
+                    $self->_write_line_GenBank_regex( " " x 21, " " x 21,
+                        "/$tag=$value", "\.\|\$", 80 );
+                }
+            }
+        }
     }
 }
+
 
 =head2 _read_GenBank_References
 
@@ -1422,18 +1440,19 @@ sub _read_GenBank_References {
     return @refs;
 }
 
-#
-# This is undocumented as it shouldn't be called by anywhere else as
-# read_GenBank_References. For those who still want to know:
-#
-# Purpose: adds a Reference object to an array of Reference objects, takes
-#     care of possible cleanups to be done (currently, only author and title
-#     will be chopped of trailing semicolons).
-# Parameters:
-#     a reference to an array of Reference objects
-#     the Reference object to be added
-# Returns: nothing
-#
+=head2 _add_ref_to_array
+
+Title: _add_ref_to_array
+Usage: 
+Function: Adds a Reference object to an array of Reference objects, takes
+          care of possible cleanups to be done (currently, only author and title
+          will be chopped of trailing semicolons).
+Args:     A reference to an array of Reference objects and
+          the Reference object to be added
+Returns: nothing
+
+=cut
+
 sub _add_ref_to_array {
     my ($self, $refs, $ref) = @_;
 
