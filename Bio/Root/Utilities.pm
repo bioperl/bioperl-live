@@ -101,7 +101,7 @@ $DEFAULT_CENTURY = $BASE_YEAR + 100;
 # The first executable in this list to be found in the current PATH will be used,
 # unless overridden in the call to that function. See docs for details.
 @COMPRESSION_UTILS = qw(gzip bzip2 zip compress);
-@UNCOMPRESSION_UTILS = qw(gunzip bunzip2 unzip uncompress);
+@UNCOMPRESSION_UTILS = qw(gunzip gzip bunzip2 unzip uncompress);
 
 # Default person to receive feedback from users and possibly automatic error messages.
 $AUTHORITY = '';
@@ -396,6 +396,11 @@ sub compress {
             $compressed .= '.tmp.bioperl.gz';
         }
 
+        # Use double quotes if executable path have empty spaces
+        if ($exe =~ m/ /) {
+            $exe = "\"$exe\"";
+        }
+
         if ($exe =~ /gzip|bzip2|compress/) {
             @cmd = ("$exe -f < \"$fileName\" > \"$compressed\"");
         } elsif ($exe eq 'zip') {
@@ -517,8 +522,15 @@ sub uncompress {
             $uncompressed .= '.tmp.bioperl';
         }
 
+        # Use double quotes if executable path have empty spaces
+        if ($exe =~ m/ /) {
+            $exe = "\"$exe\"";
+        }
+
         if ($exe =~ /gunzip|bunzip2|uncompress/) {
             @cmd = ("$exe -f < \"$fileName\" > \"$uncompressed\"");
+        } elsif ($exe =~ /gzip/) {
+            @cmd = ("$exe -df < \"$fileName\" > \"$uncompressed\"");
         } elsif ($exe eq 'unzip') {
             @cmd = ("$exe -p \"$fileName\" > \"$uncompressed\"");
         }
@@ -528,6 +540,8 @@ sub uncompress {
     } else {
         if ($exe =~ /gunzip|bunzip2|uncompress/) {
             @cmd = ($exe, '-f', $fileName);
+        } elsif ($exe =~ /gzip/) {
+            @cmd = ($exe, '-df', $fileName);
         } elsif ($exe eq 'zip') {
             @cmd = ($exe, $fileName);
         }
@@ -1184,12 +1198,22 @@ See Also   :
 
 sub find_exe {
     my ($self, $name) = @_;
-    my @bindirs = split (':', $ENV{'PATH'});
+    my @bindirs;
+    if ($^O =~ m/mswin/i) {
+        @bindirs = split ';', $ENV{'PATH'};
+        # Add usual executable extension if missing or -x won't work
+        $name.= '.exe' if ($name !~ m/\.exe$/i);
+    }
+    else {
+        @bindirs = split ':', $ENV{'PATH'};
+    }
     my $exe = $name;
     unless (-x $exe) {
         undef $exe;
         my @exes;
         foreach my $d (@bindirs) {
+            # Note: Windows also understand '/' as folder separator,
+            # so there is no need to use a conditional with '\'
             push(@exes, "$d/$name") if -x "$d/$name";
         }
         if (scalar @exes) {

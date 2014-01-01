@@ -80,6 +80,12 @@ SKIP: {
 
     # test compression/decompression of a simple file
     my $zfile = $u->compress($file);
+
+    # In Windows, the folder separator '\' may brake
+    # the following qr{}, so change it to '/'
+    $zfile =~ s'\\'/'g;
+    $file  =~ s'\\'/'g;
+
     like $zfile, qr/$file.gz|tmp.bioperl.gz/;
     ok -s $zfile;
     if ($zfile =~ /tmp.bioperl.gz/) {
