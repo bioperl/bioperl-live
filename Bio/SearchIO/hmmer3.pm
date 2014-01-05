@@ -126,6 +126,7 @@ BEGIN {
         'Hsp_qseq'         => 'HSP-query_seq',
         'Hsp_hseq'         => 'HSP-hit_seq',
         'Hsp_midline'      => 'HSP-homology_seq',
+        'Hsp_pline'        => 'HSP-pp_seq',
         'Hsp_align-len'    => 'HSP-hsp_length',
         'Hsp_query-frame'  => 'HSP-query_frame',
         'Hsp_hit-frame'    => 'HSP-hit_frame',
@@ -437,8 +438,8 @@ sub next_result {
                     if ( $_ =~ m/^\>\>\s(.*?)\s+/ ) {
                         $name = $1;
 
-                        # Skip hits below inclusion threshold
-                        next if ( $hitinfo{$name} eq "below_inclusion" );
+                        # Do not skip hits below inclusion threshold - leave it to the user to decide
+                        #next if ( $hitinfo{$name} eq "below_inclusion" );
                         $domaincounter{$name} = 0;
 
                         while ( defined( $_ = $self->_readline ) ) {
@@ -488,7 +489,7 @@ sub next_result {
                                     $qalistart, $qalistop,
                                     $score,     $ceval,
                                     '',         '',
-                                    ''
+                                    '',         ''
                                 );
                                 my $info = $hit_list[ $hitinfo{$name} ];
                                 if ( !defined $info ) {
@@ -519,7 +520,7 @@ sub next_result {
                         my $max_count = 3;
                         my $lastdomain;
                         my $hsp;
-                        my ( $hline, $midline, $qline );
+                        my ( $hline, $midline, $qline, $pline );
 
                         while ( defined( $_ = $self->_readline ) ) {
                             if (   $_ =~ m/^\>\>/
@@ -528,8 +529,7 @@ sub next_result {
                                 $self->_pushback($_);
                                 last;
                             }
-                            elsif ($hitinfo{$name} eq "below_inclusion"
-                                || $_ =~ m/^$/ )
+                            elsif ($_ =~ m/^$/ )
                             {
                                 next;
                             }
@@ -538,9 +538,10 @@ sub next_result {
                                 $count = 0;
                                 my $key = $name . "_" . $domainnum;
                                 $hsp        = $hsp_list[ $hspinfo{$key} ];
-                                $hline      = $$hsp[-3];
-                                $midline    = $$hsp[-2];
-                                $qline      = $$hsp[-1];
+                                $hline      = $$hsp[-4];
+                                $midline    = $$hsp[-3];
+                                $qline      = $$hsp[-2];
+                                $pline      = $$hsp[-1];
                                 $lastdomain = $name;
                             }
 
@@ -555,8 +556,7 @@ sub next_result {
 
                                 # hit sequence
                                 my @data = split( " ", $_ );
-                                my $seq = $data[-2];
-                                $hline .= $seq;
+                                $hline .= $data[-2];
                                 $count++;
                                 next;
                             }
@@ -576,20 +576,21 @@ sub next_result {
 
                                 # query track
                                 my @data = split( " ", $_ );
-                                my $seq = $data[-2];
-                                $qline .= $seq;
+                                $qline .= $data[-2];
                                 $count++;
                                 next;
                             }
                             elsif ( $count == $max_count ) {
 
-                                #pval track
-                                my $pvals = $_;
+                                # posterior probability track
+                                my @data   = split(" ", $_);
+                                $pline    .= $data[-2];
                                 $count     = 0;
                                 $max_count = 3;
-                                $$hsp[-3]  = $hline;
-                                $$hsp[-2]  = $midline;
-                                $$hsp[-1]  = $qline;
+                                $$hsp[-4]  = $hline;
+                                $$hsp[-3]  = $midline;
+                                $$hsp[-2]  = $qline;
+                                $$hsp[-1]  = $pline;
                                 next;
                             }
                             else {
@@ -793,6 +794,11 @@ sub next_result {
                                     'Data' => shift @$hsp
                                 }
                             );
+                            $self->element(
+                                {   'Name' => 'Hsp_pline',
+                                    'Data' => shift @$hsp
+                                }
+                            );
 
                             # Only nhmmer output has strand information
                             if ( $self->{'_reporttype'} eq 'NHMMER' ) {
@@ -986,7 +992,7 @@ sub characters {
     my ( $self, $data ) = @_;
 
     if (   $self->in_element('hsp')
-        && $data->{'Name'} =~ /Hsp\_(qseq|hseq|midline)/o
+        && $data->{'Name'} =~ /Hsp\_(qseq|hseq|pline|midline)/o
         && defined $data->{'Data'} )
     {
         $self->{'_last_hspdata'}->{ $data->{'Name'} } .= $data->{'Data'};

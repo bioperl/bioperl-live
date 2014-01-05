@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 327 );
+    test_begin( -tests => 329 );
 
     use_ok('Bio::SearchIO');
 }
@@ -62,6 +62,8 @@ while ( $result = $searchio->next_result ) {
                 'lf+g+L + +t+e Lk++F+k G iv++ +++D     + t++s+Gf+F+++  ++  + A +    +++++gr+++ ',
                 'Check for homology string'
             );
+            # Hmmpfam don't have PP string, this is a test to check for side effects
+            is( $hsp->posterior_string, '');
             is( length( $hsp->homology_string ),
                 length( $hsp->hit_string ),
                 'Check if homology string and hit string have an equal length'
@@ -338,6 +340,10 @@ while ( $result = $searchio->next_result ) {
             is( $hsp->homology_string,
                 'lkPDl+i+ +++   ++i+++l++ +p+v v+  s+  s+++ +r ++++l+ee++++ + +++++ri+++++r  +  ++ +v+v+g+++ +ik+++  +  ++++ld+ag++ i i++++++ + eis+E+++++d+dv++v       k+ +   ++nplw +l+Avk+++vy++++',
                 'Check for homology string'
+            );
+            is( $hsp->posterior_string,
+                '8***********...********************9.*****************************************999999999999997777776.5678999999****99777777*************************...77777777899***************9976',
+                'Check for posterior probability string'
             );
         }
     }

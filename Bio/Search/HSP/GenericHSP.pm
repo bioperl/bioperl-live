@@ -473,6 +473,33 @@ sub homology_string{
     return $previous;
 }
 
+=head2 posterior_string
+
+ Title   : posterior_string
+ Usage   : my $pp_string = $hsp->posterior_string;
+ Function: Retrieves the posterior probability line for this HSP as a string (HMMer3).
+         : The posterior probability is the string of symbols at the bottom
+         : of the alignment indicating the expected accuracy of each aligned residue.
+         : A 0 means 0-5%, 1 means 5-15%, and so on; 9 means 85-95%,
+         : and a * means 95-100% posterior probability.
+ Returns : string
+ Args    : [optional] string to set for homology sequence
+
+=cut
+
+sub posterior_string {
+    my ($self,$value) = @_;
+    my $previous = $self->{PP_SEQ};
+    if( defined $value || ! defined $previous ) {
+        $value = $previous = '' unless defined $value;
+        $self->{PP_SEQ} = $value;
+        # do some housekeeping so we know when to
+        # re-run _calculate_seq_positions
+        $self->{'_sequenceschanged'} = 1;
+    }
+    return $previous;
+}
+
 =head2 length
 
  Title    : length
