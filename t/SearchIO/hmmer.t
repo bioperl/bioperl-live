@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 394 );
+    test_begin( -tests => 420 );
 
     use_ok('Bio::SearchIO');
 }
@@ -290,63 +290,114 @@ $searchio = Bio::SearchIO->new(
 );
 is( ref($searchio), 'Bio::SearchIO::hmmer3',
     'Check if correct searchio object is returned' );
+my $counter = 0;
 while ( $result = $searchio->next_result ) {
-    is( ref($result),
-        'Bio::Search::Result::HMMERResult',
-        'Check for the correct result reference type'
-    );
-    is( $result->algorithm,         'HMMSCAN', 'Check algorithm' );
-    is( $result->algorithm_version, '3.0',     'Check algorithm version' );
-    is( $result->hmm_name,
-        '/data/biodata/HMMerDB/Pfam.hmm',
-        'Check hmm_name'
-    );
-    is( $result->sequence_file, 'BA000019.orf1.fasta',
-        'Check sequence_file' );
-    is( $result->query_name, 'BA000019.orf1', 'Check query_name' );
-    is( $result->query_length, '198', 'Check query_length' );
-    is( $result->query_description, '', 'Check query_description' );
-    # 1 hit above and 6 below inclusion threshold
-    is( $result->num_hits(),        7,  'Check num_hits' );
-
-    my ( $hsp, $hit );
-    if ( $hit = $result->next_model ) {
-        is( ref($hit), 'Bio::Search::Hit::HMMERHit',
-            'Check for the correct hit reference type' );
-        is( $hit->name, 'Peripla_BP_2', 'Check hit name' );
-        is( $hit->description,
-            'Periplasmic binding protein',
-            'Check for hit description'
+    $counter++;
+    if ($counter == 1) {
+        is( ref($result),
+            'Bio::Search::Result::HMMERResult',
+            'Check for the correct result reference type'
         );
-        is( $hit->raw_score, '105.2', 'Check hit raw_score' );
-        float_is( $hit->significance, 6e-30, 'Check hit significance' );
-        is( $hit->num_hsps, 1, 'Check num_hsps' );
+        is( $result->algorithm,         'HMMSCAN', 'Check algorithm' );
+        is( $result->algorithm_version, '3.0',     'Check algorithm version' );
+        is( $result->hmm_name,
+            '/data/biodata/HMMerDB/Pfam.hmm',
+            'Check hmm_name'
+        );
+        is( $result->sequence_file, 'BA000019.orf1.fasta',
+            'Check sequence_file' );
+        is( $result->query_name,        'BA000019.orf1', 'Check query_name' );
+        is( $result->query_length,      '198',           'Check query_length' );
+        is( $result->query_description, '',              'Check query_description' );
+        # 1 hit above and 6 below inclusion threshold
+        is( $result->num_hits(), 7, 'Check num_hits' );
 
-        if ( defined( $hsp = $hit->next_domain ) ) {
-            is( ref($hsp), 'Bio::Search::HSP::HMMERHSP',
-                'Check for correct hsp reference type' );
-            is( $hsp->hit->start,   59,  'Check for hit hmmfrom value' );
-            is( $hsp->hit->end,     236, 'Check for hit hmm to value' );
-            is( $hsp->query->start, 2,   'Check for query alifrom value' );
-            is( $hsp->query->end,   173, 'Check for query ali to value' );
-            is( $hsp->score,       '105.0', 'Check for hsp score' );
-            float_is( $hsp->evalue, 1.5e-33, 'Check for hsp c-Evalue' );
-            is( $hsp->query_string,
-                'LKPDLIIGREYQ---KNIYNQLSNFAPTVLVDWGSF-TSFQDNFRYIAQVLNEEEQGKLVLQQYQKRIRDLQDRMGERlQKIEVSVIGFSGQSIKSLNR-DAVFNQVLDDAGIKRIsIQKNQQERYLEISIENLNKYDADVLFVINE---SKEQLYPDLKNPLWHHLRAVKKQQVYVVNQ',
-                'Check for query string'
+        my ( $hsp, $hit );
+        if ( $hit = $result->next_model ) {
+            is( ref($hit), 'Bio::Search::Hit::HMMERHit',
+                'Check for the correct hit reference type' );
+            is( $hit->name, 'Peripla_BP_2', 'Check hit name' );
+            is( $hit->description,
+                'Periplasmic binding protein',
+                'Check for hit description'
             );
-            is( $hsp->hit_string,
-                'lkPDlvivsafgalvseieellelgipvvavessstaeslleqirllgellgeedeaeelvaelesridavkaridsl-kpktvlvfgyadegikvvfgsgswvgdlldaaggeni-iaeakgseseeisaEqilaadpdviivsgrgedtktgveelkenplwaelpAvkngrvyllds',
-                'Check for hit string'
-            );
-            is( $hsp->homology_string,
-                'lkPDl+i+ +++   ++i+++l++ +p+v v+  s+  s+++ +r ++++l+ee++++ + +++++ri+++++r  +  ++ +v+v+g+++ +ik+++  +  ++++ld+ag++ i i++++++ + eis+E+++++d+dv++v       k+ +   ++nplw +l+Avk+++vy++++',
-                'Check for homology string'
-            );
-            is( $hsp->posterior_string,
-                '8***********...********************9.*****************************************999999999999997777776.5678999999****99777777*************************...77777777899***************9976',
-                'Check for posterior probability string'
-            );
+            is( $hit->raw_score,          105.2, 'Check hit raw_score' );
+            float_is( $hit->significance, 6e-30, 'Check hit significance' );
+            is( $hit->num_hsps,           1,     'Check num_hsps' );
+
+            if ( defined( $hsp = $hit->next_domain ) ) {
+                is( ref($hsp), 'Bio::Search::HSP::HMMERHSP',
+                    'Check for correct hsp reference type' );
+                is( $hsp->hit->start,   59,      'Check for hit hmmfrom value' );
+                is( $hsp->hit->end,     236,     'Check for hit hmm to value' );
+                is( $hsp->query->start, 2,       'Check for query alifrom value' );
+                is( $hsp->query->end,   173,     'Check for query ali to value' );
+                is( $hsp->score,       '105.0',  'Check for hsp score' );
+                float_is( $hsp->evalue, 1.5e-33, 'Check for hsp c-Evalue' );
+                is( $hsp->query_string,
+                    'LKPDLIIGREYQ---KNIYNQLSNFAPTVLVDWGSF-TSFQDNFRYIAQVLNEEEQGKLVLQQYQKRIRDLQDRMGERlQKIEVSVIGFSGQSIKSLNR-DAVFNQVLDDAGIKRIsIQKNQQERYLEISIENLNKYDADVLFVINE---SKEQLYPDLKNPLWHHLRAVKKQQVYVVNQ',
+                    'Check for query string'
+                );
+                is( $hsp->hit_string,
+                    'lkPDlvivsafgalvseieellelgipvvavessstaeslleqirllgellgeedeaeelvaelesridavkaridsl-kpktvlvfgyadegikvvfgsgswvgdlldaaggeni-iaeakgseseeisaEqilaadpdviivsgrgedtktgveelkenplwaelpAvkngrvyllds',
+                    'Check for hit string'
+                );
+                is( $hsp->homology_string,
+                    'lkPDl+i+ +++   ++i+++l++ +p+v v+  s+  s+++ +r ++++l+ee++++ + +++++ri+++++r  +  ++ +v+v+g+++ +ik+++  +  ++++ld+ag++ i i++++++ + eis+E+++++d+dv++v       k+ +   ++nplw +l+Avk+++vy++++',
+                    'Check for homology string'
+                );
+                is( $hsp->posterior_string,
+                    '8***********...********************9.*****************************************999999999999997777776.5678999999****99777777*************************...77777777899***************9976',
+                    'Check for posterior probability string'
+                );
+            }
+        }
+    }
+    # Check for errors in HSP caused by the existence of 2 hits with the same ID
+    elsif ($counter == 2) {
+        is( $result->query_name,        'lcl|Test_ID.1|P1', 'Check query_name' );
+        is( $result->query_length,       463,               'Check query_length' );
+        is( $result->query_description, '281521..282909',   'Check query_description' );
+        is( $result->num_hits(),         2,                 'Check num_hits' );
+
+        my ( $hsp, $hit );
+        my $hit_counter = 0;
+        while ( $hit = $result->next_model ) {
+            $hit_counter++;
+            if ($hit_counter == 1) {
+                is( ref($hit), 'Bio::Search::Hit::HMMERHit',
+                    'Check for the correct hit reference type' );
+                is( $hit->name,        'IS4.original', 'Check hit name' );
+                is( $hit->description, '',             'Check for hit description' );
+                is( $hit->num_hsps,     1,             'Check num_hsps' );
+                if ( defined( $hsp = $hit->next_domain ) ) {
+                    is( ref($hsp), 'Bio::Search::HSP::HMMERHSP',
+                        'Check for correct hsp reference type' );
+                    is( $hsp->hit->start,   315,     'Check for hit hmmfrom value' );
+                    is( $hsp->hit->end,     353,     'Check for hit hmm to value' );
+                    is( $hsp->query->start, 335,     'Check for query alifrom value' );
+                    is( $hsp->query->end,   369,     'Check for query ali to value' );
+                    is( $hsp->score,        18.9,    'Check for hsp score' );
+                    float_is( $hsp->evalue, 8.9e-08, 'Check for hsp c-Evalue' );
+                }
+            }
+            elsif ($hit_counter == 2) {
+                is( ref($hit), 'Bio::Search::Hit::HMMERHit',
+                    'Check for the correct hit reference type' );
+                is( $hit->name,        'IS4.original', 'Check hit name' );
+                is( $hit->description, '',             'Check for hit description' );
+                is( $hit->num_hsps,     1,             'Check num_hsps' );
+                if ( defined( $hsp = $hit->next_domain ) ) {
+                    is( ref($hsp), 'Bio::Search::HSP::HMMERHSP',
+                        'Check for correct hsp reference type' );
+                    is( $hsp->hit->start,   315,    'Check for hit hmmfrom value' );
+                    is( $hsp->hit->end,     353,    'Check for hit hmm to value' );
+                    is( $hsp->query->start, 335,    'Check for query alifrom value' );
+                    is( $hsp->query->end,   369,    'Check for query ali to value' );
+                    is( $hsp->score,        18.8,   'Check for hsp score' );
+                    float_is( $hsp->evalue, 9e-08, 'Check for hsp c-Evalue' );
+                }
+            }
         }
     }
 }
@@ -384,7 +435,7 @@ $searchio = Bio::SearchIO->new(
 );
 is( ref($searchio), 'Bio::SearchIO::hmmer3',
     'Check if correct searchio object is returned' );
-my $counter = 0;
+$counter = 0;
 while ( $result = $searchio->next_result ) {
     $counter++;
     if ($counter == 1) {

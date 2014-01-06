@@ -268,7 +268,6 @@ sub next_result {
 
         # Get query data
         elsif ( $_ =~ s/^Query:\s+// ) {
-
             # TO DO: code to deal with multi-query report
             unless (s/\s+\[[L|M]\=(\d+)\]$//) {
                 warn "Error parsing length for query, offending line $_\n";
@@ -317,6 +316,7 @@ sub next_result {
         {
             # Complete sequence table data above inclusion threshold,
             # hmmsearch or hmmscan
+            my $hit_counter = 0; # helper variable for non-unique hit IDs
             if ( $_ =~ m/Scores for complete sequence/ ) {
                 while ( defined( $_ = $self->_readline ) ) {
                     if (   $_ =~ m/inclusion threshold/
@@ -330,6 +330,7 @@ sub next_result {
 
                     # Grab table data
                     next if ( m/\-\-\-/ || m/^\s+E-value\s+score/ || m/^$/ );
+                    $hit_counter++;
                     my ($eval_full,  $score_full, $bias_full, $eval_best,
                         $score_best, $bias_best,  $exp,       $n,
                         $hitid,      $desc,       @hitline
@@ -350,7 +351,7 @@ sub next_result {
 
                     push @hit_list,
                         [ $hitid, $desc, $eval_full, $score_full ];
-                    $hitinfo{$hitid} = $#hit_list;
+                    $hitinfo{"$hitid.$hit_counter"} = $#hit_list;
                 }
             }
 
@@ -369,6 +370,7 @@ sub next_result {
 
                     # Grab table data
                     next if ( /\-\-\-/ || /^\s+E-value\s+score/ || /^$/ );
+                    $hit_counter++;
                     my ($eval,  $score, $bias, $hitid,
                         $start, $end,   $desc, @hitline
                     );
@@ -384,7 +386,7 @@ sub next_result {
                     $desc = '' if ( !defined($desc) );
 
                     push @hit_list, [ $hitid, $desc, $eval, $score ];
-                    $hitinfo{$hitid} = $#hit_list;
+                    $hitinfo{"$hitid.$hit_counter"} = $#hit_list;
                 }
             }
 
@@ -403,6 +405,7 @@ sub next_result {
                     }
                     next if ( $_ =~ m/^$/ );
                     next if ( $_ =~ m/inclusion threshold/ );
+                    $hit_counter++;
                     my ($eval_full,  $score_full, $bias_full, $eval_best,
                         $score_best, $bias_best,  $exp,       $n,
                         $hitid,      $desc,       @hitline
@@ -423,7 +426,7 @@ sub next_result {
 
                     push @hit_list,
                         [ $hitid, $desc, $eval_full, $score_full ];
-                    $hitinfo{$hitid} = $#hit_list;
+                    $hitinfo{"$hitid.$hit_counter"} = $#hit_list;
                 }
             }
 
@@ -432,6 +435,7 @@ sub next_result {
                 @hsp_list = ();    # Here for multi-query reports
                 my $name;
 
+                my $dom_counter = 0;
                 while ( defined( $_ = $self->_readline ) ) {
                     if (   /Internal pipeline statistics/
                         || /\[No targets detected/ )
@@ -441,10 +445,8 @@ sub next_result {
                     }
                     if ( $_ =~ m/^\>\>\s(.*?)\s+/ ) {
                         $name = $1;
-
-                        # Do not skip hits below inclusion threshold - leave it to the user to decide
-                        #next if ( $hitinfo{$name} eq "below_inclusion" );
-                        $domaincounter{$name} = 0;
+                        $dom_counter++;
+                        $domaincounter{"$name.$dom_counter"} = 0;
 
                         while ( defined( $_ = $self->_readline ) ) {
 
@@ -495,18 +497,18 @@ sub next_result {
                                     '',         '',
                                     '',         ''
                                 );
-                                my $info = $hit_list[ $hitinfo{$name} ];
+                                my $info = $hit_list[ $hitinfo{"$name.$dom_counter"} ];
                                 if ( !defined $info ) {
                                     $self->warn(
                                         "Incomplete sequence information; can't find $name, hitinfo says $hitinfo{$name}\n"
                                     );
                                     next;
                                 }
-                                $domaincounter{$name}++;
+                                $domaincounter{"$name.$dom_counter"}++;
                                 my $hsp_key
-                                    = $name . "_" . $domaincounter{$name};
+                                    = $name . "_" . $domaincounter{"$name.$dom_counter"};
                                 push @hsp_list, [ $name, @vals ];
-                                $hspinfo{$hsp_key} = $#hsp_list;
+                                $hspinfo{"$hsp_key.$dom_counter"} = $#hsp_list;
                             }
                             else {
                                 print "missed this line: $_\n";
@@ -541,7 +543,7 @@ sub next_result {
                                 my $domainnum = $1;
                                 $count = 0;
                                 my $key = $name . "_" . $domainnum;
-                                $hsp        = $hsp_list[ $hspinfo{$key} ];
+                                $hsp        = $hsp_list[ $hspinfo{"$key.$dom_counter"} ];
                                 $hline      = $$hsp[-4];
                                 $midline    = $$hsp[-3];
                                 $qline      = $$hsp[-2];
@@ -620,6 +622,7 @@ sub next_result {
                 @hsp_list = ();
                 my $name;
 
+                my $dom_counter = 0;
                 while ( defined( $_ = $self->_readline ) ) {
                     if ( $_ =~ m/Internal pipeline statistics/
                         || m/\[No targets detected/ )
@@ -629,6 +632,7 @@ sub next_result {
                     }
                     if ( /^>>\s+(\S+)\s+/ ) {
                         $name = $1;
+                        $dom_counter++;
 
                         while ( defined( $_ = $self->_readline ) ) {
 
@@ -680,17 +684,17 @@ sub next_result {
                                     '',        '',
                                     ''
                                 );
-                                my $info = $hit_list[ $hitinfo{$name} ];
+                                my $info = $hit_list[ $hitinfo{"$name.$dom_counter"} ];
                                 if ( !defined $info ) {
                                     $self->warn(
                                         "Incomplete information: can't find HSP $name in list of hits\n"
                                     );
                                     next;
                                 }
-                                $domaincounter{$name}++;
-                                my $hsp_key = $name . "_" . $domaincounter{$name};
+                                $domaincounter{"$name.$dom_counter"}++;
+                                my $hsp_key = $name . "_" . $domaincounter{"$name.$dom_counter"};
                                 push @hsp_list, [ $name, @vals ];
-                                $hspinfo{$hsp_key} = $#hsp_list;
+                                $hspinfo{"$hsp_key.$dom_counter"} = $#hsp_list;
                             }
                             else {
                                 print "Missed this line: $_\n";
@@ -716,12 +720,14 @@ sub next_result {
                 }
 
                 # Do a lot of processing of hits and hsps here
+                my $index = 0;
                 while ( my $hit = shift @hit_list ) {
+                    $index++;
                     my $hit_name    = shift @$hit;
                     my $hit_desc    = shift @$hit;
                     my $hit_signif  = shift @$hit;
                     my $hit_score   = shift @$hit;
-                    my $num_domains = $domaincounter{$hit_name} || 0;
+                    my $num_domains = $domaincounter{"$hit_name.$index"} || 0;
 
                     $self->start_element( { 'Name' => 'Hit' } );
                     $self->element(
@@ -747,7 +753,7 @@ sub next_result {
 
                     for my $i ( 1 .. $num_domains ) {
                         my $key = $hit_name . "_" . $i;
-                        my $hsp = $hsp_list[ $hspinfo{$key} ];
+                        my $hsp = $hsp_list[ $hspinfo{"$key.$index"} ];
                         if ( defined $hsp ) {
                             my $hsp_name = shift @$hsp;
                             $self->start_element( { 'Name' => 'Hsp' } );
