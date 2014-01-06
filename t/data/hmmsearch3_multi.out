@@ -1,0 +1,211 @@
+# hmmsearch :: search profile(s) against a sequence database
+# HMMER 3.0 (March 2010); http://hmmer.org/
+# Copyright (C) 2010 Howard Hughes Medical Institute.
+# Freely distributed under the GNU General Public License (GPLv3).
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query HMM file:                  Pfam-A.hmm
+# target sequence database:        test_seqs.seq_raw.txt
+# output directed to file:         hmmsearch.output.txt
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       1-cysPrx_C  [M=40]
+Accession:   PF10417.4
+Description: C-terminal domain of 1-Cys peroxiredoxin
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (40 nodes)
+Target sequences:                          3  (2141 residues)
+Passed MSV filter:                         0  (0); expected 0.1 (0.02)
+Passed bias filter:                        0  (0); expected 0.1 (0.02)
+Passed Vit filter:                         0  (0); expected 0.0 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                  3  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 14.27
+//
+Query:       DUF4229  [M=69]
+Accession:   PF14012.1
+Description: Protein of unknown function (DUF4229)
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence             Description
+    ------- ------ -----    ------- ------ -----   ---- --  --------             -----------
+  ------ inclusion threshold ------
+          3  -17.8  37.0      0.019    3.0   2.5    4.3  5  lcl|Protein_ID1.3|M3 complement(48376..51420)
+
+
+Domain annotation for each sequence (and alignments):
+>> lcl|Protein_ID1.3|M3  complement(48376..51420)
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ?   -4.3   1.7         1         3      34      40 ..     305     311 ..     277     337 .. 0.55
+   2 ?    2.6   2.1    0.0084     0.025      12      50 ..     382     418 ..     374     422 .. 0.69
+   3 ?   -1.1   0.6      0.12      0.36       4      36 ..     841     874 ..     841     882 .. 0.52
+   4 ?    3.0   2.5    0.0064     0.019       7      59 ..     872     925 ..     870     929 .. 0.90
+   5 ?   -0.7   0.9     0.087      0.26      31      50 ..     972     991 ..     937    1001 .. 0.56
+
+  Alignments for each domain:
+  == domain 1    score: -4.3 bits;  conditional E-value: 1
+               DUF4229  34 laallAl 40 
+                           la+l A+
+  lcl|Protein_ID1.3|M3 305 LAILSAI 311
+                           3333332 PP
+
+  == domain 2    score: 2.6 bits;  conditional E-value: 0.0084
+               DUF4229  12 fvvllavlvllgvligllvplllaallAlvvalplSfll 50 
+                           + v ++   l gv   l +p+  a++++++ +++lS  +
+  lcl|Protein_ID1.3|M3 382 VFVPMF--SLTGVPRYLFIPMAEAVIFGMLSSFVLSQTF 418
+                           333333..34455555449*****************776 PP
+
+  == domain 3    score: -1.1 bits;  conditional E-value: 0.12
+               DUF4229   4 YtalRlglfvvllav..lvllgvligllvplllaa 36 
+                           Y +l lgl++ + ++  lv+++ + +l+ p++++ 
+  lcl|Protein_ID1.3|M3 841 YRGLSLGLVASIILIyfLVVVNFESWLD-PFVIIT 874
+                           5566688888777774344444444444.554443 PP
+
+  == domain 4    score: 3.0 bits;  conditional E-value: 0.0064
+               DUF4229   7 lRlglfvvllavlvllgvligll.vplllaallAlvvalplSflllrklRrrat 59 
+                           +  +l ++l++++++l + +  l vp l  a++ + va + S+l+ +  R+r++
+  lcl|Protein_ID1.3|M3 872 IITALPAALAGIVWMLYLTGTTLsVPALTGAIMCMGVATANSILVISFARERLA 925
+                           56789999******9999999889*********************999999875 PP
+
+  == domain 5    score: -0.7 bits;  conditional E-value: 0.087
+               DUF4229  31 plllaallAlvvalplSfll 50 
+                           pl  a++ +l++a +  +++
+  lcl|Protein_ID1.3|M3 972 PLGRAVIGGLLLATIATLIF 991
+                           55555555555554444333 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (69 nodes)
+Target sequences:                          3  (2141 residues)
+Passed MSV filter:                         1  (0.333333); expected 0.1 (0.02)
+Passed bias filter:                        1  (0.333333); expected 0.1 (0.02)
+Passed Vit filter:                         1  (0.333333); expected 0.0 (0.001)
+Passed Fwd filter:                         1  (0.333333); expected 0.0 (1e-05)
+Initial search space (Z):                  3  [actual number of targets]
+Domain search space  (domZ):               1  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 16.41
+//
+Query:       ACR_tran  [M=1021]
+Accession:   PF00873.14
+Description: AcrB/AcrD/AcrF family
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence             Description
+    ------- ------ -----    ------- ------ -----   ---- --  --------             -----------
+   9.3e-189  616.9  10.5   1.2e-188  616.6   7.2    1.0  1  lcl|Protein_ID1.3|M3 complement(48376..51420)
+
+
+Domain annotation for each sequence (and alignments):
+>> lcl|Protein_ID1.3|M3  complement(48376..51420)
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !  616.6   7.2  3.9e-189  1.2e-188      71    1021 .]      11    1000 ..       2    1000 .. 0.93
+
+  Alignments for each domain:
+  == domain 1    score: 616.6 bits;  conditional E-value: 3.9e-189
+                            S-TTEEEEEEEETTSEEEEEEEESTTS-HHHHHHHHHHHHHHHGGGS-HHHHHH-EEEEEEECCECEEEEEEESSSTS-HHHHHHHH CS
+              ACR_tran   71 gldglkyvsSqSseglssitvtFedgtdidiArqqvqnrlqeaknkLPeevqepgiskiktssseilvlavtskdgsltktdlrdla 157 
+                             ++ +++++SqS  g   + + F+ + di  A+ qv++  q + +++P ++++p i   +++  +il+la++sk   l++  + dl 
+  lcl|Protein_ID1.3|M3   11 TVNDIEHIESQSLFGYGIVKIFFQPDVDIRTANAQVTAISQTVLKQMPPGITPPLILNYNAATVPILQLALSSK--VLSEDRIFDLG 95  
+                            578899********************************************************************..*********** PP
+
+                            HHCTHHHHHTSTTEEEEEESS.--EEEEEEE-HHHHHCTT--HHHHHHHHHHHSSB-EEEECTT-SB-EEEE-SB---SCCHHCT-E CS
+              ACR_tran  158 esnikdqlsrveGVgdvqliGgsekavriwldpqklaklgltltdvvsalkeqnvqvaaGqlegqqeelliraqgrlqsaediekii 244 
+                            ++ i++ql+ v G +    +Gg+ ++++i ldpq++++ +++++dv++al++qn   + G+ +  + e+++++++   +   ++++ 
+  lcl|Protein_ID1.3|M3   96 QNFIRPQLATVRGSAVPSPYGGKVRQIQIDLDPQAMQSKRVSPDDVARALSQQNLVLSPGTEKIGSFEYNVKINDSPDEFTLLNNLP 182 
+                            *************************************************************************************** PP
+
+                            EEETTSEEEEHHHCEEEEEEESSSS-EEEETTCEEEEEEEEEETTSBHHHHHHHHHHHHHCCGGGSSTTEEEEEEEESHHHHHHHHH CS
+              ACR_tran  245 vksqdgskvrlrDvAkvelgaeeeriaatlngkpavllavkklpganaievvkavkekleelketlPegveivvvydttefvrasie 331 
+                            +k+  g  + ++DvA+v +g   + ++++ +g   vl+++ k     ++++++  ke +++lketlP+++ ++vv d++ fv+++i+
+  lcl|Protein_ID1.3|M3  183 IKNVGGVTIFIHDVAHVRDGFPPQINVVRDDGRRSVLMTILKNGATSTLDIIQGTKELIPKLKETLPNNLVLKVVGDQSIFVKSAIS 269 
+                            *************************************************************************************** PP
+
+                            HHHHHHHHHHHHHHHHHHHHHSSHCCCHHHHHHHHHHHHHHHHHHHHTT--EEHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHCSS CS
+              ACR_tran  332 eVvktlleaivLvvlvlflFLqnlratlipaiavPlsllgtfavlkalglsiNlltlfgLvlAiGlvvDdAiVvvEnverkleeege 418 
+                             Vv +  +a +L  ++++lFL+++r+t+i+ +++Pl++l ++++l++ g ++N++tl+gL+lA+G++vDdA Vv+En+  +le+ g+
+  lcl|Protein_ID1.3|M3  270 GVVREGTIAGILTSVMILLFLGSWRSTIIISMSIPLAILSAIIFLSLTGNTLNVMTLGGLALAVGMLVDDATVVIENINHHLEM-GK 355 
+                            ************************************************************************************.** PP
+
+                            -HHHHHHHHHHHHCCHHHHHHHHHHHHCCGGGGSBHHHHHHHHHHHHHHHHHHHHHHHHHHCCHHHHHHHCS----TT-CC...... CS
+              ACR_tran  419 kpleaalksmkeiegalvaialvllavfvPilflgGveGklfrqfaltivlaillsvlvaltltPalcallLkarkeekek...... 499 
+                               +a++ ++++i  + + ++l++++vfvP+++l+Gv   lf ++a ++++ +l s +++ t++P ++  lLk + ++ ++      
+  lcl|Protein_ID1.3|M3  356 PTTKAIIDAARQIIQPALVSTLSICIVFVPMFSLTGVPRYLFIPMAEAVIFGMLSSFVLSQTFVPTVANKLLKYQTQHFKHehhtda 442 
+                            *************************************************************************8776544446799* PP
+
+                            ........................CHHHHHHHHHHHHHHHHHHHHHHHHHSCHHHHHHHHHHHHH.HHHHHCCS-BESS----TSEE CS
+              ACR_tran  500 ........................gffrefnrlfdalerrYekllekvlrhravvllvalllvvg.slllfvripkeflPeedegvl 561 
+                                                    ++ + f++ f ++   Y+ +l++ l hr+  ++++l +v++ ++ lf+ ++k+f+Pe d g++
+  lcl|Protein_ID1.3|M3  443 hrpehdpnfkvhrsvkasifqffiNIQQGFEKRFTKVRLVYRSILHFALDHRKKFITLFLGFVIVsCVTLFPLLGKNFFPEVDSGDM 529 
+                            *******************9655555578*************************999999887775899****************** PP
+
+                            EEEEE-STTC-HHHHHHHHHHHHHHHH...TTTTEEEEEEEESESSSS..E........CTTEEEEEEEE--CTTS-SCCCSHHHHH CS
+              ACR_tran  562 vtsvqlppgvsleqtekvlkqvekilk...ekpevesvfavtGfafagdta........gqnsakvfisLkpekerkeeektveali 637 
+                             ++++++ g+ +e+t+k  + +e++++    ++e + ++   G + +g +         g++ +++ i+L ++      ++  ++ +
+  lcl|Protein_ID1.3|M3  530 KIHIRVQVGTRIEETAKQFDLIENTIRrlvPQNELDTIVDNIGLSVSGINTaysstgtiGPQDGDILIHLNEN------HHPTKEYM 610 
+                            ************************8875446889999999999888774331111111134445555555444......45688999 PP
+
+                            HHHHHHC.CTSTSSEEEEEE-SSSCCCSSSSSEEEEEEE.TSSSCHHHHHHHHHHHHHHHCCSTTEECEEESS-S-EEEEEEEE-HH CS
+              ACR_tran  638 erlrkel.ekikganvellapiqlreletlsgvrlelqvklfgddleaLseareqllaalkqlpeladvrseqqedepqlqvkidre 723 
+                            ++lr+ l ++++g++ +++ p +++ +    gv + ++  + g ++++  + ++++l+ ++++p++ad+r++q ++ pq++v+idr 
+  lcl|Protein_ID1.3|M3  611 KKLRETLpRAFPGVS-FAFLPADITSQILNFGVPAPIDIRVDGPNHDNNLKFVRAILKDIRNVPGIADLRVQQATNYPQFNVDIDRS 696 
+                            999999945678887.7888999*999************************************************************ PP
+
+                            HHHHCTB-HHHHHHHHHHHHT-..EEEEEEEETTE...EEEEEEEE-GGGSSSGGGGCC-EEEETTSE.EEECGGCEEEEEEEE-SE CS
+              ACR_tran  724 kaaalGvsiadinetlstalgg..syvndfieegr...vvkvvvqleedlrsspedlkklyvrnkkgk.mvplsavakieeekgpns 804 
+                            +a+++G++  di + l + l g  +++ +f  +++    + +v+q+++ + +s+ dl+++++++k++  m  l+ + +ie+ ++ + 
+  lcl|Protein_ID1.3|M3  697 QAKNYGLTEGDITNSLVATLAGtsQVAPTFWLNNKngvSYPIVIQMPQYKINSLADLANIPITTKESSsMQVLGGLGSIERDQSDSV 783 
+                            ************8877666655434556776544422279***********************998764889*************** PP
+
+                            EEEETTCEEEEEEEEESTTS...-HHHHHHHHHHCCTT..SSTTEEEEEECHHHHHHHHCCCHHHHHHHHHHHHHHHHHHHCTSSST CS
+              ACR_tran  805 ierenglrsveisgevaegd...slgeaeeavekiakqvklPagvgiewtglseqeqeagnsllllvalalllvflvLaalyeslsd 888 
+                            i+++n ++s+ i ++++ +d   ++g++e+++++ +++  lP+gv+++ +g+    q ++  l+l ++++++l++++  + +es++d
+  lcl|Protein_ID1.3|M3  784 ISHYNIKPSFDIFASLQGRDlgsISGDIETIIQHHHQE--LPKGVSVKLQGQVPIMQDSYRGLSLGLVASIILIYFLVVVNFESWLD 868 
+                            ****************8876222578999999999888..*********************************************** PP
+
+                            CHHHHTTHHHHHHHHHHHHHHTT--BSHHHHHHHHHHHHHHHHHHHHHHHHHHHHHCTTTBHHHHHHHHHHHHCHHHHHHHHHHHHH CS
+              ACR_tran  889 pllvlltvPlalvGallalllrglelsviaqvGlilliGlavkNailivefakelrekeglsleeAileaaklRLrPiLMTalaail 975 
+                            p+++++ +P al+G +  l+l+g++lsv a+ G i+ +G+a  N il+++fa+e  +   ++  +A+lea+ +R+rP+LMTa a+++
+  lcl|Protein_ID1.3|M3  869 PFVIITALPAALAGIVWMLYLTGTTLSVPALTGAIMCMGVATANSILVISFARERLA-IVKDSTQAALEAGYTRFRPVLMTASAMLI 954 
+                            *********************************************************.888899*********************** PP
+
+                            CCHHHHTT-STTHHHHHHHHHHHHHHHHHHHHCHHHHHHHHHHHHH CS
+              ACR_tran  976 GvlPLalstGaGselqqplgivvlGGlvtstvLtlllvPvlYvlva 1021
+                            G++P+al+ G+G e   plg +v+GGl+++t+ tl +vPv++ +v+
+  lcl|Protein_ID1.3|M3  955 GMIPMALGLGDGGEQNAPLGRAVIGGLLLATIATLIFVPVVFSVVH 1000
+                            ******************************************9997 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (1021 nodes)
+Target sequences:                          3  (2141 residues)
+Passed MSV filter:                         1  (0.333333); expected 0.1 (0.02)
+Passed bias filter:                        1  (0.333333); expected 0.1 (0.02)
+Passed Vit filter:                         1  (0.333333); expected 0.0 (0.001)
+Passed Fwd filter:                         1  (0.333333); expected 0.0 (1e-05)
+Initial search space (Z):                  3  [actual number of targets]
+Domain search space  (domZ):               1  [number of targets reported over threshold]
+# CPU time: 0.17u 0.03s 00:00:00.20 Elapsed: 00:00:00.19
+# Mc/sec: 11.27
+//

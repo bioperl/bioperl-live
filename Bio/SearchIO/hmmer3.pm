@@ -346,9 +346,8 @@ sub next_result {
                     $hitid      = shift @hitline;
                     $desc       = join " ", @hitline;
 
-                    if ( !defined($desc) ) {
-                        $desc = "";
-                    }
+                    $desc = '' if ( !defined($desc) );
+
                     push @hit_list,
                         [ $hitid, $desc, $eval_full, $score_full ];
                     $hitinfo{$hitid} = $#hit_list;
@@ -403,6 +402,7 @@ sub next_result {
                         last;
                     }
                     next if ( $_ =~ m/^$/ );
+                    next if ( $_ =~ m/inclusion threshold/ );
                     my ($eval_full,  $score_full, $bias_full, $eval_best,
                         $score_best, $bias_best,  $exp,       $n,
                         $hitid,      $desc,       @hitline
@@ -419,7 +419,11 @@ sub next_result {
                     $hitid      = shift @hitline;
                     $desc       = join " ", @hitline;
 
-                    $hitinfo{$hitid} = "below_inclusion" if defined $hitid;
+                    $desc = '' if ( !defined($desc) );
+
+                    push @hit_list,
+                        [ $hitid, $desc, $eval_full, $score_full ];
+                    $hitinfo{$hitid} = $#hit_list;
                 }
             }
 
@@ -552,37 +556,45 @@ sub next_result {
                                 $count++;
                                 next;
                             }
-                            elsif ( $count == $max_count - 3 ) {
 
-                                # hit sequence
+                            # Query line and Hit line swaps positions
+                            # depending of the program
+                            elsif (    $count == $max_count - 3
+                                   or  $count == $max_count - 1
+                                   ) {
                                 my @data = split( " ", $_ );
-                                $hline .= $data[-2];
+
+                                if ($self->{'_reporttype'} eq 'HMMSCAN') {
+                                    # hit sequence
+                                    $hline .= $data[-2] if ($count == $max_count - 3);
+                                    # query sequence
+                                    $qline .= $data[-2] if ($count == $max_count - 1);
+                                }
+                                else { # hmmsearch & nhmmer
+                                    # hit sequence
+                                    $hline .= $data[-2] if ($count == $max_count - 1);
+                                    # query sequence
+                                    $qline .= $data[-2] if ($count == $max_count - 3);
+                                }
+
                                 $count++;
                                 next;
                             }
-                            elsif ( $count == $max_count - 2 ) {
 
-                                # conservation track
-                                # storage isn't quite right - need to remove
-                                # leading/lagging whitespace while preserving
-                                # gap data (latter isn't done, former is)
+                            # conservation track
+                            # storage isn't quite right - need to remove
+                            # leading/lagging whitespace while preserving
+                            # gap data (latter isn't done, former is)
+                            elsif ( $count == $max_count - 2 ) {
                                 $_ =~ s/^\s+//;
                                 $_ =~ s/\s+$//;
                                 $midline .= $_;
                                 $count++;
                                 next;
                             }
-                            elsif ( $count == $max_count - 1 ) {
 
-                                # query track
-                                my @data = split( " ", $_ );
-                                $qline .= $data[-2];
-                                $count++;
-                                next;
-                            }
+                            # posterior probability track
                             elsif ( $count == $max_count ) {
-
-                                # posterior probability track
                                 my @data   = split(" ", $_);
                                 $pline    .= $data[-2];
                                 $count     = 0;
@@ -749,26 +761,51 @@ sub next_result {
                                     'Data' => 0
                                 }
                             );
-                            $self->element(
-                                {   'Name' => 'Hsp_hit-from',
-                                    'Data' => shift @$hsp
-                                }
-                            );
-                            $self->element(
-                                {   'Name' => 'Hsp_hit-to',
-                                    'Data' => shift @$hsp
-                                }
-                            );
-                            $self->element(
-                                {   'Name' => 'Hsp_query-from',
-                                    'Data' => shift @$hsp
-                                }
-                            );
-                            $self->element(
-                                {   'Name' => 'Hsp_query-to',
-                                    'Data' => shift @$hsp
-                                }
-                            );
+                            if (   $self->{'_reporttype'} eq 'HMMSCAN'
+                                or $self->{'_reporttype'} eq 'NHMMER') {
+                                $self->element(
+                                    {   'Name' => 'Hsp_hit-from',
+                                        'Data' => shift @$hsp
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_hit-to',
+                                        'Data' => shift @$hsp
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_query-from',
+                                        'Data' => shift @$hsp
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_query-to',
+                                        'Data' => shift @$hsp
+                                    }
+                                );
+                            }
+                            else { # hmmsearch
+                                $self->element(
+                                    {   'Name' => 'Hsp_query-from',
+                                        'Data' => shift @$hsp
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_query-to',
+                                        'Data' => shift @$hsp
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_hit-from',
+                                        'Data' => shift @$hsp
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_hit-to',
+                                        'Data' => shift @$hsp
+                                    }
+                                );
+                            }
                             $self->element(
                                 {   'Name' => 'Hsp_score',
                                     'Data' => shift @$hsp
