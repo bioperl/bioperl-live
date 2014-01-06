@@ -269,7 +269,63 @@ sub next_result {
 
         # Get query data
         elsif ( $_ =~ s/^Query:\s+// ) {
-            # TO DO: code to deal with multi-query report
+            # For  multi-query reports
+            if (    (   not exists $self->{_values}->{"RESULT-algorithm_name"}
+                     or not exists $self->{_values}->{"RESULT-algorithm_version"}
+                     )
+                and exists $self->{_hmmidline}
+                ) {
+                my ($version, $versiondate) = $self->{_hmmidline} =~ m/^\#\sHMMER\s+(\S+)\s+\((.+)\)/;
+                $self->element(
+                    {   'Name' => 'HMMER_program',
+                        'Data' => $self->{_reporttype}
+                    }
+                );
+                $self->element(
+                    {   'Name' => 'HMMER_version',
+                        'Data' => $version
+                    }
+                );
+            }
+            if (    (   not exists $self->{_values}->{"RESULT-hmm_name"}
+                     or not exists $self->{_values}->{"RESULT-sequence_file"}
+                     )
+                and (   exists $self->{_hmmfileline}
+                     or exists $self->{_hmmseqline}
+                     )
+                ) {
+                if (   $self->{'_reporttype'} eq 'HMMSEARCH'
+                    or $self->{'_reporttype'} eq 'NHMMER'
+                    ) {
+                    my ($qry_file)    = $self->{_hmmfileline}  =~ m/^\#\squery \w+ file\:\s+(\S+)/;
+                    my ($target_file) = $self->{_hmmseqline} =~ m/^\#\starget\s\S+\sdatabase\:\s+(\S+)/;
+                    $self->element(
+                        {   'Name' => 'HMMER_hmm',
+                            'Data' => $qry_file
+                        }
+                    );
+                    $self->element(
+                        {   'Name' => 'HMMER_seqfile',
+                            'Data' => $target_file
+                        }
+                    );
+                }
+                elsif ( $self->{'_reporttype'} eq 'HMMSCAN' ) {
+                    my ($qry_file)    = $self->{_hmmseqline}  =~ m/^\#\squery \w+ file\:\s+(\S+)/;
+                    my ($target_file) = $self->{_hmmfileline} =~ m/^\#\starget\s\S+\sdatabase\:\s+(\S+)/;
+                    $self->element(
+                        {   'Name' => 'HMMER_seqfile',
+                            'Data' => $qry_file
+                        }
+                    );
+                    $self->element(
+                        {   'Name' => 'HMMER_hmm',
+                            'Data' => $target_file
+                        }
+                    );
+                }
+            }
+
             unless (s/\s+\[[L|M]\=(\d+)\]$//) {
                 warn "Error parsing length for query, offending line $_\n";
                 exit(0);
