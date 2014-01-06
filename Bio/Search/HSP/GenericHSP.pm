@@ -473,6 +473,33 @@ sub homology_string{
     return $previous;
 }
 
+=head2 consensus_structure
+
+ Title   : consensus_structure
+ Usage   : my $cs_string = $hsp->consensus_structure;
+ Function: Retrieves the consensus structure line for this HSP as a string (HMMer3).
+         : If the model had any consensus structure or reference line annotation
+         : that it inherited from a multiple alignment (#=GC SS cons,
+         : #=GC RF annotation in Stockholm files), that information is shown
+         : as CS or RF annotation line.
+ Returns : string
+ Args    : [optional] string to set for consensus structure
+
+=cut
+
+sub consensus_structure {
+    my ($self,$value) = @_;
+    my $previous = $self->{CS_SEQ};
+    if( defined $value || ! defined $previous ) {
+        $value = $previous = '' unless defined $value;
+        $self->{CS_SEQ} = $value;
+        # do some housekeeping so we know when to
+        # re-run _calculate_seq_positions
+        $self->{'_sequenceschanged'} = 1;
+    }
+    return $previous;
+}
+
 =head2 posterior_string
 
  Title   : posterior_string
@@ -483,7 +510,7 @@ sub homology_string{
          : A 0 means 0-5%, 1 means 5-15%, and so on; 9 means 85-95%,
          : and a * means 95-100% posterior probability.
  Returns : string
- Args    : [optional] string to set for homology sequence
+ Args    : [optional] string to set for posterior probability
 
 =cut
 

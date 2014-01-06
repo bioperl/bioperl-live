@@ -124,6 +124,7 @@ BEGIN {
         'Hsp_hitgaps'      => 'HSP-hit_gaps',
         'Hsp_querygaps'    => 'HSP-query_gaps',
         'Hsp_qseq'         => 'HSP-query_seq',
+        'Hsp_csline'       => 'HSP-cs_seq',
         'Hsp_hseq'         => 'HSP-hit_seq',
         'Hsp_midline'      => 'HSP-homology_seq',
         'Hsp_pline'        => 'HSP-pp_seq',
@@ -495,7 +496,8 @@ sub next_result {
                                     $qalistart, $qalistop,
                                     $score,     $ceval,
                                     '',         '',
-                                    '',         ''
+                                    '',         '',
+                                    ''
                                 );
                                 my $info = $hit_list[ $hitinfo{"$name.$dom_counter"} ];
                                 if ( !defined $info ) {
@@ -526,7 +528,7 @@ sub next_result {
                         my $max_count = 3;
                         my $lastdomain;
                         my $hsp;
-                        my ( $hline, $midline, $qline, $pline );
+                        my ( $csline, $hline, $midline, $qline, $pline );
 
                         while ( defined( $_ = $self->_readline ) ) {
                             if (   $_ =~ m/^\>\>/
@@ -544,6 +546,7 @@ sub next_result {
                                 $count = 0;
                                 my $key = $name . "_" . $domainnum;
                                 $hsp        = $hsp_list[ $hspinfo{"$key.$dom_counter"} ];
+                                $csline     = $$hsp[-5];
                                 $hline      = $$hsp[-4];
                                 $midline    = $$hsp[-3];
                                 $qline      = $$hsp[-2];
@@ -552,8 +555,9 @@ sub next_result {
                             }
 
                             # model data track, some reports don't have
-                            elsif ( $_ =~ m/\s+\S+\sCS$/ ) {
-                                my $modeltrack = $_;
+                            elsif ( $_ =~ m/\s+\S+\s(?:CS|RF)$/ ) {
+                                my @data = split( " ", $_ );
+                                $csline .= $data[-2];
                                 $max_count++;
                                 $count++;
                                 next;
@@ -601,6 +605,7 @@ sub next_result {
                                 $pline    .= $data[-2];
                                 $count     = 0;
                                 $max_count = 3;
+                                $$hsp[-5]  = $csline;
                                 $$hsp[-4]  = $hline;
                                 $$hsp[-3]  = $midline;
                                 $$hsp[-2]  = $qline;
@@ -823,6 +828,11 @@ sub next_result {
                                 }
                             );
                             $self->element(
+                                {   'Name' => 'Hsp_csline',
+                                    'Data' => shift @$hsp
+                                }
+                            );
+                            $self->element(
                                 {   'Name' => 'Hsp_hseq',
                                     'Data' => shift @$hsp
                                 }
@@ -1035,7 +1045,7 @@ sub characters {
     my ( $self, $data ) = @_;
 
     if (   $self->in_element('hsp')
-        && $data->{'Name'} =~ /Hsp\_(qseq|hseq|pline|midline)/o
+        && $data->{'Name'} =~ /Hsp\_(qseq|hseq|csline|pline|midline)/o
         && defined $data->{'Data'} )
     {
         $self->{'_last_hspdata'}->{ $data->{'Name'} } .= $data->{'Data'};
