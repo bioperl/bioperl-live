@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 420 );
+    test_begin( -tests => 423 );
 
     use_ok('Bio::SearchIO');
 }
@@ -62,8 +62,6 @@ while ( $result = $searchio->next_result ) {
                 'lf+g+L + +t+e Lk++F+k G iv++ +++D     + t++s+Gf+F+++  ++  + A +    +++++gr+++ ',
                 'Check for homology string'
             );
-            # Hmmpfam don't have PP string, this is a test to check for side effects
-            is( $hsp->posterior_string, '');
             is( length( $hsp->homology_string ),
                 length( $hsp->hit_string ),
                 'Check if homology string and hit string have an equal length'
@@ -72,15 +70,18 @@ while ( $result = $searchio->next_result ) {
                 length( $hsp->homology_string ),
                 'Check if query string and homology string have an equal length'
             );
+            # Hmmpfam don't have PP or CS strings, these are tests to check for side effects
+            is( $hsp->posterior_string,    '' );
+            is( $hsp->consensus_structure, '' );
         }
     }
     if ( defined( $hit = $result->next_model ) ) {
         if ( defined( $hsp = $hit->next_domain ) ) {
-            is( $hsp->hit->start,   1,    'Check for hit hmmfrom value' );
-            is( $hsp->hit->end,     77,   'Check for hit hmm to value' );
-            is( $hsp->query->start, 124,  'Check for query alifrom value' );
-            is( $hsp->query->end,   194,  'Check for query ali to value' );
-            is( $hsp->score,        75.5, 'Check for hsp score' );
+            is( $hsp->hit->start,   1,       'Check for hit hmmfrom value' );
+            is( $hsp->hit->end,     77,      'Check for hit hmm to value' );
+            is( $hsp->query->start, 124,     'Check for query alifrom value' );
+            is( $hsp->query->end,   194,     'Check for query ali to value' );
+            is( $hsp->score,        75.5,    'Check for hsp score' );
             float_is( $hsp->evalue, 1.1e-18, 'Check for hsp c-Evalue' );
             is( $hsp->query_string,
                 'LFVGALKDDHDEQSIRDYFQHFGNIVDINIVID-----KETGKKRGFAFVEFDDYDPVDKVVL-QKQHQLNGKMVDV',
@@ -503,6 +504,10 @@ while ( $result = $searchio->next_result ) {
                 is( $hsp->query->end,   40,  'Check for query hmm to value' );
                 is( $hsp->score,       -4.3, 'Check for hsp score' );
                 float_is( $hsp->evalue, 1,   'Check for hsp c-Evalue' );
+                is( $hsp->consensus_structure,
+                    '',
+                    'Check for consensus structure string'
+                );
                 is( $hsp->query_string,
                     'laallAl',
                     'Check for query string'
@@ -567,6 +572,10 @@ while ( $result = $searchio->next_result ) {
                 is( $hsp->query->end,   1021,     'Check for query hmm to value' );
                 is( $hsp->score,        616.6,    'Check for hsp score' );
                 float_is( $hsp->evalue, 3.9e-189, 'Check for hsp c-Evalue' );
+                is( $hsp->consensus_structure,
+                    'S-TTEEEEEEEETTSEEEEEEEESTTS-HHHHHHHHHHHHHHHGGGS-HHHHHH-EEEEEEECCECEEEEEEESSSTS-HHHHHHHHHHCTHHHHHTSTTEEEEEESS.--EEEEEEE-HHHHHCTT--HHHHHHHHHHHSSB-EEEECTT-SB-EEEE-SB---SCCHHCT-EEEETTSEEEEHHHCEEEEEEESSSS-EEEETTCEEEEEEEEEETTSBHHHHHHHHHHHHHCCGGGSSTTEEEEEEEESHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSHCCCHHHHHHHHHHHHHHHHHHHHTT--EEHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHCSS-HHHHHHHHHHHHCCHHHHHHHHHHHHCCGGGGSBHHHHHHHHHHHHHHHHHHHHHHHHHHCCHHHHHHHCS----TT-CC..............................CHHHHHHHHHHHHHHHHHHHHHHHHHSCHHHHHHHHHHHHH.HHHHHCCS-BESS----TSEEEEEEE-STTC-HHHHHHHHHHHHHHHH...TTTTEEEEEEEESESSSS..E........CTTEEEEEEEE--CTTS-SCCCSHHHHHHHHHHHC.CTSTSSEEEEEE-SSSCCCSSSSSEEEEEEE.TSSSCHHHHHHHHHHHHHHHCCSTTEECEEESS-S-EEEEEEEE-HHHHHHCTB-HHHHHHHHHHHHT-..EEEEEEEETTE...EEEEEEEE-GGGSSSGGGGCC-EEEETTSE.EEECGGCEEEEEEEE-SEEEEETTCEEEEEEEEESTTS...-HHHHHHHHHHCCTT..SSTTEEEEEECHHHHHHHHCCCHHHHHHHHHHHHHHHHHHHCTSSSTCHHHHTTHHHHHHHHHHHHHHTT--BSHHHHHHHHHHHHHHHHHHHHHHHHHHHHHCTTTBHHHHHHHHHHHHCHHHHHHHHHHHHHCCHHHHTT-STTHHHHHHHHHHHHHHHHHHHHCHHHHHHHHHHHHH',
+                    'Check for consensus structure string'
+                );
                 is( $hsp->query_string,
                     'gldglkyvsSqSseglssitvtFedgtdidiArqqvqnrlqeaknkLPeevqepgiskiktssseilvlavtskdgsltktdlrdlaesnikdqlsrveGVgdvqliGgsekavriwldpqklaklgltltdvvsalkeqnvqvaaGqlegqqeelliraqgrlqsaediekiivksqdgskvrlrDvAkvelgaeeeriaatlngkpavllavkklpganaievvkavkekleelketlPegveivvvydttefvrasieeVvktlleaivLvvlvlflFLqnlratlipaiavPlsllgtfavlkalglsiNlltlfgLvlAiGlvvDdAiVvvEnverkleeegekpleaalksmkeiegalvaialvllavfvPilflgGveGklfrqfaltivlaillsvlvaltltPalcallLkarkeekek..............................gffrefnrlfdalerrYekllekvlrhravvllvalllvvg.slllfvripkeflPeedegvlvtsvqlppgvsleqtekvlkqvekilk...ekpevesvfavtGfafagdta........gqnsakvfisLkpekerkeeektvealierlrkel.ekikganvellapiqlreletlsgvrlelqvklfgddleaLseareqllaalkqlpeladvrseqqedepqlqvkidrekaaalGvsiadinetlstalgg..syvndfieegr...vvkvvvqleedlrsspedlkklyvrnkkgk.mvplsavakieeekgpnsierenglrsveisgevaegd...slgeaeeavekiakqvklPagvgiewtglseqeqeagnsllllvalalllvflvLaalyeslsdpllvlltvPlalvGallalllrglelsviaqvGlilliGlavkNailivefakelrekeglsleeAileaaklRLrPiLMTalaailGvlPLalstGaGselqqplgivvlGGlvtstvLtlllvPvlYvlva',
                     'Check for query string'
