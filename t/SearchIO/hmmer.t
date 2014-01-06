@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 423 );
+    test_begin( -tests => 427 );
 
     use_ok('Bio::SearchIO');
 }
@@ -305,8 +305,10 @@ while ( $result = $searchio->next_result ) {
             '/data/biodata/HMMerDB/Pfam.hmm',
             'Check hmm_name'
         );
-        is( $result->sequence_file, 'BA000019.orf1.fasta',
-            'Check sequence_file' );
+        is( $result->sequence_file,
+            'BA000019.orf1.fasta',
+            'Check sequence_file'
+        );
         is( $result->query_name,        'BA000019.orf1', 'Check query_name' );
         is( $result->query_length,      '198',           'Check query_length' );
         is( $result->query_description, '',              'Check query_description' );
@@ -356,6 +358,16 @@ while ( $result = $searchio->next_result ) {
     }
     # Check for errors in HSP caused by the existence of 2 hits with the same ID
     elsif ($counter == 2) {
+        is( $result->algorithm,         'HMMSCAN', 'Check algorithm' );
+        is( $result->algorithm_version, '3.0',     'Check algorithm version' );
+        is( $result->hmm_name,
+            '/data/biodata/HMMerDB/Pfam.hmm',
+            'Check hmm_name'
+        );
+        is( $result->sequence_file,
+            'BA000019.orf1.fasta',
+            'Check sequence_file'
+        );
         is( $result->query_name,        'lcl|Test_ID.1|P1', 'Check query_name' );
         is( $result->query_length,       463,               'Check query_length' );
         is( $result->query_description, '281521..282909',   'Check query_description' );
@@ -463,14 +475,10 @@ while ( $result = $searchio->next_result ) {
             'Bio::Search::Result::HMMERResult',
             'Check for the correct result reference type'
         );
-        is( $result->algorithm, 'HMMSEARCH', 'Check algorithm' );
-
-        TODO: {
-            local $TODO = 'Process multi-query reports';
-            is( $result->algorithm_version, '3.0',                   'Check algorithm version' );
-            is( $result->hmm_name,          'Pfam-A.hmm',            'Check hmm_name' );
-            is( $result->sequence_file,     'test_seqs.seq_raw.txt', 'Check sequence_file' );
-        }
+        is( $result->algorithm,         'HMMSEARCH',             'Check algorithm' );
+        is( $result->algorithm_version, '3.0',                   'Check algorithm version' );
+        is( $result->hmm_name,          'Pfam-A.hmm',            'Check hmm_name' );
+        is( $result->sequence_file,     'test_seqs.seq_raw.txt', 'Check sequence_file' );
 
         is( $result->query_name,      'DUF4229',   'Check query_name' );
         is( $result->query_length,     69,         'Check query_length' );
@@ -532,14 +540,10 @@ while ( $result = $searchio->next_result ) {
             'Bio::Search::Result::HMMERResult',
             'Check for the correct result reference type'
         );
-        is( $result->algorithm, 'HMMSEARCH', 'Check algorithm' );
-
-        TODO: {
-            local $TODO = 'Process multi-query reports';
-            is( $result->algorithm_version, '3.0',                   'Check algorithm version' );
-            is( $result->hmm_name,          'Pfam-A.hmm',            'Check hmm_name' );
-            is( $result->sequence_file,     'test_seqs.seq_raw.txt', 'Check sequence_file' );
-        }
+        is( $result->algorithm,         'HMMSEARCH',             'Check algorithm' );
+        is( $result->algorithm_version, '3.0',                   'Check algorithm version' );
+        is( $result->hmm_name,          'Pfam-A.hmm',            'Check hmm_name' );
+        is( $result->sequence_file,     'test_seqs.seq_raw.txt', 'Check sequence_file' );
 
         is( $result->query_name,      'ACR_tran',   'Check query_name' );
         is( $result->query_length,     1021,        'Check query_length' );
