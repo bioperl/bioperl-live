@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 427 );
+    test_begin( -tests => 453 );
 
     use_ok('Bio::SearchIO');
 }
@@ -883,8 +883,8 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     my $hit    = $result->next_hit;
     my $hsp    = $hit->next_hsp;
     is( $hsp->hit_string,
-        "svfqqqqssksttgstvtAiAiAigYRYRYRAvtWnsGsLssGvnDnDnDqqsdgLYtiYYsvtvpssslpsqtviHHHaHkasstkiiikiePr",
-        "bug3376"
+        'svfqqqqssksttgstvtAiAiAigYRYRYRAvtWnsGsLssGvnDnDnDqqsdgLYtiYYsvtvpssslpsqtviHHHaHkasstkiiikiePr',
+        'bug3376'
     );
 }
 # end bug 3376
@@ -898,8 +898,8 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     my $result = $in->next_result;
     my $hit    = $result->next_hit;
     my $hsp    = $hit->next_hsp;
-    is( $hsp->length, "561",
-        "bug3421 - Check if can correctly parse an HSP with line full of dashes"
+    is( $hsp->length, '561',
+        'bug3421 - Check if can correctly parse an HSP with line full of dashes'
     );
 }
 # end bug 3421
@@ -913,7 +913,7 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     my $result = $in->next_result;
     $result = $in->next_result;
     my $hit = $result->next_hit;
-    is( $hit->name, "IS66_ORF3.uniq", "bug3302 - Check if can parse multiresult hmmer" );
+    is( $hit->name, 'IS66_ORF3.uniq', 'bug3302 - Check if can parse multiresult hmmer' );
 }
 # end bug 3302
 
@@ -925,38 +925,114 @@ is( $result->num_hits(), 2, 'Check num_hits' );
         -file    => test_input_file('nhmmer-3.1.out')
     );
     my $result = $in->next_result;
-    is( $result->algorithm_version, '3.1b1', 'Check nhmmer algorithm version' );
+    is( $result->algorithm,         'NHMMER', 'Check algorithm' );
+    is( $result->algorithm_version, '3.1b1',  'Check nhmmer algorithm version' );
+    is( $result->hmm_name,
+        '../HMMs/A_HA_H7_CDS_nucleotide.hmm',
+        'Check hmm_name'
+    );
+    is( $result->sequence_file,
+        'tmp.fa',
+        'Check sequence_file'
+    );
+    is( $result->query_name,        'A_HA_H7_CDS_nucleotide', 'Check query_name' );
+    is( $result->query_length,       1683,                    'Check query_length' );
+    is( $result->query_description, '',                       'Check query_description' );
+    is( $result->num_hits(),         2,                       'Check num_hits' );
 
     my $hit = $result->next_hit;
-    is( $hit->name, "seq1", "Check nhmmer hit name" );
-    is( $hit->description, "Description of seq1", "Check nhmmer hit description" );
-    is( $hit->significance, "3.2e-48", "Check nhmmer hit significance" );
-    is( $hit->score,        "148.2",   "Check nhmmer hit score" );
+    is( ref($hit), 'Bio::Search::Hit::HMMERHit',
+        'Check for the correct hit reference type' );
+    is( $hit->name,              'seq1',                'Check nhmmer hit name' );
+    is( $hit->description,       'Description of seq1', 'Check nhmmer hit description' );
+    is( $hit->score,              148.2,                'Check nhmmer hit score' );
+    float_is( $hit->significance, 3.2e-48,              'Check nhmmer hit significance' );
+    is( $hit->length,             151,                  'Check nhmmer hit length' );
 
     my $hsp = $hit->next_hsp;
-    is( $hsp->score, "148.2",   "Check nhmmer hsp score" );
-    is( $hsp->significance, "3.2e-48",   "Check nhmmer hsp score" );
-    is( $hsp->start('hit'), "1",   "Check nhmmer hsp hit start" );
-    is( $hsp->end('hit'), "151",   "Check nhmmer hsp hit end" );
-    is( $hsp->start('query'), "258",   "Check nhmmer hsp query start" );
-    is( $hsp->end('query'), "411",   "Check nhmmer hsp query end" );
-    is( $hsp->strand('hit'), '1',   "Check nhmmer hsp hit strand" );
-    is( $hsp->strand('query'), '1',   "Check nhmmer hsp query strand" );
+    is( $hsp->score,              148.2,   'Check nhmmer hsp score' );
+    float_is( $hsp->significance, 3.2e-48, 'Check nhmmer hsp evalue' );
+    is( $hsp->start('hit'),       1,       'Check nhmmer hsp hit start' );
+    is( $hsp->end('hit'),         151,     'Check nhmmer hsp hit end' );
+    is( $hsp->start('query'),     258,     'Check nhmmer hsp query start' );
+    is( $hsp->end('query'),       411,     'Check nhmmer hsp query end' );
+    is( $hsp->strand('hit'),      1,       'Check nhmmer hsp hit strand' );
+    is( $hsp->strand('query'),    1,       'Check nhmmer hsp query strand' );
+
+    is( $hsp->gaps('hit'), 3, 'Check for number of gaps in hit' );
+    is( $hsp->consensus_structure,
+        '',
+        'Check for consensus structure string'
+    );
+    is( $hsp->query_string,
+        'attcctagaattttcagctgatttaattattgagaggcgagaaggaagtaatgatgtctgttatcctgggaaattcgtaaatgaagaagctctgaggcaaattctcagggggtcaggcggaattgacaaggagacaatgggattcacatatagc',
+        'Check for nhmmer query string'
+    );
+    is( $hsp->homology_string,
+        'attcctagaattttcagc+gatttaattattgagaggcgagaaggaagt   gatgtctgttatcctgggaaattcgt+aatgaagaagctctgaggcaaattctcaggg+gtcaggcggaattgacaaggagacaatgggattcac+ta+agc',
+        'Check for nhmmer homology string'
+    );
+    is( $hsp->hit_string,
+        'ATTCCTAGAATTTTCAGCCGATTTAATTATTGAGAGGCGAGAAGGAAGT---GATGTCTGTTATCCTGGGAAATTCGTGAATGAAGAAGCTCTGAGGCAAATTCTCAGGGAGTCAGGCGGAATTGACAAGGAGACAATGGGATTCACCTACAGC',
+        'Check for nhmmer hit string'
+    );
+    is( $hsp->posterior_string,
+       '689*******************************************777...***************************************************************************************************986',
+        'Check for nhmmer posterior probability string'
+    );
+    is( length( $hsp->homology_string ),
+        length( $hsp->hit_string ),
+        'Check if nhmmer homology string and hit string have an equal length'
+    );
+    is( length( $hsp->query_string ),
+        length( $hsp->homology_string ),
+        'Check if nhmmer query string and homology string have an equal length'
+    );
 
     $hit = $result->next_hit;
-    is( $hit->name, "seq2", "Check nhmmer hit name" );
-    is( $hit->description, "Description of seq2", "Check nhmmer hit description" );
-    is( $hit->significance, "3.9e-15", "Check nhmmer hit significance" );
-    is( $hit->score,        "38.6",   "Check nhmmer hit score" );
+    is( $hit->name,              'seq2',                'Check nhmmer hit name' );
+    is( $hit->description,       'Description of seq2', 'Check nhmmer hit description' );
+    is( $hit->score,              38.6,                 'Check nhmmer hit score' );
+    float_is( $hit->significance, 3.9e-15,              'Check nhmmer hit significance' );
+    is( $hit->length,             60,                   'Check nhmmer hit length' );
 
     $hsp = $hit->next_hsp;
-    is( $hsp->score, '38.6',   "Check nhmmer hsp score" );
-    is( $hsp->significance, '3.9e-15',   "Check nhmmer hsp score" );
-    is( $hsp->start('query'), '34',   "Check nhmmer hsp query start" );
-    is( $hsp->end('query'), '92',   "Check nhmmer hsp query end" );
-    is( $hsp->start('hit'), '1',   "Check nhmmer hsp hit start" );
-    is( $hsp->end('hit'), '59',   "Check nhmmer hsp hit end" );
-    is( $hsp->strand('hit'), '-1',   "Check nhmmer hsp hit strand" );
-    is( $hsp->strand('query'), '1',   "Check nhmmer hsp query strand" );
+    is( $hsp->score,              38.6,    'Check nhmmer hsp score' );
+    float_is( $hsp->significance, 3.9e-15, 'Check nhmmer hsp evalue' );
+    is( $hsp->start('query'),     34,      'Check nhmmer hsp query start' );
+    is( $hsp->end('query'),       92,      'Check nhmmer hsp query end' );
+    is( $hsp->start('hit'),       1,       'Check nhmmer hsp hit start' );
+    is( $hsp->end('hit'),         59,      'Check nhmmer hsp hit end' );
+    is( $hsp->strand('hit'),     -1,       'Check nhmmer hsp hit strand' );
+    is( $hsp->strand('query'),    1,       'Check nhmmer hsp query strand' );
+
+    is( $hsp->gaps('query'), 0, 'Check for number of gaps in query' );
+    is( $hsp->consensus_structure,
+        '',
+        'Check for consensus structure string'
+    );
+    is( $hsp->query_string,
+        'gtgatgattgcaacaaatgcagacaaaatctgccttgggcaccatgctgtgtcaaacgg',
+        'Check for nhmmer query string'
+    );
+    is( $hsp->homology_string,
+        'g+gat+att+c+acaaatgcagacaa atctgccttgggca+catgc+gtgtcaaacgg',
+        'Check for nhmmer homology string'
+    );
+    is( $hsp->hit_string,
+        'GCGATCATTCCGACAAATGCAGACAAGATCTGCCTTGGGCATCATGCCGTGTCAAACGG',
+        'Check for nhmmer hit string'
+    );
+    is( $hsp->posterior_string,
+        '6899****************************************************986',
+        'Check for nhmmer posterior probability string' );
+    is( length( $hsp->homology_string ),
+        length( $hsp->hit_string ),
+        'Check if nhmmer homology string and hit string have an equal length'
+    );
+    is( length( $hsp->query_string ),
+        length( $hsp->homology_string ),
+        'Check if nhmmer query string and homology string have an equal length'
+    );
 }
 # end HMMER 3.1 nhmmer output
