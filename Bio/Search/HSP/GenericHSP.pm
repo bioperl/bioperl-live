@@ -1737,7 +1737,8 @@ sub _pre_gaps {
         $self->gaps('query', $query_gaps);
     } elsif( defined $query_seq ) {
         my $qg = (defined $self->{'_query_offset'}) ? $self->seq_inds('query','gaps')
-               : scalar( $query_seq =~ tr/\-\.//); # HMMER3 uses '.' and '-'
+               : ($self->algorithm eq 'ERPIN')      ? scalar( $hit_seq =~ tr/\-//)
+               :  scalar( $query_seq =~ tr/\-\.// ); # HMMER3 and Infernal uses '.' and '-'
         my $offset = $self->{'_query_offset'} || 1;
         $self->gaps('query', $qg/$offset);
     }
@@ -1745,7 +1746,8 @@ sub _pre_gaps {
         $self->gaps('hit', $hit_gaps);
     } elsif( defined $hit_seq ) {
         my $hg = (defined $self->{'_sbjct_offset'}) ? $self->seq_inds('hit','gaps')
-               : scalar( $hit_seq =~ tr/\-\.//); # HMMER3 uses '.' and '-'
+               : ($self->algorithm eq 'ERPIN')      ? scalar( $hit_seq =~ tr/\-//)
+               :  scalar( $hit_seq =~ tr/\-\.// ); # HMMER3 and Infernal uses '.' and '-'
         my $offset = $self->{'_sbjct_offset'} || 1;
         $self->gaps('hit', $hg/$offset);
     }
