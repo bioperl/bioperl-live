@@ -1722,7 +1722,7 @@ sub _pre_frac {
 # before calling gaps()
 # This relies first on passed parameters (parser-dependent), then on gaps
 # calculated by seq_inds() (if set), then falls back to directly checking
-# for '-' as a last resort  
+# for '-' or '.' as a last resort
 
 sub _pre_gaps {
     my $self = shift;
@@ -1736,14 +1736,16 @@ sub _pre_gaps {
     if( defined $query_gaps ) {
         $self->gaps('query', $query_gaps);
     } elsif( defined $query_seq ) {
-        my $qg = (defined $self->{'_query_offset'}) ? $self->seq_inds('query','gaps') : scalar( $query_seq =~ tr/\-//);
+        my $qg = (defined $self->{'_query_offset'}) ? $self->seq_inds('query','gaps')
+               : scalar( $query_seq =~ tr/\-\.//); # HMMER3 uses '.' and '-'
         my $offset = $self->{'_query_offset'} || 1;
         $self->gaps('query', $qg/$offset);
     }
     if( defined $hit_gaps ) {
         $self->gaps('hit', $hit_gaps);
     } elsif( defined $hit_seq ) {
-        my $hg = (defined $self->{'_sbjct_offset'}) ? $self->seq_inds('hit','gaps') : scalar( $hit_seq =~ tr/\-//);
+        my $hg = (defined $self->{'_sbjct_offset'}) ? $self->seq_inds('hit','gaps')
+               : scalar( $hit_seq =~ tr/\-\.//); # HMMER3 uses '.' and '-'
         my $offset = $self->{'_sbjct_offset'} || 1;
         $self->gaps('hit', $hg/$offset);
     }
