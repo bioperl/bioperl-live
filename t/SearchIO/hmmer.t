@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 453 );
+    test_begin( -tests => 502 );
 
     use_ok('Bio::SearchIO');
 }
@@ -310,7 +310,8 @@ while ( $result = $searchio->next_result ) {
             'Check sequence_file'
         );
         is( $result->query_name,        'BA000019.orf1', 'Check query_name' );
-        is( $result->query_length,      '198',           'Check query_length' );
+        is( $result->query_length,       198,            'Check query_length' );
+        is( $result->query_accession,   '',              'Check query_accession' );
         is( $result->query_description, '',              'Check query_description' );
         # 1 hit above and 6 below inclusion threshold
         is( $result->num_hits(), 7, 'Check num_hits' );
@@ -328,6 +329,11 @@ while ( $result = $searchio->next_result ) {
             float_is( $hit->significance, 6e-30, 'Check hit significance' );
             is( $hit->num_hsps,           1,     'Check num_hsps' );
 
+            # Hit length is unknown for HMMSCAN and HMMSEARCH but not for NHMMER
+            is( $hit->length,             0,     'Check hit length absence' );
+            is( sprintf( "%.2f", $hit->frac_aligned_query ), 0.87 );
+            is( $hit->frac_aligned_hit, undef );
+
             if ( defined( $hsp = $hit->next_domain ) ) {
                 is( ref($hsp), 'Bio::Search::HSP::HMMERHSP',
                     'Check for correct hsp reference type' );
@@ -337,6 +343,22 @@ while ( $result = $searchio->next_result ) {
                 is( $hsp->query->end,   173,     'Check for query ali to value' );
                 is( $hsp->score,       '105.0',  'Check for hsp score' );
                 float_is( $hsp->evalue, 1.5e-33, 'Check for hsp c-Evalue' );
+
+                is( $hsp->length('query'), 172, 'Check for hsp query length' );
+                is( $hsp->length('hit'),   178, 'Check for hsp hit length' );
+                is( $hsp->length('total'), 180, 'Check for hsp total length' );
+                is( $hsp->gaps('query'),   8,   'Check for hsp query gaps' );
+                is( $hsp->gaps('hit'),     2,   'Check for hsp hit gaps' );
+                is( $hsp->gaps('total'),   10,  'Check for hsp total gaps' );
+
+                is( sprintf( "%.2f", $hsp->percent_identity ),        27.78 );
+                is( sprintf( "%.3f", $hsp->frac_identical('query') ), 0.291 );
+                is( sprintf( "%.3f", $hsp->frac_identical('hit') ),   0.281 );
+                is( sprintf( "%.3f", $hsp->frac_conserved('query') ), 0.814 );
+                is( sprintf( "%.3f", $hsp->frac_conserved('hit') ),   0.787 );
+
+                is (length($hsp->homology_string), length($hsp->query_string));
+
                 is( $hsp->query_string,
                     'LKPDLIIGREYQ---KNIYNQLSNFAPTVLVDWGSF-TSFQDNFRYIAQVLNEEEQGKLVLQQYQKRIRDLQDRMGERlQKIEVSVIGFSGQSIKSLNR-DAVFNQVLDDAGIKRIsIQKNQQERYLEISIENLNKYDADVLFVINE---SKEQLYPDLKNPLWHHLRAVKKQQVYVVNQ',
                     'Check for query string'
@@ -567,6 +589,11 @@ while ( $result = $searchio->next_result ) {
             float_is( $hit->significance, 9.3e-189, 'Check hit significance' );
             is( $hit->num_hsps,           1,        'Check num_hsps' );
 
+            # Hit length is unknown for HMMSCAN and HMMSEARCH but not for NHMMER
+            is( $hit->length,             0,        'Check hit length absence' );
+            is( sprintf( "%.2f", $hit->frac_aligned_query ), 0.93 );
+            is( $hit->frac_aligned_hit, undef );
+
             if ( defined( $hsp = $hit->next_domain ) ) {
                 is( ref($hsp), 'Bio::Search::HSP::HMMERHSP',
                     'Check for correct hsp reference type' );
@@ -576,6 +603,22 @@ while ( $result = $searchio->next_result ) {
                 is( $hsp->query->end,   1021,     'Check for query hmm to value' );
                 is( $hsp->score,        616.6,    'Check for hsp score' );
                 float_is( $hsp->evalue, 3.9e-189, 'Check for hsp c-Evalue' );
+
+                is( $hsp->length('query'), 951,  'Check for hsp query length' );
+                is( $hsp->length('hit'),   990,  'Check for hsp hit length' );
+                is( $hsp->length('total'), 1003, 'Check for hsp total length' );
+                is( $hsp->gaps('query'),   52,   'Check for hsp query gaps' );
+                is( $hsp->gaps('hit'),     13,   'Check for hsp hit gaps' );
+                is( $hsp->gaps('total'),   65,   'Check for hsp total gaps' );
+
+                is( sprintf( "%.2f", $hsp->percent_identity ),        26.12 );
+                is( sprintf( "%.3f", $hsp->frac_identical('query') ), 0.275 );
+                is( sprintf( "%.3f", $hsp->frac_identical('hit') ),   0.265 );
+                is( sprintf( "%.3f", $hsp->frac_conserved('query') ), 0.726 );
+                is( sprintf( "%.3f", $hsp->frac_conserved('hit') ),   0.697 );
+
+                is (length($hsp->homology_string), length($hsp->query_string));
+
                 is( $hsp->consensus_structure,
                     'S-TTEEEEEEEETTSEEEEEEEESTTS-HHHHHHHHHHHHHHHGGGS-HHHHHH-EEEEEEECCECEEEEEEESSSTS-HHHHHHHHHHCTHHHHHTSTTEEEEEESS.--EEEEEEE-HHHHHCTT--HHHHHHHHHHHSSB-EEEECTT-SB-EEEE-SB---SCCHHCT-EEEETTSEEEEHHHCEEEEEEESSSS-EEEETTCEEEEEEEEEETTSBHHHHHHHHHHHHHCCGGGSSTTEEEEEEEESHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSHCCCHHHHHHHHHHHHHHHHHHHHTT--EEHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHCSS-HHHHHHHHHHHHCCHHHHHHHHHHHHCCGGGGSBHHHHHHHHHHHHHHHHHHHHHHHHHHCCHHHHHHHCS----TT-CC..............................CHHHHHHHHHHHHHHHHHHHHHHHHHSCHHHHHHHHHHHHH.HHHHHCCS-BESS----TSEEEEEEE-STTC-HHHHHHHHHHHHHHHH...TTTTEEEEEEEESESSSS..E........CTTEEEEEEEE--CTTS-SCCCSHHHHHHHHHHHC.CTSTSSEEEEEE-SSSCCCSSSSSEEEEEEE.TSSSCHHHHHHHHHHHHHHHCCSTTEECEEESS-S-EEEEEEEE-HHHHHHCTB-HHHHHHHHHHHHT-..EEEEEEEETTE...EEEEEEEE-GGGSSSGGGGCC-EEEETTSE.EEECGGCEEEEEEEE-SEEEEETTCEEEEEEEEESTTS...-HHHHHHHHHHCCTT..SSTTEEEEEECHHHHHHHHCCCHHHHHHHHHHHHHHHHHHHCTSSSTCHHHHTTHHHHHHHHHHHHHHTT--BSHHHHHHHHHHHHHHHHHHHHHHHHHHHHHCTTTBHHHHHHHHHHHHCHHHHHHHHHHHHHCCHHHHTT-STTHHHHHHHHHHHHHHHHHHHHCHHHHHHHHHHHHH',
                     'Check for consensus structure string'
@@ -589,7 +632,7 @@ while ( $result = $searchio->next_result ) {
                     'Check for hit string'
                 );
                 is( $hsp->homology_string,
-                    '++ +++++SqS  g   + + F+ + di  A+ qv++  q + +++P ++++p i   +++  +il+la++sk   l++  + dl++ i++ql+ v G +    +Gg+ ++++i ldpq++++ +++++dv++al++qn   + G+ +  + e+++++++   +   +++++k+  g  + ++DvA+v +g   + ++++ +g   vl+++ k     ++++++  ke +++lketlP+++ ++vv d++ fv+++i+Vv +  +a +L  ++++lFL+++r+t+i+ +++Pl++l ++++l++ g ++N++tl+gL+lA+G++vDdA Vv+En+  +le+ g++a++ ++++i  + + ++l++++vfvP+++l+Gv   lf ++a ++++ +l s +++ t++P ++  lLk + ++ ++++ + f++ f ++   Y+ +l++ l hr+  ++++l +v++ ++ lf+ ++k+f+Pe d g++++++++ g+ +e+t+k  + +e++++    ++e + ++   G + +g +         g++ +++ i+L ++      ++  ++ +++lr+ l ++++g++ +++ p +++ +    gv + ++  + g ++++  + ++++l+ ++++p++ad+r++q ++ pq++v+idr+a+++G++  di + l + l g  +++ +f  +++    + +v+q+++ + +s+ dl+++++++k++  m  l+ + +ie+ ++ +i+++n ++s+ i ++++ +d   ++g++e+++++ +++  lP+gv+++ +g+    q ++  l+l ++++++l++++  + +es++dp+++++ +P al+G +  l+l+g++lsv a+ G i+ +G+a  N il+++fa+e  +   ++  +A+lea+ +R+rP+LMTa a+++G++P+al+ G+G e   plg +v+GGl+++t+ tl +vPv++ +v+',
+                    ' ++ +++++SqS  g   + + F+ + di  A+ qv++  q + +++P ++++p i   +++  +il+la++sk   l++  + dl ++ i++ql+ v G +    +Gg+ ++++i ldpq++++ +++++dv++al++qn   + G+ +  + e+++++++   +   ++++ +k+  g  + ++DvA+v +g   + ++++ +g   vl+++ k     ++++++  ke +++lketlP+++ ++vv d++ fv+++i+ Vv +  +a +L  ++++lFL+++r+t+i+ +++Pl++l ++++l++ g ++N++tl+gL+lA+G++vDdA Vv+En+  +le+ g+   +a++ ++++i  + + ++l++++vfvP+++l+Gv   lf ++a ++++ +l s +++ t++P ++  lLk + ++ ++                              ++ + f++ f ++   Y+ +l++ l hr+  ++++l +v++ ++ lf+ ++k+f+Pe d g++ ++++++ g+ +e+t+k  + +e++++    ++e + ++   G + +g +         g++ +++ i+L ++      ++  ++ +++lr+ l ++++g++ +++ p +++ +    gv + ++  + g ++++  + ++++l+ ++++p++ad+r++q ++ pq++v+idr +a+++G++  di + l + l g  +++ +f  +++    + +v+q+++ + +s+ dl+++++++k++  m  l+ + +ie+ ++ + i+++n ++s+ i ++++ +d   ++g++e+++++ +++  lP+gv+++ +g+    q ++  l+l ++++++l++++  + +es++dp+++++ +P al+G +  l+l+g++lsv a+ G i+ +G+a  N il+++fa+e  +   ++  +A+lea+ +R+rP+LMTa a+++G++P+al+ G+G e   plg +v+GGl+++t+ tl +vPv++ +v+',
                     'Check for homology string'
                 );
                 is( $hsp->posterior_string,
@@ -937,6 +980,7 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     );
     is( $result->query_name,        'A_HA_H7_CDS_nucleotide', 'Check query_name' );
     is( $result->query_length,       1683,                    'Check query_length' );
+    is( $result->query_accession,   '',                       'Check query_accession' );
     is( $result->query_description, '',                       'Check query_description' );
     is( $result->num_hits(),         2,                       'Check num_hits' );
 
@@ -947,19 +991,41 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     is( $hit->description,       'Description of seq1', 'Check nhmmer hit description' );
     is( $hit->score,              148.2,                'Check nhmmer hit score' );
     float_is( $hit->significance, 3.2e-48,              'Check nhmmer hit significance' );
+    is( $hit->num_hsps,           1,                    'Check num_hsps' );
+
+    # Hit length is unknown for HMMSCAN and HMMSEARCH but not for NHMMER
     is( $hit->length,             151,                  'Check nhmmer hit length' );
+    is( sprintf( "%.2f", $hit->frac_aligned_query ), 0.09 );
+    is( sprintf( "%.2f", $hit->frac_aligned_hit ),  '1.00' );
 
     my $hsp = $hit->next_hsp;
-    is( $hsp->score,              148.2,   'Check nhmmer hsp score' );
-    float_is( $hsp->significance, 3.2e-48, 'Check nhmmer hsp evalue' );
+    is( ref($hsp), 'Bio::Search::HSP::HMMERHSP',
+        'Check for correct hsp reference type' );
+
     is( $hsp->start('hit'),       1,       'Check nhmmer hsp hit start' );
     is( $hsp->end('hit'),         151,     'Check nhmmer hsp hit end' );
     is( $hsp->start('query'),     258,     'Check nhmmer hsp query start' );
     is( $hsp->end('query'),       411,     'Check nhmmer hsp query end' );
     is( $hsp->strand('hit'),      1,       'Check nhmmer hsp hit strand' );
     is( $hsp->strand('query'),    1,       'Check nhmmer hsp query strand' );
+    is( $hsp->score,              148.2,   'Check nhmmer hsp score' );
+    float_is( $hsp->significance, 3.2e-48, 'Check nhmmer hsp evalue' );
 
-    is( $hsp->gaps('hit'), 3, 'Check for number of gaps in hit' );
+    is( $hsp->length('query'), 154, 'Check for hsp query length' );
+    is( $hsp->length('hit'),   151, 'Check for hsp hit length' );
+    is( $hsp->length('total'), 154, 'Check for hsp total length' );
+    is( $hsp->gaps('query'),   0,   'Check for hsp query gaps' );
+    is( $hsp->gaps('hit'),     3,   'Check for hsp hit gaps' );
+    is( $hsp->gaps('total'),   3,   'Check for hsp total gaps' );
+
+    is( sprintf( "%.2f", $hsp->percent_identity ),        94.81 );
+    is( sprintf( "%.3f", $hsp->frac_identical('query') ), 0.948 );
+    is( sprintf( "%.3f", $hsp->frac_identical('hit') ),   0.967 );
+    is( sprintf( "%.3f", $hsp->frac_conserved('query') ), 0.981 );
+    is( sprintf( "%.3f", $hsp->frac_conserved('hit') ),  '1.000' );
+
+    is (length($hsp->homology_string), length($hsp->query_string));
+
     is( $hsp->consensus_structure,
         '',
         'Check for consensus structure string'
@@ -1006,7 +1072,10 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     is( $hsp->strand('hit'),     -1,       'Check nhmmer hsp hit strand' );
     is( $hsp->strand('query'),    1,       'Check nhmmer hsp query strand' );
 
-    is( $hsp->gaps('query'), 0, 'Check for number of gaps in query' );
+    is( $hsp->gaps('query'), 0, 'Check for hsp query gaps' );
+    is( $hsp->gaps('hit'),   0, 'Check for hsp hit gaps' );
+    is( $hsp->gaps('total'), 0, 'Check for hsp total gaps' );
+
     is( $hsp->consensus_structure,
         '',
         'Check for consensus structure string'
