@@ -639,6 +639,13 @@ sub next_result {
                         my $hsp;
                         my ( $csline, $hline, $midline, $qline, $pline );
 
+                        # To avoid deleting whitespaces from the homology line,
+                        # keep track of the position and length of the alignment
+                        # in each individual hline/qline, to take them as reference
+                        # and use them in the homology line
+                        my $align_offset = 0;
+                        my $align_length = 0;
+
                         while ( defined( $_ = $self->_readline ) ) {
                             if (   $_ =~ m/^\>\>/
                                 || $_ =~ m/Internal pipeline statistics/ )
@@ -680,6 +687,15 @@ sub next_result {
                                    ) {
                                 my @data = split( " ", $_ );
 
+                                my $line_offset = 0;
+                                while ($_ =~ m/$data[-2]/g) {
+                                    $line_offset = pos;
+                                }
+                                if ($line_offset != 0) {
+                                    $align_length = length $data[-2];
+                                    $align_offset = $line_offset - $align_length;
+                                }
+
                                 if ($self->{'_reporttype'} eq 'HMMSCAN') {
                                     # hit sequence
                                     $hline .= $data[-2] if ($count == $max_count - 3);
@@ -701,9 +717,7 @@ sub next_result {
                             # leading/lagging whitespace while preserving
                             # gap data (latter isn't done, former is)
                             elsif ( $count == $max_count - 2 ) {
-                                $_ =~ s/^\s+//;
-                                $_ =~ s/\s+$//;
-                                $midline .= $_;
+                                $midline .= substr $_, $align_offset, $align_length;
                                 $count++;
                                 next;
                             }
@@ -781,16 +795,41 @@ sub next_result {
                         if ( defined $hsp ) {
                             my $hsp_name = shift @$hsp;
                             $self->start_element( { 'Name' => 'Hsp' } );
-                            $self->element(
-                                {   'Name' => 'Hsp_identity',
-                                    'Data' => 0
-                                }
-                            );
-                            $self->element(
-                                {   'Name' => 'Hsp_positive',
-                                    'Data' => 0
-                                }
-                            );
+                            # Since HMMER doesn't print some data explicitly,
+                            # calculate it from the homology line (midline)
+                            if ($$hsp[-3] ne '') {
+                                my $length    = length $$hsp[-3];
+                                my $identical = ($$hsp[-3] =~ tr/a-zA-Z//);
+                                my $positive  = ($$hsp[-3] =~ tr/+//) + $identical;
+                                $self->element(
+                                    {
+                                        'Name' => 'Hsp_align-len',
+                                        'Data' => $length
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_identity',
+                                        'Data' => $identical
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_positive',
+                                        'Data' => $positive
+                                    }
+                                );
+                            }
+                            else {
+                                $self->element(
+                                    {   'Name' => 'Hsp_identity',
+                                        'Data' => 0
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_positive',
+                                        'Data' => 0
+                                    }
+                                );
+                            }
                             if (   $self->{'_reporttype'} eq 'HMMSCAN'
                                 or $self->{'_reporttype'} eq 'NHMMER') {
                                 $self->element(
