@@ -382,18 +382,6 @@ sub next_result {
                         );
 
                         $self->start_element( { 'Name' => 'Hsp' } );
-                        $self->element(
-                            {
-                                'Name' => 'Hsp_identity',
-                                'Data' => 0
-                            }
-                        );
-                        $self->element(
-                            {
-                                'Name' => 'Hsp_positive',
-                                'Data' => 0
-                            }
-                        );
                         my $HSPinfo = shift @hspinfo;
                         my $id      = shift @$HSPinfo;
 
@@ -605,24 +593,6 @@ sub next_result {
                             'Data' => shift @$HSPinfo
                         }
                     );
-                    $self->element(
-                        {
-                            'Name' => 'Hsp_identity',
-                            'Data' => 0
-                        }
-                    );
-                    $self->element(
-                        {
-                            'Name' => 'Hsp_positive',
-                            'Data' => 0
-                        }
-                    );
-                    $self->element(
-                        {
-                            'Name' => 'Hsp_positive',
-                            'Data' => 0
-                        }
-                    );
                     $self->end_element( { 'Name' => 'Hsp' } );
                     $self->end_element( { 'Name' => 'Hit' } );
                 }
@@ -766,18 +736,6 @@ sub next_result {
                         );
 
                         $self->start_element( { 'Name' => 'Hsp' } );
-                        $self->element(
-                            {
-                                'Name' => 'Hsp_identity',
-                                'Data' => 0
-                            }
-                        );                     
-                        $self->element(
-                            {
-                                'Name' => 'Hsp_positive',
-                                'Data' => 0
-                            }
-                        );
                         my $HSPinfo = shift @hspinfo;
                         my $id      = shift @$HSPinfo;
 
@@ -992,24 +950,6 @@ sub next_result {
                             'Data' => shift @$HSPinfo
                         }
                     );
-                    $self->element(
-                        {
-                            'Name' => 'Hsp_identity',
-                            'Data' => 0
-                        }
-                    );
-                    $self->element(
-                        {
-                            'Name' => 'Hsp_positive',
-                            'Data' => 0
-                        }
-                    );
-                    $self->element(
-                        {
-                            'Name' => 'Hsp_positive',
-                            'Data' => 0
-                        }
-                    );
                     $self->end_element( { 'Name' => 'Hsp' } );
                     $self->end_element( { 'Name' => 'Hit' } );
                 }
@@ -1098,6 +1038,43 @@ sub end_element {
                     'Data' => $data
                 }
             );
+            # Since HMMER doesn't print some data explicitly,
+            # calculate it from the homology line (midline)
+            if ($_ eq 'Hsp_midline') {
+                if ($data) {
+                    my $length    = length $data;
+                    my $identical = ($data =~ tr/a-zA-Z//);
+                    my $positive  = ($data =~ tr/+//) + $identical;
+                    $self->element(
+                        {
+                            'Name' => 'Hsp_align-len',
+                            'Data' => $length
+                        }
+                    );
+                    $self->element(
+                        {   'Name' => 'Hsp_identity',
+                            'Data' => $identical
+                        }
+                    );
+                    $self->element(
+                        {   'Name' => 'Hsp_positive',
+                            'Data' => $positive
+                        }
+                    );
+                }
+                else {
+                    $self->element(
+                        {   'Name' => 'Hsp_identity',
+                            'Data' => 0
+                        }
+                    );
+                    $self->element(
+                        {   'Name' => 'Hsp_positive',
+                            'Data' => 0
+                        }
+                    );
+                }
+            }
         }
         $self->{'_last_hspdata'} = {};
     }
