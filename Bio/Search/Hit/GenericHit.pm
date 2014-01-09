@@ -751,7 +751,6 @@ sub logical_length {
     } else {
         # Otherwise, return logical query length
         $length = $self->query_length();
-        $self->throw("Must have defined query_len") unless ( $length );
     }
 
     $logical = Bio::Search::SearchUtils::logical_length($algo, $seqType, $length);
@@ -1686,10 +1685,13 @@ sub tiled_hsps {
 =cut
 
 sub query_length {
-    my $self = shift;
-
-    return $self->{'_query_length'} = shift if @_;
-    return $self->{'_query_length'};
+    my ($self,$value) = @_;
+    my $previous = $self->{'_query_length'};
+    if( defined $value || ! defined $previous ) {
+        $value = $previous = 0 unless defined $value;
+        $self->{'_query_length'} = $value;
+    }
+    return $previous;
 }
 
 =head2 ncbi_gi
