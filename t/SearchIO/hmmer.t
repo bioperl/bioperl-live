@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 575 );
+    test_begin( -tests => 591 );
 
     use_ok('Bio::SearchIO');
 }
@@ -442,6 +442,13 @@ while ( $result = $searchio->next_result ) {
                 is( $hsp->gaps('hit'),     2,   'Check for hsp hit gaps' );
                 is( $hsp->gaps('total'),   10,  'Check for hsp total gaps' );
 
+                ($hit->length == 0) ?
+                      is( $hsp->{HIT_LENGTH}, $hsp->hit->length, 'Check hit length consistency' )
+                    : is( $hsp->{HIT_LENGTH}, $hit->length,      'Check hit length consistency' );
+                ($result->query_length == 0) ?
+                      is( $hsp->{QUERY_LENGTH}, $hsp->query->length,   'Check query length consistency' )
+                    : is( $hsp->{QUERY_LENGTH}, $result->query_length, 'Check query length consistency' );
+
                 is ( $hsp->num_conserved, 140 );
                 is ( $hsp->num_identical, 50 );
                 is( sprintf( "%.2f", $hsp->percent_identity ),        27.78 );
@@ -639,6 +646,20 @@ while ( $result = $searchio->next_result ) {
                 is( $hsp->score,       -4.3, 'Check for hsp score' );
                 float_is( $hsp->evalue, 1,   'Check for hsp c-Evalue' );
 
+                is( $hsp->length('query'), 7, 'Check for hsp query length' );
+                is( $hsp->length('hit'),   7, 'Check for hsp hit length' );
+                is( $hsp->length('total'), 7, 'Check for hsp total length' );
+                is( $hsp->gaps('query'),   0, 'Check for hsp query gaps' );
+                is( $hsp->gaps('hit'),     0, 'Check for hsp hit gaps' );
+                is( $hsp->gaps('total'),   0, 'Check for hsp total gaps' );
+
+                ($hit->length == 0) ?
+                      is( $hsp->{HIT_LENGTH}, $hsp->hit->length, 'Check hit length consistency' )
+                    : is( $hsp->{HIT_LENGTH}, $hit->length,      'Check hit length consistency' );
+                ($result->query_length == 0) ?
+                      is( $hsp->{QUERY_LENGTH}, $hsp->query->length,   'Check query length consistency' )
+                    : is( $hsp->{QUERY_LENGTH}, $result->query_length, 'Check query length consistency' );
+
                 is( $hsp->consensus_structure,
                     '',
                     'Check for consensus structure string'
@@ -718,6 +739,13 @@ while ( $result = $searchio->next_result ) {
                 is( $hsp->gaps('query'),   52,   'Check for hsp query gaps' );
                 is( $hsp->gaps('hit'),     13,   'Check for hsp hit gaps' );
                 is( $hsp->gaps('total'),   65,   'Check for hsp total gaps' );
+
+                ($hit->length == 0) ?
+                      is( $hsp->{HIT_LENGTH}, $hsp->hit->length, 'Check hit length consistency' )
+                    : is( $hsp->{HIT_LENGTH}, $hit->length,      'Check hit length consistency' );
+                ($result->query_length == 0) ?
+                      is( $hsp->{QUERY_LENGTH}, $hsp->query->length,   'Check query length consistency' )
+                    : is( $hsp->{QUERY_LENGTH}, $result->query_length, 'Check query length consistency' );
 
                 is ( $hsp->num_conserved, 690 );
                 is ( $hsp->num_identical, 262 );
@@ -1132,6 +1160,13 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     is( $hsp->gaps('hit'),     3,   'Check for hsp hit gaps' );
     is( $hsp->gaps('total'),   3,   'Check for hsp total gaps' );
 
+    ($hit->length == 0) ?
+          is( $hsp->{HIT_LENGTH}, $hsp->hit->length, 'Check hit length consistency' )
+        : is( $hsp->{HIT_LENGTH}, $hit->length,      'Check hit length consistency' );
+    ($result->query_length == 0) ?
+          is( $hsp->{QUERY_LENGTH}, $hsp->query->length,   'Check query length consistency' )
+        : is( $hsp->{QUERY_LENGTH}, $result->query_length, 'Check query length consistency' );
+
     is ( $hsp->num_conserved, 151 );
     is ( $hsp->num_identical, 146 );
     is( sprintf( "%.2f", $hsp->percent_identity ),        94.81 );
@@ -1199,6 +1234,13 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     is( $hsp->gaps('query'),   0,  'Check for hsp query gaps' );
     is( $hsp->gaps('hit'),     0,   'Check for hsp hit gaps' );
     is( $hsp->gaps('total'),   0,   'Check for hsp total gaps' );
+
+    ($hit->length == 0) ?
+          is( $hsp->{HIT_LENGTH}, $hsp->hit->length, 'Check hit length consistency' )
+        : is( $hsp->{HIT_LENGTH}, $hit->length,      'Check hit length consistency' );
+    ($result->query_length == 0) ?
+          is( $hsp->{QUERY_LENGTH}, $hsp->query->length,   'Check query length consistency' )
+        : is( $hsp->{QUERY_LENGTH}, $result->query_length, 'Check query length consistency' );
 
     is( $hsp->consensus_structure,
         '',
