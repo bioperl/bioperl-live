@@ -1085,6 +1085,12 @@ sub end_element {
                 $self->{'_values'} );
         }
         my $lastelem = shift @{ $self->{'_elements'} };
+
+        # Flush corresponding values from the {_values} buffer
+        my $name = uc $type;
+        foreach my $key (keys %{ $self->{_values} }) {
+            delete $self->{_values}->{$key} if ($key =~ m/^$name-/);
+        }
     }
     elsif ( $MAPPING{$nm} ) {
         if ( ref( $MAPPING{$nm} ) =~ /hash/i ) {

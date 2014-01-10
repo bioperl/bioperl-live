@@ -96,16 +96,16 @@ while ( $result = $searchio->next_result ) {
             is( $hsp->hit->start,   1,       'Check for hit hmmfrom value' );
             is( $hsp->hit->end,     77,      'Check for hit hmm to value' );
             is( $hsp->query->start, 124,     'Check for query alifrom value' );
-            is( $hsp->query->end,   194,     'Check for query ali to value' );
+            is( $hsp->query->end,   193,     'Check for query ali to value' );
             is( $hsp->score,        75.5,    'Check for hsp score' );
             float_is( $hsp->evalue, 1.1e-18, 'Check for hsp c-Evalue' );
 
-            is( $hsp->length('query'), 71, 'Check for hsp query length' );
+            is( $hsp->length('query'), 70, 'Check for hsp query length' );
             is( $hsp->length('hit'),   77, 'Check for hsp hit length' );
             is( $hsp->length('total'), 77, 'Check for hsp total length' );
-            is( $hsp->gaps('query'),   6,  'Check for hsp query gaps' );
+            is( $hsp->gaps('query'),   7,  'Check for hsp query gaps' );
             is( $hsp->gaps('hit'),     0,  'Check for hsp hit gaps' );
-            is( $hsp->gaps('total'),   6,  'Check for hsp total gaps' );
+            is( $hsp->gaps('total'),   7,  'Check for hsp total gaps' );
 
             ($hit->length == 0) ?
                   is( $hsp->{HIT_LENGTH}, $hsp->hit->length, 'Check hit length consistency' )
@@ -115,7 +115,7 @@ while ( $result = $searchio->next_result ) {
                 : is( $hsp->{QUERY_LENGTH}, $result->query_length, 'Check query length consistency' );
 
             is( $hsp->query_string,
-                'LFVGALKDDHDEQSIRDYFQHFGNIVDINIVID-----KETGKKRGFAFVEFDDYDPVDKVVL-QKQHQLNGKMVDV',
+                'LFVGALKDDHDEQSIRDYFQHFGNIVDINIVID-----KETGKKRGFAFVEFDDYDPVDKVVL--KQHQLNGKMVDV',
                 'Check for query string'
             );
             is( $hsp->hit_string,
