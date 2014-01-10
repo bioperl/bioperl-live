@@ -292,10 +292,28 @@ sub end_hsp {
     $data->{'HSP-hit_frame'} ||= 0;
     # handle Blast 2.1.2 which did not support data member: hsp_align-len
     $data->{'HSP-query_length'} ||= $data->{'RESULT-query_length'};
-    $data->{'HSP-query_length'} ||= length ($data->{'HSP-query_seq'} || '');
     $data->{'HSP-hit_length'}   ||= $data->{'HIT-length'};
-    $data->{'HSP-hit_length'}   ||= length ($data->{'HSP-hit_seq'} || '');
-    
+    # If undefined lengths, use alignment length deducting the gaps
+    if (not defined $data->{'HSP-query_length'}) {
+	if (defined $data->{'HSP-query_seq'}) {
+	    my $hsp_qry_gaps = ($data->{'RESULT-algorithm'} eq 'ERPIN') ? scalar( $data->{'HSP-query_seq'} =~ tr/\-//)
+			     :  scalar( $data->{'HSP-query_seq'} =~ tr/\-\.// ); # HMMER3 and Infernal uses '.' and '-'
+	    $data->{'HSP-query_length'} = length ($data->{'HSP-query_seq'}) - $hsp_qry_gaps;
+	}
+	else {
+	    $data->{'HSP-query_length'} = 0;
+	}
+    }
+    if (not defined $data->{'HSP-hit_length'}) {
+	if (defined $data->{'HSP-hit_seq'}) {
+	    my $hsp_hit_gaps = ($data->{'RESULT-algorithm'} eq 'ERPIN') ? scalar( $data->{'HSP-hit_seq'} =~ tr/\-//)
+			     :  scalar( $data->{'HSP-hit_seq'} =~ tr/\-\.// ); # HMMER3 and Infernal uses '.' and '-'
+	    $data->{'HSP-hit_length'} = length ($data->{'HSP-query_seq'}) - $hsp_hit_gaps;
+	}
+	else {
+	    $data->{'HSP-hit_length'} = 0;
+	}
+    }
     $data->{'HSP-hsp_length'}   ||= length ($data->{'HSP-homology_seq'} || '');
     
     my %args = map { my $v = $data->{$_}; s/HSP//; ($_ => $v) } 
