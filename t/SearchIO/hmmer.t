@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 591 );
+    test_begin( -tests => 709 );
 
     use_ok('Bio::SearchIO');
 }
@@ -30,33 +30,59 @@ while ( $result = $searchio->next_result ) {
         '/home/birney/src/wise2/example/road.pep',
         'Check sequence_file'
     );
+
     is( $result->query_name,        'roa1_drome', 'Check query_name' );
+    is( $result->query_length,       0,           'Check query_length absence' );
     is( $result->query_description, '',           'Check query_description' );
-    is( $result->num_hits(),        2,            'Check num_hits' );
+    is( $result->num_hits(),         2,           'Check num_hits' );
     my ( $hsp, $hit );
 
     if ( $hit = $result->next_model ) {
-        is( $hit->name,      'SEED',  'Check hit name' );
-        is( $hit->raw_score, '146.1', 'Check hit raw_score' );
-        float_is( $hit->significance, 6.3e-40, 'Check hit significance' );
         is( ref($hit), 'Bio::Search::Hit::HMMERHit',
             'Check for the correct hit reference type' );
-        is( $hit->num_hsps, 1, 'Check num_hsps' );
+        is( $hit->name, 'SEED', 'Check hit name' );
+        is( $hit->description,
+            '',
+            'Check for hit description'
+        );
+        is( $hit->raw_score,          146.1,   'Check hit raw_score' );
+        float_is( $hit->significance, 6.3e-40, 'Check hit significance' );
+        is( $hit->num_hsps,           1,       'Check num_hsps' );
+
+        # Query and Hit lengths are usually unknown in HMMER,
+        # but sometimes they can be deduced from domain data '[]'
+        is( $hit->length,             77,      'Check hit length' );
+        is( $hit->frac_aligned_query, undef );
+        is( $hit->frac_aligned_hit,  '1.00' );
+
+        is( $hit->matches('cons'), 55, 'Check hit total conserved residues' );
+        is( $hit->matches('id'),   22, 'Check hit total identical residues' );
+        is( sprintf( "%.3f", $hit->frac_identical('query') ), '0.310' );
+        is( sprintf( "%.3f", $hit->frac_identical('hit') ),    0.286 );
+        is( sprintf( "%.3f", $hit->frac_identical('total') ),  0.282 );
+        is( sprintf( "%.3f", $hit->frac_conserved('query') ),  0.775 );
+        is( sprintf( "%.3f", $hit->frac_conserved('hit') ),    0.714 );
+        is( sprintf( "%.3f", $hit->frac_conserved('total') ),  0.705 );
 
         if ( defined( $hsp = $hit->next_domain ) ) {
-            is( $hsp->hit->start,   1,    'Check for hit hmmfrom value' );
-            is( $hsp->hit->end,     77,   'Check for hit hmm to value' );
-            is( $hsp->query->start, 33,   'Check for query alifrom value' );
-            is( $hsp->query->end,   103,  'Check for query ali to value' );
-            is( $hsp->score,        71.2, 'Check for hsp score' );
+            is( ref($hsp), 'Bio::Search::HSP::HMMERHSP',
+                'Check for correct hsp reference type' );
+            is( $hsp->query->seq_id(), 'roa1_drome', 'Check for query seq_id' );
+            is( $hsp->hit->seq_id(),   'SEED',       'Check for hit seq_id' );
+
+            is( $hsp->hit->start,   1,       'Check for hit hmmfrom value' );
+            is( $hsp->hit->end,     77,      'Check for hit hmm to value' );
+            is( $hsp->query->start, 33,      'Check for query alifrom value' );
+            is( $hsp->query->end,   103,     'Check for query ali to value' );
+            is( $hsp->score,        71.2,    'Check for hsp score' );
             float_is( $hsp->evalue, 2.2e-17, 'Check for hsp c-Evalue' );
 
             is( $hsp->length('query'), 71, 'Check for hsp query length' );
             is( $hsp->length('hit'),   77, 'Check for hsp hit length' );
             is( $hsp->length('total'), 78, 'Check for hsp total length' );
-            is( $hsp->gaps('query'),   7,   'Check for hsp query gaps' );
-            is( $hsp->gaps('hit'),     1, 'Check for hsp hit gaps' );
-            is( $hsp->gaps('total'),   8, 'Check for hsp total gaps' );
+            is( $hsp->gaps('query'),   7,  'Check for hsp query gaps' );
+            is( $hsp->gaps('hit'),     1,  'Check for hsp hit gaps' );
+            is( $hsp->gaps('total'),   8,  'Check for hsp total gaps' );
 
             ($hit->length == 0) ?
                   is( $hsp->{HIT_LENGTH}, $hsp->hit->length, 'Check hit length consistency' )
@@ -65,11 +91,20 @@ while ( $result = $searchio->next_result ) {
                   is( $hsp->{QUERY_LENGTH}, $hsp->query->length,   'Check query length consistency' )
                 : is( $hsp->{QUERY_LENGTH}, $result->query_length, 'Check query length consistency' );
 
+            is( $hsp->num_conserved, 55 );
+            is( $hsp->num_identical, 22 );
+            is( sprintf( "%.2f", $hsp->percent_identity ),         28.21 );
+            is( sprintf( "%.3f", $hsp->frac_identical('query') ), '0.310' );
+            is( sprintf( "%.3f", $hsp->frac_identical('hit') ),    0.286 );
+            is( sprintf( "%.3f", $hsp->frac_identical('total') ),  0.282 );
+            is( sprintf( "%.3f", $hsp->frac_conserved('query') ),  0.775 );
+            is( sprintf( "%.3f", $hsp->frac_conserved('hit') ),    0.714 );
+            is( sprintf( "%.3f", $hsp->frac_conserved('total') ),  0.705 );
+
             is( $hsp->query_string,
                 'LFIGGLDYRTTDENLKAHFEKWGNIVDVVVMKD-----PRTKRSRGFGFITYSHSSMIDEAQK--SRpHKIDGRVVEP',
                 'Check for query string'
             );
-            is( $hsp->gaps('query'), 7, 'Check for number of gaps in query' );
             is( $hsp->hit_string,
                 'lfVgNLppdvteedLkdlFskfGpivsikivrDiiekpketgkskGfaFVeFeseedAekAlealnG-kelggrklrv',
                 'Check for hit string'
@@ -92,7 +127,35 @@ while ( $result = $searchio->next_result ) {
         }
     }
     if ( defined( $hit = $result->next_model ) ) {
+        is( ref($hit), 'Bio::Search::Hit::HMMERHit',
+            'Check for the correct hit reference type' );
+        is( $hit->name,              'SEED',    'Check hit name' );
+        is( $hit->description,       '',        'Check for hit description' );
+        is( $hit->raw_score,          146.1,    'Check hit raw_score' );
+        float_is( $hit->significance, 6.3e-040, 'Check hit significance' );
+        is( $hit->num_hsps,           1,        'Check num_hsps' );
+
+        # Query and Hit lengths are usually unknown in HMMER,
+        # but sometimes they can be deduced from domain data '[]'
+        is( $hit->length,             77,      'Check hit length' );
+        is( $hit->frac_aligned_query, undef );
+        is( $hit->frac_aligned_hit,  '1.00' );
+
+        is( $hit->matches('cons'), 56, 'Check hit total conserved residues' );
+        is( $hit->matches('id'),   33, 'Check hit total identical residues' );
+        is( sprintf( "%.3f", $hit->frac_identical('query') ),  0.471 );
+        is( sprintf( "%.3f", $hit->frac_identical('hit') ),    0.429 );
+        is( sprintf( "%.3f", $hit->frac_identical('total') ),  0.429 );
+        is( sprintf( "%.3f", $hit->frac_conserved('query') ), '0.800' );
+        is( sprintf( "%.3f", $hit->frac_conserved('hit') ),    0.727 );
+        is( sprintf( "%.3f", $hit->frac_conserved('total') ),  0.727 );
+
         if ( defined( $hsp = $hit->next_domain ) ) {
+            is( ref($hsp), 'Bio::Search::HSP::HMMERHSP',
+                'Check for correct hsp reference type' );
+            is( $hsp->query->seq_id(), 'roa1_drome', 'Check for query seq_id' );
+            is( $hsp->hit->seq_id(),   'SEED',       'Check for hit seq_id' );
+
             is( $hsp->hit->start,   1,       'Check for hit hmmfrom value' );
             is( $hsp->hit->end,     77,      'Check for hit hmm to value' );
             is( $hsp->query->start, 124,     'Check for query alifrom value' );
@@ -113,6 +176,16 @@ while ( $result = $searchio->next_result ) {
             ($result->query_length == 0) ?
                   is( $hsp->{QUERY_LENGTH}, $hsp->query->length,   'Check query length consistency' )
                 : is( $hsp->{QUERY_LENGTH}, $result->query_length, 'Check query length consistency' );
+
+            is( $hsp->num_conserved, 56 );
+            is( $hsp->num_identical, 33 );
+            is( sprintf( "%.2f", $hsp->percent_identity ),         42.86 );
+            is( sprintf( "%.3f", $hsp->frac_identical('query') ),  0.471 );
+            is( sprintf( "%.3f", $hsp->frac_identical('hit') ),    0.429 );
+            is( sprintf( "%.3f", $hsp->frac_identical('total') ),  0.429 );
+            is( sprintf( "%.3f", $hsp->frac_conserved('query') ), '0.800' );
+            is( sprintf( "%.3f", $hsp->frac_conserved('hit') ),    0.727 );
+            is( sprintf( "%.3f", $hsp->frac_conserved('total') ),  0.727);
 
             is( $hsp->query_string,
                 'LFVGALKDDHDEQSIRDYFQHFGNIVDINIVID-----KETGKKRGFAFVEFDDYDPVDKVVL--KQHQLNGKMVDV',
@@ -148,31 +221,60 @@ while ( $result = $searchio->next_result ) {
         'Bio::Search::Result::HMMERResult',
         'Check for the correct result reference type'
     );
-    is( $result->algorithm,         'HMMSEARCH',  'Check algorithm' );
-    is( $result->algorithm_version, '2.0',        'Check algorithm version' );
-    is( $result->hmm_name,          'HMM [SEED]', 'Check hmm_name' );
-    is( $result->sequence_file, 'HMM.dbtemp.29591', 'Check sequence_file' );
-    is( $result->database_name, 'HMM.dbtemp.29591', 'Check database_name' );
-    is( $result->query_name,    'SEED',             'Check query_name' );
-    is( $result->query_description, '',   'Check query_description' );
-    is( $result->num_hits(),        1215, 'Check num_hits' );
+    is( $result->algorithm,         'HMMSEARCH',        'Check algorithm' );
+    is( $result->algorithm_version, '2.0',              'Check algorithm version' );
+    is( $result->hmm_name,          'HMM [SEED]',       'Check hmm_name' );
+    is( $result->sequence_file,     'HMM.dbtemp.29591', 'Check sequence_file' );
+    is( $result->database_name,     'HMM.dbtemp.29591', 'Check database_name' );
+
+    is( $result->query_name,        'SEED', 'Check query_name' );
+    is( $result->query_length,       77,    'Check query_length' );
+    is( $result->query_description, '',     'Check query_description' );
+    is( $result->num_hits(),         1215,  'Check num_hits' );
+
     my $hit = $result->next_model;
+    is( ref($hit), 'Bio::Search::Hit::HMMERHit',
+        'Check for the correct hit reference type' );
     is( $hit->name, 'Q91581', 'Check hit name' );
     is( $hit->description,
         'Q91581 POLYADENYLATION FACTOR 64 KDA SUBUN',
         'Check for hit description'
     );
+    is( $hit->raw_score,          119.7, 'Check hit raw_score' );
     float_is( $hit->significance, 2e-31, 'Check hit significance' );
-    is( $hit->raw_score, 119.7, 'Check hit raw_score' );
+    is( $hit->num_hsps,           1,     'Check num_hsps' );
+    is( $hit->length,             0,     'Check hit length' );
+
     my $hsp = $hit->next_domain;
-    is( $hsp->score, 119.7, 'Check for hsp score' );
-    float_is( $hsp->evalue, 2e-31, 'Check for hsp c-Evalue' );
-    is( $hsp->query->start,    18,       'Check for query alifrom value' );
-    is( $hsp->query->end,      89,       'Check for query ali to value' );
-    is( $hsp->hit->start,      1,        'Check for hit hmmfrom value' );
-    is( $hsp->hit->end,        77,       'Check for hit hmm to value' );
+    is( ref($hsp), 'Bio::Search::HSP::HMMERHSP',
+        'Check for correct hsp reference type' );
     is( $hsp->query->seq_id(), 'SEED',   'Check for query seq_id' );
     is( $hsp->hit->seq_id(),   'Q91581', 'Check for hit seq_id' );
+
+    is( $hsp->hit->start,       1,     'Check for hit hmmfrom value' );
+    is( $hsp->hit->end,         77,    'Check for hit hmm to value' );
+    is( $hsp->query->start,     18,    'Check for query alifrom value' );
+    is( $hsp->query->end,       89,    'Check for query ali to value' );
+    is( $hsp->score,            119.7, 'Check for hsp score' );
+    float_is( $hsp->evalue,     2e-31, 'Check for hsp c-Evalue' );
+
+    is( $hsp->length('query'), 72, 'Check for hsp query length' );
+    is( $hsp->length('hit'),   77, 'Check for hsp hit length' );
+    is( $hsp->length('total'), 0,  'Check for hsp total length' );
+    is( $hsp->gaps('query'),   0,  'Check for hsp query gaps' );
+    is( $hsp->gaps('hit'),     0,  'Check for hsp hit gaps' );
+    is( $hsp->gaps('total'),   0,  'Check for hsp total gaps' );
+
+    while ($hit = $result->next_model) {
+        if ($hit->name eq 'Q61954') {
+            # Query and Hit lengths are usually unknown in HMMER,
+            # but sometimes they can be deduced from domain data '[]'
+            is( $hit->length,             153,    'Check hit length' );
+            is( $hit->frac_aligned_query, 0.83 );
+            is( $hit->frac_aligned_hit,  '0.50' );
+            last;
+        }
+    }
 }
 
 $searchio = Bio::SearchIO->new(
@@ -189,31 +291,64 @@ while ( $result = $searchio->next_result ) {
     is( $result->algorithm_version, '2.2g',       'Check algorithm version' );
     is( $result->hmm_name,          'Pfam',       'Check hmm_name' );
     is( $result->sequence_file,     'L77119.faa', 'Check sequence_file' );
-    is( $result->query_name, 'gi|1522636|gb|AAC37060.1|',
-        'Check query_name' );
+
+    is( $result->query_name,
+        'gi|1522636|gb|AAC37060.1|',
+        'Check query_name'
+    );
+    is( $result->query_length, 0, 'Check query_length absence' );
     is( $result->query_description,
         'M. jannaschii predicted coding region MJECS02 [Methanococcus jannaschii]',
         'Check query_description'
     );
     is( $result->num_hits(), 1, 'Check num_hits' );
+
     my $hit = $result->next_hit;
+    is( ref($hit), 'Bio::Search::Hit::HMMERHit',
+        'Check for the correct hit reference type' );
     is( $hit->name, 'Methylase_M', 'Check hit name' );
     is( $hit->description,
         'Type I restriction modification system, M',
         'Check for hit description'
     );
+    is( $hit->raw_score,         -105.2,  'Check hit raw_score' );
     float_is( $hit->significance, 0.0022, 'Check hit significance' );
-    is( $hit->raw_score, -105.2, 'Check hit raw_score' );
+    is( $hit->num_hsps,           1,      'Check num_hsps' );
+
+    # Query and Hit lengths are usually unknown in HMMER,
+    # but sometimes they can be deduced from domain data '[]'
+    is( $hit->length,             279,    'Check hit length' );
+    is( $hit->frac_aligned_query, undef );
+    is( $hit->frac_aligned_hit,  '1.00' );
+
+    is( $hit->matches('cons'), 133, 'Check hit total conserved residues' );
+    is( $hit->matches('id'),   48,  'Check hit total identical residues' );
+    is( sprintf( "%.3f", $hit->frac_identical('query') ), 0.238 );
+    is( sprintf( "%.3f", $hit->frac_identical('hit') ),   0.172 );
+    is( sprintf( "%.3f", $hit->frac_identical('total') ), 0.171 );
+    is( sprintf( "%.3f", $hit->frac_conserved('query') ), 0.658 );
+    is( sprintf( "%.3f", $hit->frac_conserved('hit') ),   0.477 );
+    is( sprintf( "%.3f", $hit->frac_conserved('total') ), 0.475 );
+
     my $hsp = $hit->next_hsp;
-    is( $hsp->score, -105.2, 'Check for hsp score' );
+    is( ref($hsp), 'Bio::Search::HSP::HMMERHSP',
+        'Check for correct hsp reference type' );
+    is( $hsp->query->seq_id(), 'gi|1522636|gb|AAC37060.1|', 'Check for query seq_id' );
+    is( $hsp->hit->seq_id(),   'Methylase_M',               'Check for hit seq_id' );
+
+    is( $hsp->hit->start,   1,      'Check for hit hmmfrom value' );
+    is( $hsp->hit->end,     279,    'Check for hit hmm to value' );
+    is( $hsp->query->start, 280,    'Check for query alifrom value' );
+    is( $hsp->query->end,   481,    'Check for query ali to value' );
+    is( $hsp->score,       -105.2,  'Check for hsp score' );
     float_is( $hsp->evalue, 0.0022, 'Check for hsp evalue' );
-    is( $hsp->query->start, 280, 'Check for query alifrom value' );
-    is( $hsp->query->end,   481, 'Check for query ali to value' );
-    is( $hsp->hit->start,   1,   'Check for hit hmmfrom value' );
-    is( $hsp->hit->end,     279, 'Check for hit hmm to value' );
-    is( $hsp->query->seq_id(),
-        'gi|1522636|gb|AAC37060.1|', 'Check for query seq_id' );
-    is( $hsp->hit->seq_id(), 'Methylase_M', 'Check for hit seq_id' );
+
+    is( $hsp->length('query'), 202, 'Check for hsp query length' );
+    is( $hsp->length('hit'),   279, 'Check for hsp hit length' );
+    is( $hsp->length('total'), 280, 'Check for hsp total length' );
+    is( $hsp->gaps('query'),   78,  'Check for hsp query gaps' );
+    is( $hsp->gaps('hit'),     1,   'Check for hsp hit gaps' );
+    is( $hsp->gaps('total'),   79,  'Check for hsp total gaps' );
 
     ($hit->length == 0) ?
           is( $hsp->{HIT_LENGTH}, $hsp->hit->length, 'Check hit length consistency' )
@@ -221,6 +356,18 @@ while ( $result = $searchio->next_result ) {
     ($result->query_length == 0) ?
           is( $hsp->{QUERY_LENGTH}, $hsp->query->length,   'Check query length consistency' )
         : is( $hsp->{QUERY_LENGTH}, $result->query_length, 'Check query length consistency' );
+
+    is( $hsp->num_conserved, 133 );
+    is( $hsp->num_identical, 48 );
+    is( sprintf( "%.2f", $hsp->percent_identity ),        17.14 );
+    is( sprintf( "%.3f", $hsp->frac_identical('query') ), 0.238 );
+    is( sprintf( "%.3f", $hsp->frac_identical('hit') ),   0.172 );
+    is( sprintf( "%.3f", $hsp->frac_identical('total') ), 0.171 );
+    is( sprintf( "%.3f", $hsp->frac_conserved('query') ), 0.658 );
+    is( sprintf( "%.3f", $hsp->frac_conserved('hit') ),   0.477 );
+    is( sprintf( "%.3f", $hsp->frac_conserved('total') ), 0.475 );
+
+    is (length($hsp->homology_string), length($hsp->query_string));
 
     is( $hsp->hit_string,
         'lrnELentLWavADkLRGsmDaseYKdyVLGLlFlKYiSdkFlerrieieerktdtesepsldyakledqyeqlededlekedfyqkkGvFilPsqlFwdfikeaeknkldedigtdldkifseledqialgypaSeedfkGlfpdldfnsnkLgskaqarnetLtelidlfselelgtPmHNG-dfeelgikDlfGDaYEYLLgkFAeneGKsGGeFYTPqeVSkLiaeiLtigqpsegdfsIYDPAcGSGSLllqaskflgehdgkrnaisyYGQEsn',
@@ -270,7 +417,7 @@ while ( $result = $searchio->next_result ) {
     is( $result->sequence_file,   'cysprot1b.fa', 'Check sequence_file' );
 
     is( $result->query_name,      'Peptidase_C1', 'Check query_name' );
-    is( $result->query_length,     0,             'Check query_length absence' );
+    is( $result->query_length,     337,           'Check query_length' );
     is( $result->query_accession, 'PF00112',      'Check query_accession' );
     is( $result->query_description,
         'Papain family cysteine protease',
@@ -290,11 +437,20 @@ while ( $result = $searchio->next_result ) {
     float_is( $hit->significance, 2e-135, 'Check hit significance' );
     is( $hit->num_hsps,           1,      'Check num_hsps' );
 
-    # Query and Hit lengths are unknown by default in HMMER2,
+    # Query and Hit lengths are usually unknown in HMMER,
     # but sometimes they can be deduced from domain data '[]'
-    is( $hit->length,             0,      'Check hit length absence' );
-    is( $hit->frac_aligned_query, undef );
-    is( $hit->frac_aligned_hit,   undef );
+    is( $hit->length,              0,      'Check hit length absence' );
+    is( $hit->frac_aligned_query, '1.00' );
+    is( $hit->frac_aligned_hit,    undef );
+
+    is( $hit->matches('cons'), 204, 'Check hit total conserved residues' );
+    is( $hit->matches('id'),   131, 'Check hit total identical residues' );
+    is( sprintf( "%.3f", $hit->frac_identical('query') ), 0.389 );
+    is( sprintf( "%.3f", $hit->frac_identical('hit') ),   0.598 );
+    is( sprintf( "%.3f", $hit->frac_identical('total') ), 0.389 );
+    is( sprintf( "%.3f", $hit->frac_conserved('query') ), 0.605 );
+    is( sprintf( "%.3f", $hit->frac_conserved('hit') ),   0.932 );
+    is( sprintf( "%.3f", $hit->frac_conserved('total') ), 0.605 );
 
     my $hsp = $hit->next_hsp;
     is( ref($hsp), 'Bio::Search::HSP::HMMERHSP',
@@ -323,8 +479,8 @@ while ( $result = $searchio->next_result ) {
           is( $hsp->{QUERY_LENGTH}, $hsp->query->length,   'Check query length consistency' )
         : is( $hsp->{QUERY_LENGTH}, $result->query_length, 'Check query length consistency' );
 
-    is ( $hsp->num_conserved, 204 );
-    is ( $hsp->num_identical, 131 );
+    is( $hsp->num_conserved, 204 );
+    is( $hsp->num_identical, 131 );
     is( sprintf( "%.2f", $hsp->percent_identity ),        38.87 );
     is( sprintf( "%.3f", $hsp->frac_identical('query') ), 0.389 );
     is( sprintf( "%.3f", $hsp->frac_identical('hit') ),   0.598 );
@@ -354,8 +510,8 @@ while ( $result = $searchio->next_result ) {
     $hit = $result->next_hit;
     is( $hit->name,              'CATL_HUMAN', 'Check hit name' );
     is( $hit->description,       '',           'Check for hit description' );
-    float_is( $hit->significance, 6.1e-134,    'Check hit significance' );
     is( $hit->raw_score,          444.5,       'Check hit raw_score' );
+    float_is( $hit->significance, 6.1e-134,    'Check hit significance' );
 }
 
 # test for bug 2632 - CS lines should get ignored without breaking the parser
@@ -449,8 +605,8 @@ while ( $result = $searchio->next_result ) {
                       is( $hsp->{QUERY_LENGTH}, $hsp->query->length,   'Check query length consistency' )
                     : is( $hsp->{QUERY_LENGTH}, $result->query_length, 'Check query length consistency' );
 
-                is ( $hsp->num_conserved, 140 );
-                is ( $hsp->num_identical, 50 );
+                is( $hsp->num_conserved, 140 );
+                is( $hsp->num_identical, 50 );
                 is( sprintf( "%.2f", $hsp->percent_identity ),        27.78 );
                 is( sprintf( "%.3f", $hsp->frac_identical('query') ), 0.291 );
                 is( sprintf( "%.3f", $hsp->frac_identical('hit') ),   0.281 );
@@ -660,6 +816,18 @@ while ( $result = $searchio->next_result ) {
                       is( $hsp->{QUERY_LENGTH}, $hsp->query->length,   'Check query length consistency' )
                     : is( $hsp->{QUERY_LENGTH}, $result->query_length, 'Check query length consistency' );
 
+                is( $hsp->num_conserved, 6 );
+                is( $hsp->num_identical, 4 );
+                is( sprintf( "%.2f", $hsp->percent_identity ),        57.14 );
+                is( sprintf( "%.3f", $hsp->frac_identical('query') ), 0.571 );
+                is( sprintf( "%.3f", $hsp->frac_identical('hit') ),   0.571 );
+                is( sprintf( "%.3f", $hsp->frac_identical('total') ), 0.571 );
+                is( sprintf( "%.3f", $hsp->frac_conserved('query') ), 0.857 );
+                is( sprintf( "%.3f", $hsp->frac_conserved('hit') ),   0.857 );
+                is( sprintf( "%.3f", $hsp->frac_conserved('total') ), 0.857 );
+
+                is (length($hsp->homology_string), length($hsp->query_string));
+
                 is( $hsp->consensus_structure,
                     '',
                     'Check for consensus structure string'
@@ -747,8 +915,8 @@ while ( $result = $searchio->next_result ) {
                       is( $hsp->{QUERY_LENGTH}, $hsp->query->length,   'Check query length consistency' )
                     : is( $hsp->{QUERY_LENGTH}, $result->query_length, 'Check query length consistency' );
 
-                is ( $hsp->num_conserved, 690 );
-                is ( $hsp->num_identical, 262 );
+                is( $hsp->num_conserved, 690 );
+                is( $hsp->num_identical, 262 );
                 is( sprintf( "%.2f", $hsp->percent_identity ),        26.12 );
                 is( sprintf( "%.3f", $hsp->frac_identical('query') ), 0.275 );
                 is( sprintf( "%.3f", $hsp->frac_identical('hit') ),   0.265 );
@@ -1065,6 +1233,8 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     my $result = $in->next_result;
     my $hit    = $result->next_hit;
     my $hsp    = $hit->next_hsp;
+    is( $result->query_length, 97, 'Check query_length' );
+    is( $hit->length,          95, 'Check nhmmer hit length' );
     is( $hsp->hit_string,
         'svfqqqqssksttgstvtAiAiAigYRYRYRAvtWnsGsLssGvnDnDnDqqsdgLYtiYYsvtvpssslpsqtviHHHaHkasstkiiikiePr',
         'bug3376'
@@ -1167,8 +1337,8 @@ is( $result->num_hits(), 2, 'Check num_hits' );
           is( $hsp->{QUERY_LENGTH}, $hsp->query->length,   'Check query length consistency' )
         : is( $hsp->{QUERY_LENGTH}, $result->query_length, 'Check query length consistency' );
 
-    is ( $hsp->num_conserved, 151 );
-    is ( $hsp->num_identical, 146 );
+    is( $hsp->num_conserved, 151 );
+    is( $hsp->num_identical, 146 );
     is( sprintf( "%.2f", $hsp->percent_identity ),        94.81 );
     is( sprintf( "%.3f", $hsp->frac_identical('query') ), 0.948 );
     is( sprintf( "%.3f", $hsp->frac_identical('hit') ),   0.967 );
@@ -1176,8 +1346,6 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     is( sprintf( "%.3f", $hsp->frac_conserved('query') ), 0.981 );
     is( sprintf( "%.3f", $hsp->frac_conserved('hit') ),  '1.000' );
     is( sprintf( "%.3f", $hsp->frac_conserved('total') ), 0.981 );
-
-    is (length($hsp->homology_string), length($hsp->query_string));
 
     is( $hsp->consensus_structure,
         '',
@@ -1241,6 +1409,8 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     ($result->query_length == 0) ?
           is( $hsp->{QUERY_LENGTH}, $hsp->query->length,   'Check query length consistency' )
         : is( $hsp->{QUERY_LENGTH}, $result->query_length, 'Check query length consistency' );
+
+    is (length($hsp->homology_string), length($hsp->query_string));
 
     is( $hsp->consensus_structure,
         '',
