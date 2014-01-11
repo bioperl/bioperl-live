@@ -265,7 +265,7 @@ sub next_result {
                     my ( $name, $n, $evalue, $score ) =
                       ( shift @line, pop @line, pop @line, pop @line );
                     my $desc = join( ' ', @line );
-                    push @hitinfo, [ $name, $desc, $evalue, $score ];
+                    push @hitinfo, [ $name, $desc, $score, $evalue, $n ];
                     $hitinfo{$name} = $#hitinfo;
                 }
             }
@@ -282,28 +282,58 @@ sub next_result {
 
                     chomp;
                     if (
-                        my ( $n, $domainnum, $domainct, @vals ) = (
-                            m!^(\S+)\s+      # host name
-			(\d+)/(\d+)\s+   # num/num (ie 1 of 2) 
-			(\d+)\s+(\d+).+? # sequence start and end
-			(\d+)\s+(\d+)\s+ # hmm start and end
-			\S+\s+           # []
-			(\S+)\s+         # score
-			(\S+)            # evalue
-			\s*$!ox
+                        my ( $n, $domainnum, $domainct,
+                             $seq_start, $seq_end, $seq_cov,
+                             $hmm_start, $hmm_end, $hmm_cov,
+                             $score, $evalue ) = (
+                                m!^(\S+)\s+          # domain name
+                                   (\d+)/(\d+)\s+    # domain num out of num
+                                   (\d+)\s+(\d+)\s+  # seq start, end
+                                   (\S+)\s+          # seq coverage
+                                   (\d+)\s+(\d+)\s+  # hmm start, end
+                                   (\S+)\s+          # hmm coverage
+                                   (\S+)\s+          # score
+                                   (\S+)             # evalue
+                                    \s*$!ox
+                            )
                         )
-                      )
                     {
-
-                        # array lookup so that we can get rid of things
-                        # when they've been processed
-                        my $info = $hitinfo[ $hitinfo{$n} ];
+                        my $hindex = $hitinfo{$n};
+                        if ( !defined $hindex ) {
+                            push @hitinfo,
+                              [ $n, '', $score, $evalue, $domainct ];
+                            $hitinfo{$n} = $#hitinfo;
+                            $hindex = $#hitinfo;
+                        }
+                        my $info = $hitinfo[$hindex];
                         if ( !defined $info ) {
                             $self->warn(
-"Incomplete Sequence information, can't find $n hitinfo says $hitinfo{$n}"
+                                "Incomplete Sequence information, can't find $n hitinfo says $hitinfo{$n}"
                             );
                             next;
                         }
+                        # For Hmmsearch, if seq coverage ends in ']' it means that the alignment
+                        # runs until the end. In that case add the END coordinate to @hitinfo
+                        # to use it as Hit Length
+                        if (    $seq_cov =~ m/\]$/
+                            and scalar @{ $hitinfo[$hindex] } == 5
+                            ) {
+                            push @{ $hitinfo[$hindex] }, $seq_end ;
+                        }
+                        # For Hmmsearch, if hmm coverage ends in ']', it means that the alignment
+                        # runs until the end. In that case use the END coordinate as Query Length
+                        if (    $hmm_cov =~ m/\]$/
+                            and not exists $self->{_values}->{'RESULT-query_length'}
+                            ) {
+                            $self->element(
+                                {   'Name' => 'HMMER_query-len',
+                                    'Data' => $hmm_end
+                                }
+                            );
+                        }
+                        my @vals = ($seq_start, $seq_end,
+                                    $hmm_start, $hmm_end,
+                                    $score,     $evalue);
                         push @hspinfo, [ $n, @vals ];
                     }
                 }
@@ -370,16 +400,25 @@ sub next_result {
                         );
                         $self->element(
                             {
-                                'Name' => 'Hit_signif',
+                                'Name' => 'Hit_score',
                                 'Data' => shift @{$info}
                             }
                         );
                         $self->element(
                             {
-                                'Name' => 'Hit_score',
+                                'Name' => 'Hit_signif',
                                 'Data' => shift @{$info}
                             }
                         );
+                        my $dom_ct = shift @{$info};
+                        if (my $hmm_end = shift @{$info}) {
+                            $self->element(
+                                {
+                                    'Name' => 'Hit_len',
+                                    'Data' => $hmm_end
+                                }
+                            );
+                        }
 
                         $self->start_element( { 'Name' => 'Hsp' } );
                         my $HSPinfo = shift @hspinfo;
@@ -546,16 +585,26 @@ sub next_result {
                     );
                     $self->element(
                         {
-                            'Name' => 'Hit_signif',
+                            'Name' => 'Hit_score',
                             'Data' => shift @{$info}
                         }
                     );
                     $self->element(
                         {
-                            'Name' => 'Hit_score',
+                            'Name' => 'Hit_signif',
                             'Data' => shift @{$info}
                         }
                     );
+                    my $dom_ct = shift @{$info};
+                    if (my $hmm_end = shift @{$info}) {
+                        $self->element(
+                            {
+                                'Name' => 'Hit_len',
+                                'Data' => $hmm_end
+                            }
+                        );
+                    }
+
                     $self->start_element( { 'Name' => 'Hsp' } );
                     $self->element(
                         {
@@ -629,32 +678,58 @@ sub next_result {
                     next if ( /^Model\s+Domain/o || /^\-\-\-/o );
                     chomp;
                     if (
-                        my ( $n, $domainnum, $domainct, @vals ) = (
-                            m!^(\S+)\s+         # domain name
-                            (\d+)/(\d+)\s+      # domain num out of num
-                            (\d+)\s+(\d+).+?    # seq start, end
-                            (\d+)\s+(\d+)\s+    # hmm start, end
-                            \S+\s+              # []
-                            (\S+)\s+            # score       
-                            (\S+)               # evalue
-                            \s*$!ox
+                        my ( $n, $domainnum, $domainct,
+                             $seq_start, $seq_end, $seq_cov,
+                             $hmm_start, $hmm_end, $hmm_cov,
+                             $score, $evalue ) = (
+                                m!^(\S+)\s+          # domain name
+                                   (\d+)/(\d+)\s+    # domain num out of num
+                                   (\d+)\s+(\d+)\s+  # seq start, end
+                                   (\S+)\s+          # seq coverage
+                                   (\d+)\s+(\d+)\s+  # hmm start, end
+                                   (\S+)\s+          # hmm coverage
+                                   (\S+)\s+          # score
+                                   (\S+)             # evalue
+                                    \s*$!ox
+                            )
                         )
-                      )
                     {
                         my $hindex = $hitinfo{$n};
                         if ( !defined $hindex ) {
                             push @hitinfo,
-                              [ $n, '', $vals[5], $vals[6], $domainct ];
+                              [ $n, '', $score, $evalue, $domainct ];
                             $hitinfo{$n} = $#hitinfo;
                             $hindex = $#hitinfo;
                         }
                         my $info = $hitinfo[$hindex];
                         if ( !defined $info ) {
                             $self->warn(
-"incomplete Domain information, can't find $n hitinfo says $hitinfo{$n}"
+                                "Incomplete Domain information, can't find $n hitinfo says $hitinfo{$n}"
                             );
                             next;
                         }
+                        # For Hmmpfam, if hmm coverage ends in ']' it means that the alignment
+                        # runs until the end. In that case add the END coordinate to @hitinfo
+                        # to use it as Hit Length
+                        if (    $hmm_cov =~ m/\]$/
+                            and scalar @{ $hitinfo[$hindex] } == 5
+                            ) {
+                            push @{ $hitinfo[$hindex] }, $hmm_end ;
+                        }
+                        # For Hmmpfam, if seq coverage ends in ']', it means that the alignment
+                        # runs until the end. In that case use the END coordinate as Query Length
+                        if (    $seq_cov =~ m/\]$/
+                            and not exists $self->{_values}->{'RESULT-query_length'}
+                            ) {
+                            $self->element(
+                                {   'Name' => 'HMMER_query-len',
+                                    'Data' => $seq_end
+                                }
+                            );
+                        }
+                        my @vals = ($seq_start, $seq_end,
+                                    $hmm_start, $hmm_end,
+                                    $score,     $evalue);
                         push @hspinfo, [ $n, @vals ];
                     }
                 }
@@ -697,9 +772,9 @@ sub next_result {
                             || $info->[0] ne $name )
                         {
                             $self->warn(
-"Somehow the Model table order does not match the order in the domains (got "
-                                  . $info->[0]
-                                  . ", expected $name). We're back loading this from the alignment information instead"
+                                  "Somehow the Model table order does not match the order in the domains (got "
+                                .  $info->[0]
+                                . ", expected $name). We're back loading this from the alignment information instead"
                             );
                             $info = [
                                 $name, '',
@@ -734,6 +809,15 @@ sub next_result {
                                 'Data' => shift @{$info}
                             }
                         );
+                        my $dom_ct = shift @{$info};
+                        if (my $hmm_end = shift @{$info}) {
+                            $self->element(
+                                {
+                                    'Name' => 'Hit_len',
+                                    'Data' => $hmm_end
+                                }
+                            );
+                        }
 
                         $self->start_element( { 'Name' => 'Hsp' } );
                         my $HSPinfo = shift @hspinfo;
@@ -903,16 +987,26 @@ sub next_result {
                     );
                     $self->element(
                         {
-                            'Name' => 'Hit_signif',
+                            'Name' => 'Hit_score',
                             'Data' => shift @{$info}
                         }
                     );
                     $self->element(
                         {
-                            'Name' => 'Hit_score',
+                            'Name' => 'Hit_signif',
                             'Data' => shift @{$info}
                         }
                     );
+                    my $dom_ct = shift @{$info};
+                    if (my $hmm_end = shift @{$info}) {
+                        $self->element(
+                            {
+                                'Name' => 'Hit_len',
+                                'Data' => $hmm_end
+                            }
+                        );
+                    }
+
                     $self->start_element( { 'Name' => 'Hsp' } );
                     $self->element(
                         {
