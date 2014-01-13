@@ -1019,7 +1019,7 @@ sub end_element {
     # Hsp are sort of weird, in that they end when another
     # object begins so have to detect this in end_element for now
     if ( $nm eq 'Hsp' ) {
-        foreach (qw(Hsp_qseq Hsp_midline Hsp_hseq)) {
+        foreach (qw(Hsp_csline Hsp_qseq Hsp_midline Hsp_hseq Hsp_pline)) {
             my $data = $self->{'_last_hspdata'}->{$_};
             if ( $data && $_ eq 'Hsp_hseq' ) {
 
@@ -1116,7 +1116,7 @@ sub characters {
     my ( $self, $data ) = @_;
 
     if (   $self->in_element('hsp')
-        && $data->{'Name'} =~ /Hsp\_(qseq|hseq|csline|pline|midline)/o
+        && $data->{'Name'} =~ /Hsp\_(?:qseq|hseq|csline|pline|midline)/o
         && defined $data->{'Data'} )
     {
         $self->{'_last_hspdata'}->{ $data->{'Name'} } .= $data->{'Data'};

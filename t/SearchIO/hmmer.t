@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 740 );
+    test_begin( -tests => 748 );
 
     use_ok('Bio::SearchIO');
 }
@@ -121,9 +121,9 @@ while ( $result = $searchio->next_result ) {
                 length( $hsp->homology_string ),
                 'Check if query string and homology string have an equal length'
             );
-            # Hmmpfam don't have PP or CS strings, these are tests to check for side effects
-            is( $hsp->posterior_string,    '' );
-            is( $hsp->consensus_structure, '' );
+            # This Hmmpfam don't have PP or CS strings, these are tests to check for side effects
+            is( $hsp->posterior_string, '' );
+            is( $hsp->consensus_string, '' );
         }
     }
     if ( defined( $hit = $result->next_model ) ) {
@@ -552,8 +552,8 @@ while ( $result = $searchio->next_result ) {
         'Check for query string'
     );
     # Hmmsearch2 don't have PP or CS strings, these are tests to check for side effects
-    is( $hsp->posterior_string,    '' );
-    is( $hsp->consensus_structure, '' );
+    is( $hsp->posterior_string, '' );
+    is( $hsp->consensus_string, '' );
 
     $hit = $result->next_hit;
     is( $hit->name,              'CATL_HUMAN', 'Check hit name' );
@@ -562,18 +562,41 @@ while ( $result = $searchio->next_result ) {
     float_is( $hit->significance, 6.1e-134,    'Check hit significance' );
 }
 
-# test for bug 2632 - CS lines should get ignored without breaking the parser
+# test for bug 2632 - CS lines are captured without breaking the parser
 $searchio = Bio::SearchIO->new(
     -format => 'hmmer',
     -file   => test_input_file('hmmpfam_cs.out')
 );
-$result = $searchio->next_result;
-my $hit = $result->next_hit;
-my $hsp = $hit->next_hsp;
-is( $hsp->seq_str,
-    'CGV-GFIADVNNVANHKIVVQALEALTCMEHRGACSADRDSGDGAGITTAIPWNLFQKSLQNQNIKFEQnDSVGVGMLFLPAHKLKES--KLIIETVLKEENLEIIGWRLVPTVQEVLGKQAYLNKPHVEQVFCKSSNLSKDRLEQQLFLVRKKIEKYIGINGKDwaheFYICSLSCYTIVYKGMMRSAVLGQFYQDLYHSEYTSSFAIYHRRFSTNTMPKWPLAQPMR---------FVSHNGEINTLLGNLNWMQSREPLLQSKVWKDRIHELKPITNKDNSDSANLDAAVELLIASGRSPEEALMILVPEAFQNQPDFA-NNTEISDFYEYYSGLQEPWDGPALVVFTNGKV-IGATLDRNGL-RPARYVIT----KDNLVIVSSES',
-    'Check for hsp seq_str'
-);
+if (defined ($result = $searchio->next_result) ) {
+    my $hit = $result->next_hit;
+    my $hsp = $hit->next_hsp;
+
+    is ($hsp->seq_str,                  $hsp->query_string);
+    is (length($hsp->seq_str),          length($hsp->query_string));
+    is (length($hsp->homology_string),  length($hsp->query_string));
+    is (length($hsp->consensus_string), length($hsp->query_string));
+
+    is( $hsp->consensus_string,
+        'EEEEEEEEETSSHSBHHHHHHHHHHHHHGGGGSSCSTTSSCECEEEEEEECTCCCHHHHHHHCT----S GC-EEEEEEE-SSHHHHHHHHHHHHHHHHHTT-EEEEEEE--B-GGGS-HHHHHC--EEEEEEEE-TT--HHHHHHCEEEEECHSCHHHHTHHH.    BEEEEEESSEEEEEECC-GGGHHHHBHGGGSTTEEBSEEEEEECESSSSSCTGGGSSCEEECCCTTCEEEEEEEEETTTHHHHHHHHHHTSCCCSSTTCGHHHHCC-SSS-TTSCHHHHHHHHHHHHHHTT--HHHHHHHHS----TT-GGGTST-HHHHHHHHHHHHHHCCHCCEEEEEEETSSEEEEEEETTTSCESEEEEEEEEEE.TTEEEEEESSC',
+        'Check for consensus structure string'
+    );
+    is( $hsp->seq_str,
+        'CGV-GFIADVNNVANHKIVVQALEALTCMEHRGACSADRDSGDGAGITTAIPWNLFQKSLQNQNIKFEQnDSVGVGMLFLPAHKLKES--KLIIETVLKEENLEIIGWRLVPTVQEVLGKQAYLNKPHVEQVFCKSSNLSKDRLEQQLFLVRKKIEKYIGINGKDwaheFYICSLSCYTIVYKGMMRSAVLGQFYQDLYHSEYTSSFAIYHRRFSTNTMPKWPLAQPMR---------FVSHNGEINTLLGNLNWMQSREPLLQSKVWKDRIHELKPITNKDNSDSANLDAAVELLIASGRSPEEALMILVPEAFQNQPDFA-NNTEISDFYEYYSGLQEPWDGPALVVFTNGKV-IGATLDRNGL-RPARYVIT----KDNLVIVSSES',
+        'Check for hsp seq_str'
+    );
+    is( $hsp->query_string,
+        'CGV-GFIADVNNVANHKIVVQALEALTCMEHRGACSADRDSGDGAGITTAIPWNLFQKSLQNQNIKFEQnDSVGVGMLFLPAHKLKES--KLIIETVLKEENLEIIGWRLVPTVQEVLGKQAYLNKPHVEQVFCKSSNLSKDRLEQQLFLVRKKIEKYIGINGKDwaheFYICSLSCYTIVYKGMMRSAVLGQFYQDLYHSEYTSSFAIYHRRFSTNTMPKWPLAQPMR---------FVSHNGEINTLLGNLNWMQSREPLLQSKVWKDRIHELKPITNKDNSDSANLDAAVELLIASGRSPEEALMILVPEAFQNQPDFA-NNTEISDFYEYYSGLQEPWDGPALVVFTNGKV-IGATLDRNGL-RPARYVIT----KDNLVIVSSES',
+        'Check for query string'
+    );
+    is( $hsp->hit_string,
+        'CGvlGfiAhikgkpshkivedaleaLerLeHRGavgADgktGDGAGIltqiPdgFFrevakelGieLpe-gqYAVGmvFLPqdelaraearkifEkiaeeeGLeVLGWReVPvnnsvLGetAlatePvIeQvFvgapsgdgedfErrLyviRkrieksivaenvn----fYiCSLSsrTIVYKGMLtseQLgqFYpDLqderfeSalAivHsRFSTNTfPsWplAQPfRVnslwgggivlAHNGEINTlrgNrnwMraRegvlksplFgddldkLkPIvneggSDSaalDnvlEllvraGRslpeAlMMlIPEAWqnnpdmdkdrpekraFYeylsglmEPWDGPAalvftDGryavgAtLDRNGLTRPaRygiTrdldkDglvvvaSEa',
+        'Check for hit string'
+    );
+    is( $hsp->homology_string,
+        'CGv GfiA+ ++ ++hkiv +aleaL+++eHRGa++AD ++GDGAGI t+iP+++F++  ++++i++ ++   +VGm+FLP   l+    + i+E +++ee+Le++GWR VP+  +vLG++A  + P++eQvF+ +++ +++ +E++L+++Rk+iek+i+  + +  ++fYiCSLS++TIVYKGM++s++LgqFY+DL++++++S++Ai+H+RFSTNT+P+WplAQP+R         ++ HNGEINTl gN nwM++Re +l+s++++d++++LkPI n+++SDSa+lD ++Ell+++GRs++eAlM+l+PEA+qn+pd   +++e+ +FYey+sgl+EPWDGPA++vft+G++ +gAtLDRNGL RPaRy+iT    kD+lv+v+SE+',
+        'Check for homology string'
+    );
+}
 
 # Tests for hmmer3 output here
 $searchio = Bio::SearchIO->new(
@@ -876,7 +899,7 @@ while ( $result = $searchio->next_result ) {
 
                 is (length($hsp->homology_string), length($hsp->query_string));
 
-                is( $hsp->consensus_structure,
+                is( $hsp->consensus_string,
                     '',
                     'Check for consensus structure string'
                 );
@@ -975,7 +998,7 @@ while ( $result = $searchio->next_result ) {
 
                 is (length($hsp->homology_string), length($hsp->query_string));
 
-                is( $hsp->consensus_structure,
+                is( $hsp->consensus_string,
                     'S-TTEEEEEEEETTSEEEEEEEESTTS-HHHHHHHHHHHHHHHGGGS-HHHHHH-EEEEEEECCECEEEEEEESSSTS-HHHHHHHHHHCTHHHHHTSTTEEEEEESS.--EEEEEEE-HHHHHCTT--HHHHHHHHHHHSSB-EEEECTT-SB-EEEE-SB---SCCHHCT-EEEETTSEEEEHHHCEEEEEEESSSS-EEEETTCEEEEEEEEEETTSBHHHHHHHHHHHHHCCGGGSSTTEEEEEEEESHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSHCCCHHHHHHHHHHHHHHHHHHHHTT--EEHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHCSS-HHHHHHHHHHHHCCHHHHHHHHHHHHCCGGGGSBHHHHHHHHHHHHHHHHHHHHHHHHHHCCHHHHHHHCS----TT-CC..............................CHHHHHHHHHHHHHHHHHHHHHHHHHSCHHHHHHHHHHHHH.HHHHHCCS-BESS----TSEEEEEEE-STTC-HHHHHHHHHHHHHHHH...TTTTEEEEEEEESESSSS..E........CTTEEEEEEEE--CTTS-SCCCSHHHHHHHHHHHC.CTSTSSEEEEEE-SSSCCCSSSSSEEEEEEE.TSSSCHHHHHHHHHHHHHHHCCSTTEECEEESS-S-EEEEEEEE-HHHHHHCTB-HHHHHHHHHHHHT-..EEEEEEEETTE...EEEEEEEE-GGGSSSGGGGCC-EEEETTSE.EEECGGCEEEEEEEE-SEEEEETTCEEEEEEEEESTTS...-HHHHHHHHHHCCTT..SSTTEEEEEECHHHHHHHHCCCHHHHHHHHHHHHHHHHHHHCTSSSTCHHHHTTHHHHHHHHHHHHHHTT--BSHHHHHHHHHHHHHHHHHHHHHHHHHHHHHCTTTBHHHHHHHHHHHHCHHHHHHHHHHHHHCCHHHHTT-STTHHHHHHHHHHHHHHHHHHHHCHHHHHHHHHHHHH',
                     'Check for consensus structure string'
                 );
@@ -1395,7 +1418,7 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     is( sprintf( "%.3f", $hsp->frac_conserved('hit') ),  '1.000' );
     is( sprintf( "%.3f", $hsp->frac_conserved('total') ), 0.981 );
 
-    is( $hsp->consensus_structure,
+    is( $hsp->consensus_string,
         '',
         'Check for consensus structure string'
     );
@@ -1460,7 +1483,7 @@ is( $result->num_hits(), 2, 'Check num_hits' );
 
     is (length($hsp->homology_string), length($hsp->query_string));
 
-    is( $hsp->consensus_structure,
+    is( $hsp->consensus_string,
         '',
         'Check for consensus structure string'
     );

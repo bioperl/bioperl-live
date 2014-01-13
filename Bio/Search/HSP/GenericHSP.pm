@@ -473,11 +473,11 @@ sub homology_string{
     return $previous;
 }
 
-=head2 consensus_structure
+=head2 consensus_string
 
- Title   : consensus_structure
- Usage   : my $cs_string = $hsp->consensus_structure;
- Function: Retrieves the consensus structure line for this HSP as a string (HMMer3).
+ Title   : consensus_string
+ Usage   : my $cs_string = $hsp->consensus_string;
+ Function: Retrieves the consensus structure line for this HSP as a string (HMMER).
          : If the model had any consensus structure or reference line annotation
          : that it inherited from a multiple alignment (#=GC SS cons,
          : #=GC RF annotation in Stockholm files), that information is shown
@@ -487,7 +487,7 @@ sub homology_string{
 
 =cut
 
-sub consensus_structure {
+sub consensus_string {
     my ($self,$value) = @_;
     my $previous = $self->{CS_SEQ};
     if( defined $value || ! defined $previous ) {

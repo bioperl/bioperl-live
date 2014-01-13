@@ -113,6 +113,7 @@ BEGIN {
         'Hsp_hitgaps'     => 'HSP-hit_gaps',
         'Hsp_querygaps'   => 'HSP-query_gaps',
         'Hsp_qseq'        => 'HSP-query_seq',
+        'Hsp_csline'      => 'HSP-cs_seq',
         'Hsp_hseq'        => 'HSP-hit_seq',
         'Hsp_midline'     => 'HSP-homology_seq',
         'Hsp_align-len'   => 'HSP-hsp_length',
@@ -381,14 +382,10 @@ sub next_result {
                 $count = 0;
                 my %domaincounter;
                 my $second_tier = 0;
+                my $csline      = '';
 
                 while ( defined( $_ = $self->_readline ) ) {
-                    next if (    /^Align/o
-                             || ( $count != 1 && /^\s+RF\s+[x\s]+$/o )
-                             );
-
-                    # fix for bug 2632
-                    next if ($_ =~ m/^\s+CS\s+/o && $count == 0);
+                    next if ( /^Align/o );
 
                     if (   m/^Histogram/o
                         || m!^//!o
@@ -560,7 +557,13 @@ sub next_result {
                         # accumulates all the of the alignment lines into
                         # three array slots and then tests for the
                         # end of the line
-                        if (/^(\s+ \*->) (\S+)/ox) {
+                        if ($_ =~ m/^\s+(?:CS|RF)\s+/o && $count == 0) {
+                            # Buffer the CS line now and process it later at
+                            # midline point, where $prelength and width will be known
+                            $csline = $_;
+                            next;
+                        }
+                        elsif (/^(\s+ \*->) (\S+)/ox) {
                             # start of domain
                             $prelength = CORE::length($1);
                             $width     = 0;
@@ -652,10 +655,19 @@ sub next_result {
                                 $self->element(
                                     {
                                         'Name' => 'Hsp_midline',
-                                        'Data' =>
-                                          substr( $_, $prelength, $width )
+                                        'Data' => substr( $_, $prelength, $width )
                                     }
                                 );
+                                if ($csline ne '') {
+                                    $self->element(
+                                        {
+                                            'Name' => 'Hsp_csline',
+                                            'Data' => substr( $csline, $prelength, $width )
+
+                                        }
+                                    );
+                                    $csline = '';
+                                }
                             }
                             else {
                                 $self->element(
@@ -664,6 +676,15 @@ sub next_result {
                                         'Data' => substr( $_, $prelength )
                                     }
                                 );
+                                if ($csline ne '') {
+                                    $self->element(
+                                        {
+                                            'Name' => 'Hsp_csline',
+                                            'Data' => substr( $csline, $prelength )
+                                        }
+                                    );
+                                    $csline = '';
+                                }
                             }
                         }
                         elsif ( $count == 2 ) {
@@ -857,7 +878,7 @@ sub end_element {
     # Hsp are sort of weird, in that they end when another
     # object begins so have to detect this in end_element for now
     if ( $nm eq 'Hsp' ) {
-        foreach (qw(Hsp_qseq Hsp_midline Hsp_hseq)) {
+        foreach (qw(Hsp_csline Hsp_qseq Hsp_midline Hsp_hseq)) {
             my $data = $self->{'_last_hspdata'}->{$_};
             if ($data && $_ eq 'Hsp_hseq') {
                 # replace hmm '.' gap symbol by '-'
@@ -975,7 +996,7 @@ sub characters {
     my ( $self, $data ) = @_;
 
     if (   $self->in_element('hsp')
-        && $data->{'Name'} =~ /Hsp\_(qseq|hseq|midline)/o
+        && $data->{'Name'} =~ /Hsp\_(?:qseq|hseq|csline|midline)/o
         && defined $data->{'Data'} )
     {
         $self->{'_last_hspdata'}->{ $data->{'Name'} } .= $data->{'Data'};
