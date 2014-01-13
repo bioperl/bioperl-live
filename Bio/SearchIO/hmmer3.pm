@@ -543,88 +543,98 @@ sub next_result {
                             }
 
                             # Grab hsp data from table, push into @hsp;
-                            if ($self->{'_reporttype'} =~ m/(?:HMMSCAN|HMMSEARCH)/) {
-                                if (my ($domain_num, $score,     $bias,
-                                        $ceval,      $ieval,     $hmmstart,
-                                        $hmmstop,    $qalistart, $qalistop,
-                                        $envstart,   $envstop,   $envbound,
-                                        $acc
-                                    )
-                                    = m|^\s+(\d+)\s\!*\?*\s+  # domain number
-                                        (\S+)\s+(\S+)\s+      # score, bias
-                                        (\S+)\s+(\S+)\s+      # c-eval, i-eval
-                                        (\d+)\s+(\d+).+?      # hmm start, stop
-                                        (\d+)\s+(\d+).+?      # query start, stop
-                                        (\d+)\s+(\d+).+?      # env start, stop
-                                        (\S+)                 # Accession
-                                         \s*$|ox
-                                    )
-                                {
-                                   # Keep it simple for now. let's customize later
-                                    my @vals = (
-                                        $hmmstart,  $hmmstop,
-                                        $qalistart, $qalistop,
-                                        $score,     $ceval,
-                                        '',         '',
-                                        '',         '',
-                                        ''
-                                    );
-                                    my $info = $hit_list[ $hitinfo{"$name.$annot_counter"} ];
-                                    if ( !defined $info ) {
-                                        $self->warn(
-                                            "Incomplete sequence information; can't find $name, hitinfo says $hitinfo{$name}\n"
-                                        );
-                                        next;
-                                    }
-                                    $domaincounter{"$name.$annot_counter"}++;
-                                    my $hsp_key
-                                        = $name . "_" . $domaincounter{"$name.$annot_counter"};
-                                    push @hsp_list, [ $name, @vals ];
-                                    $hspinfo{"$hsp_key.$annot_counter"} = $#hsp_list;
-                                }
-                                else {
-                                    print "Missed this line: $_\n";
-                                }
-                            }
-                            elsif ($self->{'_reporttype'} eq 'NHMMER') {
-                                if (my ($score,     $bias,     $eval,
-                                        $hmmstart,  $hmmstop,  $hitstart,
-                                        $hitstop,   $envstart, $envstop,
-                                        $hitlength, $acc
+                            if ($self->{'_reporttype'} =~ m/(?:HMMSCAN|HMMSEARCH|NHMMER)/) {
+                                my ( $domain_num, $score,    $bias,
+                                     $ceval,      $ieval,
+                                     $hmm_start,  $hmm_stop, $hmm_cov,
+                                     $seq_start,  $seq_stop, $seq_cov,
+                                     $env_start,  $env_stop, $env_cov,
+                                     $hitlength,  $acc );
+                                my @vals;
+
+                                if ( # HMMSCAN & HMMSEARCH
+                                    ( $domain_num, $score,    $bias,
+                                      $ceval,      $ieval,
+                                      $hmm_start,  $hmm_stop, $hmm_cov,
+                                      $seq_start,  $seq_stop, $seq_cov,
+                                      $env_start,  $env_stop, $env_cov,
+                                      $acc ) = (
+                                            m|^\s+(\d+)\s\!*\?*\s+     # domain number
+                                              (\S+)\s+(\S+)\s+         # score, bias
+                                              (\S+)\s+(\S+)\s+         # c-eval, i-eval
+                                              (\d+)\s+(\d+)\s+(\S+)\s+ # hmm start, stop, coverage
+                                              (\d+)\s+(\d+)\s+(\S+)\s+ # seq start, stop, coverage
+                                              (\d+)\s+(\d+)\s+(\S+)\s+ # env start, stop, coverage
+                                              (\S+)                    # posterior probability accuracy
+                                               \s*$|ox
                                         )
-                                        = m|^\s+[!?]\s+
-                                            (\S+)\s+(\S+)\s+(\S+)\s+    # score, bias, evalue
-                                            (\d+)\s+(\d+)\s+[.\[\]]*\s+ # hmm start, stop
-                                            (\d+)\s+(\d+)\s+[.\[\]]*\s+ # query start, stop
-                                            (\d+)\s+(\d+)\s+[.\[\]]*\s+ # env start, stop
-                                            (\d+)\s+(\S+)               # target length, Accession
-                                             .*$|ox
-                                    )
-                                {
-                                    my @vals = (
-                                        $hitstart,  $hitstop,
-                                        $hmmstart,  $hmmstop,
-                                        $score,     $eval,
-                                        $hitlength, '',
-                                        '',         '',
-                                        '',         ''
-                                    );
-                                    my $info = $hit_list[ $hitinfo{"$name.$annot_counter"} ];
-                                    if ( !defined $info ) {
-                                        $self->warn(
-                                            "Incomplete information: can't find HSP $name in list of hits\n"
-                                        );
-                                        next;
+                                    ) {
+                                    # Values assigned when IF succeeded
+
+                                    # Try to get the Hit length from the alignment information
+                                    $hitlength = 0;
+                                    if ($self->{'_reporttype'} eq 'HMMSEARCH') {
+                                        # For Hmmsearch, if seq coverage ends in ']' it means that the alignment
+                                        # runs until the end. In that case add the END coordinate to @hitinfo
+                                        # to use it as Hit Length
+                                        if ( $seq_cov =~ m/\]$/ ) {
+                                            $hitlength = $seq_stop;
+                                        }
                                     }
-                                    $domaincounter{"$name.$annot_counter"}++;
-                                    my $hsp_key
-                                        = $name . "_" . $domaincounter{"$name.$annot_counter"};
-                                    push @hsp_list, [ $name, @vals ];
-                                    $hspinfo{"$hsp_key.$annot_counter"} = $#hsp_list;
+                                    elsif ($self->{'_reporttype'} eq 'HMMSCAN') {
+                                        # For Hmmscan, if hmm coverage ends in ']' it means that the alignment
+                                        # runs until the end. In that case add the END coordinate to @hitinfo
+                                        # to use it as Hit Length
+                                        if ( $hmm_cov =~ m/\]$/ ) {
+                                            $hitlength = $hmm_stop;
+                                        }
+                                    }
+                                }
+                                elsif ( # NHMMER
+                                       ( $score,     $bias,     $ceval,
+                                         $hmm_start, $hmm_stop, $hmm_cov,
+                                         $seq_start, $seq_stop, $seq_cov,
+                                         $env_start, $env_stop, $env_cov,
+                                         $hitlength, $acc ) = (
+                                            m|^\s+[!?]\s+
+                                              (\S+)\s+(\S+)\s+(\S+)\s+ # score, bias, evalue
+                                              (\d+)\s+(\d+)\s+(\S+)\s+ # hmm start, stop, coverage
+                                              (\d+)\s+(\d+)\s+(\S+)\s+ # seq start, stop, coverage
+                                              (\d+)\s+(\d+)\s+(\S+)\s+ # env start, stop, coverage
+                                              (\d+)\s+(\S+)            # target length, pp accuracy
+                                               .*$|ox
+                                        )
+                                    ) {
+                                    # Values assigned when IF succeeded
                                 }
                                 else {
                                     print "Missed this line: $_\n";
+                                    next;
                                 }
+
+                                my $info = $hit_list[ $hitinfo{"$name.$annot_counter"} ];
+                                if ( !defined $info ) {
+                                    $self->warn(
+                                        "Incomplete information: can't find HSP $name in list of hits\n"
+                                    );
+                                    next;
+                                }
+
+                                $domaincounter{"$name.$annot_counter"}++;
+                                my $hsp_key
+                                    = $name . "_" . $domaincounter{"$name.$annot_counter"};
+
+                                # Keep it simple for now. let's customize later
+                                @vals = (
+                                    $hmm_start, $hmm_stop,
+                                    $seq_start, $seq_stop,
+                                    $score,     $ceval,
+                                    $hitlength, '',
+                                    '',         '',
+                                    '',         ''
+                                );
+                                push @hsp_list, [ $name, @vals ];
+                                $hspinfo{"$hsp_key.$annot_counter"} = $#hsp_list;
                             }
                         }
                     }
@@ -830,8 +840,7 @@ sub next_result {
                                     }
                                 );
                             }
-                            if (   $self->{'_reporttype'} eq 'HMMSCAN'
-                                or $self->{'_reporttype'} eq 'NHMMER') {
+                            if ( $self->{'_reporttype'} eq 'HMMSCAN' ) {
                                 $self->element(
                                     {   'Name' => 'Hsp_hit-from',
                                         'Data' => shift @$hsp
@@ -853,7 +862,9 @@ sub next_result {
                                     }
                                 );
                             }
-                            else { # hmmsearch
+                            elsif (   $self->{'_reporttype'} eq 'HMMSEARCH'
+                                   or $self->{'_reporttype'} eq 'NHMMER'
+                                   ) {
                                 $self->element(
                                     {   'Name' => 'Hsp_query-from',
                                         'Data' => shift @$hsp
@@ -885,10 +896,11 @@ sub next_result {
                                     'Data' => shift @$hsp
                                 }
                             );
-                            if ( $self->{'_reporttype'} eq 'NHMMER' ) {
+                            my $hitlength = shift @$hsp;
+                            if ( $hitlength != 0 ) {
                                 $self->element(
                                     {   'Name' => 'Hit_len',
-                                        'Data' => shift @$hsp
+                                        'Data' => $hitlength
                                     }
                                 );
                             }
