@@ -18,9 +18,50 @@ CPAN releases are branched from 'master'.
 ---------------------------------------------------------
 
 1.6.924
+
+    [New features]
+
+    * Bio::Search::HSP::GenericHSP
+        - Bug #3370, added a "posterior_string" method to retrieve the
+          posterior probability lines (PP) from HMMER3 reports [fjossandon]
+        - Added a "consensus_string" method to retrieve the consensus
+          structure lines (CS|RF) from HMMER2 and HMMER3 reports when available [fjossandon]
+    * Bio::SearchIO::hmmer2
+        - The number of identical and conserved residues are now calculated
+          directly from the homology line [fjossandon]
+        - Now the Query Length and Hit Length are reported when the alignment
+          runs until the end of the sequence/model ('.]' or '[]') [fjossandon]
+        - Implemented the capture of the consensus structure lines [fjossandon]
+    * Bio::SearchIO::hmmer3
+        - The number of identical and conserved residues are now calculated
+          directly from the homology line [fjossandon]
+        - Now the Hit Length is reported when the alignment runs until the end
+          of the sequence/model ('.]' or '[]') [fjossandon]
+        - Implemented the capture of the consensus structure lines [fjossandon]
+        - Implemented the capture of the posterior probability lines [fjossandon]
+        - Completed the development of NHMMER parsing, including alignments [fjossandon]
+
+    [Bug fixes]
     
-    * Updated files from Bio-Root, Bio-Coordinate and Bio-SearchIO-blastxml
+    * GenericHSP: Added '.' to gap symbols in "_pre_gaps" (except for ERPIN),
+      since it is now used by HMMER3 format in alignments [fjossandon]
+    * GenericHit: Changed "frac_aligned_query" and "frac_aligned_hit"
+      to return undef if the query/hit length is unknown (like in some
+      HMMER outputs), to avoid division by 0 crashes. Also "query_length"
+      now is set to 0 if its undefined, to be consistent with hit "length" [fjossandon]
+    * HMMER: fixed many bugs in the parsing of Hmmer2 and Hmmer3 outputs,
+      added support to multi-query reports, reduced code redundancy,
+      and eliminated the automatic removal of hits below "inclusion threshold" [fjossandon]
+    * [3369] - Fixed reported bugs in parse from HMMSEARCH3 reports [fjossandon]
+    * [3446] - Fixed wrong marker position in Bio::Map::Physical [fjossandon]
+    * [3455] - Fixed wrong print of DBLink in Genbank file [bosborne]
+    * Fixed some Bio::Root::Utilities subroutines [fjossandon]
+    * Double-quotes on paths are needed in some places [fjossandon]
+    * [3453] - Allow multiple homologies and products in Entrezgene [fjossandon]
+    * Use "NUL" instead of"/dev/null" when running in Windows [fjossandon]
+    * Updated all files from Bio-Root, Bio-Coordinate and Bio-SearchIO-blastxml
       with the latest changes made in their own repositories [fjossandon]
+    * General synching of files with the master branch [fjossandon]
     * Fixed tests failing in Windows because of using Linux commands [fjossandon]
     * Closed many open filehandles that prevented temporary files deletion [fjossandon]
     * Fixed broken MeSH parser [fjossandon]
