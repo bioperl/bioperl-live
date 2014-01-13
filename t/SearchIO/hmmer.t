@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 709 );
+    test_begin( -tests => 740 );
 
     use_ok('Bio::SearchIO');
 }
@@ -37,7 +37,7 @@ while ( $result = $searchio->next_result ) {
     is( $result->num_hits(),         2,           'Check num_hits' );
     my ( $hsp, $hit );
 
-    if ( $hit = $result->next_model ) {
+    if ( defined( $hit = $result->next_model ) ) {
         is( ref($hit), 'Bio::Search::Hit::HMMERHit',
             'Check for the correct hit reference type' );
         is( $hit->name, 'SEED', 'Check hit name' );
@@ -251,28 +251,76 @@ while ( $result = $searchio->next_result ) {
     is( $hsp->query->seq_id(), 'SEED',   'Check for query seq_id' );
     is( $hsp->hit->seq_id(),   'Q91581', 'Check for hit seq_id' );
 
-    is( $hsp->hit->start,       1,     'Check for hit hmmfrom value' );
-    is( $hsp->hit->end,         77,    'Check for hit hmm to value' );
-    is( $hsp->query->start,     18,    'Check for query alifrom value' );
-    is( $hsp->query->end,       89,    'Check for query ali to value' );
+    is( $hsp->hit->start,       18,    'Check for hit hmmfrom value' );
+    is( $hsp->hit->end,         89,    'Check for hit hmm to value' );
+    is( $hsp->query->start,     1,     'Check for query alifrom value' );
+    is( $hsp->query->end,       77,    'Check for query ali to value' );
     is( $hsp->score,            119.7, 'Check for hsp score' );
     float_is( $hsp->evalue,     2e-31, 'Check for hsp c-Evalue' );
 
-    is( $hsp->length('query'), 72, 'Check for hsp query length' );
-    is( $hsp->length('hit'),   77, 'Check for hsp hit length' );
+    is( $hsp->length('query'), 77, 'Check for hsp query length' );
+    is( $hsp->length('hit'),   72, 'Check for hsp hit length' );
     is( $hsp->length('total'), 0,  'Check for hsp total length' );
     is( $hsp->gaps('query'),   0,  'Check for hsp query gaps' );
     is( $hsp->gaps('hit'),     0,  'Check for hsp hit gaps' );
     is( $hsp->gaps('total'),   0,  'Check for hsp total gaps' );
 
+    my $example_counter = 0;
     while ($hit = $result->next_model) {
         if ($hit->name eq 'Q61954') {
-            # Query and Hit lengths are usually unknown in HMMER,
-            # but sometimes they can be deduced from domain data '[]'
-            is( $hit->length,             153,    'Check hit length' );
-            is( $hit->frac_aligned_query, 0.83 );
-            is( $hit->frac_aligned_hit,  '0.50' );
-            last;
+            $example_counter++;
+            if ($example_counter == 1) {
+                # Query and Hit lengths are usually unknown in HMMER,
+                # but sometimes they can be deduced from domain data '[]'
+                is( $hit->length,              153,    'Check hit length' );
+                is( $hit->frac_aligned_query, '1.00' );
+                is( $hit->frac_aligned_hit,    0.42 );
+
+                $hsp = $hit->next_domain;
+                is( $hsp->query->seq_id(), 'SEED',   'Check for query seq_id' );
+                is( $hsp->hit->seq_id(),   'Q61954', 'Check for hit seq_id' );
+
+                is( $hsp->hit->start,       26,      'Check for hit hmmfrom value' );
+                is( $hsp->hit->end,         89,      'Check for hit hmm to value' );
+                is( $hsp->query->start,     1,       'Check for query alifrom value' );
+                is( $hsp->query->end,       77,      'Check for query ali to value' );
+                is( $hsp->score,            72.9,    'Check for hsp score' );
+                float_is( $hsp->evalue,     2.4e-17, 'Check for hsp c-Evalue' );
+
+                is( $hsp->length('query'), 77, 'Check for hsp query length' );
+                is( $hsp->length('hit'),   64, 'Check for hsp hit length' );
+                is( $hsp->length('total'), 0,  'Check for hsp total length' );
+                is( $hsp->gaps('query'),   0,  'Check for hsp query gaps' );
+                is( $hsp->gaps('hit'),     0,  'Check for hsp hit gaps' );
+                is( $hsp->gaps('total'),   0,  'Check for hsp total gaps' );
+            }
+            elsif ($example_counter == 2) {
+                # Query and Hit lengths are usually unknown in HMMER,
+                # but sometimes they can be deduced from domain data '[]'
+                is( $hit->length,              153,  'Check hit length' );
+                is( $hit->frac_aligned_query, '1.00' );
+                is( $hit->frac_aligned_hit,    0.34 );
+
+                $hsp = $hit->next_domain;
+                is( $hsp->query->seq_id(), 'SEED',   'Check for query seq_id' );
+                is( $hsp->hit->seq_id(),   'Q61954', 'Check for hit seq_id' );
+
+                is( $hsp->hit->start,       102, 'Check for hit hmmfrom value' );
+                is( $hsp->hit->end,         153, 'Check for hit hmm to value' );
+                is( $hsp->query->start,     1,   'Check for query alifrom value' );
+                is( $hsp->query->end,       77,  'Check for query ali to value' );
+                is( $hsp->score,            3.3, 'Check for hsp score' );
+                float_is( $hsp->evalue,     1.9, 'Check for hsp c-Evalue' );
+
+                is( $hsp->length('query'), 77, 'Check for hsp query length' );
+                is( $hsp->length('hit'),   52, 'Check for hsp hit length' );
+                is( $hsp->length('total'), 0,  'Check for hsp total length' );
+                is( $hsp->gaps('query'),   0,  'Check for hsp query gaps' );
+                is( $hsp->gaps('hit'),     0,  'Check for hsp hit gaps' );
+                is( $hsp->gaps('total'),   0,  'Check for hsp total gaps' );
+
+                last;
+            }
         }
     }
 }
