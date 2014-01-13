@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 748 );
+    test_begin( -tests => 754 );
 
     use_ok('Bio::SearchIO');
 }
@@ -487,7 +487,7 @@ while ( $result = $searchio->next_result ) {
 
     # Query and Hit lengths are usually unknown in HMMER,
     # but sometimes they can be deduced from domain data '[]'
-    is( $hit->length,              0,      'Check hit length absence' );
+    is( $hit->length,              0,     'Check hit length absence' );
     is( $hit->frac_aligned_query, '1.00' );
     is( $hit->frac_aligned_hit,    undef );
 
@@ -644,7 +644,8 @@ while ( $result = $searchio->next_result ) {
             float_is( $hit->significance, 6e-30, 'Check hit significance' );
             is( $hit->num_hsps,           1,     'Check num_hsps' );
 
-            # Hit length is unknown for HMMSCAN and HMMSEARCH but not for NHMMER
+            # Hit length is usually unknown for HMMSCAN and HMMSEARCH but not for NHMMER.
+            # When is not known, sometimes it can be deduced from domain data '[]'
             is( $hit->length,             0,     'Check hit length absence' );
             is( $hit->frac_aligned_query, 0.87 );
             is( $hit->frac_aligned_hit,   undef );
@@ -954,7 +955,8 @@ while ( $result = $searchio->next_result ) {
             float_is( $hit->significance, 9.3e-189, 'Check hit significance' );
             is( $hit->num_hsps,           1,        'Check num_hsps' );
 
-            # Hit length is unknown for HMMSCAN and HMMSEARCH but not for NHMMER
+            # Hit length is usually unknown for HMMSCAN and HMMSEARCH but not for NHMMER.
+            # When is not known, sometimes it can be deduced from domain data '[]'
             is( $hit->length,             0,        'Check hit length absence' );
             is( $hit->frac_aligned_query, 0.93 );
             is( $hit->frac_aligned_hit,   undef );
@@ -1071,6 +1073,13 @@ while ( $result = $searchio->next_result ) {
     my ( $hsp, $hit );
 
     while ( $hit = $result->next_model ) {
+        if ($hit->name eq 'HemolysinCabind') {
+            # Hit length is usually unknown for HMMSCAN and HMMSEARCH but not for NHMMER.
+            # When is not known, sometimes it can be deduced from domain data '[]'
+            is( $hit->length,             18, 'Check hit length' );
+            is( $hit->frac_aligned_query, 0.03 );
+            is( $hit->frac_aligned_hit,  '1.00' );
+        }
         my @expected = @{ shift @multi_hits };
         is( ref($hit), 'Bio::Search::Hit::HMMERHit',
             'Check for the correct hit reference type' );
@@ -1160,6 +1169,13 @@ while ( $result = $searchio->next_result ) {
     my ( $hsp, $hit );
 
     while ( $hit = $result->next_model ) {
+        if ($hit->name eq 'PKSI-KS_m3') {
+            # Hit length is usually unknown for HMMSCAN and HMMSEARCH but not for NHMMER.
+            # When is not known, sometimes it can be deduced from domain data '[]'
+            is( $hit->length,             16, 'Check hit length' );
+            is( $hit->frac_aligned_query, 0.09 );
+            is( $hit->frac_aligned_hit,  '1.00' );
+        }
         my @expected = @{ shift @multi_hits };
         is( ref($hit), 'Bio::Search::Hit::HMMERHit',
             'Check for the correct hit reference type' );
@@ -1374,7 +1390,8 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     float_is( $hit->significance, 3.2e-48,              'Check nhmmer hit significance' );
     is( $hit->num_hsps,           1,                    'Check num_hsps' );
 
-    # Hit length is unknown for HMMSCAN and HMMSEARCH but not for NHMMER
+    # Hit length is usually unknown for HMMSCAN and HMMSEARCH but not for NHMMER.
+    # When is not known, sometimes it can be deduced from domain data '[]'
     is( $hit->length,             151,                  'Check nhmmer hit length' );
     is( $hit->frac_aligned_query, 0.09 );
     is( $hit->frac_aligned_hit,  '1.00' );
@@ -1471,8 +1488,8 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     is( $hsp->length('hit'),   59, 'Check for hsp hit length' );
     is( $hsp->length('total'), 59, 'Check for hsp total length' );
     is( $hsp->gaps('query'),   0,  'Check for hsp query gaps' );
-    is( $hsp->gaps('hit'),     0,   'Check for hsp hit gaps' );
-    is( $hsp->gaps('total'),   0,   'Check for hsp total gaps' );
+    is( $hsp->gaps('hit'),     0,  'Check for hsp hit gaps' );
+    is( $hsp->gaps('total'),   0,  'Check for hsp total gaps' );
 
     ($hit->length == 0) ?
           is( $hsp->{HIT_LENGTH}, $hsp->hit->length, 'Check hit length consistency' )
