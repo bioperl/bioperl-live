@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 754 );
+    test_begin( -tests => 773 );
 
     use_ok('Bio::SearchIO');
 }
@@ -1529,3 +1529,76 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     );
 }
 # end HMMER 3.1 nhmmer output
+
+# Test HIT filtering by SIGNIFICANCE
+$searchio = Bio::SearchIO->new(
+    '-format' => 'hmmer',
+    '-file'   => test_input_file('hmmpfam_cs.out'),
+    '-signif' => 1e-100
+);
+# NOTE: For Hmmer2, if a single model pass the HIT filter
+# but it shows 2 domains, it counts as 2 hits (Glu_synthase)
+my @valid = qw( GATase_2
+                Glu_syn_central
+                Glu_synthase
+                Glu_synthase
+                GXGXG );
+$result   = $searchio->next_result;
+is( $result->num_hits(), 5, 'Check Significance filtered num_hits' );
+while ( my $hit = $result->next_hit ) {
+    is( $hit->name, shift @valid, 'Check Significance filtered hit ID' );
+}
+is( @valid, 0 );
+
+# Test HIT filtering by SCORE
+$searchio = Bio::SearchIO->new(
+    '-format' => 'hmmer',
+    '-file'   => test_input_file('hmmsearch.out'),
+    '-score'  => 390
+);
+# NOTE: This Hmmer2 report top hit (score 393.8) have 4 domains,
+# so it count as 4 hits (PAB2_ARATH)
+@valid = qw( PAB2_ARATH
+             PAB2_ARATH
+             PAB2_ARATH
+             PAB2_ARATH );
+$result   = $searchio->next_result;
+is( $result->num_hits(), 4, 'Check Score filtered num_hits' );
+while ( my $hit = $result->next_hit ) {
+    is( $hit->name, shift @valid, 'Check Score filtered hit ID' );
+}
+is( @valid, 0 );
+
+# Test HIT filtering by BITS
+$searchio = Bio::SearchIO->new(
+    '-format' => 'hmmer',
+    '-file'   => test_input_file('hmmsearch3_multi.out'),
+    '-bits'   => 10
+);
+# NOTE: No HMMER report use Bits, so this will filter out everything
+$result   = $searchio->next_result;
+is( $result->num_hits(), 0, 'Check Bits filtered num_hits' );
+$result   = $searchio->next_result;
+is( $result->num_hits(), 0, 'Check Bits filtered num_hits' );
+$result   = $searchio->next_result;
+is( $result->num_hits(), 0, 'Check Bits filtered num_hits' );
+
+# Test HIT filtering by HIT_FILTER
+my $filt_func = sub {
+    my $hit = shift;
+    $hit->frac_aligned_query >= 0.20;
+};
+$searchio = Bio::SearchIO->new(
+    '-format'     => 'hmmer',
+    '-file'       => test_input_file('hmmscan_multi_domain.out'),
+    '-hit_filter' => $filt_func
+);
+# NOTE: In Hmmer3 reports, the multiple domains of a model are treated
+# as HSPs instead of Hits (like it is in Hmmer2 reports)
+@valid = qw( PPC );
+$result   = $searchio->next_result;
+is( $result->num_hits(), 1, 'Check Hit_filter filtered num_hits' );
+while ( my $hit = $result->next_hit ) {
+    is( $hit->name, shift @valid, 'Check Hit_filter filtered hits ID' );
+}
+is( @valid, 0 );
