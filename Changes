@@ -44,9 +44,9 @@ CPAN releases are branched from 'master'.
         - Feature #2615, moved "_init_parse_params", "max_significance, "signif",
           "min_score", "min_bits, and "hit_filter" methods from
           'IteratedSearchResultEventBuilder' to parent 'SearchResultEventBuilder'.
-          This means that the Bio::SearchIO->new() parameters '-signif', '-score'
+          This means that the Bio::SearchIO->new() parameters '-signif', '-score',
           '-bits' and '-hit_filter' will now work with other Bio::SearchIO formats
-          besides Blast instead of being ignored. Added tests for all moved methods
+          besides Blast, instead of being ignored. Added tests for all moved methods
           using HMMER outputs and run the full test suite and everything pass [fjossandon]
 
     [Bug fixes]
