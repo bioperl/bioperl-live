@@ -7,7 +7,7 @@ BEGIN {
    use lib '.';
    use Bio::Root::Test;
    
-   test_begin(-tests => 69,
+   test_begin(-tests => 73,
               -requires_modules => [qw(DB_File
                                        Storable
                                        Fcntl)]);
@@ -19,6 +19,7 @@ BEGIN {
    use_ok('Bio::Index::GenBank');
    use_ok('Bio::Index::Stockholm');
    use_ok('Bio::Index::Swissprot');
+   use_ok('Bio::Index::Hmmer');
    use_ok('Bio::DB::InMemoryCache');
    use_ok('Bio::DB::InMemoryCache');
 }
@@ -188,6 +189,16 @@ ok ( -e "Wibbl6" );
 my $aln = $st_ind->fetch_aln('PF00244');
 isa_ok($aln,'Bio::SimpleAlign');
 
+# test Hmmer
+my $hmmer_ind = Bio::Index::Hmmer->new(-filename => 'Wibbl7',
+                                       -write_flag => 1,
+                                       -verbose    => 0);
+isa_ok $hmmer_ind, 'Bio::Index::Hmmer';
+$hmmer_ind->make_index(test_input_file('hmmpfam_multiresult.out'));
+ok ( -e "Wibbl7" );
+my $hmm_result = $hmmer_ind->fetch_report('lcl|gi|340783625|Plus1');
+is ($hmm_result->query_description, 'megaplasmid, complete sequence [UNKNOWN]');
+
 
 
 
@@ -202,7 +213,7 @@ END {
 }
 
 sub cleanup {
-   for my $root ( qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5 Wibbl6
+   for my $root ( qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5 Wibbl6 Wibbl7
                       multifa_index multifa_qual_index ) ) {
       unlink $root if( -e $root );
       unlink "$root.pag" if( -e "$root.pag");
