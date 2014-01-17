@@ -518,10 +518,21 @@ sub next_result {
                         last;
                     }
 
-                    if ( $_ =~ m/^\>\>\s(.*?)\s+/ ) {
-                        $name = $1;
+                    if ( $_ =~ m/^\>\>\s(\S*)\s+(.*)/ ) {
+                        $name    = $1;
+                        my $desc = $2;
                         $annot_counter++;
                         $domaincounter{"$name.$annot_counter"} = 0;
+
+                        # The Hit Description from the Scores table can be truncated if
+                        # its too long, so use the '>>' line description when its longer
+                        if (length $hit_list[
+                                             $hitinfo{"$name.$annot_counter"}
+                                             ]
+                                             [1] < length $desc
+                            ) {
+                            $hit_list[ $hitinfo{"$name.$annot_counter"} ][1] = $desc;
+                        }
 
                         while ( defined( $_ = $self->_readline ) ) {
                             if (   $_ =~ m/Internal pipeline statistics/

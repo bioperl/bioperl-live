@@ -1044,7 +1044,7 @@ my @multi_hits = (
         ]
     ],
     [   'HemolysinCabind',
-        'Hemolysin-type calcium-binding repeat (2 cop',
+        'Hemolysin-type calcium-binding repeat (2 copies)',
         '47.9', 4.7e-13, 3,
         [   [ 2, 13, 1214, 1225, 5.9,  0.0026 ],
             [ 1, 18, 1231, 1248, 10.8, 6.8e-5 ],
@@ -1127,7 +1127,7 @@ $searchio = Bio::SearchIO->new(
 
 @multi_hits = (
     [   'HTH_AraC',
-        'Bacterial regulatory helix-turn-helix proteins, Ara',
+        'Bacterial regulatory helix-turn-helix proteins, AraC family',
         '41.3', 6.7e-11, 2,
         [   [ 'siadiAeevgfSpsyfsrlFkkytGvt', 'SLMELSRQVGLNDCTLKRGFRLVFDTT' ],
             [   'nwsiadiAeevgf-SpsyfsrlFkkytGvtPsqyr',
