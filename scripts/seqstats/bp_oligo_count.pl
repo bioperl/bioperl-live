@@ -123,7 +123,7 @@ while (my $seq = $in->next_seq() ) {
 }
 
 if ($outfile) {
-    open(OUTFILE, ">$outfile") or die "Can't open $outfile\n";
+    open(OUTFILE, ">$outfile") or die "Can't open $outfile - $!\n";
 } else {
     open OUTFILE, '>-'; # STDOUT
 }
