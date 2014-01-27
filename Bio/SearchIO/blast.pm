@@ -804,7 +804,7 @@ sub next_result {
         }
 
         # move inside of a hit
-        elsif (/^>\s*(\S+)\s*(.*)?/) {
+        elsif (/^(Subject=|>)\s*(\S+)\s*(.*)?/) {
             chomp;
 
             $self->debug("blast.pm: Hit: $1\n");
@@ -823,8 +823,8 @@ sub next_result {
                 $self->start_element( { 'Name' => 'Iteration' } );
             }
             $self->start_element( { 'Name' => 'Hit' } );
-            my $id         = $1;
-            my $restofline = $2;
+            my $id         = $2;
+            my $restofline = $3;
 
             $self->debug("Starting a hit: $1 $2\n");
             $self->element(
