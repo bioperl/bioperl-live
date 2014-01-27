@@ -150,7 +150,7 @@ sub _index_file {
     my $id_parser = $self->id_parser;
 
     open my $GENBANK, '<', $file or 
-	$self->throw("Can't open file for read : $file");
+	$self->throw("Can't open file for read : $file - $1");
 
     my %done_ids;
 
