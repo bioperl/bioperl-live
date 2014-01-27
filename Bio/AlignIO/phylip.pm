@@ -190,7 +190,8 @@ sub next_aln {
             return;
         }
     }
-
+    return unless $seqcount and $residuecount;
+    
     # First alignment section. We expect to see a name and (part of) a sequence.
     my $idlen = $self->idlength;
     $count = 0;
