@@ -136,7 +136,7 @@ sub _index_file {
     $begin = 0;
     $end   = 0;
 
-    open my $SP, '<', $file or $self->throw("Can't open file for read : $file");
+    open my $SP, '<', $file or $self->throw("Can't open file for read : $file - $!");
 
     # In Windows, text files have '\r\n' as line separator, but when reading in
     # text mode Perl will only show the '\n'. This means that for a line "ABC\r\n",
