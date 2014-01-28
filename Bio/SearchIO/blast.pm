@@ -804,7 +804,7 @@ sub next_result {
         }
 
         # move inside of a hit
-        elsif (/^>\s*(\S+)\s*(.*)?/) {
+        elsif (/^(?:Subject=|>)\s*(\S+)\s*(.*)?/) {
             chomp;
 
             $self->debug("blast.pm: Hit: $1\n");
