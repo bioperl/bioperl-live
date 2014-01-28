@@ -1,0 +1,78 @@
+BLASTN 2.2.29+
+
+
+Query= gi|2695846|emb|Y13255.1| Acipenser baeri mRNA for immunoglobulin
+heavy chain, clone ScH 3.3
+
+Length=606
+
+Subject= gi|2695846|emb|Y13255.1| Acipenser baeri mRNA for immunoglobulin
+heavy chain, clone ScH 3.3
+
+Length=606
+
+
+ Score =  1120 bits (606),  Expect = 0.0
+ Identities = 606/606 (100%), Gaps = 0/606 (0%)
+ Strand=Plus/Plus
+
+Query  1    TGGTTACAACACTTTCTTCTTTCAATAACCACAATACTGCAGTACAATGGGGATTTTAAC  60
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct  1    TGGTTACAACACTTTCTTCTTTCAATAACCACAATACTGCAGTACAATGGGGATTTTAAC  60
+
+Query  61   AGCTCTCTGTATAATAATGACAGCTCTATCAAGTGTCCGGTCTGATGTAGTGTTGACTGA  120
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct  61   AGCTCTCTGTATAATAATGACAGCTCTATCAAGTGTCCGGTCTGATGTAGTGTTGACTGA  120
+
+Query  121  GTCCGGACCAGCAGTTATAAAGCCTGGAGAGTCCCATAAACTGTCCTGTAAAGCCTCTGG  180
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct  121  GTCCGGACCAGCAGTTATAAAGCCTGGAGAGTCCCATAAACTGTCCTGTAAAGCCTCTGG  180
+
+Query  181  ATTCACATTCAGCAGCGCCTACATGAGCTGGGTTCGACAAGCTCCTGGAAAGGGTCTGGA  240
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct  181  ATTCACATTCAGCAGCGCCTACATGAGCTGGGTTCGACAAGCTCCTGGAAAGGGTCTGGA  240
+
+Query  241  ATGGGTGGCTTATATTTACTCAGGTGGTAGTAGTACATACTATGCCCAGTCTGTCCAGGG  300
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct  241  ATGGGTGGCTTATATTTACTCAGGTGGTAGTAGTACATACTATGCCCAGTCTGTCCAGGG  300
+
+Query  301  AAGATTCGCCATCTCCAGAGACGATTCCAACAGCATGCTGTATTTACAAATGAACAGCCT  360
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct  301  AAGATTCGCCATCTCCAGAGACGATTCCAACAGCATGCTGTATTTACAAATGAACAGCCT  360
+
+Query  361  GAAGACTGAAGACACTGCCGTGTATTACTGTGCTCGGGGCGGGCTGGGGTGGTCCCTTGA  420
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct  361  GAAGACTGAAGACACTGCCGTGTATTACTGTGCTCGGGGCGGGCTGGGGTGGTCCCTTGA  420
+
+Query  421  CTACTGGGGGAAAGGCACAATGATCACCGTAACTTCTGCTACGCCATCACCACCGACAGT  480
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct  421  CTACTGGGGGAAAGGCACAATGATCACCGTAACTTCTGCTACGCCATCACCACCGACAGT  480
+
+Query  481  GTTTCCGCTTATGGAGTCATGTTGTTTGAGCGATATCTCGGGTCCTGTTGCTACGGGCTG  540
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct  481  GTTTCCGCTTATGGAGTCATGTTGTTTGAGCGATATCTCGGGTCCTGTTGCTACGGGCTG  540
+
+Query  541  CTTAGCAACCGGATTCTGCCTACCCCCGCGACCTTCTCGTGGACTGATCAATCTGGAAAA  600
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct  541  CTTAGCAACCGGATTCTGCCTACCCCCGCGACCTTCTCGTGGACTGATCAATCTGGAAAA  600
+
+Query  601  GCTTTT  606
+            ||||||
+Sbjct  601  GCTTTT  606
+
+
+
+Lambda      K        H
+    1.33    0.621     1.12 
+
+Gapped
+Lambda      K        H
+    1.28    0.460    0.850 
+
+Effective search space used: 352836
+
+
+
+
+Matrix: blastn matrix 1 -2
+Gap Penalties: Existence: 0, Extension: 2.5

@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 1360);
+    test_begin(-tests => 1389);
 
     use_ok('Bio::SearchIO');
 }
@@ -1493,6 +1493,48 @@ is( $hsp->hit->end,                             179 );
 is( $hsp->gaps,                                 7 );
 is( $hsp->n,                                    1 );
 
+# this is blastn bl2seq+
+$searchio = Bio::SearchIO->new(
+    -format => 'blast',
+    -file   => test_input_file('bl2seq+.blastn')
+);
+$result = $searchio->next_result;
+isa_ok( $result, 'Bio::Search::Result::ResultI' );
+is( $result->query_name, 'gi|2695846|emb|Y13255.1|' );
+is( $result->query_description,
+   'Acipenser baeri mRNA for immunoglobulin heavy chain, clone ScH 3.3'
+);
+is( $result->query_length,                        606 );
+is( $result->algorithm,                          'BLASTN' );
+is( $result->algorithm_version,                  '2.2.29+' );
+is( $result->algorithm_reference,                 undef );
+is( $result->get_statistic('effectivespaceused'), 352836 );
+is( $result->get_statistic('kappa'),              0.621 );
+is( $result->get_statistic('kappa_gapped'),      '0.460' );
+is( $result->get_statistic('lambda'),             1.33 );
+is( $result->get_statistic('lambda_gapped'),      1.28 );
+is( $result->get_statistic('entropy'),            1.12 );
+is( $result->get_statistic('entropy_gapped'),    '0.850' );
+$hit = $result->next_hit;
+is( $hit->name,   'gi|2695846|emb|Y13255.1|' );
+is( $hit->description,
+   'Acipenser baeri mRNA for immunoglobulin heavy chain, clone ScH 3.3'
+);
+is( $hit->length, 606 );
+$hsp = $hit->next_hsp;
+is( $hsp->score,                606 );
+is( $hsp->bits,                 1120 );
+is( int $hsp->percent_identity, 100 );
+float_is( $hsp->evalue, '0.0' );
+is( $hsp->query->start,                         1 );
+is( $hsp->query->end,                           606 );
+is( $hsp->query->strand,                        1 );
+is( $hsp->hit->strand,                          1 );
+is( $hsp->hit->start,                           1 );
+is( $hsp->hit->end,                             606 );
+is( $hsp->gaps,                                 0 );
+is( $hsp->n,                                    1 );
+
 # this is blastp bl2seq
 $searchio = Bio::SearchIO->new(
     -format => 'blast',
@@ -1904,7 +1946,7 @@ is $hit->name,      'ENSP00000350182';
 is $hit->length,    425;
 is $hit->accession, 'ENSP00000350182';
 is $hit->description,
-'pep:novel clone::BX322644.8:4905:15090:-1 gene:ENSG00000137397 transcript:ENST00000357569 ';
+'pep:novel clone::BX322644.8:4905:15090:-1 gene:ENSG00000137397 transcript:ENST00000357569';
 is $hit->raw_score, 301;
 is $hit->bits,      120;
 float_is( $hit->significance, 3e-27 );
