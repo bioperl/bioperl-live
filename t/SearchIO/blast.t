@@ -1522,18 +1522,18 @@ is( $hit->description,
 );
 is( $hit->length, 606 );
 $hsp = $hit->next_hsp;
-is( $hsp->score,                606 );
-is( $hsp->bits,                 1120 );
-is( int $hsp->percent_identity, 100 );
-float_is( $hsp->evalue, '0.0' );
-is( $hsp->query->start,                         1 );
-is( $hsp->query->end,                           606 );
-is( $hsp->query->strand,                        1 );
-is( $hsp->hit->strand,                          1 );
-is( $hsp->hit->start,                           1 );
-is( $hsp->hit->end,                             606 );
-is( $hsp->gaps,                                 0 );
-is( $hsp->n,                                    1 );
+is( $hsp->score,            606 );
+is( $hsp->bits,             1120 );
+is( $hsp->percent_identity, 100 );
+float_is( $hsp->evalue,    '0.0' );
+is( $hsp->query->start,     1 );
+is( $hsp->query->end,       606 );
+is( $hsp->query->strand,    1 );
+is( $hsp->hit->strand,      1 );
+is( $hsp->hit->start,       1 );
+is( $hsp->hit->end,         606 );
+is( $hsp->gaps,             0 );
+is( $hsp->n,                1 );
 
 # this is blastp bl2seq
 $searchio = Bio::SearchIO->new(
