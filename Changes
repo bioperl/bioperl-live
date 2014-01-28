@@ -50,7 +50,14 @@ CPAN releases are branched from 'master'.
           using HMMER outputs and run the full test suite and everything pass [fjossandon]
 
     [Bug fixes]
-    
+
+    * Blast: Added support to changes in bl2seq from BLAST+ output, which
+      now uses "Subject=" instead of ">" to start hit lines [yschensandiego]
+    * Phylip: Return undef in "next_aln" at file end to avoid
+      an infinite loop [yschensandiego]
+    * HMMER3: When a hit description is too long, it is truncated in
+      the Scores table. In those cases, the more complete description from
+      the Annotation line (>>) will be used [fjossandon]
     * GenericHSP: Added '.' to gap symbols in "_pre_gaps" (except for ERPIN),
       since it is now used by HMMER3 format in alignments [fjossandon]
     * GenericHit: Changed "frac_aligned_query" and "frac_aligned_hit"
