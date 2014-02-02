@@ -112,8 +112,8 @@ if( $gifile ) {
 } elsif( $options{'-query'}) {
 	$query = Bio::DB::Query::GenBank->new(%options);
 } elsif( $queryfile ) {
-	open(my $fh => $queryfile) || die $!;
-	while(<$queryfile>) {
+	open(my $fh => $queryfile) || die "cannot open $queryfile: $!";
+	while(<$fh>) {
 		chomp;
 		$options{'-query'} .= $_;
 	}
