@@ -100,9 +100,10 @@ if( $gifile ) {
 	close($fh);	
 	while( @ids ) {
 		my @mini_ids = splice(@ids, 0, $options{'-maxids'});
-		$query = Bio::DB::Query::GenBank->new(%options,
-														  -ids => \@mini_ids,
-														 );
+		$query = Bio::DB::Query::GenBank->new(%options, 
+						      -verbose =>$debug,
+					              -ids => \@mini_ids,
+						     );
 		my $stream = $dbh->get_Stream_by_query($query);
 		while( my $seq = $stream->next_seq ) {
 			$out->write_seq($seq);
@@ -110,14 +111,14 @@ if( $gifile ) {
 	}
 	exit;
 } elsif( $options{'-query'}) {
-	$query = Bio::DB::Query::GenBank->new(%options);
+	$query = Bio::DB::Query::GenBank->new(%options,-verbose => $debug);
 } elsif( $queryfile ) {
 	open(my $fh => $queryfile) || die $!;
 	while(<$fh>) {
 		chomp;
 		$options{'-query'} .= $_;
 	}
-	$query = Bio::DB::Query::GenBank->new(%options);
+	$query = Bio::DB::Query::GenBank->new(%options,-verbose => $debug);
 	close($fh);
 } else {
 	die("no query string or gifile\n");
