@@ -776,7 +776,6 @@ sub _stream_request {
 				   sub { print $fetch $_[0] }
 				   );
     if( $resp->is_error  ) {
-      $self->warn("Request was ".Dumper($request)."\n");
       $self->throw("WebDBSeqI Request Error:\n".$resp->as_string);
     }
     close $fetch; #must explicitly close here, because the hard exists
