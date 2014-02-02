@@ -100,8 +100,12 @@ use strict;
 use URI::Escape 'uri_unescape';
 use Bio::DB::NCBIHelper;
 
-use constant EPOST       => $Bio::DB::NCBIHelper::HOSTBASE . '/entrez/eutils/epost.fcgi';
-use constant ESEARCH     => $Bio::DB::NCBIHelper::HOSTBASE . '/entrez/eutils/esearch.fcgi';
+#use constant EPOST       => $Bio::DB::NCBIHelper::HOSTBASE . '/entrez/eutils/epost.fcgi';
+#use constant ESEARCH     => $Bio::DB::NCBIHelper::HOSTBASE . '/entrez/eutils/esearch.fcgi';
+# the reference to the our variable of the $Bio::DB::NCBIHelper::HOSTBASE doesn't seem to work in 
+# the constant definition in perl 5.10.1 or 5.16.3
+use constant EPOST       => '/entrez/eutils/epost.fcgi';
+use constant ESEARCH     => '/entrez/eutils/esearch.fcgi';
 use constant DEFAULT_DB  => 'protein';
 use constant MAXENTRY    => 100;
 
@@ -237,9 +241,9 @@ sub _request_parameters {
   my @params = map {eval("\$self->$_") ? ($_ => eval("\$self->$_")) : () } @ATTRIBUTES;
   push @params,('usehistory'=>'y','tool'=>'bioperl');
   $method = 'get';
-  $base   = ESEARCH;
+  
+  $base   = $Bio::DB::NCBIHelper::HOSTBASE.ESEARCH; # this seems to need to be dynamic
   push @params,('term'   => $self->query);
-
   # Providing 'retmax' limits queries to 500 sequences  ?? I don't think so LS
   push @params,('retmax' => $self->maxids || MAXENTRY);
 
