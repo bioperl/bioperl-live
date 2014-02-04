@@ -100,6 +100,7 @@ use strict;
 use URI::Escape 'uri_unescape';
 use Bio::DB::NCBIHelper;
 
+
 #use constant EPOST       => $Bio::DB::NCBIHelper::HOSTBASE . '/entrez/eutils/epost.fcgi';
 #use constant ESEARCH     => $Bio::DB::NCBIHelper::HOSTBASE . '/entrez/eutils/esearch.fcgi';
 # the reference to the our variable of the $Bio::DB::NCBIHelper::HOSTBASE doesn't seem to work in 
