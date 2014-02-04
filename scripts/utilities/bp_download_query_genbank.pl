@@ -93,7 +93,7 @@ if( $options{'-db'} eq 'protein' ) {
 my $query;
 if( $gifile ) {
 	my @ids;
-	open( my $fh => $gifile ) || die $!;
+	open( my $fh => $gifile ) || die "cannot open $gifile: $!";
 	while(<$fh>) {
 		push @ids, split;
 	}
@@ -113,7 +113,7 @@ if( $gifile ) {
 } elsif( $options{'-query'}) {
 	$query = Bio::DB::Query::GenBank->new(%options,-verbose => $debug);
 } elsif( $queryfile ) {
-	open(my $fh => $queryfile) || die $!;
+	open(my $fh => $queryfile) || die "cannot open $queryfile: $!";
 	while(<$fh>) {
 		chomp;
 		$options{'-query'} .= $_;
