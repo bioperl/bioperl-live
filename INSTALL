@@ -10,13 +10,12 @@ Installing BioPerl for Unix
      * 8 WHERE ARE THE MAN PAGES?
      * 9 EXTERNAL PROGRAMS
           * 9.1 Environment Variables
-     * 10 THE BIOPERL BUNDLE
-     * 11 INSTALLING BIOPERL SCRIPTS
-     * 12 INSTALLING BIOPERL IN A PERSONAL MODULE AREA
-     * 13 INSTALLING BIOPERL MODULES THE HARD WAY
-     * 14 USING MODULES NOT INSTALLED IN THE STANDARD LOCATION
-     * 15 THE TEST SYSTEM
-     * 16 BUILDING THE OPTIONAL bioperl-ext PACKAGE
+     * 10 INSTALLING BIOPERL SCRIPTS
+     * 11 INSTALLING BIOPERL IN A PERSONAL MODULE AREA
+     * 12 INSTALLING BIOPERL MODULES THE HARD WAY
+     * 13 USING MODULES NOT INSTALLED IN THE STANDARD LOCATION
+     * 14 THE TEST SYSTEM
+     * 15 BUILDING THE OPTIONAL bioperl-ext PACKAGE
           * 16.1 CONFIGURING for BSD and Solaris boxes
           * 16.2 INSTALLATION
 
@@ -28,10 +27,9 @@ BioPerl wiki:
   http://www.bioperl.org/wiki/Installing_BioPerl
 
 BioPerl has been installed on many forms of Unix, Win9X/NT/2000/XP,
-and on Mac OS X (see the PLATFORMS file for more details). Following
-are instructions for installing BioPerl for Unix/Linux/Mac OS X;
-Windows installation instructions can be found in INSTALL.WIN. For
-installing BioPerl for Mac OS X using Fink, see:
+and on Mac OS X. The following are instructions for installing BioPerl 
+for Unix/Linux/Mac OS X. Windows installation instructions can be found 
+in INSTALL.WIN. For installing BioPerl for Mac OS X using Fink, see:
 
 http://www.bioperl.org/wiki/Getting_BioPerl#Mac_OS_X_using_fink
 
@@ -92,6 +90,7 @@ PRELIMINARY PREPARATION
  cpan>o conf makepl_arg "EXPATLIBPATH=/non-standard/lib EXPATINCPATH=/non-standard/include"
  cpan>o conf commit
 
+
 INSTALLING BIOPERL THE EASY WAY USING Build.PL
 
 The advantage of this approach is it's stepwise, so it's easy to stop
@@ -99,8 +98,8 @@ and analyze in case of any problem.
 
 Download, then unpack the tar file. For example:
 
- >tar xvfz BioPerl-1.6.1.tar.gz
- >cd BioPerl-1.6.1
+ >tar xvfz BioPerl-1.6.923.tar.gz
+ >cd BioPerl-1.6.923
 
 Now issue the build commands:
 
@@ -123,8 +122,7 @@ fine, do:
 
  >./Build install
 
-This is what most experienced BioPerl users would do. However, if
-you're concerned about a failed test and need assistance or advice
+If you're concerned about a failed test and need assistance or advice
 then contact bioperl-l@bioperl.org. (You could provide us the detailed
 results of the failed test(s): see the `THE TEST SYSTEM' below for
 information on how to generate such results.)
@@ -139,6 +137,7 @@ It is also straightforward to install the package outside of the this
 standard Perl5 location. See INSTALLING BIOPERL IN A PERSONAL MODULE
 AREA, below.
 
+
 INSTALLING BIOPERL THE EASY WAY USING CPAN
 
 You can use the CPAN shell to install BioPerl. For example:
@@ -152,19 +151,16 @@ Or you might have the cpan alias installed:
 Then find the name of the BioPerl version you want:
 
  cpan>d /bioperl/
- CPAN: Storable loaded ok
- Going to read /home/bosborne/.cpan/Metadata
- Database was generated on Mon, 20 Nov 2006 05:24:36 GMT
 
  ....
 
- Distribution B/BI/BIRNEY/bioperl-1.2.tar.gz
- Distribution B/BI/BIRNEY/bioperl-1.4.tar.gz
- Distribution C/CJ/CJFIELDS/BioPerl-1.6.1.tar.gz
+Distribution    CJFIELDS/BioPerl-1.6.901.tar.gz
+Distribution    CJFIELDS/BioPerl-1.6.922.tar.gz
+Distribution    CJFIELDS/BioPerl-1.6.923.tar.gz
 
 Now install:
 
- cpan>install C/CJ/CJFIELDS/BioPerl-1.6.1.tar.gz
+ cpan>install CJFIELDS/BioPerl-1.6.923.tar.gz
 
 If you've installed everything perfectly and all the network
 connections are working then you may pass all the tests run in the
@@ -179,10 +175,9 @@ tests, a few failed tests may not affect your usage of BioPerl.
 If you decide that the failed tests will not affect how you intend to
 use BioPerl and you'd like to install anyway do:
 
- cpan>force install C/CJ/CJFIELDS/BioPerl-1.6.1.tar.gz
+ cpan>force install C/CJ/CJFIELDS/BioPerl-1.6.923.tar.gz
 
-This is what most experienced BioPerl users would do. However, if
-you're concerned about a failed test and need assistance or advice
+If you're concerned about a failed test and need assistance or advice
 then contact bioperl-l@bioperl.org. (You could provide us the detailed
 results of the failed test(s): see the `THE TEST SYSTEM' below for
 information on how to generate such results.)
@@ -259,16 +254,6 @@ Some environment variables include:
 |               |authentication purposes                                 |
 |               |(e.g. http://USERNAME:PASSWORD@proxy.example.com:8080). |
 +------------------------------------------------------------------------+
-
-THE BIOPERL BUNDLE
-
-Users of previous versions of BioPerl may remember Bundle::BioPerl.
-You no longer need to install Bundle::BioPerl. Instead, the normal
-installation process will ask you if you'd like to install optional
-external module dependencies that BioPerl has.
-
-A full list of BioPerl dependencies can be found in the DEPENDENCIES
-file included with this distribution.
 
 INSTALLING BIOPERL SCRIPTS
 
