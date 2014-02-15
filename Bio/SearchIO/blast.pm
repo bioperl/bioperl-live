@@ -804,7 +804,7 @@ sub next_result {
         }
 
         # move inside of a hit
-        elsif (/^>\s*(\S+)\s*(.*)?/) {
+        elsif (/^(?:Subject=|>)\s*(\S+)\s*(.*)?/) {
             chomp;
 
             $self->debug("blast.pm: Hit: $1\n");
@@ -874,7 +874,9 @@ sub next_result {
                     if ($restofline !~ /\s$/) { # bug #3235
                         s/^\s(?!\s)/\x01/; #new line to concatenate desc lines with <soh>
                     }
-                    $restofline .= $_;
+                    $restofline .= ($restofline =~ /\w$/ && $_ =~ /^\w/) ? " $_" : $_;
+                    $restofline =~ s/\s+/ /g; # this catches the newline as well
+                    $restofline =~ s/^ | $//g;
                 }
             }
             $restofline =~ s/\s+/ /g;
@@ -1292,7 +1294,14 @@ sub next_result {
                 }
             );
             while ( defined( $_ = $self->_readline ) ) {
-                if (
+                # If Lambda/Kappa/Entropy numbers appear first at this point,
+                # pushback and add the header line to process it correctly
+                if (/^\s+[\d+\.]+\s+[\d+\.]+\s+[\d+\.]/ and $last eq '') {
+                    $self->_pushback($_);
+                    $self->_pushback("Lambda     K      H\n");
+                    next;
+                }
+                elsif (
                     /^((?:\S+)?BLAST[NPX]?)\s+(.+)$/i  # NCBI BLAST, PSIBLAST
                                                       # RPSBLAST, MEGABLAST
                     || /^(P?GENEWISE|HFRAME|SWN|TSWN)\s+(.+)/i    #Paracel BTK
