@@ -26,8 +26,8 @@ filehandle.
     # To guess the format from an already open filehandle:
     my $guesser = Bio::Tools::GuessSeqFormat->new( -fh => $filehandle );
     my $format  = $guesser->guess;
-    # If the filehandle is seekable (STDIN isn't), it will be
-    # returned to its original position.
+    # The filehandle will be returned to its original position. Note that this
+    # filehandle can be STDIN.
 
     # To guess the format of one or several lines of text (with
     # embedded newlines):
@@ -266,7 +266,7 @@ underscore are considered to be internal.
  Example    : See SYNOPSIS.
  Returns    : A new object.
  Arguments  : -file The filename of the file whose format is to
-                    be guessed, or
+                    be guessed, e.g. STDIN, or
               -fh   An already opened filehandle from which a text
                     stream may be read, or
               -text A scalar containing one or several lines of
@@ -475,7 +475,21 @@ sub guess
         # position in the stream.
         $fh = $self->{-fh};
         if (ref $fh eq 'GLOB') {
-            $start_pos = tell($fh);
+            $start_pos = tell $fh;
+            if (not seek $fh, $start_pos, 0) {
+                # Work around non-seekable filehandles (if IO::Scalar available)
+                # (adapted from http://www.perlmonks.org/?node_id=33587)
+                if (eval { require IO::Scalar }) {
+                    my $data = join('', <$fh>);
+                    my $s;
+                    tie *$fh, 'IO::Scalar', \$s;
+                    print $fh $data;
+                    tied(*$fh)->setpos(0);
+                } else {
+                    $self->throw("IO::Scalar is needed to guess format from ".
+                        "non-seekable filehandle");
+                }
+            }
         } elsif (UNIVERSAL::isa($fh, 'IO::Seekable')) {
             $start_pos = $fh->getpos();
         }
