@@ -98,6 +98,9 @@ my %recommends = (
         '/Bio::DB::*,Bio::Tools::Run::RemoteBlast,'.
         'Bio::Tools::Analysis::Protein*,Bio::Tools::Analysis::DNA*'],
 
+    'IO::Scalar'               => [0,
+        'Deal with non-seekable filehandles/Bio::Tools::GuessSeqFormat'],
+
     'List::MoreUtils'           => [0,
         'Back- or reverse-translation of sequences/'.
         'Bio::Tools::SeqPattern,Bio::Tools::SeqPattern::BackTranslate'],
