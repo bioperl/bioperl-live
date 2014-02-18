@@ -462,12 +462,12 @@ sub guess
     my $start_pos;
     my @lines;
     if (defined $self->{-text}) {
-	# Break the text into separate lines.
-	@lines = split /\n/, $self->{-text};
+        # Break the text into separate lines.
+        @lines = split /\n/, $self->{-text};
     } elsif (defined $self->{-file}) {
         # If given a filename, open the file.
-        open($fh, $self->{-file}) or
-            $self->throw("Can not open '$self->{-file}' for reading: $!");
+        open $fh, $self->{-file} ||
+            $self->throw("Could not open '$self->{-file}' for reading: $!");
     } elsif (defined $self->{-fh}) {
         # If given a filehandle, figure out if it's a plain GLOB
         # or a IO::Handle which is seekable.  In the case of a
@@ -488,15 +488,15 @@ sub guess
         my $line;       # The next line of the file.
         my $match = 0;  # Number of possible formats of this line.
 
-	if (defined $self->{-text}) {
-	    last if (scalar @lines == 0);
-	    $line = shift @lines;
-	} else {
-	    last if (!defined($line = <$fh>));
-	}
+        if (defined $self->{-text}) {
+            last if (scalar @lines == 0);
+            $line = shift @lines;
+        } else {
+            last if (!defined($line = <$fh>));
+        }
         next if ($line =~ /^\s*$/); # Skip white and empty lines.
 
-        chomp($line);
+        chomp $line;
         $line =~ s/\r$//;   # Fix for DOS files on Unix.
         ++$lineno;
 
@@ -513,11 +513,11 @@ sub guess
 
     if (defined $self->{-file}) {
         # Close the file we opened.
-        close($fh);
+        close $fh;
     } elsif (ref $fh eq 'GLOB') {
         # Try seeking to the start position.
-        seek($fh, $start_pos, 0) || $self->throw("Failed resetting the ".
-                                        "filehandle; IO error occurred");;
+        seek($fh, $start_pos, 0) ||
+            $self->throw("Could not reset filehandle $fh: $!");
     } elsif (defined $fh && $fh->can('setpos')) {
         # Seek to the start position.
         $fh->setpos($start_pos);
@@ -636,7 +636,7 @@ sub _possibly_fastq
 {
     my ($line, $lineno) = (shift, shift);
     return ( ($lineno == 1 && $line =~ /^@/) ||
-	     ($lineno == 3 && $line =~ /^\+/) );
+             ($lineno == 3 && $line =~ /^\+/) );
 }
 
 =head2 _possibly_fastxy
