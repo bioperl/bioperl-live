@@ -118,7 +118,7 @@ gtagttatgc
     
     my $seqio = Bio::SeqIO->new(-fh => $stringfh);
     while( my $seq = $seqio->next_seq ) {
-	ok $seq->id =~ /test/;
+        ok $seq->id =~ /test/;
     }
     
 #
