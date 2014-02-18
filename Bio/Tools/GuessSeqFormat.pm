@@ -466,7 +466,7 @@ sub guess
         @lines = split /\n/, $self->{-text};
     } elsif (defined $self->{-file}) {
         # If given a filename, open the file.
-        open $fh, $self->{-file} ||
+        open($fh, $self->{-file}) ||
             $self->throw("Could not open '$self->{-file}' for reading: $!");
     } elsif (defined $self->{-fh}) {
         # If given a filehandle, figure out if it's a plain GLOB
