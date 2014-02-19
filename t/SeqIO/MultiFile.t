@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 3);
+    test_begin(-tests => 5);
 
     use_ok 'Bio::SeqIO::MultiFile';
 }
