@@ -375,18 +375,18 @@ sub new {
         $self->_initialize(@args);
         return $self;
     } else {
-        my %param = @args;
-        @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
+        my %params = @args;
+        @params{ map { lc $_ } keys %params } = values %params; # lowercase keys
 
-        unless( defined $param{-file} ||
-                defined $param{-fh}   ||
-                defined $param{-string} ) {
+        unless( defined $params{-file} ||
+                defined $params{-fh}   ||
+                defined $params{-string} ) {
             $class->throw("file argument provided, but with an undefined value") 
-                if exists $param{'-file'};
+                if exists $params{'-file'};
             $class->throw("fh argument provided, but with an undefined value") 
-                if exists $param{'-fh'};
+                if exists $params{'-fh'};
             $class->throw("string argument provided, but with an undefined value") 
-                if exists($param{'-string'});
+                if exists($params{'-string'});
             # $class->throw("No file, fh, or string argument provided"); # neither defined
         }
 
@@ -414,12 +414,11 @@ sub new {
 
         if ($format =~ /-/) {
             ($format, my $variant) = split('-', $format, 2);
-            push @args, (-variant => $variant);
+            $params{-variant} = $variant;
         }
 
-
         return unless( $class->_load_format_module($format) );
-        return "Bio::SeqIO::$format"->new(@args);
+        return "Bio::SeqIO::$format"->new(%params);
     }
 }
 
