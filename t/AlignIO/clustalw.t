@@ -18,7 +18,7 @@ my ($str,$aln,$strout,$status);
 
 # CLUSTAL
 my $io = Bio::AlignIO->new(
-   -file => test_input_file("testaln.aln") );
+   -file => test_input_file("testaln.clustalw") );
 $aln = $io->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is $aln->consensus_string, "MNEGEHQIKLDELFEKLLRARKIFKNKDVLRHSWEPKDLPHRHEQIEA".
@@ -34,11 +34,11 @@ $strout = Bio::AlignIO->new(
    '-file' => ">$outfile", 
 			      '-format' => 'clustalw');
 $status = $strout->write_aln($aln);
-is $status, 1, "clustalw (.aln) output test";
+is $status, 1, "clustalw output test";
 undef $strout;
 $str = Bio::AlignIO->new(
    '-file'=> $outfile, 
 			   '-format' => 'clustalw');
 $aln = $str->next_aln($aln);
 isa_ok($aln,'Bio::Align::AlignI');
-is $aln->get_seq_by_pos(1)->get_nse, 'P84139/1-420', "clustalw (.aln) input test";
+is $aln->get_seq_by_pos(1)->get_nse, 'P84139/1-420', "clustalw input test";

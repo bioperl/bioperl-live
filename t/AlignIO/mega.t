@@ -18,7 +18,7 @@ my ($str,$aln,$strout,$status);
 
 # MEGA
 $str = Bio::AlignIO->new('-format' => 'mega',
-  	'-file'   => test_input_file("hemoglobinA.meg"));
+  	'-file'   => test_input_file("testaln.mega"));
 
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');

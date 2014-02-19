@@ -1,24 +1,19 @@
 # -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
-
 use strict;
 
 BEGIN {
-   use lib '.';
-   use Bio::Root::Test;
+    use lib '.';
+    use Bio::Root::Test;
    
-   test_begin(-tests => 96);
+    test_begin(-tests => 105);
    
-   use_ok 'Bio::Tools::GuessSeqFormat';
-   use_ok 'Bio::SeqIO';
-   use_ok 'Bio::AlignIO';
+    use_ok 'Bio::Tools::GuessSeqFormat';
+    use_ok 'Bio::SeqIO';
+    use_ok 'Bio::AlignIO';
 }
 
-
-my $fmt;
-my $seq;
-my $verbose = test_debug();
 
 ok my $guesser = Bio::Tools::GuessSeqFormat->new;
 isa_ok $guesser, 'Bio::Tools::GuessSeqFormat';
@@ -28,13 +23,13 @@ isa_ok $guesser, 'Bio::Tools::GuessSeqFormat';
 # Test guesser interfaces
 #
 
-# File guess
+# 1/ File guess
 ok $guesser = Bio::Tools::GuessSeqFormat->new(
     -file => test_input_file('test.fasta'),
 ), 'File input';
 is $guesser->guess, 'fasta';
 
-# String guess
+# 2/ String guess
 my $string = ">test1 no comment
 agtgctagctagctagctagct
 >test2 no comment
@@ -45,7 +40,7 @@ ok $guesser = Bio::Tools::GuessSeqFormat->new(
 ), 'String input';
 is $guesser->guess, 'fasta';
 
-# Filehandle guess
+# 3/ Filehandle guess
 SKIP: {
     test_skip(-tests => 2, -requires_modules => [qw(IO::String)]);
     require IO::String;
@@ -58,23 +53,25 @@ SKIP: {
 
 
 #
-# Test SeqIO formats
+# Test behavior with unknown format
 #
 
-# waba is not guessed
 is $guesser = Bio::Tools::GuessSeqFormat->new(
-    -file => test_input_file('test.waba'),
-)->guess, undef;
+    -file => test_input_file('test.waba'), # Bio::SearchIO::waba
+)->guess, undef, 'Unknown file format';
 
 throws_ok {
     Bio::SeqIO->new( -file=>test_input_file('test.waba') );
 } qr/Could not guess format/;
 
-# other seq formats
-my @fmts = qw{ace embl fasta fastq gcg genbank mase pfam pir raw swiss tab game};
-my %skip_module = map {$_=>1} qw {gcgblast gcgfasta mase pfam};
 
-for $fmt (@fmts) {
+#
+# Test SeqIO formats
+#
+
+my @fmts = qw{ace embl fasta fastq game gcg genbank pir raw swiss tab};
+
+for my $fmt (@fmts) {
     SKIP: {
         test_skip(
             -tests => 4,
@@ -83,13 +80,11 @@ for $fmt (@fmts) {
 
         my $guess = Bio::Tools::GuessSeqFormat->new(
             -file => test_input_file("test.$fmt"),
-            #-verbose=> $verbose;
         )->guess;
         is $guess, $fmt, "$fmt format";
-        next if $skip_module{$fmt};
 
         ok my $input = Bio::SeqIO->new( -file=>test_input_file("test.$fmt") );
-        ok $seq = $input->next_seq();
+        ok my $seq = $input->next_seq();
         isa_ok $seq, 'Bio::PrimarySeqI';
     }
 }
@@ -99,22 +94,35 @@ for $fmt (@fmts) {
 # Test AlignIO formats
 #
 
-@fmts = qw{ aln:clustalw fasta fastq mase msf nexus pfam phylip prodom stockholm};
-# not selex (same as pfam, mainly)
-%skip_module = map {$_=>1} qw { fastq };
+@fmts = qw{clustalw fasta fastq mase mega msf nexus pfam phylip prodom selex stockholm};
+my %skip_module = map {$_=>1} qw{ fastq };
 
-for my $ext (@fmts) {
-    ($ext, my $fmt) = split /:/, $ext;
-    $fmt ||= $ext;
-
+for my $fmt (@fmts) {
     my $guess = Bio::Tools::GuessSeqFormat->new(
-        -file => test_input_file("testaln.$ext")
+        -file => test_input_file("testaln.$fmt")
     )->guess;
-    is $guess, $fmt;
+    is $guess, $fmt, "$fmt format";
     next if $skip_module{$fmt};
 
-    ok my $input = Bio::AlignIO->new( -file=>test_input_file("testaln.$ext") );
-    ok $seq = $input->next_aln();
+    ok my $input = Bio::AlignIO->new( -file=>test_input_file("testaln.$fmt") );
+    ok my $seq = $input->next_aln();
     isa_ok $seq, 'Bio::Align::AlignI';
 }
 
+
+#
+# Other formats
+#
+
+my %fmts = (
+   blast    => test_input_file('blastp2215.blast'),
+   gcgblast => test_input_file('test.gcgblast'),
+   vcf      => test_input_file('example.vcf'),
+);
+
+while (my ($fmt, $file) = each %fmts) {
+    my $guess = Bio::Tools::GuessSeqFormat->new(
+        -file => $file,
+    )->guess;
+    is $guess, $fmt, "$fmt format";
+}

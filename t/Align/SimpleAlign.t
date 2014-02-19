@@ -300,7 +300,7 @@ SKIP: {
     is $b->consensus_string, "aaaaatttt", 'remove_gaps all_gaps_only';
 
     # test set_new_reference:
-    $str = Bio::AlignIO->new( -file => test_input_file('testaln.aln') );
+    $str = Bio::AlignIO->new( -file => test_input_file('testaln.clustalw') );
     $aln = $str->next_aln();
     my $new_aln = $aln->set_new_reference(3);
     $a       = $new_aln->get_seq_by_pos(1)->display_id;
@@ -450,7 +450,7 @@ is $restored_aln->get_seq_by_pos(3)->display_id, 'Smik_Contig1103.1',
   'restored display id ok';
 
 # test sort_by_list:
-$str = Bio::AlignIO->new( -file => test_input_file('testaln.aln') );
+$str = Bio::AlignIO->new( -file => test_input_file('testaln.clustalw') );
 my $list_file = test_input_file('testaln.list');
 $aln     = $str->next_aln();
 $new_aln = $aln->sort_by_list($list_file);
@@ -738,7 +738,7 @@ foreach my $seq ( $removed->each_seq ) {
 # work out mask_columns(), see bug 2842
 SKIP: {
     test_skip(-tests => 6, -requires_module => 'IO::String');
-    my $io = Bio::AlignIO->new( -file => test_input_file("testaln.aln") );
+    my $io = Bio::AlignIO->new( -file => test_input_file("testaln.clustalw") );
     my $aln = $io->next_aln();
     isa_ok( $aln, 'Bio::SimpleAlign' );
     my $consensus = <<EOU;
