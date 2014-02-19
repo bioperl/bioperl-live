@@ -132,14 +132,9 @@ This makes the simplest ever reformatter
    $seqIO = Bio::SeqIO->new(-string => $string     , -format => $format);
    $seqIO = Bio::SeqIO->new(-format => $format);
 
-The new() class method constructs a new Bio::SeqIO object. The
-returned object can be used to retrieve or print Seq objects.
-
-If neither a -file, a -fh, nor -string are specified, then the module will take
-the filename from the @ARGV array if possible. If not, it will read from STDIN,
-using the familiar E<lt>E<gt> semantics.
-
-new() accepts the following parameters:
+The new() class method constructs a new Bio::SeqIO object. The returned object
+can be used to retrieve or print Seq objects. new() accepts the following
+parameters:
 
 =over 5
 
@@ -370,7 +365,7 @@ See L<Bio::SeqIO::Handler>
 my $entry = 0;
 
 sub new {
-    my ($caller,@args) = @_;
+    my ($caller, @args) = @_;
     my $class = ref($caller) || $caller;
 
     # or do we want to call SUPER on an object if $caller is an
@@ -380,7 +375,6 @@ sub new {
         $self->_initialize(@args);
         return $self;
     } else {
-
         my %param = @args;
         @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
 
@@ -400,15 +394,15 @@ sub new {
         my $format = $param{'-format'};
         if (! $format) {
             # Guess from filename extension
-            $format = $class->_guess_format( $param{-file} || $ARGV[0] );
+            $format = $class->_guess_format( $param{-file} );
         }
         
         if (! $format ) {
             # Guess from content
             if ($param{-file}) {
-                $format = Bio::Tools::GuessSeqFormat->new(-file => $param{-file}||$ARGV[0] )->guess;
+                $format = Bio::Tools::GuessSeqFormat->new(-file => $param{-file})->guess;
             } elsif ($param{-fh}) {
-                $format = Bio::Tools::GuessSeqFormat->new(-fh => $param{-fh}||$ARGV[0] )->guess;
+                $format = Bio::Tools::GuessSeqFormat->new(-fh => $param{-fh})->guess;
             }
         }
 
