@@ -396,13 +396,14 @@ sub new {
             # Guess from filename extension
             $format = $class->_guess_format( $param{-file} );
         }
-        
         if (! $format ) {
             # Guess from content
             if ($param{-file}) {
-                $format = Bio::Tools::GuessSeqFormat->new(-file => $param{-file})->guess;
+                $format = Bio::Tools::GuessSeqFormat->new(-file => $param{-file} )->guess;
             } elsif ($param{-fh}) {
-                $format = Bio::Tools::GuessSeqFormat->new(-fh => $param{-fh})->guess;
+                $format = Bio::Tools::GuessSeqFormat->new(-fh   => $param{-fh}   )->guess;
+            } elsif ($param{-string}) {
+                $format = Bio::Tools::GuessSeqFormat->new(-text => $param{-string})->guess;
             }
         }
 

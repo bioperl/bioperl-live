@@ -82,6 +82,7 @@ CPAN releases are branched from 'master'.
     * Fixed tests failing in Windows because of using Linux commands [fjossandon]
     * Closed many open filehandles that prevented temporary files deletion [fjossandon]
     * Fixed broken MeSH parser [fjossandon]
+    * Fixed missing detection of format in SeqIO when given a -string [fangly]
 
 1.6.923
     
