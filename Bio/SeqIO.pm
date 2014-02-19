@@ -390,20 +390,19 @@ sub new {
             # $class->throw("No file, fh, or string argument provided"); # neither defined
         }
 
-        # Determine sequence format
-        my $format = $param{'-format'};
-        if (! $format) {
-            # Guess from filename extension
-            $format = $class->_guess_format( $param{-file} );
-        }
+        # Determine or guess sequence format and variant
+        my $format = $params{'-format'};
         if (! $format ) {
-            # Guess from content
-            if ($param{-file}) {
-                $format = Bio::Tools::GuessSeqFormat->new(-file => $param{-file} )->guess;
-            } elsif ($param{-fh}) {
-                $format = Bio::Tools::GuessSeqFormat->new(-fh   => $param{-fh}   )->guess;
-            } elsif ($param{-string}) {
-                $format = Bio::Tools::GuessSeqFormat->new(-text => $param{-string})->guess;
+            if ($params{-file}) {
+                # Guess from filename extension, and then from file content
+                $format = $class->_guess_format( $params{-file} ) ||
+                          Bio::Tools::GuessSeqFormat->new(-file => $params{-file}  )->guess;
+            } elsif ($params{-fh}) {
+                # Guess from filehandle content
+                $format = Bio::Tools::GuessSeqFormat->new(-fh   => $params{-fh}    )->guess;
+            } elsif ($params{-string}) {
+                # Guess from string content
+                $format = Bio::Tools::GuessSeqFormat->new(-text => $params{-string})->guess;
             }
         }
 
