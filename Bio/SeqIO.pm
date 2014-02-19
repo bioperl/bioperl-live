@@ -342,15 +342,16 @@ my %valid_alphabet_cache;
                                      -format => 'fasta');
  Function: Returns a new sequence stream
  Returns : A Bio::SeqIO stream initialised with the appropriate format
- Args    : Named parameters:
-             -file   => filename
-             -fh     => filehandle to attach to
-             -format => format
+ Args    : Named parameters indicating where to read the sequences from or to
+           write them to:
+             -file   => filename, OR
+             -fh     => filehandle to attach to, OR
+             -string => string
 
-           Additional arguments may be used. They all have reasonable defaults
-           and are thus optional.
+           Additional arguments, all with reasonable defaults:
+             -format     => format of the sequences, usually auto-detected
              -alphabet   => 'dna', 'rna', or 'protein'
-             -flush      => 0 or 1 (default, flush filehandles after each write)
+             -flush      => 0 or 1 (default: flush filehandles after each write)
              -seqfactory => sequence factory
              -locfactory => location factory
              -objbuilder => object builder
