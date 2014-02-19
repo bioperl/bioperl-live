@@ -48,6 +48,8 @@ CPAN releases are branched from 'master'.
           '-bits' and '-hit_filter' will now work with other Bio::SearchIO formats
           besides Blast, instead of being ignored. Added tests for all moved methods
           using HMMER outputs and run the full test suite and everything pass [fjossandon]
+    * Bio::SeqIO::MultiFile
+        - Autodetection of file format [fangly]
     * Bio::Tools::GuessSeqFormat:
         - Format detection from non-seekable filehandles such as STDIN [fangly]
 
