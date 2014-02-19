@@ -27,6 +27,7 @@ Bio::SeqIO::MultiFile - Treating a set of files as a single input stream
 
 Bio::SeqIO::MultiFile provides a simple way of bundling a whole
 set of identically formatted sequence input files as a single stream.
+File format is automatically determined by C<Bio::SeqIO>.
 
 =head1 FEEDBACK
 
@@ -81,32 +82,25 @@ use base qw(Bio::SeqIO);
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
-  my($self,@args) = @_;
+    my($self, @args) = @_;
 
-  $self->SUPER::_initialize(@args);
+    $self->SUPER::_initialize(@args);
 
-  my ($file_array,$format) = $self->_rearrange([qw(
-					 FILES
-					 FORMAT
-					)],
-				     @args,
-				     );
-  if( !defined $file_array || ! ref $file_array ) {
-      $self->throw("Must have an array files for MultiFile");
-  }
+    my ($file_array, $format) = $self->_rearrange([qw(FILES FORMAT)], @args);
+    if( !defined $file_array || ! ref $file_array ) {
+        $self->throw("Must have an array files for MultiFile");
+    }
 
-  if( !defined $format ) {
-      $self->throw("Must have a format for MultiFile");
-  }
+    $self->{'_file_array'} = [];
+    $self->_set_file(@$file_array);
 
-  $self->{'_file_array'} = [];
+    $self->format($format) if defined $format;
 
-  $self->_set_file(@$file_array);
-  $self->_format($format);
-  if( $self->_load_file() == 0 ) {
-     $self->throw("Unable even to initialise the first file");
-  }
+    if( $self->_load_file() == 0 ) {
+        $self->throw("Unable to initialise the first file");
+    }
 }
+
 
 =head2 next_seq
 
@@ -117,24 +111,22 @@ sub _initialize {
  Returns :
  Args    :
 
-
 =cut
 
 sub next_seq{
-   my ($self,@args) = @_;
-
-   my $seq = $self->_current_seqio->next_seq();
-   if( !defined $seq ) {
-       if( $self->_load_file() == 0) {
-	   return;
-       } else {
-	   return $self->next_seq();
-       }
-   } else {
-       return $seq;
-   }
-
+    my ($self, @args) = @_;
+    my $seq = $self->_current_seqio->next_seq();
+    if( !defined $seq ) {
+        if( $self->_load_file() == 0) {
+            return;
+        } else {
+            return $self->next_seq();
+        }
+    } else {
+        return $seq;
+    }
 }
+
 
 =head2 next_primary_seq
 
@@ -145,24 +137,22 @@ sub next_seq{
  Returns :
  Args    :
 
-
 =cut
 
 sub next_primary_seq{
-   my ($self,@args) = @_;
-
-   my $seq = $self->_current_seqio->next_primary_seq();
-   if( !defined $seq ) {
-       if( $self->_load_file() == 0) {
-	   return;
-       } else {
-	   return $self->next_primary_seq();
-       }
-   } else {
-       return $seq;
-   }
-
+    my ($self, @args) = @_;
+    my $seq = $self->_current_seqio->next_primary_seq();
+    if( !defined $seq ) {
+        if( $self->_load_file() == 0) {
+            return;
+        } else {
+            return $self->next_primary_seq();
+        }
+    } else {
+        return $seq;
+    }
 }
+
 
 =head2 _load_file
 
@@ -173,25 +163,31 @@ sub next_primary_seq{
  Returns :
  Args    :
 
-
 =cut
 
 sub _load_file{
-   my ($self,@args) = @_;
+    my ($self, @args) = @_;
+    my $file = shift @{$self->{'_file_array'}};
+    if( !defined $file ) {
+        return 0;
+    }
+    my $seqio;
+    my $format = $self->format;
+    if ($format) {
+        $seqio = Bio::SeqIO->new( -file => $file, -format => $format );
+    } else {
+        $seqio = Bio::SeqIO->new( -file => $file );
+        $self->format($seqio->format) if not $format;
+    }
 
-   my $file = shift(@{$self->{'_file_array'}});
-   if( !defined $file ) {
-       return 0;
-   }
-   my $seqio = Bio::SeqIO->new( '-format' => $self->_format(), -file => $file);
-   # should throw an exception - but if not...
-   if( !defined $seqio) {
-       $self->throw("no seqio built for $file!");
-   }
-
-   $self->_current_seqio($seqio);
-   return 1;
+    # should throw an exception - but if not...
+    if( !defined $seqio) {
+        $self->throw("Could not build SeqIO object for $file!");
+    }
+    $self->_current_seqio($seqio);
+    return 1;
 }
+
 
 =head2 _set_file
 
@@ -202,15 +198,13 @@ sub _load_file{
  Returns :
  Args    :
 
-
 =cut
 
 sub _set_file{
-   my ($self,@files) = @_;
-
-   push(@{$self->{'_file_array'}},@files);
-
+    my ($self, @files) = @_;
+    push @{$self->{'_file_array'}}, @files;
 }
+
 
 =head2 _current_seqio
 
@@ -221,37 +215,26 @@ sub _set_file{
  Returns : value of _current_seqio
  Args    : newvalue (optional)
 
-
 =cut
 
 sub _current_seqio{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'_current_seqio'} = $value;
+    my ($obj, $value) = @_;
+    if( defined $value) {
+        $obj->{'_current_seqio'} = $value;
     }
     return $obj->{'_current_seqio'};
-
 }
 
-=head2 _format
 
- Title   : _format
- Usage   : $obj->_format($newval)
- Function:
- Example :
- Returns : value of _format
- Args    : newvalue (optional)
+# We overload the format() method of Bio::Root::IO by a simple get/set
 
-
-=cut
-
-sub _format{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'_format'} = $value;
+sub format{
+    my ($obj, $value) = @_;
+    if( defined $value) {
+        $obj->{'_format'} = $value;
     }
     return $obj->{'_format'};
-
 }
+
 
 1;
