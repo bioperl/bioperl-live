@@ -17,9 +17,9 @@ Bio::SeqIO::MultiFile - Treating a set of files as a single input stream
 
 =head1 SYNOPSIS
 
-   $seqin = Bio::SeqIO::MultiFile( '-format' => 'Fasta',
-                                   '-files'  => ['file1','file2'] );
-   while((my $seq = $seqin->next_seq)) {
+   my $seqin = Bio::SeqIO::MultiFile->new( -format => 'Fasta',
+                                           -files  => ['file1','file2'] );
+   while (my $seq = $seqin->next_seq) {
        # do something with $seq
    }
 
