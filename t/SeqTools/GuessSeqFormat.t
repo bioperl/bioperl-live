@@ -51,7 +51,7 @@ SKIP: {
     require IO::String;
     my $fh = IO::String->new($string);
     ok $guesser = Bio::Tools::GuessSeqFormat->new(
-        -text => $string,
+        -fh => $fh,
     ), 'Filehandle input';
     is $guesser->guess, 'fasta';
 }
