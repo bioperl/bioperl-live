@@ -35,7 +35,7 @@ SKIP: {
 	
 	# output is? i.e. does conversion from clustalw to po give the same alignment?
 	$str = Bio::AlignIO->new(
-		  '-file'   => test_input_file('testaln.aln'),
+		  '-file'   => test_input_file('testaln.clustalw'),
 		  '-format' => 'clustalw');
 	isa_ok($str,'Bio::AlignIO');
 	$aln = $str->next_aln();

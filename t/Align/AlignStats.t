@@ -115,7 +115,7 @@ $stats->verbose($debug);
 # now test Protein Distances
 my $pstats = Bio::Align::ProteinStatistics->new();
 $in = Bio::AlignIO->new(-format => 'clustalw',
-			-file   => test_input_file('testaln.aln'));
+			-file   => test_input_file('testaln.clustalw'));
 $alnobj = $in->next_aln();
 isa_ok($alnobj,'Bio::Align::AlignI');
 $result = $pstats->distance(-method => 'Kimura',
