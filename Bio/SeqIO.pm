@@ -133,8 +133,13 @@ This makes the simplest ever reformatter
    $seqIO = Bio::SeqIO->new(-format => $format);
 
 The new() class method constructs a new Bio::SeqIO object. The
-returned object can be used to retrieve or print Seq objects. new()
-accepts the following parameters:
+returned object can be used to retrieve or print Seq objects.
+
+If neither a -file, a -fh, nor -string are specified, then the module will take
+the filename from the @ARGV array if possible. If not, it will read from STDIN,
+using the familiar E<lt>E<gt> semantics.
+
+new() accepts the following parameters:
 
 =over 5
 
@@ -152,16 +157,10 @@ conventions apply:
 
 =item -fh
 
-You may provide new() with a previously-opened filehandle.  For
+You may use new() with a opened filehandle, provided as a glob reference. For
 example, to read from STDIN:
 
    my $seqIO = Bio::SeqIO->new(-fh => \*STDIN);
-
-Note that you must pass filehandles as references to globs.
-
-If neither a filehandle nor a filename nor a string is specified, then the module
-will read from the @ARGV array or STDIN, using the familiar E<lt>E<gt>
-semantics.
 
 A string filehandle is handy if you want to modify the output in the
 memory, before printing it out. The following program reads in EMBL
@@ -397,19 +396,26 @@ sub new {
             # $class->throw("No file, fh, or string argument provided"); # neither defined
         }
 
-        my $format = $param{'-format'} ||
-            $class->_guess_format( $param{-file} || $ARGV[0] );
+        # Determine sequence format
+        my $format = $param{'-format'};
+        if (! $format) {
+            # Guess from filename extension
+            $format = $class->_guess_format( $param{-file} || $ARGV[0] );
+        }
         
-        if( ! $format ) {
+        if (! $format ) {
+            # Guess from content
             if ($param{-file}) {
                 $format = Bio::Tools::GuessSeqFormat->new(-file => $param{-file}||$ARGV[0] )->guess;
             } elsif ($param{-fh}) {
                 $format = Bio::Tools::GuessSeqFormat->new(-fh => $param{-fh}||$ARGV[0] )->guess;
             }
         }
+
         # changed 1-3-11; no need to print out an empty string (only way this
         # exception is triggered) - cjfields
-        $class->throw("Could not guess format from file/fh") unless $format;
+        $class->throw("Could not guess format from file, filehandle or string")
+            if not $format;
         $format = "\L$format";  # normalize capitalization to lower case
 
         if ($format =~ /-/) {
