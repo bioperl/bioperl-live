@@ -127,8 +127,9 @@ This makes the simplest ever reformatter
 
 =head2 Bio::SeqIO-E<gt>new()
 
-   $seqIO = Bio::SeqIO->new(-file => 'filename',   -format=>$format);
-   $seqIO = Bio::SeqIO->new(-fh   => \*FILEHANDLE, -format=>$format);
+   $seqIO = Bio::SeqIO->new(-file   => 'seqs.fasta', -format => $format);
+   $seqIO = Bio::SeqIO->new(-fh     => \*FILEHANDLE, -format => $format);
+   $seqIO = Bio::SeqIO->new(-string => $string     , -format => $format);
    $seqIO = Bio::SeqIO->new(-format => $format);
 
 The new() class method constructs a new Bio::SeqIO object. The
@@ -154,11 +155,11 @@ conventions apply:
 You may provide new() with a previously-opened filehandle.  For
 example, to read from STDIN:
 
-   $seqIO = Bio::SeqIO->new(-fh => \*STDIN);
+   my $seqIO = Bio::SeqIO->new(-fh => \*STDIN);
 
 Note that you must pass filehandles as references to globs.
 
-If neither a filehandle nor a filename is specified, then the module
+If neither a filehandle nor a filename nor a string is specified, then the module
 will read from the @ARGV array or STDIN, using the familiar E<lt>E<gt>
 semantics.
 
@@ -169,8 +170,8 @@ some HTML tags:
 
   use Bio::SeqIO;
   use IO::String;
-  my $in  = Bio::SeqIO->new(-file => "emblfile",
-                            -format => 'EMBL');
+  my $in = Bio::SeqIO->new(-file => "emblfile",
+                           -format => 'EMBL');
   while ( my $seq = $in->next_seq() ) {
       # the output handle is reset for every file
       my $stringio = IO::String->new($string);
@@ -183,6 +184,13 @@ some HTML tags:
       # print into STDOUT
       print $string;
   }
+
+=item -string
+
+A string to read the sequences from. For example:
+
+   my $string = ">seq1\nACGCTAGCTAGC\n";
+   my $seqIO = Bio::SeqIO->new(-string => $string);
 
 =item -format
 
@@ -577,8 +585,8 @@ sub alphabet {
             # creating a dummy sequence object
             eval {
                 require Bio::PrimarySeq;
-                my $seq = Bio::PrimarySeq->new('-verbose' => $self->verbose,
-                                                         '-alphabet' => $value);
+                my $seq = Bio::PrimarySeq->new( -verbose  => $self->verbose,
+                                                -alphabet => $value          );
             };
             if ($@) {
                 $self->throw("Invalid alphabet: $value\n. See Bio::PrimarySeq for allowed values.");
@@ -679,6 +687,7 @@ sub _filehandle {
 sub _guess_format {
    my $class = shift;
    return unless $_ = shift;
+
    return 'abi'        if /\.ab[i1]$/i;
    return 'ace'        if /\.ace$/i;
    return 'alf'        if /\.alf$/i;
@@ -697,13 +706,11 @@ sub _guess_format {
    return 'qual'       if /\.qual$/i;
    return 'raw'        if /\.txt$/i;
    return 'scf'        if /\.scf$/i;
-   return 'swiss'      if /\.(swiss|sp)$/i;
-
    # from Strider 1.4 Release Notes: The file name extensions used by
    # Strider 1.4 are ".xdna", ".xdgn", ".xrna" and ".xprt" for DNA,
    # DNA Degenerate, RNA and Protein Sequence Files, respectively
    return 'strider'    if /\.(xdna|xdgn|xrna|xprt)$/i;
-
+   return 'swiss'      if /\.(swiss|sp)$/i;
    return 'ztr'        if /\.ztr$/i;
 }
 
