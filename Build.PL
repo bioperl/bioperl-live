@@ -82,7 +82,7 @@ my %recommends = (
         'Bio::Assembly::Tools::ContigSpectrum'],
 
     'GraphViz'                  => [0,
-        'Phylogenetic Network Visulization/Bio::PhyloNetwork::GraphViz'],
+        'Phylogenetic Network Visualization/Bio::PhyloNetwork::GraphViz'],
 
     'HTML::Entities'            => [0,
         'Remote analysis POST submissions/Bio::SearchIO::blastxml'],
