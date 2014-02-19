@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
    
-    test_begin(-tests => 105);
+    test_begin(-tests => 107);
    
     use_ok 'Bio::Tools::GuessSeqFormat';
     use_ok 'Bio::SeqIO';
