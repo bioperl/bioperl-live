@@ -202,13 +202,15 @@ sub _initialize_io {
     $self->_rearrange([qw(INPUT NOCLOSE FILE FH STRING FLUSH URL RETRIES UA_PARMS)],
                       @args);
 
+    my $mode;
+
     if ($url) {
         $retries ||= 5;
 
         require LWP::UserAgent;
         my $ua = LWP::UserAgent->new(%$ua_parms);
         my $http_result;
-        my($handle,$tempfile) = $self->tempfile();
+        my ($handle, $tempfile) = $self->tempfile();
         CORE::close($handle);
 
         for (my $try = 1 ; $try <= $retries ; $try++) {
@@ -221,8 +223,8 @@ sub _initialize_io {
         $self->throw("failed to fetch $url, server threw ".$http_result->code)
           if !$http_result->is_success;
 
-        $input = $tempfile;
-        $file  = $tempfile;
+        $file = $tempfile;
+        $mode = '>';
     }
 
     delete $self->{'_readbuffer'};
@@ -232,7 +234,7 @@ sub _initialize_io {
     if ($input) {
         if (ref(\$input) eq 'SCALAR') {
             # we assume that a scalar is a filename
-            if($file && ($file ne $input)) {
+            if ($file && ($file ne $input)) {
                 $self->throw("input file given twice: $file and $input disagree");
             }
             $file = $input;
@@ -253,7 +255,7 @@ sub _initialize_io {
     }
 
     if ($string) {
-        if(defined($file) || defined($fh)) {
+        if (defined($file) || defined($fh)) {
             $self->throw("File or filehandle provided with -string, ".
                          "please unset if you are using -string as a file");
         }
@@ -261,9 +263,11 @@ sub _initialize_io {
     }
 
     if (defined($file) && ($file ne '')) {
+        ($mode, $file) = $self->file($file); # clean version of filename
+        $mode ||= '<';
+        my $action = ($mode =~ m/>/) ? 'write' : 'read';
         $fh = Symbol::gensym();
-        open $fh, $file or $self->throw("Could not open file $file: $!");
-        $self->file($file);
+        open $fh, $mode, $file or $self->throw("Could not $action file $file: $!");
     }
 
     if (defined $fh) {
@@ -375,10 +379,14 @@ sub mode {
 =head2 file
 
  Title   : file
- Usage   : $io->file($newval)
+ Usage   : $io->file('>'.$file);
+           my $file = $io->file;
+           my ($mode, file) = $io->file;
  Function: Get or set the name of the file to read or write.
- Args    : Optional file name
- Returns : File name
+ Args    : Optional file name (including its mode, e.g. '<' for reading or '>'
+           for writing)
+ Returns : In scalar context, a string representing the filename and its mode.
+           In array context, an array containing the mode and the filename.
 
 =cut
 
@@ -387,7 +395,9 @@ sub file {
     if ( defined $value) {
         $obj->{'_file'} = $value;
     }
-    return $obj->{'_file'};
+    return wantarray ?
+          ($obj->{'_file'} =~ m/^ (\+?[><]{1,2})? (.*) $/x) : # matches > +> << etc
+           $obj->{'_file'};
 }
 
 
@@ -481,12 +491,11 @@ sub _insert {
             " line number possible is 1");
     }
     # File check
-    my $file = $self->file;
+    my ($mode, $file) = $self->file;
     if (not defined $file) {
         $self->throw('Cannot insert a line in a IO object initialized with ".
             "anything else than a file.');
     }
-    $file =~ s/^\+?[><]?//; # transform '+>output.ace' into 'output.ace'
     # Everything that needs to be written is written before we read it
     $self->flush;
 
@@ -847,7 +856,7 @@ sub tempfile {
             # Reset umask
             umask($umask);
         } else {
-            $self->throw("Could not open tempfile $file: $!\n");
+            $self->throw("Could not write tempfile $file: $!\n");
         }
     }
 

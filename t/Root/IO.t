@@ -6,8 +6,8 @@ use warnings;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 150);
-    use_ok('Bio::Root::IO');
+    test_begin(-tests => 152);
+    use_ok 'Bio::Root::IO';
 }
 
 
@@ -101,22 +101,26 @@ $out_file = test_output_file();
 
 ok my $rio = Bio::Root::IO->new( -input => $in_file ), 'Read from file';
 is $rio->file, $in_file;
+is_deeply [$rio->file], [undef, $in_file];
 is $rio->mode, 'r';
 ok $rio->close;
 
-ok $rio = Bio::Root::IO->new( -file => $in_file );
-is $rio->file, $in_file;
+ok $rio = Bio::Root::IO->new( -file => '<'.$in_file );
+is $rio->file, '<'.$in_file;
+is_deeply [$rio->file], ['<', $in_file];
 1 while $rio->_readline; # read entire file content
 is $rio->mode, 'r';
 ok $rio->close;
 
 ok my $wio = Bio::Root::IO->new( -file => ">$out_file" ), 'Write to file';
 is $wio->file, ">$out_file";
+is_deeply [$wio->file], ['>', $out_file];
 is $wio->mode, 'w';
 ok $wio->close;
 
 ok $rio = Bio::Root::IO->new( -file => "+>$out_file" ), 'Read+write to file';
 is $rio->file, "+>$out_file";
+is_deeply [$rio->file], ['+>', $out_file];
 is $rio->mode, 'rw';
 ok $rio->close;
 
