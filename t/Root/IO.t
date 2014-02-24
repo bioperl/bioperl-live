@@ -6,7 +6,7 @@ use warnings;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 152);
+    test_begin(-tests => 154);
     use_ok 'Bio::Root::IO';
 }
 
@@ -97,6 +97,7 @@ ok my $in_file_2 = Bio::Root::IO->catfile(qw(t data test.txt));
 
 $out_file = test_output_file();
 
+
 # Test with files
 
 ok my $rio = Bio::Root::IO->new( -input => $in_file ), 'Read from file';
@@ -151,6 +152,7 @@ SKIP: {
     warnings_like sub { $wio->close }, '', 'no warnings in ->close()';
     ok $wio->close;
 }
+
 
 # Exclusive arguments
 open $in_fh , '<', $in_file  or die "Could not read file $in_file: $!\n", 'Read from GLOB handle';
