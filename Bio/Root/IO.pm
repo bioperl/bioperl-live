@@ -220,7 +220,7 @@ sub _initialize_io {
               if !$http_result->is_success;
             last if $http_result->is_success;
         }
-        $self->throw("failed to fetch $url, server threw ".$http_result->code)
+        $self->throw("Failed to fetch $url, server threw ".$http_result->code)
           if !$http_result->is_success;
 
         $file = $tempfile;
@@ -235,7 +235,7 @@ sub _initialize_io {
         if (ref(\$input) eq 'SCALAR') {
             # we assume that a scalar is a filename
             if ($file && ($file ne $input)) {
-                $self->throw("input file given twice: $file and $input disagree");
+                $self->throw("Input file given twice: '$file' and '$input' disagree");
             }
             $file = $input;
         } elsif (ref($input) &&
@@ -267,7 +267,7 @@ sub _initialize_io {
         $mode ||= '<';
         my $action = ($mode =~ m/>/) ? 'write' : 'read';
         $fh = Symbol::gensym();
-        open $fh, $mode, $file or $self->throw("Could not $action file $file: $!");
+        open $fh, $mode, $file or $self->throw("Could not $action file '$file': $!");
     }
 
     if (defined $fh) {
@@ -441,8 +441,8 @@ sub variant {
         my $var_name = '%'.ref($self).'::variant';
         my %ok_variants = eval $var_name; # e.g. %Bio::Assembly::IO::ace::variant
         if (scalar keys %ok_variants == 0) {
-            $self->throw('Cannot check for validity of variant because global '.
-                "variant $var_name is not set or is empty\n");
+            $self->throw("Could not validate variant because global variant ".
+               "$var_name was not set or was empty\n");
         }
         if (not exists $ok_variants{$variant}) {
             $self->throw($variant.' is not a valid variant of the '.$self->format.
@@ -487,14 +487,14 @@ sub _insert {
     my ($self, $string, $line_num) = @_;
     # Line number check
     if ($line_num < 1) {
-        $self->throw("Cannot insert text at line $line_num because the minimum".
-            " line number possible is 1");
+        $self->throw("Could not insert text at line $line_num: the minimum ".
+            "line number possible is 1.");
     }
     # File check
     my ($mode, $file) = $self->file;
     if (not defined $file) {
-        $self->throw('Cannot insert a line in a IO object initialized with ".
-            "anything else than a file.');
+        $self->throw('Could not insert a line: IO object was initialized with ".
+            "something else than a file.');
     }
     # Everything that needs to be written is written before we read it
     $self->flush;
@@ -508,8 +508,8 @@ sub _insert {
     }
     $temp_file = "$file.$number.temp";
     copy($file, $temp_file);
-    open my $fh1, "<$temp_file" or $self->throw("Cannot read file $temp_file: $!");
-    open my $fh2, ">$file"      or $self->throw("Cannot write to file $file: $!");
+    open my $fh1, "<$temp_file" or $self->throw("Could not read temporary file '$temp_file': $!");
+    open my $fh2, ">$file"      or $self->throw("Could not write file '$file': $!");
     while (my $line = <$fh1>) {
         if ($. == $line_num) { # right line for new data
             print $fh2 $string . $line;
@@ -520,16 +520,16 @@ sub _insert {
     }
     CORE::close $fh1;
     CORE::close $fh2;
-    unlink $temp_file or die "Could not delete temporal $temp_file: $!\n";
+    unlink $temp_file or $self->throw("Could not delete temporary file '$temp_file': $!");
 
     # Line number check (again)
     if ( $. > 0 && $line_num > $. ) {
-        $self->throw("Cannot insert text at line $line_num because there are ".
-            "only $. lines in file $file");
+        $self->throw("Could not insert text at line $line_num: there are only ".
+            "$. lines in file '$file'");
     }
     # Re-open the file in append mode to be ready to add text at the end of it
     # when the next _print() statement comes
-    open my $new_fh, ">>$file" or $self->throw("Cannot append to file $file: $!");
+    open my $new_fh, ">>$file" or $self->throw("Could not append to file '$file': $!");
     $self->_fh($new_fh);
     # If file is empty and we're inserting at line 1, simply append text to file
     if ( $. == 0 && $line_num == 1 ) {
@@ -675,7 +675,7 @@ sub flush {
     my ($self) = shift;
 
     if( !defined $self->{'_filehandle'} ) {
-        $self->throw("Attempting to call flush but no filehandle active");
+        $self->throw("Flush failed: no filehandle was active");
     }
 
     if( ref($self->{'_filehandle'}) =~ /GLOB/ ) {
@@ -856,7 +856,7 @@ sub tempfile {
             # Reset umask
             umask($umask);
         } else {
-            $self->throw("Could not write tempfile $file: $!\n");
+            $self->throw("Could not write temporary file '$file': $!\n");
         }
     }
 
