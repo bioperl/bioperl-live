@@ -263,7 +263,8 @@ sub _initialize_io {
     }
 
     if (defined($file) && ($file ne '')) {
-        ($mode, $file) = $self->file($file); # clean version of filename
+        $self->file($file);
+        ($mode, $file) = $self->cleanfile;
         $mode ||= '<';
         my $action = ($mode =~ m/>/) ? 'write' : 'read';
         $fh = Symbol::gensym();
@@ -304,11 +305,11 @@ sub _initialize_io {
 =cut
 
 sub _fh {
-    my ($obj, $value) = @_;
+    my ($self, $value) = @_;
     if ( defined $value) {
-        $obj->{'_filehandle'} = $value;
+        $self->{'_filehandle'} = $value;
     }
-    return $obj->{'_filehandle'};
+    return $self->{'_filehandle'};
 }
 
 
@@ -344,7 +345,7 @@ sub mode {
     #    no warnings "io";
     #    my $line = <$fh>;
     #    if (defined $line) {
-    #       $obj->{'_mode'} = 'r';
+    #       $self->{'_mode'} = 'r';
     #    ...
     # It did not work well either because <> returns undef, i.e. querying the
     # mode() after having read an entire file returned 'w'.
@@ -381,23 +382,36 @@ sub mode {
  Title   : file
  Usage   : $io->file('>'.$file);
            my $file = $io->file;
-           my ($mode, file) = $io->file;
  Function: Get or set the name of the file to read or write.
  Args    : Optional file name (including its mode, e.g. '<' for reading or '>'
            for writing)
- Returns : In scalar context, a string representing the filename and its mode.
-           In array context, an array containing the mode and the filename.
+ Returns : A string representing the filename and its mode.
 
 =cut
 
 sub file {
-    my ($obj, $value) = @_;
+    my ($self, $value) = @_;
     if ( defined $value) {
-        $obj->{'_file'} = $value;
+        $self->{'_file'} = $value;
     }
-    return wantarray ?
-          ($obj->{'_file'} =~ m/^ (\+?[><]{1,2})? (.*) $/x) : # matches > +> << etc
-           $obj->{'_file'};
+    return $self->{'_file'};
+}
+
+
+=head2 cleanfile
+
+ Title   : cleanfile
+ Usage   : my ($mode, $file) = $io->cleanfile;
+ Function: Get the name of the file to read or write, stripped of its mode
+           ('>', '<', '+>', '>>', etc).
+ Args    : None
+ Returns : In array context, an array of the mode and the clean filename.
+
+=cut
+
+sub cleanfile {
+    my ($self) = @_;
+    return ($self->{'_file'} =~ m/^ (\+?[><]{1,2})? (.*) $/x);
 }
 
 
@@ -491,7 +505,7 @@ sub _insert {
             "line number possible is 1.");
     }
     # File check
-    my ($mode, $file) = $self->file;
+    my ($mode, $file) = $self->cleanfile;
     if (not defined $file) {
         $self->throw('Could not insert a line: IO object was initialized with ".
             "something else than a file.');
@@ -613,18 +627,18 @@ sub _readline {
 # fix for bug 843, this reveals some unsupported behavior
 
 #sub _pushback {
-#    my ($obj, $value) = @_;
+#    my ($self, $value) = @_;
 #    if (index($value, $/) >= 0) {
-#        push @{$obj->{'_readbuffer'}}, $value;
+#        push @{$self->{'_readbuffer'}}, $value;
 #    } else {
-#        $obj->throw("Pushing modifed data back not supported: $value");
+#        $self->throw("Pushing modifed data back not supported: $value");
 #    }
 #}
 
 sub _pushback {
-    my ($obj, $value) = @_;
+    my ($self, $value) = @_;
     return unless $value;
-    unshift @{$obj->{'_readbuffer'}}, $value;
+    unshift @{$self->{'_readbuffer'}}, $value;
     return 1;
 }
 
