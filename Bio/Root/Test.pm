@@ -203,7 +203,7 @@ sub test_begin {
             eval "plan skip_all => '$skip_all';";
         }
         elsif (defined $tests && $tests == 0) {
-            eval "plan skip_all => 'All tests are being skipped, probably because the module(s) being tested here are now deprecated';";
+            eval "plan skip_all => 'These modules are now probably deprecated';";
         }
         elsif ($tests) {
             eval "plan tests => $tests;";
