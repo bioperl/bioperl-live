@@ -278,24 +278,24 @@ $self->_domain_label();
  
 if($self->{output})
 {
-  open(OUTPUT, ">$self->{output}");
-  binmode OUTPUT;
+  open my $OUTPUT, '>', $self->{output} or die "Could not read file '$self->{output}': $!\n";
+  binmode $OUTPUT;
   
 	if(defined($self->{out_format}))
 	{
 		SWITCH: {
-		if($self->{out_format} eq "png") {print OUTPUT $self->{image}->png; last SWITCH;}
-		if($self->{out_format} eq "jpeg") {print OUTPUT $self->{image}->jpeg; last SWITCH;}
-		if($self->{out_format} eq "gif") {print OUTPUT $self->{image}->gif; last SWITCH;}
-		if($self->{out_format} eq "gd") {print OUTPUT $self->{image}->gd; last SWITCH;}
+		if($self->{out_format} eq "png")  {print $OUTPUT $self->{image}->png;  last SWITCH;}
+		if($self->{out_format} eq "jpeg") {print $OUTPUT $self->{image}->jpeg; last SWITCH;}
+		if($self->{out_format} eq "gif")  {print $OUTPUT $self->{image}->gif;  last SWITCH;}
+		if($self->{out_format} eq "gd")   {print $OUTPUT $self->{image}->gd;   last SWITCH;}
 		}
 
 	}else
 	{
-	 print OUTPUT $self->{image}->png;
+	 print $OUTPUT $self->{image}->png;
 	}
   
-  close OUTPUT;
+  close $OUTPUT;
 }else
  {
 	binmode STDOUT;
@@ -303,10 +303,10 @@ if($self->{output})
 	if(defined($self->{out_format}))
 	{
 		SWITCH: {
-		if($self->{out_format} eq "png") {print STDOUT $self->{image}->png; last SWITCH;}
+		if($self->{out_format} eq "png")  {print STDOUT $self->{image}->png;  last SWITCH;}
 		if($self->{out_format} eq "jpeg") {print STDOUT $self->{image}->jpeg; last SWITCH;}
-		if($self->{out_format} eq "gif") {print STDOUT $self->{image}->gif; last SWITCH;}
-		if($self->{out_format} eq "gd") {print STDOUT $self->{image}->gd; last SWITCH;}
+		if($self->{out_format} eq "gif")  {print STDOUT $self->{image}->gif;  last SWITCH;}
+		if($self->{out_format} eq "gd")   {print STDOUT $self->{image}->gd;   last SWITCH;}
 		}
 
 	}else

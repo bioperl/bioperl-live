@@ -34,7 +34,7 @@ is $pseq->display_id(), 'HSBA536C5';
 is $pseq->accession_number(), 'unknown';
 is $pseq->desc, 'this is my description';
 
-is open(OUT, ">$tmpfile"), 1;
+is open(OUT, '>', $tmpfile), 1;
 
 my $seqout = Bio::SeqIO->new('-format' => 'largefasta',
                              '-fh'     => \*OUT );

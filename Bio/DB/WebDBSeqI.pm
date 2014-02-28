@@ -496,8 +496,9 @@ sub get_seq_stream {
 		# this may get reset when requesting batch mode
 		($rformat,$ioformat) = $self->request_format();
 		if( $self->verbose > 0 ) {
-			open(my $ERR, "<", $tmpfile);
+			open my $ERR, '<', $tmpfile or $self->throw("Could not read file '$tmpfile': $!");
 			while(<$ERR>) { $self->debug($_);}
+			close $ERR;
 		}
 
 		return Bio::SeqIO->new('-verbose' => $self->verbose,

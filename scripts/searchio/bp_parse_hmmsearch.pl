@@ -92,11 +92,11 @@ if ($opt_s) {
 } elsif ($opt_m) {
 
     # Opens the INDEX file sent as input
-    open(FH, "<", $opt_m) or die("Unable to open INDEX file: $opt_m ($!)");
+    open my $FH, '<', $opt_m or die "Could not read INDEX file '$opt_m': $!\n";
 
     # Cycle that extracts one line for every loop until finding the
     # end of file
-    while (my $line = <FH>) {
+    while (my $line = <$FH>) {
 
         # Deletes the new line characters from the line
         chomp $line;
@@ -111,7 +111,7 @@ if ($opt_s) {
     print "Total domain positive scores: $pos_scores\n" if $opt_ps;
 
     # Closes INDEX files
-    close(FH);
+    close $FH;
 }
 
 # Exits the program

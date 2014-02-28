@@ -124,7 +124,7 @@ sub _build_taxonomy {
    # One could open the file using Bio::SeqIO::fasta, but it is slower and we
    # only need the sequence descriptions
 
-   open my $in, '<', $taxofile or $self->throw("Could not read file '$taxofile': $!\n");
+   open my $in, '<', $taxofile or $self->throw("Could not read file '$taxofile': $!");
 
    # Populate taxonomy with taxonomy obtained from sequence description
    while (my $line = <$in>) {

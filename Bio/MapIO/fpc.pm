@@ -141,9 +141,9 @@ sub next_map{
 
     if ($map->core_exists()) {
         $corfile = substr($filename,0,length($filename)-3)."cor";
-        if (open(CORE,$corfile)) {
-            while(read(CORE,$BUFFER,2)) {
-                push(@cordata,unpack('n*', $BUFFER));
+        if (open my $CORE, '<', $corfile) {
+            while( read($CORE, $BUFFER, 2) ) {
+                push @cordata, unpack('n*', $BUFFER);
             }
         }
         else {

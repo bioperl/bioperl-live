@@ -132,16 +132,15 @@ is $names[0], 'DEFAULT';
 sub diff {
     my ($infile, $outfile) = @_;
     my ($in, $out);
-    open FH, $infile;
-    $in .= $_ while (<FH>);
-    close FH;
+    open my $FH_IN, '<', $infile or die "Could not read file '$infile': $!\n";
+    $in .= $_ while (<$FH_IN>);
+    close $FH_IN;
 
-    open FH, $outfile;
-    $out .= $_ while (<FH>);
-    close FH;
+    open my $FH_OUT, '<', $outfile or die "Could not read file '$outfile': $!\n";
+    $out .= $_ while (<$FH_OUT>);
+    close $FH_OUT;
     print "|$in||$out|\n" if $DEBUG;
     is $in, $out;
-
 }
 
 

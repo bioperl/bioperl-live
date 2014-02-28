@@ -436,7 +436,7 @@ sub get_stream_by_id {
 
     my $file = $self->{_file}{$fileid};
 
-    open( my $IN, "<$file" );
+    open my $IN, '<', $file or $self->throw("Could not read file '$file': $!");
 
     my $entry;
 
@@ -815,7 +815,7 @@ sub build_index {
 sub _index_file {
     my ( $self, $file ) = @_;
     my $v = $self->verbose;
-    open( my $FILE, "<", $file ) || $self->throw("Can't open file [$file]");
+    open my $FILE, '<', $file or $self->throw("Could not read file '$file': $!");
 
     my $recstart = 0;
     my $fileid   = $self->get_fileid_by_filename($file);
@@ -931,7 +931,7 @@ sub _index_file {
     $self->_add_id_position( $id, $pos, $fileid, $length, \%secondary_id );
     $count++;
 
-    close($FILE);
+    close $FILE;
     $count;
 }
 
@@ -954,9 +954,9 @@ sub write_primary_index {
 
     @ids = sort { $a cmp $b } @ids;
 
-    open( my $INDEX, ">" . $self->primary_index_file )
-      || $self->throw(
-        "Can't open primary index file [" . $self->primary_index_file . "]" );
+    open my $INDEX, '>', $self->primary_index_file
+      or $self->throw(
+        "Could not write primary index file '" . $self->primary_index_file . "': $!" );
 
     my $recordlength =
       $self->{_maxidlength} +
@@ -1075,7 +1075,7 @@ sub new_secondary_filehandle {
 
     my $secindex = File::Spec->catfile( $indexdir, "id_$name.index" );
 
-    open( my $fh, ">", $secindex ) || $self->throw($!);
+    open my $fh, '>', $secindex or $self->throw("Could not write file '$secindex': $!");
     return $fh;
 }
 
@@ -1103,7 +1103,7 @@ sub open_secondary_index {
             $self->throw("Index is not present for namespace [$name]\n");
         }
 
-        open( my $newfh, "<", $secindex ) || $self->throw($!);
+        open my $newfh, '<', $secindex or $self->throw("Could not read file '$secindex': $!");
         my $reclen = $self->read_header($newfh);
 
         $self->{_secondary_filehandle}{$name}  = $newfh;
@@ -1189,8 +1189,8 @@ sub make_config_file {
 
     my $configfile = $self->_config_file;
 
-    open( my $CON, ">", $configfile )
-      || $self->throw("Can't create config file [$configfile]");
+    open my $CON, '>', $configfile
+      or $self->throw("Could not write config file '$configfile': $!");
 
     # First line must be the type of index - in this case flat
     print $CON "index\tflat/1\n";
@@ -1205,8 +1205,6 @@ sub make_config_file {
 
         print $CON "fileid_$count\t$file\t$size\n";
 
-        my $fh;
-        open( $fh, "<", $file ) || $self->throw($!);
         $self->{_file}{$count}  = $file;
         $self->{_dbfile}{$file} = $count;
         $self->{_size}{$count}  = $size;
@@ -1244,7 +1242,7 @@ sub make_config_file {
         my $alpha    = $alphabet ? "/$alphabet" : '';
         print $CON "format\t" . "$format\n";
     }
-    close($CON);
+    close $CON;
 }
 
 =head2 read_config_file
@@ -1263,8 +1261,8 @@ sub read_config_file {
     my $configfile = $self->_config_file;
     return unless -e $configfile;
 
-    open( my $CON, "<", $configfile )
-      || $self->throw("Can't open configfile [$configfile]");
+    open my $CON, '<', $configfile
+      or $self->throw("Could not read config file '$configfile': $!");
 
     # First line must be type
     my $line = <$CON>;
@@ -1305,8 +1303,6 @@ sub read_config_file {
                       . "]" );
             }
 
-            my $fh;
-            open( $fh, "<", $filename ) || $self->throw($!);
             $self->{_file}{$fileid}     = $filename;
             $self->{_dbfile}{$filename} = $fileid;
             $self->{_size}{$fileid}     = $filesize;
@@ -1408,8 +1404,7 @@ sub get_filehandle_by_fileid {
         $self->throw("ERROR: undefined fileid in index [$fileid]");
     }
 
-    my $fh;
-    open( $fh, "<", $self->{_file}{$fileid} ) || $self->throw($!);
+    open my $fh, '<', $self->{_file}{$fileid} or $self->throw("Could not read file '$self->{_file}{$fileid}': $!");
     return $fh;
 }
 
@@ -1448,9 +1443,9 @@ sub primary_index_filehandle {
     my ($self) = @_;
 
     unless ( defined( $self->{'_primary_index_handle'} ) ) {
-        open( $self->{'_primary_index_handle'},
-            "<" . $self->primary_index_file )
-          || self->throw($@);
+        my $primary_file = $self->primary_index_file;
+        open $self->{'_primary_index_handle'}, '<', $primary_file
+          or self->throw("Could not read file '$primary_file': $!\n");
     }
     return $self->{'_primary_index_handle'};
 }

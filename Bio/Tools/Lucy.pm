@@ -259,7 +259,7 @@ sub _parse {
 	my $file = $1;
 
 	$self->warn("Opening $self->{seqfile} for parsing...\n") if $self->{lucy_verbose};
-	open my $SEQ, $self->{seqfile} or $self->throw("Could not open sequence file: $self->{seqfile}");
+	open my $SEQ, '<', $self->{seqfile} or $self->throw("Could not read sequence file '$self->{seqfile}': $!");
 	my ($name, $line);
 	my $seq = "";
 	my @lines = <$SEQ>;
@@ -293,17 +293,17 @@ sub _parse {
 
 	# now parse quality values (check for presence of quality file first) 
 	if ($self->{qualfile}) {
-		open my $QUAL, "$self->{qualfile}" or $self->throw("Could not open quality file: $self->{qualfile}");
+		open my $QUAL, '<', $self->{qualfile} or $self->throw("Could not read quality file '$self->{qualfile}': $!");
 		@lines = <$QUAL>;
 	}
 	elsif (-e "$file.qual") {
 		$self->warn("You did not set qualfile, but I'm opening $file.qual\n") if $self->{lucy_verbose};
-	$self->qualfile("$file.qual");
-		open my $QUAL, "$file.qual" or $self->throw("Could not open quality file: $file.qual");
+		$self->qualfile("$file.qual");
+		open my $QUAL, '<', "$file.qual" or $self->throw("Could not read quality file '$file.qual': $!");
 		@lines = <$QUAL>;
 	}
     else {
-		 $self->warn("I did not find a quality file.  You will not be able to use all of the accessor methods.\n") if $self->{lucy_verbose};
+		 $self->warn("I did not find a quality file. You will not be able to use all of the accessor methods.\n") if $self->{lucy_verbose};
 		 @lines = ();
     }
 
@@ -332,17 +332,17 @@ sub _parse {
 
 	# determine whether reads are full length
 	if ($self->{infofile}) {
-		open my $INFO, "$self->{infofile}" or $self->throw("Could not open info file: $self->{infofile}");
+		open my $INFO, '<', $self->{infofile} or $self->throw("Could not read info file '$self->{infofile}': $!");
 		@lines = <$INFO>;
 	}
 	elsif (-e "$file.info") {
 		$self->warn("You did not set infofile, but I'm opening $file.info\n") if $self->{lucy_verbose};
 		$self->infofile("$file.info");
-		open my $INFO, "$file.info" or $self->throw("Could not open info file: $file.info");
+		open my $INFO, '<', "$file.info" or $self->throw("Could not read info file '$file.info': $!");
 		@lines = <$INFO>;
 	}
 	else {
-		$self->warn("I did not find an info file.  You will not be able to use all of the accessor methods.\n") if $self->{lucy_verbose};
+		$self->warn("I did not find an info file. You will not be able to use all of the accessor methods.\n") if $self->{lucy_verbose};
 		@lines = ();
 	}
 
@@ -356,17 +356,17 @@ sub _parse {
 
 	# parse rejects (and presence of poly-A if Lucy has been modified)
 	if ($self->{stderrfile}) {
-		open my $STDERR_LUCY, "$self->{stderrfile}" or $self->throw("Could not open quality file: $self->{stderrfile}");
+		open my $STDERR_LUCY, '<', $self->{stderrfile} or $self->throw("Could not read quality file '$self->{stderrfile}': $!");
 		@lines = <$STDERR_LUCY>;
 	}
 	elsif (-e "$file.stderr") {
 		$self->warn("You did not set stderrfile, but I'm opening $file.stderr\n") if $self->{lucy_verbose};
 		$self->stderrfile("$file.stderr");
-		open my $STDERR_LUCY, "$file.stderr" or $self->throw("Could not open quality file: $file.stderr");
+		open my $STDERR_LUCY, '<', "$file.stderr" or $self->throw("Could not read quality file '$file.stderr': $!");
 		@lines = <$STDERR_LUCY>;
 	}
 	else {
-		$self->warn("I did not find a standard error file.  You will not be able to use all of the accessor methods.\n") if $self->{lucy_verbose};
+		$self->warn("I did not find a standard error file. You will not be able to use all of the accessor methods.\n") if $self->{lucy_verbose};
 		@lines = ();
 	}
 

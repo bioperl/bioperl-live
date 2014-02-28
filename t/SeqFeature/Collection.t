@@ -167,9 +167,9 @@ ok( ! -e $filename);
 # without -keep => 1, $filename was deleted as expected.
 # to stop Bio::Root::Test complaining that the temp file was already deleted,
 # we'll just create it again
-open(TMP, ">", $filename);
-print TMP "temp\n";
-close(TMP);
+open my $TMP, '>', $filename or die "Could not write file '$filename': $!\n";
+print $TMP "temp\n";
+close $TMP;
 
 if( $verbose ) {
     my @fts =  sort { $a->start <=> $b->start}  

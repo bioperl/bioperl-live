@@ -246,7 +246,8 @@ sub _open_databases {
             : $create ? "+>"
             : "<";
 
-  open (my $F,$mode,$self->_notes_file) or $self->throw($self->_notes_file.": $!");
+  my $notes_file = $self->_notes_file;
+  open my $F, $mode, $notes_file or $self->throw("Could not open file '$notes_file': $!");
   $self->{notes} = $F;
 }
 
@@ -364,7 +365,7 @@ sub load_sequence {
   my $file = $self->_fasta_file;
   my $loaded = 0;
 
-  open (my $F,">>$file") or $self->throw("Couldn't open $file for writing: $!");
+  open my $F, '>>', $file or $self->throw("Could not append file '$file': $!");
 
   if (defined $id) {
     print $F ">$id\n";
@@ -490,8 +491,9 @@ sub finish_load {
 sub _touch_timestamp {
   my $self = shift;
   my $tsf = $self->_timestamp_file;
-  open (my $F,">$tsf") or $self->throw("Couldn't open $tsf: $!");
+  open my $F, '>', $tsf or $self->throw("Could not write file '$tsf': $!");
   print $F scalar(localtime);
+  close $F;
 }
 
 
@@ -1020,7 +1022,7 @@ sub new {
             : $write   ? "+>>"
             : "<";
 
-  open (my $F,$mode,$dbname) or $class->throw("$dbname: $!");
+  open my $F, $mode, $dbname or $class->throw("Could not open file '$dbname': $!");
   my $self = bless {
 		    fh        => $F,
 		    next_idx  => 0,

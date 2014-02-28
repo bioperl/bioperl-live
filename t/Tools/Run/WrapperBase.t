@@ -49,7 +49,7 @@ my $tmpdir = $obj->tempdir();
 ok -d $tmpdir, 'tempdir created a directory';
 ok open(my $test, '>', File::Spec->catfile($tmpdir, 'test')), 'could create file in tempdir';
 print $test "test\n";
-close($test);
+close $test;
 
 # cleanup
 

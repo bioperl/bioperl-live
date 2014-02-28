@@ -185,7 +185,7 @@ sub _bowtie_to_sam {
     if ($file =~ m/\.gz[^.]*$/) {
         $file = $self->_uncompress($file);
         $self->close;
-        open (my $fh,$file);
+        open my $fh, '<', $file or $self->throw("Could not read file '$file': $!");
         $self->file($file);
         $self->_fh($fh);
     }
@@ -279,8 +279,8 @@ sub _bowtie_to_sam {
     print $samh $PG;
     
     # print alignments
-    open($sam_tmp_h, $sam_tmp_f) or
-        $self->throw("Can not open '$sam_tmp_f' for reading: $!");
+    open $sam_tmp_h, '<', $sam_tmp_f or
+        $self->throw("Could not read file '$sam_tmp_f': $!");
 
     print $samh $_ while (<$sam_tmp_h>);
     

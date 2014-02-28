@@ -57,7 +57,7 @@ my $in = Bio::SearchIO->new(-format => $format,
 			    -file   => $file);
 my $out;
 if( $output ) { 
-    open($out,">$output") || die "cannot open $output for writing";
+    open $out, '>', $output or die "Could not write file '$output': $!\n";
 } else { 
     $out = \*STDOUT;
 }

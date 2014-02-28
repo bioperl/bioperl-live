@@ -44,9 +44,9 @@ is ($sf->feature2->start,1);
 is ($sf->feature2->end,44);
 is ($sf->feature1->end,22396);
 
-open(FH,$inputfilename);
-$parser = Bio::Tools::Genewise->new(-fh=>\*FH);
-while (my $gene= $parser->next_prediction){
+open my $FH, '<', $inputfilename or die "Could not read file '$inputfilename': $!\n";
+$parser = Bio::Tools::Genewise->new(-fh => $FH);
+while (my $gene = $parser->next_prediction){
     push @gene, $gene;
 }
 @t = $gene[0]->transcripts;
@@ -67,4 +67,3 @@ is ($sf->feature2->seq_id,'SINFRUP00000067802');
 is ($sf->feature2->start,1);
 is ($sf->feature2->end,44);
 is ($sf->feature1->end,22396);
-

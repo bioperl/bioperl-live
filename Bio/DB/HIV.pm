@@ -364,16 +364,15 @@ sub postprocess_data {
 		last;
 	    };
 	    m/file/ && do {
-		local $/;
-		undef $/;
-		open (F, "<", $loc) or
+		local $/ = undef;
+		open my $F, '<', $loc or
 		    $self->throw(
-		    -class=>'Bio::Root::FileOpenException',
-		    -text=>"Error opening tempfile \"$loc\" for reading",
-		    -value=>$loc
+		    -class => 'Bio::Root::FileOpenException',
+		    -text  => "Error opening tempfile '$loc' for reading",
+		    -value => $!
 		    );
-		@data = split( /\n|\r/, <F>);
-		close(F);
+		@data = split( /\n|\r/, <$F>);
+		close $F;
 		last;
 	    };
 	    do {
@@ -407,11 +406,11 @@ sub postprocess_data {
 		last;
 	    };
 	    m/file/ && do {
-		open(F, ">", $loc) or $self->throw(-class=>'Bio::Root::FileOpenException',
-					     -text=>'Error opening tempfile \"$loc\" for writing',
-					     -value=>$loc);
-		print F join("", @flines);
-		close(F);
+		open my $F, '>', $loc or $self->throw(-class=>'Bio::Root::FileOpenException',
+					     -text=>"Error opening tempfile '$loc' for writing",
+					     -value=>$!);
+		print $F join("", @flines);
+		close $F;
 		last;
 	    };
 	    do {
@@ -494,8 +493,9 @@ sub get_seq_stream {
 	# this may get reset when requesting batch mode
 	($rformat,$ioformat) = $self->request_format();
 	if( $self->verbose > 0 ) {
-	    open(my $ERR, "<", $tmpfile);
+	    open my $ERR, '<', $tmpfile or $self->throw("Could not read file '$tmpfile': $!");
 	    while(<$ERR>) { $self->debug($_);}
+	    close $ERR;
 	}
 
 	return Bio::SeqIO->new('-verbose' => $self->verbose,

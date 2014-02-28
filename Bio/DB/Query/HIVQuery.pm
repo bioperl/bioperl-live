@@ -405,12 +405,12 @@ sub help{
 
    my (@tbls, @flds, @als, @opts, $fh);
    if ($fname) {
-       open ($fh, ">", $fname) or $self->throw(-class=>'Bio::Root::IOException',
-                                               -text=>"Error opening help html file $fname for writing",
-                                               -value=>$!);
+       open $fh, '>', $fname or $self->throw(-class => 'Bio::Root::IOException',
+                                             -text  => "Error opening help html file $fname for writing",
+                                             -value => $!);
    }
    else {
-       open($fh, ">&1");
+       open $fh, ">&1";
    }
    @tbls = $schema->tables;
    @tbls = ('COMMAND', grep !/COMMAND/,@tbls);
@@ -1544,5 +1544,3 @@ sub _sorry{
 }
 
 1;
-
- 

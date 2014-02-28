@@ -34,8 +34,8 @@ is ($e[0]->end, 4874);
 my ($phase) = $e[0]->get_tag_values('phase');
 is ($phase,0);
 
-open(FH,$inputfilename);
-$parser = Bio::Tools::Genomewise->new(-fh=>\*FH);
+open my $FH, '<', $inputfilename or die "Could not read file '$inputfilename': $!\n";
+$parser = Bio::Tools::Genomewise->new(-fh => $FH);
 while (my $gene= $parser->next_prediction){
     push @gene, $gene;
 }

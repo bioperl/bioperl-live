@@ -472,7 +472,7 @@ lives_ok {$seqout->write_seq($seq)};
 
 $seqout->close;
 
-open(my $swissfh, '<', $outfile) || die "Can't open $outfile: $!";
+open my $swissfh, '<', $outfile or die "Could not read file '$outfile': $!\n";
 
 my $seen_gn;
 while (<$swissfh>) {
@@ -481,7 +481,6 @@ while (<$swissfh>) {
         last
     }
 }
-
 close $swissfh;
 
 is $seen_gn, 'bar';

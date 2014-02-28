@@ -1156,7 +1156,7 @@ sub _read_trait_file {
 
     my $trait_name;
     my $trait_values;
-    open my $TRAIT, '<', $file or $self->throw("Could not open file $file: $!\n");
+    open my $TRAIT, '<', $file or $self->throw("Could not read file '$file': $!");
 
     my $first_line = 1;
     while (<$TRAIT>) {

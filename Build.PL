@@ -322,7 +322,7 @@ sub make_bdb_test {
     my $path0 = File::Spec->catfile('t', 'LocalDB', 'SeqFeature.t');
     my $path = File::Spec->catfile('t', 'LocalDB','SeqFeature_BDB.t');
     unlink($path) if (-e $path);
-    open(my $F, ">", $path) || die "Can't create test file\n";
+    open my $F, '>', $path or die "Could not write test file '$path': $!\n";
     print $F <<END;
 system '$^X $path0 -adaptor berkeleydb -create 1 -temp 1';
 END
@@ -354,7 +354,7 @@ sub make_dbi_test {
     my $test_db = $build->notes('test_db');
     my $user = $build->notes('test_user');
     my $pass = $build->notes('test_pass');
-    open my $F,">$path";
+    open my $F, '>', $path or die "Could not write file '$path' for DBI test: $!\n";
     my $str = "$path0 -adaptor DBI::$driver -create 1 -temp 1 -dsn \"$dsn\"";
     $str .= " -user $user" if $user;
     $str .= " -password $pass" if $pass;

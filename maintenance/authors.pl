@@ -85,17 +85,17 @@ my @dirs = qw( ../Bio/ ../scripts . );
 #
 
 
-open (F, $authorsfile) || die "can't open file $authorsfile: $!";
+open my $F, '<', $authorsfile or die "Could not read file '$authorsfile': $!\n";
 
 
-while (<F>) {
-    my ($email) = /([\.\w_-]+ at [\.\w_-]+)/;
+while (my $line = <$F>) {
+    my ($email) = ($line =~/([\.\w_-]+ at [\.\w_-]+)/);
     next unless $email;
     #print $email, "\n";
     $email =~ s/ at /@/;
     $AUTHORS{$email} = 1;
 }
-close F;
+close $F;
 
 
 #
@@ -124,22 +124,25 @@ print Dumper \%NEWAUTHORS;
 # this is where the action is
 #
 sub findauthors {
-    return unless /\.PLS$/ or /\.p[ml]$/ ;
-    return unless -e $_;
-    print "$_\n" if $verbose;
-    my $filename = $_;
+    my ($filename) = @_;
+    return unless ($filename =~ /\.PLS$/ or $filename =~ /\.p[ml]$/);
+    return unless -e $filename;
+
+    print "$filename\n" if $verbose;
     #local $/=undef;
-    open F, $_ || die "Could not open file $_";
-    while (<F>) {
-        #print;
-        last if /=head1 +AUTHOR/;
+    open my $F, '<', $filename or die "Could not read file '$filename': $!\n";
+    while (my $line = <$F>) {
+        #print $line;
+        last if $line =~ /=head1 +AUTHOR/;
     }
     my $authorblock;
-    while (<F>) {
-        last if /=head/ and not /CONTRIBUTORS/;
-        $authorblock .= $_;
+    while (my $line = <$F>) {
+        last if $line =~ /=head/ and $line !~ /CONTRIBUTORS/;
+        $authorblock .= $line;
     }
+    close $F;
     return unless $authorblock;
+
     while ( $authorblock =~ /([\.\w_-]+@[\.a-z_-]+)/g) {
         #my $email = $1;
         #$email =~ //
@@ -147,7 +150,6 @@ sub findauthors {
         #print "$filename\t$1\n";
 
         push @{$NEWAUTHORS{$1}}, $filename;
-
     }
 }
 
@@ -172,18 +174,19 @@ feeling too lazy to change the code.
 =cut
 
 sub blankline {
-    return unless /\.PLS$/ or /\.p[ml]$/ ;
-    return unless -e $_;
-    my $file = $_;
-    open (F, $_) or warn "can't open file $_: $!" && return;
-    local $/="";
-    while (<F>) {
-        print "$file: +|$1|\n" if /[ \t]\n(=[a-z][^\n]+$)/m and $verbose;
-        print "$file: ++|$1|\n" if /\w\n(=[a-z][^\n]+$)/m and $verbose;
-        print "$file:|$1|+\n" if /(^=[a-z][^\n]+)\n[\t ]/m;
+    my ($file) = @_;
+    return unless ($file =~ /\.PLS$/ or $file =~ /\.p[ml]$/);
+    return unless -e $file;
+
+    open my $F, '<', $file or warn "Could not read file '$file': $!\n" && return;
+    local $/ = "";
+    while (my $line = <$F>) {
+        print "$file: +|$1|\n"  if $line =~ /[ \t]\n(=[a-z][^\n]+$)/m and $verbose;
+        print "$file: ++|$1|\n" if $line =~ /\w\n(=[a-z][^\n]+$)/m    and $verbose;
+        print "$file:|$1|+\n"   if $line =~ /(^=[a-z][^\n]+)\n[\t ]/m;
         #print "$file:|$1|++\n" if /(^=[^\n]+)\n\w/m;
     }
-    close F;
+    close $F;
 }
 
 __END__

@@ -879,8 +879,8 @@ sub _get_alignment {
   my $fastafile2="/tmp/tmpfastafile2";
   my $grepcut='egrep -v "[[:digit:]]|^ *$|sequences" | cut -c8-'; # grep/cut
   my $alignprogram="/usr/local/etc/bioinfo/fasta2/align -s /usr/local/etc/bioinfo/fasta2/idnaa.mat $fastafile1 $fastafile2 2>$null | $grepcut"; # ALIGN
-  open my $TMPFASTAFILE1,">$fastafile1" || croak "Cannot write into $fastafile1 for aa alignment";
-  open my $TMPFASTAFILE2,">$fastafile2" || croak "Cannot write into $fastafile1 for aa alignment";
+  open my $TMPFASTAFILE1, '>', $fastafile1 or croak "Could not write file '$fastafile1' for aa alignment: $!";
+  open my $TMPFASTAFILE2, '>', $fastafile2 or croak "Could not write file '$fastafile2' for aa alignment: $!";
   print $TMPFASTAFILE1 ">firstseq\n$seq1\n";
   print $TMPFASTAFILE2 ">secondseq\n$seq2\n";
   close $TMPFASTAFILE1;

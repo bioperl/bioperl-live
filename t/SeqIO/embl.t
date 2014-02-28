@@ -229,7 +229,7 @@ foreach my $feature ($seq->top_SeqFeatures) {
 
     # Write EMBL
     my $string;
-    open(my $str_fh, '>', \$string) || skip("Can't open string, skipping", 2);
+    open my $str_fh, '>', \$string or skip("Could not write string, skipping", 2);
     
     my $out=Bio::SeqIO->new(-format=>'embl', -fh => $str_fh);
     $out->write_seq($seq);
@@ -257,7 +257,7 @@ foreach my $feature ($seq->top_SeqFeatures) {
 
     # Write EMBL
     my $string;
-    open(my $str_fh, '>', \$string) || skip("Can't open string, skipping", 2);
+    open my $str_fh, '>', \$string or skip("Could not write string, skipping", 2);
 
     my $out=Bio::SeqIO->new(-format=>'embl', -fh => $str_fh);
     $out->write_seq($seq);
@@ -297,7 +297,7 @@ foreach my $feature ($seq->top_SeqFeatures) {
 
     # Write EMBL
     my $string;
-    open(my $str_fh, '>', \$string) || skip("Can't open string, skipping", 2);
+    open my $str_fh, '>', \$string or skip("Could not write string, skipping", 2);
 
     my $out=Bio::SeqIO->new(-format=>'embl', -fh => $str_fh);
     $out->write_seq($seq);
@@ -321,7 +321,7 @@ foreach my $feature ($seq->top_SeqFeatures) {
     my $seq = Bio::Seq->new(-seq=>'actg', -id=>'test_id');
 
     my $string;
-    open(my $str_fh, '>', \$string) || skip("Can't open string, skipping", 1);
+    open my $str_fh, '>', \$string or skip("Could not write string, skipping", 1);
 
     my $out = Bio::SeqIO->new(-format=>'embl', -fh=>$str_fh);
     $out->write_seq($seq);

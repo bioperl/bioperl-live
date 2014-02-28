@@ -394,16 +394,16 @@ foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb'
     $out->write_seq($seq);
     $out->close();
     
-    open (IN, $infile);
-    my @in = <IN>;
-    close(IN);
-    open (RESULT, $outfile);
+    open my $IN, '<', $infile or die "Could not read file '$infile': $!\n";
+    my @in = <$IN>;
+    close $IN;
+    open my $RESULT, '<', $outfile or die "Could not read file '$outfile': $!\n";
     my $line = 0;
     my $check = 0;
     my $is = 1;
     
     FILECHECK:
-    while (my $result = <RESULT>) {
+    while (my $result = <$RESULT>) {
         if ($result =~ /^KEYWORDS/) {
             $check = 1;
             next;
@@ -425,7 +425,7 @@ foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb'
             }
         }
     } continue { $line++ }
-    close(RESULT);
+    close $RESULT;
     
     ok $is, $in;
 }

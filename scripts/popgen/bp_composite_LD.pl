@@ -81,7 +81,7 @@ my %LD_matrix = $stats->composite_LD($pop);
 my @sites;
 my $out;
 if( $outfile ) { 
-    open($out, ">$outfile") || die("$outfile: $!");
+    open $out, '>', $outfile or die "Could not write file '$outfile': $!\n";
 } else { 
     $out = \*STDOUT;
 }
@@ -102,6 +102,3 @@ if( $sortbyld ) {
 	print $out "$site1,$site2 - LD=$ld, chisq=$chisq\n";
     }
 }
-
-
-
