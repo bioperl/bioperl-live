@@ -17,17 +17,17 @@ use strict;
     $Error::Debug = 1;
 
     $file = shift;
-    open (IN, $file) ||
-            throw Bio::Root::FileOpenException ( "Can't open file $file for reading", $!);
+    open my $IN, '<', $file
+        or Bio::Root::FileOpenException->throw("Could not read file '$file': $!");
 
 =head2 Throwing exceptions using L<Bioperl throw|Bio::Root::Root/throw>:
 
-     # Here we have an object that ISA Bio::Root::Root, so it inherits throw().
+    # Here we have an object that ISA Bio::Root::Root, so it inherits throw().
 
-     open (IN, $file) ||
-                $object->throw(-class => 'Bio::Root::FileOpenException',
-                               -text => "Can't open file $file for reading",
-                               -value => $!);
+    open my $IN, '<', $file
+        or $object->throw(-class => 'Bio::Root::FileOpenException',
+                          -text  => "Could not read file '$file'",
+                          -value => $!);
 
 =head2 Catching and handling exceptions using L<Error.pm try|Error/try>:
 
@@ -39,15 +39,16 @@ use strict;
     # Set Error::Debug to include stack trace data in the error messages
     $Error::Debug = 1;
 
-    $file = shift;
+    my $file = shift;
+    my $IN;
     try {
-        open (IN, $file) ||
-            throw Bio::Root::FileOpenException ( "Can't open file $file for reading", $!);
+        open $IN, '<', $file
+            or Bio::Root::FileOpenException->throw("Could not read file '$file': $!");
     }
     catch Bio::Root::FileOpenException with {
         my $err = shift;
         print STDERR "Using default input file: $default_file\n";
-        open (IN, $default_file) || die "Can't open $default_file";
+        open $IN, '<', $default_file or die "Could not read file '$default_file': $!";
     }
     otherwise {
         my $err = shift;

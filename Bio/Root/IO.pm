@@ -276,9 +276,10 @@ sub _initialize_io {
         # a GLOB reference, as in: open(my $fh, "myfile");
         # an IO::Handle or IO::String object
         # the UNIVERSAL::can added to fix Bug2863
-        unless ( ( ref $fh && ( ref $fh eq 'GLOB' ) )
-                 || ( ref $fh && ( UNIVERSAL::can( $fh, 'can' )
-                    && ( $fh->isa('IO::Handle') || $fh->isa('IO::String') ) ) )
+        unless (   ( ref $fh and ( ref $fh eq 'GLOB' ) )
+                or ( ref $fh and ( UNIVERSAL::can( $fh, 'can' ) )
+                             and (   $fh->isa('IO::Handle')
+                                  or $fh->isa('IO::String') ) )
                ) {
             $self->throw("Object $fh does not appear to be a file handle");
         }
@@ -522,8 +523,8 @@ sub _insert {
     }
     $temp_file = "$file.$number.temp";
     copy($file, $temp_file);
-    open my $fh1, "<$temp_file" or $self->throw("Could not read temporary file '$temp_file': $!");
-    open my $fh2, ">$file"      or $self->throw("Could not write file '$file': $!");
+    open my $fh1, '<', $temp_file or $self->throw("Could not read temporary file '$temp_file': $!");
+    open my $fh2, '>', $file      or $self->throw("Could not write file '$file': $!");
     while (my $line = <$fh1>) {
         if ($. == $line_num) { # right line for new data
             print $fh2 $string . $line;
@@ -543,7 +544,7 @@ sub _insert {
     }
     # Re-open the file in append mode to be ready to add text at the end of it
     # when the next _print() statement comes
-    open my $new_fh, ">>$file" or $self->throw("Could not append to file '$file': $!");
+    open my $new_fh, '>>', $file or $self->throw("Could not append to file '$file': $!");
     $self->_fh($new_fh);
     # If file is empty and we're inserting at line 1, simply append text to file
     if ( $. == 0 && $line_num == 1 ) {
@@ -1024,11 +1025,11 @@ sub rmtree {
             chmod(0777, ($Is_VMS ? VMS::Filespec::fileify($root) : $root))
               or $self->warn("Can't make directory $root read+writable: $!")
             unless $safe;
-            if (opendir(DIR, $root) ){
+            if (opendir DIR, $root){
                 @files = readdir DIR;
                 closedir DIR;
             } else {
-                $self->warn( "Can't read $root: $!");
+                $self->warn("Can't read $root: $!");
                 @files = ();
             }
 
