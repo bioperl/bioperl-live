@@ -76,8 +76,10 @@ SKIP: {
     while( my ($file, $type) = each %files ) {
         my $filename = test_input_file($file);
         print "processing file $filename\n" if $verbose;
-        open(FILE, "< $filename") or die("Could not open $filename: $!");
-        my @datain = <FILE>;
+        open my $FILE, '<', $filename or die "Could not read file '$filename': $!\n";
+        my @datain = <$FILE>;
+        close $FILE;
+
         my $in = IO::String->new( join('', @datain) );
         my $seqin = Bio::SeqIO->new( -fh     => $in,
                                      -format => $type );
@@ -138,7 +140,7 @@ is $in->variant, 'illumina';
 $in = Bio::SeqIO->new( -file => test_input_file('test.fastq') );
 is $in->format, 'fastq';
 
-open my $fh, '<', test_input_file('test.genbank');
+open my $fh, '<', test_input_file('test.genbank') or die "Could not read file 'test.genbank': $!\n";
 $in = Bio::SeqIO->new( -fh => $fh );
 is $in->format, 'genbank';
 close $fh;
@@ -171,4 +173,3 @@ throws_ok {
     Bio::SeqIO->new(-file => 'foo.bar');
 } qr/Could not read file 'foo.bar':/,
     'Must pass a real file';
-

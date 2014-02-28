@@ -412,11 +412,11 @@ END
 # directory.  Used primarily for testing.
 sub stylesheet {
   ok_header();
-  open(STYLE, "style.xml");
-  while(<STYLE>) {
+  open my $STYLE, '<', "style.xml" or die "Could not read file 'style.xml': $!\n";
+  while(<$STYLE>) {
     print $_;
   }
-  close STYLE;
+  close $STYLE;
 }
 
 # really, really bad shit

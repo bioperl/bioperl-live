@@ -162,7 +162,7 @@ sub find_deps {
     my ( $file ) = @_;
 
     my $nopod;
-    { open my $p, '<', $file or die "$! reading $file\n";
+    { open my $p, '<', $file or die "Could not read file '$file': $!\n";
       local $/;
       my $code = <$p>;
       my $strip = Pod::Strip->new;
@@ -213,7 +213,7 @@ sub find_deps {
 
                 next unless $p_modfile && -f $p_modfile;
 
-                open my $p, '<', $p_modfile or die "$! opening $p_modfile\n";
+                open my $p, '<', $p_modfile or die "Could not read file '$p_modfile': $!\n";
                 while( <$p> ) {
                     next MODNAME if /^\s*package\s+$p\b/;
                 }

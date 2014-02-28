@@ -53,7 +53,7 @@ GetOptions(
 my $fh;
 
 if (defined $file) {
-    open($fh, '>', $file) || die "Can't open file : $!";
+    open $fh, '>', $file or die "Could not write file '$file': $!\n";
 } else {
     $fh = \*STDOUT;
 }

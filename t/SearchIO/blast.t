@@ -1967,7 +1967,7 @@ float_is( $hit->significance, 8e-26 );
 
 my $file = test_input_file('bug1986.blast2');
 my %unique_accs;
-open( my $IN, $file ) or die $!;
+open my $IN, '<', $file or die "Could not read file '$file': $!\n";
 
 while (<$IN>) {
     last if (/^Sequences/);
@@ -1986,7 +1986,7 @@ while (<$IN>) {
     #last if ($count == 10);
     ++$count;
 }
-close($IN);
+close $IN;
 
 is( $count,                      495 );
 is( scalar( keys %unique_accs ), 490 );

@@ -249,8 +249,8 @@ my $style4
 my $style5 = qq{style="font-family:verdana;font-size:14px;padding:3"};
 
 # Open file containing all Bioperl package names
-open( MODS, $PERLMODULES )
-    or die "Can't open list of Perl module names $PERLMODULES: $!\n";
+open my $MODS, '<', $PERLMODULES
+    or die "Could not read list of Perl module names '$PERLMODULES': $!\n";
 
 # Open BerkeleyDB by getting hash references
 $ref_BerkeleyDB_packages = Deobfuscator::open_db($BerkeleyDB_packages);
@@ -261,7 +261,7 @@ my $pattern = param('search_string') ? param('search_string') : ' ';
 $pattern =~ s/\s//g;
 
 # Filter file names with user search string if one has been entered
-while (<MODS>) {
+while (<$MODS>) {
     if (/\S+/) {    # capture list of all module names in case there are no
                     # matches found to user input string
         push @all_modules, $_;
@@ -282,7 +282,7 @@ while (<MODS>) {
 if ( scalar @available_modules < 1 ) {
     @available_modules = @all_modules;
 }
-close MODS or die "Can't close list of Perl module names $PERLMODULES: $!";
+close $MODS or die "Could not close list of Perl module names $PERLMODULES: $!\n";
 
 # grab BioPerl version string
 my $version_string = '__BioPerl_Version'; # specified in deob_index.pl

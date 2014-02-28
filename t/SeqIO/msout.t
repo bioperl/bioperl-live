@@ -519,11 +519,9 @@ sub test_file_3 {
 
 sub print_to_file {
     my ( $ra_in, $out ) = @_;
-    unless ( open OUT, ">$out" ) {
-        die "\nCould not open outfile $out!!\n\n";
-    }
-    print OUT ("@$ra_in");
-    close OUT;
+    open my $OUT, '>', $out or die "\nCould not write outfile '$out': $!\n";
+    print $OUT ("@$ra_in");
+    close $OUT;
 }
 
 sub convert_bases_to_nums {

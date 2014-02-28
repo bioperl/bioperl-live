@@ -49,7 +49,7 @@ GetOptions( "h|help" => \$help, "i|infile:s" => \$infile );
 
 # Parse command line arguments.
 unless (defined $infile) { $infile = '-' };
-open( my $fh, "<$infile" ) or die "Couldn't open file $infile: $!\n";
+open my $fh, '<', $infile or die "Could not read file '$infile': $!\n";
 
 if ($help) { pod2usage(-verbose => 3) };
 

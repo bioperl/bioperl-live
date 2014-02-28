@@ -81,10 +81,10 @@ sub read_file {
   my $file = shift;
   local $/=undef;
   my $string;
-  open IN, $file or die ("Couldn't open file [$file]: $!");
-  binmode IN;
-  $string = <IN>;
-  close IN;
+  open my $IN, '<', $file or die "Could not read file '$file': $!\n";
+  binmode $IN;
+  $string = <$IN>;
+  close $IN;
   $string =~ s/\n//g;
   $string =~ s/\r//g; # For files with Windows line-endings
   #print STDERR "STR: $string\n";

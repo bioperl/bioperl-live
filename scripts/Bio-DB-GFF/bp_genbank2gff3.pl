@@ -445,12 +445,12 @@ for my $file ( @files ) {
     
     # open input file, unzip if req'd
     if ($stdin) {
-       *FH= *STDIN;   
+       *FH = *STDIN;
     } elsif ( $file =~ /\.gz/ ) {
         open FH, "gunzip -c $file |";
     }
     else {
-        open FH, "<$file";
+        open FH, '<', $file;
     }
 
     my $in = Bio::SeqIO->new(-fh => \*FH, -format => $FORMAT, -debug=>$DEBUG);

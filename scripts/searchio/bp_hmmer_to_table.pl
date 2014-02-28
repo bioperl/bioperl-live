@@ -52,7 +52,7 @@ GetOptions(
 
 my $outfh;
 if( $outfile ) { 
-    open($outfh, ">$outfile") || die("$outfile: $!");
+    open $outfh, '>', $outfile or die "Could not write file '$outfile': $!\n";
 } else { 
     $outfh = \*STDOUT; 
 }

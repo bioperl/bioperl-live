@@ -86,15 +86,17 @@ my $db = Bio::DB::Fasta->new($name, -makeid => \&make_my_id);
 unless (-e $storedHash) {
 	my $ref;
 	# extract species-specific information from gene2accession
-	open MYIN,"gene2accession" or die "No gene2accession file\n";
-	while (<MYIN>) {
-		my @arr = split "\t",$_;
+	my $file = 'gene2accession';
+	open my $MYIN, '<', $file or die "Could not read file '$file': $!\n";
+	while (my $line = <$MYIN>) {
+		my @arr = split "\t", $line;
 		if ($arr[0] == $species{$name} && $arr[9] =~ /\d+/ && $arr[10] =~ /\d+/) {
 			($ref->{$arr[1]}->{"start"}, $ref->{$arr[1]}->{"end"}, 
 			 $ref->{$arr[1]}->{"strand"}, $ref->{$arr[1]}->{"id"}) =	
 				($arr[9], $arr[10], $arr[11], $arr[7]);
 		}
 	}
+	close $MYIN;
 	# save species-specific information using Storable
 	store $ref, $storedHash;
 } 

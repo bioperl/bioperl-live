@@ -354,14 +354,14 @@ sub determine_filename {
       unless ($rc == RC_OK or $rc == RC_NOT_MODIFIED);
 
   my $filename; 
-  open LIST, $listing or die "unable to open $listing: $!\n";
-  while (<LIST>) {
-    if (/href="(bioperl-live.*?\.tar\.gz)"/) {
+  open my $LIST, '<', $listing or die "Could not read file '$listing': $!\n";
+  while (my $line = <$LIST>) {
+    if ($line =~ /href="(bioperl-live.*?\.tar\.gz)"/) {
       $filename = $1;
       last;
     }
   }
-  close LIST;
+  close $LIST;
   unlink $listing; 
   return $filename;
 }
@@ -387,14 +387,14 @@ sub extract_tarball {
 
 # make sure ppm repositories are correct!
 sub setup_ppm {
-  open S,"ppm repo list --csv|" or die "Couldn't open ppm for listing: $!";
+  open my $S, "ppm repo list --csv|" or die "Could not open ppm for listing: $!\n";
   my %repository;
-  while (<S>) {
-     chomp;
-     my($index,$package_count,$name) = split /,/;
+  while (my $line = <$S>) {
+     chomp $line;
+     my ($index, $package_count, $name) = split /,/, $line;
      $repository{$name} = $index;
   }
-  close S;
+  close $S;
   print STDERR "Adding needed PPM repositories. This may take a while....\n";
   for my $name (keys %REPOSITORIES) {
      next if $repository{$name};
@@ -404,24 +404,24 @@ sub setup_ppm {
 
 sub find_bioperl_ppm {
   print STDERR "Finding most recent bioperl...";
-  open S,"ppm search bioperl |" or die "Couldn't open ppm for listing: $!";
+  open my $S,"ppm search bioperl |" or die "Could not open ppm for listing: $!\n";
   local $/ = ''; # paragraph mode
-  my ($blessed_one,$blessed_version);
+  my ($blessed_one, $blessed_version);
   my $best = 0;
-  while (<S>) {
-    chomp;
-    my ($number)     = /^(\d+): bioperl/m;
-    my ($version)    = /^\s+Version: (.+)/m;
-    my ($repository) = /^\s+Repo: (.+)/m;
+  while (my $line = <$S>) {
+    chomp $line;
+    my ($number)     = ($line =~ /^(\d+): bioperl/m);
+    my ($version)    = ($line =~ /^\s+Version: (.+)/m);
+    my ($repository) = ($line =~ /^\s+Repo: (.+)/m);
     my $multiplier = 10000000;
     my $magnitude  = 0;
     # this dumb thing converts 1.5.1 into a real number
-    foreach (split /[._]/,$version) {
-      $magnitude += $_ * ($multiplier/=10);
+    foreach my $piece (split /[._]/, $version) {
+      $magnitude += $piece * ($multiplier/=10);
     }
     ($blessed_one,$best,$blessed_version) = ($number,$magnitude,$version) if $best < $magnitude;
   }
-  close S;
+  close $S;
   print STDERR $blessed_version ? "found $blessed_version\n" : "not found\n";
   return $blessed_one;
 }

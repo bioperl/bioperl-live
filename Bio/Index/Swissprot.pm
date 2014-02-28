@@ -149,7 +149,7 @@ sub _index_file {
 
 	my $id_parser = $self->id_parser;
 
-	open my $SWISSPROT,'<',$file or $self->throw("Can't read file: $file");
+	open my $SWISSPROT, '<', $file or $self->throw("Could not read file '$file': $!");
     
         my %done_ids;
 

@@ -93,11 +93,11 @@ if( $options{'-db'} eq 'protein' ) {
 my $query;
 if( $gifile ) {
 	my @ids;
-	open( my $fh => $gifile ) || die "cannot open $gifile: $!";
+	open my $fh, '<', $gifile or die "Could not read file '$gifile': $!\n";
 	while(<$fh>) {
 		push @ids, split;
 	}
-	close($fh);	
+	close $fh;
 	while( @ids ) {
 		my @mini_ids = splice(@ids, 0, $options{'-maxids'});
 		$query = Bio::DB::Query::GenBank->new(%options, 
@@ -113,13 +113,13 @@ if( $gifile ) {
 } elsif( $options{'-query'}) {
 	$query = Bio::DB::Query::GenBank->new(%options,-verbose => $debug);
 } elsif( $queryfile ) {
-	open(my $fh => $queryfile) || die "cannot open $queryfile: $!";
+	open my $fh, '<', $queryfile or die "Could not read file '$queryfile': $!\n";
 	while(<$fh>) {
 		chomp;
 		$options{'-query'} .= $_;
 	}
 	$query = Bio::DB::Query::GenBank->new(%options,-verbose => $debug);
-	close($fh);
+	close $fh;
 } else {
 	die("no query string or gifile\n");
 }

@@ -946,15 +946,15 @@ sub _run {
 	# set up redirects and file switches
 	for (@$filespec) {
 	    m/^1?>#?(.*)/ && do {
-		defined($args{$1}) && ( open($out,">", $args{$1}) or $self->throw("Open for write error : $!"));
+		defined($args{$1}) && ( open $out, '>', $args{$1} or $self->throw("Could not write file '$args{$1}': $!") );
 		next;
 	    };
 	    m/^2>#?(.*)/ && do {
-		defined($args{$1}) && (open($err, ">", $args{$1}) or $self->throw("Open for write error : $!"));
+		defined($args{$1}) && ( open $err, '>', $args{$1} or $self->throw("Could not write file '$args{$1}': $!") );
 		next;
 	    };
 	    m/^<#?(.*)/ && do {
-		defined($args{$1}) && (open($in, "<", $args{$1}) or $self->throw("Open for read error : $!"));
+		defined($args{$1}) && ( open $in, '<', $args{$1} or $self->throw("Could not read file '$args{$1}': $!") );
 		next;
 	    };
 	    if (m/^-(.*)\|/) {

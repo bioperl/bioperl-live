@@ -4,9 +4,9 @@
 
 my $strider = $ARGV[0]; #commercial_version_rebase_strider_format
 
-open (FILEIN,"$strider") or die "can't open $strider: $!\n";
+open my $FILEIN, '<', $strider or die "Could not read file '$strider': $!\n";
 
-while (<FILEIN>){
+while (<$FILEIN>){
    chomp;
    if ( /^[A-Z]\S+,\S+/ ){
       ($enzyme,$cutsite)=split(',');
@@ -18,5 +18,4 @@ while (<FILEIN>){
       print " \'$enzyme\'\t=> \'".$seqfixed." ".$match."\'\,\n";
    }
 }
-
-
+close $FILEIN;

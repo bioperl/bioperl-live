@@ -427,7 +427,8 @@ sub _finish_bulk_update {
     my $fh = $self->dump_filehandle($table);
     my $path = $self->dump_path($table);
     $fh->close;
-    open($fh, $path);
+
+    open $fh, '<', $path or $self->throw("Could not read file '$path': $!");
     my $qualified_table = $self->_qualify($table);
 
     my $sth;

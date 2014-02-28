@@ -232,9 +232,9 @@ sub modules {
     return unless /\.pm$/ ;
     #return unless -e $_;
     #print "file: $_\n" if $verbose;
-    open (F, $_) or warn "can't open file $_: $!" && return;
+    open my $F, '<', $_ or warn "Could not read file '$_': $!\n" && return;
     my $class;
-    while (<F>) {
+    while (<$F>) {
         if (/^package\s+([\w:]+)\s*;/) {
             #print $1, "\n" if $verbose;
             $_ = $1;
@@ -273,7 +273,7 @@ sub modules {
             }
         }
     }
-    close F;
+    close $F;
 }
 
 =head1 OPTIONS
@@ -469,10 +469,10 @@ sub synopsis {
         next if $c->name eq 'Bio::Tools::HMM';
 
         my $synopsis = '';
-        open (F, $c->path) or warn "can't open file ".$c->name.": $!" && return;
+        open my $F, '<', $c->path or warn "Could not read file '".$c->name."': $!\n" && return;
 
         my $flag = 0;
-        while (<F>) {
+        while (<$F>) {
             last if $flag && /^=/;
             $synopsis .= $_ if $flag;
             $flag = 1 if /^=head1 +SYNOPSIS/;
@@ -492,7 +492,7 @@ sub synopsis {
         print $res;
         print "-" x 70, "\n"; 
         # print "SYNOPSIS not runnable\n";
-        close F;
+        close $F;
     }
 }
 
@@ -563,6 +563,3 @@ Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 Albert Vilella, avilella-AT-gmail-DOT-com
 
 =cut
-
-
-

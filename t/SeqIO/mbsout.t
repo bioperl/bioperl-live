@@ -456,10 +456,10 @@ END
         $gzip = "| gzip";
     }
     else { $gzip = ' '; }
-    open OUT, "$gzip >$destination" or croak("Unable to open $destination\n");
+    open my $OUT, "$gzip >$destination" or croak "Could not write file '$destination': $!\n";
 
-    print OUT $out;
-    close OUT;
+    print $OUT $out;
+    close $OUT;
 }
 
 sub print_file2 {
@@ -521,10 +521,10 @@ END
     }
     else { $gzip = ' '; }
 
-    open OUT, "$gzip >$destination" or croak("Unable to open $destination\n");
+    open my $OUT, "$gzip >$destination" or croak "Could not write file '$destination': $!\n";
 
-    print OUT $out;
-    close OUT;
+    print $OUT $out;
+    close $OUT;
 }
 
 sub print_file3 {
@@ -548,23 +548,20 @@ END
     }
     else { $gzip = ' '; }
 
-    open OUT, "$gzip >$destination" or croak("Unable to open $destination\n");
+    open my $OUT, "$gzip >$destination" or croak "Could not write file '$destination': $!\n";
 
-    print OUT $out;
-    close OUT;
+    print $OUT $out;
+    close $OUT;
 }
 
 sub print_to_file {
     my ( $ra_in, $out ) = @_;
-    unless ( open OUT, ">$out" ) {
-        croak("\nCould not open outfile $out!!\n\n");
-    }
-    print OUT ("@$ra_in");
-    close OUT;
+    open my $OUT, '>', $out or croak "\nCould not write outfile '$out': $!\n";
+    print $OUT ("@$ra_in");
+    close $OUT;
 }
 
 sub convert_bases_to_nums {
-
     my ( $rh_base_conversion_table, @seqs ) = @_;
 
     my @out_seqstrings;
@@ -575,7 +572,5 @@ sub convert_bases_to_nums {
         }
         push @out_seqstrings, $seqstring;
     }
-
     return @out_seqstrings;
-
 }

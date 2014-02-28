@@ -189,7 +189,7 @@ sub _index_file {
 		 $i,    # Index-number of file being indexed
 	  ) = @_;
 
-	open(my $BLAST, '<', $file) or $self->throw("cannot open file $file\n");
+	open my $BLAST, '<', $file or $self->throw("Could not read file '$file': $!");
 	my $indexpoint = 0;
 	my $lastline = 0;
     my $last_query = '';

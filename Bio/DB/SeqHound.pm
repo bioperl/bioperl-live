@@ -519,31 +519,35 @@ sub postprocess_data
 		$self->throw("Please provide the function name");
 	}
 
-	#set up verbosity level if need record in the log file
+    #set up verbosity level if need record in the log file
     my $log_msg = "Writing into '$LOGFILENAME' log file.\n";
     my $now = strftime("%a %b %e %H:%M:%S %Y", localtime);
     if ($lcontent eq "") {
         $self->debug($log_msg);
-        open (my $LOG, '>>', $LOGFILENAME);
+        open my $LOG, '>>', $LOGFILENAME or $self->throw("Could not append file '$LOGFILENAME': $!");
         print $LOG "$now		$funcname. No reply.\n";
+        close $LOG;
         return;
     }
     elsif ($lcontent =~ /HTTP::Request error/) {
         $self->debug($log_msg);
-        open (my $LOG, '>>', $LOGFILENAME);
+        open my $LOG, '>>', $LOGFILENAME or $self->throw("Could not append file '$LOGFILENAME': $!");
         print $LOG "$now		$funcname. Http::Request error problem.\n";
+        close $LOG;
         return;
     }
     elsif ($lcontent =~ /SEQHOUND_ERROR/) {
         $self->debug($log_msg);
-        open (my $LOG, '>>', $LOGFILENAME);
+        open my $LOG, '>>', $LOGFILENAME or $self->throw("Could not append file '$LOGFILENAME': $!");
         print $LOG "$now	$funcname error. SEQHOUND_ERROR found.\n";
+        close $LOG;
         return;
     }
     elsif ($lcontent =~ /SEQHOUND_NULL/) {
         $self->debug($log_msg);
-        open (my $LOG, '>>', $LOGFILENAME);
+        open my $LOG, '>>', $LOGFILENAME or $self->throw("Could not append file '$LOGFILENAME': $!");
         print $LOG "$now	$funcname Value not found in the database. SEQHOUND_NULL found.\n";
+        close $LOG;
         return;
     }
     else {
@@ -551,14 +555,16 @@ sub postprocess_data
         my @lines = split(/\n/, $lcontent, 2);
         if ($lines[1] =~ /^-1/) {
             $self->debug($log_msg);
-            open (my $LOG, '>>', $LOGFILENAME);
+            open my $LOG, '>>', $LOGFILENAME or $self->throw("Could not append file '$LOGFILENAME': $!");
             print $LOG "$now	$funcname Value not found in the database. -1 found.\n";
+            close $LOG;
             return;
         }
         elsif ($lines[1]  =~ /^0/) {
             $self->debug($log_msg);
-            open (my $LOG, '>>', $LOGFILENAME);
+            open my $LOG, '>>', $LOGFILENAME or $self->throw("Could not append file '$LOGFILENAME': $!");
             print $LOG "$now	$funcname failed.\n";
+            close $LOG;
             return;
         }
         else {

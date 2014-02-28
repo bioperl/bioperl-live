@@ -18,10 +18,9 @@ my $t_file = test_input_file('test.ace');
 my $before;
 {
     local $/ = undef;
-    local *BEFORE;
-    open BEFORE, $t_file;
-    $before = <BEFORE>;
-    close BEFORE;
+    open my $BEFORE, '<', $t_file or die "Could not read file '$t_file': $!\n";
+    $before = <$BEFORE>;
+    close $BEFORE;
 }
 
 my $a_in = Bio::SeqIO->new( -FILE    => $t_file,
@@ -55,10 +54,9 @@ is $a_out_ok,1,'writing sequence';
 my $after;
 {
     local $/ = undef;
-    local *AFTER;
-    open AFTER, $o_file;
-    $after = <AFTER>;
-    close AFTER;
+    open my $AFTER, '<', $o_file or die "Could not read file '$o_file': $!\n";
+    $after = <$AFTER>;
+    close $AFTER;
 }
 
 is( ($before and $after and ($before eq $after)), 1, 'test output');

@@ -1305,34 +1305,36 @@ my $self = shift; my $class = ref $self;
             # don't append the most recent entry, since it's already in the
             # new log due to CVS's idiosyncratic interpretation of "log -d".
             if ($Cumulative && -f $logfile_here) {
-              open NEW_LOG, ">>$tmpfile"
-                or die "trouble appending to $tmpfile ($!)";
-            
-              open OLD_LOG, "<$logfile_here"
-                or die "trouble reading from $logfile_here ($!)";
-                
-              my $started_first_entry = 0;
-              my $passed_first_entry = 0;
-              while (<OLD_LOG>) {
-                if ( ! $passed_first_entry ) {
-                  if ( ( ! $started_first_entry )
-                      and /^(\d\d\d\d-\d\d-\d\d\s+(\w+\s+)?\d\d:\d\d)/ ) {
-                    $started_first_entry = 1;
-                  } elsif ( /^(\d\d\d\d-\d\d-\d\d\s+(\w+\s+)?\d\d:\d\d)/ ) {
-                    $passed_first_entry = 1;
-                    print NEW_LOG $_;
-                  }
-                } else {
-                  print NEW_LOG $_;
+                open $NEW_LOG, '>>', $tmpfile
+                  or die "Could not append to file '$tmpfile': $!\n";
+              
+                open $OLD_LOG, '<', $logfile_here
+                  or die "Could not read file '$logfile_here': $!";
+                  
+                my $started_first_entry = 0;
+                my $passed_first_entry = 0;
+                while (<$OLD_LOG>) {
+                    if ( ! $passed_first_entry ) {
+                        if (   ( ! $started_first_entry )
+                            and /^(\d\d\d\d-\d\d-\d\d\s+(\w+\s+)?\d\d:\d\d)/
+                            ) {
+                            $started_first_entry = 1;
+                        }
+                        elsif ( /^(\d\d\d\d-\d\d-\d\d\s+(\w+\s+)?\d\d:\d\d)/ ) {
+                            $passed_first_entry = 1;
+                            print $NEW_LOG $_;
+                        }
+                    }
+                    else {
+                        print $NEW_LOG $_;
+                    }
                 }
-              }
-            
-              close NEW_LOG;
-              close OLD_LOG;
+                close $NEW_LOG;
+                close $OLD_LOG;
             }
             
             if ( -f $logfile_here ) {
-              rename $logfile_here, $logfile_bak;
+                rename $logfile_here, $logfile_bak;
             }
             rename $tmpfile, $logfile_here;
         }
@@ -1957,7 +1959,7 @@ sub read_changelog {
     &main::debug ("(run \"@$command\")\n");
   }
   else {
-    open READER, '-' or die "unable to open stdin for reading";
+    open READER, '-' or die "Unable to open stdin for reading";
   }
 
   binmode READER;
@@ -3232,4 +3234,3 @@ Boston, MA 02111-1307, USA.
 =head1 SEE ALSO
 
 cvs(1)
-

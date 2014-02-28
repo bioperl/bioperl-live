@@ -369,7 +369,7 @@ sub auto_index_in_process {
     return unless -e $flag_file;
 
     # if flagfile exists, then check that PID still exists
-    open my $fh,$flag_file or die "Couldn't open $flag_file: $!";
+    open my $fh, '<', $flag_file or $self->throw("Could not read file '$flag_file': $!");
     my $pid = <$fh>;
     close $fh;
     return 1 if kill 0=>$pid;
@@ -393,7 +393,7 @@ sub flag_autoindexing {
     my $doit = shift;
     my $flag_file = $self->autoindex_flagfile;
     if ($doit) {
-	open my $fh,'>',$flag_file or die "Couldn't open $flag_file: $!";
+	open my $fh, '>', $flag_file or $self->throw("Could not write file '$flag_file': $!");
 	print $fh $$;
 	close $fh;
     } else {
@@ -673,7 +673,8 @@ sub open_notes_db {
 	                : $create ? "+>"
 	                : "<";
 
-    open (my $F,$mode,$self->_notes_path) or $self->throw($self->_notes_path.": $!");
+    my $notes_file = $self->_notes_file;
+    open my $F, $mode, $notes_file or $self->throw("Could not open file '$notes_file': $!");
     $self->notes_db($F);
 }
 
@@ -724,9 +725,9 @@ sub _delete_databases {
 sub _touch_timestamp {
   my $self = shift;
   my $tsf = $self->_mtime_path;
-  open (F,">$tsf") or $self->throw("Couldn't open $tsf: $!");
-  print F scalar(localtime);
-  close F;
+  open my $F, '>', $tsf or $self->throw("Could not write file '$tsf': $!");
+  print $F scalar(localtime);
+  close $F;
 }
 
 sub _store {

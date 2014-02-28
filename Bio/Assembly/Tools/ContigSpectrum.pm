@@ -2050,7 +2050,7 @@ sub _draw_graph {
     }
     $viz->add_edge($id1 => $id2, label => $edge_val);
   }
-  open my $fh, '>', $outfile or die "Error: Could not write file '$outfile'\n$!\n";
+  open my $fh, '>', $outfile or $self->throw("Error: Could not write file '$outfile': $!");
   print $fh $viz->as_png;
   close $fh;
   return 1;

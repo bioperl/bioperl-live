@@ -137,7 +137,7 @@ sub open_readfile {
 	chomp ($filename=<STDIN>);
     }
     unless (-e $filename) { die "$filename not found\n"; }
-    open($filehandle,$filename) or die "Couldn't open $filename\n";
+    open $filehandle,'<', $filename or die "Could not read file '$filename': $!\n";
     $filehandle = '';
     $filetype = '';
     $filename = '';
@@ -159,9 +159,9 @@ sub open_writefile {
 	    chomp ($_ = <STDIN>);
 	}
 	if (/n/i) { die "$filename not overwritten.\n"; }
-	else { open($filehandle, ">$filename") or die "Couldn't open $filename\n"; }
+	else { open $filehandle, '>', $filename or die "Could nott write file '$filename':·$!\n"; }
     }
-    else { open($filehandle, ">$filename") or die "Couldn't open $filename\n"; }
+    else { open $filehandle, '>', $filename or die "Could not write file '$filename': $!\n"; }
     $filehandle = '';
     $filetype = '';
     $filename = '';

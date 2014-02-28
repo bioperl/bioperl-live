@@ -147,9 +147,9 @@ sub new {
   my @result;
 
   if ($file) {
-      open FH, $file;
-      @result = (<FH>);
-      close FH;
+      open my $FH, '<', $file or $self->throw("Could not read file '$file': $!");
+      @result = (<$FH>);
+      close $FH;
   }
   elsif ($fh) {
       @result = (<$fh>);
