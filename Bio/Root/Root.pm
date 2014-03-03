@@ -116,10 +116,11 @@ for Error for more details.
 Here's an example. See the L<Bio::Root::Exception> module for
 other pre-defined exception types:
 
+   my $IN;
    try {
-    open( IN, $file) || $obj->throw( -class => 'Bio::Root::FileOpenException',
-                                     -text => "Cannot open file $file for reading",
-                                     -value => $!);
+    open $IN, '<', $file or $obj->throw( -class => 'Bio::Root::FileOpenException',
+                                         -text  => "Cannot read file '$file'",
+                                         -value => $!);
    }
    catch Bio::Root::BadParameter with {
        my $err = shift;   # get the Error object

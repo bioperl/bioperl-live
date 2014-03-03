@@ -90,12 +90,11 @@ BEGIN {
     }
 
     # If on Win32, attempt to find Win32 package
-
     if($^O =~ /mswin/i) {
-    eval {
-        require Win32;
-        $HAS_WIN32 = 1;
-    };
+        eval {
+            require Win32;
+            $HAS_WIN32 = 1;
+        };
     }
 
     # Try to provide a path separator. Why doesn't File::Spec export this,
@@ -197,10 +196,10 @@ sub _initialize_io {
 
     $self->_register_for_cleanup(\&_io_cleanup);
 
-    my ($input, $noclose, $file, $fh, $string, $flush, $url,
-    $retries, $ua_parms) =
-    $self->_rearrange([qw(INPUT NOCLOSE FILE FH STRING FLUSH URL RETRIES UA_PARMS)],
-                      @args);
+    my ($input, $noclose, $file, $fh, $string,
+        $flush, $url, $retries, $ua_parms) =
+        $self->_rearrange([qw(INPUT NOCLOSE FILE FH STRING FLUSH URL RETRIES UA_PARMS)],
+                          @args);
 
     my $mode;
 
@@ -216,7 +215,7 @@ sub _initialize_io {
         for (my $try = 1 ; $try <= $retries ; $try++) {
             $http_result = $ua->get($url, ':content_file' => $tempfile);
             $self->warn("[$try/$retries] tried to fetch $url, but server ".
-                    "threw ". $http_result->code . ".  retrying...")
+                        "threw ". $http_result->code . ".  retrying...")
               if !$http_result->is_success;
             last if $http_result->is_success;
         }
@@ -245,7 +244,7 @@ sub _initialize_io {
         } else {
             # let's be strict for now
             $self->throw("Unable to determine type of input $input: ".
-                 "not string and not GLOB");
+                         "not string and not GLOB");
         }
     }
 
@@ -457,11 +456,11 @@ sub variant {
         my %ok_variants = eval $var_name; # e.g. %Bio::Assembly::IO::ace::variant
         if (scalar keys %ok_variants == 0) {
             $self->throw("Could not validate variant because global variant ".
-               "$var_name was not set or was empty\n");
+                         "$var_name was not set or was empty\n");
         }
         if (not exists $ok_variants{$variant}) {
-            $self->throw($variant.' is not a valid variant of the '.$self->format.
-                ' format');
+            $self->throw("$variant is not a valid variant of the " .
+                         $self->format . ' format');
         }
         $self->{variant} = $variant;
     }
@@ -503,13 +502,13 @@ sub _insert {
     # Line number check
     if ($line_num < 1) {
         $self->throw("Could not insert text at line $line_num: the minimum ".
-            "line number possible is 1.");
+                     "line number possible is 1.");
     }
     # File check
     my ($mode, $file) = $self->cleanfile;
     if (not defined $file) {
-        $self->throw('Could not insert a line: IO object was initialized with ".
-            "something else than a file.');
+        $self->throw('Could not insert a line: IO object was initialized with '.
+                     'something else than a file.');
     }
     # Everything that needs to be written is written before we read it
     $self->flush;
@@ -540,7 +539,7 @@ sub _insert {
     # Line number check (again)
     if ( $. > 0 && $line_num > $. ) {
         $self->throw("Could not insert text at line $line_num: there are only ".
-            "$. lines in file '$file'");
+                     "$. lines in file '$file'");
     }
     # Re-open the file in append mode to be ready to add text at the end of it
     # when the next _print() statement comes
@@ -733,23 +732,27 @@ sub _io_cleanup {
     my $v = $self->verbose;
 
     # we are planning to cleanup temp files no matter what
-    if( exists($self->{'_rootio_tempfiles'}) &&
-      ref($self->{'_rootio_tempfiles'}) =~ /array/i &&
-      !$self->save_tempfiles) {
+    if (    exists($self->{'_rootio_tempfiles'})
+        and ref($self->{'_rootio_tempfiles'}) =~ /array/i
+        and not $self->save_tempfiles
+        ) {
         if( $v > 0 ) {
             warn( "going to remove files ",
-              join(",",  @{$self->{'_rootio_tempfiles'}}), "\n");
+                  join(",",  @{$self->{'_rootio_tempfiles'}}),
+                  "\n");
         }
         unlink  (@{$self->{'_rootio_tempfiles'}} );
     }
     # cleanup if we are not using File::Temp
-    if( $self->{'_cleanuptempdir'} &&
-      exists($self->{'_rootio_tempdirs'}) &&
-      ref($self->{'_rootio_tempdirs'}) =~ /array/i &&
-      !$self->save_tempfiles) {
+    if (    $self->{'_cleanuptempdir'}
+        and exists($self->{'_rootio_tempdirs'})
+        and ref($self->{'_rootio_tempdirs'}) =~ /array/i
+        and not $self->save_tempfiles
+        ) {
         if( $v > 0 ) {
             warn( "going to remove dirs ",
-              join(",",  @{$self->{'_rootio_tempdirs'}}), "\n");
+                  join(",",  @{$self->{'_rootio_tempdirs'}}),
+                  "\n");
         }
         $self->rmtree( $self->{'_rootio_tempdirs'});
     }
@@ -871,14 +874,13 @@ sub tempfile {
             # Reset umask
             umask($umask);
         } else {
-            $self->throw("Could not write temporary file '$file': $!\n");
+            $self->throw("Could not write temporary file '$file': $!");
         }
     }
 
     if(  $params{'UNLINK'} ) {
         push @{$self->{'_rootio_tempfiles'}}, $file;
     }
-
 
     return wantarray ? ($tfh,$file) : $tfh;
 }
@@ -911,11 +913,12 @@ sub tempdir {
     my %params = @args;
     print "cleanup is " . $params{CLEANUP} . "\n";
     $self->{'_cleanuptempdir'} = ( defined $params{CLEANUP} &&
-                   $params{CLEANUP} == 1);
-    my $tdir = $self->catfile($TEMPDIR,
-                  sprintf("dir_%s-%s-%s",
-                      $ENV{USER} || 'unknown', $$,
-                      $TEMPCOUNTER++));
+                                   $params{CLEANUP} == 1);
+    my $tdir = $self->catfile( $TEMPDIR,
+                               sprintf("dir_%s-%s-%s",
+                                       $ENV{USER} || 'unknown',
+                                       $$,
+                                       $TEMPCOUNTER++));
     mkdir($tdir, 0755);
     push @{$self->{'_rootio_tempdirs'}}, $tdir;
     return $tdir;
@@ -1023,13 +1026,13 @@ sub rmtree {
             # to recurse in which case we are better than rm -rf for
             # subtrees with strange permissions
             chmod(0777, ($Is_VMS ? VMS::Filespec::fileify($root) : $root))
-              or $self->warn("Can't make directory $root read+writable: $!")
+              or $self->warn("Could not make directory '$root' read+writable: $!")
             unless $safe;
             if (opendir DIR, $root){
                 @files = readdir DIR;
                 closedir DIR;
             } else {
-                $self->warn("Can't read $root: $!");
+                $self->warn("Could not read directory '$root': $!");
                 @files = ();
             }
 
@@ -1041,44 +1044,43 @@ sub rmtree {
             $count += $self->rmtree([@files],$verbose,$safe);
             if ($safe &&
               ($Is_VMS ? !&VMS::Filespec::candelete($root) : !-w $root)) {
-                print "skipped $root\n" if $verbose;
+                print "skipped '$root'\n" if $verbose;
                 next;
             }
             chmod 0777, $root
-              or $self->warn( "Can't make directory $root writable: $!")
+              or $self->warn("Could not make directory '$root' writable: $!")
               if $force_writable;
-            print "rmdir $root\n" if $verbose;
+            print "rmdir '$root'\n" if $verbose;
             if (rmdir $root) {
                 ++$count;
             }
             else {
-                $self->warn( "Can't remove directory $root: $!");
+                $self->warn("Could not remove directory '$root': $!");
                 chmod($rp, ($Is_VMS ? VMS::Filespec::fileify($root) : $root))
                   or $self->warn("and can't restore permissions to "
-                    . sprintf("0%o",$rp) . "\n");
+                                 . sprintf("0%o",$rp) . "\n");
             }
         }
         else {
-
-            if ($safe &&
-              ($Is_VMS ? !&VMS::Filespec::candelete($root)
-                       : !(-l $root || -w $root)))
-            {
-                print "skipped $root\n" if $verbose;
+            if (     $safe
+                and ($Is_VMS ? !&VMS::Filespec::candelete($root)
+                             : !(-l $root || -w $root))
+                ) {
+                print "skipped '$root'\n" if $verbose;
                 next;
             }
             chmod 0666, $root
-              or $self->warn( "Can't make file $root writable: $!")
+              or $self->warn( "Could not make file '$root' writable: $!")
               if $force_writable;
-            warn "unlink $root\n" if $verbose;
+            warn "unlink '$root'\n" if $verbose;
             # delete all versions under VMS
             for (;;) {
                 unless (unlink $root) {
-                    $self->warn( "Can't unlink file $root: $!");
+                    $self->warn("Could not unlink file '$root': $!");
                     if ($force_writable) {
                         chmod $rp, $root
                           or $self->warn("and can't restore permissions to "
-                          . sprintf("0%o",$rp) . "\n");
+                                         . sprintf("0%o",$rp) . "\n");
                     }
                     last;
                 }

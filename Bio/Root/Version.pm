@@ -50,10 +50,11 @@ sub import {
     my $pkg = caller($i);
     no strict 'refs';
     while ($pkg) {
-    if ($pkg =~ m/^Bio::/o &&
-        not defined ${$pkg . "::VERSION"}) {
-        ${$pkg . "::VERSION"} = $VERSION;
-    }
+        if (    $pkg =~ m/^Bio::/o
+            and not defined ${$pkg . "::VERSION"}
+            ) {
+            ${$pkg . "::VERSION"} = $VERSION;
+        }
         $pkg = caller(++$i);
     }
 }

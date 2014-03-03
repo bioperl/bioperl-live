@@ -93,13 +93,13 @@ BEGIN {
 =cut
 
 sub new {
-  my $class = shift;
-  my @args = @_;
-  unless ( $ENV{'BIOPERLDEBUG'} ) {
-      carp("Use of new in Bio::Root::RootI is deprecated.  Please use Bio::Root::Root instead");
-  }
-  eval "require Bio::Root::Root";
-  return Bio::Root::Root->new(@args);
+    my $class = shift;
+    my @args = @_;
+    unless ( $ENV{'BIOPERLDEBUG'} ) {
+        carp("Use of new in Bio::Root::RootI is deprecated.  Please use Bio::Root::Root instead");
+    }
+    eval "require Bio::Root::Root";
+    return Bio::Root::Root->new(@args);
 }
 
 # for backwards compatibility
@@ -122,14 +122,14 @@ sub _initialize {
 =cut
 
 sub throw{
-   my ($self,$string) = @_;
+    my ($self,$string) = @_;
 
-   my $std = $self->stack_trace_dump();
+    my $std = $self->stack_trace_dump();
 
-   my $out = "\n-------------------- EXCEPTION --------------------\n".
-       "MSG: ".$string."\n".$std."-------------------------------------------\n";
-   die $out;
-
+    my $out = "\n-------------------- EXCEPTION --------------------\n"
+            . "MSG: " . $string . "\n"
+            . $std."-------------------------------------------\n";
+    die $out;
 }
 
 =head2 warn
@@ -273,24 +273,24 @@ sub deprecated{
 =cut
 
 sub stack_trace_dump{
-   my ($self) = @_;
+    my ($self) = @_;
 
-   my @stack = $self->stack_trace();
+    my @stack = $self->stack_trace();
 
-   shift @stack;
-   shift @stack;
-   shift @stack;
+    shift @stack;
+    shift @stack;
+    shift @stack;
 
-   my $out;
-   my ($module,$function,$file,$position);
+    my $out;
+    my ($module,$function,$file,$position);
 
 
-   foreach my $stack ( @stack) {
-       ($module,$file,$position,$function) = @{$stack};
-       $out .= "STACK $function $file:$position\n";
-   }
+    foreach my $stack ( @stack) {
+        ($module,$file,$position,$function) = @{$stack};
+        $out .= "STACK $function $file:$position\n";
+    }
 
-   return $out;
+    return $out;
 }
 
 
@@ -307,21 +307,21 @@ sub stack_trace_dump{
 =cut
 
 sub stack_trace{
-   my ($self) = @_;
+    my ($self) = @_;
 
-   my $i = 0;
-   my @out = ();
-   my $prev = [];
-   while( my @call = caller($i++)) {
-       # major annoyance that caller puts caller context as
-       # function name. Hence some monkeying around...
-       $prev->[3] = $call[3];
-       push(@out,$prev);
-       $prev = \@call;
-   }
-   $prev->[3] = 'toplevel';
-   push(@out,$prev);
-   return @out;
+    my $i = 0;
+    my @out = ();
+    my $prev = [];
+    while( my @call = caller($i++)) {
+        # major annoyance that caller puts caller context as
+        # function name. Hence some monkeying around...
+        $prev->[3] = $call[3];
+        push(@out,$prev);
+        $prev = \@call;
+    }
+    $prev->[3] = 'toplevel';
+    push(@out,$prev);
+    return @out;
 }
 
 
@@ -396,17 +396,16 @@ sub stack_trace{
 =cut
 
 sub _rearrange {
-    shift; #discard self
-    my $order = shift;
+    my ($self, $order, @args) = @_;
 
-    return @_ unless $_[0] && $_[0] =~ /^\-/;
+    return @args unless $args[0] && $args[0] =~ /^\-/;
 
-    push @_, undef unless $#_ % 2;
+    push @args, undef unless $#args % 2;
 
     my %param;
-    for( my $i = 0; $i < @_; $i += 2 ) {
-        (my $key = $_[$i]) =~ tr/a-z\055/A-Z/d; #deletes all dashes!
-        $param{$key} = $_[$i+1];
+    for( my $i = 0; $i < @args; $i += 2 ) {
+        (my $key = $args[$i]) =~ tr/a-z\055/A-Z/d; #deletes all dashes!
+        $param{$key} = $args[$i+1];
     }
     return @param{map uc, @$order};
 }
@@ -657,8 +656,8 @@ cleanup methods.
 =cut
 
 sub _register_for_cleanup {
-  my ($self,$method) = @_;
-   $self->throw_not_implemented();
+    my ($self,$method) = @_;
+    $self->throw_not_implemented();
 }
 
 =head2 _unregister_for_cleanup
@@ -674,8 +673,8 @@ sub _register_for_cleanup {
 =cut
 
 sub _unregister_for_cleanup {
-  my ($self,$method) = @_;
-   $self->throw_not_implemented();
+    my ($self,$method) = @_;
+    $self->throw_not_implemented();
 }
 
 =head2 _cleanup_methods
@@ -689,11 +688,11 @@ sub _unregister_for_cleanup {
 =cut
 
 sub _cleanup_methods {
-  my $self = shift;
-  unless ( $ENV{'BIOPERLDEBUG'} || $self->verbose  > 0 ) {
-      carp("Use of Bio::Root::RootI is deprecated.  Please use Bio::Root::Root instead");
-  }
-  return;
+    my $self = shift;
+    unless ( $ENV{'BIOPERLDEBUG'} || $self->verbose  > 0 ) {
+        carp("Use of Bio::Root::RootI is deprecated.  Please use Bio::Root::Root instead");
+    }
+    return;
 }
 
 =head2 throw_not_implemented

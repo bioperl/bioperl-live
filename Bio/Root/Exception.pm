@@ -244,8 +244,8 @@ sub pretty_format {
 
     my $title = "------------- EXCEPTION: $class -------------";
     my $footer = "\n" . '-' x CORE::length($title);
-    my $out = "\n$title\n" .
-       "MSG: $msg\n". $value_string. $stack. $footer . "\n";
+    my $out = "\n$title\n"
+            . "MSG: $msg\n". $value_string. $stack. $footer . "\n";
     return $out;
 }
 

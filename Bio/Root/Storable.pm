@@ -51,10 +51,10 @@ $Bio::Root::Storable::BINARY to false.
 use vars qw( $BINARY );
 
 BEGIN{
-  if( eval "require Storable" ){
-    Storable->import( 'freeze', 'thaw' );
-    $BINARY = 1;
-  }
+    if( eval "require Storable" ){
+        Storable->import( 'freeze', 'thaw' );
+        $BINARY = 1;
+    }
 }
 
 #----------------------------------------------------------------------
@@ -73,10 +73,10 @@ BEGIN{
 =cut
 
 sub new {
-  my ($caller, @args) = @_;
-  my $self = $caller->SUPER::new(@args);
-  $self->_initialise_storable;
-  return $self;
+    my ($caller, @args) = @_;
+    my $self = $caller->SUPER::new(@args);
+    $self->_initialise_storable;
+    return $self;
 }
 
 #----------------------------------------------------------------------
@@ -93,13 +93,13 @@ sub new {
 =cut
 
 sub _initialise_storable {
-  my $self = shift;
-  my( $workdir, $template, $suffix ) =
-    $self->_rearrange([qw(WORKDIR TEMPLATE SUFFIX)], @_ );
-  $workdir  && $self->workdir ( $workdir );
-  $template && $self->template( $template );
-  $suffix   && $self->suffix  ( $suffix   );
-  return 1;
+    my $self = shift;
+    my( $workdir, $template, $suffix ) =
+        $self->_rearrange([qw(WORKDIR TEMPLATE SUFFIX)], @_ );
+    $workdir  && $self->workdir ( $workdir );
+    $template && $self->template( $template );
+    $suffix   && $self->suffix  ( $suffix   );
+    return 1;
 }
 
 
@@ -120,30 +120,28 @@ sub _initialise_storable {
 =cut
 
 sub statefile{
+    my $key = '_statefile';
+    my $self  = shift;
 
-  my $key = '_statefile';
-  my $self  = shift;
+    if( @_ ){ $self->{$key} = shift }
 
-  if( @_ ){ $self->{$key} = shift }
+    if( ! $self->{$key} ){ # Create a new statefile
+        my $workdir  = $self->workdir;
+        my $template = $self->template;
+        my $suffix   = $self->suffix;
 
-  if( ! $self->{$key} ){ # Create a new statefile
+        # TODO: add cleanup and unlink methods. For now, we'll keep the
+        # statefile hanging around.
+        my @args = ( CLEANUP=>0, UNLINK=>0 );
+        if( $template ){ push( @args, 'TEMPLATE' => $template )};
+        if( $workdir  ){ push( @args, 'DIR'      => $workdir  )};
+        if( $suffix   ){ push( @args, 'SUFFIX'   => $suffix   )};
+        my( $fh, $file ) = Bio::Root::IO->new->tempfile( @args );
 
-    my $workdir  = $self->workdir;
-    my $template = $self->template;
-    my $suffix   = $self->suffix;
+        $self->{$key} = $file;
+    }
 
-    # TODO: add cleanup and unlink methods. For now, we'll keep the
-    # statefile hanging around.
-    my @args = ( CLEANUP=>0, UNLINK=>0 );
-    if( $template ){ push( @args, 'TEMPLATE' => $template )};
-    if( $workdir  ){ push( @args, 'DIR'      => $workdir  )};
-    if( $suffix   ){ push( @args, 'SUFFIX'   => $suffix   )};
-    my( $fh, $file ) = Bio::Root::IO->new->tempfile( @args );
-
-    $self->{$key} = $file;
-  }
-
-  return $self->{$key};
+    return $self->{$key};
 }
 
 #----------------------------------------------------------------------
@@ -160,16 +158,16 @@ sub statefile{
 =cut
 
 sub workdir {
-  my $key = '_workdir';
-  my $self = shift;
-  if( @_ ){
-    my $caller = join( ', ', (caller(0))[1..2] );
-    $self->{$key} && $self->debug("Overwriting workdir: probably bad!");
-    $self->{$key} = shift
-  }
-#  $self->{$key} ||= $Bio::Root::IO::TEMPDIR;
-  $self->{$key} ||= File::Spec->tmpdir();
-  return $self->{$key};
+    my $key = '_workdir';
+    my $self = shift;
+    if( @_ ){
+        my $caller = join( ', ', (caller(0))[1..2] );
+        $self->{$key} && $self->debug("Overwriting workdir: probably bad!");
+        $self->{$key} = shift
+    }
+    #$self->{$key} ||= $Bio::Root::IO::TEMPDIR;
+    $self->{$key} ||= File::Spec->tmpdir();
+    return $self->{$key};
 }
 
 #----------------------------------------------------------------------
@@ -186,11 +184,11 @@ sub workdir {
 =cut
 
 sub template {
-  my $key = '_template';
-  my $self = shift;
-  if( @_ ){ $self->{$key} = shift }
-  $self->{$key} ||= 'XXXXXXXX';
-  return $self->{$key};
+    my $key = '_template';
+    my $self = shift;
+    if( @_ ){ $self->{$key} = shift }
+    $self->{$key} ||= 'XXXXXXXX';
+    return $self->{$key};
 }
 
 #----------------------------------------------------------------------
@@ -207,10 +205,10 @@ sub template {
 =cut
 
 sub suffix {
-  my $key = '_suffix';
-  my $self = shift;
-  if( @_ ){ $self->{$key} = shift }
-  return $self->{$key};
+    my $key = '_suffix';
+    my $self = shift;
+    if( @_ ){ $self->{$key} = shift }
+    return $self->{$key};
 }
 
 #----------------------------------------------------------------------
@@ -231,17 +229,18 @@ sub suffix {
 =cut
 
 sub new_retrievable{
-   my $self = shift;
-   my @args = @_;
+    my $self = shift;
+    my @args = @_;
 
-   $self->_initialise_storable( @args );
+    $self->_initialise_storable( @args );
 
-   if( $self->retrievable ){ return $self->clone } # Clone retrievable
-   return bless( { _statefile   => $self->store(@args),
-                   _workdir     => $self->workdir,
-                   _suffix      => $self->suffix,
-                   _template    => $self->template,
-                   _retrievable => 1 }, ref( $self ) );
+    if( $self->retrievable ){ return $self->clone } # Clone retrievable
+    return bless( { _statefile   => $self->store(@args),
+                    _workdir     => $self->workdir,
+                    _suffix      => $self->suffix,
+                    _template    => $self->template,
+                    _retrievable => 1 },
+                 ref( $self ) );
 }
 
 #----------------------------------------------------------------------
@@ -259,9 +258,9 @@ sub new_retrievable{
 =cut
 
 sub retrievable {
-   my $self = shift;
-   if( @_ ){ $self->{_retrievable} = shift }
-   return $self->{_retrievable};
+    my $self = shift;
+    if( @_ ){ $self->{_retrievable} = shift }
+    return $self->{_retrievable};
 }
 
 #----------------------------------------------------------------------
@@ -279,8 +278,8 @@ sub retrievable {
 =cut
 
 sub token{
-  my $self = shift;
-  return $self->statefile;
+    my $self = shift;
+    return $self->statefile;
 }
 
 
@@ -301,13 +300,13 @@ sub token{
 =cut
 
 sub store{
-  my $self = shift;
-  my $statefile = $self->statefile;
-  my $store_obj = $self->serialise;
-  my $io = Bio::Root::IO->new( ">$statefile" );
-  $io->_print( $store_obj );
-  $self->debug( "STORING $self to $statefile\n" );
-  return $statefile;
+    my $self = shift;
+    my $statefile = $self->statefile;
+    my $store_obj = $self->serialise;
+    my $io = Bio::Root::IO->new( ">$statefile" );
+    $io->_print( $store_obj );
+    $self->debug( "STORING $self to $statefile\n" );
+    return $statefile;
 }
 
 #----------------------------------------------------------------------
@@ -329,63 +328,63 @@ sub store{
 =cut
 
 sub serialise{
-  my $self = shift;
+    my $self = shift;
 
-  # Create a new object of same class that is going to be serialised
-  my $store_obj = bless( {}, ref( $self ) );
+    # Create a new object of same class that is going to be serialised
+    my $store_obj = bless( {}, ref( $self ) );
 
-  my %retargs = ( -workdir =>$self->workdir,
-                  -suffix  =>$self->suffix,
-                  -template=>$self->template );
-  # Assume that other storable bio objects held by this object are
-  # only 1-deep.
+    my %retargs = ( -workdir =>$self->workdir,
+                    -suffix  =>$self->suffix,
+                    -template=>$self->template );
+    # Assume that other storable bio objects held by this object are
+    # only 1-deep.
 
-  foreach my $key( keys( %$self ) ){
-    if( $key =~ /^__/ ){ next } # Ignore keys starting with '__'
-    my $value = $self->{$key};
+    foreach my $key( keys( %$self ) ){
+        if( $key =~ /^__/ ){ next } # Ignore keys starting with '__'
+        my $value = $self->{$key};
 
-    # Scalar value
-    if( ! ref( $value ) ){
-      $store_obj->{$key} = $value;
-    }
-
-    # Bio::Root::Storable obj: save placeholder
-    elsif( ref($value) =~ /^Bio::/ and $value->isa('Bio::Root::Storable') ){
-      # Bio::Root::Storable
-      $store_obj->{$key} = $value->new_retrievable( %retargs );
-      next;
-    }
-
-    # Arrayref value. Look for Bio::Root::Storable objs
-    elsif( ref( $value ) eq 'ARRAY' ){
-      my @ary;
-      foreach my $val( @$value ){
-        if( ref($val) =~ /^Bio::/ and $val->isa('Bio::Root::Storable') ){
-          push(  @ary, $val->new_retrievable( %retargs ) );
+        # Scalar value
+        if( ! ref( $value ) ){
+            $store_obj->{$key} = $value;
         }
-        else{ push(  @ary, $val ) }
-      }
-      $store_obj->{$key} = \@ary;
-    }
 
-    # Hashref value. Look for Bio::Root::Storable objs
-    elsif( ref( $value ) eq 'HASH' ){
-      my %hash;
-      foreach my $k2( keys %$value ){
-        my $val = $value->{$k2};
-        if( ref($val) =~ /^Bio::/ and $val->isa('Bio::Root::Storable') ){
-          $hash{$k2} = $val->new_retrievable( %retargs );
+        # Bio::Root::Storable obj: save placeholder
+        elsif( ref($value) =~ /^Bio::/ and $value->isa('Bio::Root::Storable') ){
+            # Bio::Root::Storable
+            $store_obj->{$key} = $value->new_retrievable( %retargs );
+            next;
         }
-        else{ $hash{$k2} = $val }
-      }
-      $store_obj->{$key} = \%hash;
-    }
 
-    # Unknown, just add to the store object regardless
-    else{ $store_obj->{$key} = $value }
-  }
-  $store_obj->retrievable(0); # Once deserialised, obj not retrievable
-  return $self->_freeze( $store_obj );
+        # Arrayref value. Look for Bio::Root::Storable objs
+        elsif( ref( $value ) eq 'ARRAY' ){
+            my @ary;
+            foreach my $val( @$value ){
+                if( ref($val) =~ /^Bio::/ and $val->isa('Bio::Root::Storable') ){
+                    push(  @ary, $val->new_retrievable( %retargs ) );
+                }
+                else{ push(  @ary, $val ) }
+            }
+            $store_obj->{$key} = \@ary;
+        }
+
+        # Hashref value. Look for Bio::Root::Storable objs
+        elsif( ref( $value ) eq 'HASH' ){
+            my %hash;
+            foreach my $k2( keys %$value ){
+                my $val = $value->{$k2};
+                if( ref($val) =~ /^Bio::/ and $val->isa('Bio::Root::Storable') ){
+                    $hash{$k2} = $val->new_retrievable( %retargs );
+                }
+                else{ $hash{$k2} = $val }
+            }
+            $store_obj->{$key} = \%hash;
+        }
+
+        # Unknown, just add to the store object regardless
+        else{ $store_obj->{$key} = $value }
+    }
+    $store_obj->retrievable(0); # Once deserialised, obj not retrievable
+    return $self->_freeze( $store_obj );
 }
 
 
@@ -405,55 +404,60 @@ sub serialise{
 =cut
 
 sub retrieve{
-  my( $caller, $statefile ) = @_;
+    my( $caller, $statefile ) = @_;
 
-  my $self = {};
-  my $class = ref( $caller ) || $caller;
+    my $self = {};
+    my $class = ref( $caller ) || $caller;
 
-  # Is this a call on a retrievable object?
-  if( ref( $caller ) and
-      $caller->retrievable ){
-    $self = $caller;
-    $statefile = $self->statefile;
-  }
-  bless( $self, $class );
-
-  # Recover serialised object
-  if( ! -f $statefile ){
-    $self->throw( "Token $statefile is not found" );
-  }
-  my $io = Bio::Root::IO->new( $statefile );
-  local $/ = undef();
-  my $state_str = $io->_readline('-raw'=>1);
-
-  # Dynamic-load modules required by stored object
-  my $stored_obj;
-  my $success;
-  for( my $i=0; $i<10; $i++ ){
-    eval{ $stored_obj = $self->_thaw( $state_str ) };
-    if( ! $@ ){ $success=1; last }
-    my $package;
-    if( $@ =~ /Cannot restore overloading(.*)/i ){
-      my $postmatch = $1; #'
-      if( $postmatch =~ /\(package +([\w\:]+)\)/ ) {
-        $package = $1;
-      }
+    # Is this a call on a retrievable object?
+    if (    ref( $caller )
+        and $caller->retrievable
+        ){
+        $self = $caller;
+        $statefile = $self->statefile;
     }
-    if( $package ){
-      eval "require $package"; $self->throw($@) if $@;
+    bless( $self, $class );
+
+    # Recover serialised object
+    if( ! -f $statefile ){
+        $self->throw( "Token $statefile is not found" );
     }
-    else{ $self->throw($@) }
-  }
-  if( ! $success ){ $self->throw("maximum number of requires exceeded" ) }
+    my $io = Bio::Root::IO->new( $statefile );
+    local $/ = undef;
+    my $state_str = $io->_readline('-raw'=>1);
 
-  if( ! ref( $stored_obj ) ){
-    $self->throw( "Token $statefile returned no data" );
-  }
-  map{ $self->{$_} = $stored_obj->{$_} } keys %$stored_obj; # Copy hasheys
-  $self->retrievable(0);
+    # Dynamic-load modules required by stored object
+    my $stored_obj;
+    my $success;
+    for( my $i=0; $i<10; $i++ ){
+        eval{ $stored_obj = $self->_thaw( $state_str ) };
+        if( ! $@ ){
+            $success = 1;
+            last;
+        }
+        my $package;
+        if( $@ =~ /Cannot restore overloading(.*)/i ){
+            my $postmatch = $1; #'
+            if( $postmatch =~ /\(package +([\w\:]+)\)/ ) {
+                $package = $1;
+            }
+        }
+        if( $package ){
+            eval "require $package";
+            $self->throw($@) if $@;
+        }
+        else{ $self->throw($@) }
+    }
+    if( ! $success ){ $self->throw("maximum number of requires exceeded" ) }
 
-  # Maintain class of stored obj
-  return $self;
+    if( ! ref( $stored_obj ) ){
+        $self->throw( "Token $statefile returned no data" );
+    }
+    map{ $self->{$_} = $stored_obj->{$_} } keys %$stored_obj; # Copy hasheys
+    $self->retrievable(0);
+
+    # Maintain class of stored obj
+    return $self;
 }
 
 #----------------------------------------------------------------------
@@ -471,9 +475,9 @@ sub retrieve{
 =cut
 
 sub clone {
-  my $self = shift;
-  my $frozen = $self->_freeze( $self );
-  return $self->_thaw( $frozen );
+    my $self = shift;
+    my $frozen = $self->_freeze( $self );
+    return $self->_thaw( $frozen );
 }
 
 
@@ -492,11 +496,11 @@ sub clone {
 =cut
 
 sub remove {
-  my $self = shift;
-  if( -e $self->statefile ){
-    unlink( $self->statefile );
-  }
-  return 1;
+    my $self = shift;
+    if( -e $self->statefile ){
+        unlink( $self->statefile );
+    }
+    return 1;
 }
 
 #----------------------------------------------------------------------
@@ -515,15 +519,15 @@ sub remove {
 =cut
 
 sub _freeze {
-  my $self = shift;
-  my $data = shift;
-  if( $BINARY ){
-    return freeze( $data );
-  }
-  else{
-    $Data::Dumper::Purity = 1;
-    return Data::Dumper->Dump( [\$data],["*code"] );
-  }
+    my $self = shift;
+    my $data = shift;
+    if( $BINARY ){
+        return freeze( $data );
+    }
+    else{
+        $Data::Dumper::Purity = 1;
+        return Data::Dumper->Dump( [\$data],["*code"] );
+    }
 }
 
 #----------------------------------------------------------------------
@@ -544,19 +548,21 @@ sub _freeze {
 =cut
 
 sub _thaw {
-  my $self = shift;
-  my $data = shift;
-  if( $BINARY ){ return thaw( $data ) }
-  else{
-    my $code;
-    $code = eval( $data ) ;
-    if($@) {
-      $self->throw( "eval: $@" );
+    my $self = shift;
+    my $data = shift;
+    if( $BINARY ){
+        return thaw( $data )
     }
-    ref( $code ) eq 'REF' ||
-      $self->throw( "Serialised string was not a scalar ref" );
-    return $$code;
-  }
+    else{
+        my $code;
+        $code = eval( $data ) ;
+        if($@) {
+            $self->throw( "eval: $@" );
+        }
+        ref( $code ) eq 'REF'
+            or $self->throw( "Serialised string was not a scalar ref" );
+        return $$code;
+    }
 }
 
 1;

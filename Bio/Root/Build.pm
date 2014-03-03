@@ -240,7 +240,8 @@ sub script_files {
 #    my $self = shift;
 #
 #    open (my $olderr, ">&". fileno(STDERR));
-#    open(STDERR, "/dev/null");
+#    my $null = ($^O =~ m/mswin/i) ? 'NUL' : '/dev/null';
+#    open(STDERR, $null);
 #    my $return = $self->SUPER::check_installed_status(@_);
 #    open(STDERR, ">&". fileno($olderr));
 #    return $return;
@@ -646,8 +647,10 @@ sub find_dist_packages {
     }
 
     # Stringify versions
-    for (grep exists $_->{version}, values %prime) {
-        $_->{version} = $_->{version}->stringify if ref($_->{version});
+    for my $key ( grep { exists $prime{$_}->{version} }
+                  keys %prime ) {
+        $prime{$key}->{version}
+            = $prime{$key}->{version}->stringify if ref($prime{$key}->{version});
     }
 
     return \%prime;
@@ -716,10 +719,10 @@ sub find_dist_packages {
 #        }
 #    }
 #
-#    foreach (qw(manifest_skip post_install_scripts)) {
-#        my $file = File::Spec->catfile($self->config_dir, $_);
-#        $ph->{$_} = Module::Build::Notes->new(file => $file);
-#        $ph->{$_}->restore if -e $file;
+#    foreach my $piece (qw(manifest_skip post_install_scripts)) {
+#        my $file = File::Spec->catfile($self->config_dir, $piece);
+#        $ph->{$piece} = Module::Build::Notes->new(file => $file);
+#        $ph->{$piece}->restore if -e $file;
 #    }
 #
 #    return $self;
@@ -743,7 +746,7 @@ sub find_dist_packages {
 #    my $filedir  = File::Basename::dirname($filename);
 #
 #    File::Path::mkpath($filedir);
-#    warn "Can't create directory $filedir: $!" unless -d $filedir;
+#    warn "Could not create directory '$filedir': $!\n" unless -d $filedir;
 #
 #    File::Copy::copy($self_filename, $filename);
 #    warn "Unable to copy 'Bio/Root/Build.pm' to '$filename'\n" unless -e $filename;
@@ -780,7 +783,7 @@ sub ACTION_manifest {
 #
 #    my @extra = keys %{$self->{phash}{manifest_skip}->read};
 #    if (@extra) {
-#        open(my $fh, '>>', 'MANIFEST.SKIP') or die "Could not open MANIFEST.SKIP file\n";
+#        open(my $fh, '>>', 'MANIFEST.SKIP') or die "Could not append MANIFEST.SKIP file\n";
 #        print $fh "\n# Avoid additional run-time generated things\n";
 #        foreach my $line (@extra) {
 #            print $fh $line, "\n";
@@ -796,11 +799,14 @@ Extended to run scripts post-installation
 =cut
 
 sub ACTION_install {
-  my ($self) = @_;
-  require ExtUtils::Install;
-  $self->depends_on('build');
-  ExtUtils::Install::install($self->install_map, !$self->quiet, 0, $self->{args}{uninst}||0);
-  #$self->run_post_install_scripts;
+    my ($self) = @_;
+    require ExtUtils::Install;
+    $self->depends_on('build');
+    ExtUtils::Install::install($self->install_map,
+                               !$self->quiet,
+                               0,
+                               $self->{args}{uninst} || 0);
+    #$self->run_post_install_scripts;
 }
 
 #sub add_post_install_script {
@@ -1147,7 +1153,8 @@ $build->feature('Network Tests') is true
 sub prompt_for_network {
     my ($self, $accept) = @_;
 
-    my $proceed = $accept ? 0 : $self->y_n("Do you want to run tests that require connection to servers across the internet\n(likely to cause some failures)? y/n", 'n');
+    my $proceed = $accept ? 0 : $self->y_n(  "Do you want to run tests that require connection to servers across the internet\n"
+                                           . "(likely to cause some failures)? y/n", 'n');
 
     if ($proceed) {
         $self->notes('network' => 1);
@@ -1170,39 +1177,47 @@ Override the build script warnings flag
 =cut
 
 sub print_build_script {
-  my ($self, $fh) = @_;
+    my ($self, $fh) = @_;
 
-  my $build_package = $self->build_class;
+    my $build_package = $self->build_class;
 
-  my $closedata="";
+    my $closedata="";
 
-  my $config_requires;
-  if ( -f $self->metafile ) {
-    my $meta = eval { $self->read_metafile( $self->metafile ) };
-    $config_requires = $meta && $meta->{configure_requires}{'Module::Build'};
-  }
-  $config_requires ||= 0;
+    my $config_requires;
+    if ( -f $self->metafile ) {
+        my $meta = eval { $self->read_metafile( $self->metafile ) };
+        $config_requires = $meta && $meta->{configure_requires}{'Module::Build'};
+    }
+    $config_requires ||= 0;
 
-  my %q = map {$_, $self->$_()} qw(config_dir base_dir);
+    my %q = map {$_, $self->$_()} qw(config_dir base_dir);
 
-  $q{base_dir} = Win32::GetShortPathName($q{base_dir}) if $self->is_windowsish;
+    $q{base_dir} = Win32::GetShortPathName($q{base_dir}) if $self->is_windowsish;
 
-  $q{magic_numfile} = $self->config_file('magicnum');
+    $q{magic_numfile} = $self->config_file('magicnum');
 
-  my @myINC = $self->_added_to_INC;
-  for (@myINC, values %q) {
-    $_ = File::Spec->canonpath( $_ );
-    s/([\\\'])/\\$1/g;
-  }
+    my @myINC = $self->_added_to_INC;
+    @myINC = map { $_ = File::Spec->canonpath( $_ );
+                   $_ =~ s/([\\\'])/\\$1/g;
+                   $_;
+                  } @myINC;
+    # Remove duplicates
+    @myINC = sort {$a cmp $b}
+             keys %{ { map { $_ => 1 } @myINC } };
 
-  my $quoted_INC = join ",\n", map "     '$_'", @myINC;
-  my $shebang = $self->_startperl;
-  my $magic_number = $self->magic_number;
+    foreach my $key (keys %q) {
+        $q{$key} = File::Spec->canonpath( $q{$key} );
+        $q{$key} =~ s/([\\\'])/\\$1/g;
+    }
 
-  # unique to bioperl, shut off overly verbose warnings on windows, bug 3215
-  my $w = $^O =~ /win/i ? '# no warnings (win)' : '$^W = 1;  # Use warnings';
+    my $quoted_INC = join ",\n", map "         '$_'", @myINC;
+    my $shebang = $self->_startperl;
+    my $magic_number = $self->magic_number;
 
-  print $fh <<EOF;
+    # unique to bioperl, shut off overly verbose warnings on windows, bug 3215
+    my $w = $^O =~ /win/i ? '# no warnings (win)' : '$^W = 1;  # Use warnings';
+
+    print $fh <<EOF;
 $shebang
 
 use strict;
@@ -1211,33 +1226,32 @@ use File::Basename;
 use File::Spec;
 
 sub magic_number_matches {
-  return 0 unless -e '$q{magic_numfile}';
-  local *FH;
-  open FH, '$q{magic_numfile}' or return 0;
-  my \$filenum = <FH>;
-  close FH;
-  return \$filenum == $magic_number;
+    return 0 unless -e '$q{magic_numfile}';
+    open my \$FH, '<', '$q{magic_numfile}' or return 0;
+    my \$filenum = <\$FH>;
+    close \$FH;
+    return \$filenum == $magic_number;
 }
 
 my \$progname;
 my \$orig_dir;
 BEGIN {
-  $w
-  \$progname = basename(\$0);
-  \$orig_dir = Cwd::cwd();
-  my \$base_dir = '$q{base_dir}';
-  if (!magic_number_matches()) {
-    unless (chdir(\$base_dir)) {
-      die ("Couldn't chdir(\$base_dir), aborting\\n");
+    $w
+    \$progname = basename(\$0);
+    \$orig_dir = Cwd::cwd();
+    my \$base_dir = '$q{base_dir}';
+    if (!magic_number_matches()) {
+        unless (chdir(\$base_dir)) {
+            die ("Could not chdir '\$base_dir', aborting\\n");
+        }
+        unless (magic_number_matches()) {
+            die ("Configuration seems to be out of date, please re-run 'perl Build.PL' again.\\n");
+        }
     }
-    unless (magic_number_matches()) {
-      die ("Configuration seems to be out of date, please re-run 'perl Build.PL' again.\\n");
-    }
-  }
-  unshift \@INC,
-    (
+    unshift \@INC,
+        (
 $quoted_INC
-    );
+        );
 }
 
 close(*DATA) unless eof(*DATA); # ensure no open handles to this script
@@ -1249,15 +1263,13 @@ Module::Build->VERSION(q{$config_requires});
 \$^X = Module::Build->find_perl_interpreter;
 
 if (-e 'Build.PL' and not $build_package->up_to_date('Build.PL', \$progname)) {
-   warn "Warning: Build.PL has been altered.  You may need to run 'perl Build.PL' again.\\n";
+    warn "Warning: Build.PL has been altered.  You may need to run 'perl Build.PL' again.\\n";
 }
 
 # This should have just enough arguments to be able to bootstrap the rest.
-my \$build = $build_package->resume (
-  properties => {
-    config_dir => '$q{config_dir}',
-    orig_dir => \$orig_dir,
-  },
+my \$build =
+    $build_package->resume( properties => { config_dir => '$q{config_dir}',
+                                              orig_dir   => \$orig_dir, },
 );
 
 \$build->dispatch;

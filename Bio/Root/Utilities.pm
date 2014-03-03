@@ -282,13 +282,12 @@ sub date_format {
 #--------------'
 sub month2num {
 #--------------
-
     my ($self, $str) = @_;
 
     # Get string in proper format for conversion.
     $str = substr($str, 0, 3);
-    for(0..$#MONTHS) {
-        return $_+1 if $str =~ /$MONTHS[$_]/i;
+    for my $month (0..$#MONTHS) {
+        return $month+1 if $str =~ /$MONTHS[$month]/i;
     }
     $self->throw("Invalid month name: $str");
 }
@@ -653,13 +652,18 @@ sub untaint {
 sub mean_stdev {
 #---------------
     my ($self, @data) = @_;
-    return (undef,undef) if not @data; # case of empty @data list
+    return (undef, undef) if not @data; # case of empty @data list
     my $mean = 0;
     my $N = 0;
-    foreach (@data) { $mean += $_; $N++ }
+    foreach my $num (@data) {
+        $mean += $num;
+        $N++
+    }
     $mean /= $N;
     my $sum_diff_sqd = 0;
-    foreach (@data) { $sum_diff_sqd += ($mean - $_) * ($mean - $_); }
+    foreach my $num (@data) {
+        $sum_diff_sqd += ($mean - $num) * ($mean - $num);
+    }
     # if only one element in @data list, unbiased stdev is undefined
     my $stdev = $N <= 1 ? undef : sqrt( $sum_diff_sqd / ($N-1) );
     return ($mean, $stdev);
@@ -708,23 +712,26 @@ sub count_files {
     $$href{-T_FILE_NAMES} = [];
     $$href{-B_FILE_NAMES} = [];
     $$href{-DIR_NAMES} = [];
-    while( <$PIPE> ) {
+    while( my $line = <$PIPE> ) {
         chomp();
         $$href{-TOTAL}++;
-        if( -T $dir.$_ ) {
-            $$href{-NUM_TEXT_FILES}++; push @{$$href{-T_FILE_NAMES}}, $_; }
-        if( -B $dir.$_ and not -d $dir.$_) {
-            $$href{-NUM_BINARY_FILES}++; push @{$$href{-B_FILE_NAMES}}, $_; }
-        if( -d $dir.$_ ) {
-            $$href{-NUM_DIRS}++; push @{$$href{-DIR_NAMES}}, $_; }
+        if( -T $dir.$line ) {
+            $$href{-NUM_TEXT_FILES}++;
+            push @{$$href{-T_FILE_NAMES}}, $line; }
+        if( -B $dir.$line and not -d $dir.$line) {
+            $$href{-NUM_BINARY_FILES}++;
+            push @{$$href{-B_FILE_NAMES}}, $line; }
+        if( -d $dir.$line ) {
+            $$href{-NUM_DIRS}++;
+            push @{$$href{-DIR_NAMES}}, $line; }
     }
     close $PIPE;
 
     if( $print) {
-        printf( "\n%4d %s\n", $$href{-TOTAL}, "total files+dirs in $dir");
-        printf( "%4d %s\n", $$href{-NUM_TEXT_FILES}, "text files");
-        printf( "%4d %s\n", $$href{-NUM_BINARY_FILES}, "binary files");
-        printf( "%4d %s\n", $$href{-NUM_DIRS}, "directories");
+        printf( "\n%4d %s\n", $$href{-TOTAL},            "total files+dirs in $dir");
+        printf( "%4d %s\n",   $$href{-NUM_TEXT_FILES},   "text files");
+        printf( "%4d %s\n",   $$href{-NUM_BINARY_FILES}, "binary files");
+        printf( "%4d %s\n",   $$href{-NUM_DIRS},         "directories");
     }
 }
 
@@ -774,15 +781,15 @@ sub file_info {
 #------------
 sub delete {
 #------------
-  my $self = shift;
-  my $fileName = shift;
-  if(not -e $fileName) {
-    $self->throw("Can't delete file $fileName: Does not exist.");
-  } elsif(not -o $fileName) {
-    $self->throw("Can't delete file $fileName: Not owner.");
-  }
-  my $ulval = unlink($fileName) > 0 or
-    $self->throw("Failed to delete file $fileName: $!");
+    my $self = shift;
+    my $fileName = shift;
+    if(not -e $fileName) {
+        $self->throw("Could not delete file '$fileName': Does not exist.");
+    } elsif(not -o $fileName) {
+        $self->throw("Could not delete file '$fileName': Not owner.");
+    }
+    my $ulval = unlink($fileName) > 0
+        or $self->throw("Failed to delete file '$fileName': $!");
 }
 
 
@@ -831,43 +838,43 @@ sub create_filehandle {
     my ($handle_ref);
 
     if($handle_ref = ref($file)) {
-      if($handle_ref eq 'FileHandle') {
-        $FH = $file;
-        $client->{'_input_type'} = "FileHandle";
-      } elsif($handle_ref eq 'GLOB') {
-        $FH = $file;
-        $client->{'_input_type'} = "Glob";
-      } else {
-        $self->throw(-class=>'Bio::Root::IOException',
-                     -text =>"Can't read from $file: Not a FileHandle or GLOB ref.");
-      }
-      $self->verbose > 0 and printf STDERR "$ID: reading data from FileHandle\n";
+        if($handle_ref eq 'FileHandle') {
+            $FH = $file;
+            $client->{'_input_type'} = "FileHandle";
+        } elsif($handle_ref eq 'GLOB') {
+            $FH = $file;
+            $client->{'_input_type'} = "Glob";
+        } else {
+            $self->throw(-class => 'Bio::Root::IOException',
+                         -text  => "Could not read file '$file': Not a FileHandle or GLOB ref.");
+        }
+        $self->verbose > 0 and printf STDERR "$ID: reading data from FileHandle\n";
 
     } elsif($file) {
-      $client->{'_input_type'} = "FileHandle for $file";
+        $client->{'_input_type'} = "FileHandle for $file";
 
-      # Use gzip -cd to access compressed data.
-      if( -B $file ) {
-        $client->{'_input_type'} .= " (compressed)";
-        my $gzip = $self->find_exe('gzip');
-        $file = "$gzip -cd $file |"
-      }
+        # Use gzip -cd to access compressed data.
+        if( -B $file ) {
+            $client->{'_input_type'} .= " (compressed)";
+            my $gzip = $self->find_exe('gzip');
+            $file = "$gzip -cd $file |"
+        }
 
-      require FileHandle;
-      $FH = FileHandle->new();
-      open ($FH, $file) || $self->throw(-class=>'Bio::Root::FileOpenException',
-                                        -text =>"Can't access data file: $file: $!");
-      $self->verbose > 0 and printf STDERR "$ID: reading data from file $file\n";
+        require FileHandle;
+        $FH = FileHandle->new();
+        open ($FH, $file) || $self->throw(-class=>'Bio::Root::FileOpenException',
+                                          -text =>"Could not access data file '$file': $!");
+        $self->verbose > 0 and printf STDERR "$ID: reading data from file '$file'\n";
 
     } else {
-      # Read from STDIN.
-      $FH = \*STDIN;
-      $self->verbose > 0 and printf STDERR "$ID: reading data from STDIN\n";
-      $client->{'_input_type'} = "STDIN";
+        # Read from STDIN.
+        $FH = \*STDIN;
+        $self->verbose > 0 and printf STDERR "$ID: reading data from STDIN\n";
+        $client->{'_input_type'} = "STDIN";
     }
 
     return $FH;
-  }
+}
 
 =head2 get_newline
 
@@ -899,17 +906,17 @@ sub get_newline {
     if(not ref $client) {  $client = $self;   }
 
     if($client->{'_input_type'} =~ /STDIN|Glob|compressed/) {
-      # Can't taste from STDIN since we can't seek 0 on it.
-      # Are other non special Glob refs seek-able?
-      # Attempt to guess newline based on platform.
-      # Not robust since we could be reading Unix files on a Mac, e.g.
-      if(defined $ENV{'MACPERL'}) {
-        $NEWLINE = "\015";  # \r
-      } else {
-        $NEWLINE = "\012";  # \n
-      }
+        # Can't taste from STDIN since we can't seek 0 on it.
+        # Are other non special Glob refs seek-able?
+        # Attempt to guess newline based on platform.
+        # Not robust since we could be reading Unix files on a Mac, e.g.
+        if(defined $ENV{'MACPERL'}) {
+            $NEWLINE = "\015";  # \r
+        } else {
+            $NEWLINE = "\012";  # \n
+        }
     } else {
-      $NEWLINE = $self->taste_file($FH);
+        $NEWLINE = $self->taste_file($FH);
     }
 
     close ($FH) unless ($client->{'_input_type'} eq 'STDIN' ||
@@ -919,7 +926,7 @@ sub get_newline {
     delete $client->{'_input_type'};
 
     return $NEWLINE || $DEFAULT_NEWLINE;
-  }
+}
 
 
 =head2 taste_file
@@ -945,80 +952,81 @@ See Also : L<get_newline()|get_newline>
 #---------------
 sub taste_file {
 #---------------
-  my ($self, $FH) = @_;
-  my $BUFSIZ = 256;   # Number of bytes read from the file handle.
-  my ($buffer, $octal, $str, $irs, $i);
+    my ($self, $FH) = @_;
+    my $BUFSIZ = 256;   # Number of bytes read from the file handle.
+    my ($buffer, $octal, $str, $irs, $i);
 
-  ref($FH) eq 'FileHandle' or $self->throw("Can't taste file: not a FileHandle ref");
+    ref($FH) eq 'FileHandle' or $self->throw("Can't taste file: not a FileHandle ref");
 
-  $buffer = '';
+    $buffer = '';
 
-  # this is a quick hack to check for availability of alarm(); just copied
-  # from Bio/Root/IOManager.pm HL 02/19/01
-  my $alarm_available = 1;
-  eval {
-      alarm(0);
-  };
-  if($@) {
-      # alarm() not available (ActiveState perl for win32 doesn't have it.
-      # See jitterbug PR#98)
-      $alarm_available = 0;
-  }
-  $SIG{ALRM} = sub { die "Timed out!"; };
-  my $result;
-  eval {
-    $alarm_available && alarm( $TIMEOUT_SECS );
-    $result = read($FH, $buffer, $BUFSIZ); # read the $BUFSIZ characters of file
-    $alarm_available && alarm(0);
-  };
-  if($@ =~ /Timed out!/) {
-    $self->throw("Timed out while waiting for input.",
-                 "Timeout period = $TIMEOUT_SECS seconds.\nFor longer time before timing out, edit \$TIMEOUT_SECS in Bio::Root::Utilities.pm.");
-
-  } elsif(not $result) {
-    my $err = $@;
-    $self->throw("read taste failed to read from FileHandle.", $err);
-
-  } elsif($@ =~ /\S/) {
-    my $err = $@;
-    $self->throw("Unexpected error during read: $err");
-  }
-
-  seek($FH, 0, 0) or $self->throw("seek failed to seek 0 on FileHandle.");
-
-  my @chars = split(//, $buffer);
-  my $flavor;
-
-  for ($i = 0; $i <$BUFSIZ; $i++) {
-    if (($chars[$i] eq "\012")) {
-      unless ($chars[$i-1] eq "\015") {
-        $flavor='Unix';
-        $octal = "\012";
-        $str = '\n';
-        $irs = "^J";
-        last;
-      }
-    } elsif (($chars[$i] eq "\015") && ($chars[$i+1] eq "\012")) {
-      $flavor='DOS';
-      $octal = "\015\012";
-      $str = '\r\n';
-      $irs = "^M^J";
-      last;
-    } elsif (($chars[$i] eq "\015")) {
-      $flavor='Mac';
-      $octal = "\015";
-      $str = '\r';
-      $irs = "^M";
-      last;
+    # this is a quick hack to check for availability of alarm(); just copied
+    # from Bio/Root/IOManager.pm HL 02/19/01
+    my $alarm_available = 1;
+    eval {
+        alarm(0);
+    };
+    if($@) {
+        # alarm() not available (ActiveState perl for win32 doesn't have it.
+        # See jitterbug PR#98)
+        $alarm_available = 0;
     }
-  }
-  if (not $octal) {
-    $self->warn("Could not determine newline char. Using '\012'");
-    $octal = "\012";
-  } else {
-#    print STDERR "FLAVOR=$flavor, NEWLINE CHAR = $irs\n";
-  }
-  return($octal);
+    $SIG{ALRM} = sub { die "Timed out!"; };
+    my $result;
+    eval {
+        $alarm_available && alarm( $TIMEOUT_SECS );
+        $result = read($FH, $buffer, $BUFSIZ); # read the $BUFSIZ characters of file
+        $alarm_available && alarm(0);
+    };
+    if($@ =~ /Timed out!/) {
+        $self->throw( "Timed out while waiting for input.",
+                      "Timeout period = $TIMEOUT_SECS seconds.\n"
+                     ."For longer time before timing out, edit \$TIMEOUT_SECS in Bio::Root::Utilities.pm.");
+
+    } elsif(not $result) {
+        my $err = $@;
+        $self->throw("read taste failed to read from FileHandle.", $err);
+
+    } elsif($@ =~ /\S/) {
+        my $err = $@;
+        $self->throw("Unexpected error during read: $err");
+    }
+
+    seek($FH, 0, 0) or $self->throw("seek failed to seek 0 on FileHandle.");
+
+    my @chars = split(//, $buffer);
+    my $flavor;
+
+    for ($i = 0; $i <$BUFSIZ; $i++) {
+        if (($chars[$i] eq "\012")) {
+            unless ($chars[$i-1] eq "\015") {
+                $flavor='Unix';
+                $octal = "\012";
+                $str = '\n';
+                $irs = "^J";
+                last;
+            }
+        } elsif (($chars[$i] eq "\015") && ($chars[$i+1] eq "\012")) {
+            $flavor='DOS';
+            $octal = "\015\012";
+            $str = '\r\n';
+            $irs = "^M^J";
+            last;
+        } elsif (($chars[$i] eq "\015")) {
+            $flavor='Mac';
+            $octal = "\015";
+            $str = '\r';
+            $irs = "^M";
+            last;
+        }
+    }
+    if (not $octal) {
+        $self->warn("Could not determine newline char. Using '\012'");
+        $octal = "\012";
+    } else {
+        #print STDERR "FLAVOR=$flavor, NEWLINE CHAR = $irs\n";
+    }
+    return($octal);
 }
 
 =head2 file_flavor
@@ -1049,7 +1057,7 @@ sub file_flavor {
                  "\015"     =>'mac (\r or 015 or ^M)'
                 );
 
-    -f $file or $self->throw("Can't determine flavor: arg '$file' is either non existant or is not a file.\n");
+    -f $file or $self->throw("Could not determine flavor: arg '$file' is either non existant or is not a file.\n");
     my $octal = $self->get_newline($file);
     my $flavor = $flavors{$octal} || "unknown";
     return $flavor;
@@ -1069,8 +1077,9 @@ See Also  : L<send_mail()|send_mail>
 
 =cut
 
+#---------------
 sub mail_authority {
-
+#---------------
     my( $self, $message ) = @_;
     my $script = $self->untaint($0,1);
 
@@ -1092,8 +1101,9 @@ See Also  : L<mail_authority()|mail_authority>
 
 =cut
 
+#-------------
 sub authority {
-
+#-------------
     my( $self, $email ) = @_;
     $self->{'_auth_email'} = $email if defined $email;
     return $self->{'_auth_email'};
@@ -1128,7 +1138,7 @@ See Also  : L<mail_authority()|mail_authority>
 =cut
 
 
-#-------------'
+#-------------
 sub send_mail {
 #-------------
     my( $self, @param) = @_;
@@ -1196,7 +1206,9 @@ See Also   :
 
 =cut
 
+#------------
 sub find_exe {
+#------------
     my ($self, $name) = @_;
     my @bindirs;
     if ($^O =~ m/mswin/i) {
