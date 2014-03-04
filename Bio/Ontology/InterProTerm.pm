@@ -533,7 +533,7 @@ sub to_string {
         $s .= "-- Name:\n";
         $s .= $self->name() . "\n";
         $s .= "-- Definition:\n";
-        $s .= $self->definition() . "\n";
+        $s .= ( $self->definition() || '' ) . "\n";
         $s .= "-- Category:\n";
         if ( defined( $self->ontology() ) ) {
             $s .= $self->ontology()->name() . "\n";
