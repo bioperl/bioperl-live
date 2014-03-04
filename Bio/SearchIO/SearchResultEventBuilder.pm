@@ -341,22 +341,21 @@ sub end_hsp {
     # handle Blast 2.1.2 which did not support data member: hsp_align-len
     $data->{'HSP-query_length'} ||= $data->{'RESULT-query_length'};
     $data->{'HSP-hit_length'}   ||= $data->{'HIT-length'};
-    # If undefined lengths, use alignment length deducting the gaps
+
+    # If undefined lengths, calculate from alignment without gaps and separators
     if (not defined $data->{'HSP-query_length'}) {
-        if (defined $data->{'HSP-query_seq'}) {
-            my $hsp_qry_gaps = ($data->{'RESULT-algorithm'} eq 'ERPIN') ? scalar( $data->{'HSP-query_seq'} =~ tr/\-//)
-                             :  scalar( $data->{'HSP-query_seq'} =~ tr/\-\.// ); # HMMER3 and Infernal uses '.' and '-'
-            $data->{'HSP-query_length'} = length ($data->{'HSP-query_seq'}) - $hsp_qry_gaps;
+        if (my $hsp_qry_seq = $data->{'HSP-query_seq'}) {
+            $hsp_qry_seq =~ s/[-\.]//g;
+            $data->{'HSP-query_length'} = length $hsp_qry_seq;
         }
         else {
             $data->{'HSP-query_length'} = 0;
         }
     }
     if (not defined $data->{'HSP-hit_length'}) {
-        if (defined $data->{'HSP-hit_seq'}) {
-            my $hsp_hit_gaps = ($data->{'RESULT-algorithm'} eq 'ERPIN') ? scalar( $data->{'HSP-hit_seq'} =~ tr/\-//)
-                             :  scalar( $data->{'HSP-hit_seq'} =~ tr/\-\.// ); # HMMER3 and Infernal uses '.' and '-'
-            $data->{'HSP-hit_length'} = length ($data->{'HSP-query_seq'}) - $hsp_hit_gaps;
+        if (my $hsp_hit_seq = $data->{'HSP-hit_seq'}) {
+            $hsp_hit_seq =~ s/[-\.]//g;
+            $data->{'HSP-hit_length'} = length $hsp_hit_seq;
         }
         else {
             $data->{'HSP-hit_length'} = 0;
@@ -474,7 +473,7 @@ sub _add_hit {
             $add_hit = 0 unless $hit_score >= $self->{'_min_score'};
         }
         if($self->{'_confirm_bits'}) {
-            my $hit_bits = $hit->{-bits} || $hit->{-hsps}->[0]->{-bits};
+            my $hit_bits = $hit->{-bits} || $hit->{-hsps}->[0]->{-bits} || 0;
             $add_hit = 0 unless $hit_bits >= $self->{'_min_bits'};
         }
     }
