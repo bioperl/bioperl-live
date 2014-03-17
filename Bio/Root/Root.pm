@@ -2,6 +2,8 @@ package Bio::Root::Root;
 use strict;
 use Bio::Root::IO;
 use Scalar::Util qw(blessed reftype);
+use Clone;
+
 use base qw(Bio::Root::RootI);
 
 # ABSTRACT: hash-based implementation of L<Bio::Root::RootI>
@@ -141,21 +143,23 @@ other pre-defined exception types:
 
 =cut
 
-our ($DEBUG, $ID, $VERBOSITY, $ERRORLOADED, $CLONE_CLASS);
+our ($DEBUG, $ID, $VERBOSITY, $ERRORLOADED);
+
+our $CLONE_CLASS = 'Clone';
 
 BEGIN {
     $ID        = 'Bio::Root::Root';
     $DEBUG     = 0;
     $VERBOSITY = 0;
     $ERRORLOADED = 0;
-
+    
     # Check whether or not Error.pm is available.
 
     # $main::DONT_USE_ERROR is intended for testing purposes and also
     # when you don't want to use the Error module, even if it is installed.
     # Just put a INIT { $DONT_USE_ERROR = 1; } at the top of your script.
     if( not $main::DONT_USE_ERROR ) {
-        if ( eval "require Error"  ) {
+        if ( eval "require Error; 1;"  ) {
             import Error qw(:try);
             require Bio::Root::Exception;
             $ERRORLOADED = 1;
@@ -164,43 +168,6 @@ BEGIN {
     }
     if( !$ERRORLOADED ) {
         require Carp; import Carp qw( confess );
-    }
-
-    # set up _dclone()
-    for my $class (qw(Clone::Fast Clone Storable)) {
-        eval "require $class; 1;";
-        if (!$@) {
-            $CLONE_CLASS = $class;
-            if ($class eq 'Clone::Fast') {
-                *Bio::Root::Root::_dclone = sub {shift; return Clone::Fast::clone(shift)};
-            } elsif ($class eq 'Clone') {
-                *Bio::Root::Root::_dclone = sub {shift; return Clone::clone(shift)};
-            } else {
-                *Bio::Root::Root::_dclone = sub {shift; return Storable::dclone(shift)};
-            }
-            last;
-        }
-    }
-    if (!defined $CLONE_CLASS) {
-        *Bio::Root::Root::_dclone = sub {
-            my ($self, $orig, $level) = @_;
-            my $class = Scalar::Util::blessed($orig) || '';
-            my $reftype = Scalar::Util::reftype($orig) || '';
-            my $data;
-            if (!$reftype) {
-                $data = $orig
-            } elsif ($reftype eq "ARRAY") {
-                $data = [map $self->_dclone($_), @$orig];
-            } elsif ($reftype eq "HASH") {
-                $data = { map { $_ => $self->_dclone($orig->{$_}) } keys %$orig };
-            } elsif ($reftype eq 'CODE') { # nothing, maybe shallow copy?
-                $self->throw("Code reference cloning not supported");
-            } else { $self->throw("What type is $_?")}
-            if ($class) {
-                bless $data, $class;
-            }
-            $data;
-        }
     }
 
     $main::DONT_USE_ERROR;  # so that perl -w won't warn "used only once"
@@ -302,6 +269,10 @@ sub clone {
            arises. At the moment, code ref cloning is not supported.
 
 =cut
+
+sub _dclone {
+    shift; return Clone::clone(shift)
+}
 
 =head2 verbose
 
