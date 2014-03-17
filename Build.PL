@@ -64,9 +64,6 @@ my %recommends = (
     #'Bio::ASN1::EntrezGene'     => [0,
     #    'Parsing entrezgene/Bio::SeqIO::entrezgene [circular dependency!]'],
 
-    'Clone'                     => [0,
-        'Cloning objects/Bio::Root::Root,Bio::Tools::Primer3'],
-
     'Convert::Binary::C'        => [0,
         'Strider functionality/Bio::SeqIO::strider'],
 
@@ -187,6 +184,7 @@ my $build = Bio::Root::Build->new(
                             'Data::Stag'                => 0.11, # Bio::SeqIO::swiss, we can change to 'recommend' if needed
                             'Scalar::Util'              => 0,    # not in Perl 5.6.1, arrived in core in 5.7.3
                             'ExtUtils::Manifest'        => '1.52', # allows spaces in file names
+                            'Clone'                     => 0,    # 'Cloning objects/Bio::Root::Root,Bio::Tools::Primer3'],
                            },
 
     build_requires      => {
