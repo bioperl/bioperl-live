@@ -170,6 +170,8 @@ BEGIN {
         require Carp; import Carp qw( confess );
     }
 
+    # we require Clone now; if it's not installed, then this will simply die
+
     $main::DONT_USE_ERROR;  # so that perl -w won't warn "used only once"
 }
 
