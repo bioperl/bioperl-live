@@ -188,8 +188,10 @@ sub classification {
         # (lineage may have subspecies, species, genus ...)
         my $name = $taxon->node_name;
         my ($genus, $species) = (quotemeta($vals[1]), quotemeta($vals[0]));
-        if ($name && ($name !~ m{$species}i && $name !~ m{$genus}i) && $name !~ m{$vals[1] $vals[0]}i) {
-            if ($name =~ /^$vals[1] $vals[0]\s*(.+)/) {
+        if ($name && 
+           ($name !~ m{$species}i && $name !~ m{$genus}i) && 
+            $name !~ m{$genus $species}i) {
+            if ($name =~ /^$genus $species\s*(.+)/) {
                 # just assume the problem is someone tried to make a Bio::Species starting at subspecies
                 #*** no idea if this is appropriate! just a possible fix related to bug 2092
                 $self->sub_species($1);

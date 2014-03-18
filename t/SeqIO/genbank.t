@@ -643,7 +643,6 @@ is($dblinks[4]->version, '3');
 }
 
 # bug 3448
-
 $in = Bio::SeqIO->new(-format  => 'genbank',
                       -file    => test_input_file('YP_007988852.gp'),
                       -verbose => $verbose);
@@ -658,3 +657,4 @@ is($anns[0]->value, 'join(WP_015639704.1:1..205)');
 is($seq->seq, 'MENRKFGYIRVSSKDQNEGRQLEAMRKIGITERDIYLDKQSGKNFERANYQLLKRIIRKGDI'
             . 'LYIHSLDRFGRNKEEILQEWNDLTKNIEADIVVLDMPLLDTTQYKDSMGTFIADLVLQILSWMAEEERERIRK'
             . 'RQREGIDLALQNGIQFGRSPVVVSDEFKEVYRKWKAKELTAVEAMQEAGVKKTSFYKLVKAHENSIKVNS');
+

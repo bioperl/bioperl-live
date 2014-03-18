@@ -1,5 +1,4 @@
 # -*-Perl-*- Test Harness script for Bioperl
-# $Id$
 
 use strict;
 my $WEAKEN;
@@ -81,4 +80,3 @@ SKIP: {
       }
     ));
 }
-
