@@ -411,7 +411,7 @@ sub file {
 
 sub cleanfile {
     my ($self) = @_;
-    return ($self->{'_file'} =~ m/^ (\+?[><]{1,2})? (.*) $/x);
+    return ($self->{'_file'} =~ m/^ (\+?[><]{1,2})?\s*(.*) $/x);
 }
 
 
