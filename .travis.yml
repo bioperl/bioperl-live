@@ -37,7 +37,6 @@ notifications:
   email: 
     recipients:
       - bioperl-guts-l@lists.open-bio.org
-      - cjfields1@gmail.com
     on_success: change
     on_failure: change
 
@@ -45,3 +44,4 @@ notifications:
 branches:
   only:
     - master
+    - topic/sf_lite_fixes
