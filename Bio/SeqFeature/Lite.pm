@@ -130,6 +130,8 @@ use strict;
 
 use base qw(Bio::Root::Root Bio::SeqFeatureI Bio::LocationI Bio::SeqI);
 
+use Data::Dumper;
+
 *stop        = \&end;
 *info        = \&name;
 *seqname     = \&name;
@@ -195,13 +197,15 @@ sub new {
   my $self = bless {},$class;
 
   $arg{-strand} ||= 0;
+
   if ($arg{-strand} =~ /^[\+\-\.]$/){
-	$arg{-strand} = "+" && $self->{strand} ='1';
-	$arg{-strand} = "-" && $self->{strand} = '-1';
-	$arg{-strand} = "." && $self->{strand} = '0';
+	 $self->{strand} = $arg{-strand} == '+' ? 1 :
+                       $arg{-strand} == '-' ? -1 :
+                       '0';
   } else {
 	  $self->{strand}  = $arg{-strand} ? ($arg{-strand} >= 0 ? +1 : -1) : 0;
   }
+
   $self->{name}    = $arg{-name}   || $arg{-seqname} || $arg{-display_id} 
     || $arg{-display_name} || $arg{-id};
   $self->{type}    = $arg{-type}   || $arg{-primary_tag} || 'feature';
