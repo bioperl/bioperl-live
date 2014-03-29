@@ -135,7 +135,7 @@ like($@, qr/not integral number of codons/);
 
 # bug 2901
 $in = Bio::AlignIO->new(-file => test_input_file('bug2901.fa'),
-                        -formay => 'fasta');
+                        -format => 'fasta');
 
 $stats = Bio::Align::DNAStatistics->new(-verbose => 2);
 $aln = $in->next_aln();
