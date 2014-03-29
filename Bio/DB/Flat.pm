@@ -387,7 +387,7 @@ sub write_config {
   $self->write_flag or $self->throw("cannot write configuration file because write_flag is not set");
   my $path = $self->_config_path;
 
-  open (my $F,">$path") or $self->throw("open error on $path: $!");
+  open my $F, '>', $path or $self->throw("Could not write file '$path': $!");
 
   my $index_type = $self->indexing_scheme;
   print $F "index\t$index_type\n";
@@ -466,7 +466,7 @@ sub _read_config {
   my $path = $self->_config_path;
   return unless -e $path;
 
-  open (my $F,$path) or $self->throw("open error on $path: $!");
+  open my $F, '<', $path or $self->throw("Could not read file '$path': $!");
   my %config;
   while (<$F>) {
     chomp;

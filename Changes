@@ -17,6 +17,75 @@ Bugs and requested features list:
 CPAN releases are branched from 'master'.
 ---------------------------------------------------------
 
+1.6.924
+
+    [New features]
+
+    * Bio::Search::HSP::GenericHSP
+        - Bug #3370, added a "posterior_string" method to retrieve the
+          posterior probability lines (PP) from HMMER3 reports [fjossandon]
+        - Added a "consensus_string" method to retrieve the consensus
+          structure lines (CS|RF) from HMMER2 and HMMER3 reports when available [fjossandon]
+    * Bio::SearchIO::hmmer2
+        - The number of identical and conserved residues are now calculated
+          directly from the homology line [fjossandon]
+        - Now the Query Length and Hit Length are reported when the alignment
+          runs until the end of the sequence/model ('.]' or '[]') [fjossandon]
+        - Implemented the capture of the consensus structure lines [fjossandon]
+    * Bio::SearchIO::hmmer3
+        - The number of identical and conserved residues are now calculated
+          directly from the homology line [fjossandon]
+        - Now the Hit Length is reported when the alignment runs until the end
+          of the sequence/model ('.]' or '[]') [fjossandon]
+        - Implemented the capture of the consensus structure lines [fjossandon]
+        - Implemented the capture of the posterior probability lines [fjossandon]
+        - Completed the development of NHMMER parsing, including alignments [fjossandon]
+    * Bio::SearchIO::SearchResultEventBuilder & Bio::SearchIO::IteratedSearchResultEventBuilder
+        - Feature #2615, moved "_init_parse_params", "max_significance, "signif",
+          "min_score", "min_bits, and "hit_filter" methods from
+          'IteratedSearchResultEventBuilder' to parent 'SearchResultEventBuilder'.
+          This means that the Bio::SearchIO->new() parameters '-signif', '-score',
+          '-bits' and '-hit_filter' will now work with other Bio::SearchIO formats
+          besides Blast, instead of being ignored. Added tests for all moved methods
+          using HMMER outputs and run the full test suite and everything pass [fjossandon]
+    * Bio::SeqIO::MultiFile
+        - Autodetection of file format [fangly]
+    * Bio::Tools::GuessSeqFormat:
+        - Format detection from non-seekable filehandles such as STDIN [fangly]
+
+    [Bug fixes]
+
+    * Blast: Added support to changes in bl2seq from BLAST+ output, which
+      now uses "Subject=" instead of ">" to start hit lines [yschensandiego]
+    * Phylip: Return undef in "next_aln" at file end to avoid
+      an infinite loop [yschensandiego]
+    * HMMER3: When a hit description is too long, it is truncated in
+      the Scores table. In those cases, the more complete description from
+      the Annotation line (>>) will be used [fjossandon]
+    * GenericHSP: Added '.' to gap symbols in "_pre_gaps" (except for ERPIN),
+      since it is now used by HMMER3 format in alignments [fjossandon]
+    * GenericHit: Changed "frac_aligned_query" and "frac_aligned_hit"
+      to return undef if the query/hit length is unknown (like in some
+      HMMER outputs), to avoid division by 0 crashes. Also "query_length"
+      now is set to 0 if its undefined, to be consistent with hit "length" [fjossandon]
+    * HMMER: fixed many bugs in the parsing of Hmmer2 and Hmmer3 outputs,
+      added support to multi-query reports, reduced code redundancy,
+      and eliminated the automatic removal of hits below "inclusion threshold" [fjossandon]
+    * [3369] - Fixed reported bugs in parse from HMMSEARCH3 reports [fjossandon]
+    * [3446] - Fixed wrong marker position in Bio::Map::Physical [fjossandon]
+    * [3455] - Fixed wrong print of DBLink in Genbank file [bosborne]
+    * Fixed some Bio::Root::Utilities subroutines [fjossandon]
+    * Double-quotes on paths are needed in some places [fjossandon]
+    * [3453] - Allow multiple homologies and products in Entrezgene [fjossandon]
+    * Use "NUL" instead of"/dev/null" when running in Windows [fjossandon]
+    * Updated all files from Bio-Root, Bio-Coordinate and Bio-SearchIO-blastxml
+      with the latest changes made in their own repositories [fjossandon]
+    * General synching of files with the master branch [fjossandon]
+    * Fixed tests failing in Windows because of using Linux commands [fjossandon]
+    * Closed many open filehandles that prevented temporary files deletion [fjossandon]
+    * Fixed broken MeSH parser [fjossandon]
+    * Fixed missing detection of format in SeqIO when given a -string [fangly]
+
 1.6.923
     
     * Major Windows support updates! [fjossandon]
@@ -57,6 +126,12 @@ CPAN releases are branched from 'master'.
 
     * Bio::Seq::SimulatedRead
         - New module to represent reads taken from other sequences [fangly]
+    * Bio::Root::Root
+        - Support of Clone::Fast as a faster cloning alternative [fangly]
+    * Bio::Root::IO
+        - Moved the format() and variant() methods from Bio::*IO modules to
+          Bio::Root::IO [fangly]
+        - Can now use format() to get the type of IO format in use [fangly]
     * Bio::Tools::IUPAC
         - New regexp() method to create regular expressions from IUPAC sequences
           [fangly]

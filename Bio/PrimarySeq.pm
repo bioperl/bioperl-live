@@ -470,13 +470,12 @@ sub subseq {
  Title   : length
  Usage   : $len = $seqobj->length();
  Function: Get the stored length of the sequence in number of symbols (bases
-           or amino acids).
+           or amino acids). In some circumstances, you can also set this attribute:
 
-           In some circumstances, you can also set this attribute:
-           1/ For empty sequences, you can set the length to anything you want:
+           1. For empty sequences, you can set the length to anything you want:
               my $seqobj = Bio::PrimarySeq->new( -length => 123 );
               my $len = $seqobj->len; # 123
-           2/ To save memory when using very long sequences, you can set the
+           2. To save memory when using very long sequences, you can set the
               length of the sequence to the length of the sequence (and nothing
               else):
               my $seqobj = Bio::PrimarySeq->new( -seq => 'ACGT...' ); # 1 Mbp sequence
@@ -497,8 +496,7 @@ sub length {
     if (defined $val) {
         my $len = $self->{'length'};
         if ($len && ($len != $val)) {
-            $self->throw("You're trying to lie about the length: ".
-                "is $len but you say ".$val);
+            $self->throw("Can not set the length to $val, current length value is $len");
         }
         $self->{'length'} = $val;
         $self->{'_freeze_length'} = undef;

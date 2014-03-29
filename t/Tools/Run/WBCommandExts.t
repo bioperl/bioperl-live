@@ -46,7 +46,7 @@ ok !$fac->narf, "parm cleared after reset";
 
 is_deeply( [$fac->available_parameters('parameters')], [qw( command narf schlurb )], "avail parms");
 is_deeply( [$fac->available_parameters('switches')], ['freen'], "avail switches");
-is_deeply( [$fac->available_parameters('commands')], [qw(rpsblast cat goob blorb multiglob)], "avail commands");
+is_deeply( [$fac->available_parameters('commands')], [qw(rpsblast find goob blorb multiglob)], "avail commands");
 
 ok $fac = Dummy->new( -command => 'multiglob',
 		     -g_freen => 1,
@@ -61,6 +61,6 @@ is $facs{blorb}->scroob, 10.5, "subfactory 2 parm correct";
 
 $fac->program_dir('.');
 # ok $fac->executables('rpsblast'), "find in program_dir";
-ok $fac->executables('cat'), "find in syspath";
+ok $fac->executables('find'), "find in syspath";
 
 1;

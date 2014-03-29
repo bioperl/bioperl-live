@@ -240,6 +240,10 @@ sub _runwublast {
         return;
 	}
     
+    # Use double quotes if executable path have empty spaces
+    if ($exe =~ m/ /) {
+        $exe = "\"$exe\"";
+    }
 	my $commandstring = $exe.$param_string;
     
 	$self->debug("$commandstring\n");

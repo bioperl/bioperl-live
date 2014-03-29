@@ -103,14 +103,17 @@ SKIP: {
 	my $hlpf = test_output_file();
 	my $a = 0;
 	my $html = 0;
-	my $h = HTML::Parser->new( empty_element_tags=>1, start_h => [sub {$a++; (shift eq 'html') && ($a==1) && $html++}, "tagname"], end_h => [sub {$a--; (shift eq 'html') && ($a==0) && $html++;}, "tagname"] );
+	my $h = HTML::Parser->new(empty_element_tags => 1,
+				  start_h => [sub {$a++; (shift eq 'html') && ($a==1) && $html++;}, "tagname"],
+				  end_h   => [sub {$a--; (shift eq 'html') && ($a==0) && $html++;}, "tagname"] );
 	ok($tobj->help($hlpf), "help html to file");
 	{
 		local $/;
 		undef $/;
-		open HP, $hlpf;
-		$h->parse(<HP>);
+		open my $HP, '<', $hlpf or die "Could not read file '$hlpf': $!\n";
+		$h->parse(<$HP>);
 		is_deeply([$a, $html], [0, 2], "help html parsed");
+		close $HP; # Always explicitly close filehandles
 		1;
 	}
 

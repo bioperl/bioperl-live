@@ -41,7 +41,7 @@ my @dep_data;
 
 # parse DEPRECATED file
 
-open my $DFILE, '<', $depfile || die "Can't open $depfile: $!";
+open my $DFILE, '<', $depfile or die "Could not read file '$depfile': $!\n";
 my $seen_top;
 while (my $data = <$DFILE>) {
     if ($data =~ /^-+$/) {
@@ -65,7 +65,6 @@ while (my $data = <$DFILE>) {
                      remove => $rem,
                      note => $note}
 }
-
 close $DFILE;
 
 for my $new (@$new) {
@@ -96,7 +95,7 @@ if ($dir) {
 
 if ($write || @$new) {
 
-open (my $NEWDEP, '>', $outfile) || croak "Can't open $outfile :$!";
+open my $NEWDEP, '>', $outfile or croak "Could not write file '$outfile': $!\n";
 
 print $NEWDEP <<HEAD;
 # These are modules which are deprecated and later removed from the toolkit
@@ -135,7 +134,7 @@ sub parse_core {
     my $file = $_;
     return unless $file =~ /\.PLS$/ || $file =~ /\.p[ml]$/ ;
     return unless -e $file;
-    open my $F, $file || die "Could not open file $file";
+    open my $F, '<', $file or die "Could not read file '$file': $!\n";
     while (my $line = <$F>) {
         if ($line =~ /(?:['"])?\b(use|require)\s+([A-Za-z0-9:_\.\(\)]+)\s*([^;'"]+)?(?:['"])?\s*;/) {
             my ($use, $mod) = ($1, $2);

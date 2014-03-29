@@ -123,7 +123,7 @@ sub _build_taxonomy {
 
    my $taxonomy = Bio::DB::Taxonomy::list->new();
 
-   open my $fh, '<', $taxofile or $self->throw("Could not read file $taxofile: $!");
+   open my $fh, '<', $taxofile or $self->throw("Could not read file '$taxofile': $!");
 
    # Will skip header line: prokMSA_id	taxonomy
    my $prev_taxo_string = 'taxonomy'; 

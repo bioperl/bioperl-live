@@ -76,8 +76,10 @@ SKIP: {
 	my ($file, $type) = ("test.$format", $format);
     my $filename = test_input_file($file);
     print "processing file $filename\n" if $verbose;
-    open(FILE, "< $filename") or die("cannot open $filename");
-    my @datain = <FILE>;
+    open my $FILE, '<', $filename or die "Could not read file '$filename': $!\n";
+    my @datain = <$FILE>;
+    close $FILE;
+
     my $in = IO::String->new(join('', @datain));
     my $seqin = Bio::SeqIO->new( -fh => $in,
                 -format => $type);
@@ -147,4 +149,3 @@ is($seqio_obj->variant, 'single');
 
 $seq = $seqio_obj->next_seq;
 is($seq->seq, join('', @seq));
-

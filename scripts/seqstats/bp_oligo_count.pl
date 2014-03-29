@@ -122,17 +122,19 @@ while (my $seq = $in->next_seq() ) {
     $seqnumber++;
 }
 
+my $OUTFILE;
 if ($outfile) {
-    open(OUTFILE, ">$outfile") or die "Can't open $outfile\n";
+    open $OUTFILE, '>', $outfile or die "Could not open file '$outfile': $!\n";
 } else {
-    open OUTFILE, '>-'; # STDOUT
+    open $OUTFILE, '>-'; # STDOUT
 }
-print OUTFILE "$seqnumber sequences analyzed\n";
-print OUTFILE "$oligocounts total $oligomerlength-mers counted\n";
-print OUTFILE "$oligomerlength-mer\tNumber\tFrequency\n";
+print $OUTFILE "$seqnumber sequences analyzed\n";
+print $OUTFILE "$oligocounts total $oligomerlength-mers counted\n";
+print $OUTFILE "$oligomerlength-mer\tNumber\tFrequency\n";
 foreach my $key (sort keys %oligos) {
-    print OUTFILE "$key\t$oligos{$key}\t", $oligos{$key}/$oligocounts, "\n";
+    print $OUTFILE "$key\t$oligos{$key}\t", $oligos{$key}/$oligocounts, "\n";
 }
+close $OUTFILE;
 
 if ($exception) {
     if ($exception == 1) {

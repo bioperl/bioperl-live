@@ -30,12 +30,9 @@ throws_ok {$tobj->hiv_query(bless({},"narb"))} qr/BadParameter/, "bad type set e
 
 #stream tests
 my $fas = test_output_file();
-open( FAS, ">", $fas ) or die;
-print FAS ">goob\natcg\n";
-close(FAS);
+open my $FAS, '>', $fas or die "Could not write file '$fas': $!\n";
+print $FAS ">goob\natcg\n";
+close $FAS;
 ok( $tobj->source_stream(new Bio::SeqIO(-file=>$fas, -format=>'fasta')), "attach stream");
 throws_ok {$tobj->write_seq(new Bio::Seq(-sequence=>"atcg"))} qr/IOException/, "write exception";
 ok( $tobj->next_seq, "access stream");
-
-
-

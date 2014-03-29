@@ -26,8 +26,8 @@ filehandle.
     # To guess the format from an already open filehandle:
     my $guesser = Bio::Tools::GuessSeqFormat->new( -fh => $filehandle );
     my $format  = $guesser->guess;
-    # If the filehandle is seekable (STDIN isn't), it will be
-    # returned to its original position.
+    # The filehandle will be returned to its original position. Note that this
+    # filehandle can be STDIN.
 
     # To guess the format of one or several lines of text (with
     # embedded newlines):
@@ -55,9 +55,9 @@ examine the data, line by line, until it finds a line to which
 only one format can be assigned.  If no conclusive guess can be
 made, undef is returned.
 
-If the Bio::Tools::GuessSeqFormat object is given a filehandle
-which is seekable, it will be restored to its original position
-on return from the guess() method.
+If the Bio::Tools::GuessSeqFormat object is given a filehandle,
+e.g. STDIN, it will be restored to its original position on
+return from the guess() method.
 
 =head2 Formats
 
@@ -266,7 +266,7 @@ underscore are considered to be internal.
  Example    : See SYNOPSIS.
  Returns    : A new object.
  Arguments  : -file The filename of the file whose format is to
-                    be guessed, or
+                    be guessed, e.g. STDIN, or
               -fh   An already opened filehandle from which a text
                     stream may be read, or
               -text A scalar containing one or several lines of
@@ -406,10 +406,9 @@ sub text
               format can not be found, undef is returned.
  Arguments  : None.
 
-    If the object is associated with a filehandle and if that
-    filehandle is searchable, the position of the filehandle
-    will be returned to its original position before the method
-    returns.
+    If the object is associated with a filehandle, the position
+    of the filehandle will be returned to its original position
+    before the method returns.
 
 =cut
 
@@ -436,10 +435,10 @@ our %formats = (
     mase        => { test => \&_possibly_mase       },
     mega        => { test => \&_possibly_mega       },
     msf         => { test => \&_possibly_msf        },
-    phrap       => { test => \&_possibly_phrap      },
-    pir         => { test => \&_possibly_pir        },
     pfam        => { test => \&_possibly_pfam       },
+    phrap       => { test => \&_possibly_phrap      },
     phylip      => { test => \&_possibly_phylip     },
+    pir         => { test => \&_possibly_pir        },
     prodom      => { test => \&_possibly_prodom     },
     raw         => { test => \&_possibly_raw        },
     rsf         => { test => \&_possibly_rsf        },
@@ -447,63 +446,64 @@ our %formats = (
     stockholm   => { test => \&_possibly_stockholm  },
     swiss       => { test => \&_possibly_swiss      },
     tab         => { test => \&_possibly_tab        },
-    vcf         => { test => \&_possibly_vcf        }
+    vcf         => { test => \&_possibly_vcf        },
 );
 
 sub guess
 {
     my $self = shift;
 
-    foreach my $fmt_key (keys %formats) {
+    while (my ($fmt_key) = each (%formats)) {
         $formats{$fmt_key}{fmt_string} = $fmt_key;
     }
 
     my $fh;
     my $start_pos;
-    my @lines;
     if (defined $self->{-text}) {
-	# Break the text into separate lines.
-	@lines = split /\n/, $self->{-text};
+        # Break the text into separate lines.
+        my $text = $self->{-text};
+        open $fh, '<', \$text or $self->throw("Could not read from string: $!");
+
     } elsif (defined $self->{-file}) {
         # If given a filename, open the file.
-        open($fh, $self->{-file}) or
-            $self->throw("Can not open '$self->{-file}' for reading: $!");
+        my $file = $self->{-file};
+        open $fh, '<', $file or $self->throw("Could not read file '$file': $!");
+
     } elsif (defined $self->{-fh}) {
-        # If given a filehandle, figure out if it's a plain GLOB
-        # or a IO::Handle which is seekable.  In the case of a
-        # GLOB, we'll assume it's seekable.  Get the current
-        # position in the stream.
+        # If given a filehandle, get the current position in the stream.
         $fh = $self->{-fh};
-        if (ref $fh eq 'GLOB') {
-            $start_pos = tell($fh);
-        } elsif (UNIVERSAL::isa($fh, 'IO::Seekable')) {
-            $start_pos = $fh->getpos();
+        if (not seek $fh, 0, 1) { # seek to current position to determine seekability
+            # Work around non-seekable filehandles if IO::Scalar is available
+            # (adapted from http://www.perlmonks.org/?node_id=33587)
+            # IO::Mark may be an option for very large streams?
+            $self->throw("Need IO::Scalar to guess from unseekable filehandles")
+                if not eval { require IO::Scalar };
+            my $data;
+            { local $/; $data = <$fh>; $.-- };  # copy raw data from fh
+            tie *$fh, 'IO::Scalar', my $s;      # replace fh by scalar-tied fh
+            print $fh $data;                    # write raw data to tied fh
+            seek $fh, 0, 0;                     # return to start of tied fh
         }
+        $start_pos = tell $fh;
     }
 
     my $done  = 0;
     my $lineno = 0;
-    my $fmt_string;
+    my $guess;
     while (!$done) {
         my $line;       # The next line of the file.
         my $match = 0;  # Number of possible formats of this line.
 
-	if (defined $self->{-text}) {
-	    last if (scalar @lines == 0);
-	    $line = shift @lines;
-	} else {
-	    last if (!defined($line = <$fh>));
-	}
+        last if (!defined($line = <$fh>));
         next if ($line =~ /^\s*$/); # Skip white and empty lines.
-
-        chomp($line);
+        chomp $line;
         $line =~ s/\r$//;   # Fix for DOS files on Unix.
         ++$lineno;
 
         while (my ($fmt_key, $fmt) = each (%formats)) {
             if ($fmt->{test}($line, $lineno)) {
                 ++$match;
-                $fmt_string = $fmt->{fmt_string};
+                $guess = $fmt->{fmt_string};
             }
         }
 
@@ -511,18 +511,14 @@ sub guess
         $done = ($match == 1);
     }
 
-    if (defined $self->{-file}) {
-        # Close the file we opened.
-        close($fh);
-    } elsif (ref $fh eq 'GLOB') {
-        # Try seeking to the start position.
-        seek($fh, $start_pos, 0) || $self->throw("Failed resetting the ".
-                                        "filehandle; IO error occurred");;
-    } elsif (defined $fh && $fh->can('setpos')) {
-        # Seek to the start position.
-        $fh->setpos($start_pos);
+    if (defined $self->{-fh}) {
+        # Go back to original position in filehandle
+        seek $fh, $start_pos, 0 or $self->throw("Could not reset filehandle $fh: $!");
+    } else {
+        # Close the filehandle we opened
+        close $fh;
     }
-    return ($done ? $fmt_string : undef);
+    return ($done ? $guess : undef);
 }
 
 =head1 HELPER SUBROUTINES
@@ -636,7 +632,7 @@ sub _possibly_fastq
 {
     my ($line, $lineno) = (shift, shift);
     return ( ($lineno == 1 && $line =~ /^@/) ||
-	     ($lineno == 3 && $line =~ /^\+/) );
+             ($lineno == 3 && $line =~ /^\+/) );
 }
 
 =head2 _possibly_fastxy

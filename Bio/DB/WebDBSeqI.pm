@@ -101,9 +101,9 @@ use base qw(Bio::DB::RandomAccessI);
 BEGIN {
 	$MODVERSION = '0.8';
 	%RETRIEVAL_TYPES = ('io_string' => 1,
-								 'tempfile'  => 1,
-								 'pipeline'  => 1,
-							 );
+			    'tempfile'  => 1,
+			    'pipeline'  => 1,
+			  );
 	$DEFAULT_RETRIEVAL_TYPE = 'pipeline';
 	$DEFAULTFORMAT = 'fasta';
 	$LAST_INVOCATION_TIME = 0;
@@ -164,6 +164,11 @@ sub get_Seq_by_id {
     }
     my @seqs;
     while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
+
+    # Since $seqio will not be used anymore, explicitly close its filehandle
+    # or it will cause trouble later on cleanup
+    $seqio->close;
+
     $self->throw("id '$seqid' does not exist") unless @seqs;
     if( wantarray ) { return @seqs } else { return shift @seqs }
 }
@@ -444,7 +449,7 @@ sub get_seq_stream {
 	}
 	my $request = $self->get_request(%qualifiers);
 	$request->proxy_authorization_basic($self->authentication)
-	  if ( $self->authentication);
+	    if ( $self->authentication);
 	$self->debug("request is ". $request->as_string(). "\n");
 
 	# workaround for MSWin systems
@@ -462,15 +467,15 @@ sub get_seq_stream {
 		my ($result,$stream) = $self->_open_pipe();
 
 		if (defined $result) {
-			$DB::fork_TTY = File::Spec->devnull; # prevents complaints from debugge
+			$DB::fork_TTY = File::Spec->devnull; # prevents complaints from debugger
 			if (!$result) { # in child process
-			        $self->_stream_request($request,$stream);
-			        POSIX::_exit(0); #prevent END blocks from executing in this forked child
+			    $self->_stream_request($request,$stream);
+			    POSIX::_exit(0); #prevent END blocks from executing in this forked child
 			}
 			else {
 				return Bio::SeqIO->new('-verbose' => $self->verbose,
-											  '-format'  => $ioformat,
-											  '-fh'      => $stream);
+						       '-format'  => $ioformat,
+						       '-fh'      => $stream);
 			}
 		}
 		else {
@@ -487,12 +492,13 @@ sub get_seq_stream {
 			$self->throw("WebDBSeqI Error - check query sequences!\n");
 		}
 		$self->postprocess_data('type' => 'file',
-								'location' => $tmpfile);
+				        'location' => $tmpfile);
 		# this may get reset when requesting batch mode
 		($rformat,$ioformat) = $self->request_format();
 		if( $self->verbose > 0 ) {
-			open(my $ERR, "<", $tmpfile);
+			open my $ERR, '<', $tmpfile or $self->throw("Could not read file '$tmpfile': $!");
 			while(<$ERR>) { $self->debug($_);}
+			close $ERR;
 		}
 
 		return Bio::SeqIO->new('-verbose' => $self->verbose,
@@ -509,11 +515,11 @@ sub get_seq_stream {
 		}
 		($rformat,$ioformat) = $self->request_format();
 		$self->postprocess_data('type'=> 'string',
-										'location' => $content);
+				        'location' => $content);
 		$self->debug( "str is $$content\n");
 		return Bio::SeqIO->new('-verbose' => $self->verbose,
-									  '-format' => $ioformat,
-									  '-fh'   => new IO::String($$content));
+				       '-format' => $ioformat,
+				       '-fh'   => new IO::String($$content));
 	}
 
 	# if we got here, we don't know how to handle the retrieval type

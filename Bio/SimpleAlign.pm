@@ -514,7 +514,7 @@ sub sort_by_list {
     }
 
     my $ct=1;
-    open(my $listfh, '<', $list) || $self->throw("can't open file for reading: $list");
+    open my $listfh, '<', $list or $self->throw("Could not read file '$list': $!");
     while (<$listfh>) {
       chomp;
       my $name=$_;

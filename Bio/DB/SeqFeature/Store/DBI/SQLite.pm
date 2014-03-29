@@ -299,14 +299,14 @@ END
 	  typelist => <<END,
 (
   id  integer primary key autoincrement,
-  tag text    not null
+  tag text    not null collate nocase
 );
 create index index_typelist on typelist (tag);
 END
 	  name => <<END,
 (
   id           integer not null,
-  name         text    not null,
+  name         text    not null collate nocase,
   display_name integer default 0
 );
 create index index_name_id on name(id);
@@ -317,7 +317,7 @@ END
 (
   id              integer not null,
   attribute_id    integer not null,
-  attribute_value text
+  attribute_value text collate nocase
 );
 create index index_attribute_id    on attribute(attribute_id);
 create index index_attribute_value on attribute(attribute_value);
@@ -427,7 +427,8 @@ sub _finish_bulk_update {
     my $fh = $self->dump_filehandle($table);
     my $path = $self->dump_path($table);
     $fh->close;
-    open($fh, $path);
+
+    open $fh, '<', $path or $self->throw("Could not read file '$path': $!");
     my $qualified_table = $self->_qualify($table);
 
     my $sth;
@@ -770,7 +771,7 @@ sub _name_sql {
   my $from  = "$name_table as n";
   my ($match,$string) = $self->_match_sql($name);
 
-  my $where = "n.id=$join AND lower(n.name) $match";
+  my $where = "n.id=$join AND n.name $match COLLATE NOCASE";
   $where   .= " AND n.display_name>0" unless $allow_aliases;
   return ($from,$where,'',$string);
 }
@@ -834,8 +835,8 @@ sub _match_sql {
     $match = "LIKE ?";
     $string  = $name;
   } else {
-    $match = "= lower(?)";
-    $string  = lc($name);
+    $match = "= ? COLLATE NOCASE";
+    $string  = $name;
   }
   return ($match,$string);
 }
@@ -887,7 +888,7 @@ sub _types_sql {
     }
 
     if (length $source_tag) {
-      push @matches,"lower(tl.tag)=lower(?)";
+      push @matches,"tl.tag=? COLLATE NOCASE";
       push @args,"$primary_tag:$source_tag";
     } else {
       push @matches,"tl.tag LIKE ?";
@@ -1058,7 +1059,7 @@ sub _genericid {
   my ($table,$namefield,$name,$add_if_missing) = @_;
   my $qualified_table = $self->_qualify($table);
   my $sth = $self->_prepare(<<END);
-SELECT id FROM $qualified_table WHERE lower($namefield)=lower(?)
+SELECT id FROM $qualified_table WHERE $namefield=? COLLATE NOCASE
 END
   $sth->execute($name) or die $sth->errstr;
   my ($id) = $sth->fetchrow_array;
@@ -1117,8 +1118,8 @@ sub _dump_update_name_index {
   my $dbh     = $self->dbh;
   my ($names,$aliases) = $self->feature_names($obj);
   # unlike DBI::mysql, don't quote, as quotes will be quoted when loaded
-  print $fh join("\t",$id,lc($_),1),"\n" foreach @$names;
-  print $fh join("\t",$id,lc($_),0),"\n" foreach @$aliases;
+  print $fh join("\t",$id,$_,1),"\n" foreach @$names;
+  print $fh join("\t",$id,$_,0),"\n" foreach @$aliases;
 }
 
 sub _update_name_index {
@@ -1132,8 +1133,8 @@ sub _update_name_index {
 
   my $sth = $self->_prepare("INSERT INTO $name (id,name,display_name) VALUES (?,?,?)");
 
-  $sth->execute($id,lc $_,1) or $self->throw($sth->errstr)   foreach @$names;
-  $sth->execute($id,lc $_,0) or $self->throw($sth->errstr) foreach @$aliases;
+  $sth->execute($id,$_,1) or $self->throw($sth->errstr)   foreach @$names;
+  $sth->execute($id,$_,0) or $self->throw($sth->errstr) foreach @$aliases;
   $sth->finish;
 }
 

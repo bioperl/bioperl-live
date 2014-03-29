@@ -435,7 +435,7 @@ sub print {
   my ($file) = $self->_rearrange([qw(FILE)], @args);
   $file ||= "output.eps"; # stdout
 
-  open(my $INFO,">", $file);
+  open my $INFO, '>', $file or $self->throw("Could not write file '$file': $!");
   print $INFO "%!PS-Adobe-\n";
   print $INFO "%%BoundingBox: 0 0 ", $width, " ", $height, "\n";
   print $INFO "1 setlinewidth\n";

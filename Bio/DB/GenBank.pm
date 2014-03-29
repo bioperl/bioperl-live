@@ -173,7 +173,7 @@ BEGIN {
     $DEFAULTMODE   = 'single';
     $DEFAULTFORMAT = 'gbwithparts';
     %PARAMSTRING = (
-			 'batch' => { 'db'     => 'nucleotide',
+		    'batch' => { 'db'     => 'nucleotide',
 				  'usehistory' => 'n',
 				  'tool'   => 'bioperl'},
 		     'query' => { 'usehistory' => 'y',
@@ -191,7 +191,7 @@ BEGIN {
 				   'usehistory' => 'n',
 				   'tool'   => 'bioperl',
 				   'retmode' => 'text'},
-			 'webenv' => {
+		      'webenv' => {
 				  'query_key'  => 'querykey',
 				  'WebEnv'  => 'cookie',
 				  'db'     => 'nucleotide',

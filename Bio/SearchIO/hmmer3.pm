@@ -124,8 +124,10 @@ BEGIN {
         'Hsp_hitgaps'      => 'HSP-hit_gaps',
         'Hsp_querygaps'    => 'HSP-query_gaps',
         'Hsp_qseq'         => 'HSP-query_seq',
+        'Hsp_csline'       => 'HSP-cs_seq',
         'Hsp_hseq'         => 'HSP-hit_seq',
         'Hsp_midline'      => 'HSP-homology_seq',
+        'Hsp_pline'        => 'HSP-pp_seq',
         'Hsp_align-len'    => 'HSP-hsp_length',
         'Hsp_query-frame'  => 'HSP-query_frame',
         'Hsp_hit-frame'    => 'HSP-hit_frame',
@@ -161,8 +163,6 @@ BEGIN {
 
 sub next_result {
     my ($self) = @_;
-    my $seentop = 0;    # Placeholder for when we deal with multi-query reports
-    my $reporttype;
     my ( $last, @hit_list, @hsp_list, %hspinfo, %hitinfo, %domaincounter );
     local $/ = "\n";
     local $_;
@@ -181,6 +181,8 @@ sub next_result {
     else {
         $self->_pushback($_);
     }
+
+    my $hit_counter = 0; # helper variable for non-unique hit IDs
 
     # Regex goes here for HMMER3
     # Start with hmmsearch processing
@@ -216,7 +218,7 @@ sub next_result {
         }
 
         # Get the query info
-        elsif ( $_ =~ /^\#\squery \w+ file\:\s+(\S+)/ ) {
+        elsif ( $_ =~ /^\#\squery (?:\w+ )?file\:\s+(\S+)/ ) {
             if (   $self->{'_reporttype'} eq 'HMMSEARCH'
                 || $self->{'_reporttype'} eq 'NHMMER' )
             {
@@ -267,8 +269,63 @@ sub next_result {
 
         # Get query data
         elsif ( $_ =~ s/^Query:\s+// ) {
+            # For  multi-query reports
+            if (    (   not exists $self->{_values}->{"RESULT-algorithm_name"}
+                     or not exists $self->{_values}->{"RESULT-algorithm_version"}
+                     )
+                and exists $self->{_hmmidline}
+                ) {
+                my ($version, $versiondate) = $self->{_hmmidline} =~ m/^\#\sHMMER\s+(\S+)\s+\((.+)\)/;
+                $self->element(
+                    {   'Name' => 'HMMER_program',
+                        'Data' => $self->{_reporttype}
+                    }
+                );
+                $self->element(
+                    {   'Name' => 'HMMER_version',
+                        'Data' => $version
+                    }
+                );
+            }
+            if (    (   not exists $self->{_values}->{"RESULT-hmm_name"}
+                     or not exists $self->{_values}->{"RESULT-sequence_file"}
+                     )
+                and (   exists $self->{_hmmfileline}
+                     or exists $self->{_hmmseqline}
+                     )
+                ) {
+                if (   $self->{'_reporttype'} eq 'HMMSEARCH'
+                    or $self->{'_reporttype'} eq 'NHMMER'
+                    ) {
+                    my ($qry_file)    = $self->{_hmmfileline} =~ m/^\#\squery (?:\w+ )?file\:\s+(\S+)/;
+                    my ($target_file) = $self->{_hmmseqline}  =~ m/^\#\starget\s\S+\sdatabase\:\s+(\S+)/;
+                    $self->element(
+                        {   'Name' => 'HMMER_hmm',
+                            'Data' => $qry_file
+                        }
+                    );
+                    $self->element(
+                        {   'Name' => 'HMMER_seqfile',
+                            'Data' => $target_file
+                        }
+                    );
+                }
+                elsif ( $self->{'_reporttype'} eq 'HMMSCAN' ) {
+                    my ($qry_file)    = $self->{_hmmseqline}  =~ m/^\#\squery \w+ file\:\s+(\S+)/;
+                    my ($target_file) = $self->{_hmmfileline} =~ m/^\#\starget\s\S+\sdatabase\:\s+(\S+)/;
+                    $self->element(
+                        {   'Name' => 'HMMER_seqfile',
+                            'Data' => $qry_file
+                        }
+                    );
+                    $self->element(
+                        {   'Name' => 'HMMER_hmm',
+                            'Data' => $target_file
+                        }
+                    );
+                }
+            }
 
-            # TO DO: code to deal with multi-query report
             unless (s/\s+\[[L|M]\=(\d+)\]$//) {
                 warn "Error parsing length for query, offending line $_\n";
                 exit(0);
@@ -326,9 +383,16 @@ sub next_result {
                         $self->_pushback($_);
                         last;
                     }
+                    elsif (   $_ =~ m/^\s+E-value\s+score/
+                           || $_ =~ m/\-\-\-/
+                           || $_ =~ m/^$/
+                        )
+                    {
+                        next;
+                    }
 
                     # Grab table data
-                    next if ( m/\-\-\-/ || m/^\s+E-value\s+score/ || m/^$/ );
+                    $hit_counter++;
                     my ($eval_full,  $score_full, $bias_full, $eval_best,
                         $score_best, $bias_best,  $exp,       $n,
                         $hitid,      $desc,       @hitline
@@ -345,19 +409,17 @@ sub next_result {
                     $hitid      = shift @hitline;
                     $desc       = join " ", @hitline;
 
-                    if ( !defined($desc) ) {
-                        $desc = "";
-                    }
+                    $desc = '' if ( !defined($desc) );
+
                     push @hit_list,
                         [ $hitid, $desc, $eval_full, $score_full ];
-                    $hitinfo{$hitid} = $#hit_list;
+                    $hitinfo{"$hitid.$hit_counter"} = $#hit_list;
                 }
             }
 
             # nhmmer
-            if ( /Scores for complete hits/ ) {
+            elsif ( /Scores for complete hits/ ) {
                 while ( defined( $_ = $self->_readline ) ) {
-
                     if (   /inclusion threshold/
                         || /Annotation for each hit/
                         || /\[No hits detected/
@@ -366,9 +428,16 @@ sub next_result {
                         $self->_pushback($_);
                         last;
                     }
+                    elsif (   $_ =~ m/^\s+E-value\s+score/
+                           || $_ =~ m/\-\-\-/
+                           || $_ =~ m/^$/
+                        )
+                    {
+                        next;
+                    }
 
                     # Grab table data
-                    next if ( /\-\-\-/ || /^\s+E-value\s+score/ || /^$/ );
+                    $hit_counter++;
                     my ($eval,  $score, $bias, $hitid,
                         $start, $end,   $desc, @hitline
                     );
@@ -384,13 +453,11 @@ sub next_result {
                     $desc = '' if ( !defined($desc) );
 
                     push @hit_list, [ $hitid, $desc, $eval, $score ];
-                    $hitinfo{$hitid} = $#hit_list;
+                    $hitinfo{"$hitid.$hit_counter"} = $#hit_list;
                 }
             }
 
             # Complete sequence table data below inclusion threshold
-            # not currently fully implemented -
-            # Should all these lines simply be skipped?
             elsif ( /inclusion threshold/ ) {
                 while ( defined( $_ = $self->_readline ) ) {
                     if (   /Domain( and alignment)? annotation for each/
@@ -401,7 +468,15 @@ sub next_result {
                         $self->_pushback($_);
                         last;
                     }
-                    next if ( $_ =~ m/^$/ );
+                    elsif (   $_ =~ m/inclusion threshold/
+                           || $_ =~ m/^$/
+                        )
+                    {
+                        next;
+                    }
+
+                    # Grab table data
+                    $hit_counter++;
                     my ($eval_full,  $score_full, $bias_full, $eval_best,
                         $score_best, $bias_best,  $exp,       $n,
                         $hitid,      $desc,       @hitline
@@ -418,99 +493,163 @@ sub next_result {
                     $hitid      = shift @hitline;
                     $desc       = join " ", @hitline;
 
-                    $hitinfo{$hitid} = "below_inclusion" if defined $hitid;
+                    $desc = '' if ( !defined($desc) );
+
+                    push @hit_list,
+                        [ $hitid, $desc, $eval_full, $score_full ];
+                    $hitinfo{"$hitid.$hit_counter"} = $#hit_list;
                 }
             }
 
-            # Domain annotation for each sequence table data, hmmscan
-            elsif ( /Domain( and alignment)? annotation for each/ ) {
+            # Domain annotation for each sequence table data,
+            # for hmmscan, hmmsearch & nhmmer
+            elsif (   /Domain( and alignment)? annotation for each/
+                   or /Annotation for each hit\s+\(and alignments\)/
+                   ) {
                 @hsp_list = ();    # Here for multi-query reports
                 my $name;
+                my $annot_counter = 0;
 
                 while ( defined( $_ = $self->_readline ) ) {
-                    if (   /Internal pipeline statistics/
-                        || /\[No targets detected/ )
+                    if (   /\[No targets detected/
+                        || /Internal pipeline statistics/ )
                     {
                         $self->_pushback($_);
                         last;
                     }
-                    if ( $_ =~ m/^\>\>\s(.*?)\s+/ ) {
-                        $name = $1;
 
-                        # Skip hits below inclusion threshold
-                        next if ( $hitinfo{$name} eq "below_inclusion" );
-                        $domaincounter{$name} = 0;
+                    if ( $_ =~ m/^\>\>\s(\S*)\s+(.*)/ ) {
+                        $name    = $1;
+                        my $desc = $2;
+                        $annot_counter++;
+                        $domaincounter{"$name.$annot_counter"} = 0;
+
+                        # The Hit Description from the Scores table can be truncated if
+                        # its too long, so use the '>>' line description when its longer
+                        if (length $hit_list[
+                                             $hitinfo{"$name.$annot_counter"}
+                                             ]
+                                             [1] < length $desc
+                            ) {
+                            $hit_list[ $hitinfo{"$name.$annot_counter"} ][1] = $desc;
+                        }
 
                         while ( defined( $_ = $self->_readline ) ) {
-
-                            # Grab table data for sequence
                             if (   $_ =~ m/Internal pipeline statistics/
+                                || $_ =~ m/Alignments for each domain/
+                                || $_ =~ m/^\s+Alignment:/
                                 || $_ =~ m/^\>\>/ )
                             {
                                 $self->_pushback($_);
                                 last;
                             }
-                            if ( $_ =~ m/Alignments for each domain/ ) {
-                                $self->_pushback($_);
-                                last;
-                            }
-                            if (   $_ =~ m/^\s+\#\s+score/
-                                || $_ =~ m/^\s\-\-\-\s+/
-                                ||
-
-                                # $_ =~ m/^\>\>/  ||
-                                $_ =~ m/^$/
+                            elsif (   $_ =~ m/^\s+score\s+bias/
+                                   || $_ =~ m/^\s+\#\s+score/
+                                   || $_ =~ m/^\s+------\s+/
+                                   || $_ =~ m/^\s\-\-\-\s+/
+                                   || $_ =~ m/^$/
                                 )
                             {
                                 next;
                             }
 
                             # Grab hsp data from table, push into @hsp;
-                            if (my ($domain_num, $score,     $bias,
-                                    $ceval,      $ieval,     $hmmstart,
-                                    $hmmstop,    $qalistart, $qalistop,
-                                    $envstart,   $envstop,   $envbound,
-                                    $acc
-                                )
-                                = m|^\s+(\d+)\s\!*\?*\s+  # domain number
-                                   (\S+)\s+(\S+)\s+       # score, bias
-                                   (\S+)\s+(\S+)\s+       # c-eval, i-eval
-                                   (\d+)\s+(\d+).+?       # hmm start, stop
-                                   (\d+)\s+(\d+).+?       # query start, stop
-                                   (\d+)\s+(\d+).+?       # env start, stop
-                                   (\S+)                  # Accession
-                                   \s*$|ox
-                                )
-                            {
-                               # Keep it simple for now. let's customize later
-                                my @vals = (
-                                    $hmmstart,  $hmmstop,
-                                    $qalistart, $qalistop,
-                                    $score,     $ceval,
-                                    '',         '',
-                                    ''
-                                );
-                                my $info = $hit_list[ $hitinfo{$name} ];
+                            if ($self->{'_reporttype'} =~ m/(?:HMMSCAN|HMMSEARCH|NHMMER)/) {
+                                my ( $domain_num, $score,    $bias,
+                                     $ceval,      $ieval,
+                                     $hmm_start,  $hmm_stop, $hmm_cov,
+                                     $seq_start,  $seq_stop, $seq_cov,
+                                     $env_start,  $env_stop, $env_cov,
+                                     $hitlength,  $acc );
+                                my @vals;
+
+                                if ( # HMMSCAN & HMMSEARCH
+                                    ( $domain_num, $score,    $bias,
+                                      $ceval,      $ieval,
+                                      $hmm_start,  $hmm_stop, $hmm_cov,
+                                      $seq_start,  $seq_stop, $seq_cov,
+                                      $env_start,  $env_stop, $env_cov,
+                                      $acc ) = (
+                                            m|^\s+(\d+)\s\!*\?*\s+     # domain number
+                                              (\S+)\s+(\S+)\s+         # score, bias
+                                              (\S+)\s+(\S+)\s+         # c-eval, i-eval
+                                              (\d+)\s+(\d+)\s+(\S+)\s+ # hmm start, stop, coverage
+                                              (\d+)\s+(\d+)\s+(\S+)\s+ # seq start, stop, coverage
+                                              (\d+)\s+(\d+)\s+(\S+)\s+ # env start, stop, coverage
+                                              (\S+)                    # posterior probability accuracy
+                                               \s*$|ox
+                                        )
+                                    ) {
+                                    # Values assigned when IF succeeded
+
+                                    # Try to get the Hit length from the alignment information
+                                    $hitlength = 0;
+                                    if ($self->{'_reporttype'} eq 'HMMSEARCH') {
+                                        # For Hmmsearch, if seq coverage ends in ']' it means that the alignment
+                                        # runs until the end. In that case add the END coordinate to @hitinfo
+                                        # to use it as Hit Length
+                                        if ( $seq_cov =~ m/\]$/ ) {
+                                            $hitlength = $seq_stop;
+                                        }
+                                    }
+                                    elsif ($self->{'_reporttype'} eq 'HMMSCAN') {
+                                        # For Hmmscan, if hmm coverage ends in ']' it means that the alignment
+                                        # runs until the end. In that case add the END coordinate to @hitinfo
+                                        # to use it as Hit Length
+                                        if ( $hmm_cov =~ m/\]$/ ) {
+                                            $hitlength = $hmm_stop;
+                                        }
+                                    }
+                                }
+                                elsif ( # NHMMER
+                                       ( $score,     $bias,     $ceval,
+                                         $hmm_start, $hmm_stop, $hmm_cov,
+                                         $seq_start, $seq_stop, $seq_cov,
+                                         $env_start, $env_stop, $env_cov,
+                                         $hitlength, $acc ) = (
+                                            m|^\s+[!?]\s+
+                                              (\S+)\s+(\S+)\s+(\S+)\s+ # score, bias, evalue
+                                              (\d+)\s+(\d+)\s+(\S+)\s+ # hmm start, stop, coverage
+                                              (\d+)\s+(\d+)\s+(\S+)\s+ # seq start, stop, coverage
+                                              (\d+)\s+(\d+)\s+(\S+)\s+ # env start, stop, coverage
+                                              (\d+)\s+(\S+)            # target length, pp accuracy
+                                               .*$|ox
+                                        )
+                                    ) {
+                                    # Values assigned when IF succeeded
+                                }
+                                else {
+                                    print "Missed this line: $_\n";
+                                    next;
+                                }
+
+                                my $info = $hit_list[ $hitinfo{"$name.$annot_counter"} ];
                                 if ( !defined $info ) {
                                     $self->warn(
-                                        "Incomplete sequence information; can't find $name, hitinfo says $hitinfo{$name}\n"
+                                        "Incomplete information: can't find HSP $name in list of hits\n"
                                     );
                                     next;
                                 }
-                                $domaincounter{$name}++;
+
+                                $domaincounter{"$name.$annot_counter"}++;
                                 my $hsp_key
-                                    = $name . "_" . $domaincounter{$name};
+                                    = $name . "_" . $domaincounter{"$name.$annot_counter"};
+
+                                # Keep it simple for now. let's customize later
+                                @vals = (
+                                    $hmm_start, $hmm_stop,
+                                    $seq_start, $seq_stop,
+                                    $score,     $ceval,
+                                    $hitlength, '',
+                                    '',         '',
+                                    '',         ''
+                                );
                                 push @hsp_list, [ $name, @vals ];
-                                $hspinfo{$hsp_key} = $#hsp_list;
-                            }
-                            else {
-                                print "missed this line: $_\n";
+                                $hspinfo{"$hsp_key.$annot_counter"} = $#hsp_list;
                             }
                         }
                     }
-                    elsif ( /Alignments for each domain/ ) {
-                        my $domain_count = 0;
-
+                    elsif ( /Alignment(?:s for each domain)?:/ ) {
                         #line counter
                         my $count = 0;
 
@@ -519,7 +658,14 @@ sub next_result {
                         my $max_count = 3;
                         my $lastdomain;
                         my $hsp;
-                        my ( $hline, $midline, $qline );
+                        my ( $csline, $hline, $midline, $qline, $pline );
+
+                        # To avoid deleting whitespaces from the homology line,
+                        # keep track of the position and length of the alignment
+                        # in each individual hline/qline, to take them as reference
+                        # and use them in the homology line
+                        my $align_offset = 0;
+                        my $align_length = 0;
 
                         while ( defined( $_ = $self->_readline ) ) {
                             if (   $_ =~ m/^\>\>/
@@ -528,156 +674,86 @@ sub next_result {
                                 $self->_pushback($_);
                                 last;
                             }
-                            elsif ($hitinfo{$name} eq "below_inclusion"
-                                || $_ =~ m/^$/ )
+                            elsif ($_ =~ m/^$/ )
                             {
                                 next;
                             }
-                            elsif ( $_ =~ /\s\s\=\=\sdomain\s(\d+)\s+/ ) {
-                                my $domainnum = $1;
+
+                            if (   $_ =~ /\s\s\=\=\sdomain\s(\d+)\s+/
+                                or $_ =~ /\s\sscore:\s\S+\s+/
+                                ) {
+                                my $domainnum = $1 || 1;
                                 $count = 0;
                                 my $key = $name . "_" . $domainnum;
-                                $hsp        = $hsp_list[ $hspinfo{$key} ];
-                                $hline      = $$hsp[-3];
-                                $midline    = $$hsp[-2];
-                                $qline      = $$hsp[-1];
+                                $hsp        = $hsp_list[ $hspinfo{"$key.$annot_counter"} ];
+                                $csline     = $$hsp[-5];
+                                $hline      = $$hsp[-4];
+                                $midline    = $$hsp[-3];
+                                $qline      = $$hsp[-2];
+                                $pline      = $$hsp[-1];
                                 $lastdomain = $name;
                             }
-
                             # model data track, some reports don't have
-                            elsif ( $_ =~ m/\s+\S+\sCS$/ ) {
-                                my $modeltrack = $_;
+                            elsif ( $_ =~ m/\s+\S+\s(?:CS|RF)$/ ) {
+                                my @data = split( " ", $_ );
+                                $csline .= $data[-2];
                                 $max_count++;
                                 $count++;
                                 next;
                             }
-                            elsif ( $count == $max_count - 3 ) {
-
-                                # hit sequence
+                            # Query line and Hit line swaps positions
+                            # depending of the program
+                            elsif (    $count == $max_count - 3
+                                   or  $count == $max_count - 1
+                                   ) {
                                 my @data = split( " ", $_ );
-                                my $seq = $data[-2];
-                                $hline .= $seq;
+
+                                my $line_offset = 0;
+                                while ($_ =~ m/$data[-2]/g) {
+                                    $line_offset = pos;
+                                }
+                                if ($line_offset != 0) {
+                                    $align_length = length $data[-2];
+                                    $align_offset = $line_offset - $align_length;
+                                }
+
+                                if ($self->{'_reporttype'} eq 'HMMSCAN') {
+                                    # hit sequence
+                                    $hline .= $data[-2] if ($count == $max_count - 3);
+                                    # query sequence
+                                    $qline .= $data[-2] if ($count == $max_count - 1);
+                                }
+                                else { # hmmsearch & nhmmer
+                                    # hit sequence
+                                    $hline .= $data[-2] if ($count == $max_count - 1);
+                                    # query sequence
+                                    $qline .= $data[-2] if ($count == $max_count - 3);
+                                }
+
                                 $count++;
                                 next;
                             }
+                            # conservation track
+                            # storage isn't quite right - need to remove
+                            # leading/lagging whitespace while preserving
+                            # gap data (latter isn't done, former is)
                             elsif ( $count == $max_count - 2 ) {
-
-                                # conservation track
-                                # storage isn't quite right - need to remove
-                                # leading/lagging whitespace while preserving
-                                # gap data (latter isn't done, former is)
-                                $_ =~ s/^\s+//;
-                                $_ =~ s/\s+$//;
-                                $midline .= $_;
+                                $midline .= substr $_, $align_offset, $align_length;
                                 $count++;
                                 next;
                             }
-                            elsif ( $count == $max_count - 1 ) {
-
-                                # query track
-                                my @data = split( " ", $_ );
-                                my $seq = $data[-2];
-                                $qline .= $seq;
-                                $count++;
-                                next;
-                            }
+                            # posterior probability track
                             elsif ( $count == $max_count ) {
-
-                                #pval track
-                                my $pvals = $_;
+                                my @data   = split(" ", $_);
+                                $pline    .= $data[-2];
                                 $count     = 0;
                                 $max_count = 3;
-                                $$hsp[-3]  = $hline;
-                                $$hsp[-2]  = $midline;
-                                $$hsp[-1]  = $qline;
+                                $$hsp[-5]  = $csline;
+                                $$hsp[-4]  = $hline;
+                                $$hsp[-3]  = $midline;
+                                $$hsp[-2]  = $qline;
+                                $$hsp[-1]  = $pline;
                                 next;
-                            }
-                            else {
-                                print "missed $_\n";
-                            }
-                        }
-                    }
-                }
-            }
-
-            # Annotation for each hit, nhmmer
-            # This code is currently incomplete, the alignment strings
-            # are not being captured
-            elsif ( /Annotation for each hit\s+\(and alignments\)/ ) {
-                @hsp_list = ();
-                my $name;
-
-                while ( defined( $_ = $self->_readline ) ) {
-                    if ( $_ =~ m/Internal pipeline statistics/
-                        || m/\[No targets detected/ )
-                    {
-                        $self->_pushback($_);
-                        last;
-                    }
-                    if ( /^>>\s+(\S+)\s+/ ) {
-                        $name = $1;
-
-                        while ( defined( $_ = $self->_readline ) ) {
-
-                            if (   $_ =~ m/Internal pipeline statistics/
-                                || $_ =~ m/^>>/ )
-                            {
-                                $self->_pushback($_);
-                                last;
-                            }
-                            elsif (
-                                   $_ =~ /^\s+#\s+score/
-                                || $_ =~ /^\s+------\s+/
-                                || $_ =~ /^>>/
-                                || $_ =~ /^$/
-                                || $_ =~ /^\s+Alignment:/
-                                || $_ =~ /^\s+score:/
-                                || $_ =~ /^\s+score\s+bias/
-                                || $_ =~ /^\s+\S+\s+\d+\s+([\s+.$ambiguous_nt-]+)/i     # Alignment, line 1
-                                || $_ =~ /^\s{20,}([\s+gatc-]+)/i                       # Alignment, line 2
-                                || $_ =~ /^\s+$name\s+[\d-]+\s+([\s+$ambiguous_nt-]+)/i # Alignment, line 3
-                                || $_ =~ /^\s+[\d.\*]+/                                 # Alignment, line 4
-                                )
-                            {
-                                next;
-                            }
-                            elsif (
-                                /^\s+[!?]\s+(\S+)\s+
-                                    (\S+)\s+(\S+)\s+
-                                    (\d+)\s+(\d+)\s+[.\[\]]*\s+
-                                    (\d+)\s+(\d+)\s+[.\[\]]*\s+
-                                    (\d+)\s+(\d+)\s+[.\[\]]*\s+
-                                    (\d+)\s+(\S+).*$/ox
-                                )
-                            {
-                                my ($score,    $bias,     $eval,
-                                    $hmmstart, $hmmstop,  $hitstart,
-                                    $hitstop,  $envstart, $envstop,
-                                    $length,   $acc
-                                    )
-                                    = (
-                                    $1, $2, $3, $4,  $5, $6,
-                                    $7, $8, $9, $10, $11
-                                    );
-
-                                my @vals = (
-                                    $hitstart, $hitstop,
-                                    $hmmstart, $hmmstop,
-                                    $score,    $eval,
-                                    '',        '',
-                                    ''
-                                );
-                                my $info = $hit_list[ $hitinfo{$name} ];
-                                if ( !defined $info ) {
-                                    $self->warn(
-                                        "Incomplete information: can't find HSP $name in list of hits\n"
-                                    );
-                                    next;
-                                }
-                                $domaincounter{$name}++;
-                                my $hsp_key = $name . "_" . $domaincounter{$name};
-                                push @hsp_list, [ $name, @vals ];
-                                $hspinfo{$hsp_key} = $#hsp_list;
                             }
                             else {
                                 print "Missed this line: $_\n";
@@ -687,8 +763,8 @@ sub next_result {
                 }
             }
 
+            # End of report
             elsif ( m/Internal pipeline statistics/ || m!^//! ) {
-
                 # If within hit, hsp close;
                 if ( $self->within_element('hit') ) {
                     if ( $self->within_element('hsp') ) {
@@ -703,12 +779,14 @@ sub next_result {
                 }
 
                 # Do a lot of processing of hits and hsps here
+                my $index = 0;
                 while ( my $hit = shift @hit_list ) {
+                    $index++;
                     my $hit_name    = shift @$hit;
                     my $hit_desc    = shift @$hit;
                     my $hit_signif  = shift @$hit;
                     my $hit_score   = shift @$hit;
-                    my $num_domains = $domaincounter{$hit_name} || 0;
+                    my $num_domains = $domaincounter{"$hit_name.$index"} || 0;
 
                     $self->start_element( { 'Name' => 'Hit' } );
                     $self->element(
@@ -734,40 +812,91 @@ sub next_result {
 
                     for my $i ( 1 .. $num_domains ) {
                         my $key = $hit_name . "_" . $i;
-                        my $hsp = $hsp_list[ $hspinfo{$key} ];
+                        my $hsp = $hsp_list[ $hspinfo{"$key.$index"} ];
                         if ( defined $hsp ) {
                             my $hsp_name = shift @$hsp;
                             $self->start_element( { 'Name' => 'Hsp' } );
-                            $self->element(
-                                {   'Name' => 'Hsp_identity',
-                                    'Data' => 0
-                                }
-                            );
-                            $self->element(
-                                {   'Name' => 'Hsp_positive',
-                                    'Data' => 0
-                                }
-                            );
-                            $self->element(
-                                {   'Name' => 'Hsp_hit-from',
-                                    'Data' => shift @$hsp
-                                }
-                            );
-                            $self->element(
-                                {   'Name' => 'Hsp_hit-to',
-                                    'Data' => shift @$hsp
-                                }
-                            );
-                            $self->element(
-                                {   'Name' => 'Hsp_query-from',
-                                    'Data' => shift @$hsp
-                                }
-                            );
-                            $self->element(
-                                {   'Name' => 'Hsp_query-to',
-                                    'Data' => shift @$hsp
-                                }
-                            );
+                            # Since HMMER doesn't print some data explicitly,
+                            # calculate it from the homology line (midline)
+                            if ($$hsp[-3] ne '') {
+                                my $length    = length $$hsp[-3];
+                                my $identical = ($$hsp[-3] =~ tr/a-zA-Z//);
+                                my $positive  = ($$hsp[-3] =~ tr/+//) + $identical;
+                                $self->element(
+                                    {
+                                        'Name' => 'Hsp_align-len',
+                                        'Data' => $length
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_identity',
+                                        'Data' => $identical
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_positive',
+                                        'Data' => $positive
+                                    }
+                                );
+                            }
+                            else {
+                                $self->element(
+                                    {   'Name' => 'Hsp_identity',
+                                        'Data' => 0
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_positive',
+                                        'Data' => 0
+                                    }
+                                );
+                            }
+                            if ( $self->{'_reporttype'} eq 'HMMSCAN' ) {
+                                $self->element(
+                                    {   'Name' => 'Hsp_hit-from',
+                                        'Data' => shift @$hsp
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_hit-to',
+                                        'Data' => shift @$hsp
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_query-from',
+                                        'Data' => shift @$hsp
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_query-to',
+                                        'Data' => shift @$hsp
+                                    }
+                                );
+                            }
+                            elsif (   $self->{'_reporttype'} eq 'HMMSEARCH'
+                                   or $self->{'_reporttype'} eq 'NHMMER'
+                                   ) {
+                                $self->element(
+                                    {   'Name' => 'Hsp_query-from',
+                                        'Data' => shift @$hsp
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_query-to',
+                                        'Data' => shift @$hsp
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_hit-from',
+                                        'Data' => shift @$hsp
+                                    }
+                                );
+                                $self->element(
+                                    {   'Name' => 'Hsp_hit-to',
+                                        'Data' => shift @$hsp
+                                    }
+                                );
+                            }
                             $self->element(
                                 {   'Name' => 'Hsp_score',
                                     'Data' => shift @$hsp
@@ -775,6 +904,19 @@ sub next_result {
                             );
                             $self->element(
                                 {   'Name' => 'Hsp_evalue',
+                                    'Data' => shift @$hsp
+                                }
+                            );
+                            my $hitlength = shift @$hsp;
+                            if ( $hitlength != 0 ) {
+                                $self->element(
+                                    {   'Name' => 'Hit_len',
+                                        'Data' => $hitlength
+                                    }
+                                );
+                            }
+                            $self->element(
+                                {   'Name' => 'Hsp_csline',
                                     'Data' => shift @$hsp
                                 }
                             );
@@ -790,6 +932,11 @@ sub next_result {
                             );
                             $self->element(
                                 {   'Name' => 'Hsp_qseq',
+                                    'Data' => shift @$hsp
+                                }
+                            );
+                            $self->element(
+                                {   'Name' => 'Hsp_pline',
                                     'Data' => shift @$hsp
                                 }
                             );
@@ -895,7 +1042,7 @@ sub end_element {
     # Hsp are sort of weird, in that they end when another
     # object begins so have to detect this in end_element for now
     if ( $nm eq 'Hsp' ) {
-        foreach (qw(Hsp_qseq Hsp_midline Hsp_hseq)) {
+        foreach (qw(Hsp_csline Hsp_qseq Hsp_midline Hsp_hseq Hsp_pline)) {
             my $data = $self->{'_last_hspdata'}->{$_};
             if ( $data && $_ eq 'Hsp_hseq' ) {
 
@@ -917,6 +1064,12 @@ sub end_element {
                 $self->{'_values'} );
         }
         my $lastelem = shift @{ $self->{'_elements'} };
+
+        # Flush corresponding values from the {_values} buffer
+        my $name = uc $type;
+        foreach my $key (keys %{ $self->{_values} }) {
+            delete $self->{_values}->{$key} if ($key =~ m/^$name-/);
+        }
     }
     elsif ( $MAPPING{$nm} ) {
         if ( ref( $MAPPING{$nm} ) =~ /hash/i ) {
@@ -986,7 +1139,7 @@ sub characters {
     my ( $self, $data ) = @_;
 
     if (   $self->in_element('hsp')
-        && $data->{'Name'} =~ /Hsp\_(qseq|hseq|midline)/o
+        && $data->{'Name'} =~ /Hsp\_(?:qseq|hseq|csline|pline|midline)/o
         && defined $data->{'Data'} )
     {
         $self->{'_last_hspdata'}->{ $data->{'Name'} } .= $data->{'Data'};

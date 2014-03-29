@@ -473,6 +473,60 @@ sub homology_string{
     return $previous;
 }
 
+=head2 consensus_string
+
+ Title   : consensus_string
+ Usage   : my $cs_string = $hsp->consensus_string;
+ Function: Retrieves the consensus structure line for this HSP as a string (HMMER).
+         : If the model had any consensus structure or reference line annotation
+         : that it inherited from a multiple alignment (#=GC SS cons,
+         : #=GC RF annotation in Stockholm files), that information is shown
+         : as CS or RF annotation line.
+ Returns : string
+ Args    : [optional] string to set for consensus structure
+
+=cut
+
+sub consensus_string {
+    my ($self,$value) = @_;
+    my $previous = $self->{CS_SEQ};
+    if( defined $value || ! defined $previous ) {
+        $value = $previous = '' unless defined $value;
+        $self->{CS_SEQ} = $value;
+        # do some housekeeping so we know when to
+        # re-run _calculate_seq_positions
+        $self->{'_sequenceschanged'} = 1;
+    }
+    return $previous;
+}
+
+=head2 posterior_string
+
+ Title   : posterior_string
+ Usage   : my $pp_string = $hsp->posterior_string;
+ Function: Retrieves the posterior probability line for this HSP as a string (HMMer3).
+         : The posterior probability is the string of symbols at the bottom
+         : of the alignment indicating the expected accuracy of each aligned residue.
+         : A 0 means 0-5%, 1 means 5-15%, and so on; 9 means 85-95%,
+         : and a * means 95-100% posterior probability.
+ Returns : string
+ Args    : [optional] string to set for posterior probability
+
+=cut
+
+sub posterior_string {
+    my ($self,$value) = @_;
+    my $previous = $self->{PP_SEQ};
+    if( defined $value || ! defined $previous ) {
+        $value = $previous = '' unless defined $value;
+        $self->{PP_SEQ} = $value;
+        # do some housekeeping so we know when to
+        # re-run _calculate_seq_positions
+        $self->{'_sequenceschanged'} = 1;
+    }
+    return $previous;
+}
+
 =head2 length
 
  Title    : length
@@ -1668,7 +1722,7 @@ sub _pre_frac {
 # before calling gaps()
 # This relies first on passed parameters (parser-dependent), then on gaps
 # calculated by seq_inds() (if set), then falls back to directly checking
-# for '-' as a last resort  
+# for '-' or '.' as a last resort
 
 sub _pre_gaps {
     my $self = shift;
@@ -1682,14 +1736,18 @@ sub _pre_gaps {
     if( defined $query_gaps ) {
         $self->gaps('query', $query_gaps);
     } elsif( defined $query_seq ) {
-        my $qg = (defined $self->{'_query_offset'}) ? $self->seq_inds('query','gaps') : scalar( $query_seq =~ tr/\-//);
+        my $qg = (defined $self->{'_query_offset'}) ? $self->seq_inds('query','gaps')
+               : ($self->algorithm eq 'ERPIN')      ? scalar( $hit_seq =~ tr/\-//)
+               :  scalar( $query_seq =~ tr/\-\.// ); # HMMER3 and Infernal uses '.' and '-'
         my $offset = $self->{'_query_offset'} || 1;
         $self->gaps('query', $qg/$offset);
     }
     if( defined $hit_gaps ) {
         $self->gaps('hit', $hit_gaps);
     } elsif( defined $hit_seq ) {
-        my $hg = (defined $self->{'_sbjct_offset'}) ? $self->seq_inds('hit','gaps') : scalar( $hit_seq =~ tr/\-//);
+        my $hg = (defined $self->{'_sbjct_offset'}) ? $self->seq_inds('hit','gaps')
+               : ($self->algorithm eq 'ERPIN')      ? scalar( $hit_seq =~ tr/\-//)
+               :  scalar( $hit_seq =~ tr/\-\.// ); # HMMER3 and Infernal uses '.' and '-'
         my $offset = $self->{'_sbjct_offset'} || 1;
         $self->gaps('hit', $hg/$offset);
     }

@@ -121,16 +121,16 @@ foreach my $aln ( @alns ) {
     
     my $matrix = $dist_factory->create_distance_matrix($aln);
     my @seqnames = keys %$matrix; 
-    open(MATRIX, ">Group$count.dist");
-    printf MATRIX "%4d\n",scalar @seqnames;
+    open my $MATRIX, '>', "Group$count.dist" or die "Could not write file 'Group$count.dist': $!\n";
+    printf $MATRIX "%4d\n",scalar @seqnames;
     for(my $i =0; $i< (scalar @seqnames  - 1); $i++ ) {
-	printf MATRIX "%-12s     ", $seqnames[$i];
+	printf $MATRIX "%-12s     ", $seqnames[$i];
 	for( my $j = $i+1; $j < scalar @seqnames; $j++ ) {
-	    print MATRIX $matrix->{$seqnames[$i]}->{$seqnames[$j]},"  ";
+	    print $MATRIX $matrix->{$seqnames[$i]}->{$seqnames[$j]},"  ";
 	}
-	print MATRIX "\n";
+	print $MATRIX "\n";
     }
-    close MATRIX;
+    close $MATRIX;
 
     my $tree = $tree_factory->create_tree("Group$count.dist");
     $outtrees->write_tree($tree);   

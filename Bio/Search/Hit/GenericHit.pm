@@ -751,7 +751,6 @@ sub logical_length {
     } else {
         # Otherwise, return logical query length
         $length = $self->query_length();
-        $self->throw("Must have defined query_len") unless ( $length );
     }
 
     $logical = Bio::Search::SearchUtils::logical_length($algo, $seqType, $length);
@@ -1259,7 +1258,8 @@ sub frac_conserved {
            : across all HSPs (not including intervals between non-overlapping
            : HSPs).
  Example   : $frac_alnq = $hit_object->frac_aligned_query();
- Returns   : Float (2-decimal precision, e.g., 0.75).
+ Returns   : Float (2-decimal precision, e.g., 0.75),
+           : or undef if query length is unknown to avoid division by 0.
  Argument  : n/a
  Throws    : n/a
  Comments  : If you need data for each HSP, use hsps() and then interate
@@ -1282,8 +1282,9 @@ sub frac_aligned_query {
 
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
-    sprintf( "%.2f", $self->length_aln('query') /
-             $self->logical_length('query'));
+    my $qry_len = $self->logical_length('query');
+    return undef if $qry_len == 0; # Avoid division by 0 crash
+    sprintf( "%.2f", $self->length_aln('query') / $qry_len);
 }
 
 
@@ -1295,7 +1296,8 @@ sub frac_aligned_query {
            : across all HSPs (not including intervals between non-overlapping
            : HSPs).
  Example   : $frac_alnq = $hit_object->frac_aligned_hit();
- Returns   : Float (2-decimal precision, e.g., 0.75).
+ Returns   : Float (2-decimal precision, e.g., 0.75),
+           : or undef if hit length is unknown to avoid division by 0.
  Argument  : n/a
  Throws    : n/a
  Comments  : If you need data for each HSP, use hsps() and then interate
@@ -1318,7 +1320,9 @@ sub frac_aligned_hit {
 
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
-    sprintf( "%.2f", $self->length_aln('sbjct') / $self->logical_length('sbjct'));
+    my $sbjct_len = $self->logical_length('sbjct');
+    return undef if $sbjct_len == 0; # Avoid division by 0 crash
+    sprintf( "%.2f", $self->length_aln('sbjct') / $sbjct_len);
 }
 
 
@@ -1681,10 +1685,13 @@ sub tiled_hsps {
 =cut
 
 sub query_length {
-    my $self = shift;
-
-    return $self->{'_query_length'} = shift if @_;
-    return $self->{'_query_length'};
+    my ($self,$value) = @_;
+    my $previous = $self->{'_query_length'};
+    if( defined $value || ! defined $previous ) {
+        $value = $previous = 0 unless defined $value;
+        $self->{'_query_length'} = $value;
+    }
+    return $previous;
 }
 
 =head2 ncbi_gi

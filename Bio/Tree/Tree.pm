@@ -389,7 +389,7 @@ sub as_text {
     $self->_load_module($iomod);
 
     my $string = '';
-    open my $fh, '>', \$string or die "Couldn't open $string as file: $!\n";
+    open my $fh, '>', \$string or $self->throw("Could not write '$string' as file: $!");
     my $test = $iomod->new( -format => $format, -fh => $fh );
 
     # Get the default params for the given IO module.

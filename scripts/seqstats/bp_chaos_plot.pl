@@ -83,11 +83,12 @@ for( my $i = 1; $i <= $len; $i++ ) {
 
     $img->setPixel($x * $width,$y * $height, $black);
 }
-open(OUT, ">$output");
-binmode OUT;
+open my $OUT, '>', $output or die "Could not write file '$output': $!\n";
+binmode $OUT;
 $graph =~ s/jpg/jpeg/;
 
-print OUT $img->$graph();
+print $OUT $img->$graph();
+close $OUT;
 
 
 __END__
@@ -165,4 +166,3 @@ UK) rd@mrc-lmba.cam.ac.uk, and Jean Thierry-Mieg (CRBM du CNRS,
 France) mieg@crbm1.cnusc.fr
 
 =cut
-

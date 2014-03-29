@@ -273,12 +273,23 @@ sub result {
     # create a MeSH::Term object
     $_ = $self->{'_content'};
     $self->debug( substr($_, 0, 100) . "\n");
-    my ($id) = m|Unique ID</TH><TD>(.*?)</TD>|i;
-    my ($name) = m|MeSH Heading</TH><TD>([^<]+)|i;
-    my ($desc) = m|Scope Note</TH><TD>(.*?)</TD>|is;
+    my ($id)   = m|Unique \s+ ID </TH>
+                   <TD (?: \s+ [^>]+ )? >
+                   (.*?)                    # id
+                   </TD> |ix;
+    my ($name) = m|MeSH \s+ Heading </TH>
+                   <TD (?: \s+ [^>]+ )? >
+                   (.*?)                    # name
+                   </TD> |ix;
+    my ($desc) = m|Scope \s+ Note </TH>
+                   <TD (?: \s+ [^>]+ )? >
+                   (.*?)                    # desc
+                   </TD>|isx;
     $self->throw("No description returned: $_") unless defined $desc;
     $desc =~ s/<.*?>//sg;
-	$desc =~ s/\n/ /g;
+    $desc =~ s/(?:\r)?\n/ /g;
+    $desc =~ s/\( +/\(/g;
+    $desc =~ s/ {2,}/ /g;
 
     my $term = Bio::Phenotype::MeSH::Term->new(-id => $id,
                                                -name => $name,
@@ -286,7 +297,7 @@ sub result {
                                               );
     my ($trees) = $self->{'_content'} =~ /MeSH Tree Structures(.*)/s;
 
-    while (m|Entry Term</TH><TD>([^<]+)|ig) {
+    while (m|Entry Term</TH><TD(?: [^>]+)?>(.*?)</TD>|ig) {
         $term->add_synonym($1);
         $self->debug("Synonym: |$1|\n");
     }

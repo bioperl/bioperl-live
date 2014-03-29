@@ -29,7 +29,7 @@ our $join = ' ';
 
 our @program_commands = qw(
  rpsblast
- cat
+ find
  goob
  blorb
  multiglob

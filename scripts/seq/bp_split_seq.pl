@@ -102,9 +102,10 @@ while (my $seq = $in->next_seq()) {
     mkdir("split", 0755) unless -e "split" and -d "split";
 
     # Creates the INDEX file if the option was given
+    my $FH;
     if ($opt_i) {
         $index_file = "$id.c$opt_c.o$offset.INDEX";
-        open(FH, ">", $index_file) or die("Unable to create file: $index_file ($!)");
+        open $FH, '>', $index_file or die "Could not write file '$index_file': $!\n";
     }
 
     # Loops through the sequence
@@ -125,7 +126,7 @@ while (my $seq = $in->next_seq()) {
         print "==> Sequence chunk:\t$seq_range\tstored in file:\tsplit/$id.faa\n";
 
         # Prints the current file name into the INDEX file if the option was given
-        print FH "split/$id.faa\n" if $opt_i;
+        print $FH "split/$id.faa\n" if $opt_i;
 
         # Decreases the $i value with the offset value
         $i -= $offset;
@@ -134,7 +135,7 @@ while (my $seq = $in->next_seq()) {
     # Closes the INDEX file if the option was given
     if ($opt_i) {
         print "==> INDEX stored in file:\t\t\t$index_file\n";
-        close(FH);
+        close $FH;
     }
 }
 

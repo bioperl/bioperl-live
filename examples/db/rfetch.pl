@@ -39,11 +39,12 @@ my $seqout = Bio::SeqIO->new( '-format' => $format, '-fh' => \*STDOUT);
 my @ids;
 
 if( defined $file ) {
-  open(F,$file) || die "cannot open $file $!";
-  while( <F> ) {
+  open my $F, '<', $file or die "Could not read file '$file': $!\n";
+  while( <$F> ) {
     my ($id) = split;
     push(@ids,$id);
   }
+  close $F;
 } else {
   @ids = @ARGV;
 }

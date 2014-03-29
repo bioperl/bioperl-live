@@ -36,10 +36,10 @@ Bio::AlignIO - Handler for AlignIO Formats
 
     use Bio::AlignIO;
 
-    open MYIN,"testaln.fasta";
+    open MYIN, '<', 'testaln.fasta' or die "Could not read file 'testaln.fasta': $!\n";
     $in  = Bio::AlignIO->newFh(-fh     => \*MYIN,
                                -format => 'fasta');
-    open my $MYOUT, '>', 'testaln.pfam';
+    open my $MYOUT, '>', 'testaln.pfam' or die "Could not write file 'testaln.pfam': $!\n";
     $out = Bio::AlignIO->newFh(-fh     =>  $MYOUT,
                                -format => 'pfam');
 

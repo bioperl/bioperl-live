@@ -67,7 +67,7 @@ GetOptions(
 
 my $outfh;
 if( $output ) { 
-    open($outfh, ">$output") || die("Error opening output file $output. $!");
+    open $outfh, '>', $output or die "Could not write output file '$output': $!\n";
 } else {
     $outfh = *STDOUT;
 }

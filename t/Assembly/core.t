@@ -9,11 +9,11 @@ BEGIN {
     test_begin( -tests => 892,
                 -requires_module => 'DB_File' );
 
-    use_ok('Bio::Seq');
-    use_ok('Bio::LocatableSeq');
-    use_ok('Bio::Seq::Quality');
-    use_ok('Bio::Assembly::IO');
-    use_ok('Bio::Assembly::Singlet');
+    use_ok 'Bio::Seq';
+    use_ok 'Bio::LocatableSeq';
+    use_ok 'Bio::Seq::Quality';
+    use_ok 'Bio::Assembly::IO';
+    use_ok 'Bio::Assembly::Singlet';
 }
 use Bio::Root::IO;
 
@@ -106,17 +106,19 @@ is $aio->variant, '454';
 # Some PHRAP input
 #
 
-my $in = Bio::Assembly::IO->new
-    (-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'),
-     -verbose => -1);
+my $in = Bio::Assembly::IO->new(
+    -file    => test_input_file('consed_project','edit_dir','test_project.phrap.out'),
+    -verbose => -1,
+);
 isa_ok $in, 'Bio::Assembly::IO';
 while (my $contig = $in->next_contig) {
-    isa_ok($contig, 'Bio::Assembly::Contig');
+    isa_ok $contig, 'Bio::Assembly::Contig';
 }
 
-$in = Bio::Assembly::IO->new
-    (-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'),
-     -verbose => -1);
+$in = Bio::Assembly::IO->new(
+    -file    => test_input_file('consed_project','edit_dir','test_project.phrap.out'),
+    -verbose => -1,
+);
 isa_ok $in, 'Bio::Assembly::IO';
 my $sc;
 TODO: {
@@ -127,9 +129,10 @@ TODO: {
 }
 
 $in->verbose(-1);
-$in = Bio::Assembly::IO->new
-    (-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'),
-     -verbose => -1);
+$in = Bio::Assembly::IO->new(
+    -file    => test_input_file('consed_project','edit_dir','test_project.phrap.out'),
+    -verbose => -1,
+);
 ok $sc = $in->next_assembly;
 isa_ok $sc, 'Bio::Assembly::Scaffold';
 
@@ -141,7 +144,7 @@ isa_ok $sc, 'Bio::Assembly::Scaffold';
 is $sc->id, "NoName";
 is $sc->id('test'), "test";
 
-isa_ok($sc->annotation, 'Bio::AnnotationCollectionI');
+isa_ok $sc->annotation, 'Bio::AnnotationCollectionI';
 is $sc->annotation->get_all_annotation_keys, 0,"no annotations in Annotation collection?";
 is $sc->get_nof_contigs, 1;
 is $sc->get_nof_sequences_in_contigs, 2;
@@ -192,7 +195,7 @@ is @all_seq_ids, 4;
 # ACE Consed variant (default)
 $aio = Bio::Assembly::IO->new(
     -file   => test_input_file('consed_project','edit_dir','test_project.fasta.screen.ace.2'),
-    -format => 'ace'
+    -format => 'ace',
 );
 
 my $assembly = $aio->next_assembly();
@@ -211,7 +214,7 @@ my @annotations = $features->get_features_by_type('Annotation');
 is @annotations, 2;
 
 my $had_tag = 0;
-foreach my $an (@annotations) {
+for my $an (@annotations) {
     if ($an->has_tag('extra_info')) {
         $had_tag++;
         is (($an->get_tag_values('extra_info'))[0], "contig extra\ninfo\n");
@@ -279,18 +282,18 @@ ok @all_seq_ids = $assembly->get_all_seq_ids, "get_all_seq_ids";
 for my $seq_id (@all_seq_ids) {
   ok not $seq_id =~ m/contig/i;
 }
-is(@all_seq_ids, 39);
+is @all_seq_ids, 39;
 
 # bug 2758
 ok $aio = Bio::Assembly::IO->new(
-    -file=>test_input_file('singlet_w_CT.ace'),
-    -format=>'ace'
+    -file   => test_input_file('singlet_w_CT.ace'),
+    -format => 'ace',
 );
 
 # ACE 454 variant
 $aio = Bio::Assembly::IO->new(
-    -file=>test_input_file('27-contig_Newbler.ace'),
-    -format=>'ace-454'
+    -file   => test_input_file('27-contig_Newbler.ace'),
+    -format => 'ace-454',
 );
 $assembly = $aio->next_assembly();
 @contigs = $assembly->all_contigs();
@@ -304,7 +307,7 @@ for my $read ($contig->each_seq) {
       $min_aln_coord = $aln_coord_start;
    }
 }
-is ($min_aln_coord, 1, '454 ACE variant coordinates check');
+is $min_aln_coord, 1, '454 ACE variant coordinates check';
 # The ends of the consensus should be padded
 my $left_pad_length  = 29;
 my $sequence_length  = 203;
@@ -326,7 +329,7 @@ ok defined $2;
 
 # Writing ACE files
 my $asm_infile  = '27-contig_Newbler.ace';
-my $asm_outfile = test_output_file().'.ace';
+my $asm_outfile = test_output_file();
 my $asm_out = Bio::Assembly::IO->new(
     -file    => ">$asm_outfile",
     -format  =>'ace',
@@ -361,16 +364,16 @@ ok $asm_out->write_assembly( -scaffold => $asm_in, -singlets => 1  );
 # Importing an assembly
 
 $asm_in = Bio::Assembly::IO->new(
-    -file => test_input_file("sample_dataset.tigr "),
-    -format=>'tigr'
+    -file   => test_input_file("sample_dataset.tigr"),
+    -format => 'tigr',
 );
 while (my $obj = $asm_in->next_contig) {
     isa_ok $obj, 'Bio::Assembly::Contig'; # Singlets are contigs too
 }
 
 $asm_in = Bio::Assembly::IO->new(
-    -file => test_input_file("sample_dataset.tigr "),
-    -format=>'tigr'
+    -file   => test_input_file("sample_dataset.tigr"),
+    -format => 'tigr',
 );
 
 my $scaf_in = $asm_in->next_assembly;
@@ -421,8 +424,8 @@ is $scaf_in->annotation->get_all_annotation_keys, 0, "no annotations in Annotati
 # Exporting an assembly
 $asm_outfile = test_output_file();
 $asm_out = Bio::Assembly::IO->new(
-    -file=> ">$asm_outfile",
-    -format=>'tigr'
+    -file   =>  ">$asm_outfile",
+    -format => 'tigr',
 );
 ok $asm_out->write_assembly( -scaffold => $scaf_in), 'writing in the TIGR format';
 
@@ -432,8 +435,10 @@ ok $asm_out->write_assembly( -scaffold => $scaf_in), 'writing in the TIGR format
 # /maj
 #
 my $file = 'test.maq';
-ok $aio = Bio::Assembly::IO->new( -file => test_input_file($file),
-                                  -format => 'maq' ), "init maq IO object";
+ok $aio = Bio::Assembly::IO->new(
+    -file   => test_input_file($file),
+    -format => 'maq',
+), "init maq IO object";
 ok $assembly = $aio->next_assembly, "get maq assy";
 is $assembly->get_nof_contigs, 11, "got all contigs";
 ok open(my $tf, test_input_file($file)), "read test file as text";
@@ -452,8 +457,10 @@ while (my $contig = $aio->next_contig) {
 # Testing maq with singlets
 #
 $file = 'test_singlets.maq';
-ok $aio = Bio::Assembly::IO->new( -file => test_input_file($file),
-                                  -format => 'maq' );
+ok $aio = Bio::Assembly::IO->new(
+    -file   => test_input_file($file),
+    -format => 'maq',
+);
 ok $assembly = $aio->next_assembly, "get maq assy";
 isa_ok $aio, 'Bio::Assembly::IO';
 
@@ -482,8 +489,10 @@ for my $seq_id (@all_seq_ids) {
 }
 is @all_seq_ids, 250;
 
-ok $aio = Bio::Assembly::IO->new( -file => test_input_file($file),
-                                  -format => 'maq' );
+ok $aio = Bio::Assembly::IO->new(
+    -file   => test_input_file($file),
+    -format => 'maq',
+);
 while (my $contig = $aio->next_contig) {
     isa_ok $contig, 'Bio::Assembly::Contig';
 }

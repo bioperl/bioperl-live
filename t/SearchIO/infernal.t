@@ -132,7 +132,7 @@ is($meta, '(((((((,,<<<<___.____>>>>,<<<<<_______>>>>>,,,,,<<<<<_______>>>>>))))
 is($meta, '(((((((,,<<<<___.____>>>>,<<<<<_______>>>>>,,,,,<<<<<_______>>>>>))))))):');
 
 is($hsp->frame('query'), 0, "HSP frame");
-is($hsp->gaps, 0, "HSP gaps");
+is($hsp->gaps, 1, "HSP gaps");
 is($hit->length, 0, "Hit length");
 isa_ok($hsp->get_aln, 'Bio::Align::AlignI');
 isa_ok($hsp->hit, 'Bio::SeqFeature::Similarity', "HSP hit");
@@ -315,7 +315,7 @@ is($meta, ':::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<<<<<_____
 is($meta, ':::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<<<<<_______>>>>>>>,,)))).))))::::::::::::::');
 
 is($hsp->frame('query'), 0, "HSP frame");
-is($hsp->gaps, 0, "HSP gaps");
+is($hsp->gaps, 1, "HSP gaps");
 is($hit->length, 0, "Hit length");
 isa_ok($hsp->get_aln, 'Bio::Align::AlignI');
 isa_ok($hsp->hit, 'Bio::SeqFeature::Similarity', "HSP hit");
@@ -613,7 +613,7 @@ float_is($hsp->evalue, 6.802);
 isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
 isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
 is($hsp->frame('query'), 0, "HSP frame");
-is($hsp->gaps, 3, "HSP gaps");
+is($hsp->gaps, 4, "HSP gaps");
 # infernal can return alignment data
 isa_ok($hsp->get_aln, 'Bio::Align::AlignI');
 isa_ok($hsp->hit, 'Bio::SeqFeature::Similarity', "HSP hit");
@@ -714,4 +714,3 @@ is($hsp->meta,
    ':::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<<<<<_______>>>>>>>,,))))))))::::::::::::::',
    "HSP meta");
 is($hsp->strand('hit'), 1, "HSP strand");
-

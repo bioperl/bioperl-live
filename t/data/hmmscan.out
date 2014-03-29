@@ -150,3 +150,53 @@ Domain search space  (domZ):               7  [number of targets reported over t
 # CPU time: 0.74u 0.55s 00:00:01.29 Elapsed: 00:00:07.01
 # Mc/sec: 189.21
 //
+Query:       lcl|Test_ID.1|P1  [L=463]
+Description: 281521..282909 
+Scores for complete sequence (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Model        Description
+    ------- ------ -----    ------- ------ -----   ---- --  --------     -----------
+    2.2e-06   19.9   1.5    4.3e-06   18.9   1.0    1.4  1  IS4.original 
+    2.3e-06   19.7   1.5    4.3e-06   18.8   1.0    1.4  1  IS4.original 
+
+
+Domain annotation for each model (and alignments):
+>> IS4.original  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   18.9   1.0   8.9e-08   4.3e-06     315     353 ..     335     369 ..     318     391 .. 0.75
+
+  Alignments for each domain:
+  == domain 1    score: 18.9 bits;  conditional E-value: 8.9e-08
+      IS4.original 315 filatnlddeldaediaelYrlRwqiElfFrelKsllgl 353
+                         lat+  +el+ae+i+ lY +Rw+iE +F+ lK   ++
+  lcl|Test_ID.1|P1 335 LLLATE--TELSAEEILRLYARRWGIEPLFHNLKR--WW 369
+                       345555..**************************7..44 PP
+
+>> IS4.original  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   18.8   1.0     9e-08   4.3e-06     315     353 ..     335     369 ..     318     391 .. 0.75
+
+  Alignments for each domain:
+  == domain 1    score: 18.8 bits;  conditional E-value: 9e-08
+      IS4.original 315 filatnlddeldaediaelYrlRwqiElfFrelKsllgl 353
+                         lat+  +el+ae+i+ lY +Rw+iE +F+ lK   ++
+  lcl|Test_ID.1|P1 335 LLLATE--TELSAEEILRLYARRWGIEPLFHNLKR--WW 369
+                       345555..**************************7..44 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query sequence(s):                         1  (463 residues)
+Target model(s):                          96  (37031 nodes)
+Passed MSV filter:                        16  (0.166667); expected 1.9 (0.02)
+Passed bias filter:                       16  (0.166667); expected 1.9 (0.02)
+Passed Vit filter:                         9  (0.09375); expected 0.1 (0.001)
+Passed Fwd filter:                         2  (0.0208333); expected 0.0 (1e-05)
+Initial search space (Z):                 96  [actual number of targets]
+Domain search space  (domZ):               2  [number of targets reported over threshold]
+# CPU time: 0.03u 0.02s 00:00:00.04 Elapsed: 00:00:00.06
+# Mc/sec: 276.54
+//

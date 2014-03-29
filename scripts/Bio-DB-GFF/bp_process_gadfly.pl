@@ -102,20 +102,24 @@ sub dump_symbol {
 
 sub process_fasta {
   my $file = shift @ARGV;
-  open F,$file or die "Can't open $file: $!";
+  open my $F, '<', $file or die "Could not read file '$file': $!\n";
   print STDERR "Reading big FASTA file, please be patient...\n";
   my ($current_id,%lengths);
-  while (<F>) {
-    if (/^>(\S+)/) {
+  while (my $line = <$F>) {
+    if ($line =~ /^>(\S+)/) {
       $current_id = $1;
       next;
     }
     die "this doesn't look like a fasta file to me" unless $current_id;
-    chomp;
-    $lengths{$current_id} += length;
+    chomp $line;
+    $lengths{$current_id} += length $line;
   }
-  foreach (sort keys %lengths) {
-    print join("\t",$_,'arm','Component',1,$lengths{$_},'.','+','.',qq(Sequence "$_")),"\n";
+  close $F;
+
+  foreach my $id (sort keys %lengths) {
+    print join("\t", $id, 'arm', 'Component', 1, $lengths{$id},
+                     '.', '+', '.', qq(Sequence "$id")
+               ), "\n";
   }
 }
 

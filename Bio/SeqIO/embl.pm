@@ -214,7 +214,7 @@ sub next_seq {
 
         # ID   DQ299383; SV 1; linear; mRNA; STD; MAM; 431 BP.
         # This regexp comes from the new2old.pl conversion script, from EBI
-        if ($line =~ m/^ID   (\w+);\s+SV (\d+); (\w+); ([^;]+); (\w{3}); (\w{3}); (\d+) BP./) {
+        if ($line =~ m/^ID   (\S+);\s+SV (\d+); (\w+); ([^;]+); (\w{3}); (\w{3}); (\d+) BP./) {
             ($name, $sv, $topology, $mol, $div) = ($1, $2, $3, $4, $6);
         }
         if (defined $sv) {

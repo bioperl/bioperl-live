@@ -645,30 +645,32 @@ sub retrieve_blast {
 =cut
 
 sub save_output {
-        my ($self, $filename) = @_;
-        if( ! defined $filename ) {
-                $self->throw("Can't save blast output.  You must specify a filename to save to.");
-        }
-        my $blastfile = $self->file;
-        #open temp file and output file, have to filter out some HTML
-        open(my $TMP, $blastfile) or $self->throw("cannot open $blastfile");
+    my ($self, $filename) = @_;
+    if( not defined $filename ) {
+        $self->throw("Can't save blast output.  You must specify a filename to save to.");
+    }
+    my $blastfile = $self->file;
+    #open temp file and output file, have to filter out some HTML
+    open my $TMP, '<', $blastfile or $self->throw("Could not read file '$blastfile': $!");
 
-        open(my $SAVEOUT, ">", $filename) or $self->throw("cannot open $filename");
-        my $seentop = 0;
-        while(<$TMP>) {
-                next if (/<pre>/);
-                if(/^(?:[T]?BLAST[NPX])\s*.+$/i ||
-           /^RPS-BLAST\s*.+$/i ||
-           /<\?xml\sversion=/ ||
-           /^#\s+(?:[T]?BLAST[NPX])\s*.+$/) {
-                        $seentop=1;
-                } 
-        next if !$seentop;
-                if( $seentop ) {
-                        print $SAVEOUT $_;
-                }
+    open my $SAVEOUT, '>', $filename or $self->throw("Could not write file '$filename': $!");
+    my $seentop = 0;
+    while (my $line = <$TMP>) {
+        next if ($line =~ /<pre>/);
+
+        if (   $line =~ /^(?:[T]?BLAST[NPX])\s*.+$/i
+            or $line =~ /^RPS-BLAST\s*.+$/i
+            or $line =~ /<\?xml\sversion=/
+            or $line =~ /^#\s+(?:[T]?BLAST[NPX])\s*.+$/
+           ) {
+            $seentop = 1;
         }
-        return 1;
+        next if !$seentop;
+        if ( $seentop ) {
+            print $SAVEOUT $line;
+        }
+    }
+    return 1;
 }
 
 sub _load_input {

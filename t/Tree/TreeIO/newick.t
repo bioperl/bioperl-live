@@ -182,8 +182,10 @@ sub test_roundtrip {
 
 sub read_file {
   my $file = shift;
-  open(IN,"<$file");
-  my (@lines) = <IN>;
+  open my $IN, '<', $file or die "Could not read file '$file': $!\n";
+  my (@lines) = <$IN>;
+  close $IN;
+
   @lines = map {$_ =~ s/\\n//g} @lines;
   return join("",@lines);
 }

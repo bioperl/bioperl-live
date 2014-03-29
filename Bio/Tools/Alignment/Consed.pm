@@ -237,18 +237,27 @@ sub count_sequences_with_grep {
     # Tom Christiansen's 'tcgrep'
     # http://www.cpan.org/modules/by-authors/id/TOMC/scripts/tcgrep.gz
 
-    open(my $FILE, $self->{'filename'}) or do { $self->warn("cannot open file ".$self->{'filename'}. " for grepping"); return}; 
+    open my $FILE, '<', $self->{'filename'} or do {
+        $self->warn("Could not read file '$self->{'filename'}' for grepping: $!");
+        return
+    };
     my $counter =0;
     while(<$FILE>) { $counter++ if(/^AF/); }
-
     close $FILE;
-    opendir(my $SINGLETS,$self->{'path'});
+
+    opendir my $SINGLETS, $self->{'path'};
     foreach my $f ( readdir($SINGLETS) ) {
-	next unless ($f =~ /\.singlets$/); 
-	open(my $FILE, File::Spec->catfile($self->{'path'},$f)) or do{ $self->warn("cannot open file ".File::Spec->catfile($self->{'path'},$f)); next };
-	while(<$FILE>) { $counter++ if(/^>/) }
-	close $FILE;
+        next unless ($f =~ /\.singlets$/);
+
+        my $singlet_file = File::Spec->catfile($self->{'path'}, $f);
+        open my $S_FILE, '<', $singlet_file or do {
+            $self->warn("Could not read file '$singlet_file': $!");
+            next
+        };
+        while(<$S_FILE>) { $counter++ if(/^>/) }
+        close $S_FILE;
     }
+    closedir $SINGLETS;
     return $counter;
 }
 
@@ -384,10 +393,10 @@ sub freeze_hash {
         my %contigs = %{$self->{'contigs'}};
         my $frozen = freeze(%contigs);
         umask 0001;
-        open (my $FREEZE,">$filename") or do {
+        open my $FREEZE, '>', $filename or do {
             $self->warn( "Bio::Tools::Alignment::Consed could not ".
                          "freeze the contig hash because the file ".
-                         "($filename) could not be opened: $!\n");
+                         "($filename) could not be opened: $!");
             return 1;
         };
         print $FREEZE $frozen;
@@ -1332,9 +1341,9 @@ sub write_stats {
     my ($statsfilecontents) = $statistics_raw =~ s/.*\ \:\ //g;
     umask 0001;
     my $fh = Bio::Root::IO->new(-file=>"$stats_filename");
-    # open(STATSFILE,">$stats_filename") or print("Could not open the statsfile: $!\n");
+    # open my $STATSFILE, '>', $stats_filename or print "Could not write the statsfile: $!\n");
     $fh->_print("$statsfilecontents");
-    # close STATSFILE;
+    # close $STATSFILE;
     $fh->close();
 }
 

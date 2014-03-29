@@ -57,7 +57,7 @@ SKIP: {
         if ( $rc < 0 ) {
         skip("need a better solution for when 'Server failed to return any data'",2);
         }
-        sleep 5;
+        sleep 10;
         diag("Retrieval attempt: $attempt\n") if $v;
         $attempt++ < 10 ? next : last;
     } else {
@@ -136,7 +136,7 @@ SKIP: {
         if ( $rc < 0 ) {
         skip("need a better solution for when 'Server failed to return any data'",2);
         }
-        sleep 5;
+        sleep 10;
         diag("Retrieval attempt: $attempt") if $v;
         $attempt++ < 10 ? next : last;
     } else {
@@ -176,7 +176,7 @@ SKIP: {
 }
 
 SKIP: {
-    test_skip(-tests => 5, -requires_module => 'Bio::SearchIO::blastxml');
+    test_skip(-tests => 6, -requires_module => 'Bio::SearchIO::blastxml');
    
     my $remote_blast = Bio::Tools::Run::RemoteBlast->new('-prog' => $prog,
         '-data'       => $db,
@@ -214,7 +214,7 @@ SKIP: {
             if ( $rc < 0 ) {
                 skip("need a better solution for when 'Server failed to return any data'",2);
             }
-            sleep 5;
+            sleep 10;
             diag("Retrieval attempt: $attempt") if $v;
             $attempt++ < 10 ? next : last;
         } else {

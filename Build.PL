@@ -82,7 +82,7 @@ my %recommends = (
         'Bio::Assembly::Tools::ContigSpectrum'],
 
     'GraphViz'                  => [0,
-        'Phylogenetic Network Visulization/Bio::PhyloNetwork::GraphViz'],
+        'Phylogenetic Network Visualization/Bio::PhyloNetwork::GraphViz'],
 
     'HTML::Entities'            => [0,
         'Remote analysis POST submissions/Bio::SearchIO::blastxml'],
@@ -97,6 +97,9 @@ my %recommends = (
         'GenBank+GenPept sequence retrieval, remote http Blast jobs'.
         '/Bio::DB::*,Bio::Tools::Run::RemoteBlast,'.
         'Bio::Tools::Analysis::Protein*,Bio::Tools::Analysis::DNA*'],
+
+    'IO::Scalar'               => [0,
+        'Deal with non-seekable filehandles/Bio::Tools::GuessSeqFormat'],
 
     'List::MoreUtils'           => [0,
         'Back- or reverse-translation of sequences/'.
@@ -172,7 +175,7 @@ my @drivers = available_drivers();
 my $build = Bio::Root::Build->new(
     module_name         => 'Bio',
     dist_name           => 'BioPerl',
-    dist_version        => '1.006902',
+    dist_version        => '1.006924',
     dist_author         => 'BioPerl Team <bioperl-l@bioperl.org>',
     dist_abstract       => 'Bioinformatics Toolkit',
     license             => 'perl',
@@ -319,7 +322,7 @@ sub make_bdb_test {
     my $path0 = File::Spec->catfile('t', 'LocalDB', 'SeqFeature.t');
     my $path = File::Spec->catfile('t', 'LocalDB','SeqFeature_BDB.t');
     unlink($path) if (-e $path);
-    open(my $F, ">", $path) || die "Can't create test file\n";
+    open my $F, '>', $path or die "Could not write test file '$path': $!\n";
     print $F <<END;
 system '$^X $path0 -adaptor berkeleydb -create 1 -temp 1';
 END
@@ -351,7 +354,7 @@ sub make_dbi_test {
     my $test_db = $build->notes('test_db');
     my $user = $build->notes('test_user');
     my $pass = $build->notes('test_pass');
-    open my $F,">$path";
+    open my $F, '>', $path or die "Could not write file '$path' for DBI test: $!\n";
     my $str = "$path0 -adaptor DBI::$driver -create 1 -temp 1 -dsn \"$dsn\"";
     $str .= " -user $user" if $user;
     $str .= " -password $pass" if $pass;

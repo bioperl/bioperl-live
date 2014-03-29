@@ -160,6 +160,7 @@ use DBI;
 use Memoize;
 use Cwd 'abs_path';
 use Bio::DB::GFF::Util::Rearrange 'rearrange';
+use File::Copy;
 use File::Spec;
 use constant DEBUG=>0;
 
@@ -452,16 +453,16 @@ sub _finish_bulk_update {
     my $path = $self->dump_path($table);
     $fh->close;
     my $qualified_table = $self->_qualify($table);
-    system "cp $path $path.bak";
+    copy($path, "$path.bak");
     # Get stuff from file into STDIN so we don't have to be superuser
-    open FH, $path;
+    open my $FH, '<', $path or $self->throw("Could not read file '$path': $!");
     print STDERR "Loading file $path\n";
     $dbh->do("COPY $qualified_table FROM STDIN CSV QUOTE '''' DELIMITER '\t'") or $self->throw($dbh->errstr);
-    while (my $line = <FH>) {
+    while (my $line = <$FH>) {
       $dbh->pg_putline($line);
     }
     $dbh->pg_endcopy() or $self->throw($dbh->errstr);
-    close FH;
+    close $FH;
     #unlink $path;
   }
   delete $self->{bulk_update_in_progress};

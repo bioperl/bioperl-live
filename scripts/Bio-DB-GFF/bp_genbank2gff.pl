@@ -251,13 +251,14 @@ elsif ($accFILE){
     my $filename = shift;
     die "you must supply a filename after the --accFILE command line flag\n" unless $filename;
     die "file $filename does not exist\n" unless (-e $filename && !(-d $filename));
-    open IN, "$filename" || die "Can't open file $filename for reading accession numbers: $!\n";
-    while (<IN>){
-        chomp;
-	status(loading => $_);
-        my $result = $db->load_from_embl(/^NC_/?'refseq':'embl' => $_);
+    open my $IN, '<', $filename or die "Could not read file '$filename' for reading accession numbers: $!\n";
+    while (my $line = <$IN>){
+        chomp $line;
+	status(loading => $line);
+        my $result = $db->load_from_embl(/^NC_/?'refseq':'embl' => $line);
 	status(done => $result);
     }
+    close $IN;
     exit 1;
 }
 

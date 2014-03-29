@@ -99,7 +99,7 @@ for my $key (sort keys %dependencies) {
     }
 }
 
-open (my $dfile, '>', $depfile) || die "Can't open dependency file :$!\n";
+open my $dfile, '>', $depfile or die "Could not write dependency file '$depfile': $!\n";
 
 print $dfile $dep_header;
 
@@ -157,7 +157,7 @@ sub parse_core {
     my $file = $_;
     return unless $file =~ /\.PLS$/ || $file =~ /\.p[ml]$/ ;
     return unless -e $file;
-    open my $F, $file || die "Could not open file $file";
+    open my $F, '<', $file or die "Could not read file '$file': $!\n";
     my $pod = '';
     MODULE_LOOP:
     while (my $line = <$F>) {

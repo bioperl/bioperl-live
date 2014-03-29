@@ -64,13 +64,13 @@ sub print_results {
   
   # Now we parse the FASTA file which was just generated, and perform
   # some simple conversions to HTML.   
-  open (TEMPORARY, "<$filename") or die "unable to open temporary file $filename\n";
+  open my $TEMPORARY, '<', $filename or die "Could not read temporary file '$filename': $!\n";
   print "<tt>\n";
-  while (<TEMPORARY>) {
+  while (<$TEMPORARY>) {
     print $_;
     print "<br>\n";
   }
-  close TEMPORARY;
+  close $TEMPORARY;
   print "</tt>\n";
   unlink $filename;
 }

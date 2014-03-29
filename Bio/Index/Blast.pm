@@ -211,7 +211,7 @@ sub _index_file {
 		          # of the last found record.
 	  );
 
-	open(my $BLAST, '<', $file) or $self->throw("cannot open file $file\n");
+	open my $BLAST, '<', $file or $self->throw("Could not read file '$file': $!");
 
 	my (@data, @records);
 	my $indexpoint = 0;

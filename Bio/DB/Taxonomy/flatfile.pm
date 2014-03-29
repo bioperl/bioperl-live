@@ -362,8 +362,8 @@ sub _build_index {
     
     if (! -e $nodeindex || $force) {
         my (%parent2children,@nodes);
-        open(NODES,$nodesfile) || 
-            $self->throw("Cannot open node file '$nodesfile' for reading");
+        open my $NODES, '<', $nodesfile
+            or $self->throw("Could not read node file '$nodesfile': $!");
         
         unlink $nodeindex;
         unlink $parent2childindex;
@@ -372,7 +372,7 @@ sub _build_index {
         my $btree = tie( %parent2children, 'DB_File', $parent2childindex, O_RDWR|O_CREAT, 0644, $DB_BTREE) || 
             $self->throw("Cannot tie to file '$parent2childindex': $!");
         
-        while (<NODES>) {
+        while (<$NODES>) {
             next if /^$/;
             chomp;
             my ($taxid,$parent,$rank,$code,$divid,undef,$gen_code,undef,$mito) = split(/\t\|\t/,$_);
@@ -386,7 +386,7 @@ sub _build_index {
             $nodes[$taxid] = join(SEPARATOR, ($taxid,$parent,$rank,$code,$divid,$gen_code,$mito));
             $btree->put($parent,$taxid);
         }
-        close(NODES);
+        close $NODES;
         
         $nh = $btree = undef;
         untie @nodes ;
@@ -394,8 +394,8 @@ sub _build_index {
     }
     
     if ((! -e $name2idindex || -z $name2idindex) || (! -e $id2nameindex || -z $id2nameindex) || $force) { 
-        open(NAMES,$namesfile) || 
-            $self->throw("Cannot open names file '$namesfile' for reading");
+        open my $NAMES, '<', $namesfile
+            or $self->throw("Could not read names file '$namesfile': $!");
         
         unlink $name2idindex;
         unlink $id2nameindex;
@@ -405,7 +405,7 @@ sub _build_index {
         my $nameh = tie ( %name2id, 'DB_File', $name2idindex, O_RDWR|O_CREAT, 0644, $DB_HASH) || 
             $self->throw("Cannot tie to file '$name2idindex': $!");
         
-        while (<NAMES>) {
+        while (<$NAMES>) {
             next if /^$/;
             chomp; 
             my ($taxid, $name, $unique_name, $class) = split(/\t\|\t/,$_);
@@ -455,7 +455,7 @@ sub _build_index {
             }
             $id2name[$taxid] = join(SEPARATOR, @names);
         }
-        close(NAMES);
+        close $NAMES;
         
         $idh = $nameh = undef;
         untie( %name2id);
@@ -518,5 +518,20 @@ sub index_directory {
     return $self->{'index_directory'};
 }
 
+
+sub DESTROY {
+    my $self = shift;
+    # Destroy all filehandle references
+    # to be able to remove temporary files
+    undef $self->{_id2name};
+    undef $self->{_name2id};
+    undef $self->{_nodes};
+    undef $self->{_parent2children};
+    undef $self->{_parentbtree};
+    unlink catfile($self->{index_directory},'id2names');
+    unlink catfile($self->{index_directory},'names2id');
+    unlink catfile($self->{index_directory},'nodes');
+    unlink catfile($self->{index_directory},'parents');
+}
 
 1;

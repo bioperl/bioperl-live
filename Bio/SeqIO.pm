@@ -127,13 +127,14 @@ This makes the simplest ever reformatter
 
 =head2 Bio::SeqIO-E<gt>new()
 
-   $seqIO = Bio::SeqIO->new(-file => 'filename',   -format=>$format);
-   $seqIO = Bio::SeqIO->new(-fh   => \*FILEHANDLE, -format=>$format);
+   $seqIO = Bio::SeqIO->new(-file   => 'seqs.fasta', -format => $format);
+   $seqIO = Bio::SeqIO->new(-fh     => \*FILEHANDLE, -format => $format);
+   $seqIO = Bio::SeqIO->new(-string => $string     , -format => $format);
    $seqIO = Bio::SeqIO->new(-format => $format);
 
-The new() class method constructs a new Bio::SeqIO object. The
-returned object can be used to retrieve or print Seq objects. new()
-accepts the following parameters:
+The new() class method constructs a new Bio::SeqIO object. The returned object
+can be used to retrieve or print Seq objects. new() accepts the following
+parameters:
 
 =over 5
 
@@ -151,16 +152,10 @@ conventions apply:
 
 =item -fh
 
-You may provide new() with a previously-opened filehandle.  For
+You may use new() with a opened filehandle, provided as a glob reference. For
 example, to read from STDIN:
 
-   $seqIO = Bio::SeqIO->new(-fh => \*STDIN);
-
-Note that you must pass filehandles as references to globs.
-
-If neither a filehandle nor a filename is specified, then the module
-will read from the @ARGV array or STDIN, using the familiar E<lt>E<gt>
-semantics.
+   my $seqIO = Bio::SeqIO->new(-fh => \*STDIN);
 
 A string filehandle is handy if you want to modify the output in the
 memory, before printing it out. The following program reads in EMBL
@@ -169,8 +164,8 @@ some HTML tags:
 
   use Bio::SeqIO;
   use IO::String;
-  my $in  = Bio::SeqIO->new(-file => "emblfile",
-                            -format => 'EMBL');
+  my $in = Bio::SeqIO->new(-file => "emblfile",
+                           -format => 'EMBL');
   while ( my $seq = $in->next_seq() ) {
       # the output handle is reset for every file
       my $stringio = IO::String->new($string);
@@ -183,6 +178,13 @@ some HTML tags:
       # print into STDOUT
       print $string;
   }
+
+=item -string
+
+A string to read the sequences from. For example:
+
+   my $string = ">seq1\nACGCTAGCTAGC\n";
+   my $seqIO = Bio::SeqIO->new(-string => $string);
 
 =item -format
 
@@ -342,15 +344,16 @@ my %valid_alphabet_cache;
                                      -format => 'fasta');
  Function: Returns a new sequence stream
  Returns : A Bio::SeqIO stream initialised with the appropriate format
- Args    : Named parameters:
-             -file   => filename
-             -fh     => filehandle to attach to
-             -format => format
+ Args    : Named parameters indicating where to read the sequences from or to
+           write them to:
+             -file   => filename, OR
+             -fh     => filehandle to attach to, OR
+             -string => string
 
-           Additional arguments may be used. They all have reasonable defaults
-           and are thus optional.
+           Additional arguments, all with reasonable defaults:
+             -format     => format of the sequences, usually auto-detected
              -alphabet   => 'dna', 'rna', or 'protein'
-             -flush      => 0 or 1 (default, flush filehandles after each write)
+             -flush      => 0 or 1 (default: flush filehandles after each write)
              -seqfactory => sequence factory
              -locfactory => location factory
              -objbuilder => object builder
@@ -362,7 +365,7 @@ See L<Bio::SeqIO::Handler>
 my $entry = 0;
 
 sub new {
-    my ($caller,@args) = @_;
+    my ($caller, @args) = @_;
     my $class = ref($caller) || $caller;
 
     # or do we want to call SUPER on an object if $caller is an
@@ -372,45 +375,50 @@ sub new {
         $self->_initialize(@args);
         return $self;
     } else {
+        my %params = @args;
+        @params{ map { lc $_ } keys %params } = values %params; # lowercase keys
 
-        my %param = @args;
-        @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
-
-        unless( defined $param{-file} ||
-                defined $param{-fh}   ||
-                defined $param{-string} ) {
+        unless( defined $params{-file} ||
+                defined $params{-fh}   ||
+                defined $params{-string} ) {
             $class->throw("file argument provided, but with an undefined value") 
-                if exists $param{'-file'};
+                if exists $params{'-file'};
             $class->throw("fh argument provided, but with an undefined value") 
-                if exists $param{'-fh'};
+                if exists $params{'-fh'};
             $class->throw("string argument provided, but with an undefined value") 
-                if exists($param{'-string'});
+                if exists($params{'-string'});
             # $class->throw("No file, fh, or string argument provided"); # neither defined
         }
 
-        my $format = $param{'-format'} ||
-            $class->_guess_format( $param{-file} || $ARGV[0] );
-        
-        if( ! $format ) {
-            if ($param{-file}) {
-                $format = Bio::Tools::GuessSeqFormat->new(-file => $param{-file}||$ARGV[0] )->guess;
-            } elsif ($param{-fh}) {
-                $format = Bio::Tools::GuessSeqFormat->new(-fh => $param{-fh}||$ARGV[0] )->guess;
+        # Determine or guess sequence format and variant
+        my $format = $params{'-format'};
+        if (! $format ) {
+            if ($params{-file}) {
+                # Guess from filename extension, and then from file content
+                $format = $class->_guess_format( $params{-file} ) ||
+                          Bio::Tools::GuessSeqFormat->new(-file => $params{-file}  )->guess;
+            } elsif ($params{-fh}) {
+                # Guess from filehandle content
+                $format = Bio::Tools::GuessSeqFormat->new(-fh   => $params{-fh}    )->guess;
+            } elsif ($params{-string}) {
+                # Guess from string content
+                $format = Bio::Tools::GuessSeqFormat->new(-text => $params{-string})->guess;
             }
         }
+
         # changed 1-3-11; no need to print out an empty string (only way this
         # exception is triggered) - cjfields
-        $class->throw("Could not guess format from file/fh") unless $format;
+        $class->throw("Could not guess format from file, filehandle or string")
+            if not $format;
         $format = "\L$format";  # normalize capitalization to lower case
 
         if ($format =~ /-/) {
             ($format, my $variant) = split('-', $format, 2);
-            push @args, (-variant => $variant);
+            $params{-variant} = $variant;
         }
 
-
         return unless( $class->_load_format_module($format) );
-        return "Bio::SeqIO::$format"->new(@args);
+        return "Bio::SeqIO::$format"->new(%params);
     }
 }
 
@@ -576,8 +584,8 @@ sub alphabet {
             # creating a dummy sequence object
             eval {
                 require Bio::PrimarySeq;
-                my $seq = Bio::PrimarySeq->new('-verbose' => $self->verbose,
-                                                         '-alphabet' => $value);
+                my $seq = Bio::PrimarySeq->new( -verbose  => $self->verbose,
+                                                -alphabet => $value          );
             };
             if ($@) {
                 $self->throw("Invalid alphabet: $value\n. See Bio::PrimarySeq for allowed values.");
@@ -678,6 +686,7 @@ sub _filehandle {
 sub _guess_format {
    my $class = shift;
    return unless $_ = shift;
+
    return 'abi'        if /\.ab[i1]$/i;
    return 'ace'        if /\.ace$/i;
    return 'alf'        if /\.alf$/i;
@@ -696,13 +705,11 @@ sub _guess_format {
    return 'qual'       if /\.qual$/i;
    return 'raw'        if /\.txt$/i;
    return 'scf'        if /\.scf$/i;
-   return 'swiss'      if /\.(swiss|sp)$/i;
-
    # from Strider 1.4 Release Notes: The file name extensions used by
    # Strider 1.4 are ".xdna", ".xdgn", ".xrna" and ".xprt" for DNA,
    # DNA Degenerate, RNA and Protein Sequence Files, respectively
    return 'strider'    if /\.(xdna|xdgn|xrna|xprt)$/i;
-
+   return 'swiss'      if /\.(swiss|sp)$/i;
    return 'ztr'        if /\.ztr$/i;
 }
 

@@ -24,10 +24,9 @@ sub io {
     my( $before );
     {
         local $/ = undef;
-        local *BEFORE;
-        open(BEFORE, "$t_name.$o_ext") || die "couldn't open $t_name.$o_ext\n";;
-        $before = <BEFORE>;
-        close BEFORE;
+        open my $BEFORE, '<', "$t_name.$o_ext" or die "Could not read file '$t_name.$o_ext': $!\n";
+        $before = <$BEFORE>;
+        close $BEFORE;
     }
 
     ok $before;#"Error in reading input file [$t_name.$o_ext]";
@@ -52,10 +51,9 @@ sub io {
     my( $after );
     {
         local $/ = undef;
-        local *AFTER;
-        open AFTER, $o_file;
-        $after = <AFTER>;
-        close AFTER;
+        open my $AFTER, '<', $o_file or die "Could not read file '$o_file': $!\n";
+        $after = <$AFTER>;
+        close $AFTER;
     }
 
     ok $after;# "Error in reading in again the output file [$o_file]";

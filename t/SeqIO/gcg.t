@@ -77,11 +77,13 @@ SKIP: {
     use_ok('IO::ScalarArray');
     use_ok('IO::String');
     
-	my ($file, $type) = ("test.$format", $format);
+    my ($file, $type) = ("test.$format", $format);
     my $filename = test_input_file($file);
     print "processing file $filename\n" if $verbose;
-    open(FILE, "< $filename") or die("cannot open $filename");
-    my @datain = <FILE>;
+    open my $FILE, '<', $filename or die "Could not read file '$filename': $!\n";
+    my @datain = <$FILE>;
+    close $FILE;
+
     my $in = new IO::String(join('', @datain));
     my $seqin = new Bio::SeqIO( -fh => $in,
                 -format => $type);

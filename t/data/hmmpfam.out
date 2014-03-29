@@ -17,7 +17,7 @@ Parsed for domains:
 Model    Domain  seq-f seq-t    hmm-f hmm-t      score  E-value
 -------- ------- ----- -----    ----- -----      -----  -------
 SEED       1/2      33   103 ..     1    77 []    71.2  2.2e-17
-SEED       2/2     124   194 ..     1    77 []    75.5  1.1e-18
+SEED       2/2     124   193 ..     1    77 []    75.5  1.1e-18
 
 Alignments of top-scoring domains:
 SEED: domain 1 of 2, from 33 to 103: score 71.2, E = 2.2e-17
@@ -29,13 +29,13 @@ SEED: domain 1 of 2, from 33 to 103: score 71.2, E = 2.2e-17
                    +F+++  ++  + A +    +++++gr+++    
   roa1_drome    75 GFITYSHSSMIDEAQK--SRpHKIDGRVVEP    103  
 
-SEED: domain 2 of 2, from 124 to 194: score 75.5, E = 1.1e-18
+SEED: domain 2 of 2, from 124 to 193: score 75.5, E = 1.1e-18
                    *->lfVgNLppdvteedLkdlFskfGpivsikivrDiiekpketgkskGf
                       lfVg L  d +e+ ++d+F++fG iv+i+iv+D     ketgk +Gf
   roa1_drome   124    LFVGALKDDHDEQSIRDYFQHFGNIVDINIVID-----KETGKKRGF 165  
 
                    aFVeFeseedAekAlealnGkelggrklrv<-*
                    aFVeF++++ ++k +     ++l+g+ + v   
-  roa1_drome   166 AFVEFDDYDPVDKVVL-QKQHQLNGKMVDV    194  
+  roa1_drome   166 AFVEFDDYDPVDKVVL--KQHQLNGKMVDV    193  
 
 //

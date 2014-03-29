@@ -115,7 +115,7 @@ $stats->verbose($debug);
 # now test Protein Distances
 my $pstats = Bio::Align::ProteinStatistics->new();
 $in = Bio::AlignIO->new(-format => 'clustalw',
-			-file   => test_input_file('testaln.aln'));
+			-file   => test_input_file('testaln.clustalw'));
 $alnobj = $in->next_aln();
 isa_ok($alnobj,'Bio::Align::AlignI');
 $result = $pstats->distance(-method => 'Kimura',
@@ -135,7 +135,7 @@ like($@, qr/not integral number of codons/);
 
 # bug 2901
 $in = Bio::AlignIO->new(-file => test_input_file('bug2901.fa'),
-                        -formay => 'fasta');
+                        -format => 'fasta');
 
 $stats = Bio::Align::DNAStatistics->new(-verbose => 2);
 $aln = $in->next_aln();

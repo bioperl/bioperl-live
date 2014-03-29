@@ -215,7 +215,7 @@ Here is an example config file. Further details in prose are below.
  
  our @program_commands = qw(
   rpsblast
-  cat
+  find
   goob
   blorb
   multiglob
@@ -946,15 +946,15 @@ sub _run {
 	# set up redirects and file switches
 	for (@$filespec) {
 	    m/^1?>#?(.*)/ && do {
-		defined($args{$1}) && ( open($out,">", $args{$1}) or $self->throw("Open for write error : $!"));
+		defined($args{$1}) && ( open $out, '>', $args{$1} or $self->throw("Could not write file '$args{$1}': $!") );
 		next;
 	    };
 	    m/^2>#?(.*)/ && do {
-		defined($args{$1}) && (open($err, ">", $args{$1}) or $self->throw("Open for write error : $!"));
+		defined($args{$1}) && ( open $err, '>', $args{$1} or $self->throw("Could not write file '$args{$1}': $!") );
 		next;
 	    };
 	    m/^<#?(.*)/ && do {
-		defined($args{$1}) && (open($in, "<", $args{$1}) or $self->throw("Open for read error : $!"));
+		defined($args{$1}) && ( open $in, '<', $args{$1} or $self->throw("Could not read file '$args{$1}': $!") );
 		next;
 	    };
 	    if (m/^-(.*)\|/) {
@@ -972,6 +972,7 @@ sub _run {
     # Get program executable
     my $exe = $self->executable;
     $self->throw("Can't find executable for '".($self->is_pseudo ? $self->command : $self->program_name)."'; can't continue") unless $exe;
+
     # Get command-line options
     my $options = $self->_translate_params();
     # Get file specs sans redirects in correct order
