@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::AnnotationI
 #
@@ -31,7 +30,6 @@ Bio::AnnotationI - Annotation interface
        }
    }
 
-
 =head1 DESCRIPTION
 
 Interface all annotations must support. There are two things that each
@@ -46,30 +44,28 @@ store/represent the annotation.
 
 The second method allows annotations to at least attempt to represent
 themselves as pure data for storage/display/whatever. The method
-hash_tree
+hash_tree should return an anonymous hash with "XML-like" formatting:
 
    $hash = $annotation->hash_tree();
 
-should return an anonymous hash with "XML-like" formatting. The
-formatting is as follows.
+The formatting is as follows.
 
   (1) For each key in the hash, if the value is a reference'd array -
 
-      (2) For each element of the array if the value is a object -
+  (2) For each element of the array if the value is a object -
           Assume the object has the method "hash_tree";
-      (3) else if the value is a referene to a hash
+  (3) else if the value is a reference to a hash
           Recurse again from point (1)
-      (4) else
-          Assumme the value is a scalar, and handle it directly as text
-
-   (5) else (if not an array) apply rules 2,3 and 4 to value
+  (4) else
+          Assume the value is a scalar, and handle it directly as text
+  (5) else (if not an array) apply rules 2,3 and 4 to value
 
 The XML path in tags is represented by the keys taken in the
 hashes. When arrays are encountered they are all present in the path
 level of this tag
 
 This is a pretty "natural" representation of an object tree in an XML
-style, without forcing everything to inheriet off some super-generic
+style, without forcing everything to inherit off some super-generic
 interface for representing things in the hash.
 
 =head1 FEEDBACK
@@ -121,10 +117,7 @@ use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-
-
 use base qw(Bio::Root::RootI);
-
 
 =head2 as_text
 
@@ -177,7 +170,6 @@ sub display_text {
  Example :
  Returns : a hash reference
  Args    : none
-
 
 =cut
 
