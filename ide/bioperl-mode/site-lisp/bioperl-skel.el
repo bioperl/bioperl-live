@@ -201,7 +201,7 @@
     "of the bugs and their resolution. Bug reports can be submitted via" \N
     "the web:" \N
     \N
-    "  https://redmine.open-bio.org/projects/bioperl/" \N 
+    "  https://github.com/bioperl/bioperl-live/issues" \N 
     \N
     "=head1 AUTHOR - " v1 \N
     \N

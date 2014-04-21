@@ -12,7 +12,7 @@ Some of that history is also highlighted on our wiki:
 
 Bugs and requested features list:
 
-   https://redmine.open-bio.org/projects/bioperl
+   https://github.com/bioperl/bioperl-live/issues
 
 CPAN releases are branched from 'master'.
 ---------------------------------------------------------
