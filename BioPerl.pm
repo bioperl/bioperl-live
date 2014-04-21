@@ -206,7 +206,7 @@ and all are welcome!
 We know that there are bugs in this code. If you find something which you are pretty
 sure is a problem, post a bug report using our Bugzilla tracking system:
 
-L<https://redmine.open-bio.org/projects/bioperl/>
+L<https://github.com/bioperl/bioperl-live/issues/>
 
 Please read the main bug tracking (L<http://www.bioperl.org/wiki/Bugs>) for an
 overview of what we expect in a bug report. Specifically, having a code and

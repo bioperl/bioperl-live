@@ -188,7 +188,7 @@ the bugs and their resolution. Bug reports can be submitted via email
 or the web:
 
   bioperl-bugs@bio.perl.org
-  https://redmine.open-bio.org/projects/bioperl/
+  https://github.com/bioperl/bioperl-live/issues
 
 =head1 AUTHOR - Florent E Angly
 

@@ -22,7 +22,7 @@ please write us, it could be undocumented or in process.
 
 * Project website : http://bioperl.org/
 
-* Bug reports : https://redmine.open-bio.org/projects/bioperl/
+* Bug reports : https://github.com/bioperl/bioperl-live/issues/
 
 Please send us bugs, in particular about documentation which you think is
 unclear or problems in installation. We are also very interested in functions
@@ -128,7 +128,7 @@ to run the program you'd need to install it first.
 
 Not all scripts in the `examples/` directory are correct and up-to-date. We need
 volunteers to help maintain these so if you find they do not submit a bug report
-to https://redmine.open-bio.org/projects/bioperl/ and consider helping out in
+to https://github.com/bioperl/bioperl-live/issues/ and consider helping out in
 their maintenance.
 
 If you are confused about what modules are appropriate when you try and solve a
