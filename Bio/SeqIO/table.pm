@@ -3,12 +3,7 @@
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #
-# Cared for by Hilmar Lapp <hlapp at gmx.net>
-#
-
-#
-# (c) Hilmar Lapp, hlapp at gmx.net, 2005.
-# (c) GNF, Genomics Institute of the Novartis Research Foundation, 2005.
+# Cared for by Hilmar Lapp
 #
 # You may distribute this module under the same terms as perl itself.
 # Refer to the Perl Artistic License (see the license accompanying this
@@ -28,8 +23,8 @@ Bio::SeqIO::table - sequence input/output stream from a delimited table
 
 =head1 SYNOPSIS
 
-  #It is probably best not to use this object directly, but
-  #rather go through the SeqIO handler system. Go:
+  # It is probably best not to use this object directly, but
+  # rather go through the SeqIO handler system. Go:
 
   $stream = Bio::SeqIO->new(-file => $filename, -format => 'table');
 
@@ -115,61 +110,60 @@ use base qw(Bio::SeqIO);
  Returns : A Bio::SeqIO stream for a table format
  Args    : Named parameters:
 
-             -file    name of file to read
-             -fh      filehandle to attach to
-             -comment leading character(s) introducing a comment line
-             -header  the number of header lines to skip; the first
-                      non-comment header line will be used to obtain
-                      column names; column names will be used as the
-                      default tags for attaching annotation.
-             -delim   the delimiter for columns as a regular expression;
-                      consecutive occurrences of the delimiter will
-                      not be collapsed.
-             -display_id the one-based index of the column containing
-                      the display ID of the sequence
-             -accession_number the one-based index of the column
-                      containing the accession number of the sequence
-             -seq     the one-based index of the column containing
-                      the sequence string of the sequence
-             -species the one-based index of the column containing the
-                      species for the sequence record; if not a
-                      number, will be used as the static species
-                      common to all records
-             -annotation if provided and a scalar (but see below), a
-                      flag whether or not all additional columns are
-                      to be preserved as annotation, the tags used
-                      will either be 'colX' if there is no column
-                      header and where X is the one-based column
-                      index, and otherwise the column headers will be
-                      used as tags;
+ -file              Name of file to read
+ -fh                Filehandle to attach to
+ -comment           Leading character(s) introducing a comment line
+ -header            the number of header lines to skip; the first
+                    non-comment header line will be used to obtain
+                    column names; column names will be used as the
+                    default tags for attaching annotation.
+ -delim             The delimiter for columns as a regular expression;
+                    consecutive occurrences of the delimiter will
+                    not be collapsed.
+ -display_id        The one-based index of the column containing
+                    the display ID of the sequence
+ -accession_number  The one-based index of the column
+                    containing the accession number of the sequence
+ -seq               The one-based index of the column containing
+                    the sequence string of the sequence
+ -species           The one-based index of the column containing the
+                    species for the sequence record; if not a
+                    number, will be used as the static species
+                    common to all records
+ -annotation        If provided and a scalar (but see below), a
+                    flag whether or not all additional columns are
+                    to be preserved as annotation, the tags used
+                    will either be 'colX' if there is no column
+                    header and where X is the one-based column
+                    index, and otherwise the column headers will be
+                    used as tags;
 
-                      if a reference to an array, or a square
-                      bracket-enclosed string of comma-delimited
-                      values, only those columns (one-based index)
-                      will be preserved as annotation, tags as before;
+                    If a reference to an array, or a square
+                    bracket-enclosed string of comma-delimited
+                    values, only those columns (one-based index)
+                    will be preserved as annotation, tags as before;
 
-                      if a reference to a hash, or a curly
-                      braces-enclosed string of comma-delimited key
-                      and value pairs in alternating order, the keys
-                      are one-based column indexes to be preserved,
-                      and the values are the tags under which the
-                      annotation is to be attached; if not provided or
-                      supplied as undef, no additional annotation will
-                      be preserved.
-             -colnames a reference to an array of column labels, or a
-                      string of comma-delimited labels, denoting the
-                      columns to be converted into annotation; this is
-                      an alternative to -annotation and will be
-                      ignored if -annotation is also supplied with a
-                      valid value.
-             -trim    flag determining whether or not all values should
-                      be trimmed of leading and trailing white space
-                      and double quotes
+                    If a reference to a hash, or a curly
+                    braces-enclosed string of comma-delimited key
+                    and value pairs in alternating order, the keys
+                    are one-based column indexes to be preserved,
+                    and the values are the tags under which the
+                    annotation is to be attached; if not provided or
+                    supplied as undef, no additional annotation will
+                    be preserved.
+ -colnames          A reference to an array of column labels, or a
+                    string of comma-delimited labels, denoting the
+                    columns to be converted into annotation; this is
+                    an alternative to -annotation and will be
+                    ignored if -annotation is also supplied with a
+                    valid value.
+ -trim              Flag determining whether or not all values should
+                    be trimmed of leading and trailing white space
+                    and double quotes
 
-           Additional arguments may be used to e.g. set factories and
-           builders involved in the sequence object creation (see the
-           POD of Bio::SeqIO).
-
+ Additional arguments may be used to e.g. set factories and
+ builders involved in the sequence object creation (see the
+ POD of Bio::SeqIO).
 
 =cut
 
