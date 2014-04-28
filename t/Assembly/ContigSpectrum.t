@@ -4,7 +4,8 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     test_begin( -tests            => 239,
-                -requires_modules => [ qw(Bio::Assembly::Tools::ContigSpectrum)] );
+                -requires_modules => [ 'DB_File',
+                                       qw(Bio::Assembly::Tools::ContigSpectrum)] );
     use_ok 'Bio::Assembly::IO';
     use_ok 'Bio::Assembly::Tools::ContigSpectrum';
 }
@@ -371,4 +372,3 @@ SKIP: {
    float_is $csp->min_identity, 96.8421;
    float_is $csp->avg_identity, 98.8826;
 }
-
