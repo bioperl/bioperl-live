@@ -41,6 +41,8 @@ for my $file (@test_cases) {
         
         like( $index->fetch_report($id)->query_name, qr/$id/);
     }
+    # ActivePerl will not allow deletion if the tie-hash is still active
+    $index->DESTROY;
     unlink qw( Wibbl Wibbl.pag Wibbl.dir Wibbl.index);
 }
 
@@ -52,4 +54,3 @@ sub my_id_parser {
         return;
     }
 }
-

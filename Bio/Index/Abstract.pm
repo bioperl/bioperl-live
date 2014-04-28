@@ -837,8 +837,11 @@ sub count_records {
 =cut
 
 sub DESTROY {
-	my $self = shift;
-	untie($self->{'_DB'});
+    my $self = shift;
+    untie($self->{'_DB'});
+    # An additional undef was the only way to force
+    # the object to drop the open filehandles for ActivePerl
+    undef $self->{'_DB'};
 }
 
 1;

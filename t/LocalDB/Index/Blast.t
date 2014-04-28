@@ -15,8 +15,6 @@ BEGIN {
 	use_ok('Bio::Index::Blast');
 }
 
-END {  unlink qw( Wibbl Wibbl.pag Wibbl.dir Wibbl.index); }
-
 # BLASTP
 
 my $index = Bio::Index::Blast->new(-filename => 'Wibbl',
@@ -41,6 +39,9 @@ foreach my $id ( qw(CATH_RAT PAPA_CARPA) ) {
 	
 	like( $index->fetch_report($id)->query_name, qr/$id/);
 }
+# ActivePerl will not allow deletion if the tie-hash is still active
+$index->DESTROY;
+unlink qw( Wibbl Wibbl.pag Wibbl.dir );
 
 # RPS-BLAST
 
@@ -63,3 +64,6 @@ foreach my $id ( qw(orf20 orf40) ) {
 	
 	like( $index->fetch_report($id)->query_name, qr/$id/);
 }
+# ActivePerl will not allow deletion if the tie-hash is still active
+$index->DESTROY;
+unlink qw( Wibbl.index Wibbl.index.pag Wibbl.index.dir );

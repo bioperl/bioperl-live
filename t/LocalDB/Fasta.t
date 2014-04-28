@@ -156,7 +156,14 @@ my $test_files = [
         $count++;
     }
     is $count, 5;
-    unlink "$test_file.index";
+
+    # ActivePerl will not allow deletion if the tie-hash is still active
+    $db->DESTROY;
+    # Strawberry Perl temporary file
+    unlink "$test_file.index" if -e "$test_file.index";
+    # ActivePerl temporary files
+    unlink "$test_file.index.dir" if -e "$test_file.index.dir";
+    unlink "$test_file.index.pag" if -e "$test_file.index.pag";
 }
 
 
@@ -172,9 +179,22 @@ my $test_files = [
     is $db3->file('AW057336'), '3.fa';
     is $db1->file('AW057231'), '1.fa';
     is $db4->file('AW057410'), '3.fa';
-    unlink $db1->index_name;
-    unlink $db2->index_name;
-    unlink $db3->index_name;
+
+    # ActivePerl will not allow deletion if the tie-hash is still active
+    $db1->DESTROY;
+    $db2->DESTROY;
+    $db3->DESTROY;
+    # Strawberry Perl temporary file
+    unlink $db1->index_name if -e $db1->index_name;
+    unlink $db2->index_name if -e $db2->index_name;
+    unlink $db3->index_name if -e $db3->index_name;
+    # ActivePerl temporary files
+    unlink $db1->index_name().'.dir' if -e $db1->index_name().'.dir';
+    unlink $db2->index_name().'.dir' if -e $db2->index_name().'.dir';
+    unlink $db3->index_name().'.dir' if -e $db3->index_name().'.dir';
+    unlink $db1->index_name().'.pag' if -e $db1->index_name().'.pag';
+    unlink $db2->index_name().'.pag' if -e $db2->index_name().'.pag';
+    unlink $db3->index_name().'.pag' if -e $db3->index_name().'.pag';
 }
 
 
@@ -185,10 +205,25 @@ my $test_files = [
         -reindex => 1, -index_name => $name, -clean => 1,
     );
     is $db->index_name, $name;
-    ok -f $name;
-    unlink $name;
+
+    # Tied-hash in Strawberry Perl produce $name,
+    # while in ActivePerl produce "$name.dir" and "$name.pag"
+    if (-e "$name.pag") {
+        ok -f "$name.pag";
+        # ActivePerl will not allow deletion if the tie-hash is still active
+        $db->DESTROY;
+        unlink "$name.dir" if -e "$name.dir";
+        unlink "$name.pag" if -e "$name.pag";
+        ok ! -f "$name.pag";
+    }
+    else {
+        ok -f $name;
+        # ActivePerl will not allow deletion if the tie-hash is still active
+        $db->DESTROY;
+        unlink $name if -e $name;
+        ok ! -f $name;
+    }
     undef $db;
-    ok ! -f $name;
 }
 
 
@@ -265,7 +300,15 @@ my $test_files = [
         gi|61679760|pdb|1Y4P|B
     )];
     like $db->index_name, qr/^fileset_.+\.index$/;
-    unlink $db->index_name;
+
+    my $index = $db->index_name;
+    # ActivePerl will not allow deletion if the tie-hash is still active
+    $db->DESTROY;
+    # Strawberry Perl temporary file
+    unlink $index if -e $index;
+    # ActivePerl temporary files
+    unlink "$index.dir" if -e "$index.dir";
+    unlink "$index.pag" if -e "$index.pag";
 }
 
 
@@ -298,12 +341,17 @@ my $test_files = [
 
     # Remove temporary test file
     my $outfile = test_input_file('spaced_fasta.fa').'.index';
-    unlink $outfile;
+
+    # ActivePerl will not allow deletion if the tie-hash is still active
+    $db->DESTROY;
+    # Strawberry Perl temporary file
+    unlink $outfile if -e $outfile;
+    # ActivePerl temporary files
+    unlink "$outfile.dir" if -e "$outfile.dir";
+    unlink "$outfile.pag" if -e "$outfile.pag";
 }
 
-
 exit;
-
 
 
 sub extract_gi {
