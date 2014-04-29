@@ -77,6 +77,10 @@ for my $fmt (@fmts) {
             -tests => 4,
             -requires_modules => [qw(XML::Writer XML::Parser::PerlSAX)]
         ) if $fmt eq 'game';
+        test_skip(
+            -tests => 4,
+            -requires_module  => 'Data::Stag'
+        ) if $fmt eq 'swiss';
 
         my $guess = Bio::Tools::GuessSeqFormat->new(
             -file => test_input_file("test.$fmt"),

@@ -4,15 +4,14 @@
 use strict;
 
 BEGIN {
-	use lib '.';
+    use lib '.';
     use Bio::Root::Test;
-    
+
     test_begin(-tests               => 8,
-			   -requires_modules    => [],
-			   -requires_networking => 0,
-			  );
-	
-	use_ok('Bio::SeqIO::chaos');
+               -requires_module     => 'Data::Stag',
+               -requires_networking => 0);
+
+    use_ok('Bio::SeqIO::chaos');
 }
 
 my $verbose = test_debug();

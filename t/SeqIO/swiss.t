@@ -6,9 +6,10 @@ use strict;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    
-    test_begin(-tests => 247);
-	
+
+    test_begin(-tests           => 247,
+               -requires_module => 'Data::Stag');
+
     use_ok('Bio::SeqIO::swiss');
 }
 

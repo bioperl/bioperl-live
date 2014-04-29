@@ -7,7 +7,8 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 29);
+    test_begin(-tests           => 29,
+               -requires_module => 'Data::Stag');
 
     use_ok('Bio::AlignIO');
 }
