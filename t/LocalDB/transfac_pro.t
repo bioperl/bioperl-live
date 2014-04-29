@@ -4,8 +4,8 @@ use warnings;
 BEGIN {
 	use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests            => 115,
-               -requires_modules => [ 'DB_File' ]);
+    test_begin(-tests           => 115,
+               -requires_module => 'DB_File');
     
     use_ok('Bio::Matrix::PSM::IO');
     use_ok('Bio::DB::TFBS');
