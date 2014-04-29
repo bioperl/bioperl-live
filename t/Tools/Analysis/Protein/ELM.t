@@ -5,17 +5,18 @@ use strict;
 
 BEGIN {
     use lib '.';
-	use Bio::Root::Test;
-	
-	test_begin(-tests => 15,
-			   -requires_modules => [qw(IO::String
-									    LWP::UserAgent
-										HTML::HeadParser)],
-			   -requires_networking => 1);
-	
-	use_ok('Bio::Tools::Analysis::Protein::ELM');
-	use_ok('Bio::SeqIO');
-	use_ok('Bio::WebAgent');
+    use Bio::Root::Test;
+
+    test_begin(-tests               => 15,
+               -requires_modules    => [qw(IO::String
+                                           LWP::UserAgent
+                                           HTML::HeadParser
+                                           Data::Stag)],
+               -requires_networking => 1);
+
+    use_ok('Bio::Tools::Analysis::Protein::ELM');
+    use_ok('Bio::SeqIO');
+    use_ok('Bio::WebAgent');
 }
 
 my $verbose = test_debug();

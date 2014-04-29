@@ -4,15 +4,17 @@
 use strict;
 
 BEGIN {
-	use lib '.';
+    use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 14,
-			   -requires_modules => [qw(IO::String LWP::UserAgent)]);
-	
-	use_ok('Bio::Tools::Analysis::Protein::Scansite');
-	use_ok('Bio::SeqIO');
-	use_ok('Bio::WebAgent');
+    test_begin(-tests            => 14,
+               -requires_modules => [qw(IO::String
+                                        LWP::UserAgent
+                                        Data::Stag)]);
+
+    use_ok('Bio::Tools::Analysis::Protein::Scansite');
+    use_ok('Bio::SeqIO');
+    use_ok('Bio::WebAgent');
 }
 
 my $verbose = test_debug();

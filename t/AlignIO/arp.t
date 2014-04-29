@@ -7,7 +7,8 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 48);
+    test_begin(-tests           => 48,
+               -requires_module => 'Data::Stag');
 	
 	use_ok('Bio::AlignIO::arp');
 }
@@ -90,4 +91,3 @@ is(keys %nodes, 6);
 is($nodes{'024'}, 1);
 is(($coll->get_Annotations('DataType'))[0]->value, 'DNA');
 is(($coll->get_Annotations('SampleSize'))[0]->value, 6);
-

@@ -7,7 +7,8 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 152);
+    test_begin(-tests           => 152,
+               -requires_module => 'Data::Stag');
 
     use_ok('Bio::Annotation::Collection');
     use_ok('Bio::Annotation::DBLink');
