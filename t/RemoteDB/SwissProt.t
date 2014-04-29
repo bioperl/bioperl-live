@@ -4,28 +4,28 @@
 use strict;
 
 BEGIN {
-	use lib '.';
-	use Bio::Root::Test;
+    use lib '.';
+    use Bio::Root::Test;
 
-	test_begin(-tests => 23,
-			   -requires_modules => [qw(IO::String
-									    LWP::UserAgent
-										HTTP::Request::Common)],
-			   -requires_networking => 1);
+    test_begin(-tests               => 23,
+               -requires_modules    => [qw(IO::String
+                                           LWP::UserAgent
+                                           HTTP::Request::Common)],
+               -requires_networking => 1);
 
-	use_ok('Bio::DB::SwissProt');
+    use_ok('Bio::DB::SwissProt');
 }
 
-ok my $gb = Bio::DB::SwissProt->new(-retrievaltype =>'pipeline',
-                                 -delay => 0);
+ok my $gb = Bio::DB::SwissProt->new(-retrievaltype => 'pipeline',
+                                    -delay         => 0);
 
 my %expected_lengths = (
-                        'NDP_MOUSE' => 131,
-                        'NDP_HUMAN' => 133,
-                        'BOLA_HAEIN'=> 103,
-                        'YNB3_YEAST'=> 125,
-                        'O39869'    => 56,
-                        'DEGP_CHLTR'=> 497,
+                        'NDP_MOUSE'   => 131,
+                        'NDP_HUMAN'   => 133,
+                        'BOLA_HAEIN'  => 103,
+                        'YNB3_YEAST'  => 125,
+                        'O39869'      => 56,
+                        'DEGP_CHLTR'  => 497,
                         'DEGPL_CHLTR' => 497
                         );
 
@@ -64,18 +64,18 @@ SKIP: {
 }
 
 # test idtracker() method
-ok $gb = Bio::DB::SwissProt->new(-retrievaltype =>'pipeline',
-                                 -delay => 0,
-                                 -verbose   => 2);
+ok $gb = Bio::DB::SwissProt->new(-retrievaltype => 'pipeline',
+                                 -delay         => 0,
+                                 -verbose       => 2);
 
 SKIP: {
     my $map;
     # check old ID
     eval {$map = $gb->id_mapper(-from => 'ACC+ID',
-                                  -to   => 'ACC',
-                                  -ids  => [qw(MYOD1_PIG PYRC_YEAST)])
-                                  };
-    skip("Problem with idtracker(), skipping these tests: $@", 3) if $@;
+                                -to   => 'ACC',
+                                -ids  => [qw(MYOD1_PIG PYRC_YEAST)]
+                                )};
+    skip("Problem with idtracker(), skipping these tests: $@", 6) if $@;
 
     cmp_ok(@{$map->{MYOD1_PIG}}, '>=', 1);
     is($map->{MYOD1_PIG}[0], 'P49811');
@@ -84,9 +84,9 @@ SKIP: {
 
     eval {$map = $gb->id_mapper(-from => 'ACC+ID',
                                 -to   => 'EMBL',
-                                -ids  => [qw(PYRC_YEAST)])
-                                  };
-    skip("Problem with idtracker(), skipping these tests: $@", 1) if $@;
+                                -ids  => [qw(PYRC_YEAST)]
+                                )};
+    skip("Problem with idtracker(), skipping these tests: $@", 2) if $@;
 
     cmp_ok(@{$map->{PYRC_YEAST}}, '>=', 2);
     like($map->{PYRC_YEAST}[0], qr/^[A-Z0-9]/);
