@@ -8,7 +8,6 @@ BEGIN {
 
   test_begin(-tests => 70,
 	     -requires_modules => [qw(Bio::PhyloNetwork
-				      Math::Random
 				      Bio::Tree::RandomFactory)]);
 
   use_ok('Bio::PhyloNetwork::RandomFactory');
