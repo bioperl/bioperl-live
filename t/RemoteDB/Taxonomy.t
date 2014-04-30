@@ -8,8 +8,9 @@ BEGIN {
     use Bio::Root::Test;
 
     test_begin(
-        -tests => 191,
-        -requires_module => 'XML::Twig'
+        -tests            => 191,
+        -requires_modules => [ 'DB_File',
+                               'XML::Twig' ]
     );
 
     use_ok('Bio::DB::Taxonomy');
