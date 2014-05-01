@@ -137,6 +137,8 @@ sub statefile{
         if( $workdir  ){ push( @args, 'DIR'      => $workdir  )};
         if( $suffix   ){ push( @args, 'SUFFIX'   => $suffix   )};
         my( $fh, $file ) = Bio::Root::IO->new->tempfile( @args );
+        # If filehandle is not stored, don't leave it open
+        $fh->close;
 
         $self->{$key} = $file;
     }
@@ -306,6 +308,8 @@ sub store{
     my $io = Bio::Root::IO->new( ">$statefile" );
     $io->_print( $store_obj );
     $self->debug( "STORING $self to $statefile\n" );
+    # If filehandle is not stored, don't leave it open
+    $io->close;
     return $statefile;
 }
 
@@ -425,6 +429,8 @@ sub retrieve{
     my $io = Bio::Root::IO->new( $statefile );
     local $/ = undef;
     my $state_str = $io->_readline('-raw'=>1);
+    # If filehandle is not stored, don't leave it open
+    $io->close;
 
     # Dynamic-load modules required by stored object
     my $stored_obj;
