@@ -64,8 +64,15 @@ my %recommends = (
     #'Bio::ASN1::EntrezGene'     => [0,
     #    'Parsing entrezgene/Bio::SeqIO::entrezgene [circular dependency!]'],
 
+    'Bio::Phylo'                => [0,
+        'NeXML related modules/Bio::AlignIO::nexml,Bio::Nexml::Factory,'.
+        'Bio::SeqIO::nexml,Bio::TreeIO::nexml'],
+
     'Convert::Binary::C'        => [0,
         'Strider functionality/Bio::SeqIO::strider'],
+
+    'DB_File'                   => [0,
+        'Database functionality/Bio::Assemby,Bio::DB'],
 
     'Error'                     => [0,
         'OO-based exception handling (very optional)/Bio::Root::Exception'],
@@ -135,8 +142,14 @@ my %recommends = (
     'Text::ParseWords'          => [0,
         'Test scripts/Bio::DB::SeqFeature::Store::FeatureFileLoader'],
 
+    'XML::DOM'                  => [0,
+        'Parsing XML/Bio::SeqIO::bsml,Bio::SeqIO::interpro'],
+
+    'XML::DOM::XPath'           => [0,
+        'Parsing XML/Bio::SeqIO::interpro'],
+
     'XML::Parser'               => [0,
-        'parsing xml/Bio::Biblio::IO::medlinexml'],
+        'Parsing XML/Bio::Biblio::IO::medlinexml'],
 
     'XML::Parser::PerlSAX'      => [0,
         'Parsing XML/Bio::SeqIO::tinyseq,Bio::SeqIO::game::gameSubs,',
@@ -180,7 +193,6 @@ my $build = Bio::Root::Build->new(
     requires            => {
                             'perl'                      => '5.6.1',
                             'IO::String'                => 0,    # why is this required?
-                            'DB_File'                   => 0,    # why is this required?
                             'Data::Stag'                => 0.11, # Bio::SeqIO::swiss, we can change to 'recommend' if needed
                             'Scalar::Util'              => 0,    # not in Perl 5.6.1, arrived in core in 5.7.3
                             'ExtUtils::Manifest'        => '1.52', # allows spaces in file names
