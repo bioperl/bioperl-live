@@ -20,8 +20,12 @@ CPAN releases are branched from 'master'.
 1.6.924
 
     [Significant changes]
+
     * Bug/feature issue tracking has moved to GitHub Issues:
           https://github.com/bioperl/bioperl-live/issues
+    * DB_File has been demoted from "required" to "recommended",
+      which should make easier for Windows users to install BioPerl
+      if they don't need that module.
 
     [New features]
 
@@ -59,6 +63,15 @@ CPAN releases are branched from 'master'.
 
     [Bug fixes]
 
+    * Abstract: Fixed ActivePerl incapability of removing temporary files
+      because of problems closing tied filehandles [fjossandon]
+    * IndexedBase: For Windows' ActivePerl, several LocalDB tests were failing
+      because ActivePerl were producing a ".index.pag" and ".index.dir"
+      files instead of a single ".index" file (like Strawberry Perl).
+      Now those temporary files are correctly considered and deleted. [fjossandon]
+    * Test files: Added missing module requirements (DB_File and Data::Stag)
+      to several tests files that were failing because those modules were
+      not present. Now those test files are correctly skipped instead. [fjossandon]
     * Blast: Added support to changes in bl2seq from BLAST+ output, which
       now uses "Subject=" instead of ">" to start hit lines [yschensandiego]
     * Phylip: Return undef in "next_aln" at file end to avoid
@@ -349,7 +362,7 @@ CPAN releases are branched from 'master'.
     * [3034] - AlignIO::clustal output [Bernd, DaveMessina]
     * [3031] - Parse algorithm ref for BLAST [Razi Khaja, cjfields]
     * [3028] - Bio::TreeIO::nexus and FigTree compat [Kevin Balbi, cjfields]
-    * [3025] - Bio::SeqIO::embl infinite loop [Adam SjÃ¸gren, cjfields]
+    * [3025] - Bio::SeqIO::embl infinite loop [Adam Sjøgren, cjfields]
     * [3040, 3023, 2974, 2921, 2753, 2636, 2482] - PAML parser fixed, works with
                PAML 4.4d [DaveMessina]
     * [3015, 3022] - Bio::Restriction withrefm regexp [Emmanuel Quevillon,
@@ -369,7 +382,7 @@ CPAN releases are branched from 'master'.
     * [2944] - Bio::Tools::GFF score [cjfields]
     * [2942] - correct MapTiling output [maj]
     * [2939] - PDB residue insertion codes [John May, maj]
-    * [2930] - PrimarySeqI term symbol [Adam SjÃ¸gren, maj]
+    * [2930] - PrimarySeqI term symbol [Adam Sjøgren, maj]
     * [2928] - GuessSeqFormat raw [maj]
     * [2926] - Bio:Tools::TandemRepeatsFinder seq_id [takadonet, cjfields]
     * [2922] - open() directive issue [cjfields]
@@ -378,7 +391,7 @@ CPAN releases are branched from 'master'.
     * [2899] - SeqFeature::Store host issues [lstein, dbolser]
     * [2897] - Add a "mask_below_threshold" method to Seq::Quality [dbolser,
                cjfields]
-    * [2881] - .scf files don't' roundtrip [Adam SjÃ¸gren, cjfields]
+    * [2881] - .scf files don't' roundtrip [Adam Sjøgren, cjfields]
     * [2876] - CDD search with RemoteBlast [Malcolm Cook]
     * [2863] - Root::IO::_initialize_io causes crash [rbuels, maj, DaveMessina]
     * [2845] - Bio::Seq::Quality gives seq with no ID [Tristan Lefebure, cjfields]
@@ -535,7 +548,7 @@ CPAN releases are branched from 'master'.
     * Bio::SeqIO::raw
         - add option for 'single' and 'multiple'
     * Bio::SeqIO::scf
-        - bug 2881 - fix scf round-tripping [Adam SÃ¸gren]
+        - bug 2881 - fix scf round-tripping [Adam Søgren]
     * Bio::SeqUtils
         - bug 2766, 2810 - copy over tags from features, doc fixes [David
           Jackson]
