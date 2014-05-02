@@ -151,6 +151,9 @@ my %recommends = (
     'XML::DOM::XPath'           => [0,
         'Parsing XML/Bio::SeqIO::interpro'],
 
+    'XML::LibXML'               => [0,
+        'Parsing XML/Bio::SeqIO::seqxml,Bio::TreeIO::phyloxml'],
+
     'XML::Parser'               => [0,
         'Parsing XML/Bio::Biblio::IO::medlinexml'],
 
