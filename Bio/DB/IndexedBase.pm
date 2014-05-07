@@ -1127,7 +1127,7 @@ sub TIEHANDLE {
 
 sub READLINE {
     my $self = shift;
-    return $self->next_seq;
+    return $self->next_seq || undef;
 }
 
 

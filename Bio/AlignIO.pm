@@ -507,7 +507,7 @@ sub TIEHANDLE {
 
 sub READLINE {
   my $self = shift;
-  return $self->{'alignio'}->next_aln() unless wantarray;
+  return $self->{'alignio'}->next_aln() || undef unless wantarray;
   my (@list,$obj);
   push @list,$obj  while $obj = $self->{'alignio'}->next_aln();
   return @list;
