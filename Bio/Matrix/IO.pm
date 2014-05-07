@@ -268,7 +268,7 @@ sub TIEHANDLE {
 
 sub READLINE {
   my $self = shift;
-  return $self->{'matrixio'}->next_tree() unless wantarray;
+  return $self->{'matrixio'}->next_tree() || undef unless wantarray;
   my (@list,$obj);
   push @list,$obj  while $obj = $self->{'treeio'}->next_tree();
   return @list;

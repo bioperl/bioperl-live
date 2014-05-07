@@ -1293,7 +1293,7 @@ sub TIEHANDLE {
 
 sub READLINE {
     my $self = shift;
-    return $self->{'gffio'}->next_feature() unless wantarray;
+    return $self->{'gffio'}->next_feature() || undef unless wantarray;
     my (@list, $obj);
     push @list, $obj while $obj = $self->{'gffio'}->next_feature();
     return @list;
