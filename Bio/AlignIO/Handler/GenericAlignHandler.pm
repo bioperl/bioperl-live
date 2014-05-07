@@ -119,6 +119,7 @@ sub build_alignment {
     if (defined $param->{-seqs}) {
         return Bio::SimpleAlign->new(%$param, -source => $self->format);
     }
+    return;
 }
 
 sub annotation_collection {

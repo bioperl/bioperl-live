@@ -1455,7 +1455,7 @@ sub next_seq {
     } else {
         # All done.  Nothing more to parse.
         # print "returning nothing!\n";
-        return 0;
+        return;
     }
 
 
