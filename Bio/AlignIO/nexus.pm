@@ -292,7 +292,7 @@ sub next_aln {
 	}
     }
     
-    return 0 if @names < 1;
+    return if @names < 1;
     
     # sequence creation
     $count = 0;

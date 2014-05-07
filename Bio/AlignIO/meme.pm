@@ -189,7 +189,7 @@ sub next_aln {
         }
         else {
             $self->warn("Unrecognized format:\n$line");
-            return 0;
+            return;
         }
     }
 

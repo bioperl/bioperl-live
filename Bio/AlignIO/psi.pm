@@ -129,7 +129,7 @@ sub next_aln {
 	$aln->add_seq($seq);
     }
     return $aln if defined $aln && $aln->num_sequences;
-	return $aln;
+	return;
 }
 
 =head2 write_aln

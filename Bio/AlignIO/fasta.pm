@@ -163,6 +163,7 @@ sub next_aln {
 
     # no sequences means empty alignment (possible EOF)
     return $aln if $aln->num_sequences;
+    return;
 }
 
 

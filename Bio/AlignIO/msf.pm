@@ -119,11 +119,7 @@ sub next_aln {
 	};
     }
 
-    # return 0 if scalar @names < 1;
-    if (scalar(@names) < 1) {
-	undef $aln;
-	return $aln;
-    }
+    return if @names < 1;
 
     # now got this as a name - sequence hash. Let's make some sequences!
 
