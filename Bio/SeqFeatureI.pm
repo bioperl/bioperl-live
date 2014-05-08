@@ -439,9 +439,9 @@ but can be validly overwritten by subclasses
                        in a circular sequence where a gene span starts
                        before the end of the sequence and ends after the
                        sequence start. Example : join(15685..16260,1..207)
-					   (default = if sequence is_circular(), 1, otherwise 0)
-			-phase     truncates the returned sequence based on the
-					   intron phase (0,1,2).
+                       (default = if sequence is_circular(), 1, otherwise 0)
+            -phase     truncates the returned sequence based on the
+                       intron phase (0,1,2).
 
   Returns : A L<Bio::PrimarySeqI> object
 
@@ -512,8 +512,10 @@ sub spliced_seq {
     my ($mixed,$mixedloc, $fstrand) = (0);
 
     if( $self->isa('Bio::Das::SegmentI') &&
-	! $self->absolute ) {
-	$self->warn("Calling spliced_seq with a Bio::Das::SegmentI which does have absolute set to 1 -- be warned you may not be getting things on the correct strand");
+        ! $self->absolute ) {
+        $self->warn(  "Calling spliced_seq with a Bio::Das::SegmentI which "
+                    . "does have absolute set to 1 -- be warned you may not "
+                    . "be getting things on the correct strand");
     }
 
     my @locset = $self->location->each_Location;
@@ -535,7 +537,8 @@ sub spliced_seq {
 	} @locset;
 
 	if ( $mixed ) {
-	    $self->warn("Mixed strand locations, spliced seq using the input order rather than trying to sort");
+	    $self->warn(  "Mixed strand locations, spliced seq using the "
+                        . "input order rather than trying to sort");
 	    @locs = @locset;
 	}
     } else {
@@ -545,9 +548,11 @@ sub spliced_seq {
     }
     
 
-    my $last_id = undef;
+    my $last_id    = undef;
     my $called_seq = undef;
-    my $called_seq_seq = undef;   # this will be left as undefined if 1) db is remote or 2)seq_id is undefined. In this case, old code is used to make exon sequence
+    # This will be left as undefined if 1) db is remote or 2)seq_id is undefined.
+    # In that case, old code is used to make exon sequence
+    my $called_seq_seq = undef;
     my $called_seq_len = undef;
 
     foreach my $loc ( @locs ) {
@@ -571,11 +576,13 @@ sub spliced_seq {
 			$called_seq = $db->get_Seq_by_acc($sid);
 		    };
 		    if( $@ ) {
-		        $self->warn("In attempting to join a remote location, sequence $sid was not in database. Will provide padding N's. Full exception \n\n$@");
+		        $self->warn(  "In attempting to join a remote location, sequence $sid "
+                                    . "was not in database. Will provide padding N's. Full exception \n\n$@");
 		        $called_seq = undef;
 		    }
 		} else {
-		    $self->warn( "cannot get remote location for ".$loc_seq_id ." without a valid Bio::DB::RandomAccessI database handle (like Bio::DB::GenBank)");
+		    $self->warn(  "cannot get remote location for ".$loc_seq_id ." without a valid "
+                                . "Bio::DB::RandomAccessI database handle (like Bio::DB::GenBank)");
 		    $called_seq = undef;
 		}
 		if( !defined $called_seq ) {
@@ -583,9 +590,11 @@ sub spliced_seq {
 		    next;
 		}
 	    } else { # have local sequence available
-		unless (defined(($last_id) && $last_id eq $loc_seq_id )){  # don't have to pull out source sequence again if it's local unless it's the first exon or different from previous exon
+                # don't have to pull out source sequence again if it's local unless
+                # it's the first exon or different from previous exon
+		unless (defined(($last_id) && $last_id eq $loc_seq_id )){
 		    $called_seq = $self->entire_seq;
-		    $called_seq_seq = $called_seq ->seq();  # this is slow
+		    $called_seq_seq = $called_seq->seq();  # this is slow
 		} 
 	    }
 	} else {  #undefined $loc->seq->id
@@ -629,9 +638,11 @@ sub spliced_seq {
 		$seqstr .= $exon_seq;
 	    } else {
 		my $strand = defined ($loc->strand) ? ($loc->strand) : 0;
+
+                # revcomp $exon_seq
 		if ($strand == -1) {
 		    $exon_seq = reverse($exon_seq);
-		    $exon_seq =~ tr/ABCDGHMNRSTUVWXYabcdghmnrstuvwxy/TVGHCDKNYSAABWXRtvghcdknysaabwxr/;  #revcomp $exon_seq
+		    $exon_seq =~ tr/ABCDGHKMNRSTUVWXYabcdghkmnrstuvwxy/TVGHCDMKNYSAABWXRtvghcdmknysaabwxr/;
 		    $seqstr .= $exon_seq;  
 		} else {
 		    $seqstr .= $exon_seq; 
