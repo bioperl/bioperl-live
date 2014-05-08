@@ -273,7 +273,7 @@ sub next_result{
        $self->end_element({ 'Name' => 'MegaBlastOutput'});
        return $self->end_document();
    }
-   return 0;
+   return;
 }
 
 =head2 report_format

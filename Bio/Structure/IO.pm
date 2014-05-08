@@ -536,7 +536,7 @@ sub TIEHANDLE {
 
 sub READLINE {
   my $self = shift;
-  return $self->{'structio'}->next_seq() unless wantarray;
+  return $self->{'structio'}->next_seq() || undef unless wantarray;
   my (@list, $obj);
   push @list, $obj while $obj = $self->{'structio'}->next_seq();
   return @list;

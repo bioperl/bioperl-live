@@ -728,7 +728,7 @@ sub TIEHANDLE {
 
 sub READLINE {
     my $self = shift;
-    return $self->{'seqio'}->next_seq() unless wantarray;
+    return $self->{'seqio'}->next_seq() || undef unless wantarray;
     my (@list, $obj);
     push @list, $obj while $obj = $self->{'seqio'}->next_seq();
     return @list;

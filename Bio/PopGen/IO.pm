@@ -333,7 +333,7 @@ sub TIEHANDLE {
 
 sub READLINE {
   my $self = shift;
-  return $self->{'processor'}->next_result() unless wantarray;
+  return $self->{'processor'}->next_result() || undef unless wantarray;
   my (@list, $obj);
   push @list, $obj while $obj = $self->{'processor'}->next_result();
   return @list;
