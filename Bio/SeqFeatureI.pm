@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::SeqFeatureI
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
@@ -20,29 +20,30 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
     # get a seqfeature somehow, eg, from a Sequence with Features attached
 
     foreach $feat ( $seq->get_SeqFeatures() ) {
-       print "Feature from ", $feat->start, "to ",
-	       $feat->end, " Primary tag  ", $feat->primary_tag,
-	          ", produced by ", $feat->source_tag(), "\n";
+        print "Feature from ", $feat->start, "to ",
+              $feat->end, " Primary tag  ", $feat->primary_tag,
+              ", produced by ", $feat->source_tag(), "\n";
 
-       if( $feat->strand == 0 ) {
-		    print "Feature applicable to either strand\n";
-       } else {
-          print "Feature on strand ", $feat->strand,"\n"; # -1,1
-       }
+        if ( $feat->strand == 0 ) {
+            print "Feature applicable to either strand\n";
+        }
+        else {
+            print "Feature on strand ", $feat->strand,"\n"; # -1,1
+        }
 
-       print "feature location is ",$feat->start, "..",
-          $feat->end, " on strand ", $feat->strand, "\n";
-       print "easy utility to print locations in GenBank/EMBL way ",
-          $feat->location->to_FTstring(), "\n";
+        print "feature location is ",$feat->start, "..",
+              $feat->end, " on strand ", $feat->strand, "\n";
+        print "easy utility to print locations in GenBank/EMBL way ",
+              $feat->location->to_FTstring(), "\n";
 
-       foreach $tag ( $feat->get_all_tags() ) {
-		    print "Feature has tag ", $tag, " with values, ",
-		      join(' ',$feat->get_tag_values($tag)), "\n";
-       }
-	    print "new feature\n" if $feat->has_tag('new');
-	    # features can have sub features
-	    my @subfeat = $feat->get_SeqFeatures();
-	 }
+        foreach $tag ( $feat->get_all_tags() ) {
+            print "Feature has tag ", $tag, " with values, ",
+                  join(' ',$feat->get_tag_values($tag)), "\n";
+        }
+        print "new feature\n" if $feat->has_tag('new');
+        # features can have sub features
+        my @subfeat = $feat->get_SeqFeatures();
+    }
 
 =head1 DESCRIPTION
 
@@ -62,15 +63,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -184,7 +185,7 @@ sub source_tag{
 
  Title   : has_tag
  Usage   : $tag_exists = $self->has_tag('some_tag')
- Function: 
+ Function:
  Returns : TRUE if the specified tag exists, and FALSE otherwise
  Args    :
 
@@ -201,7 +202,7 @@ sub has_tag{
 
  Title   : get_tag_values
  Usage   : @values = $self->get_tag_values('some_tag')
- Function: 
+ Function:
  Returns : An array comprising the values of the specified tag.
  Args    : a string
 
@@ -217,7 +218,7 @@ sub get_tag_values {
 
  Title   : get_tagset_values
  Usage   : @values = $self->get_tagset_values(qw(label transcript_id product))
- Function: 
+ Function:
  Returns : An array comprising the values of the specified tags, in order of tags
  Args    : An array of strings
 
@@ -449,55 +450,56 @@ but can be validly overwritten by subclasses
 
 sub spliced_seq {
     my $self = shift;
-	my @args = @_;
-	my ($db, $nosort, $phase) =
-	   $self->_rearrange([qw(DB NOSORT PHASE)], @args);
-	
-	# set no_sort based on the parent sequence status
-	if ($self->entire_seq->is_circular) {
-		$nosort = 1;
-	}
-	
-	# (added 7/7/06 to allow use old API (with warnings)
-	my $old_api = (!(grep {$_ =~ /(?:nosort|db|phase)/} @args)) ? 1 : 0;
-	if (@args && $old_api) {
-		$self->warn(q(API has changed; please use '-db' or '-nosort' ).
-                     qq(for args. See POD for more details.));
-		$db = shift @args if @args;
-		$nosort = shift @args if @args;
-		$phase = shift @args if @args;
-	};
-	
-	if (defined($phase) && ($phase < 0 || $phase > 2)) {
-	    $self->warn("Phase must be 0,1, or 2.  Setting phase to 0...");
-	    $phase = 0;
-	}
-	
-	if( $db && ref($db) && ! $db->isa('Bio::DB::RandomAccessI') ) {
-        $self->warn("Must pass in a valid Bio::DB::RandomAccessI object".
-                    " for access to remote locations for spliced_seq");
-        $db = undef;
-	} elsif( defined $db && $HasInMemory &&
-	        $db->isa('Bio::DB::InMemoryCache') ) {
-	    $db = Bio::DB::InMemoryCache->new(-seqdb => $db);
-	}
+    my @args = @_;
+    my ($db, $nosort, $phase) =
+       $self->_rearrange([qw(DB NOSORT PHASE)], @args);
 
-    if( ! $self->location->isa("Bio::Location::SplitLocationI") ) {
-        if ($phase) {
-	    $self->debug("Subseq start: ",$phase+1,"\tend: ",$self->end,"\n");
-	    my $seqstr = substr($self->seq->seq, $phase);
-	    my $out = Bio::Seq->new( -id => $self->entire_seq->display_id
-				. "_spliced_feat",
-			 -seq => $seqstr);
-	    return $out;
-	} else {
-	    return $self->seq(); # nice and easy!
-	}
+    # set no_sort based on the parent sequence status
+    if ($self->entire_seq->is_circular) {
+        $nosort = 1;
     }
-    
+
+    # (added 7/7/06 to allow use old API (with warnings)
+    my $old_api = (!(grep {$_ =~ /(?:nosort|db|phase)/} @args)) ? 1 : 0;
+    if (@args && $old_api) {
+        $self->warn(  q(API has changed; please use '-db' or '-nosort' )
+                    . qq(for args. See POD for more details.));
+        $db     = shift @args if @args;
+        $nosort = shift @args if @args;
+        $phase  = shift @args if @args;
+    };
+
+    if (defined($phase) && ($phase < 0 || $phase > 2)) {
+        $self->warn("Phase must be 0,1, or 2.  Setting phase to 0...");
+        $phase = 0;
+    }
+
+    if ( $db && ref($db) && ! $db->isa('Bio::DB::RandomAccessI') ) {
+        $self->warn(  "Must pass in a valid Bio::DB::RandomAccessI object"
+                    . " for access to remote locations for spliced_seq");
+        $db = undef;
+    }
+    elsif ( defined $db && $HasInMemory && $db->isa('Bio::DB::InMemoryCache') ) {
+        $db = Bio::DB::InMemoryCache->new(-seqdb => $db);
+    }
+
+    if ( not $self->location->isa("Bio::Location::SplitLocationI") ) {
+        if ($phase) {
+            $self->debug("Subseq start: ",$phase+1,"\tend: ",$self->end,"\n");
+            my $seqstr = substr($self->seq->seq, $phase);
+            my $out = Bio::Seq->new( -id  =>   $self->entire_seq->display_id
+                                             . "_spliced_feat",
+                                     -seq => $seqstr);
+            return $out;
+        }
+        else {
+            return $self->seq(); # nice and easy!
+        }
+    }
+
     # redundant test, but the above ISA is probably not ideal.
-    if( ! $self->location->isa("Bio::Location::SplitLocationI") ) {
-	$self->throw("not atomic, not split, yikes, in trouble!");
+    if ( not $self->location->isa("Bio::Location::SplitLocationI") ) {
+        $self->throw("not atomic, not split, yikes, in trouble!");
     }
 
     my $seqstr = '';
@@ -511,8 +513,7 @@ sub spliced_seq {
 
     my ($mixed,$mixedloc, $fstrand) = (0);
 
-    if( $self->isa('Bio::Das::SegmentI') &&
-        ! $self->absolute ) {
+    if ( $self->isa('Bio::Das::SegmentI') and not $self->absolute ) {
         $self->warn(  "Calling spliced_seq with a Bio::Das::SegmentI which "
                     . "does have absolute set to 1 -- be warned you may not "
                     . "be getting things on the correct strand");
@@ -520,33 +521,35 @@ sub spliced_seq {
 
     my @locset = $self->location->each_Location;
     my @locs;
-    if( ! $nosort ) {
-	@locs = map { $_->[0] }
-	# sort so that most negative is first basically to order
-	# the features on the opposite strand 5'->3' on their strand
-	# rather than they way most are input which is on the fwd strand
+    if ( not $nosort ) {
+        @locs = map { $_->[0] }
+        # sort so that most negative is first basically to order
+        # the features on the opposite strand 5'->3' on their strand
+        # rather than they way most are input which is on the fwd strand
 
-	sort { $a->[1] <=> $b->[1] } # Yes Tim, Schwartzian transformation
-	map {
-	    $fstrand = $_->strand unless defined $fstrand;
-	    $mixed = 1 if defined $_->strand && $fstrand != $_->strand;
-	    if( defined $_->seq_id ) {
-		$mixedloc = 1 if( $_->seq_id ne $seqid );
-	    }
-	    [ $_, $_->start * ($_->strand || 1)];
-	} @locset;
+        sort { $a->[1] <=> $b->[1] } # Yes Tim, Schwartzian transformation
+        map {
+             $fstrand = $_->strand unless defined $fstrand;
+             $mixed   = 1 if defined $_->strand && $fstrand != $_->strand;
 
-	if ( $mixed ) {
-	    $self->warn(  "Mixed strand locations, spliced seq using the "
+             if( defined $_->seq_id ) {
+                $mixedloc = 1 if( $_->seq_id ne $seqid );
+             }
+             [ $_, $_->start * ($_->strand || 1) ];
+        } @locset;
+
+        if ( $mixed ) {
+            $self->warn(  "Mixed strand locations, spliced seq using the "
                         . "input order rather than trying to sort");
-	    @locs = @locset;
-	}
-    } else {
-	# use the original order instead of trying to sort
-	@locs = @locset;
-	$fstrand = $locs[0]->strand;
+            @locs = @locset;
+        }
     }
-    
+    else {
+        # use the original order instead of trying to sort
+        @locs = @locset;
+        $fstrand = $locs[0]->strand;
+    }
+
 
     my $last_id    = undef;
     my $called_seq = undef;
@@ -556,118 +559,136 @@ sub spliced_seq {
     my $called_seq_len = undef;
 
     foreach my $loc ( @locs ) {
-	if( ! $loc->isa("Bio::Location::Atomic") ) {
-	    $self->throw("Can only deal with one level deep locations");
-	}
+        if ( not $loc->isa("Bio::Location::Atomic") ) {
+            $self->throw("Can only deal with one level deep locations");
+        }
 
-	if( $fstrand != $loc->strand ) {
-	    $self->warn("feature strand is different from location strand!");
-	}
-	
-	my $loc_seq_id;
-	if( defined $loc->seq_id ){
-	    $loc_seq_id = $loc->seq_id;
-	    if($loc_seq_id ne $seqid ) {  # deal with remote sequences
-		$called_seq_seq = undef;   # might be too big to download whole sequence
-		if( defined $db ) {
-		    my $sid = $loc_seq_id;
-		    $sid =~ s/\.\d+$//g;
-		    eval {
-			$called_seq = $db->get_Seq_by_acc($sid);
-		    };
-		    if( $@ ) {
-		        $self->warn(  "In attempting to join a remote location, sequence $sid "
+        if ( $fstrand != $loc->strand ) {
+            $self->warn("feature strand is different from location strand!");
+        }
+
+        my $loc_seq_id;
+        if ( defined $loc->seq_id ) {
+            $loc_seq_id = $loc->seq_id;
+
+            # deal with remote sequences
+            if ($loc_seq_id ne $seqid ) {
+                # might be too big to download whole sequence
+                $called_seq_seq = undef;
+
+                if ( defined $db ) {
+                    my $sid = $loc_seq_id;
+                    $sid =~ s/\.\d+$//g;
+                    eval {
+                        $called_seq = $db->get_Seq_by_acc($sid);
+                    };
+                    if( $@ ) {
+                        $self->warn(  "In attempting to join a remote location, sequence $sid "
                                     . "was not in database. Will provide padding N's. Full exception \n\n$@");
-		        $called_seq = undef;
-		    }
-		} else {
-		    $self->warn(  "cannot get remote location for ".$loc_seq_id ." without a valid "
+                        $called_seq = undef;
+                    }
+                }
+                else {
+                    $self->warn(  "cannot get remote location for ".$loc_seq_id ." without a valid "
                                 . "Bio::DB::RandomAccessI database handle (like Bio::DB::GenBank)");
-		    $called_seq = undef;
-		}
-		if( !defined $called_seq ) {
-		    $seqstr .= 'N' x $self->length;
-		    next;
-		}
-	    } else { # have local sequence available
+                    $called_seq = undef;
+                }
+                if ( !defined $called_seq ) {
+                    $seqstr .= 'N' x $self->length;
+                    next;
+                }
+            }
+            # have local sequence available
+            else {
                 # don't have to pull out source sequence again if it's local unless
                 # it's the first exon or different from previous exon
-		unless (defined(($last_id) && $last_id eq $loc_seq_id )){
-		    $called_seq = $self->entire_seq;
-		    $called_seq_seq = $called_seq->seq();  # this is slow
-		} 
-	    }
-	} else {  #undefined $loc->seq->id
-	    $called_seq = $self->entire_seq;
-	    $called_seq_seq = undef;
-	}
-    
-    my ($start,$end) = ($loc->start,$loc->end);
-    
-    # does the called sequence make sense? Bug 1780
-    my $called_seq_len;
-    if (defined($called_seq_seq)){  # can avoid a seq() call on called_seq 
-	$called_seq_len = length($called_seq_seq);
-    }else{			    # can't avoid a seq() call on called_seq
-	$called_seq_len = $called_seq->length  # this is slow
-    }
-    if ($called_seq_len < $loc->end) { 
-        my $accession = $called_seq->accession;
-        my $orig_id = $self->seq_id; # originating sequence
-        my ($locus) = $self->get_tagset_values("locus_tag");
-        $self->throw("Location end ($end) exceeds length ($called_seq_len) of ".
-                     "called sequence $accession.\nCheck sequence version used in ".
-                     "$locus locus-tagged SeqFeature in $orig_id.");
-    }
+                unless (defined(($last_id) && $last_id eq $loc_seq_id )){
+                    $called_seq = $self->entire_seq;
+                    $called_seq_seq = $called_seq->seq();  # this is slow
+                }
+            }
+        }
+        #undefined $loc->seq->id
+        else {
+            $called_seq = $self->entire_seq;
+            $called_seq_seq = undef;
+        }
 
-	if( $self->isa('Bio::Das::SegmentI') ) {
-		# $called_seq is Bio::DB::GFF::RelSegment, as well as its subseq();
-		# Bio::DB::GFF::RelSegment::seq() returns a Bio::PrimarySeq, and using seq()
-		# in turn returns a string.  Confused?
-	    $seqstr .= $called_seq->subseq($start,$end)->seq()->seq(); # this is slow
-	} else {
-	    my $exon_seq;
-	    if (defined ($called_seq_seq)){
-		$exon_seq = substr($called_seq_seq, $start-1, $end-$start+1);  # this is quick
-	    } else {
-		$exon_seq = $called_seq->subseq($loc->start,$loc->end);  # this is slow
-	    }
-	    # If guide_strand is defined, assemble the sequence first and revcom later if needed,
-	    # if its not defined, apply revcom immediately to proper locations
-	    if (defined $self->location->guide_strand) {
-		$seqstr .= $exon_seq;
-	    } else {
-		my $strand = defined ($loc->strand) ? ($loc->strand) : 0;
+        my ($start,$end) = ($loc->start,$loc->end);
+
+        # does the called sequence make sense? Bug 1780
+        my $called_seq_len;
+
+        # can avoid a seq() call on called_seq
+        if (defined($called_seq_seq)) {
+            $called_seq_len = length($called_seq_seq);
+        }
+        # can't avoid a seq() call on called_seq
+        else {
+            $called_seq_len = $called_seq->length  # this is slow
+        }
+
+        if ($called_seq_len < $loc->end) {
+            my $accession = $called_seq->accession;
+            my $orig_id   = $self->seq_id; # originating sequence
+            my ($locus)   = $self->get_tagset_values("locus_tag");
+            $self->throw(  "Location end ($end) exceeds length ($called_seq_len) of "
+                         . "called sequence $accession.\nCheck sequence version used in "
+                         . "$locus locus-tagged SeqFeature in $orig_id.");
+        }
+
+        if ( $self->isa('Bio::Das::SegmentI') ) {
+            # $called_seq is Bio::DB::GFF::RelSegment, as well as its subseq();
+            # Bio::DB::GFF::RelSegment::seq() returns a Bio::PrimarySeq, and using seq()
+            # in turn returns a string.  Confused?
+            $seqstr .= $called_seq->subseq($start,$end)->seq()->seq(); # this is slow
+        }
+        else {
+            my $exon_seq;
+            if (defined ($called_seq_seq)){
+                $exon_seq = substr($called_seq_seq, $start-1, $end-$start+1);  # this is quick
+            }
+            else {
+                $exon_seq = $called_seq->subseq($loc->start,$loc->end);  # this is slow
+            }
+
+            # If guide_strand is defined, assemble the sequence first and revcom later if needed,
+            # if its not defined, apply revcom immediately to proper locations
+            if (defined $self->location->guide_strand) {
+                $seqstr .= $exon_seq;
+            }
+            else {
+                my $strand = defined ($loc->strand) ? ($loc->strand) : 0;
 
                 # revcomp $exon_seq
-		if ($strand == -1) {
-		    $exon_seq = reverse($exon_seq);
-		    $exon_seq =~ tr/ABCDGHKMNRSTUVWXYabcdghkmnrstuvwxy/TVGHCDMKNYSAABWXRtvghcdmknysaabwxr/;
-		    $seqstr .= $exon_seq;  
-		} else {
-		    $seqstr .= $exon_seq; 
-		}
-	    }
-	}
-	
-	$last_id = $loc_seq_id if (defined($loc_seq_id));
-	
+                if ($strand == -1) {
+                    $exon_seq = reverse($exon_seq);
+                    $exon_seq =~ tr/ABCDGHKMNRSTUVWXYabcdghkmnrstuvwxy/TVGHCDMKNYSAABWXRtvghcdmknysaabwxr/;
+                    $seqstr .= $exon_seq;
+                }
+                else {
+                    $seqstr .= $exon_seq;
+                }
+            }
+        }
+
+        $last_id = $loc_seq_id if (defined($loc_seq_id));
     } #next $loc
 
     # Use revcom only after the whole sequence has been assembled
     my $guide_strand = defined ($self->location->guide_strand) ? ($self->location->guide_strand) : 0;
     if ($guide_strand == -1) {
-	my $seqstr_obj = Bio::Seq->new(-seq => $seqstr);
-	$seqstr = $seqstr_obj->revcom->seq;
+        my $seqstr_obj = Bio::Seq->new(-seq => $seqstr);
+        $seqstr = $seqstr_obj->revcom->seq;
     }
-    
+
     if (defined($phase)) {
-	$seqstr = substr($seqstr, $phase);
+        $seqstr = substr($seqstr, $phase);
     }
-    
-    my $out = Bio::Seq->new( -id => $self->entire_seq->display_id
-			            . "_spliced_feat",
-			     -seq => $seqstr);
+
+    my $out = Bio::Seq->new( -id =>   $self->entire_seq->display_id
+                                    . "_spliced_feat",
+                             -seq => $seqstr);
 
     return $out;
 }
@@ -677,7 +698,7 @@ sub spliced_seq {
  Title   : location
  Usage   : my $location = $seqfeature->location()
  Function: returns a location object suitable for identifying location
-	   of feature on sequence or parent feature
+           of feature on sequence or parent feature
  Returns : Bio::LocationI object
  Args    : none
 
