@@ -477,10 +477,10 @@ sub spliced_seq {
         $self->warn("Must pass in a valid Bio::DB::RandomAccessI object".
                     " for access to remote locations for spliced_seq");
         $db = undef;
-    } elsif( defined $db && $HasInMemory &&
-            $db->isa('Bio::DB::InMemoryCache') ) {
-        $db = Bio::DB::InMemoryCache->new(-seqdb => $db);
-    }
+	} elsif( defined $db && $HasInMemory &&
+	        $db->isa('Bio::DB::InMemoryCache') ) {
+	    $db = Bio::DB::InMemoryCache->new(-seqdb => $db);
+	}
 
     if( ! $self->location->isa("Bio::Location::SplitLocationI") ) {
         if ($phase) {
@@ -543,74 +543,106 @@ sub spliced_seq {
 	@locs = @locset;
 	$fstrand = $locs[0]->strand;
     }
+    
+
+    my $last_id = undef;
+    my $called_seq = undef;
+    my $called_seq_seq = undef;   # this will be left as undefined if 1) db is remote or 2)seq_id is undefined. In this case, old code is used to make exon sequence
+    my $called_seq_len = undef;
 
     foreach my $loc ( @locs ) {
 	if( ! $loc->isa("Bio::Location::Atomic") ) {
 	    $self->throw("Can only deal with one level deep locations");
 	}
-	my $called_seq;
+
 	if( $fstrand != $loc->strand ) {
 	    $self->warn("feature strand is different from location strand!");
 	}
-	# deal with remote sequences
-
-	if( defined $loc->seq_id &&
-	    $loc->seq_id ne $seqid ) {
-	    if( defined $db ) {
-		my $sid = $loc->seq_id;
-		$sid =~ s/\.\d+$//g;
-		eval {
-		    $called_seq = $db->get_Seq_by_acc($sid);
-		};
-		if( $@ ) {
-		    $self->warn("In attempting to join a remote location, sequence $sid was not in database. Will provide padding N's. Full exception \n\n$@");
+	
+	my $loc_seq_id;
+	if( defined $loc->seq_id ){
+	    $loc_seq_id = $loc->seq_id;
+	    if($loc_seq_id ne $seqid ) {  # deal with remote sequences
+		$called_seq_seq = undef;   # might be too big to download whole sequence
+		if( defined $db ) {
+		    my $sid = $loc_seq_id;
+		    $sid =~ s/\.\d+$//g;
+		    eval {
+			$called_seq = $db->get_Seq_by_acc($sid);
+		    };
+		    if( $@ ) {
+		        $self->warn("In attempting to join a remote location, sequence $sid was not in database. Will provide padding N's. Full exception \n\n$@");
+		        $called_seq = undef;
+		    }
+		} else {
+		    $self->warn( "cannot get remote location for ".$loc_seq_id ." without a valid Bio::DB::RandomAccessI database handle (like Bio::DB::GenBank)");
 		    $called_seq = undef;
 		}
-	    } else {
-		$self->warn( "cannot get remote location for ".$loc->seq_id ." without a valid Bio::DB::RandomAccessI database handle (like Bio::DB::GenBank)");
-		$called_seq = undef;
+		if( !defined $called_seq ) {
+		    $seqstr .= 'N' x $self->length;
+		    next;
+		}
+	    } else { # have local sequence available
+		unless (defined(($last_id) && $last_id eq $loc_seq_id )){  # don't have to pull out source sequence again if it's local unless it's the first exon or different from previous exon
+		    $called_seq = $self->entire_seq;
+		    $called_seq_seq = $called_seq ->seq();  # this is slow
+		} 
 	    }
-	    if( !defined $called_seq ) {
-		$seqstr .= 'N' x $self->length;
-		next;
-	    }
-	} else {
+	} else {  #undefined $loc->seq->id
 	    $called_seq = $self->entire_seq;
+	    $called_seq_seq = undef;
 	}
-
+    
+    my ($start,$end) = ($loc->start,$loc->end);
+    
     # does the called sequence make sense? Bug 1780
-    if ($called_seq->length < $loc->end) {
+    my $called_seq_len;
+    if (defined($called_seq_seq)){  # can avoid a seq() call on called_seq 
+	$called_seq_len = length($called_seq_seq);
+    }else{			    # can't avoid a seq() call on called_seq
+	$called_seq_len = $called_seq->length  # this is slow
+    }
+    if ($called_seq_len < $loc->end) { 
         my $accession = $called_seq->accession;
-        my $end = $loc->end;
-        my $length = $called_seq->length;
         my $orig_id = $self->seq_id; # originating sequence
         my ($locus) = $self->get_tagset_values("locus_tag");
-        $self->throw("Location end ($end) exceeds length ($length) of ".
+        $self->throw("Location end ($end) exceeds length ($called_seq_len) of ".
                      "called sequence $accession.\nCheck sequence version used in ".
                      "$locus locus-tagged SeqFeature in $orig_id.");
     }
 
 	if( $self->isa('Bio::Das::SegmentI') ) {
-	    my ($s,$e) = ($loc->start,$loc->end);
 		# $called_seq is Bio::DB::GFF::RelSegment, as well as its subseq();
 		# Bio::DB::GFF::RelSegment::seq() returns a Bio::PrimarySeq, and using seq()
 		# in turn returns a string.  Confused?
-	    $seqstr .= $called_seq->subseq($s,$e)->seq()->seq();
+	    $seqstr .= $called_seq->subseq($start,$end)->seq()->seq(); # this is slow
 	} else {
+	    my $exon_seq;
+	    if (defined ($called_seq_seq)){
+		$exon_seq = substr($called_seq_seq, $start-1, $end-$start+1);  # this is quick
+	    } else {
+		$exon_seq = $called_seq->subseq($loc->start,$loc->end);  # this is slow
+	    }
 	    # If guide_strand is defined, assemble the sequence first and revcom later if needed,
 	    # if its not defined, apply revcom immediately to proper locations
 	    if (defined $self->location->guide_strand) {
-		$seqstr .= $called_seq->subseq($loc->start,$loc->end);
+		$seqstr .= $exon_seq;
 	    } else {
 		my $strand = defined ($loc->strand) ? ($loc->strand) : 0;
 		if ($strand == -1) {
-		    $seqstr .= $called_seq->trunc($loc->start,$loc->end)->revcom->seq;
+		    $exon_seq = reverse($exon_seq);
+		    $exon_seq =~ tr/ABCDGHMNRSTUVWXYabcdghmnrstuvwxy/TVGHCDKNYSAABWXRtvghcdknysaabwxr/;  #revcomp $exon_seq
+		    $seqstr .= $exon_seq;  
 		} else {
-		    $seqstr .= $called_seq->subseq($loc->start,$loc->end);
+		    $seqstr .= $exon_seq; 
 		}
 	    }
 	}
-    }
+	
+	$last_id = $loc_seq_id if (defined($loc_seq_id));
+	
+    } #next $loc
+
     # Use revcom only after the whole sequence has been assembled
     my $guide_strand = defined ($self->location->guide_strand) ? ($self->location->guide_strand) : 0;
     if ($guide_strand == -1) {
