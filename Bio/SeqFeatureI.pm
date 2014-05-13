@@ -594,7 +594,7 @@ sub spliced_seq {
                     $called_seq = undef;
                 }
                 if ( !defined $called_seq ) {
-                    $seqstr .= 'N' x $self->length;
+                    $seqstr .= 'N' x $loc->length;
                     next;
                 }
             }
