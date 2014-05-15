@@ -7,7 +7,7 @@ BEGIN {
   use lib '.';
   use Bio::Root::Test;
     
-  test_begin(-tests => 49);
+  test_begin(-tests => 51);
 
   use_ok('Bio::TreeIO');
 }
@@ -133,6 +133,12 @@ $tree = $treeio->next_tree;
 ok($tree);
 is($tree->get_nodes, 15);
 
+# initial AMPHORA2 tests
+$treeio = Bio::TreeIO->new(-format => 'newick',
+			   -file=> test_input_file('amphora.newick'));
+$tree = $treeio->next_tree;
+ok($tree);
+is($tree->get_nodes, 5);
 
 test_roundtrip('((a,b),c);','Round trip: simple newick');
 test_roundtrip('(a:1,b:2,c:3,d:4)TEST:1.2345;','Round trip: Root node branch length');
