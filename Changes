@@ -63,6 +63,7 @@ CPAN releases are branched from 'master'.
 
     [Bug fixes]
 
+    * SeqFeature::Lite: Fixed wrong strand when using "+", "-", or "." [nathanweeks]
     * Abstract: Fixed ActivePerl incapability of removing temporary files
       because of problems closing tied filehandles [fjossandon]
     * IndexedBase: For Windows' ActivePerl, several LocalDB tests were failing

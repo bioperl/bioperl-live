@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 103);
+    test_begin(-tests => 109);
 	
     use_ok('Bio::Location::Simple');
     use_ok('Bio::Location::Split');
@@ -15,6 +15,7 @@ BEGIN {
     use_ok('Bio::SeqFeature::Generic');
     use_ok('Bio::SeqFeature::SimilarityPair');
     use_ok('Bio::SeqFeature::FeaturePair');
+    use_ok('Bio::SeqFeature::Lite');
 }
 
 my $simple = Bio::Location::Simple->new('-start' => 10, '-end' => 20,
@@ -37,6 +38,15 @@ isa_ok($generic,'Bio::SeqFeatureI', 'Bio::SeqFeature::Generic' );
 isa_ok($generic,'Bio::RangeI');
 is($generic->start, 5);
 is($generic->end, 30);
+
+my $lite_pos  = Bio::SeqFeature::Lite->new(-start => 1000, -stop => 2000, -strand => '+');
+my $lite_neg  = Bio::SeqFeature::Lite->new(-start => 1000, -end  => 2000, -strand => '-');
+my $lite_none = Bio::SeqFeature::Lite->new(-start => 1000, -stop => 2000, -strand => '.');
+is($lite_pos->strand,  1);
+is($lite_neg->strand, -1);
+is($lite_neg->end,  2000);
+is($lite_neg->stop, 2000);
+is($lite_none->strand, 0);
 
 my $similarity = Bio::SeqFeature::SimilarityPair->new();
 
