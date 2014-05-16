@@ -196,9 +196,9 @@ sub new {
 
   $arg{-strand} ||= 0;
   if ($arg{-strand} =~ /^[\+\-\.]$/){
-	$arg{-strand} = "+" && $self->{strand} ='1';
-	$arg{-strand} = "-" && $self->{strand} = '-1';
-	$arg{-strand} = "." && $self->{strand} = '0';
+	($arg{-strand} eq "+") && ($self->{strand} = '1');
+	($arg{-strand} eq "-") && ($self->{strand} = '-1');
+	($arg{-strand} eq ".") && ($self->{strand} = '0');
   } else {
 	  $self->{strand}  = $arg{-strand} ? ($arg{-strand} >= 0 ? +1 : -1) : 0;
   }
