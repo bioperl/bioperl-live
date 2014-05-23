@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 14);
+    test_begin(-tests => 15);
 	
 	use_ok('Bio::SeqIO');
 }
@@ -56,3 +56,26 @@ my ($nucleotide_seq) = $feat->spliced_seq(-nosort => 1)->seq;
 like($nucleotide_seq, qr(^ATGAAAGAAAGATATGGA.*TCAAGGACTAGTATAACATAA$),
 	 "nucleotide sequence - correct CDS range");
 is(length($nucleotide_seq), 489, "nucleotide length");
+
+# Test remote sequence handling
+my $db_in;
+eval{
+    use Bio::DB::GenBank;
+    use Test::Warn;
+    $db_in = Bio::DB::GenBank -> new;
+    my $seq_obj = $db_in->get_Seq_by_id('AF032048.1');
+};
+if($@){
+    warn("Warning: Problem with accessing GenBank entry AF032048.1 to test spliced_seq on remote DBs. skipping this test\n");
+} else {
+    my $str = Bio::SeqIO->new(
+			'-file'=> test_input_file('AF032047.gbk'), 
+			'-format' => 'GenBank');
+    my @feats = $str-> next_seq -> get_SeqFeatures;
+    # feat[1] has some exons from external sequence AF032048.1
+    # Compare output seq length with and without specifying db (latter results in N padding)
+    
+    my $len_w_db = length($feats[1]->spliced_seq(-db => $db_in)->seq);
+    my $len_nodb = length($feats[1]->spliced_seq(             )->seq);     # produces 2 warnings
+    ok($len_nodb == $len_w_db, "right number of Ns added if source sequence not found");
+}
