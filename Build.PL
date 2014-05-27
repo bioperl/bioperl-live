@@ -11,7 +11,8 @@
 
 use strict;
 use lib '.';
-use inc::Build;
+use lib 'inc';
+use Bio::Build;
 
 # XML::SAX::RTF doesn't work with BioPerl, at all, nada, zilch.
 #
