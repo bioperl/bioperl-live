@@ -45,3 +45,4 @@ notifications:
 branches:
   only:
     - master
+    - topic/local_build
