@@ -11,7 +11,7 @@
 
 use strict;
 use lib '.';
-use inc::Build;
+use Bio::Root::Build;
 
 # XML::SAX::RTF doesn't work with BioPerl, at all, nada, zilch.
 #
@@ -188,7 +188,7 @@ my $mysql_ok = 0;
 my @drivers = available_drivers();
 
 # Set up the Bio::Root::Build object
-my $build = Bio::Build->new(
+my $build = Bio::Root::Build->new(
     module_name         => 'Bio',
     dist_name           => 'BioPerl',
     dist_version        => '1.006924',
