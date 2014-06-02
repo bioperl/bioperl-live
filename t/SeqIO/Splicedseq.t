@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 14);
+    test_begin(-tests => 18);
 	
 	use_ok('Bio::SeqIO');
 }
@@ -56,3 +56,31 @@ my ($nucleotide_seq) = $feat->spliced_seq(-nosort => 1)->seq;
 like($nucleotide_seq, qr(^ATGAAAGAAAGATATGGA.*TCAAGGACTAGTATAACATAA$),
 	 "nucleotide sequence - correct CDS range");
 is(length($nucleotide_seq), 489, "nucleotide length");
+
+my $str2 = Bio::SeqIO->new('-file'=> test_input_file('AF032047.gbk'), 
+			  '-format' => 'GenBank');
+my @feats = $str2-> next_seq -> get_SeqFeatures;
+    # feat[1] has 2 exons from remote sequence AF032048.1
+    
+my $db_in;
+eval{
+    use Bio::DB::GenBank;
+    $db_in = Bio::DB::GenBank -> new;
+    my $seq_obj = $db_in->get_Seq_by_id('AF032048.1');
+};
+if($@){
+    warn("Warning: Problem with accessing GenBank entry AF032048.1 to test spliced_seq on remote DBs. Skipping 2 tests\n");
+} else {
+    my $len_w_db;
+    warning_is{
+	$len_w_db = length($feats[1]->spliced_seq(-db => $db_in)->seq)
+    } [] , "no warnings if genbank db provided for remote source seq";
+    ok($len_w_db == 374, "correct length if source sequence is provided remotely")
+}
+my $len_nodb;
+warnings_like{
+    $len_nodb = length($feats[1]->spliced_seq()->seq);     
+} [{carped => qr/cannot get remote location for/} ,
+   {carped => qr/cannot get remote location for/}], "appropriate warning if db not provided for remote source seq";
+    
+ok($len_nodb == 374, "correct number of Ns added if source sequence not provided");
