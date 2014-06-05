@@ -2477,6 +2477,7 @@ sub freeze {
     my $d    = Data::Dumper->new([$obj]);
     $d->Terse(1);
     $d->Deepcopy(1);
+    $d->Deparse(1);
     $data = $d->Dump;
   } elsif ($serializer eq 'Storable') {
     local $Storable::forgive_me = 1;
