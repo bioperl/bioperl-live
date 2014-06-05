@@ -174,7 +174,12 @@ BEGIN {
             if ($class eq 'Clone') {
                 *Bio::Root::Root::_dclone = sub {shift; return Clone::clone(shift)};
             } else {
-                *Bio::Root::Root::_dclone = sub {shift; return Storable::dclone(shift)};
+                *Bio::Root::Root::_dclone = sub {
+                    shift;
+                    local $Storable::Deparse = 1;
+                    local $Storable::Eval = 1;
+                    return Storable::dclone(shift);
+                };
             }
             last;
         }
