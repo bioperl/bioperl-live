@@ -1597,11 +1597,6 @@ sub serializer {
     my $serializer = shift;
     eval "require $serializer; 1" or croak $@;
     $self->setting(serializer=>$serializer);
-    if ($serializer eq 'Storable') {
-      $Storable::forgive_me =1;
-      $Storable::Deparse = 1;
-      $Storable::Eval    = 1;
-    }
   }
   $d;
 }
@@ -2484,6 +2479,8 @@ sub freeze {
     $d->Deepcopy(1);
     $data = $d->Dump;
   } elsif ($serializer eq 'Storable') {
+    local $Storable::forgive_me = 1;
+    local $Storable::Deparse = 1;
     $data = Storable::nfreeze($obj);
   }
 
@@ -2553,6 +2550,8 @@ sub thaw_object {
   if ($serializer eq 'Data::Dumper') {
     $object = eval $obj;
   } elsif ($serializer eq 'Storable') {
+    local $Storable::forgive_me = 1;
+    local $Storable::Eval = 1;
     $object = Storable::thaw($obj);
   }
 
