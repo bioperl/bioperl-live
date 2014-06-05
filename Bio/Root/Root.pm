@@ -197,7 +197,7 @@ BEGIN {
             } elsif ($reftype eq "HASH") {
                 $data = { map { $_ => $self->_dclone($orig->{$_}) } keys %$orig };
             } elsif ($reftype eq 'CODE') { # nothing, maybe shallow copy?
-                $self->throw("Code reference cloning not supported");
+                $self->throw("Code reference cloning not supported; install Clone or Storable from CPAN");
             } else { $self->throw("What type is $_?")}
             if ($class) {
                 bless $data, $class;
