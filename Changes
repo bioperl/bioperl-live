@@ -21,8 +21,6 @@ CPAN releases are branched from 'master'.
 
     [Significant changes]
 
-    * Fix problems when using Storable as backend for cloning [tsibley]
-    * Fix potential problems with Storable in Bio::DB::SeqFeature::Store [tsibley]
     * Bug/feature issue tracking has moved to GitHub Issues:
           https://github.com/bioperl/bioperl-live/issues
     * DB_File has been demoted from "required" to "recommended",
@@ -65,6 +63,8 @@ CPAN releases are branched from 'master'.
 
     [Bug fixes]
 
+    * Fix problems when using Storable as backend for cloning [v1.6.x branch, tsibley]
+    * Fix potential problems with Storable in Bio::DB::SeqFeature::Store [tsibley]
     * SeqFeature::Lite: Fixed wrong strand when using "+", "-", or "." [nathanweeks]
     * Abstract: Fixed ActivePerl incapability of removing temporary files
       because of problems closing tied filehandles [fjossandon]
