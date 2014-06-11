@@ -441,7 +441,7 @@ sub glob {
 sub index_dir {
     my ($self, $dir, $force_reindex) = @_;
     my @files = glob( File::Spec->catfile($dir, $self->{glob}) );
-    $self->throw("No suitable files found in $dir") if scalar @files == 0;
+    return if scalar @files == 0;
     $self->{index_name} ||= File::Spec->catfile($dir, 'directory.index');
     my $offsets = $self->_index_files(\@files, $force_reindex);
     return $offsets;
