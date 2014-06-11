@@ -673,7 +673,7 @@ sub open_notes_db {
 	                : $create ? "+>"
 	                : "<";
 
-    my $notes_file = $self->_notes_file;
+    my $notes_file = $self->_notes_path;
     open my $F, $mode, $notes_file or $self->throw("Could not open file '$notes_file': $!");
     $self->notes_db($F);
 }
