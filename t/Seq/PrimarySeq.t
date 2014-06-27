@@ -7,7 +7,7 @@ use Data::Dumper;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin( -tests => 287 );
+    test_begin( -tests => 310 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -495,6 +495,8 @@ is $seq->subseq($loc1_strand),    'TTTTT';
 is $seq->subseq($loc1_no_strand), 'TTTTT';
 is $loc1_strand->to_FTstring,     'complement(1..5)';
 is $loc1_no_strand->to_FTstring,  'complement(1..5)';
+is $loc1_strand->length,    5;
+is $loc1_no_strand->length, 5;
 
 # Basic split, both locations in positive strand
 # Coords: join(6..10,16..20) => CCCCCTTTTT
@@ -515,6 +517,8 @@ is $seq->subseq($loc2_strand),    'AAAAAGGGGG';
 is $seq->subseq($loc2_no_strand), 'AAAAAGGGGG';
 is $loc2_strand->to_FTstring,     'complement(join(6..10,16..20))';
 is $loc2_no_strand->to_FTstring,  'complement(join(6..10,16..20))';
+is $loc2_strand->length,    15;
+is $loc2_no_strand->length, 15;
 
 # Basic split, both locations in negative strand
 # Coords: complement(join(6..10,16..20)) => AAAAAGGGGG
@@ -527,6 +531,7 @@ is $loc3_strand->to_FTstring,     'complement(join(6..10,16..20))';
 $loc3_strand->flip_strand;
 is $seq->subseq($loc3_strand),    'CCCCCTTTTT';
 is $loc3_strand->to_FTstring,     'join(6..10,16..20)';
+is $loc3_strand->length, 15;
 
 ## Cut by origin-split, same strand, single sequence that pass through origin
 #Coords: join(16..20,1..2) => TTTTTAA
@@ -547,6 +552,8 @@ is $seq->subseq($loc4_strand),    'TTAAAAA';
 is $seq->subseq($loc4_no_strand), 'TTAAAAA';
 is $loc4_strand->to_FTstring,     'complement(join(16..20,1..2))';
 is $loc4_no_strand->to_FTstring,  'complement(join(16..20,1..2))';
+is $loc4_strand->length,    7;
+is $loc4_no_strand->length, 7;
 
 ## Cut by origin-combo split, same strand, 2 sequences with 1st passing through origin
 #Coords: join(19..20,1..2,11..13) => TTAAGGG
@@ -569,6 +576,8 @@ is $seq->subseq($loc5_strand),    'CCCTTAA';
 is $seq->subseq($loc5_no_strand), 'CCCTTAA';
 is $loc5_strand->to_FTstring,     'complement(join(19..20,1..2,11..13))';
 is $loc5_no_strand->to_FTstring,  'complement(join(19..20,1..2,11..13))';
+is $loc5_strand->length,    15;
+is $loc5_no_strand->length, 15;
 
 ## Cut by origin-combo split, same strand, 2 sequences with 2nd passing through origin
 #Coords: join(6..10,19..20,1..4) => CCCCCTTAAAA
@@ -591,6 +600,8 @@ is $seq->subseq($loc6_strand),    'TTTTAAGGGGG';
 is $seq->subseq($loc6_no_strand), 'TTTTAAGGGGG';
 is $loc6_strand->to_FTstring,     'complement(join(6..10,19..20,1..4))';
 is $loc6_no_strand->to_FTstring,  'complement(join(6..10,19..20,1..4))';
+is $loc6_strand->length,    19;
+is $loc6_no_strand->length, 19;
 
 ## Trans-splicing, 2 sequences in different strands, 2nd in complement
 #Coords: join(6..10,complement(16..20)) => CCCCCAAAAA
@@ -611,6 +622,8 @@ is $seq->subseq($loc7_strand),    'TTTTTGGGGG';
 is $seq->subseq($loc7_no_strand), 'TTTTTGGGGG';
 is $loc7_strand->to_FTstring,     'join(16..20,complement(6..10))';
 is $loc7_no_strand->to_FTstring,  'join(16..20,complement(6..10))';
+is $loc7_strand->length,    10;
+is $loc7_no_strand->length, 10;
 
 ## Trans-splicing, 2 sequences in different strands, 1st in complement
 #Coords: join(complement(16..20),6..10) => AAAAACCCCC
@@ -631,6 +644,8 @@ is $seq->subseq($loc8_strand),    'GGGGGTTTTT';
 is $seq->subseq($loc8_no_strand), 'GGGGGTTTTT';
 is $loc8_strand->to_FTstring,     'join(complement(6..10),16..20)';
 is $loc8_no_strand->to_FTstring,  'join(complement(6..10),16..20)';
+is $loc8_strand->length,    10;
+is $loc8_no_strand->length, 10;
 
 ## Trans-splicing w/cut by origin, 2 sequences with 1st passing through origin, 2nd in complement
 #Coords: join(19..20,1..3,complement(11..13)) => TTAAACCC
@@ -653,6 +668,8 @@ is $seq->subseq($loc9_strand),    'GGGTTTAA';
 is $seq->subseq($loc9_no_strand), 'GGGTTTAA';
 is $loc9_strand->to_FTstring,     'join(11..13,complement(1..3),complement(19..20))';
 is $loc9_no_strand->to_FTstring,  'join(11..13,complement(1..3),complement(19..20))';
+is $loc9_strand->length,    8;
+is $loc9_no_strand->length, 8;
 
 ## Trans-splicing w/cut by origin, 2 sequences with 1st passing through origin, 1st in complement
 #Coords: join(complement(1..3),complement(19..20),11..13) => TTTAAGGG
@@ -675,6 +692,8 @@ is $seq->subseq($loc10_strand),    'CCCTTAAA';
 is $seq->subseq($loc10_no_strand), 'CCCTTAAA';
 is $loc10_strand->to_FTstring,     'join(complement(11..13),19..20,1..3)';
 is $loc10_no_strand->to_FTstring,  'join(complement(11..13),19..20,1..3)';
+is $loc10_strand->length,    8;
+is $loc10_no_strand->length, 8;
 
 ## Trans-splicing w/cut by origin, 2 sequences with 2nd passing through origin, 2nd in complement
 #Coords: join(6..10,complement(1..2),complement(18..20)) => CCCCCTTAAA
@@ -697,6 +716,8 @@ is $seq->subseq($loc11_strand),    'TTTAAGGGGG';
 is $seq->subseq($loc11_no_strand), 'TTTAAGGGGG';
 is $loc11_strand->to_FTstring,     'join(18..20,1..2,complement(6..10))';
 is $loc11_no_strand->to_FTstring,  'join(18..20,1..2,complement(6..10))';
+is $loc11_strand->length,    10;
+is $loc11_no_strand->length, 10;
 
 ## Trans-splicing w/cut by origin, 2 sequences with 2nd passing through origin, 1st in complement
 #Coords: join(complement(6..10),18..20,1..2) => GGGGGTTTAA
@@ -719,3 +740,5 @@ is $seq->subseq($loc12_strand),    'TTAAACCCCC';
 is $seq->subseq($loc12_no_strand), 'TTAAACCCCC';
 is $loc12_strand->to_FTstring,     'join(complement(1..2),complement(18..20),6..10)';
 is $loc12_no_strand->to_FTstring,  'join(complement(1..2),complement(18..20),6..10)';
+is $loc12_strand->length,    10;
+is $loc12_no_strand->length, 10;
