@@ -620,7 +620,7 @@ sub length {
     # Mixed strand values means transplicing (where exons can even
     # be in different chromosomes), so in that case only give the sum
     # of the lengths of the individual segments
-    if ($self->guide_strand == undef) {
+    if (! defined $self->guide_strand) {
         for my $loc ( $self->sub_Location(0) ) {
             $length += abs($loc->end - $loc->start) + 1
         }
