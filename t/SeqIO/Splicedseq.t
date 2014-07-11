@@ -68,7 +68,7 @@ warnings_like { $len_nodb = length($feats[1]->spliced_seq()->seq); }
 ok($len_nodb == 374, "correct number of Ns added if remote sequence not provided");
 
 SKIP: {
-    test_skip(-tests => 3, -requires_networking => 1);
+    test_skip(-tests => 3, -requires_module => 'LWP::UserAgent', -requires_networking => 1);
     my $db_in;
     eval {
         use Bio::DB::GenBank;
