@@ -180,7 +180,8 @@ sub new {
                     -phase          the phase of the feature (0..2)
                     -primary_tag    primary tag 
                     -primary        (synonym for -primary_tag)
-                    -source         source tag
+                    -source_tag     source tag
+                    -source         (synonym for -source_tag)
                     -frame          frame
                     -score          score value
                     -tag            a reference to a tag/value hash
@@ -196,7 +197,7 @@ sub set_attributes {
     my ($self,@args) = @_;
     my ($start, $end, $strand, $primary_tag, $source_tag, $primary, 
         $source, $frame, $score, $tag, $gff_string, $gff1_string,
-        $seqname, $seqid, $annot, $location,$display_name, $pid,$phase) =
+        $seqname, $seqid, $annot, $location, $display_name, $pid, $phase) =
             $self->_rearrange([qw(START
                                   END
                                   STRAND
@@ -224,18 +225,20 @@ sub set_attributes {
         $self->_from_gff_stream($gff1_string);
     };
     
-    $pid                    && $self->primary_id($pid);
-    $primary_tag            && $self->primary_tag($primary_tag);
-    $source_tag             && $self->source_tag($source_tag);
-    $primary                && $self->primary_tag($primary);
-    $source                 && $self->source_tag($source);
-    defined $start          && $self->start($start);
-    defined $end            && $self->end($end);
-    defined $strand         && $self->strand($strand);
-    defined $frame          && $self->frame($frame);
-    defined $display_name   && $self->display_name($display_name);
-    defined $score          && $self->score($score);
-    $annot                  && $self->annotation($annot);
+    $pid                  && $self->primary_id($pid);
+    $primary_tag          && $self->primary_tag($primary_tag);
+    $source_tag           && $self->source_tag($source_tag);
+    $primary              && $self->primary_tag($primary);
+    $source               && $self->source_tag($source);
+    $annot                && $self->annotation($annot);
+    defined $start        && $self->start($start);
+    defined $end          && $self->end($end);
+    defined $strand       && $self->strand($strand);
+    defined $frame        && $self->frame($frame);
+    defined $display_name && $self->display_name($display_name);
+    defined $score        && $self->score($score);
+    defined $phase        && $self->phase($phase);
+
     if($seqname) {
         $self->warn("-seqname is deprecated. Please use -seq_id instead.");
         $seqid = $seqname unless $seqid;
@@ -246,7 +249,6 @@ sub set_attributes {
             $self->add_tag_value($t, UNIVERSAL::isa($tag->{$t}, "ARRAY") ? @{$tag->{$t}} : $tag->{$t});
         }
     };
-    defined $phase          && $self->phase($phase);
 }
 
 
