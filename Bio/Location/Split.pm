@@ -603,6 +603,80 @@ sub end_pos_type {
     return ( @locs ) ? $locs[0]->end_pos_type() : undef;    
 }
 
+=head2 length
+
+ Title   : length
+ Usage   : $len = $loc->length();
+ Function: get the length in the coordinate space this location spans
+ Example :
+ Returns : an integer
+ Args    : none
+
+=cut
+
+sub length {
+    my ($self) = @_;
+    my $length = 0;
+    # Mixed strand values means transplicing (where exons can even
+    # be in different chromosomes), so in that case only give the sum
+    # of the lengths of the individual segments
+    if (! defined $self->guide_strand) {
+        for my $loc ( $self->sub_Location(0) ) {
+            $length += abs($loc->end - $loc->start) + 1
+        }
+    }
+    else {
+        my @sublocs = $self->sub_Location(0);
+        my $start   = $sublocs[0]->start;
+        my $end     = $sublocs[-1]->end;
+
+        # If Start > ·End, its a possible case of cut by origin
+        # location in circular sequences (e.g "join(16..20,1..2)")
+        if ($start > $end) {
+            # Figure out which segments are located before
+            # and which are located after coordinate 1
+            # (END_SEQ - 1 - START_SEQ)
+            my @end_seq_segments;
+            my @start_seq_segments;
+            my $switch = 0;
+            foreach my $subloc (@sublocs) {
+                if ($switch == 0) {
+                    if ($subloc->start == 1) {
+                        $switch = 1;
+                        push @start_seq_segments, $subloc;
+                    }
+                    else {
+                        push @end_seq_segments, $subloc;
+                    }
+                }
+                else {
+                    push @start_seq_segments, $subloc;
+                }
+            }
+
+            # If its a cut by origin location, sum the whole length of each group
+            if (scalar @end_seq_segments > 0 and @start_seq_segments > 0) {
+                my $end_segments_length   = abs(  $end_seq_segments[0]->start
+                                                - $end_seq_segments[-1]->end)
+                                                + 1;
+                my $start_segments_length = abs(  $start_seq_segments[0]->start
+                                                - $start_seq_segments[-1]->end)
+                                                + 1;
+                $length = $end_segments_length + $start_segments_length;
+            }
+        }
+        else {
+            $length = $end - $start + 1;
+        }
+    }
+
+    # If for some reason nothing worked, fall back to previous behaviour
+    if ($length == 0) {
+        $length = abs($self->end - $self->start) + 1
+    }
+
+    return $length;
+}
 
 =head2 seq_id
 
