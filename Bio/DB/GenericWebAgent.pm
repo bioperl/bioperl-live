@@ -359,7 +359,7 @@ sub _dump_request_content {
     return unless defined $self->{_response_cache};
     $self->throw("Must pass file name") unless $file;
     require Bio::Root::IO;
-    # If $file was NOT specified with in write ">" or append ">>" mode, then
+    # If $file was NOT specified in write ">" or append ">>" mode, then
     # assume that the file should be opened in write mode. 
     if( $file !~ /^>/){
         $file = ">$file";
