@@ -361,9 +361,7 @@ sub _dump_request_content {
     require Bio::Root::IO;
     # If $file was NOT specified in write ">" or append ">>" mode, then
     # assume that the file should be opened in write mode. 
-    if( $file !~ /^>/){
-        $file = ">$file";
-    } 
+    $file = ">$file" if $file !~ /^>/;
     my $out = Bio::Root::IO->new(-file => $file);
     $out->_print($self->{_response_cache}->content);
     $out->flush();
