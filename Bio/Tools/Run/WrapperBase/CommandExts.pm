@@ -629,7 +629,6 @@ sub _translate_params {
 
   # Translate options
   # parse more carefully - bioperl-run issue #12
-  $DB::single=1 if $self->outfmt && ($self->outfmt =~ /\"/);
   $options =~ s/^\s+//;
   $options =~ s/\s+$//;
   my @options;
@@ -639,8 +638,8 @@ sub _translate_params {
       push @options, $_;
     }
     elsif (s/^"//) {
-      push @options, $_;
       $in_quotes=1 unless (s/["']$//);
+      push @options, $_;
     }
     elsif (s/"$//) {
       $options[-1] .= $_;
