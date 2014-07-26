@@ -580,7 +580,7 @@ sub program_dir {
 =head2 _translate_params
 
  Title   : _translate_params
- Usage   : @options = $assembler->_translate_params( );
+ Usage   : @options = @{$assembler->_translate_params( )};
  Function: Translate the Bioperl arguments into the arguments to pass to the
            program on the command line
  Returns : Arrayref of arguments
@@ -628,7 +628,30 @@ sub _translate_params {
   );
 
   # Translate options
-  my @options  = split(/(\s|$join)/, $options);
+  # parse more carefully - bioperl-run issue #12
+  $DB::single=1 if $self->outfmt && ($self->outfmt =~ /\"/);
+  $options =~ s/^\s+//;
+  $options =~ s/\s+$//;
+  my @options;
+  my $in_quotes;
+  for (split(/(\s|$join)/, $options)) {
+    if (/^-/) {
+      push @options, $_;
+    }
+    elsif (s/^"//) {
+      push @options, $_;
+      $in_quotes=1 unless (s/["']$//);
+    }
+    elsif (s/"$//) {
+      $options[-1] .= $_;
+      $in_quotes=0;
+    }
+    else {
+      $in_quotes ? $options[-1] .= $_ :
+	push(@options, $_);
+    }
+  }
+  $self->throw("Unmatched quote in option value") if $in_quotes;
   for (my $i = 0; $i < scalar @options; $i++) {
     my ($prefix, $name) = ( $options[$i] =~ m/^(-{0,2})(.+)$/ );
     if (defined $name) {
@@ -648,18 +671,16 @@ sub _translate_params {
 	$i--;
     }
   }
-  $options = join('', @options);
 
+  @options = grep (!/^\s*$/,@options);
   # this is a kludge for mixed options: the reason mixed doesn't 
   # work right on the pass through _setparams is that the 
   # *aliases* and not the actual params are passed to it. 
   # here we just rejigger the dashes
   if ($dash =~ /^m/) {
-      $options =~ s/--([a-z0-9](?:\s|$))/-$1/gi;
+      s/--([a-z0-9](?:\s|$))/-$1/gi for @options;
   }
-
   # Now arrayify the options
-  @options = split(' ', $options);
 
   return \@options;
 }
