@@ -187,7 +187,6 @@ sub _calculate_offsets {
                 @ids = $self->_makeid($line);
                 ($offset, $headerlen, $linelen, $seq_lines) = ($pos, length $line, 0, 0);
                 ($l3_len, $l2_len, $l_len, $blank_lines) = (0, 0, 0, 0);
-
             } else {
                 # Catch bad header lines, bug 3172
                 $self->throw("FASTA header doesn't match '>(\\S+)': $line");
