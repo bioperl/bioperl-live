@@ -353,6 +353,7 @@ sub new {
         require Cwd;
         $dirname = Cwd::getcwd();
     } else {
+	$self->{index_name} ||= $self->_default_index_name($path);
         if (-d $path) {
             # because Win32 glob() is broken with respect to long file names
             # that contain whitespace.
@@ -442,7 +443,7 @@ sub index_dir {
     my ($self, $dir, $force_reindex) = @_;
     my @files = glob( File::Spec->catfile($dir, $self->{glob}) );
     return if scalar @files == 0;
-    $self->{index_name} ||= File::Spec->catfile($dir, 'directory.index');
+    $self->{index_name} ||= $self->_default_index_name($dir);
     my $offsets = $self->_index_files(\@files, $force_reindex);
     return $offsets;
 }
@@ -480,11 +481,16 @@ sub get_all_primary_ids  {
 
 sub index_file {
     my ($self, $file, $force_reindex) = @_;
-    $self->{index_name} ||= "$file.index";
+    $self->{index_name} ||= $self->_default_index_name($file);
     my $offsets = $self->_index_files([$file], $force_reindex);
     return $offsets;
 }
 
+sub _default_index_name {
+    my ($self,$path) = @_;
+    return File::Spec->catfile($path,'directory.index') if -d $path;
+    return "$path.index";
+}
 
 =head2 index_files
 

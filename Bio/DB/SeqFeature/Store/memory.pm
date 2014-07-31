@@ -148,8 +148,9 @@ sub post_init {
   return unless $file_or_dir;
 
   my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $self,
-							   -sf_class => $self->seqfeature_class) 
-    or $self->throw("Couldn't create GFF3Loader");
+							   -sf_class => $self->seqfeature_class,
+							   -no_close_fasta => 1
+      )  or $self->throw("Couldn't create GFF3Loader");
   my @argv;
   if (-d $file_or_dir) {
     @argv = (
@@ -694,7 +695,7 @@ sub _insert_sequence {
 sub _fetch_sequence {
   my ($self, $seqid, $start, $end) = @_;
   my $db = $self->{fasta_db} or return;
-  $db->seq($seqid,$start,$end);
+  return $db->seq($seqid,$start,$end);
 }
 
 sub private_fasta_file {

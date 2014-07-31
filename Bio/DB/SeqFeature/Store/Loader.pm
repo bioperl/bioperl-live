@@ -113,7 +113,7 @@ default.
 sub new {
   my $self = shift;
   my ($store,$seqfeature_class,$tmpdir,$verbose,$fast,
-      $seq_chunk_size,$coordinate_mapper,$index_subfeatures,$summary_stats) = 
+      $seq_chunk_size,$coordinate_mapper,$index_subfeatures,$summary_stats,$no_close_fasta) = 
       rearrange(['STORE',
 		 ['SF_CLASS','SEQFEATURE_CLASS'],
 		 ['TMP','TMPDIR'],
@@ -122,7 +122,8 @@ sub new {
 		 'CHUNK_SIZE',
 		 'MAP_COORDS',
 		 'INDEX_SUBFEATURES',
-		 'SUMMARY_STATS'
+		 'SUMMARY_STATS',
+		 'NO_CLOSE_FASTA',
 		],@_);
 
 
@@ -185,6 +186,7 @@ END
 		coordinate_mapper      => $coordinate_mapper,
 		index_subfeatures      => $index_subfeatures,
 		summary_stats          => $summary_stats,
+		no_close_fasta         => $no_close_fasta,
 	       },ref($self) || $self;
 }
 
@@ -727,7 +729,7 @@ sub DESTROY {
 	) {
       $store->private_fasta_file->close;
 
-      if ($store->{fasta_db}) {
+      if ($store->{fasta_db} && !$self->{no_close_fasta}) {
 	while (my ($file, $fh) = each %{ $store->{fasta_db}->{fhcache} }) {
 	  $fh->close;
 	}
