@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 773 );
+    test_begin( -tests => 798 );
 
     use_ok('Bio::SearchIO');
 }
@@ -46,6 +46,7 @@ while ( $result = $searchio->next_result ) {
             'Check for hit description'
         );
         is( $hit->raw_score,          146.1,   'Check hit raw_score' );
+        is( $hit->bits,               0,       'Check hit bits (0)' );
         float_is( $hit->significance, 6.3e-40, 'Check hit significance' );
         is( $hit->num_hsps,           1,       'Check num_hsps' );
 
@@ -75,6 +76,7 @@ while ( $result = $searchio->next_result ) {
             is( $hsp->query->start, 33,      'Check for query alifrom value' );
             is( $hsp->query->end,   103,     'Check for query ali to value' );
             is( $hsp->score,        71.2,    'Check for hsp score' );
+            is( $hsp->bits,         0,       'Check for hsp bits (0)' );
             float_is( $hsp->evalue, 2.2e-17, 'Check for hsp c-Evalue' );
 
             is( $hsp->length('query'), 71, 'Check for hsp query length' );
@@ -132,6 +134,7 @@ while ( $result = $searchio->next_result ) {
         is( $hit->name,              'SEED',    'Check hit name' );
         is( $hit->description,       '',        'Check for hit description' );
         is( $hit->raw_score,          146.1,    'Check hit raw_score' );
+        is( $hit->bits,               0,        'Check hit bits (0)' );
         float_is( $hit->significance, 6.3e-040, 'Check hit significance' );
         is( $hit->num_hsps,           1,        'Check num_hsps' );
 
@@ -161,6 +164,7 @@ while ( $result = $searchio->next_result ) {
             is( $hsp->query->start, 124,     'Check for query alifrom value' );
             is( $hsp->query->end,   193,     'Check for query ali to value' );
             is( $hsp->score,        75.5,    'Check for hsp score' );
+            is( $hsp->bits,         0,       'Check for hsp bits (0)' );
             float_is( $hsp->evalue, 1.1e-18, 'Check for hsp c-Evalue' );
 
             is( $hsp->length('query'), 70, 'Check for hsp query length' );
@@ -241,6 +245,7 @@ while ( $result = $searchio->next_result ) {
         'Check for hit description'
     );
     is( $hit->raw_score,          119.7, 'Check hit raw_score' );
+    is( $hit->bits,               0,     'Check hit bits (0)' );
     float_is( $hit->significance, 2e-31, 'Check hit significance' );
     is( $hit->num_hsps,           1,     'Check num_hsps' );
     is( $hit->length,             0,     'Check hit length' );
@@ -256,6 +261,7 @@ while ( $result = $searchio->next_result ) {
     is( $hsp->query->start,     1,     'Check for query alifrom value' );
     is( $hsp->query->end,       77,    'Check for query ali to value' );
     is( $hsp->score,            119.7, 'Check for hsp score' );
+    is( $hsp->bits,             0,     'Check for hsp bits (0)' );
     float_is( $hsp->evalue,     2e-31, 'Check for hsp c-Evalue' );
 
     is( $hsp->length('query'), 77, 'Check for hsp query length' );
@@ -285,6 +291,7 @@ while ( $result = $searchio->next_result ) {
                 is( $hsp->query->start,     1,       'Check for query alifrom value' );
                 is( $hsp->query->end,       77,      'Check for query ali to value' );
                 is( $hsp->score,            72.9,    'Check for hsp score' );
+                is( $hsp->bits,             0,       'Check for hsp bits (0)' );
                 float_is( $hsp->evalue,     2.4e-17, 'Check for hsp c-Evalue' );
 
                 is( $hsp->length('query'), 77, 'Check for hsp query length' );
@@ -310,6 +317,7 @@ while ( $result = $searchio->next_result ) {
                 is( $hsp->query->start,     1,   'Check for query alifrom value' );
                 is( $hsp->query->end,       77,  'Check for query ali to value' );
                 is( $hsp->score,            3.3, 'Check for hsp score' );
+                is( $hsp->bits,             0,   'Check for hsp bits (0)' );
                 float_is( $hsp->evalue,     1.9, 'Check for hsp c-Evalue' );
 
                 is( $hsp->length('query'), 77, 'Check for hsp query length' );
@@ -360,6 +368,7 @@ while ( $result = $searchio->next_result ) {
         'Check for hit description'
     );
     is( $hit->raw_score,         -105.2,  'Check hit raw_score' );
+    is( $hit->bits,               0,      'Check hit bits (0)' );
     float_is( $hit->significance, 0.0022, 'Check hit significance' );
     is( $hit->num_hsps,           1,      'Check num_hsps' );
 
@@ -389,6 +398,7 @@ while ( $result = $searchio->next_result ) {
     is( $hsp->query->start, 280,    'Check for query alifrom value' );
     is( $hsp->query->end,   481,    'Check for query ali to value' );
     is( $hsp->score,       -105.2,  'Check for hsp score' );
+    is( $hsp->bits,         0,      'Check for hsp bits (0)' );
     float_is( $hsp->evalue, 0.0022, 'Check for hsp evalue' );
 
     is( $hsp->length('query'), 202, 'Check for hsp query length' );
@@ -482,6 +492,7 @@ while ( $result = $searchio->next_result ) {
         'Check for hit description'
     );
     is( $hit->raw_score,          449.4,  'Check hit raw_score' );
+    is( $hit->bits,               0,      'Check hit bits (0)' );
     float_is( $hit->significance, 2e-135, 'Check hit significance' );
     is( $hit->num_hsps,           1,      'Check num_hsps' );
 
@@ -511,6 +522,7 @@ while ( $result = $searchio->next_result ) {
     is( $hsp->query->start,     1,             'Check for query alifrom value' );
     is( $hsp->query->end,       337,           'Check for query ali to value' );
     is( $hsp->score,            449.4,         'Check for hsp score' );
+    is( $hsp->bits,             0,             'Check for hsp bits (0)' );
     float_is( $hsp->evalue,     2e-135,        'Check for hsp evalue' );
 
     is( $hsp->length('query'), 337, 'Check for hsp query length' );
@@ -559,6 +571,7 @@ while ( $result = $searchio->next_result ) {
     is( $hit->name,              'CATL_HUMAN', 'Check hit name' );
     is( $hit->description,       '',           'Check for hit description' );
     is( $hit->raw_score,          444.5,       'Check hit raw_score' );
+    is( $hit->bits,               0,           'Check hit bits (0)' );
     float_is( $hit->significance, 6.1e-134,    'Check hit significance' );
 }
 
@@ -641,6 +654,7 @@ while ( $result = $searchio->next_result ) {
                 'Check for hit description'
             );
             is( $hit->raw_score,          105.2, 'Check hit raw_score' );
+            is( $hit->bits,               0,     'Check hit bits (0)' );
             float_is( $hit->significance, 6e-30, 'Check hit significance' );
             is( $hit->num_hsps,           1,     'Check num_hsps' );
 
@@ -661,6 +675,7 @@ while ( $result = $searchio->next_result ) {
                 is( $hsp->query->start, 2,       'Check for query alifrom value' );
                 is( $hsp->query->end,   173,     'Check for query ali to value' );
                 is( $hsp->score,       '105.0',  'Check for hsp score' );
+                is( $hsp->bits,         0,       'Check for hsp bits (0)' );
                 float_is( $hsp->evalue, 1.5e-33, 'Check for hsp c-Evalue' );
 
                 is( $hsp->length('query'), 172, 'Check for hsp query length' );
@@ -746,6 +761,7 @@ while ( $result = $searchio->next_result ) {
                     is( $hsp->query->start, 335,     'Check for query alifrom value' );
                     is( $hsp->query->end,   369,     'Check for query ali to value' );
                     is( $hsp->score,        18.9,    'Check for hsp score' );
+                    is( $hsp->bits,         0,       'Check for hsp bits (0)' );
                     float_is( $hsp->evalue, 8.9e-08, 'Check for hsp c-Evalue' );
                 }
             }
@@ -766,7 +782,8 @@ while ( $result = $searchio->next_result ) {
                     is( $hsp->query->start, 335,    'Check for query alifrom value' );
                     is( $hsp->query->end,   369,    'Check for query ali to value' );
                     is( $hsp->score,        18.8,   'Check for hsp score' );
-                    float_is( $hsp->evalue, 9e-08, 'Check for hsp c-Evalue' );
+                    is( $hsp->bits,         0,      'Check for hsp bits (0)' );
+                    float_is( $hsp->evalue, 9e-08,  'Check for hsp c-Evalue' );
                 }
             }
         }
@@ -857,6 +874,7 @@ while ( $result = $searchio->next_result ) {
                 'Check for hit description'
             );
             is( $hit->raw_score,         -17.8, 'Check hit raw_score' );
+            is( $hit->bits,               0,    'Check hit bits (0)' );
             float_is( $hit->significance, 3,    'Check hit significance' );
             is( $hit->num_hsps,           5,    'Check num_hsps' );
 
@@ -872,6 +890,7 @@ while ( $result = $searchio->next_result ) {
                 is( $hsp->query->start, 34,  'Check for query hmmfrom value' );
                 is( $hsp->query->end,   40,  'Check for query hmm to value' );
                 is( $hsp->score,       -4.3, 'Check for hsp score' );
+                is( $hsp->bits,         0,   'Check for hsp bits (0)' );
                 float_is( $hsp->evalue, 1,   'Check for hsp c-Evalue' );
 
                 is( $hsp->length('query'), 7, 'Check for hsp query length' );
@@ -952,6 +971,7 @@ while ( $result = $searchio->next_result ) {
                 'Check for hit description'
             );
             is( $hit->raw_score,          616.9,    'Check hit raw_score' );
+            is( $hit->bits,               0,        'Check hit bits (0)' );
             float_is( $hit->significance, 9.3e-189, 'Check hit significance' );
             is( $hit->num_hsps,           1,        'Check num_hsps' );
 
@@ -972,6 +992,7 @@ while ( $result = $searchio->next_result ) {
                 is( $hsp->query->start, 71,       'Check for query hmmfrom value' );
                 is( $hsp->query->end,   1021,     'Check for query hmm to value' );
                 is( $hsp->score,        616.6,    'Check for hsp score' );
+                is( $hsp->bits,         0,        'Check for hsp bits (0)' );
                 float_is( $hsp->evalue, 3.9e-189, 'Check for hsp c-Evalue' );
 
                 is( $hsp->length('query'), 951,  'Check for hsp query length' );
@@ -1387,6 +1408,7 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     is( $hit->name,              'seq1',                'Check nhmmer hit name' );
     is( $hit->description,       'Description of seq1', 'Check nhmmer hit description' );
     is( $hit->score,              148.2,                'Check nhmmer hit score' );
+    is( $hit->bits,               0,                    'Check nhmmer hit bits (0)' );
     float_is( $hit->significance, 3.2e-48,              'Check nhmmer hit significance' );
     is( $hit->num_hsps,           1,                    'Check num_hsps' );
 
@@ -1409,6 +1431,7 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     is( $hsp->strand('hit'),      1,       'Check nhmmer hsp hit strand' );
     is( $hsp->strand('query'),    1,       'Check nhmmer hsp query strand' );
     is( $hsp->score,              148.2,   'Check nhmmer hsp score' );
+    is( $hsp->bits,               0,       'Check nhmmer hsp bits (0)' );
     float_is( $hsp->significance, 3.2e-48, 'Check nhmmer hsp evalue' );
 
     is( $hsp->length('query'), 154, 'Check for hsp query length' );
@@ -1468,6 +1491,7 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     is( $hit->name,              'seq2',                'Check nhmmer hit name' );
     is( $hit->description,       'Description of seq2', 'Check nhmmer hit description' );
     is( $hit->score,              38.6,                 'Check nhmmer hit score' );
+    is( $hit->bits,               0,                    'Check nhmmer hit bits (0)' );
     float_is( $hit->significance, 3.9e-15,              'Check nhmmer hit significance' );
     is( $hit->length,             60,                   'Check nhmmer hit length' );
 
@@ -1482,6 +1506,7 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     is( $hsp->strand('hit'),     -1,       'Check nhmmer hsp hit strand' );
     is( $hsp->strand('query'),    1,       'Check nhmmer hsp query strand' );
     is( $hsp->score,              38.6,    'Check nhmmer hsp score' );
+    is( $hsp->bits,               0,       'Check nhmmer hsp bits (0)' );
     float_is( $hsp->significance, 3.9e-15, 'Check nhmmer hsp evalue' );
 
     is( $hsp->length('query'), 59, 'Check for hsp query length' );
