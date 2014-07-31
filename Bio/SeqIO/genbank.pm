@@ -1551,8 +1551,9 @@ sub _read_GenBank_Species {
             chomp $data;
             $tag = 'CLASSIFICATION' if (    $tag ne 'CLASSIFICATION'
                                         and $tag eq 'ORGANISM'
-                                        # Don't match "str." or "var." (NC_021815)
-                                        and  $line =~ m{(?<!\bstr|\bvar)[;\.]+});
+                                        # Don't match "str." or "var." (fix NC_021815),
+                                        # and don't match ".1" (fix NC_021902)
+                                        and $line =~ m{(?<!\bstr|\bvar)[;\.]+(?!\d)});
         }
         (exists $ann->{$tag}) ? ($ann->{$tag} .= ' '.$data) : ($ann->{$tag} .= $data);
         $line = undef;
