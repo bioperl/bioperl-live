@@ -393,5 +393,6 @@ These methods come from Bio::SeqFeature::SimilarityPair
 
 =cut
 
+sub bits { return 0; }
 
 1;
