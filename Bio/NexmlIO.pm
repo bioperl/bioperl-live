@@ -135,22 +135,40 @@ my $nexml_fac = Bio::Nexml::Factory->new();
 =cut
 
 sub new {
- 	my($class,@args) = @_;
- 	my $self = $class->SUPER::new(@args);
+    my($class,@args) = @_;
+    my $self = $class->SUPER::new(@args);
+    
+    my %params = @args;
+    my $file_string = $params{'-file'};
+    
+    #create unique ID by creating a scalar and using the memory address
+    my $ID = bless \(my $dummy), "UniqueID";
+    ($self->{'_ID'}) = sprintf("%s",\$ID) =~ /(0x[0-9a-fA-F]+)/;
+    
+    unless ($file_string =~ m/^\>/) {
+        # Only pass filename if filehandle is not available,
+        # or "Bio::Phylo" will create a new filehandle that ends
+        # out of scope and can't be closed directly, leaving 2 open
+        # filehandles for the same file (so file can't be deleted)
+        my $file_arg;
+        my $file_value;
+        if (     exists $self->{'_filehandle'}
+            and defined $self->{'_filehandle'}
+            ) {
+            $file_arg   = '-handle';
+            $file_value = $self->{'_filehandle'};
+        }
+        else {
+            $file_arg   = '-file';
+            $file_value = $self->{'_file'};
+        }
 
-	my %params = @args;
-	my $file_string = $params{'-file'};
- 	
- 	#create unique ID by creating a scalar and using the memory address
- 	my $ID = bless \(my $dummy), "UniqueID";
- 	($self->{'_ID'}) = sprintf("%s",\$ID) =~ /(0x[0-9a-fA-F]+)/;
- 	
- 	unless ($file_string =~ m/^\>/) {
- 		$self->{'_doc'} = Bio::Phylo::IO->parse('-file' => $params{'-file'}, '-format' => 'nexml', '-as_project' => '1');
- 	}
- 	
- 	
- 	return $self;
+        $self->{'_doc'} = Bio::Phylo::IO->parse($file_arg     => $file_value,,
+                                                '-format'     => 'nexml',
+                                                '-as_project' => '1');
+    }
+    
+    return $self;
 }
 
 =head2 doc
@@ -535,4 +553,3 @@ sub extract_trees {
 }
 
 1;
-
