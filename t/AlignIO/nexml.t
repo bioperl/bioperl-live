@@ -73,5 +73,4 @@ SKIP: {
             is ( ($feat->get_tag_values('taxon'))[0], $expected_taxa{$seq_num}, "$seq_num taxon ok" )
         }
     }
-
 }

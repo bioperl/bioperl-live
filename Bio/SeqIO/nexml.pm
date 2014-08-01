@@ -145,31 +145,41 @@ sub doc {
 }
 
 sub _parse {
-	my ($self) = @_;
-	my $fac = Bio::Nexml::Factory->new();
-	
-    $self->{'_parsed'}   = 1;
+    my ($self) = @_;
+    
+    $self->{'_parsed'}  = 1;
     $self->{'_seqiter'} = 0;
-	
-	$self->doc(Bio::Phylo::IO->parse(
- 	'-file'       => $self->{'_file'},
- 	'-format'     => 'nexml',
- 	'-as_project' => '1'
- 	));
- 
- 	
- 		
- 	$self->{'_seqs'} = $fac->create_bperl_seq($self);
- 		
- 	
- 	unless(@{ $self->{'_seqs'} } == 0)
- 	{
-# 		self->debug("no seqs in $self->{_file}");
- 	}
- }
- 
- 
- 
+    my $fac = Bio::Nexml::Factory->new();
+    
+    # Only pass filename if filehandle is not available,
+    # or "Bio::Phylo" will create a new filehandle that ends
+    # out of scope and can't be closed directly, leaving 2 open
+    # filehandles for the same file (so file can't be deleted)
+    my $file_arg;
+    my $file_value;
+    if (     exists $self->{'_filehandle'}
+        and defined $self->{'_filehandle'}
+        ) {
+        $file_arg   = '-handle';
+        $file_value = $self->{'_filehandle'};
+    }
+    else {
+        $file_arg   = '-file';
+        $file_value = $self->{'_file'};
+    }
+    
+    $self->doc(Bio::Phylo::IO->parse(
+                                     $file_arg     => $file_value,
+                                     '-format'     => 'nexml',
+                                     '-as_project' => '1'
+                                     )
+    );
+    $self->{'_seqs'} = $fac->create_bperl_seq($self);
+    
+    unless(@{ $self->{'_seqs'} } == 0) {
+#        self->debug("no seqs in $self->{_file}");
+    }
+}
 
 =head2 write_seq
 
