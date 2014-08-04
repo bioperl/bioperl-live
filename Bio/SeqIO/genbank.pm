@@ -1179,7 +1179,6 @@ sub write_seq {
                 $self->_print($cline);
                 $ct++;
             }
-            $self->_show_dna(0);
         }
         if ( $seq->length == 0 ) {
             $self->_show_dna(0);

@@ -6,7 +6,7 @@ use strict;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 287);
+    test_begin(-tests => 292);
     use_ok('Bio::SeqIO::genbank');
 }
 
@@ -658,3 +658,24 @@ is($seq->seq, 'MENRKFGYIRVSSKDQNEGRQLEAMRKIGITERDIYLDKQSGKNFERANYQLLKRIIRKGDI'
             . 'LYIHSLDRFGRNKEEILQEWNDLTKNIEADIVVLDMPLLDTTQYKDSMGTFIADLVLQILSWMAEEERERIRK'
             . 'RQREGIDLALQNGIQFGRSPVVVSDEFKEVYRKWKAKELTAVEAMQEAGVKKTSFYKLVKAHENSIKVNS');
 
+# Genbank files with CONTIG and sequence should print the sequence with write_seq()
+$testfile = test_output_file;
+$out = Bio::SeqIO->new(-file   => ">$testfile",
+                       -format => 'genbank');
+$out->write_seq($seq);
+$out->close;
+
+$in = Bio::SeqIO->new(-file    => $testfile,
+                      -format  => 'genbank',
+                      -verbose => $verbose);
+$seq = $in->next_seq;
+is($seq->length, 205);
+
+@anns = $seq->annotation->get_Annotations('contig');
+is(@anns, 1);
+isa_ok($anns[0], 'Bio::Annotation::SimpleValue');
+is($anns[0]->value, 'join(WP_015639704.1:1..205)');
+
+is($seq->seq, 'MENRKFGYIRVSSKDQNEGRQLEAMRKIGITERDIYLDKQSGKNFERANYQLLKRIIRKGDI'
+            . 'LYIHSLDRFGRNKEEILQEWNDLTKNIEADIVVLDMPLLDTTQYKDSMGTFIADLVLQILSWMAEEERERIRK'
+            . 'RQREGIDLALQNGIQFGRSPVVVSDEFKEVYRKWKAKELTAVEAMQEAGVKKTSFYKLVKAHENSIKVNS');
