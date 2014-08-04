@@ -703,17 +703,32 @@ sub seq {
 
     # assumming our seq object is sensible, it should not have to yank
     # the entire sequence out here.
+    my $seq;
+    my $start = $self->start;
+    my $end   = $self->end;
+    # Check circular sequences cut by origin (e.g. join(2006035..2007700,1..257))
+    if (    $self->{'_gsf_seq'}->is_circular
+        and $self->location->isa('Bio::Location::SplitLocationI')
+        and $start > $end
+        ) {
+        my $primary_seq_length = $self->{'_gsf_seq'}->length;
 
-    my $seq = $self->{'_gsf_seq'}->trunc($self->start(), $self->end());
+        # Get duplicate object with the first sequence piece using trunc()
+        $seq = $self->{'_gsf_seq'}->trunc($start, $primary_seq_length);
 
+        # Get post-origin sequence and build the complete sequence
+        my $post_origin  = $self->{'_gsf_seq'}->subseq(1, $end);
+        my $complete_seq = $seq->seq() . $post_origin;
 
-    if ( defined $self->strand &&
-        $self->strand == -1 ) {
+        # Add complete sequence to object
+        $seq->seq($complete_seq);
+    }
+    else {
+        $seq = $self->{'_gsf_seq'}->trunc($start, $end);
+    }
 
-        # ok. this does not work well (?)
-        #print STDERR "Before revcom", $seq->str, "\n";
+    if ( defined $self->strand && $self->strand == -1 ) {
         $seq = $seq->revcom;
-        #print STDERR "After  revcom", $seq->str, "\n";
     }
 
     return $seq;
