@@ -19,7 +19,7 @@ bp_find-blast-matches.pl [-h -e -p -5 -n -o -3 -header] -blast <BLAST_FILE> -fas
 =item B<-blast>
 
 BLAST output file to read from. The alignment should use the file specified by
--fasta ideally
+'-fasta' option ideally
 
 =item B<-fasta>
 
@@ -68,7 +68,7 @@ The FASTA header to display instead of the default
 =head1 DESCRIPTION
 
 This script takes a BLAST output file and a FASTA file as arguments, 
-given after the -blast and -fasta options respectively. The BLAST output 
+given after the '-blast' and '-fasta' options respectively. The BLAST output 
 file should have been generated with your sequence of interest and the 
 FASTA file supplied as an argument.
 Example: find-blast-matches.pl -blast BLAST_FILE -fasta FASTA_FILE
@@ -78,7 +78,7 @@ which are then searched for in the FASTA file.  The sequence may vary
 from you candidate sequence, hence the BLAST search prior. 
 
 The sequence from the FASTA file is then displayed to STDOUT.
-Optional arguments can be used such as to extract the 5' or 3' region.
+Optional arguments can be used, such as to extract the 5' or 3' region.
 
 =head1 AUTHOR
 
@@ -88,8 +88,8 @@ Gabriel Abud - E<lt>gabriel.jabud-at-gmail.comE<gt>
 
 =head2 Mailing Lists
 
-Use feedback is an integral part of the evolution of this and other
-Bioperl modules.  Send your comments and suggestion preferably to
+User feedback is an integral part of the evolution of this and other
+Bioperl modules.  Send your comments and suggestions preferably to
 the Bioperl mailing list.  Your participation is much appreciated
 
   bioperl-l@bioperl.org                  - General discussion
