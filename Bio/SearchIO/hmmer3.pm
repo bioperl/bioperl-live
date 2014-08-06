@@ -461,7 +461,7 @@ sub next_result {
             elsif ( /inclusion threshold/ ) {
                 while ( defined( $_ = $self->_readline ) ) {
                     if (   /Domain( and alignment)? annotation for each/
-                        || /Internal pipeline statistics summary/ 
+                        || /Internal pipeline statistics summary/
                         || /Annotation for each hit\s+\(and alignments\)/
                         )
                     {
@@ -676,6 +676,12 @@ sub next_result {
                             }
                             elsif ($_ =~ m/^$/ )
                             {
+                                # Reset these scalars on empty lines to help
+                                # distinguish between the consensus structure/reference
+                                # tracks (CS|RF lines) and homology lines ending in
+                                # CS or RF aminoacids
+                                $align_offset = 0;
+                                $align_length = 0;
                                 next;
                             }
 
@@ -693,8 +699,11 @@ sub next_result {
                                 $pline      = $$hsp[-1];
                                 $lastdomain = $name;
                             }
-                            # model data track, some reports don't have
-                            elsif ( $_ =~ m/\s+\S+\s(?:CS|RF)$/ ) {
+                            # Consensus Structure or Reference track, some reports
+                            # don't have it. Since it appears on top of the alignment,
+                            # the reset of $align_length to 0 between alignment blocks
+                            # avoid confusing homology lines with it.
+                            elsif ( $_ =~ m/\s+\S+\s(?:CS|RF)$/ and $align_length == 0 ) {
                                 my @data = split( " ", $_ );
                                 $csline .= $data[-2];
                                 $max_count++;

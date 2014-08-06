@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 798 );
+    test_begin( -tests => 816 );
 
     use_ok('Bio::SearchIO');
 }
@@ -1173,50 +1173,97 @@ $searchio = Bio::SearchIO->new(
     ]
 );
 
+my $result_counter = 0;
 while ( $result = $searchio->next_result ) {
-    is( ref($result),
-        'Bio::Search::Result::HMMERResult',
-        'Check for the correct result reference type'
-    );
-    is( $result->algorithm,         'HMMSCAN',    'Check algorithm' );
-    is( $result->algorithm_version, '3.0',        'Check algorithm version' );
-    is( $result->hmm_name,          'Pfam-A.hmm', 'Check hmm_name' );
-    is( $result->sequence_file, 'BA000019.orf8.fasta',
-        'Check sequence_file' );
-    is( $result->query_name, 'BA000019.orf8', 'Check query_name' );
-    is( $result->query_length, '348', 'Check query_length' );
-    is( $result->query_description, '', 'Check query_description' );
-    is( $result->num_hits(),        3,  'Check num_hits' );
-    my ( $hsp, $hit );
-
-    while ( $hit = $result->next_model ) {
-        if ($hit->name eq 'PKSI-KS_m3') {
-            # Hit length is usually unknown for HMMSCAN and HMMSEARCH but not for NHMMER.
-            # When is not known, sometimes it can be deduced from domain data '[]'
-            is( $hit->length,             16, 'Check hit length' );
-            is( $hit->frac_aligned_query, 0.09 );
-            is( $hit->frac_aligned_hit,  '1.00' );
-        }
-        my @expected = @{ shift @multi_hits };
-        is( ref($hit), 'Bio::Search::Hit::HMMERHit',
-            'Check for the correct hit reference type' );
-        is( $hit->name,        shift @expected, 'Check hit name' );
-        is( $hit->description, shift @expected, 'Check for hit description' );
-        is( $hit->raw_score,   shift @expected, 'Check hit raw_score' );
-        float_is(
-            $hit->significance,
-            shift @expected,
-            'Check hit significance'
+    $result_counter++;
+    if ($result_counter == 1) {
+        is( ref($result),
+            'Bio::Search::Result::HMMERResult',
+            'Check for the correct result reference type'
         );
-        is( $hit->num_hsps, shift @expected, 'Check num_hsps' );
-        my @hsp_list = @{ shift @expected };
+        is( $result->algorithm,         'HMMSCAN',             'Check algorithm' );
+        is( $result->algorithm_version, '3.0',                 'Check algorithm version' );
+        is( $result->hmm_name,          'Pfam-A.hmm',          'Check hmm_name' );
+        is( $result->sequence_file,     'BA000019.orf8.fasta', 'Check sequence_file' );
+        is( $result->query_name,        'BA000019.orf8',       'Check query_name' );
+        is( $result->query_length,       348,                  'Check query_length' );
+        is( $result->query_description, '',                    'Check query_description' );
+        is( $result->num_hits(),         3,                    'Check num_hits' );
+        my ( $hsp, $hit );
 
-        while ( defined( $hsp = $hit->next_domain ) ) {
-            my @hsp_exp = @{ shift @hsp_list };
-            is( ref($hsp), 'Bio::Search::HSP::HMMERHSP',
-                'Check for correct hsp reference type' );
-            is( $hsp->hit_string,   shift @hsp_exp, 'Check hit sequence' );
-            is( $hsp->query_string, shift @hsp_exp, 'Check query sequence' );
+        while ( $hit = $result->next_model ) {
+            if ($hit->name eq 'PKSI-KS_m3') {
+                # Hit length is usually unknown for HMMSCAN and HMMSEARCH but not for NHMMER.
+                # When is not known, sometimes it can be deduced from domain data '[]'
+                is( $hit->length,             16, 'Check hit length' );
+                is( $hit->frac_aligned_query, 0.09 );
+                is( $hit->frac_aligned_hit,  '1.00' );
+            }
+            my @expected = @{ shift @multi_hits };
+            is( ref($hit), 'Bio::Search::Hit::HMMERHit',
+                'Check for the correct hit reference type' );
+            is( $hit->name,        shift @expected, 'Check hit name' );
+            is( $hit->description, shift @expected, 'Check for hit description' );
+            is( $hit->raw_score,   shift @expected, 'Check hit raw_score' );
+            float_is(
+                $hit->significance,
+                shift @expected,
+                'Check hit significance'
+            );
+            is( $hit->num_hsps, shift @expected, 'Check num_hsps' );
+            my @hsp_list = @{ shift @expected };
+
+            while ( defined( $hsp = $hit->next_domain ) ) {
+                my @hsp_exp = @{ shift @hsp_list };
+                is( ref($hsp), 'Bio::Search::HSP::HMMERHSP',
+                    'Check for correct hsp reference type' );
+                is( $hsp->hit_string,   shift @hsp_exp, 'Check hit sequence' );
+                is( $hsp->query_string, shift @hsp_exp, 'Check query sequence' );
+            }
+        }
+    }
+    elsif ($result_counter == 2) {
+        is( ref($result),
+            'Bio::Search::Result::HMMERResult',
+            'Check for the correct result reference type'
+        );
+        is( $result->algorithm,         'HMMSCAN',                    'Check algorithm' );
+        is( $result->algorithm_version, '3.0',                        'Check algorithm version' );
+        is( $result->query_name,        'lcl|aorf_00010|P1',          'Check query_name' );
+        is( $result->query_length,       132,                         'Check query_length' );
+        is( $result->query_description, 'IS481.original transposase', 'Check query_description' );
+        is( $result->num_hits(),         1,                           'Check num_hits' );
+        my ( $hsp, $hit );
+
+        while ( $hit = $result->next_model ) {
+            is( ref($hit), 'Bio::Search::Hit::HMMERHit',
+                'Check for the correct hit reference type' );
+            is( $hit->name,              'IS481.original.hmm', 'Check hit name' );
+            is( $hit->description,       '',                   'Check for hit description' );
+            is( $hit->raw_score,         '130.0',              'Check hit raw_score' );
+            float_is( $hit->significance, 3.4e-040,            'Check hit significance' );
+            is( $hit->num_hsps,           1,                   'Check num_hsps' );
+
+            while ( defined( $hsp = $hit->next_domain ) ) {
+                is( ref($hsp), 'Bio::Search::HSP::HMMERHSP',
+                    'Check for correct hsp reference type' );
+                is( $hsp->query_string,
+                    'GEIETAHPSYLGSQDTFYVGNITGAGR----------------------------IYQQTFVDTYSKWDSTKLYTTKTPITAADLLNDRVLSFFA-EQGMGIIRLLTDRSTEYCSKA--ETQDYELCLALNDIEHTKTKVYHPQTNDICRRFHKA',
+                    'Check for query string'
+                );
+                is( $hsp->hit_string,
+                    'kRYErdhPgeLvhmDvkklgripdgGgvkighRwrgrtrgrgkrtnqsrnrglgkayvitaiDDhSRfayaeilsdettttaadfllraaayfygkigeeiitrvlTDnGaayrskkrsakhdFqealaelGIkhilTrprsPqTNGKiERFhrT',
+                    'Check for hit string'
+                );
+                is( $hsp->homology_string,
+                    '+++E++hP +L+++D++++g+i + G+                            +y++t++D++S+   +++++++t++taad l++ ++ f+   ++++i r lTD+ ++y+sk   ++ d+  +la ++I+h++T++++PqTN ++ RFh+ ',
+                    'Check for homology string'
+                );
+                is( $hsp->posterior_string,
+                    '579*******************88888............................****************************************.********************8..**********************************95',
+                    'Check for posterior probability string'
+                );
+            }
         }
     }
 }
