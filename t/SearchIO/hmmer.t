@@ -1389,7 +1389,7 @@ is( $result->num_hits(), 2, 'Check num_hits' );
     my $hit    = $result->next_hit;
     my $hsp    = $hit->next_hsp;
     is( $result->query_length, 97, 'Check query_length' );
-    is( $hit->length,          95, 'Check nhmmer hit length' );
+    is( $hit->length,          95, 'Check hit length' );
     is( $hsp->hit_string,
         'svfqqqqssksttgstvtAiAiAigYRYRYRAvtWnsGsLssGvnDnDnDqqsdgLYtiYYsvtvpssslpsqtviHHHaHkasstkiiikiePr',
         'bug3376'
