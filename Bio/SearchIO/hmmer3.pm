@@ -27,11 +27,11 @@ my $searchio = Bio::SearchIO->new(
 
 my $result = $searchio->next_result;
 my $hit = $result->next_hit;
-print $hit->name, $hit->description, $hit->significance, 
+print $hit->name, $hit->description, $hit->significance,
       $hit->score, "\n";
 
 my $hsp = $hit->next_hsp;
-print $hsp->start('hit'), $hsp->end('hit'), $hsp->start('query'), 
+print $hsp->start('hit'), $hsp->end('hit'), $hsp->start('query'),
       $hsp->end('query'), "\n";
 
 =head1 DESCRIPTION
@@ -163,35 +163,33 @@ BEGIN {
 
 sub next_result {
     my ($self) = @_;
-    my ( $last, @hit_list, @hsp_list, %hspinfo, %hitinfo, %domaincounter );
+    my ( $buffer, $last, @hit_list, @hsp_list, %hspinfo, %hitinfo, %domaincounter );
     local $/ = "\n";
-    local $_;
 
     my @ambiguous_nt = keys %Bio::Tools::IUPAC::IUB;
     my $ambiguous_nt = join '', @ambiguous_nt;
 
     my $verbose = $self->verbose;    # cache for speed? JES's idea in hmmer.pm
     $self->start_document();
-    local ($_);
 
     # This is here to ensure that next_result doesn't produce infinite loop
-    if ( !defined( $_ = $self->_readline ) ) {
+    if ( !defined( $buffer = $self->_readline ) ) {
         return undef;
     }
     else {
-        $self->_pushback($_);
+        $self->_pushback($buffer);
     }
 
     my $hit_counter = 0; # helper variable for non-unique hit IDs
 
     # Regex goes here for HMMER3
     # Start with hmmsearch processing
-    while ( defined( $_ = $self->_readline ) ) {
-        my $lineorig = $_;
-        chomp;
+    while ( defined( $buffer = $self->_readline ) ) {
+        my $lineorig = $buffer;
+        chomp $buffer;
 
         # Grab the program name
-        if ( $_ =~ m/^\#\s(\S+)\s\:\:\s/ ) {
+        if ( $buffer =~ m/^\#\s(\S+)\s\:\:\s/ ) {
             my $prog = $1;
 
             # TO DO: customize the above regex to adapt to other
@@ -206,10 +204,10 @@ sub next_result {
         }
 
         # Get the HMMER package version and release date
-        elsif ( $_ =~ m/^\#\sHMMER\s+(\S+)\s+\((.+)\)/ ) {
+        elsif ( $buffer =~ m/^\#\sHMMER\s+(\S+)\s+\((.+)\)/ ) {
             my $version     = $1;
             my $versiondate = $2;
-            $self->{'_hmmidline'} = $_;
+            $self->{'_hmmidline'} = $buffer;
             $self->element(
                 {   'Name' => 'HMMER_version',
                     'Data' => $version
@@ -218,7 +216,7 @@ sub next_result {
         }
 
         # Get the query info
-        elsif ( $_ =~ /^\#\squery (?:\w+ )?file\:\s+(\S+)/ ) {
+        elsif ( $buffer =~ /^\#\squery (?:\w+ )?file\:\s+(\S+)/ ) {
             if (   $self->{'_reporttype'} eq 'HMMSEARCH'
                 || $self->{'_reporttype'} eq 'NHMMER' )
             {
@@ -240,12 +238,12 @@ sub next_result {
         }
 
         # If this is a report without alignments
-        elsif ( $_ =~ m/^\#\sshow\salignments\sin\soutput/ ) {
+        elsif ( $buffer =~ m/^\#\sshow\salignments\sin\soutput/ ) {
             $self->{'_alnreport'} = 0;
         }
 
         # Get the database info
-        elsif ( $_ =~ m/^\#\starget\s\S+\sdatabase\:\s+(\S+)/ ) {
+        elsif ( $buffer =~ m/^\#\starget\s\S+\sdatabase\:\s+(\S+)/ ) {
 
             if (   $self->{'_reporttype'} eq 'HMMSEARCH'
                 || $self->{'_reporttype'} eq 'NHMMER' )
@@ -268,7 +266,7 @@ sub next_result {
         }
 
         # Get query data
-        elsif ( $_ =~ s/^Query:\s+// ) {
+        elsif ( $buffer =~ s/^Query:\s+// ) {
             # For  multi-query reports
             if (    (   not exists $self->{_values}->{"RESULT-algorithm_name"}
                      or not exists $self->{_values}->{"RESULT-algorithm_version"}
@@ -326,8 +324,8 @@ sub next_result {
                 }
             }
 
-            unless (s/\s+\[[L|M]\=(\d+)\]$//) {
-                warn "Error parsing length for query, offending line $_\n";
+            unless ($buffer =~ s/\s+\[[L|M]\=(\d+)\]$//) {
+                warn "Error parsing length for query, offending line $buffer\n";
                 exit(0);
             }
             my $querylen = $1;
@@ -338,27 +336,27 @@ sub next_result {
             );
             $self->element(
                 {   'Name' => 'HMMER_query-def',
-                    'Data' => $_
+                    'Data' => $buffer
                 }
             );
         }
 
         # Get Accession data
-        elsif ( $_ =~ s/^Accession:\s+// ) {
-            s/\s+$//;
+        elsif ( $buffer =~ s/^Accession:\s+// ) {
+            $buffer =~ s/\s+$//;
             $self->element(
                 {   'Name' => 'HMMER_query-acc',
-                    'Data' => $_
+                    'Data' => $buffer
                 }
             );
         }
 
         # Get description data
-        elsif ( $_ =~ s/^Description:\s+// ) {
-            s/\s+$//;
+        elsif ( $buffer =~ s/^Description:\s+// ) {
+            $buffer =~ s/\s+$//;
             $self->element(
                 {   'Name' => 'HMMER_querydesc',
-                    'Data' => $_
+                    'Data' => $buffer
                 }
             );
         }
@@ -373,19 +371,19 @@ sub next_result {
         {
             # Complete sequence table data above inclusion threshold,
             # hmmsearch or hmmscan
-            if ( $_ =~ m/Scores for complete sequence/ ) {
-                while ( defined( $_ = $self->_readline ) ) {
-                    if (   $_ =~ m/inclusion threshold/
-                        || m/Domain( and alignment)? annotation for each/
-                        || m/\[No hits detected/
-                        || m!^//! )
+            if ( $buffer =~ m/Scores for complete sequence/ ) {
+                while ( defined( $buffer = $self->_readline ) ) {
+                    if (   $buffer =~ m/inclusion threshold/
+                        || $buffer =~ m/Domain( and alignment)? annotation for each/
+                        || $buffer =~ m/\[No hits detected/
+                        || $buffer =~ m!^//! )
                     {
-                        $self->_pushback($_);
+                        $self->_pushback($buffer);
                         last;
                     }
-                    elsif (   $_ =~ m/^\s+E-value\s+score/
-                           || $_ =~ m/\-\-\-/
-                           || $_ =~ m/^$/
+                    elsif (   $buffer =~ m/^\s+E-value\s+score/
+                           || $buffer =~ m/\-\-\-/
+                           || $buffer =~ m/^$/
                         )
                     {
                         next;
@@ -397,7 +395,7 @@ sub next_result {
                         $score_best, $bias_best,  $exp,       $n,
                         $hitid,      $desc,       @hitline
                     );
-                    @hitline    = split( " ", $_ );
+                    @hitline    = split( " ", $buffer );
                     $eval_full  = shift @hitline;
                     $score_full = shift @hitline;
                     $bias_full  = shift @hitline;
@@ -418,19 +416,19 @@ sub next_result {
             }
 
             # nhmmer
-            elsif ( /Scores for complete hits/ ) {
-                while ( defined( $_ = $self->_readline ) ) {
-                    if (   /inclusion threshold/
-                        || /Annotation for each hit/
-                        || /\[No hits detected/
-                        || m!^//! )
+            elsif ( $buffer =~ /Scores for complete hits/ ) {
+                while ( defined( $buffer = $self->_readline ) ) {
+                    if (   $buffer =~ /inclusion threshold/
+                        || $buffer =~ /Annotation for each hit/
+                        || $buffer =~ /\[No hits detected/
+                        || $buffer =~ m!^//! )
                     {
-                        $self->_pushback($_);
+                        $self->_pushback($buffer);
                         last;
                     }
-                    elsif (   $_ =~ m/^\s+E-value\s+score/
-                           || $_ =~ m/\-\-\-/
-                           || $_ =~ m/^$/
+                    elsif (   $buffer =~ m/^\s+E-value\s+score/
+                           || $buffer =~ m/\-\-\-/
+                           || $buffer =~ m/^$/
                         )
                     {
                         next;
@@ -441,7 +439,7 @@ sub next_result {
                     my ($eval,  $score, $bias, $hitid,
                         $start, $end,   $desc, @hitline
                     );
-                    @hitline = split( " ", $_ );
+                    @hitline = split( " ", $buffer );
                     $eval    = shift @hitline;
                     $score   = shift @hitline;
                     $bias    = shift @hitline;
@@ -458,18 +456,18 @@ sub next_result {
             }
 
             # Complete sequence table data below inclusion threshold
-            elsif ( /inclusion threshold/ ) {
-                while ( defined( $_ = $self->_readline ) ) {
-                    if (   /Domain( and alignment)? annotation for each/
-                        || /Internal pipeline statistics summary/
-                        || /Annotation for each hit\s+\(and alignments\)/
+            elsif ( $buffer =~ /inclusion threshold/ ) {
+                while ( defined( $buffer = $self->_readline ) ) {
+                    if (   $buffer =~ /Domain( and alignment)? annotation for each/
+                        || $buffer =~ /Internal pipeline statistics summary/
+                        || $buffer =~ /Annotation for each hit\s+\(and alignments\)/
                         )
                     {
-                        $self->_pushback($_);
+                        $self->_pushback($buffer);
                         last;
                     }
-                    elsif (   $_ =~ m/inclusion threshold/
-                           || $_ =~ m/^$/
+                    elsif (   $buffer =~ m/inclusion threshold/
+                           || $buffer =~ m/^$/
                         )
                     {
                         next;
@@ -481,7 +479,7 @@ sub next_result {
                         $score_best, $bias_best,  $exp,       $n,
                         $hitid,      $desc,       @hitline
                     );
-                    @hitline    = split( " ", $_ );
+                    @hitline    = split( " ", $buffer );
                     $eval_full  = shift @hitline;
                     $score_full = shift @hitline;
                     $bias_full  = shift @hitline;
@@ -503,22 +501,22 @@ sub next_result {
 
             # Domain annotation for each sequence table data,
             # for hmmscan, hmmsearch & nhmmer
-            elsif (   /Domain( and alignment)? annotation for each/
-                   or /Annotation for each hit\s+\(and alignments\)/
+            elsif (   $buffer =~ /Domain( and alignment)? annotation for each/
+                   or $buffer =~ /Annotation for each hit\s+\(and alignments\)/
                    ) {
                 @hsp_list = ();    # Here for multi-query reports
                 my $name;
                 my $annot_counter = 0;
 
-                while ( defined( $_ = $self->_readline ) ) {
-                    if (   /\[No targets detected/
-                        || /Internal pipeline statistics/ )
+                while ( defined( $buffer = $self->_readline ) ) {
+                    if (   $buffer =~ /\[No targets detected/
+                        || $buffer =~ /Internal pipeline statistics/ )
                     {
-                        $self->_pushback($_);
+                        $self->_pushback($buffer);
                         last;
                     }
 
-                    if ( $_ =~ m/^\>\>\s(\S*)\s+(.*)/ ) {
+                    if ( $buffer =~ m/^\>\>\s(\S*)\s+(.*)/ ) {
                         $name    = $1;
                         my $desc = $2;
                         $annot_counter++;
@@ -534,20 +532,20 @@ sub next_result {
                             $hit_list[ $hitinfo{"$name.$annot_counter"} ][1] = $desc;
                         }
 
-                        while ( defined( $_ = $self->_readline ) ) {
-                            if (   $_ =~ m/Internal pipeline statistics/
-                                || $_ =~ m/Alignments for each domain/
-                                || $_ =~ m/^\s+Alignment:/
-                                || $_ =~ m/^\>\>/ )
+                        while ( defined( $buffer = $self->_readline ) ) {
+                            if (   $buffer =~ m/Internal pipeline statistics/
+                                || $buffer =~ m/Alignments for each domain/
+                                || $buffer =~ m/^\s+Alignment:/
+                                || $buffer =~ m/^\>\>/ )
                             {
-                                $self->_pushback($_);
+                                $self->_pushback($buffer);
                                 last;
                             }
-                            elsif (   $_ =~ m/^\s+score\s+bias/
-                                   || $_ =~ m/^\s+\#\s+score/
-                                   || $_ =~ m/^\s+------\s+/
-                                   || $_ =~ m/^\s\-\-\-\s+/
-                                   || $_ =~ m/^$/
+                            elsif (   $buffer =~ m/^\s+score\s+bias/
+                                   || $buffer =~ m/^\s+\#\s+score/
+                                   || $buffer =~ m/^\s+------\s+/
+                                   || $buffer =~ m/^\s\-\-\-\s+/
+                                   || $buffer =~ m/^$/
                                 )
                             {
                                 next;
@@ -569,7 +567,8 @@ sub next_result {
                                       $hmm_start,  $hmm_stop, $hmm_cov,
                                       $seq_start,  $seq_stop, $seq_cov,
                                       $env_start,  $env_stop, $env_cov,
-                                      $acc ) = (
+                                      $acc )
+                                       = ( $buffer =~
                                             m|^\s+(\d+)\s\!*\?*\s+     # domain number
                                               (\S+)\s+(\S+)\s+         # score, bias
                                               (\S+)\s+(\S+)\s+         # c-eval, i-eval
@@ -578,7 +577,7 @@ sub next_result {
                                               (\d+)\s+(\d+)\s+(\S+)\s+ # env start, stop, coverage
                                               (\S+)                    # posterior probability accuracy
                                                \s*$|ox
-                                        )
+                                          )
                                     ) {
                                     # Values assigned when IF succeeded
 
@@ -606,20 +605,21 @@ sub next_result {
                                          $hmm_start, $hmm_stop, $hmm_cov,
                                          $seq_start, $seq_stop, $seq_cov,
                                          $env_start, $env_stop, $env_cov,
-                                         $hitlength, $acc ) = (
-                                            m|^\s+[!?]\s+
-                                              (\S+)\s+(\S+)\s+(\S+)\s+ # score, bias, evalue
-                                              (\d+)\s+(\d+)\s+(\S+)\s+ # hmm start, stop, coverage
-                                              (\d+)\s+(\d+)\s+(\S+)\s+ # seq start, stop, coverage
-                                              (\d+)\s+(\d+)\s+(\S+)\s+ # env start, stop, coverage
-                                              (\d+)\s+(\S+)            # target length, pp accuracy
-                                               .*$|ox
-                                        )
+                                         $hitlength, $acc )
+                                          = ( $buffer =~
+                                                m|^\s+[!?]\s+
+                                                  (\S+)\s+(\S+)\s+(\S+)\s+ # score, bias, evalue
+                                                  (\d+)\s+(\d+)\s+(\S+)\s+ # hmm start, stop, coverage
+                                                  (\d+)\s+(\d+)\s+(\S+)\s+ # seq start, stop, coverage
+                                                  (\d+)\s+(\d+)\s+(\S+)\s+ # env start, stop, coverage
+                                                  (\d+)\s+(\S+)            # target length, pp accuracy
+                                                   .*$|ox
+                                             )
                                     ) {
                                     # Values assigned when IF succeeded
                                 }
                                 else {
-                                    print "Missed this line: $_\n";
+                                    print "Missed this line: $buffer\n";
                                     next;
                                 }
 
@@ -649,7 +649,7 @@ sub next_result {
                             }
                         }
                     }
-                    elsif ( /Alignment(?:s for each domain)?:/ ) {
+                    elsif ( $buffer =~ /Alignment(?:s for each domain)?:/ ) {
                         #line counter
                         my $count = 0;
 
@@ -667,14 +667,14 @@ sub next_result {
                         my $align_offset = 0;
                         my $align_length = 0;
 
-                        while ( defined( $_ = $self->_readline ) ) {
-                            if (   $_ =~ m/^\>\>/
-                                || $_ =~ m/Internal pipeline statistics/ )
+                        while ( defined( $buffer = $self->_readline ) ) {
+                            if (   $buffer =~ m/^\>\>/
+                                || $buffer =~ m/Internal pipeline statistics/ )
                             {
-                                $self->_pushback($_);
+                                $self->_pushback($buffer);
                                 last;
                             }
-                            elsif ($_ =~ m/^$/ )
+                            elsif ($buffer =~ m/^$/ )
                             {
                                 # Reset these scalars on empty lines to help
                                 # distinguish between the consensus structure/reference
@@ -685,8 +685,8 @@ sub next_result {
                                 next;
                             }
 
-                            if (   $_ =~ /\s\s\=\=\sdomain\s(\d+)\s+/
-                                or $_ =~ /\s\sscore:\s\S+\s+/
+                            if (   $buffer =~ /\s\s\=\=\sdomain\s(\d+)\s+/
+                                or $buffer =~ /\s\sscore:\s\S+\s+/
                                 ) {
                                 my $domainnum = $1 || 1;
                                 $count = 0;
@@ -703,8 +703,8 @@ sub next_result {
                             # don't have it. Since it appears on top of the alignment,
                             # the reset of $align_length to 0 between alignment blocks
                             # avoid confusing homology lines with it.
-                            elsif ( $_ =~ m/\s+\S+\s(?:CS|RF)$/ and $align_length == 0 ) {
-                                my @data = split( " ", $_ );
+                            elsif ( $buffer =~ m/\s+\S+\s(?:CS|RF)$/ and $align_length == 0 ) {
+                                my @data = split( " ", $buffer );
                                 $csline .= $data[-2];
                                 $max_count++;
                                 $count++;
@@ -715,11 +715,11 @@ sub next_result {
                             elsif (    $count == $max_count - 3
                                    or  $count == $max_count - 1
                                    ) {
-                                my @data = split( " ", $_ );
+                                my @data = split( " ", $buffer );
 
                                 my $line_offset = 0;
-                                while ($_ =~ m/$data[-2]/g) {
-                                    $line_offset = pos;
+                                while ($buffer =~ m/$data[-2]/g) {
+                                    $line_offset = pos $buffer;
                                 }
                                 if ($line_offset != 0) {
                                     $align_length = length $data[-2];
@@ -747,13 +747,13 @@ sub next_result {
                             # leading/lagging whitespace while preserving
                             # gap data (latter isn't done, former is)
                             elsif ( $count == $max_count - 2 ) {
-                                $midline .= substr $_, $align_offset, $align_length;
+                                $midline .= substr $buffer, $align_offset, $align_length;
                                 $count++;
                                 next;
                             }
                             # posterior probability track
                             elsif ( $count == $max_count ) {
-                                my @data   = split(" ", $_);
+                                my @data   = split(" ", $buffer);
                                 $pline    .= $data[-2];
                                 $count     = 0;
                                 $max_count = 3;
@@ -765,7 +765,7 @@ sub next_result {
                                 next;
                             }
                             else {
-                                print "Missed this line: $_\n";
+                                print "Missed this line: $buffer\n";
                             }
                         }
                     }
@@ -773,7 +773,7 @@ sub next_result {
             }
 
             # End of report
-            elsif ( m/Internal pipeline statistics/ || m!^//! ) {
+            elsif ( $buffer =~ m/Internal pipeline statistics/ || $buffer =~ m!^//! ) {
                 # If within hit, hsp close;
                 if ( $self->within_element('hit') ) {
                     if ( $self->within_element('hsp') ) {
@@ -783,8 +783,8 @@ sub next_result {
                 }
 
                 # Grab summary statistics of run
-                while ( defined( $_ = $self->_readline ) ) {
-                    last if ( $_ =~ m/^\/\/$/ );
+                while ( defined( $buffer = $self->_readline ) ) {
+                    last if ( $buffer =~ m/^\/\/$/ );
                 }
 
                 # Do a lot of processing of hits and hsps here
@@ -983,10 +983,10 @@ sub next_result {
             }
         }
         else {
-            print "Missed line: $_\n";
-            $self->debug($_);
+            print "Missed line: $buffer\n";
+            $self->debug($buffer);
         }
-        $last = $_;
+        $last = $buffer;
     }
     $self->end_element( { 'Name' => 'HMMER_Output' } );
     my $result = $self->end_document();
@@ -1051,15 +1051,15 @@ sub end_element {
     # Hsp are sort of weird, in that they end when another
     # object begins so have to detect this in end_element for now
     if ( $nm eq 'Hsp' ) {
-        foreach (qw(Hsp_csline Hsp_qseq Hsp_midline Hsp_hseq Hsp_pline)) {
-            my $data = $self->{'_last_hspdata'}->{$_};
-            if ( $data && $_ eq 'Hsp_hseq' ) {
+        foreach my $line (qw(Hsp_csline Hsp_qseq Hsp_midline Hsp_hseq Hsp_pline)) {
+            my $data = $self->{'_last_hspdata'}->{$line};
+            if ( $data && $line eq 'Hsp_hseq' ) {
 
                 # replace hmm '.' gap symbol by '-'
                 $data =~ s/\./-/g;
             }
             $self->element(
-                {   'Name' => $_,
+                {   'Name' => $line,
                     'Data' => $data
                 }
             );
@@ -1173,11 +1173,11 @@ sub characters {
 sub within_element {
     my ( $self, $name ) = @_;
     return 0
-        if ( !defined $name
-        || !defined $self->{'_elements'}
-        || scalar @{ $self->{'_elements'} } == 0 );
-    foreach ( @{ $self->{'_elements'} } ) {
-        return 1 if ( $_ eq $name );
+        if (   !defined $name
+            || !defined $self->{'_elements'}
+            || scalar @{ $self->{'_elements'} } == 0 );
+    foreach my $element ( @{ $self->{'_elements'} } ) {
+        return 1 if ( $element eq $name );
     }
     return 0;
 }
