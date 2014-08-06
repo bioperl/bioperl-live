@@ -91,3 +91,50 @@ Domain search space  (domZ):               2  [number of targets reported over t
 # CPU time: 0.24u 0.15s 00:00:00.39 Elapsed: 00:00:00.27
 # Mc/sec: 2782.58
 //
+Query:       lcl|aorf_00010|P1  [L=132]
+Description: IS481.original transposase
+Scores for complete sequence (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Model               Description
+    ------- ------ -----    ------- ------ -----   ---- --  --------            -----------
+    3.4e-40  130.0   0.4    3.8e-40  129.9   0.3    1.0  1  IS481.original.hmm  
+
+
+Domain annotation for each model (and alignments):
+>> IS481.original.hmm  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !  129.9   0.3   6.6e-42   3.8e-40     127     281 ..       7     130 ..       2     132 .] 0.97
+
+  Alignments for each domain:
+  == domain 1    score: 129.9 bits;  conditional E-value: 6.6e-42
+  IS481.original.hmm 127 kRYErdhPgeLvhmDvkklgripdgGgvkighRwrgrtrgrgkrtnqsrnrglgkayvitaiDDhSRfayaeilsd 202
+                         +++E++hP +L+++D++++g+i + G+                            +y++t++D++S+   ++++++
+   lcl|aorf_00010|P1   7 GEIETAHPSYLGSQDTFYVGNITGAGR----------------------------IYQQTFVDTYSKWDSTKLYTT 54 
+                         579*******************88888............................********************* PP
+
+  IS481.original.hmm 203 ettttaadfllraaayfygkigeeiitrvlTDnGaayrskkrsakhdFqealaelGIkhilTrprsPqTNGKiERF 278
+                         +t++taad l++ ++ f+   ++++i r lTD+ ++y+sk   ++ d+  +la ++I+h++T++++PqTN ++ RF
+   lcl|aorf_00010|P1  55 KTPITAADLLNDRVLSFFA-EQGMGIIRLLTDRSTEYCSKA--ETQDYELCLALNDIEHTKTKVYHPQTNDICRRF 127
+                         *******************.********************8..********************************* PP
+
+  IS481.original.hmm 279 hrT 281
+                         h+ 
+   lcl|aorf_00010|P1 128 HKA 130
+                         *95 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query sequence(s):                         1  (132 residues)
+Target model(s):                         116  (57162 nodes)
+Passed MSV filter:                         4  (0.0344828); expected 2.3 (0.02)
+Passed bias filter:                        4  (0.0344828); expected 2.3 (0.02)
+Passed Vit filter:                         3  (0.0258621); expected 0.1 (0.001)
+Passed Fwd filter:                         1  (0.0172414); expected 0.0 (1e-05)
+Initial search space (Z):                116  [actual number of targets]
+Domain search space  (domZ):               1  [number of targets reported over threshold]
+# CPU time: 0.06u 0.00s 00:00:00.06 Elapsed: 00:00:00.06
+# Mc/sec: 117.90
+//
