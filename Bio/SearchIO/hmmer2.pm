@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::SearchIO::hmmer2
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Jason Stajich <jason@bioperl.org>
 #
@@ -47,15 +47,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -153,25 +153,24 @@ sub next_result {
     my ($self) = @_;
     my $seentop = 0;
     my $reporttype;
-    my ( $last, @hitinfo, @hspinfo, %hspinfo, %hitinfo );
+    my ( $buffer, $last, @hitinfo, @hspinfo, %hspinfo, %hitinfo );
     local $/ = "\n";
-    local $_;
 
     my $verbose = $self->verbose;    # cache for speed?
     $self->start_document();
-    local ($_);
-    while ( defined( $_ = $self->_readline ) ) {
-        my $lineorig = $_;
 
-        chomp;
-        if (/^HMMER\s+(\S+)\s+\((.+)\)/o) {
-            my ( $prog, $version ) = split;
+    while ( defined( $buffer = $self->_readline ) ) {
+        my $lineorig = $buffer;
+
+        chomp $buffer;
+        if ($buffer =~ /^HMMER\s+(\S+)\s+\((.+)\)/o) {
+            my ( $prog, $version ) = split( /\s+/, $buffer );
             if ($seentop) {
-                $self->_pushback($_);
+                $self->_pushback($buffer);
                 $self->end_element( { 'Name' => 'HMMER_Output' } );
                 return $self->end_document();
             }
-            $self->{'_hmmidline'} = $_;
+            $self->{'_hmmidline'} = $buffer;
             $self->start_element( { 'Name' => 'HMMER_Output' } );
             $self->{'_result_count'}++;
             $seentop = 1;
@@ -192,33 +191,33 @@ sub next_result {
                 }
             );
         }
-        elsif (s/^HMM file:\s+//o) {
+        elsif ($buffer =~ s/^HMM file:\s+//o) {
             $self->{'_hmmfileline'} = $lineorig;
             $self->element(
                 {
                     'Name' => 'HMMER_hmm',
-                    'Data' => $_
+                    'Data' => $buffer
                 }
             );
         }
-        elsif (s/^Sequence\s+(file|database):\s+//o) {
+        elsif ($buffer =~ s/^Sequence\s+(file|database):\s+//o) {
             $self->{'_hmmseqline'} = $lineorig;
             if ( $1 eq 'database' ) {
                 $self->element(
                     {
                         'Name' => 'HMMER_db',
-                        'Data' => $_
+                        'Data' => $buffer
                     }
                 );
             }
             $self->element(
                 {
                     'Name' => 'HMMER_seqfile',
-                    'Data' => $_
+                    'Data' => $buffer
                 }
             );
         }
-        elsif (s/^Query(?:\s+(?:sequence|HMM))?(?:\s+\d+)?:\s+//o) {
+        elsif ($buffer =~ s/^Query(?:\s+(?:sequence|HMM))?(?:\s+\d+)?:\s+//o) {
             if ( !$seentop ) {
 
                 # we're in a multi-query report
@@ -228,29 +227,29 @@ sub next_result {
                 $self->_pushback( $self->{'_hmmidline'} );
                 next;
             }
-            s/\s+$//;
+            $buffer =~ s/\s+$//;
             $self->element(
                 {
                     'Name' => 'HMMER_query-def',
-                    'Data' => $_
+                    'Data' => $buffer
                 }
             );
         }
-        elsif (s/^Accession:\s+//o) {
-            s/\s+$//;
+        elsif ($buffer =~ s/^Accession:\s+//o) {
+            $buffer =~ s/\s+$//;
             $self->element(
                 {
                     'Name' => 'HMMER_query-acc',
-                    'Data' => $_
+                    'Data' => $buffer
                 }
             );
         }
-        elsif (s/^Description:\s+//o) {
-            s/\s+$//;
+        elsif ($buffer =~ s/^Description:\s+//o) {
+            $buffer =~ s/\s+$//;
             $self->element(
                 {
                     'Name' => 'HMMER_querydesc',
-                    'Data' => $_
+                    'Data' => $buffer
                 }
             );
         }
@@ -259,15 +258,15 @@ sub next_result {
                   || $self->{'_reporttype'} eq 'HMMPFAM' )
               ) {
             # PROCESS RESULTS HERE
-            if (/^Scores for (?:complete sequences|sequence family)/o) {
-                while ( defined( $_ = $self->_readline ) ) {
-                    last if (/^\s+$/);
-                    next if (   /^Model\s+Description/o
-                             || /^Sequence\s+Description/o
-                             || /^\-\-\-/o );
+            if ($buffer =~ /^Scores for (?:complete sequences|sequence family)/o) {
+                while ( defined( $buffer = $self->_readline ) ) {
+                    last if ($buffer =~ /^\s+$/);
+                    next if (   $buffer =~ /^Model\s+Description/o
+                             || $buffer =~ /^Sequence\s+Description/o
+                             || $buffer =~ /^\-\-\-/o );
 
-                    chomp;
-                    my @line = split;
+                    chomp $buffer;
+                    my @line = split( /\s+/, $buffer );
                     my ( $name, $domaintotal, $evalue, $score ) =
                       ( shift @line, pop @line, pop @line, pop @line );
                     my $desc = join( ' ', @line );
@@ -275,32 +274,33 @@ sub next_result {
                     $hitinfo{$name} = $#hitinfo;
                 }
             }
-            elsif (/^Parsed for domains:/o) {
+            elsif ($buffer =~ /^Parsed for domains:/o) {
                 @hspinfo = ();
 
-                while ( defined( $_ = $self->_readline ) ) {
-                    last if (/^\s+$/);
-                    if (m!^//!) {
-                        $self->_pushback($_);
+                while ( defined( $buffer = $self->_readline ) ) {
+                    last if ($buffer =~ /^\s+$/);
+                    if ($buffer =~ m!^//!) {
+                        $self->_pushback($buffer);
                         last;
                     }
-                    next if ( /^(?:Model|Sequence)\s+Domain/ || /^\-\-\-/ );
+                    next if ( $buffer =~ /^(?:Model|Sequence)\s+Domain/ || $buffer =~ /^\-\-\-/ );
 
-                    chomp;
+                    chomp $buffer;
                     if (
                         my ( $name, $domainct, $domaintotal,
                              $seq_start, $seq_end, $seq_cov,
                              $hmm_start, $hmm_end, $hmm_cov,
-                             $score, $evalue ) = (
-                                m!^(\S+)\s+          # domain name
-                                   (\d+)/(\d+)\s+    # domain num out of num
-                                   (\d+)\s+(\d+)\s+  # seq start, end
-                                   (\S+)\s+          # seq coverage
-                                   (\d+)\s+(\d+)\s+  # hmm start, end
-                                   (\S+)\s+          # hmm coverage
-                                   (\S+)\s+          # score
-                                   (\S+)             # evalue
-                                    \s*$!ox
+                             $score, $evalue )
+                              = ( $buffer =~
+                                    m!^(\S+)\s+          # domain name
+                                       (\d+)/(\d+)\s+    # domain num out of num
+                                       (\d+)\s+(\d+)\s+  # seq start, end
+                                       (\S+)\s+          # seq coverage
+                                       (\d+)\s+(\d+)\s+  # hmm start, end
+                                       (\S+)\s+          # hmm coverage
+                                       (\S+)\s+          # score
+                                       (\S+)             # evalue
+                                        \s*$!ox
                             )
                         ) {
                         my $hindex = $hitinfo{$name};
@@ -377,19 +377,19 @@ sub next_result {
                     }
                 }
             }
-            elsif (/^Alignments of top/o) {
+            elsif ($buffer =~ /^Alignments of top/o) {
                 my ( $prelength, $count, $width );
                 $count = 0;
                 my %domaincounter;
                 my $second_tier = 0;
                 my $csline      = '';
 
-                while ( defined( $_ = $self->_readline ) ) {
-                    next if ( /^Align/o );
+                while ( defined( $buffer = $self->_readline ) ) {
+                    next if ( $buffer =~ /^Align/o );
 
-                    if (   m/^Histogram/o
-                        || m!^//!o
-                        || m/^Query(?:\s+(?:sequence|HMM))?(?:\s+\d+)?:/o
+                    if (   $buffer =~ m/^Histogram/o
+                        || $buffer =~ m!^//!o
+                        || $buffer =~ m/^Query(?:\s+(?:sequence|HMM))?(?:\s+\d+)?:/o
                         ) {
                         if ( $self->in_element('hsp') ) {
                             $self->end_element( { 'Name' => 'Hsp' } );
@@ -397,17 +397,18 @@ sub next_result {
                         if ( $self->within_element('hit') ) {
                             $self->end_element( { 'Name' => 'Hit' } );
                         }
-                        $self->_pushback($_);
+                        $self->_pushback($buffer);
                         last;
                     }
 
-                    chomp;
+                    chomp $buffer;
                     if (
                         my ( $name, $domainct, $domaintotal,
-                             $from, $to ) = (
-                                m/^\s*(.+):
-                                   \s+ domain \s+ (\d+) \s+ of \s+ (\d+) ,
-                                   \s+ from   \s+ (\d+) \s+ to \s+ (\d+)/x
+                             $from, $to )
+                              = ( $buffer =~
+                                    m/^\s*(.+):
+                                       \s+ domain \s+ (\d+) \s+ of \s+ (\d+) ,
+                                       \s+ from   \s+ (\d+) \s+ to \s+ (\d+)/x
                             )
                         ) {
                         $domaincounter{$name}++;
@@ -429,7 +430,7 @@ sub next_result {
                             );
                             $info = [
                                 $name, '',
-                                /score \s+ ([^,\s]+), \s+E\s+=\s+ (\S+)/ox,
+                                $buffer =~ /score \s+ ([^,\s]+), \s+E\s+=\s+ (\S+)/ox,
                                 $domaintotal
                             ];
                             push @hitinfo, $info;
@@ -557,13 +558,13 @@ sub next_result {
                         # accumulates all the of the alignment lines into
                         # three array slots and then tests for the
                         # end of the line
-                        if ($_ =~ m/^\s+(?:CS|RF)\s+/o && $count == 0) {
+                        if ($buffer =~ m/^\s+(?:CS|RF)\s+/o && $count == 0) {
                             # Buffer the CS line now and process it later at
                             # midline point, where $prelength and width will be known
-                            $csline = $_;
+                            $csline = $buffer;
                             next;
                         }
-                        elsif (/^(\s+ \*->) (\S+)/ox) {
+                        elsif ($buffer =~ /^(\s+ \*->) (\S+)/ox) {
                             # start of domain
                             $prelength = CORE::length($1);
                             $width     = 0;
@@ -574,7 +575,7 @@ sub next_result {
                             {
                                 $width = CORE::length($data);
                             }
- 
+
                             if ($self->{'_reporttype'} eq 'HMMSEARCH') {
                                 $self->element(
                                     {
@@ -594,7 +595,7 @@ sub next_result {
                             $count       = 0;
                             $second_tier = 0;
                         }
-                        elsif (/^(\s+) (\S+) <-?\*? \s*$/ox) {
+                        elsif ($buffer =~ /^(\s+) (\S+) <-?\*? \s*$/ox) {
                             # end of domain
                             $prelength -= 3 unless ( $second_tier++ );
                             if ($self->{'_reporttype'} eq 'HMMSEARCH') {
@@ -616,10 +617,10 @@ sub next_result {
                             $width = CORE::length($2);
                             $count = 0;
                         }
-                        elsif ( ( $count != 1 && /^\s+$/o )
-                               || CORE::length($_) == 0
-                               || /^\s+\-?\*\s*$/
-                               || /^\s+\S+\s+\-\s+\-\s*$/ )
+                        elsif ( ( $count != 1 && $buffer =~ /^\s+$/o )
+                               || CORE::length($buffer) == 0
+                               || $buffer =~ /^\s+\-?\*\s*$/
+                               || $buffer =~ /^\s+\S+\s+\-\s+\-\s*$/ )
                         {
                             next;
                         }
@@ -634,7 +635,7 @@ sub next_result {
                                 $self->element(
                                     {
                                         'Name' => 'Hsp_qseq',
-                                        'Data' => substr( $_, $prelength )
+                                        'Data' => substr( $buffer, $prelength )
                                     }
                                 );
                             }
@@ -642,7 +643,7 @@ sub next_result {
                                 $self->element(
                                     {
                                         'Name' => 'Hsp_hseq',
-                                        'Data' => substr( $_, $prelength )
+                                        'Data' => substr( $buffer, $prelength )
                                     }
                                 );
                             }
@@ -655,7 +656,7 @@ sub next_result {
                                 $self->element(
                                     {
                                         'Name' => 'Hsp_midline',
-                                        'Data' => substr( $_, $prelength, $width )
+                                        'Data' => substr( $buffer, $prelength, $width )
                                     }
                                 );
                                 if ($csline ne '') {
@@ -673,7 +674,7 @@ sub next_result {
                                 $self->element(
                                     {
                                         'Name' => 'Hsp_midline',
-                                        'Data' => substr( $_, $prelength )
+                                        'Data' => substr( $buffer, $prelength )
                                     }
                                 );
                                 if ($csline ne '') {
@@ -688,7 +689,7 @@ sub next_result {
                             }
                         }
                         elsif ( $count == 2 ) {
-                            if (   /^\s+(\S+)\s+(\d+|\-)\s+(\S*)\s+(\d+|\-)/o) {
+                            if ( $buffer =~ /^\s+(\S+)\s+(\d+|\-)\s+(\S*)\s+(\d+|\-)/o ) {
                                 if ($self->{'_reporttype'} eq 'HMMSEARCH') {
                                     $self->element(
                                         {
@@ -707,14 +708,14 @@ sub next_result {
                                 }
                             }
                             else {
-                                $self->warn("unrecognized line ($count): $_\n");
+                                $self->warn("unrecognized line ($count): $buffer\n");
                             }
                         }
                         $count = 0 if $count++ >= 2;
                     }
                 }
             }
-            elsif ( /^Histogram/o || m!^//!o ) {
+            elsif ( $buffer =~ /^Histogram/o || $buffer =~ m!^//!o ) {
                 my %domaincounter;
 
                 while ( my $HSPinfo = shift @hspinfo ) {
@@ -811,10 +812,10 @@ sub next_result {
             }
             # uncomment to see missed lines with verbose on
             #else {
-            #    $self->debug($_);
+            #    $self->debug($buffer);
             #}
         }
-        $last = $_;
+        $last = $buffer;
     }
     $self->end_element( { 'Name' => 'HMMER_Output' } ) unless !$seentop;
     return $self->end_document();
@@ -878,21 +879,21 @@ sub end_element {
     # Hsp are sort of weird, in that they end when another
     # object begins so have to detect this in end_element for now
     if ( $nm eq 'Hsp' ) {
-        foreach (qw(Hsp_csline Hsp_qseq Hsp_midline Hsp_hseq)) {
-            my $data = $self->{'_last_hspdata'}->{$_};
-            if ($data && $_ eq 'Hsp_hseq') {
+        foreach my $line (qw(Hsp_csline Hsp_qseq Hsp_midline Hsp_hseq)) {
+            my $data = $self->{'_last_hspdata'}->{$line};
+            if ($data && $line eq 'Hsp_hseq') {
                 # replace hmm '.' gap symbol by '-'
                 $data =~ s/\./-/g;
             }
             $self->element(
                 {
-                    'Name' => $_,
+                    'Name' => $line,
                     'Data' => $data
                 }
             );
             # Since HMMER doesn't print some data explicitly,
             # calculate it from the homology line (midline)
-            if ($_ eq 'Hsp_midline') {
+            if ($line eq 'Hsp_midline') {
                 if ($data) {
                     my $length    = length $data;
                     my $identical = ($data =~ tr/a-zA-Z//);
@@ -1014,7 +1015,7 @@ sub characters {
            This is different than 'in' because within can be tested
            for a whole block.
  Returns : boolean
- Args    : string element name 
+ Args    : string element name
 
 
 =cut
@@ -1022,11 +1023,11 @@ sub characters {
 sub within_element {
     my ( $self, $name ) = @_;
     return 0
-      if ( !defined $name
-        || !defined $self->{'_elements'}
-        || scalar @{ $self->{'_elements'} } == 0 );
-    foreach ( @{ $self->{'_elements'} } ) {
-        return 1 if ( $_ eq $name );
+      if (   !defined $name
+          || !defined $self->{'_elements'}
+          || scalar @{ $self->{'_elements'} } == 0 );
+    foreach my $element ( @{ $self->{'_elements'} } ) {
+        return 1 if ( $element eq $name );
     }
     return 0;
 }
@@ -1036,10 +1037,10 @@ sub within_element {
  Title   : in_element
  Usage   : if( $eventgenerator->in_element($element) ) {}
  Function: Test if we are in a particular element
-           This is different than 'within' because 'in' only 
+           This is different than 'within' because 'in' only
            tests its immediete parent.
  Returns : boolean
- Args    : string element name 
+ Args    : string element name
 
 
 =cut
