@@ -245,7 +245,24 @@ sub from_string {
                 $loc_obj->strand(-1);
             }
 
-            push @loc_objs, $loc_obj;
+            # For Split-type $loc_obj, if guide strand is set (meaning consistent strand for
+            # all sublocs) and guide strand is the same than the last location from @loc_objs,
+            # then recover the sublocations and add them to @loc_objs. This way,
+            # "join(10..20,join(30..40,50..60))" becomes "join(10..20,30..40,50..60)"
+            my $guide_strand = ($loc_obj->isa('Bio::Location::SplitLocationI')) ? ($loc_obj->guide_strand || 0) : 0;
+            my $last_strand  = (scalar @loc_objs > 0) ? $loc_objs[-1]->strand : 0;
+            if (    $guide_strand   != 0
+                and $guide_strand   == $last_strand
+                and $oparg          eq $op # join(,join()) OK, order(join()) NOT OK
+                ) {
+                my @subloc_objs = $loc_obj->sub_Location(0);
+                foreach my $subloc_obj (@subloc_objs) {
+                    push @loc_objs, $subloc_obj;
+                }
+            }
+            else {
+                push @loc_objs, $loc_obj;
+            }
         }
         my $ct = @loc_objs;
         if ($op && !($op eq 'join' || $op eq 'order' || $op eq 'bond')

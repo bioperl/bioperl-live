@@ -195,7 +195,6 @@ SKIP: {
     # join(1000..2000,join(3000..4000,join(5000..6000,7000..8000)),9000..10000)
     # is the same as
     # join(1000..2000,3000..4000,5000..6000,7000..8000,9000..10000)
-    # But I don't want to bother with it at this point
 
     my @expected = (# intentionally testing same expected string twice
                     # as I am providing two different encodings
@@ -206,7 +205,7 @@ SKIP: {
     'join(20464..20694,21548..22763,complement(join(231520..231669,232596..232990,314652..314672)))',
     'join(20464..20694,21548..22763,complement(join(231520..231669,232596..232990,314652..314672)))',
     # this is just seen once
-    'join(1000..2000,join(3000..4000,join(5000..6000,7000..8000)),9000..10000)',
+    'join(1000..2000,3000..4000,5000..6000,7000..8000,9000..10000)',
     'order(S67862.1:72..75,join(S67863.1:1..788,1..19))'
    );
 
