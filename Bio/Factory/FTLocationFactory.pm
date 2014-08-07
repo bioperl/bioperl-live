@@ -163,7 +163,6 @@ sub from_string {
         
         my @loc_objs;
         my $loc_obj;
-        my @gl_subloc_strands;
         
         SUBLOCS:
         while (@sublocs) {
@@ -190,12 +189,10 @@ sub from_string {
                             my $comploc = $1;
                             $sobj = $self->_parse_location($comploc);
                             $sobj->strand(-1);
-                            push @subloc_strands,    -1;
-                            push @gl_subloc_strands, -1;
+                            push @subloc_strands, -1;
                         } else {
                             $sobj = $self->_parse_location($splitloc);
-                            push @subloc_strands,    1;
-                            push @gl_subloc_strands, 1;
+                            push @subloc_strands, 1;
                         }
                         push @s_objs, $sobj;
                     }
@@ -204,29 +201,22 @@ sub from_string {
                     # Guide Strand and sublocations adding order
                     if (scalar @s_objs > 0) {
                         my $identical    = 0;
-                        my $gl_identical = 0;
 
                         my $first_value = $subloc_strands[0];
                         foreach my $strand (@subloc_strands) {
                             $identical++ if ($strand == $first_value);
                         }
 
-                        my $first_gl_value = $gl_subloc_strands[0];
-                        foreach my $gl_strand (@gl_subloc_strands) {
-                            $gl_identical++ if ($gl_strand == $first_gl_value);
-                        }
-
                         if ($identical == scalar @subloc_strands) {
                             # Set guide_strand if all sublocations have the same strand
                             $loc_obj->guide_strand($first_value);
 
-                            # Reverse sublocation order for negative strand locations in cases like this:
-                            # join(1..11,join(complement(40..50),complement(60..70)))
-                            # But not this:
-                            # join(complement(10..20),complement(30..40))
-                            if (    $gl_identical != scalar @gl_subloc_strands
-                                and $first_value  == -1
-                                ) {
+                            # Reverse sublocation order for negative strand locations, e.g.:
+                            # Common (CAA24672.1):
+                            #   join(complement(4918..5163),complement(2691..4571))
+                            # Trans-splicing (NP_958375.1):
+                            #   join(32737..32825,complement(174205..174384),complement(69520..71506))
+                            if ($first_value  == -1) {
                                 @s_objs = reverse @s_objs;
                             }
                         }
@@ -253,10 +243,6 @@ sub from_string {
             }
             if ($op && $op eq 'complement') {
                 $loc_obj->strand(-1);
-                push @gl_subloc_strands, -1;
-            }
-            else {
-                push @gl_subloc_strands, 1;
             }
 
             push @loc_objs, $loc_obj;

@@ -1,22 +1,23 @@
-LOCUS       U58726                 31931 bp    DNA     linear   INV 
+LOCUS       U58726                 31931 bp    DNA     linear   INV 29-APR-2011
 DEFINITION  Caenorhabditis elegans cosmid T01C8, complete sequence.
 ACCESSION   U58726
+VERSION     U58726.1  GI:1326250
 KEYWORDS    HTG.
-SOURCE      Caenorhabditis elegans.
+SOURCE      Caenorhabditis elegans
   ORGANISM  Caenorhabditis elegans
             Eukaryota; Metazoa; Nematoda; Chromadorea; Rhabditida;
             Rhabditoidea; Rhabditidae; Peloderinae; Caenorhabditis.
 REFERENCE   1  (bases 1 to 31931)
-  AUTHORS   Waterston,R.
+  CONSRTM   C. elegans Sequencing Consortium
   TITLE     Genome sequence of the nematode C. elegans: a platform for
-            investigating biology. The C. elegans Sequencing Consortium
+            investigating biology
   JOURNAL   Science 282 (5396), 2012-2018 (1998)
-  MEDLINE   99069613
    PUBMED   9851916
+  REMARK    Erratum:[Science 1999 Jan 1;283(5398):35]
 REFERENCE   2  (bases 1 to 31931)
   AUTHORS   Wohldmann,P. and Hawkins,J.
   TITLE     The sequence of C. elegans cosmid T01C8
-  JOURNAL   Unpublished (2001)
+  JOURNAL   Unpublished
 REFERENCE   3  (bases 1 to 31931)
   AUTHORS   Waterston,R.
   TITLE     Direct Submission
@@ -39,113 +40,209 @@ REFERENCE   6  (bases 1 to 31931)
   JOURNAL   Submitted (29-JUN-2002) Department of Genetics, Washington
             University, Genome Sequencing Center, 4444 Forest Park Avenue, St.
             Louis, MO 63110, USA
-COMMENT     Submitted by: Genome Sequencing Center Department of Genetics,
-            Washington University St. Louis , MO 63110, USA, and Sanger
-            Centre, Hinxton Hall Cambridge CB10 IRQ, England email:
-            rw@nematode.wustl.edu and jes@sanger.ac.uk NOTICE: This sequence
-            may not be the entire insert of this clone. It may be shorter
-            because we only sequence overlapping sections once, or longer
-            because we provide a small overlap between neighboring
-            submissions. This sequence was finished as follows unless
-            otherwise noted: all regions were double stranded, sequenced with
-            an alternate chemistry or covered by high quality data (i.e.,
-            phred quality >= 30); an attempt was made to resolve all
-            sequencing problems, such as compressions and repeats; all regions
-            were covered by sequence from more than one m13 subclone. For a
-            graphical representation of this cosmid sequence and its analysis
-            see:
-            http://www.wormbase.org/db/seq/sequence?name=T01C8;class=Sequence
-            NEIGHBORING COSMID INFORMATION The 5' cosmid is EGAP8, 200 bp
-            overlap; the 3' cosmid is F41G4, 2000 bp overlap. Actual start of
-            this cosmid is at base position 1 of T01C8; actual end is at 10488
-            of F41G4. NOTES: Coding seqences below are the result of
-            integration and manual review of the following data : computer
-            analysis using the program Genefinder (P. Green and L. Hillier,
-            personal communication), the large scale EST projects of Yuji
-            Kohara (http://www.ddbj.nig.ac.jp/c-elegans/html/CE_INDEX.html)
-            and The C. elegans ORFeome cloning project
-            (http://worfdb.dfci.harvard.edu/), similarity to other proteins
-            from BlastX analyses (http://blast.wustl.edu/), sequence
-            conservation with C. briggsae using Jim Kent's WABA alignment
-            program (Genome Research 10:1115-1125, 2000), individual C.
-            elegans GenBank submissions, and personal communications with C.
-            elegans researchers. tRNAs are predicted using the program
-            tRNAscan-SE (Lowe, T.M. and Eddy, S.R., 1997, Nucl. Acids. Res.,
-            25, 955-964).
+REFERENCE   7  (bases 1 to 31931)
+  AUTHORS   Waterston,R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (06-NOV-2002) Department of Genetics, Washington
+            University, Genome Sequencing Center, 4444 Forest Park Avenue, St.
+            Louis, MO 63110, USA
+REFERENCE   8  (bases 1 to 31931)
+  AUTHORS   Waterston,R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (21-NOV-2002) Department of Genetics, Washington
+            University, Genome Sequencing Center, 4444 Forest Park Avenue, St.
+            Louis, MO 63110, USA
+REFERENCE   9  (bases 1 to 31931)
+  AUTHORS   Waterston,R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (19-APR-2003) Department of Genetics, Washington
+            University, Genome Sequencing Center, 4444 Forest Park Avenue, St.
+            Louis, MO 63110, USA
+REFERENCE   10 (bases 1 to 31931)
+  CONSRTM   WormBase Consortium
+  TITLE     Direct Submission
+  JOURNAL   Submitted (21-SEP-2004) Department of Genetics, Washington
+            University, Genome Sequencing Center, 4444 Forest Park Avenue, St.
+            Louis, MO 63110, USA
+REFERENCE   11 (bases 1 to 31931)
+  CONSRTM   WormBase Consortium
+  TITLE     Direct Submission
+  JOURNAL   Submitted (10-SEP-2005) Department of Genetics, Washington
+            University, Genome Sequencing Center, 4444 Forest Park Avenue, St.
+            Louis, MO 63110, USA
+REFERENCE   12 (bases 1 to 31931)
+  CONSRTM   WormBase Consortium
+  TITLE     Direct Submission
+  JOURNAL   Submitted (06-MAY-2006) Department of Genetics, Washington
+            University, Genome Sequencing Center, 4444 Forest Park Avenue, St.
+            Louis, MO 63110, USA
+REFERENCE   13 (bases 1 to 31931)
+  CONSRTM   WormBase Consortium
+  TITLE     Direct Submission
+  JOURNAL   Submitted (29-APR-2011) Department of Genetics, Washington
+            University, Genome Sequencing Center, 4444 Forest Park Avenue, St.
+            Louis, MO 63110, USA
+COMMENT     [WARNING] On Oct 13, 2011 this sequence was replaced by
+            gi:351061076.
+            Submitted by:
+                   Genome Sequencing Center
+                   Department of Genetics, Washington University
+                   St. Louis , MO  63110, USA, and
+                   Sanger Centre, Hinxton Hall
+                   Cambridge CB10 IRQ, England
+                   email: stlouis@wormbase.org and sanger@wormbase.org
+            
+            NOTICE:  This sequence may not be the entire insert of this clone.
+            It may be shorter because we only sequence overlapping sections
+            once, or longer because we provide a small overlap between
+            neighboring submissions.
+            
+            This sequence was finished as follows unless otherwise noted: all
+            regions were double stranded, sequenced with an alternate chemistry
+            or covered by high quality data (i.e., phred quality >= 30); an
+            attempt was made to resolve all sequencing problems, such as
+            compressions and repeats; all regions were covered by sequence from
+            more than one m13 subclone.
+            
+            For a graphical representation of this clone sequence and its
+            analysis see:
+            http://www.wormbase.org/db/seq/sequence?name=T01C8
+            
+                        NEIGHBORING CLONE INFORMATION
+            
+            The 5' clone is EGAP8, 200 bp overlap; the 3' clone is F41G4, 2000
+            bp overlap. Actual start of this clone is at base position 1 of
+            T01C8; actual end is at 10488 of F41G4.
+            
+            NOTES:
+            
+            Coding seqences below are the result of integration and manual
+            review of the following data : computer analysis using the program
+            Genefinder (P. Green and L. Hillier, personal communication), the
+            large scale EST projects of Yuji Kohara
+            (http://www.ddbj.nig.ac.jp/c-elegans/html/CE_INDEX.html) and The C.
+            elegans ORFeome cloning project (http://worfdb.dfci.harvard.edu/),
+            similarity to other proteins from BlastX analyses
+            (http://blast.wustl.edu/), sequence conservation with C. briggsae
+            using Jim Kent's WABA alignment program (Genome Research
+            10:1115-1125, 2000), individual C. elegans GenBank submissions,
+            and personal communications with C. elegans researchers. tRNAs
+            are predicted using the program tRNAscan-SE (Lowe, T.M. and
+            Eddy, S.R., 1997, Nucl. Acids. Res., 25, 955-964).
 FEATURES             Location/Qualifiers
      source          1..31931
+                     /organism="Caenorhabditis elegans"
+                     /mol_type="genomic DNA"
+                     /strain="Bristol N2"
+                     /db_xref="taxon:6239"
                      /chromosome="X"
                      /clone="T01C8"
-                     /strain="Bristol N2"
-                     /organism="Caenorhabditis elegans"
-                     /db_xref="taxon:6239"
-     gene            complement(5778..6881)
-                     /gene="T01C8.3"
-                     /note="for a graphical representation of this gene see:
-                     ttp://www.wormbase.org/db/seq/sequence?name=T01C8.3;class
-                     =Sequence"
-     CDS             join(complement(5778..5951),complement(5996..6076),
-                     complement(6123..6219),complement(6268..6317),
-                     complement(6359..6509),complement(6555..6631),
-                     complement(6783..6881))
+     gene            1698..1819
+                     /locus_tag="T01C8.8"
+                     /db_xref="WormBase:WBGene00196318"
+     ncRNA           1698..1819
+                     /locus_tag="T01C8.8"
+                     /ncRNA_class="other"
+                     /product="T01C8.8"
+                     /db_xref="WormBase:T01C8.8"
+                     /db_xref="WormBase:WBGene00196318"
+     gene            complement(5778..7678)
+                     /locus_tag="T01C8.3"
+                     /db_xref="WormBase:WBGene00020144"
+     CDS             complement(join(5778..5951,5996..6076,6123..6219,
+                     6268..6317,6359..6509,6555..6631,7562..7678))
+                     /locus_tag="T01C8.3"
+                     /standard_name="T01C8.3"
+                     /note="contains similarity to Paramecium tetraurelia
+                     Chromosome undetermined scaffold_129, whole genome shotgun
+                     sequence.; TR:A0BUB6; coded for by the following C.
+                     elegans cDNAs: FM864997"
+                     /codon_start=1
                      /product="Hypothetical protein T01C8.3"
-                     /gene="T01C8.3"
-                     /protein_id="AAB00575.1"
-                     /codon_start=1
-                     /translation="MLNHSLPEVWKKTAVSEKNGLQFQKIIVFCPTHGCFTSPTDLPL
-                     GCSTNSRGSIFCICNSTDYCNEMTNVKEEKNITYLICEYAKDSMFRGADCVQPWCVKT
-                     ASSYMDEMVECGEGTYEMEMYDIGFVYSGMLLPINSCYAVADDSRYDKSQICTYKVNK
-                     TTPYKLKVPGSTKCFAPGEVMTRMKNSTCIGQFCYSASAVFGCISQFNREGAILKVTI
-                     FHFEILNKNNNICLTIRNFCKKKL"
-                     /db_xref="GI:1326251"
+                     /protein_id="AAB00575.3"
+                     /db_xref="GI:331028906"
+                     /db_xref="WormBase:T01C8.3"
+                     /db_xref="WormBase:WBGene00020144"
+                     /translation="MQLLENCNFRCTNCTGDYCYAVNYKHLNPSLKNEQSYYQGCFTS
+                     PTDLPLGCSTNSRGSIFCICNSTDYCNEMTNVKEEKNITYLICEYAKDSMFRGADCVQ
+                     PWCVKTASSYMDEMVECGEGTYEMEMYDIGFVYSGMLLPINSCYAVADDSRYDKSQIC
+                     TYKVNKTTPYKLKVPGSTKCFAPGEVMTRMKNSTCIGQFCYSASAVFGCISQFNREGA
+                     ILKVTIFHFEILNKNNNICLTIRNFCKKKL"
+     misc_feature    11227..11228
+                     /note="SL1 trans-splice acceptor; see yk1591b07.5"
+     misc_feature    11227..11228
+                     /note="SL2 defined by RNASeq short reads (Hillier et al.);
+                     see RNASeq_Hillier.dauer_daf-2"
      gene            11238..12262
-                     /gene="T01C8.2"
-                     /note="for a graphical representation of this gene see:
-                     ttp://www.wormbase.org/db/seq/sequence?name=T01C8.2;class
-                     =Sequence"
+                     /locus_tag="T01C8.2"
+                     /db_xref="WormBase:WBGene00020143"
      CDS             join(11238..11384,12167..12262)
-                     /product="Hypothetical protein T01C8.2"
-                     /gene="T01C8.2"
-                     /protein_id="AAB00576.1"
+                     /locus_tag="T01C8.2"
+                     /standard_name="T01C8.2"
+                     /note="contains similarity to Escherichia coli Type 4
+                     prepilin-like proteins leader peptide-processing
+                     enzymes[Includes: Leader peptidase (EC 3.4.23.43)
+                     (Prepilin peptidase); N-smethyltransferase (EC 2.1.1.-)].;
+                     SW:P25960; coded for by the following C. elegans cDNAs:
+                     OSTF201H6_1, OSTR201H6_1, yk725a4.3, yk1428d07.3,
+                     yk1428d07.5, yk1591b07.3, yk1591b07.5,
+                     MM454_FPK17YK01E1TJO"
                      /codon_start=1
+                     /product="Hypothetical protein T01C8.2"
+                     /protein_id="AAB00576.1"
+                     /db_xref="GI:1326252"
+                     /db_xref="WormBase:T01C8.2"
+                     /db_xref="WormBase:WBGene00020143"
                      /translation="MPKQEFNPLDYTGPLIVGAIFCVFLFVISFFVINFFCITKYDDI
                      TKFELMGGKYGWRLGPHPLIVVKKGGFVAEEEVDDA"
-                     /db_xref="GI:1326252"
-                     /note="coded for by the following C. elegans cDNAs:
-                     yk725a4.3"
-     gene            complement(12416..14009)
-                     /gene="T01C8.4"
-                     /note="for a graphical representation of this gene see:
-                     ttp://www.wormbase.org/db/seq/sequence?name=T01C8.4;class
-                     =Sequence"
-     CDS             join(complement(12416..12555),complement(12785..13093),
-                     complement(13138..13358),complement(13606..14009))
+     gene            complement(12416..13336)
+                     /locus_tag="T01C8.4"
+                     /db_xref="WormBase:WBGene00020145"
+     CDS             complement(join(12416..12555,12785..13093,13138..13336))
+                     /locus_tag="T01C8.4"
+                     /standard_name="T01C8.4"
+                     /note="contains similarity to Pfam domain PF00155
+                     (Aminotransferase class I and II); coded for by the
+                     following C. elegans cDNAs: FN888767, FN888768, FN888770,
+                     FM864682"
+                     /codon_start=1
                      /product="Hypothetical protein T01C8.4"
-                     /gene="T01C8.4"
-                     /protein_id="AAB00577.1"
-                     /codon_start=1
-                     /translation="MRLSFFDGIHVASPIKELHTSELFQKEICPVKINLAIEAYRTED
-                     GEPWVLPVVREIELKFPHEPHHNHEYLPILGHDGFCKSATALLLGNDSLAIKEGRSFS
-                     VQCISGTGAICVGAEFLAQVLSMKTIYVSNPCCLCYNPTGMDPTREQWIQMAQVIKQK
-                     NLFTFFHIADQGLASGDADADAWAVRFFVEQGLEMIVSQSFSKNFGLYNDRVGSLTVI
-                     VNKPSHIANLKSQLTLVNVSNFSNPPAYGARIVHEILKSPKYREQWQNSIKMMAFRIK
-                     KTRQELIRELNMLQTSGKWDRITQQSGLFSYTGLTPCQVDHLIAHHKIYLLSDGRINI
-                     CGLNMSNLDYVARAIDDTVRTIH"
-                     /db_xref="GI:1326253"
-                     /note="strong similarity to cytoplasmic aspartate
-                     aminotransferase; coded for by the following C. elegans
-                     cDNAs: cm20g8"
+                     /protein_id="AAB00577.2"
+                     /db_xref="GI:331028907"
+                     /db_xref="WormBase:T01C8.4"
+                     /db_xref="WormBase:WBGene00020145"
+                     /translation="MDPTREQWIQMAQVIKQKNLFTFFHIADQGLASGDADADAWAVR
+                     FFVEQGLEMIVSQSFSKNFGLYNDRVGSLTVIVNKPSHIANLKSQLTLVNVSNFSNPP
+                     AYGARIVHEILKSPKYREQWQNSIKMMAFRIKKTRQELIRELNMLQTSGKWDRITQQS
+                     GLFSYTGLTPCQVDHLIAHHKIYLLSDGRINICGLNMSNLDYVARAIDDTVRTIH"
      gene            complement(16309..17896)
-                     /gene="T01C8.5"
-                     /note="for a graphical representation of this gene see:
-                     ttp://www.wormbase.org/db/seq/sequence?name=T01C8.5;class
-                     =Sequence"
-     CDS             join(complement(16309..16457),complement(16507..16815),
-                     complement(16863..17233),complement(17499..17896))
-                     /product="Hypothetical protein T01C8.5"
-                     /gene="T01C8.5"
-                     /protein_id="AAB00578.1"
+                     /locus_tag="T01C8.5"
+                     /db_xref="WormBase:WBGene00020146"
+     CDS             complement(join(16309..16457,16507..16815,16863..17233,
+                     17499..17896))
+                     /locus_tag="T01C8.5"
+                     /standard_name="T01C8.5"
+                     /note="contains similarity to Pfam domain PF00155
+                     (Aminotransferase class I and II); coded for by the
+                     following C. elegans cDNAs: OSTR040A9_1, OSTR040A9_2,
+                     yk204c10.5, yk327b7.3, yk327b7.5, yk468h3.5, yk503d6.3,
+                     yk503d6.5, yk512b9.3, yk512b9.5, yk597a11.3, yk597a11.5,
+                     yk829h10.3, yk829h10.5, yk899e07.3, yk1020c11.5,
+                     yk1023a07.3, yk1023a07.5, yk1070e06.3, yk1070e06.5,
+                     yk1318d04.3, yk1318d04.5, cm20g8.5, yk1400g10.3,
+                     yk1400g10.5, yk1444g09.3, yk1444g09.5, yk1452e06.3,
+                     yk1452e06.5, yk1471h11.3, yk1471h11.5, yk1500a04.3,
+                     yk1546b06.3, yk1546b06.5, yk1560g10.5, yk1611e03.3,
+                     yk1611e03.5, yk1613g08.3, yk1630a11.5, yk1672d12.3,
+                     yk1672d12.5, yk1675b02.3, yk1675b02.5, yk1755e02.3,
+                     yk1755e02.5, yk899b12.3, yk899b12.5, EC036254, EC029162,
+                     MM454_contig05811, FN906088, FN906090, FN906089, FN906091"
                      /codon_start=1
+                     /product="Hypothetical protein T01C8.5"
+                     /protein_id="AAB00578.1"
+                     /db_xref="GI:1326254"
+                     /db_xref="WormBase:T01C8.5"
+                     /db_xref="WormBase:WBGene00020146"
                      /translation="MSFFDGIPVAPPIEVFHKNKMYLDETAPVKVNLTIGAYRTEEGQ
                      PWVLPVVHETEVEIANDTSLNHEYLPVLGHEGFRKAATELVLGAESPAIKEERSFGVQ
                      CLSGTGALRAGAEFLASVCNMKTVYVSNPTWGNHKLVFKKAGFTTVADYTFWDYDNKR
@@ -154,23 +251,60 @@ FEATURES             Location/Qualifiers
                      QSQMSLVIRANWSNPPAHGARIVHKVLTTPARREQWNQSIQAMSSRIKQMRAALLRHL
                      MDLGTPGTWDHIIQQIGMFSYTGLTSAQVDHLIANHKVFLLRDGRINICGLNTKNVEY
                      VAKAIDETVRAVKSNI"
-                     /db_xref="GI:1326254"
-                     /note="strong similarity to cytoplasmic aspartate
-                     aminotransferase; coded for by the following C. elegans
-                     cDNAs: yk204c10.3, yk327b7.3, yk503d6.3, cm20g8,
-                     yk204c10.5, yk327b7.5, yk468h3.3, yk468h3.5"
+     gene            16755..16901
+                     /locus_tag="T01C8.10"
+                     /db_xref="WormBase:WBGene00201366"
+     ncRNA           16755..16901
+                     /locus_tag="T01C8.10"
+                     /ncRNA_class="other"
+                     /product="T01C8.10"
+                     /db_xref="WormBase:T01C8.10"
+                     /db_xref="WormBase:WBGene00201366"
+     gene            17202..17310
+                     /locus_tag="T01C8.11"
+                     /db_xref="WormBase:WBGene00202374"
+     ncRNA           17202..17310
+                     /locus_tag="T01C8.11"
+                     /ncRNA_class="other"
+                     /product="T01C8.11"
+                     /db_xref="WormBase:T01C8.11"
+                     /db_xref="WormBase:WBGene00202374"
+     misc_feature    complement(17910..17911)
+                     /note="SL1 trans-splice acceptor; see cm20g8.5"
+     misc_feature    complement(17910..17911)
+                     /note="SL2 defined by RNASeq short reads (Hillier et al.);
+                     see RNASeq_Hillier.L1_larva"
+     misc_feature    20870..20871
+                     /note="SL1 trans-splice acceptor; see yk1146c08.5"
+     misc_feature    20870..20871
+                     /note="SL2 defined by RNASeq short reads (Hillier et al.);
+                     see RNASeq_Hillier.dauer_entry_daf-2"
      gene            20873..27634
-                     /gene="T01C8.1"
-                     /note="for a graphical representation of this gene see:
-                     ttp://www.wormbase.org/db/seq/sequence?name=T01C8.1a;clas
-                     s=Sequence"
+                     /gene="aak-2"
+                     /locus_tag="T01C8.1"
+                     /db_xref="WormBase:WBGene00020142"
      CDS             join(20873..21015,24491..24654,24830..25298,25473..25591,
                      25817..25922,26012..26117,26167..26374,26476..26787,
                      27198..27349,27533..27634)
-                     /product="Hypothetical protein T01C8.1b"
-                     /gene="T01C8.1"
-                     /protein_id="AAM69096.1"
+                     /gene="aak-2"
+                     /locus_tag="T01C8.1"
+                     /standard_name="T01C8.1b"
+                     /note="contains similarity to Pfam domains PF07714
+                     (Protein tyrosine kinase), PF00069 (Protein kinase
+                     domain); coded for by the following C. elegans cDNAs:
+                     OSTF004G3_1, OSTR004G3_1, yk114d1.5, yk133b5.5, yk222d7.5,
+                     yk273e10.5, yk298g7.5, yk390b1.5, yk443g12.5, yk507b7.5,
+                     yk607a4.5, yk652d12.5, yk677a2.5, yk848d05.3, yk1005g04.3,
+                     yk1005g04.5, yk1146c08.3, yk1146c08.5, yk1235g04.3,
+                     yk1235g04.5, yk1251g04.3, yk1251g04.5, yk848d05.5,
+                     yk1552h06.3, yk1625b07.3, yk237e11.5, MM454_contig01620"
                      /codon_start=1
+                     /product="Amp-activated kinase protein 2, isoform b,
+                     confirmed by transcript evidence"
+                     /protein_id="AAM69096.1"
+                     /db_xref="GI:21629470"
+                     /db_xref="WormBase:T01C8.1b"
+                     /db_xref="WormBase:WBGene00020142"
                      /translation="MFSHQDRDRDRKEDGGGDGTEMKSKSRSQPSGLNRVKNLSRKLS
                      AKSRKERKDRDSTDNSSKMSSPGGETSTKQQQELKAQIKIGHYILKETLGVGTFGKVK
                      VGIHETTQYKVAVKILNRQKIKSLDVVGKIRREIQNLSLFRHPHIIRLYQVISTPSDI
@@ -183,16 +317,31 @@ FEATURES             Location/Qualifiers
                      APAADPPKMSLQLYQVDQRSYLLDFKSLADEESGSASASSSRHASMSMPQKPAGIRGT
                      RTSSMPQAMSMEASIEKMEVHDFSDMSCDVTPPPSPGGAKLSQTMQFFEICAALIGTL
                      AR"
-                     /db_xref="GI:21629470"
-                     /note="coded for by the following C. elegans cDNAs:
-                     yk237e11.5"
      CDS             join(20873..21015,24491..24654,24830..25298,25473..25591,
                      25817..25922,26012..26117,26173..26374,26476..26787,
                      27198..27349,27533..27634)
-                     /product="Hypothetical protein T01C8.1a"
-                     /gene="T01C8.1"
-                     /protein_id="AAM69095.1"
+                     /gene="aak-2"
+                     /locus_tag="T01C8.1"
+                     /standard_name="T01C8.1a"
+                     /note="contains similarity to Pfam domains PF07714
+                     (Protein tyrosine kinase), PF00069 (Protein kinase
+                     domain); coded for by the following C. elegans cDNAs:
+                     OSTF004G3_1, OSTR004G3_1, yk114d1.5, yk133b5.5, yk222d7.5,
+                     yk273e10.5, yk298g7.5, yk390b1.5, yk402f12.5, yk443g12.5,
+                     yk507b7.5, yk607a4.5, yk617g6.5, yk652d12.5, yk677a2.5,
+                     yk848d05.3, yk1005g04.3, yk1005g04.5, yk1146c08.3,
+                     yk1146c08.5, yk1235g04.3, yk1235g04.5, yk1251g04.3,
+                     yk1251g04.5, yk848d05.5, yk1552h06.3, yk1625b07.3,
+                     yk114d1.3, yk133b5.3, yk222d7.3, yk273e10.3, yk390b1.3,
+                     yk402f12.3, yk607a4.3, yk617g6.3, yk652d12.3, yk677a2.3,
+                     yk1552h06.5, yk1625b07.5, AY347273, MM454_contig01620"
                      /codon_start=1
+                     /product="Amp-activated kinase protein 2, isoform a,
+                     confirmed by transcript evidence"
+                     /protein_id="AAM69095.1"
+                     /db_xref="GI:21629469"
+                     /db_xref="WormBase:T01C8.1a"
+                     /db_xref="WormBase:WBGene00020142"
                      /translation="MFSHQDRDRDRKEDGGGDGTEMKSKSRSQPSGLNRVKNLSRKLS
                      AKSRKERKDRDSTDNSSKMSSPGGETSTKQQQELKAQIKIGHYILKETLGVGTFGKVK
                      VGIHETTQYKVAVKILNRQKIKSLDVVGKIRREIQNLSLFRHPHIIRLYQVISTPSDI
@@ -205,49 +354,93 @@ FEATURES             Location/Qualifiers
                      AADPPKMSLQLYQVDQRSYLLDFKSLADEESGSASASSSRHASMSMPQKPAGIRGTRT
                      SSMPQAMSMEASIEKMEVHDFSDMSCDVTPPPSPGGAKLSQTMQFFEICAALIGTLAR
                      "
-                     /db_xref="GI:21629469"
-                     /note="strong similarity to 5'-AMP-activated protein
-                     kinase; coded for by the following C. elegans cDNAs:
-                     yk443g12.5, yk298g7.5, yk273e10.5, yk390b1.5, yk114d1.3,
-                     yk114d1.5, yk133b5.3, yk133b5.5, yk222d7.3, yk222d7.5,
-                     yk273e10.3, yk390b1.3, yk402f12.3, yk402f12.5"
-     gene            complement(28176..31889)
-                     /gene="mec-4"
-                     /note="for a graphical representation of this gene see:
-                     ttp://www.wormbase.org/db/seq/sequence?name=T01C8.7;class
-                     =Sequence"
-     CDS             join(complement(28176..28361),complement(28501..28576),
-                     complement(28625..28753),complement(28811..28871),
-                     complement(28916..29030),complement(29154..29249),
-                     complement(29301..29473),complement(29567..29655),
-                     complement(29698..29855),complement(29903..30051),
-                     complement(30149..30309),complement(30526..30637),
-                     complement(30690..31052),complement(31100..31355),
-                     complement(31716..31889))
-                     /product="C. elegans MEC-4 protein (corresponding
-                     sequence T01C8.7)"
-                     /gene="mec-4"
-                     /protein_id="AAB00580.2"
+     gene            complement(21899..21958)
+                     /locus_tag="T01C8.9"
+                     /db_xref="WormBase:WBGene00199326"
+     ncRNA           complement(21899..21958)
+                     /locus_tag="T01C8.9"
+                     /ncRNA_class="other"
+                     /product="T01C8.9"
+                     /db_xref="WormBase:T01C8.9"
+                     /db_xref="WormBase:WBGene00199326"
+     misc_feature    24490..24491
+                     /gene="aak-2"
+                     /locus_tag="T01C8.1"
+                     /note="SL1 trans-splice acceptor; see yk848d05.5"
+     misc_feature    24490..24491
+                     /gene="aak-2"
+                     /locus_tag="T01C8.1"
+                     /note="SL2 defined by RNASeq short reads (Hillier et al.);
+                     see RNASeq_Hillier.L1_larva"
+     CDS             join(24534..24654,24830..25298,25473..25591,25817..25922,
+                     26012..26117,26173..26374,26476..26787,27198..27349,
+                     27533..27634)
+                     /gene="aak-2"
+                     /locus_tag="T01C8.1"
+                     /standard_name="T01C8.1c"
+                     /note="contains similarity to Pfam domains PF07714
+                     (Protein tyrosine kinase), PF00069 (Protein kinase
+                     domain); coded for by the following C. elegans cDNAs:
+                     OSTF004G3_1, OSTR004G3_1, yk114d1.5, yk133b5.5, yk222d7.5,
+                     yk273e10.5, yk298g7.5, yk390b1.5, yk402f12.5, yk443g12.5,
+                     yk507b7.5, yk607a4.5, yk617g6.5, yk652d12.5, yk677a2.5,
+                     yk848d05.3, yk848d05.5, yk1005g04.3, yk1005g04.5,
+                     yk1146c08.3, yk1146c08.5, yk1235g04.3, yk1235g04.5,
+                     yk1251g04.3, yk1251g04.5, yk1552h06.3, yk1552h06.5,
+                     yk1625b07.3, yk1625b07.5, FN880253, MM454_contig01620"
                      /codon_start=1
-                     /translation="MQNLKNYQHLRDPSEYMSQVYGDPLAYLQETTKFVTEREYYEDF
-                     GYGECFNSTESEVQCELITGEFDPKLLPYDKRLAWHFKEFCYKTSAHGIPMIGEAPNV
-                     YYRAVWVVLFLGCMIMLYLNAQSVLDKYNRNEKIVDIQLKFDTAPFPAITLCNLNPYK
-                     ASLATSVDLVKRTLSAFDGAMGKAGGNKDHEEEREVVTEPPTTPAPTTKPARRRGKRD
-                     LSGAFFEPGFARCLCGSQGSSEQEDKDEEKEEELLETTTKKVFNINDADEEWDGMEEY
-                     DNEHYENYDVEATTGMNMMEECQSERTKFDEPTGFDDRCICAFDRSTHDAWPCFLNGT
-                     WETTECDTCNEHAFCTKDNKTAKGHRSPCICAPSRFCVAYNGKTPPIEIWTYLQGGTP
-                     TEDPNFLEAMGFQGMTDEVAIVTKAKENIMFAMATLSMQDRERLSTTKRELVHKCSFN
-                     GKACDIEADFLTHIDPAFGSCFTFNHNRTVNLTSIRAGPMYGLRMLVYVNASDYMPTT
-                     EATGVRLTIHDKEDFPFPDTFGYSAPTGYVSSFGLRLRKMSRLPAPYGDCVPDGKTSD
-                     YIYSNYEYSVEGCYRSCFQQLVLKECRCGDPRFPVPENARHCDAADPIARKCLDARMN
-                     DLGGLHGSFRCRCQQPCRQSIYSVTYSPAKWPSLSLQIQLGSCNGTAVECNKHYKENG
-                     AMVEVFYEQLNFEMLTESEAYGFVNLLADFGGQLGLWCGISFLTCCEFVFLFLETAYM
-                     SAEHNYSLYKKKKAEKAKKIASGSF"
-                     /db_xref="GI:15011790"
-                     /note="C. elegans mechanosensory protein 4 (PIR:S13645);
-                     coded for by the following C. elegans cDNAs: yk411c2.3,
-                     yk411c2.5"
-BASE COUNT    10115 a   5759 c   5657 g  10400 t
+                     /product="Amp-activated kinase protein 2, isoform c,
+                     confirmed by transcript evidence"
+                     /protein_id="AAP13770.1"
+                     /db_xref="GI:30025106"
+                     /db_xref="WormBase:T01C8.1c"
+                     /db_xref="WormBase:WBGene00020142"
+                     /translation="MSSPGGETSTKQQQELKAQIKIGHYILKETLGVGTFGKVKVGIH
+                     ETTQYKVAVKILNRQKIKSLDVVGKIRREIQNLSLFRHPHIIRLYQVISTPSDIFMIM
+                     EHVSGGELFDYIVKHGRLKTAEARRFFQQIISGVDYCHRHMVVHRDLKPENLLLDEQN
+                     NVKIADFGLSNIMTDGDFLRTSCGSPNYAAPEVISGKLYAGPEVDVWSCGVILYALLC
+                     GTLPFDDEHVPSLFRKIKSGVFPTPDFLERPIVNLLHHMLCVDPMKRATIKDVIAHEW
+                     FQKDLPNYLFPPINESEASIVDIEAVREVTERYHVAEEEVTSALLGDDPHHHLSIAYN
+                     LIVDNKRIADETAKLSIEEFYQVTPNKGPGPVHRHPERIAASVSSKITPTLDNTEASG
+                     ANRNKRAKWHLGIRSQSRPEDIMFEVFRAMKQLDMEWKVLNPYHVIVRRKPDAPAADP
+                     PKMSLQLYQVDQRSYLLDFKSLADEESGSASASSSRHASMSMPQKPAGIRGTRTSSMP
+                     QAMSMEASIEKMEVHDFSDMSCDVTPPPSPGGAKLSQTMQFFEICAALIGTLAR"
+     gene            complement(28176..31898)
+                     /gene="mec-4"
+                     /locus_tag="T01C8.7"
+                     /db_xref="WormBase:WBGene00003168"
+     CDS             complement(join(28176..28361,28501..28576,28625..28753,
+                     28811..28871,28916..29030,29154..29249,29301..29473,
+                     29567..29655,29698..29855,29903..30051,30149..30309,
+                     30526..30637,30690..31052,31100..31355,31716..31898))
+                     /gene="mec-4"
+                     /locus_tag="T01C8.7"
+                     /standard_name="T01C8.7"
+                     /note="contains similarity to Pfam domain PF00858
+                     (Amiloride-sensitive sodium channel); coded for by the
+                     following C. elegans cDNAs: yk411c2.3, yk411c2.5,
+                     yk1105a08.3, yk1105a08.5, EC002941, RST5_376858, FM864873"
+                     /codon_start=1
+                     /product="Mechanosensory abnormality protein 4, partially
+                     confirmed by transcript evidence"
+                     /protein_id="AAB00580.3"
+                     /db_xref="GI:74356167"
+                     /db_xref="WormBase:T01C8.7"
+                     /db_xref="WormBase:WBGene00003168"
+                     /translation="MSWMQNLKNYQHLRDPSEYMSQVYGDPLAYLQETTKFVTEREYY
+                     EDFGYGECFNSTESEVQCELITGEFDPKLLPYDKRLAWHFKEFCYKTSAHGIPMIGEA
+                     PNVYYRAVWVVLFLGCMIMLYLNAQSVLDKYNRNEKIVDIQLKFDTAPFPAITLCNLN
+                     PYKASLATSVDLVKRTLSAFDGAMGKAGGNKDHEEEREVVTEPPTTPAPTTKPARRRG
+                     KRDLSGAFFEPGFARCLCGSQGSSEQEDKDEEKEEELLETTTKKVFNINDADEEWDGM
+                     EEYDNEHYENYDVEATTGMNMMEECQSERTKFDEPTGFDDRCICAFDRSTHDAWPCFL
+                     NGTWETTECDTCNEHAFCTKDNKTAKGHRSPCICAPSRFCVAYNGKTPPIEIWTYLQG
+                     GTPTEDPNFLEAMGFQGMTDEVAIVTKAKENIMFAMATLSMQDRERLSTTKRELVHKC
+                     SFNGKACDIEADFLTHIDPAFGSCFTFNHNRTVNLTSIRAGPMYGLRMLVYVNASDYM
+                     PTTEATGVRLTIHDKEDFPFPDTFGYSAPTGYVSSFGLRLRKMSRLPAPYGDCVPDGK
+                     TSDYIYSNYEYSVEGCYRSCFQQLVLKECRCGDPRFPVPENARHCDAADPIARKCLDA
+                     RMNDLGGLHGSFRCRCQQPCRQSIYSVTYSPAKWPSLSLQIQLGSCNGTAVECNKHYK
+                     ENGAMVEVFYEQLNFEMLTESEAYGFVNLLADFGGQLGLWCGISFLTCCEFVFLFLET
+                     AYMSAEHNYSLYKKKKAEKAKKIASGSF"
 ORIGIN      
         1 gatcaaaacc caaaaaaaaa tttcattcaa aaatttggtt ctttcttaca agcaaaatgc
        61 gaggaatagg tgagaaggaa ctgagactga aactaaaaat ttgtgaatag aaactaaaaa
@@ -781,5 +974,5 @@ ORIGIN
     31741 aaacattcgc cataaccaaa atcttcataa tattctcttt ctgtcacaaa tttagtcgtc
     31801 tcttgtaagt acgctaacgg gtctccataa acctgggaca tgtactcgga tgggtcccga
     31861 aggtgttggt agtttttcag gttttgcatc catgacattc tataacttga tagcgataaa
-    31921 aaaaatagca t 
+    31921 aaaaatagca t
 //
