@@ -216,12 +216,12 @@ pod2usage(-exitstatus => 0, -verbose => 1,
 #syntax()
 pod2usage(-exitstatus => 0, -verbose => 1,
           -msg => "You must use positive numbers as values to options!")
-  if ( $e_value < 0
-    || $promoter < 0
-    || $matches < 0
-    || $exact_match < 0
-    || $promoter_only < 0
-    || $three_prime < 0 );
+  if ( (defined $e_value && $e_value < 0)
+    || (defined $promoter && $promoter < 0)
+    || (defined $matches && $matches < 0)
+    || (defined $exact_match && $exact_match < 0)
+    || (defined $promoter_only && $promoter_only < 0)
+    || (defined $three_prime && $three_prime < 0 ) );
 
 if ( $matches > 1 && defined $exact_match ) {
     print STDERR "Cannot use both options '-n' and '-o' at the same time\n";
