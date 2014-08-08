@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 307);
+    test_begin(-tests => 314);
 
     use_ok('Bio::Factory::FTLocationFactory');
 }
@@ -82,7 +82,7 @@ my %testcases = (
     "join(1..100,J00194.1:100..202)"
         => [$split_impl, 1,   1,   "EXACT",
                          100, 100, "EXACT",
-                         "EXACT", 2, undef],
+                         "EXACT", 2, 1],
 
     # this variant is not really allowed by the FT definition
     # document but we want to be able to cope with it
@@ -97,7 +97,7 @@ my %testcases = (
     "join(AY016290.1:108..185,AY016291.1:1546..1599)"
         => [$split_impl, 108, 108, "EXACT",
                          185, 185, "EXACT",
-                         "EXACT", 2, undef],
+                         "EXACT", 2, 1],
 
     # UNCERTAIN locations and positions (Swissprot)
     "?2465..2774"
@@ -183,8 +183,31 @@ SKIP: {
     my $loc2     = $locfac->from_string($string2);
     my $loc1_str = $loc1->to_FTstring;
     my $loc2_str = $loc2->to_FTstring;
-    is($loc2_str, 'complement(join(2691..4571,4918..5163))', 'join(complement(4918..5163),complement(2691..4571))');
-    is($loc1_str, $loc2_str, 'equivalent location strings');
+    is($loc1_str, $string1, $string1);
+    is($loc2_str, $string1, $string2);
+    is($loc1_str, $loc2_str, 'equivalent remote location strings');
+
+    # Test for equivalent reverse strand locations adding one remote component
+    $string1  = 'complement(join(TEST0001.1:2691..4571,4918..5163))';
+    $string2  = 'join(complement(4918..5163),complement(TEST0001.1:2691..4571))';
+    $loc1     = $locfac->from_string($string1);
+    $loc2     = $locfac->from_string($string2);
+    $loc1_str = $loc1->to_FTstring;
+    $loc2_str = $loc2->to_FTstring;
+    is($loc1_str, $string1, $string1);
+    is($loc2_str, $string1, $string2);
+    is($loc1_str, $loc2_str, 'equivalent remote location strings');
+
+    # Test for equivalent reverse strand locations adding two remote components
+    $string1  = 'complement(join(TEST0001.1:2691..4571,TEST0008.1:4918..5163))';
+    $string2  = 'join(complement(TEST0008.1:4918..5163),complement(TEST0001.1:2691..4571))';
+    $loc1     = $locfac->from_string($string1);
+    $loc2     = $locfac->from_string($string2);
+    $loc1_str = $loc1->to_FTstring;
+    $loc2_str = $loc2->to_FTstring;
+    is($loc1_str, $string1, $string1);
+    is($loc2_str, $string1, $string2);
+    is($loc1_str, $loc2_str, 'equivalent remote location strings');
 
     # bug #1674, #1765, 2101
     # EMBL-like (BAC19856.3 protein)

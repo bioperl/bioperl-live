@@ -359,30 +359,32 @@ sub guide_strand {
 sub strand{
     my ($self,$value) = @_;
     if( defined $value) {
-		$self->{'strand'} = $value;
-		# propagate to all sublocs
-		foreach my $loc ($self->sub_Location(0)) {
-			$loc->strand($value);
-		}
-    } else {
-		my ($strand, $lstrand);
-		foreach my $loc ($self->sub_Location(0)) {
-			# we give up upon any location that's remote or doesn't have
-			# the strand specified, or has a differing one set than 
-			# previously seen.
-			# calling strand() is potentially expensive if the subloc is also
-			# a split location, so we cache it
-			$lstrand = $loc->strand();
-			if((! $lstrand) ||
-			   ($strand && ($strand != $lstrand)) ||
-			   $loc->is_remote()) {
-			$strand = undef;
-			last;
-			} elsif(! $strand) {
-			$strand = $lstrand;
-			}
-		}
-		return $strand;
+        $self->{'strand'} = $value;
+        # propagate to all sublocs
+        foreach my $loc ($self->sub_Location(0)) {
+            $loc->strand($value);
+        }
+    }
+    else {
+        my ($strand, $lstrand);
+        foreach my $loc ($self->sub_Location(0)) {
+            # we give up upon any location that doesn't have
+            # the strand specified, or has a differing one set than
+            # previously seen.
+            # calling strand() is potentially expensive if the subloc
+            # is also a split location, so we cache it
+            $lstrand = $loc->strand();
+            if (  ! $lstrand
+                or ($strand and ($strand != $lstrand))
+                ) {
+                $strand = undef;
+                last;
+            }
+            elsif (! $strand) {
+                $strand = $lstrand;
+            }
+        }
+        return $strand;
     }
 }
 
