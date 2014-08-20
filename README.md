@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/bioperl/bioperl-live.svg?branch=v1.6.x)](https://travis-ci.org/bioperl/bioperl-live)
+
 # Getting Started
 
 Please see the the `INSTALL` or `INSTALL.WIN` documents for installation
