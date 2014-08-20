@@ -528,10 +528,18 @@ sub DESTROY {
     undef $self->{_nodes};
     undef $self->{_parent2children};
     undef $self->{_parentbtree};
-    unlink catfile($self->{index_directory},'id2names');
-    unlink catfile($self->{index_directory},'names2id');
-    unlink catfile($self->{index_directory},'nodes');
-    unlink catfile($self->{index_directory},'parents');
+
+    # Treat index files as temporary and delete them now if
+    # 'index_directory' match $DEFAULT_INDEX_DIR (which means
+    # that no "-directory" was specified or is an explicit
+    # temporary file)
+    my $default_temp = quotemeta $DEFAULT_INDEX_DIR;
+    if ($self->{index_directory} =~ m/^$default_temp/) {
+        unlink catfile($self->{index_directory},'id2names');
+        unlink catfile($self->{index_directory},'names2id');
+        unlink catfile($self->{index_directory},'nodes');
+        unlink catfile($self->{index_directory},'parents');
+    }
 }
 
 1;
