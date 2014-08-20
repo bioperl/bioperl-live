@@ -8,7 +8,7 @@ BEGIN {
     use Bio::Root::Test;
 
     test_begin(
-        -tests            => 191,
+        -tests            => 202,
         -requires_modules => [ 'DB_File',
                                'XML::Twig' ]
     );
@@ -29,16 +29,46 @@ isa_ok $db_entrez, 'Bio::DB::Taxonomy';
 ok my $db_flatfile = Bio::DB::Taxonomy->new(
     -source    => 'flatfile',
     -nodesfile => test_input_file('taxdump', 'nodes.dmp'),
-    -namesfile => test_input_file('taxdump','names.dmp'),
+    -namesfile => test_input_file('taxdump', 'names.dmp'),
 );
 isa_ok $db_flatfile, 'Bio::DB::Taxonomy::flatfile';
 isa_ok $db_flatfile, 'Bio::DB::Taxonomy';
 
+# By not specifying a '-directory' argument, index files go to a temporary
+# folder ($Bio::Root::IO::TEMPDIR, such as 'C:\Users\USER\AppData\Local\Temp'),
+# and are implied to be temporary. So test the ability of flatfile->DESTROY to
+# remove the temporary index files at object destruction (this also affects files
+# in "test_output_dir()", since the folder is created inside the temporary folder)
+no warnings qw(once); # silence 'Name "$Bio::Root::IO::TEMPDIR" used only once'
+is $db_flatfile->{index_directory}, $Bio::Root::IO::TEMPDIR, 'removal of temporary index files: no -directory';
+$db_flatfile->DESTROY;
+ok not -e ($db_flatfile->{index_directory} . '/id2names');
+ok not -e ($db_flatfile->{index_directory} . '/names2id');
+ok not -e ($db_flatfile->{index_directory} . '/nodes');
+ok not -e ($db_flatfile->{index_directory} . '/parents');
+
+# Test removal of temporary index files from test_output_dir folder
+# (since test_output_dir() =~ m/^$Bio::Root::IO::TEMPDIR/)
 ok $db_flatfile = Bio::DB::Taxonomy->new(
     -source    => 'flatfile',
     -directory => $temp_dir,
     -nodesfile => test_input_file('taxdump', 'nodes.dmp'),
-    -namesfile => test_input_file('taxdump','names.dmp'),
+    -namesfile => test_input_file('taxdump', 'names.dmp'),
+    -force     => 1,
+);
+is $db_flatfile->{index_directory}, $temp_dir, 'removal of temporary index files: test_output_dir()';
+$db_flatfile->DESTROY;
+ok not -e ($db_flatfile->{index_directory} . '/id2names');
+ok not -e ($db_flatfile->{index_directory} . '/names2id');
+ok not -e ($db_flatfile->{index_directory} . '/nodes');
+ok not -e ($db_flatfile->{index_directory} . '/parents');
+
+# Generate the object (and the files) again for the remaining tests
+ok $db_flatfile = Bio::DB::Taxonomy->new(
+    -source    => 'flatfile',
+    -directory => $temp_dir,
+    -nodesfile => test_input_file('taxdump', 'nodes.dmp'),
+    -namesfile => test_input_file('taxdump', 'names.dmp'),
     -force     => 1,
 );
 
