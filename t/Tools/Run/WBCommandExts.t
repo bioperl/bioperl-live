@@ -36,10 +36,12 @@ like ($param_str, qr/--schlurb breb/, 'translate opts to command line');
 like ($param_str, qr/-n 42/, 'translate opts to command line');
 like ($param_str, qr/-f/, 'translate opts to command line');
 
-TODO: {
-    local $TODO ='Determine whether the order of the parameters should be set somehow; this sporadically breaks hash randomization introduced in perl 5.17+';
-    is join(' ',@{$fac->_translate_params}), '--schlurb breb -n 42 -f', "translate opts to command line";
+my @a = @{$fac->_translate_params};
+my ($k, %h);
+for (@a) {
+    (/^-/) ? ( $h{$k = $_} = undef ) : ( $h{$k} = $_ );
 }
+is_deeply( \%h, { '--schlurb' => 'breb', '-n' => 42, '-f' => undef }, 'translate_params: options correct');
 
 ok $fac->reset_parameters, "parm reset";
 ok !$fac->narf, "parm cleared after reset";
