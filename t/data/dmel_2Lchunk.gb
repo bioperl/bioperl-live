@@ -69,10 +69,8 @@ FEATURES             Location/Qualifiers
                      transcript_boundaries:(2L:9,836..21,372[-])
                      cyto:21A2-21A2 gene_info:[CG2671 gene symbol:l(2)gl
                      FBgn0002121 (0 ""reduction of virulence"")]"
-     CDS             join(complement(-2781..-2655),complement(-2589..-2481),
-                     complement(-2220..-1778),complement(-1713..-1071),
-                     complement(-479..-374),complement(-316..875),
-                     complement(934..1712),complement(5886..5945))
+     CDS             complement(join(-2781..-2655,-2589..-2481,-2220..-1778,
+                     -1713..-1071,-479..-374,-316..875,934..1712,5886..5945))
                      /translation="MLKFIRGKGQQPSADRQRYITAQHGFPHKPSALAYDPVLKLMAI
                      GTQTGALKVFGQPGVELYGQHTLLNNSASELNVQLLEWVYGTGRILSLTAANQLILWE
                      PVGATLLPIKTLPFDGKLKKVSSLCCSLSKDLLWIGTEGGNIYQLDLHTFTIKEPVIY
@@ -120,10 +118,8 @@ FEATURES             Location/Qualifiers
                      transcript_boundaries:(2L:9,836..21,372[-])
                      cyto:21A2-21A2 gene_info:[CG2671 gene symbol:l(2)gl
                      FBgn0002121 (0 ""reduction of virulence"")]"
-     CDS             join(complement(-2781..-2655),complement(-2589..-2481),
-                     complement(-2220..-1778),complement(-1713..-1071),
-                     complement(-479..-374),complement(-316..875),
-                     complement(934..1649))
+     CDS             complement(join(-2781..-2655,-2589..-2481,-2220..-1778,
+                     -1713..-1071,-479..-374,-316..875,934..1649))
                      /translation="MAIGTQTGALKVFGQPGVELYGQHTLLNNSASELNVQLLEWVYG
                      TGRILSLTAANQLILWEPVGATLLPIKTLPFDGKLKKVSSLCCSLSKDLLWIGTEGGN
                      IYQLDLHTFTIKEPVIYHDVVLEQVPPAYKLNPGAIESIRQLPNSPSKLLVAYNRGLC
@@ -170,10 +166,8 @@ FEATURES             Location/Qualifiers
                      transcript_boundaries:(2L:9,836..21,372[-])
                      cyto:21A2-21A2 gene_info:[CG2671 gene symbol:l(2)gl
                      FBgn0002121 (0 ""reduction of virulence"")]"
-     CDS             join(complement(-2781..-2655),complement(-2589..-2481),
-                     complement(-2220..-1778),complement(-1713..-1071),
-                     complement(-479..-374),complement(-316..875),
-                     complement(934..1649))
+     CDS             complement(join(-2781..-2655,-2589..-2481,-2220..-1778,
+                     -1713..-1071,-479..-374,-316..875,934..1649))
                      /translation="MAIGTQTGALKVFGQPGVELYGQHTLLNNSASELNVQLLEWVYG
                      TGRILSLTAANQLILWEPVGATLLPIKTLPFDGKLKKVSSLCCSLSKDLLWIGTEGGN
                      IYQLDLHTFTIKEPVIYHDVVLEQVPPAYKLNPGAIESIRQLPNSPSKLLVAYNRGLC
@@ -220,10 +214,8 @@ FEATURES             Location/Qualifiers
                      transcript_boundaries:(2L:9,836..21,372[-])
                      cyto:21A2-21A2 gene_info:[CG2671 gene symbol:l(2)gl
                      FBgn0002121 (0 ""reduction of virulence"")]"
-     CDS             join(complement(-2781..-2655),complement(-2589..-2481),
-                     complement(-2220..-1778),complement(-1713..-1071),
-                     complement(-479..-374),complement(-316..875),
-                     complement(934..1649))
+     CDS             complement(join(-2781..-2655,-2589..-2481,-2220..-1778,
+                     -1713..-1071,-479..-374,-316..875,934..1649))
                      /translation="MAIGTQTGALKVFGQPGVELYGQHTLLNNSASELNVQLLEWVYG
                      TGRILSLTAANQLILWEPVGATLLPIKTLPFDGKLKKVSSLCCSLSKDLLWIGTEGGN
                      IYQLDLHTFTIKEPVIYHDVVLEQVPPAYKLNPGAIESIRQLPNSPSKLLVAYNRGLC
@@ -270,10 +262,8 @@ FEATURES             Location/Qualifiers
                      transcript_boundaries:(2L:9,836..18,583[-])
                      cyto:21A2-21A2 gene_info:[CG2671 gene symbol:l(2)gl
                      FBgn0002121 (0 ""reduction of virulence"")]"
-     CDS             join(complement(-2781..-2655),complement(-2589..-2481),
-                     complement(-2220..-1778),complement(-1713..-1071),
-                     complement(-479..-374),complement(-316..875),
-                     complement(934..1712),complement(3054..3137))
+     CDS             complement(join(-2781..-2655,-2589..-2481,-2220..-1778,
+                     -1713..-1071,-479..-374,-316..875,934..1712,3054..3137))
                      /translation="MLKFIRGKGQQPSADRHRLQKDLFAYRKTAQHGFPHKPSALAYD
                      PVLKLMAIGTQTGALKVFGQPGVELYGQHTLLNNSASELNVQLLEWVYGTGRILSLTA
                      ANQLILWEPVGATLLPIKTLPFDGKLKKVSSLCCSLSKDLLWIGTEGGNIYQLDLHTF
@@ -321,10 +311,8 @@ FEATURES             Location/Qualifiers
                      transcript_boundaries:(2L:9,836..18,583[-])
                      cyto:21A2-21A2 gene_info:[CG2671 gene symbol:l(2)gl
                      FBgn0002121 (0 ""reduction of virulence"")]"
-     CDS             join(complement(-2781..-2655),complement(-2589..-2481),
-                     complement(-2220..-1778),complement(-1713..-1071),
-                     complement(-479..-374),complement(-316..875),
-                     complement(934..1712),complement(3054..3137))
+     CDS             complement(join(-2781..-2655,-2589..-2481,-2220..-1778,
+                     -1713..-1071,-479..-374,-316..875,934..1712,3054..3137))
                      /translation="MLKFIRGKGQQPSADRHRLQKDLFAYRKTAQHGFPHKPSALAYD
                      PVLKLMAIGTQTGALKVFGQPGVELYGQHTLLNNSASELNVQLLEWVYGTGRILSLTA
                      ANQLILWEPVGATLLPIKTLPFDGKLKKVSSLCCSLSKDLLWIGTEGGNIYQLDLHTF
