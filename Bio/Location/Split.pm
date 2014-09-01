@@ -444,10 +444,10 @@ sub flip_strand {
 =cut
 
 sub start {
-    my ($self,$value) = @_;    
+    my ($self,$value) = @_;
     if( defined $value ) {
-	$self->throw("Trying to set the starting point of a split location, ".
-				 "that is not possible, try manipulating the sub Locations");
+        $self->throw(  "Trying to set the starting point of a split location, "
+                     . "that is not possible, try manipulating the sub Locations");
     }
     return $self->SUPER::start();
 }
@@ -463,10 +463,10 @@ sub start {
 =cut
 
 sub end {
-    my ($self,$value) = @_;    
+    my ($self,$value) = @_;
     if( defined $value ) {
-	$self->throw("Trying to set the ending point of a split location, ".
-				 "that is not possible, try manipulating the sub Locations");
+        $self->throw(  "Trying to set the ending point of a split location, "
+                     . "that is not possible, try manipulating the sub Locations");
     }
     return $self->SUPER::end();
 }
@@ -482,15 +482,17 @@ sub end {
 =cut
 
 sub min_start {
-    my ($self, $value) = @_;    
+    my ($self, $value) = @_;
 
     if( defined $value ) {
-	$self->throw("Trying to set the minimum starting point of a split ".
-				 "location, that is not possible, try manipulating the sub Locations");
+        $self->throw(  "Trying to set the minimum starting point of a split "
+                     . "location, that is not possible, try manipulating the sub Locations");
     }
-    my @locs = $self->sub_Location(1);
-    return $locs[0]->min_start() if @locs; 
-    return;
+    # No sort by default because it breaks circular cut by origin features
+    # (like "join(2006035..2007700,1..257)"). Sorting is user responsability.
+    # Assume Start to be 1st segment start and End to be last segment End.
+    my @locs = $self->sub_Location(0);
+    return ( @locs ) ? $locs[0]->min_start : undef;
 }
 
 =head2 max_start
@@ -507,12 +509,14 @@ sub max_start {
     my ($self,$value) = @_;
 
     if( defined $value ) {
-	$self->throw("Trying to set the maximum starting point of a split ".
-				 "location, that is not possible, try manipulating the sub Locations");
+        $self->throw(  "Trying to set the maximum starting point of a split "
+                     . "location, that is not possible, try manipulating the sub Locations");
     }
-    my @locs = $self->sub_Location(1);
-    return $locs[0]->max_start() if @locs; 
-    return;
+    # No sort by default because it breaks circular cut by origin features
+    # (like "join(2006035..2007700,1..257)"). Sorting is user responsability.
+    # Assume Start to be 1st segment start and End to be last segment End.
+    my @locs = $self->sub_Location(0);
+    return ( @locs ) ? $locs[0]->max_start : undef;
 }
 
 =head2 start_pos_type
@@ -530,11 +534,14 @@ sub start_pos_type {
     my ($self,$value) = @_;
 
     if( defined $value ) {
-	$self->throw("Trying to set the start_pos_type of a split location, ".
-				 "that is not possible, try manipulating the sub Locations");
+        $self->throw(  "Trying to set the start_pos_type of a split location, "
+                     . "that is not possible, try manipulating the sub Locations");
     }
-    my @locs = $self->sub_Location();
-    return ( @locs ) ? $locs[0]->start_pos_type() : undef;    
+    # No sort by default because it breaks circular cut by origin features
+    # (like "join(2006035..2007700,1..257)"). Sorting is user responsability.
+    # Assume Start to be 1st segment start and End to be last segment End.
+    my @locs = $self->sub_Location(0);
+    return ( @locs ) ? $locs[0]->start_pos_type : undef;
 }
 
 =head2 min_end
@@ -551,13 +558,37 @@ sub min_end {
     my ($self,$value) = @_;
 
     if( defined $value ) {
-	$self->throw("Trying to set the minimum end point of a split location, ".
-				 "that is not possible, try manipulating the sub Locations");
+        $self->throw(  "Trying to set the minimum end point of a split location, "
+                     . "that is not possible, try manipulating the sub Locations");
     }
-    # reverse sort locations by largest ending to smallest ending
-    my @locs = $self->sub_Location(-1);
-    return $locs[0]->min_end() if @locs; 
-    return;
+    # No sort by default because it breaks circular cut by origin features
+    # (like "join(2006035..2007700,1..257)"). Sorting is user responsability.
+    # Assume Start to be 1st segment start and End to be last segment End.
+    my @locs = $self->sub_Location(0);
+
+    # Return the End corresponding to the same sequence as the top ('master')
+    # if the top seq is undefined, take the first defined in a sublocation.
+    # Example: for "join(1..100,J00194.1:100..202)", End would be 100
+    my $seqid = $self->seq_id;
+    my $i = 0;
+    while (not defined $seqid and $i <= $#locs) {
+        $seqid = $locs[$i++]->seq_id;
+    }
+
+    my @same_id_locs = ($seqid ? grep { $_->seq_id eq $seqid } @locs
+                     :           @locs);
+    # If there is a $seqid but no sublocations have the same id,
+    # try with the first id found in the sublocations instead,
+    # and if that fails return the last segment value
+    if (@locs and not @same_id_locs) {
+        my $first_id;
+        while (not defined $first_id and $i <= $#locs) {
+            $first_id = $locs[$i++]->seq_id;
+        }
+        @same_id_locs = ($first_id ? grep { $_->seq_id eq $first_id } @locs
+                      :              @locs);
+    }
+    return ( @same_id_locs ) ? $same_id_locs[-1]->min_end : undef;
 }
 
 =head2 max_end
@@ -574,13 +605,37 @@ sub max_end {
     my ($self,$value) = @_;
 
     if( defined $value ) {
-	$self->throw("Trying to set the maximum end point of a split location, ".
-				 "that is not possible, try manipulating the sub Locations");
+        $self->throw(  "Trying to set the maximum end point of a split location, "
+                     ."that is not possible, try manipulating the sub Locations");
     }
-    # reverse sort locations by largest ending to smallest ending
-    my @locs = $self->sub_Location(-1);
-    return $locs[0]->max_end() if @locs; 
-    return;
+    # No sort by default because it breaks circular cut by origin features
+    # (like "join(2006035..2007700,1..257)"). Sorting is user responsability.
+    # Assume Start to be 1st segment start and End to be last segment End.
+    my @locs = $self->sub_Location(0);
+
+    # Return the End corresponding to the same sequence as the top ('master')
+    # if the top seq is undefined, take the first defined in a sublocation.
+    # Example: for "join(1..100,J00194.1:100..202)", End would be 100
+    my $seqid = $self->seq_id;
+    my $i = 0;
+    while (not defined $seqid and $i <= $#locs) {
+        $seqid = $locs[$i++]->seq_id;
+    }
+
+    my @same_id_locs = ($seqid ? grep { $_->seq_id eq $seqid } @locs
+                     :           @locs);
+    # If there is a $seqid but no sublocations have the same id,
+    # try with the first id found in the sublocations instead,
+    # and if that fails return the last segment value
+    if (@locs and not @same_id_locs) {
+        my $first_id;
+        while (not defined $first_id and $i <= $#locs) {
+            $first_id = $locs[$i++]->seq_id;
+        }
+        @same_id_locs = ($first_id ? grep { $_->seq_id eq $first_id } @locs
+                      :              @locs);
+    }
+    return ( @same_id_locs ) ? $same_id_locs[-1]->max_end : undef;
 }
 
 =head2 end_pos_type
@@ -598,11 +653,37 @@ sub end_pos_type {
     my ($self,$value) = @_;
 
     if( defined $value ) {
-	$self->throw("Trying to set end_pos_type of a split location, ".
-				 "that is not possible, try manipulating the sub Locations");
+        $self->throw(  "Trying to set end_pos_type of a split location, "
+                     . "that is not possible, try manipulating the sub Locations");
     }
-    my @locs = $self->sub_Location();
-    return ( @locs ) ? $locs[0]->end_pos_type() : undef;    
+    # No sort by default because it breaks circular cut by origin features
+    # (like "join(2006035..2007700,1..257)"). Sorting is user responsability.
+    # Assume Start to be 1st segment start and End to be last segment End.
+    my @locs = $self->sub_Location(0);
+
+    # Return the End corresponding to the same sequence as the top ('master')
+    # if the top seq is undefined, take the first defined in a sublocation.
+    # Example: for "join(1..>100,J00194.1:100..202)", End pos type would be 'AFTER'
+    my $seqid = $self->seq_id;
+    my $i = 0;
+    while (not defined $seqid and $i <= $#locs) {
+        $seqid = $locs[$i++]->seq_id;
+    }
+
+    my @same_id_locs = ($seqid ? grep { $_->seq_id eq $seqid } @locs
+                     :           @locs);
+    # If there is a $seqid but no sublocations have the same id,
+    # try with the first id found in the sublocations instead,
+    # and if that fails return the last segment value
+    if (@locs and not @same_id_locs) {
+        my $first_id;
+        while (not defined $first_id and $i <= $#locs) {
+            $first_id = $locs[$i++]->seq_id;
+        }
+        @same_id_locs = ($first_id ? grep { $_->seq_id eq $first_id } @locs
+                      :              @locs);
+    }
+    return ( @same_id_locs ) ? $same_id_locs[-1]->end_pos_type : undef;
 }
 
 =head2 length
@@ -624,7 +705,7 @@ sub length {
     # of the lengths of the individual segments
     if (! defined $self->guide_strand) {
         for my $loc ( $self->sub_Location(0) ) {
-            $length += abs($loc->end - $loc->start) + 1
+            $length += abs($loc->end - $loc->start) + 1;
         }
     }
     else {

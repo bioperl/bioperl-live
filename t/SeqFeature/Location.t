@@ -109,7 +109,7 @@ $f = Bio::Location::Simple->new(-start  =>30,
 			       -strand =>1);
 $splitlocation->add_sub_Location($f);
 
-$f = Bio::Location::Simple->new(-start  =>18,
+$f = Bio::Location::Simple->new(-start  =>11,
 			       -end    =>22,
 			       -strand =>1);
 $splitlocation->add_sub_Location($f);
@@ -131,12 +131,20 @@ is(scalar($splitlocation->each_Location()), 4);
 
 $splitlocation->add_sub_Location($f);
 
-is($splitlocation->max_end, 90);
-is($splitlocation->min_start, 13);
-is($splitlocation->end, 90);
+# For unsorted split locations like this:
+# ('join(13..30,30..90,11..22,19..20,<50..61)'),
+# BioPerl will assume Start and End belongs to the
+# first and last segments respectively, because sorting
+# would break real cases like circular cut by origin features
+is($splitlocation->end, 61);
 is($splitlocation->start, 13);
 is($splitlocation->sub_Location(),5);
-
+# Minimum Start and Maximum End in unsorted sublocations can be
+# achieved by asking explicitly sub_Location to sort the segments
+my @increase_sort_sublocs = $splitlocation->sub_Location(1);  # Forward sort by Start
+my @decrease_sort_sublocs = $splitlocation->sub_Location(-1); # Reverse sort by End
+is($increase_sort_sublocs[0]->min_start, 11);
+is($decrease_sort_sublocs[0]->max_end,   90);
 
 is($fuzzy->to_FTstring(), '<10..20');
 $fuzzy->strand(-1);
@@ -145,7 +153,7 @@ is($simple->to_FTstring(), '10..20');
 $simple->strand(-1);
 is($simple->to_FTstring(), 'complement(10..20)');
 is( $splitlocation->to_FTstring(), 
-    'join(13..30,30..90,18..22,19..20,<50..61)');
+    'join(13..30,30..90,11..22,19..20,<50..61)');
 
 # test for bug #1074
 $f = Bio::Location::Simple->new(-start  => 5,
@@ -153,11 +161,11 @@ $f = Bio::Location::Simple->new(-start  => 5,
 			       -strand => -1);
 $splitlocation->add_sub_Location($f);
 is( $splitlocation->to_FTstring(), 
-    'join(13..30,30..90,18..22,19..20,<50..61,complement(5..12))',
+    'join(13..30,30..90,11..22,19..20,<50..61,complement(5..12))',
 	'Bugfix 1074');
 $splitlocation->strand(-1);
 is( $splitlocation->to_FTstring(), 
-    'complement(join(13..30,30..90,18..22,19..20,<50..61,5..12))');
+    'complement(join(13..30,30..90,11..22,19..20,<50..61,5..12))');
 
 $f = Bio::Location::Fuzzy->new(-start => '45.60',
 			      -end   => '75^80');

@@ -83,11 +83,8 @@ $seq_obj->add_SeqFeature($cut_feat);
 is $cut_feat->seq->seq,       'TTTTTAA', 'cut by origin sequence';
 is $cut_feat->start,           16,       'cut by origin start using $feat->start';
 is $cut_feat->end,             2,        'cut by origin end using $feat->end';
-TODO: {
-    local $TODO = 'wrong coords for $feat->location->start/end';
-    is $cut_feat->location->start, 16, 'cut by origin start using $feat->location->start';
-    is $cut_feat->location->end,   2,  'cut by origin end using $feat->location->end';
-}
+is $cut_feat->location->start, 16,       'cut by origin start using $feat->location->start';
+is $cut_feat->location->end,   2,        'cut by origin end using $feat->location->end';
 
 SKIP: {
     test_skip(-tests => 3, -requires_module => 'LWP::UserAgent', -requires_networking => 1);
