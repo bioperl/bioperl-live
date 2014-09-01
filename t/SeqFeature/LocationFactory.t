@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 314);
+    test_begin(-tests => 325);
 
     use_ok('Bio::Factory::FTLocationFactory');
 }
@@ -70,6 +70,11 @@ my %testcases = (
     "complement(join(2691..4571,4918..5163))"
         => [$split_impl, 2691, 2691, "EXACT",
                          5163, 5163, "EXACT",
+                         "EXACT", 2, -1],
+    # Partial frameshifted gene at the end of a contig
+    "complement(join(94468..94578,94578..>94889))"
+        => [$split_impl, 94468, 94468, "EXACT",
+                         94889, undef, "AFTER",
                          "EXACT", 2, -1],
     "complement(34..(122.126))"
         => [$fuzzy_impl, 34,  34,  "EXACT",
