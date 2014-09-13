@@ -1,22 +1,26 @@
 # -*-Perl-*- Test Harness script for Bioperl
 
 use strict;
+my $CYCLE;
 my $WEAKEN;
+
 BEGIN {
-	use lib '.';
+    use lib '.';
     use Bio::Root::Test;
-    eval {require Test::Weaken; 1;};
+    eval { require Test::Memory::Cycle; 1; };
+    $CYCLE = $@ ? 0 : 1;
+    eval { require Test::Weaken; 1; };
     $WEAKEN = $@ ? 0 : 1;
-    test_begin(-tests => 23);
-	
-	use_ok('Bio::Species');
-	use_ok('Bio::DB::Taxonomy');
+    test_begin(-tests => 27);
+        
+        use_ok('Bio::Species');
+        use_ok('Bio::DB::Taxonomy');
 }
 
 ok my $sps = Bio::Species->new();
 $sps->classification(qw( sapiens Homo Hominidae
-			 Catarrhini Primates Eutheria Mammalia Vertebrata
-			 Chordata Metazoa Eukaryota));
+             Catarrhini Primates Eutheria Mammalia Vertebrata
+             Chordata Metazoa Eukaryota));
 
 is $sps->binomial, 'Homo sapiens';
 
@@ -26,18 +30,18 @@ is $sps->binomial('FULL'), 'Homo sapiens sapiensis';
 is $sps->sub_species, 'sapiensis';
 
 $sps->classification(qw( sapiens Homo Hominidae
-			 Catarrhini Primates Eutheria Mammalia Vertebrata
-			 Chordata Metazoa Eukaryota));
+             Catarrhini Primates Eutheria Mammalia Vertebrata
+             Chordata Metazoa Eukaryota));
 is $sps->binomial, 'Homo sapiens';
 
 
 # test cmd line initializtion
 ok my $species = Bio::Species->new( -classification => 
-				[ qw( sapiens Homo Hominidae
-				      Catarrhini Primates Eutheria 
-				      Mammalia Vertebrata
-				      Chordata Metazoa Eukaryota) ],
-				-common_name => 'human');
+                [ qw( sapiens Homo Hominidae
+                      Catarrhini Primates Eutheria 
+                      Mammalia Vertebrata
+                      Chordata Metazoa Eukaryota) ],
+                -common_name => 'human');
 is $species->binomial, 'Homo sapiens';
 is $species->species, 'sapiens';
 is $species->genus, 'Homo';
@@ -51,7 +55,7 @@ is $species->rank, 'species';
 # We can make a species object from just an id an db handle
 SKIP: {
     test_skip(-tests => 5, -requires_networking => 1);
-	
+    
     $species = Bio::Species->new(-id => 51351);
     my $taxdb = Bio::DB::Taxonomy->new(-source => 'entrez');
     eval {$species->db_handle($taxdb);};
@@ -64,11 +68,31 @@ SKIP: {
 }
 
 SKIP: {
+    skip("Test::Memory::Cycle not installed, skipping", 2) if !$CYCLE;
+    # this sub leaks, should return true
+    my ($a, $b); $a = \$b; $b = \$a;
+    Test::Memory::Cycle::memory_cycle_exists($a);
+    # this sub shouldn't leak (no circ. refs)
+    $species = Bio::Species->new( -classification => 
+                [ qw( sapiens Homo Hominidae
+                      Catarrhini Primates Eutheria 
+                      Mammalia Vertebrata
+                      Chordata Metazoa Eukaryota) ],
+                -common_name => 'human');
+    Test::Memory::Cycle::memory_cycle_exists($species);
+    
+    # Github issue #81
+    Test::Memory::Cycle::memory_cycle_exists(Bio::Species->new(-classification => ['A']));
+}
+
+SKIP: {
     skip("Test::Weaken not installed, skipping", 2) if !$WEAKEN;
+    
     # this sub leaks, should return true
     ok(Test::Weaken::leaks({
         constructor => sub { my ($a, $b); $a = \$b; $b = \$a}
     }));
+    
     # this sub shouldn't leak (no circ. refs)
     ok(!Test::Weaken::leaks({
       constructor => sub{ Bio::Species->new( -classification => 
@@ -77,6 +101,12 @@ SKIP: {
 				      Mammalia Vertebrata
 				      Chordata Metazoa Eukaryota) ],
 				-common_name => 'human') },
+      }
+    ));
+    
+    # Github issue #81    
+    ok(!Test::Weaken::leaks({
+      constructor => sub{ Bio::Species->new( -classification => ['A']) },
       }
     ));
 }
