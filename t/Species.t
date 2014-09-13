@@ -68,7 +68,7 @@ SKIP: {
 }
 
 SKIP: {
-    skip("Test::Memory::Cycle not installed, skipping", 2) if !$CYCLE;
+    skip("Test::Memory::Cycle not installed, skipping", 3) if !$CYCLE;
     # this sub leaks, should return true
     my ($a, $b); $a = \$b; $b = \$a;
     Test::Memory::Cycle::memory_cycle_exists($a);
@@ -86,7 +86,7 @@ SKIP: {
 }
 
 SKIP: {
-    skip("Test::Weaken not installed, skipping", 2) if !$WEAKEN;
+    skip("Test::Weaken not installed, skipping", 3) if !$WEAKEN;
     
     # this sub leaks, should return true
     ok(Test::Weaken::leaks({
