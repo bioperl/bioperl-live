@@ -1043,15 +1043,16 @@ This includes methods for retrieving, adding, and removing features.
            feature object in order to traverse all features associated
            with this sequence.
 
-           Top-level features can be obtained by tag, specified in 
+           Specific features can be obtained by primary tag, specified in 
            the argument.
 
            Use get_all_SeqFeatures() if you want the feature tree
            flattened into one single array.
 
- Example :
+ Example : my @feats = $seq->get_SeqFeatures or
+           my @genefeats = $seq->get_SeqFeatures('gene')
  Returns : an array of Bio::SeqFeatureI implementing objects
- Args    : [optional] scalar string (feature tag)
+ Args    : [optional] string (feature tag)
 
 =cut
 
@@ -1173,12 +1174,12 @@ sub add_SeqFeature {
 =cut
 
 sub remove_SeqFeatures {
-    my ( $self, $type ) = @_;
+    my ( $self, $tag ) = @_;
     return () unless $self->{'_as_feat'};
 
-    if ( $type ) {
-        my @selected_feats   = grep { $_->primary_tag eq $type } @{ $self->{'_as_feat'} };
-        my @unselected_feats = grep { $_->primary_tag ne $type } @{ $self->{'_as_feat'} };
+    if ( $tag ) {
+        my @selected_feats   = grep { $_->primary_tag eq $tag } @{ $self->{'_as_feat'} };
+        my @unselected_feats = grep { $_->primary_tag ne $tag } @{ $self->{'_as_feat'} };
         $self->{'_as_feat'} = \@unselected_feats;
         return @selected_feats;
     }
