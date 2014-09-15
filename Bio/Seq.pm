@@ -1163,25 +1163,31 @@ sub add_SeqFeature {
 
  Title   : remove_SeqFeatures
  Usage   : $seq->remove_SeqFeatures();
- Function: Flushes all attached SeqFeatureI objects.
-
-           To remove individual feature objects, delete those from the returned
-           array and re-add the rest.
- Example :
- Returns : The array of Bio::SeqFeatureI objects removed from this seq.
- Args    : None
+ Function: Removes all attached SeqFeatureI objects or those with the 
+           specified primary tag
+ Example : my @gene_feats = $seq->remove_seqFeatures('gene') or
+           my @feats = $seq->remove_seqFeatures()
+ Returns : The array of Bio::SeqFeatureI objects removed from the sequence
+ Args    : None, or a feature primary tag
 
 =cut
 
 sub remove_SeqFeatures {
-    my $self = shift;
-
+    my ( $self, $type ) = @_;
     return () unless $self->{'_as_feat'};
-    my @feats = @{$self->{'_as_feat'}};
-    $self->{'_as_feat'} = [];
-    return @feats;
-}
 
+    if ( $type ) {
+        my @selected_feats   = grep { $_->primary_tag eq $type } @{ $self->{'_as_feat'} };
+        my @unselected_feats = grep { $_->primary_tag ne $type } @{ $self->{'_as_feat'} };
+        $self->{'_as_feat'} = \@unselected_feats;
+        return @selected_feats;
+    }
+    else {
+        my @all_feats = @{ $self->{'_as_feat'} };
+        $self->{'_as_feat'} = [];
+        return @all_feats;
+    }
+}
 
 =head1 Methods provided in the Bio::PrimarySeqI interface
 
@@ -1191,8 +1197,8 @@ or other information as expected. See L<Bio::PrimarySeq>
 for more information.
 
 Sequence Features are B<not> transferred to the new objects.
-This is possibly a mistake. Anyone who feels the urge in
-dealing with this is welcome to give it a go.
+To reverse complement and include the features use
+L<Bio::SeqUtils::revcom_with_features>.
 
 =head2 revcom
 

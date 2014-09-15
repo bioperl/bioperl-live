@@ -6,7 +6,7 @@ use strict;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 292);
+    test_begin(-tests => 296);
     use_ok('Bio::SeqIO::genbank');
 }
 
@@ -679,3 +679,17 @@ is($anns[0]->value, 'join(WP_015639704.1:1..205)');
 is($seq->seq, 'MENRKFGYIRVSSKDQNEGRQLEAMRKIGITERDIYLDKQSGKNFERANYQLLKRIIRKGDI'
             . 'LYIHSLDRFGRNKEEILQEWNDLTKNIEADIVVLDMPLLDTTQYKDSMGTFIADLVLQILSWMAEEERERIRK'
             . 'RQREGIDLALQNGIQFGRSPVVVSDEFKEVYRKWKAKELTAVEAMQEAGVKKTSFYKLVKAHENSIKVNS');
+
+$seq = Bio::SeqIO->new(-format => 'genbank',
+                       -file   => test_input_file('YP_007988852.gp') )->next_seq;
+@features = $seq->remove_SeqFeatures;
+is $#features, 10, 'Got 11 features';
+
+$seq = Bio::SeqIO->new(-format => 'genbank',
+                       -file   => test_input_file('YP_007988852.gp') )->next_seq;
+@features = $seq->remove_SeqFeatures('CDS');
+is $#features, 0, 'Got 1 feature';
+is $features[0]->primary_tag, 'CDS', 'Correct primary tag for feature';
+@features = $seq->remove_SeqFeatures;
+is $#features, 9, 'Got 10 features';
+
