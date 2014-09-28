@@ -99,7 +99,8 @@ Address:
 =head2 CONTRIBUTOR
 
  Hilmar Lapp, hlapp at gmx.net
- Chris Mungall,   cjm at fruitfly.org
+ Chris Mungall, cjm at fruitfly.org
+ Brian Osborne, briano@bioteam.net
 
 =head1 APPENDIX
 
@@ -134,7 +135,7 @@ use base qw(Bio::OntologyIO);
  Function: Creates a new dagflat parser.
  Returns : A new dagflat parser object, implementing Bio::OntologyIO.
  Args    : -file      => a single ontology flat file holding the
-                          terms, descriptions and relationships
+                         terms, descriptions and relationships
            -ontology_name => the name of the ontology; if not specified the
                           parser will assign the name of the ontology as the
                           default-namespace header value from the OBO file.
@@ -184,7 +185,6 @@ sub _initialize {
  Example :
  Returns : value of ontology_name (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
-
 
 =cut
 
@@ -252,7 +252,7 @@ sub parse {
         if ( !$term->identifier() || !$term->name() ) {
             $self->throw( "OBO File Format Error on line "
                   . $self->{'_current_line_no'}
-                  . " \nThe term does not have a id/name tag. This term will be ignored.\n"
+                  . "\nThe term does not have a id/name tag. This term will be ignored."
             );
             next;
         }
@@ -715,7 +715,6 @@ sub _next_term {
 
 # Creates a Bio::Ontology::OBOterm object
 sub _create_term_object {
-
     my ($self) = @_;
     my $term = $self->term_factory->create_object();
     $term;
