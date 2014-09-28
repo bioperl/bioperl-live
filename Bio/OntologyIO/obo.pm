@@ -155,18 +155,13 @@ sub _initialize {
     my ( $self, %arg ) = @_;
 
     my ( $file, $name, $eng ) = $self->_rearrange(
-        [
-            qw( FILE
-              ONTOLOGY_NAME
-              ENGINE)
-        ],
-        %arg
+        [ qw( FILE ONTOLOGY_NAME ENGINE) ], %arg
     );
 
     $self->SUPER::_initialize(%arg);
     delete $self->{'_ontologies'};
 
-    # ontology engine (and possibly name if it's an OntologyI)
+    # Ontology engine (and possibly name if it's an OntologyI)
     $eng = Bio::Ontology::OBOEngine->new() unless $eng;
     if ( $eng->isa("Bio::Ontology::OntologyI") ) {
         $self->ontology_name( $eng->name() );
@@ -385,12 +380,10 @@ sub close {
 sub _add_ontology {
     my $self = shift;
     $self->{'_ontologies'} = [] unless exists( $self->{'_ontologies'} );
-    foreach my $ont (@_) {
-        $self->throw(
-            ref($ont) . " does not implement Bio::Ontology::OntologyI" )
-          unless ref($ont) && $ont->isa("Bio::Ontology::OntologyI");
-
-        # the ontology name may have been auto-discovered while parsing
+    for my $ont (@_) {
+        $self->throw( ref($ont) . " does not implement Bio::Ontology::OntologyI" )
+            unless ref($ont) && $ont->isa("Bio::Ontology::OntologyI");
+        # The ontology name may have been auto-discovered while parsing
         # the file
         $ont->name( $self->ontology_name ) unless $ont->name();
         push( @{ $self->{'_ontologies'} }, $ont );
@@ -449,8 +442,7 @@ sub _negatively_regulates_relationship {
 # This simply delegates. See OBOEngine
 sub _add_relationship {
     my ( $self, $parent, $child, $type, $ont ) = @_;
-
-    # note the triple terminology (subject,predicate,object) corresponds to
+    # Note the triple terminology (subject,predicate,object) corresponds to
     # (child,type,parent)
     $self->_ont_engine()->add_relationship( $child, $type, $parent, $ont );
 }
@@ -812,21 +804,7 @@ sub _handle_relationship_tag {
     my @parts        = split( / /, $val );
     my $relationship = uc($parts[0]);
     my $id           = $parts[1] =~ /\^(w+)\s+\!/ ? $1 : $parts[1];
-    my $parent_term  = $self->_create_term_object();
-    $parent_term->identifier($id);
-
-    if ( my $realtionships_hash = $self->{'_relationships'} ) {
-        my $id_array_ref = $$realtionships_hash{$relationship};
-        if ( !$id_array_ref ) {
-            my @ids;
-            push( @ids, $id );
-            $$realtionships_hash{$relationship} = \@ids;
-
-        }
-        else {
-            push( @$id_array_ref, $id );
-        }
-    }
+    push @{$self->{_relationships}->{$relationship}}, $id;
 }
 
 # Convert simple strings to Bio::Annotation::DBLinks
