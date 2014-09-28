@@ -199,25 +199,24 @@ sub ontology_name {
 sub parse {
     my $self = shift;
 
-    # setup the default term factory if not done by anyone yet
-    $self->term_factory(
-        Bio::Ontology::TermFactory->new( -type => "Bio::Ontology::OBOterm" ) )
+    # Setup the default term factory if not done by anyone yet
+    $self->term_factory(Bio::Ontology::TermFactory->new( -type => "Bio::Ontology::OBOterm" ) )
       unless $self->term_factory();
 
-    ## Parse the file header
+    # Parse the file header
     my $annotations_collection = $self->_header();
 
-    # create the default ontology object itself
+    # Create the default ontology object itself
     my $ont = Bio::Ontology::Ontology->new(
         -name   => $self->ontology_name(),
         -engine => $self->_ont_engine()
     );
 
-    ## Assign the file headers
+    # Assign the file headers
     $ont->annotation($annotations_collection);
 
-    # set up the ontology of the relationship types
-    foreach (
+    # Set up the ontology of the relationship types
+    for (
         $self->_part_of_relationship(),
         $self->_is_a_relationship(),
         $self->_related_to_relationship(),
@@ -229,14 +228,12 @@ sub parse {
         $_->ontology($ont);
     }
 
-##################################
     $self->_add_ontology($ont);
-##################################
 
-    ### Adding new terms
+    # Adding new terms
     while ( my $term = $self->_next_term() ) {
 
-        ### CHeck if the terms has a valid ID and NAME otherwise ignore the term
+        # Check if the terms has a valid ID and NAME otherwise ignore the term
         if ( !$term->identifier() || !$term->name() ) {
             $self->throw( "OBO File Format Error on line "
                   . $self->{'_current_line_no'}
@@ -245,24 +242,23 @@ sub parse {
             next;
         }
 
-				#print $term->identifier(),"\t",$term->name(),"\n";
-
-        my $new_ontology_flag    = 1;
+        my $new_ontology_flag = 1;
         my $ontologies_array_ref = $self->{'_ontologies'};
-        foreach my $ontology (@$ontologies_array_ref) {
-            my ($oname, $t_ns) = ($ontology->name(), $term->namespace() );
-            next unless (defined($oname) && defined($t_ns));
+
+        for my $ontology ( @$ontologies_array_ref ) {
+            my ($oname, $t_ns) = ( $ontology->name, $term->namespace );
+            next unless ( defined($oname) && defined($t_ns) );
             if ( $oname eq $t_ns ) {
-                ### No need to create new ontology
+                # No need to create new ontology
                 $new_ontology_flag = 0;
-                $ont               = $ontology;
+                $ont = $ontology;
             }
         }
 
-        if ( $new_ontology_flag && $term->namespace() ) {
+        if ( $new_ontology_flag && $term->namespace ) {
             my $new_ont = Bio::Ontology::Ontology->new(
-                -name   => $term->namespace(),
-                -engine => $self->_ont_engine()
+                -name   => $term->namespace,
+                -engine => $self->_ont_engine
             );
             $new_ont->annotation($annotations_collection);
             $self->_add_ontology($new_ont);
@@ -272,10 +268,10 @@ sub parse {
 
         $self->_add_term( $term, $ont );
 
-        #### Addding the IS_A relationship
+        # Adding the IS_A relationship
         my $isa_parents_array_ref = $self->{'_isa_parents'};
         foreach my $parent_term (@$isa_parents_array_ref) {
-            ### Check if parent exist, if not then add the term to the graph.
+            # Check if parent exists, if not then add the term to the graph.
             if ( !( $self->_has_term($parent_term) ) ) {
                 $self->_add_term( $parent_term, $ont );
             }
@@ -284,41 +280,37 @@ sub parse {
                 $self->_is_a_relationship(), $ont );
         }
 
-        #### Addding the other relationships like part_of, realted_to, develpos_from
+        # Adding the other relationships like part_of, related_to, develops_from
         my $relationship_hash_ref = $self->{'_relationships'};
-        foreach my $relationship ( keys %$relationship_hash_ref ) {
+        for my $relationship ( keys %$relationship_hash_ref ) {
             my $reltype;
-            #### Check if relationship exist, if not add it.
+            # Check if relationship exists, if not add it
             if ( $self->_ont_engine->get_relationship_type($relationship) ) {
-                $reltype =
-                  $self->_ont_engine->get_relationship_type($relationship);
+                $reltype = $self->_ont_engine->get_relationship_type($relationship);
             }
             else {
-                $self->_ont_engine->add_relationship_type( $relationship,
-                    $ont );
-                $reltype =
-                  $self->_ont_engine->get_relationship_type($relationship);
+                $self->_ont_engine->add_relationship_type( $relationship, $ont );
+                $reltype = $self->_ont_engine->get_relationship_type($relationship);
             }
 
-            #### Check if the id already exist in the graph
+            # Check if the id already exists in the graph
             my $id_array_ref = $$relationship_hash_ref{$relationship};
-            foreach my $id (@$id_array_ref) {
+            for my $id (@$id_array_ref) {
                 my $parent_term = $self->_create_term_object();
                 $parent_term->identifier($id);
                 $parent_term->ontology($ont);
 
-                if ( !( $self->_has_term($parent_term) ) ) {
+                if ( ! $self->_has_term($parent_term) ) {
                     $self->_add_term( $parent_term, $ont );
                 }
 
                 $self->_add_relationship( $parent_term, $term, $reltype, $ont );
             }
-
         }
-
     }
+
     return $self->_ont_engine();
-}    # parse
+}
 
 =head2 next_ontology
 
@@ -573,7 +565,6 @@ sub _next_term {
     my $line_counter     = $self->{'_current_line_no'};
 
     while ( my $line = $self->_readline() ) {
-        #print $line."\n";
         ++$line_counter;
         my $line = $self->_filter_line($line);
         if ( !$line && $term ) {
