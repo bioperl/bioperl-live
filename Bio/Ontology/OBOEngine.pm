@@ -296,7 +296,7 @@ sub negatively_regulates_relationship {
  Function: Adds a Bio::Ontology::TermI to this engine
  Returns : true if the term was added and false otherwise (e.g., if the
            term already existed in the ontology engine)
- Args    : Bio::Ontology::TermI
+ Args    : Bio::Ontology::TermI`
 
 =cut
 
@@ -972,8 +972,7 @@ sub _get_id {
     if ( ref($term) ) {
 
         # use TermI standard API
-        $self->throw(
-            "Object doesn't implement Bio::Ontology::TermI. " . "Bummer." )
+        $self->throw( "Object doesn't implement Bio::Ontology::TermI" )
           unless $term->isa("Bio::Ontology::TermI");
         $id = $term->identifier();
 
@@ -986,10 +985,8 @@ sub _get_id {
         }
     }
 
-    return $id
-
-#        if $term->isa("Bio::Ontology::GOterm")||($id =~ /^[A-Z_]{1,8}:\d{1,}$/);
-      if $term->isa("Bio::Ontology::OBOterm") || ( $id =~ /^\w+:\w+$/ );
+    # if $term->isa("Bio::Ontology::GOterm")||($id =~ /^[A-Z_]{1,8}:\d{1,}$/);
+    return $id if $term->isa("Bio::Ontology::OBOterm") || ( $id =~ /^\w+:\w+$/ );
 
     # prefix with something if only numbers
     #     if($id =~ /^\d+$/) {
@@ -1000,8 +997,9 @@ sub _get_id {
     # we shouldn't have gotten here if it's at least a remotely decent ID
     $self->throw( ref($self) . ": non-standard identifier '$id'\n" )
       unless $id =~ /\|/;
+
     return $id;
-}    # _get_id
+} 
 
 # Helper for getting children and parent terms
 sub _get_child_parent_terms_helper {

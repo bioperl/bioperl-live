@@ -265,15 +265,13 @@ sub parse {
             $ont = $new_ont;
         }
 
-
         $self->_add_term( $term, $ont );
 
         # Adding the IS_A relationship
-        my $isa_parents_array_ref = $self->{'_isa_parents'};
-        foreach my $parent_term (@$isa_parents_array_ref) {
+        for my $parent_term ( @{$self->{'_isa_parents'}} ) {
             # Check if parent exists, if not then add the term to the graph.
-            if ( !( $self->_has_term($parent_term) ) ) {
-                $self->_add_term( $parent_term, $ont );
+            if ( ! $self->_has_term($parent_term) ) {
+                $self->_add_term( $parent_term, $ont ); # !
             }
 
             $self->_add_relationship( $parent_term, $term,
@@ -282,7 +280,7 @@ sub parse {
 
         # Adding the other relationships like part_of, related_to, develops_from
         my $relationship_hash_ref = $self->{'_relationships'};
-        for my $relationship ( keys %$relationship_hash_ref ) {
+        for my $relationship ( keys %{$relationship_hash_ref} ) {
             my $reltype;
             # Check if relationship exists, if not add it
             if ( $self->_ont_engine->get_relationship_type($relationship) ) {
@@ -695,7 +693,8 @@ sub _next_term {
             }
         }
     }
-    return $term;
+
+    $term;
 }
 
 # Creates a Bio::Ontology::OBOterm object
