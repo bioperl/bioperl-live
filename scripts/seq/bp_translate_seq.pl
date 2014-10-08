@@ -52,7 +52,7 @@ GetOptions(
 my $oformat = 'fasta';
 
 # this implicity uses the <> file stream
-my $seqin = Bio::SeqIO->new( -format => $format, -file => \*ARGV); 
+my $seqin = Bio::SeqIO->new( -format => $format, -fh => \*ARGV); 
 my $seqout;
 if( $outfile ) {
     $seqout = Bio::SeqIO->new( -format => $oformat, -file => ">$outfile" );
