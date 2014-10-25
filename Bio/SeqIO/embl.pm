@@ -1463,7 +1463,7 @@ sub _write_line_EMBL_regex {
 
   CHUNK: while($line) {
         foreach my $pat ($regex, '[,;\.\/-]\s|'.$regex, '[,;\.\/-]|'.$regex) {
-            if ($line =~ m/^(.{0,$subl})($pat)(.*)/ ) {
+            if ($line =~ m/^(.{1,$subl})($pat)(.*)/ ) {
                 my $l = $1.$2;
                 $l =~ s/#/ /g  # remove word wrap protection char '#'
                     if $pre1 eq "RA   ";
