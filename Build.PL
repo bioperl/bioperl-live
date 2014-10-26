@@ -195,7 +195,6 @@ my $build = Bio::Root::Build->new(
     dist_author         => 'BioPerl Team <bioperl-l@bioperl.org>',
     dist_abstract       => 'Bioinformatics Toolkit',
     license             => 'perl',
-    no_index            => {'x_dir'       => [qw(examples/root/lib)]},
     requires            => {
                             'perl'                      => '5.6.1',
                             'IO::String'                => 0,    # why is this required?
@@ -266,6 +265,8 @@ my $build = Bio::Root::Build->new(
 
     # Extra files needed for BioPerl modules
     xml_files => {'./Bio/DB/HIV/lanl-schema.xml' => 'lib/Bio/DB/HIV/lanl-schema.xml'},
+    
+    debug               => 1,
 
     #pm_files           => {} # modules in Bio are treated as if they were in lib and auto-installed
     #script_files       => [] # scripts in scripts directory are installed on-demand
