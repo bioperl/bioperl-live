@@ -71,3 +71,6 @@
 # Avoid additional run-time generated things
 bioperl\.lisp
 SeqFeature_(BDB|SQLite|Pg|mysql)\.t
+
+# Don't add these files to MANIFEST
+examples/root/lib
