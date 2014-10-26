@@ -540,121 +540,122 @@ EOF
 
 Like the Module::Build version, except that we always get version from
 dist_version
+
 =cut
 
-sub find_dist_packages {
-    my $self = shift;
-
-    # Only packages in .pm files are candidates for inclusion here.
-    # Only include things in the MANIFEST, not things in developer's
-    # private stock.
-
-    my $manifest = $self->_read_manifest('MANIFEST') or die "Can't find dist packages without a MANIFEST file - run 'manifest' action first";
-
-    # Localize
-    my %dist_files = map { $self->localize_file_path($_) => $_ } keys %$manifest;
-
-    my @pm_files = grep {exists $dist_files{$_}} keys %{ $self->find_pm_files };
-
-    my $actual_version = $self->dist_version;
-
-    # First, we enumerate all packages & versions,
-    # seperating into primary & alternative candidates
-    my( %prime, %alt );
-    foreach my $file (@pm_files) {
-        next if $dist_files{$file} =~ m{^t/};  # Skip things in t/
-
-        my @path = split( /\//, $dist_files{$file} );
-        (my $prime_package = join( '::', @path[1..$#path] )) =~ s/\.pm$//;
-
-        my $pm_info = Module::Build::ModuleInfo->new_from_file( $file );
-
-        foreach my $package ( $pm_info->packages_inside ) {
-            next if $package eq 'main';  # main can appear numerous times, ignore
-            next if grep /^_/, split( /::/, $package ); # private package, ignore
-
-            my $version = $pm_info->version( $package );
-            if ($version && $version != $actual_version) {
-                $self->log_warn("Package $package had version $version!\n");
-            }
-            $version = $actual_version;
-
-            if ( $package eq $prime_package ) {
-                if ( exists( $prime{$package} ) ) {
-                    # M::B::ModuleInfo will handle this conflict
-                    die "Unexpected conflict in '$package'; multiple versions found.\n";
-                }
-                else {
-                    $prime{$package}{file} = $dist_files{$file};
-                    $prime{$package}{version} = $version if defined( $version );
-                }
-            }
-            else {
-                push( @{$alt{$package}}, { file => $dist_files{$file}, version => $version } );
-            }
-        }
-    }
-
-    # Then we iterate over all the packages found above, identifying conflicts
-    # and selecting the "best" candidate for recording the file & version
-    # for each package.
-    foreach my $package ( keys( %alt ) ) {
-        my $result = $self->_resolve_module_versions( $alt{$package} );
-
-        if ( exists( $prime{$package} ) ) { # primary package selected
-            if ( $result->{err} ) {
-                # Use the selected primary package, but there are conflicting
-                 # errors amoung multiple alternative packages that need to be
-                 # reported
-                 $self->log_warn("Found conflicting versions for package '$package'\n" .
-                                 "  $prime{$package}{file} ($prime{$package}{version})\n" . $result->{err});
-            }
-            elsif ( defined( $result->{version} ) ) {
-                # There is a primary package selected, and exactly one
-                # alternative package
-
-                if ( exists( $prime{$package}{version} ) && defined( $prime{$package}{version} ) ) {
-                    # Unless the version of the primary package agrees with the
-                    # version of the alternative package, report a conflict
-                    if ( $self->compare_versions( $prime{$package}{version}, '!=', $result->{version} ) ) {
-                        $self->log_warn("Found conflicting versions for package '$package'\n" .
-                                        "  $prime{$package}{file} ($prime{$package}{version})\n" .
-                                        "  $result->{file} ($result->{version})\n");
-                    }
-                }
-                else {
-                  # The prime package selected has no version so, we choose to
-                  # use any alternative package that does have a version
-                  $prime{$package}{file}    = $result->{file};
-                  $prime{$package}{version} = $result->{version};
-                }
-            }
-            else {
-                # no alt package found with a version, but we have a prime
-                # package so we use it whether it has a version or not
-            }
-        }
-        else { # No primary package was selected, use the best alternative
-            if ( $result->{err} ) {
-                $self->log_warn("Found conflicting versions for package '$package'\n" . $result->{err});
-            }
-
-            # Despite possible conflicting versions, we choose to record
-            # something rather than nothing
-            $prime{$package}{file}    = $result->{file};
-            $prime{$package}{version} = $result->{version} if defined( $result->{version} );
-        }
-    }
-
-    # Stringify versions
-    for my $key ( grep { exists $prime{$_}->{version} }
-                  keys %prime ) {
-        $prime{$key}->{version}
-            = $prime{$key}->{version}->stringify if ref($prime{$key}->{version});
-    }
-
-    return \%prime;
-}
+#sub find_dist_packages {
+#    my $self = shift;
+#
+#    # Only packages in .pm files are candidates for inclusion here.
+#    # Only include things in the MANIFEST, not things in developer's
+#    # private stock.
+#
+#    my $manifest = $self->_read_manifest('MANIFEST') or die "Can't find dist packages without a MANIFEST file - run 'manifest' action first";
+#
+#    # Localize
+#    my %dist_files = map { $self->localize_file_path($_) => $_ } keys %$manifest;
+#
+#    my @pm_files = grep {exists $dist_files{$_}} keys %{ $self->find_pm_files };
+#
+#    my $actual_version = $self->dist_version;
+#
+#    # First, we enumerate all packages & versions,
+#    # seperating into primary & alternative candidates
+#    my( %prime, %alt );
+#    foreach my $file (@pm_files) {
+#        next if $dist_files{$file} =~ m{^t/};  # Skip things in t/
+#
+#        my @path = split( /\//, $dist_files{$file} );
+#        (my $prime_package = join( '::', @path[1..$#path] )) =~ s/\.pm$//;
+#
+#        my $pm_info = Module::Build::ModuleInfo->new_from_file( $file );
+#
+#        foreach my $package ( $pm_info->packages_inside ) {
+#            next if $package eq 'main';  # main can appear numerous times, ignore
+#            next if grep /^_/, split( /::/, $package ); # private package, ignore
+#
+#            my $version = $pm_info->version( $package );
+#            if ($version && $version != $actual_version) {
+#                $self->log_warn("Package $package had version $version!\n");
+#            }
+#            $version = $actual_version;
+#
+#            if ( $package eq $prime_package ) {
+#                if ( exists( $prime{$package} ) ) {
+#                    # M::B::ModuleInfo will handle this conflict
+#                    die "Unexpected conflict in '$package'; multiple versions found.\n";
+#                }
+#                else {
+#                    $prime{$package}{file} = $dist_files{$file};
+#                    $prime{$package}{version} = $version if defined( $version );
+#                }
+#            }
+#            else {
+#                push( @{$alt{$package}}, { file => $dist_files{$file}, version => $version } );
+#            }
+#        }
+#    }
+#
+#    # Then we iterate over all the packages found above, identifying conflicts
+#    # and selecting the "best" candidate for recording the file & version
+#    # for each package.
+#    foreach my $package ( keys( %alt ) ) {
+#        my $result = $self->_resolve_module_versions( $alt{$package} );
+#
+#        if ( exists( $prime{$package} ) ) { # primary package selected
+#            if ( $result->{err} ) {
+#                # Use the selected primary package, but there are conflicting
+#                 # errors amoung multiple alternative packages that need to be
+#                 # reported
+#                 $self->log_warn("Found conflicting versions for package '$package'\n" .
+#                                 "  $prime{$package}{file} ($prime{$package}{version})\n" . $result->{err});
+#            }
+#            elsif ( defined( $result->{version} ) ) {
+#                # There is a primary package selected, and exactly one
+#                # alternative package
+#
+#                if ( exists( $prime{$package}{version} ) && defined( $prime{$package}{version} ) ) {
+#                    # Unless the version of the primary package agrees with the
+#                    # version of the alternative package, report a conflict
+#                    if ( $self->compare_versions( $prime{$package}{version}, '!=', $result->{version} ) ) {
+#                        $self->log_warn("Found conflicting versions for package '$package'\n" .
+#                                        "  $prime{$package}{file} ($prime{$package}{version})\n" .
+#                                        "  $result->{file} ($result->{version})\n");
+#                    }
+#                }
+#                else {
+#                  # The prime package selected has no version so, we choose to
+#                  # use any alternative package that does have a version
+#                  $prime{$package}{file}    = $result->{file};
+#                  $prime{$package}{version} = $result->{version};
+#                }
+#            }
+#            else {
+#                # no alt package found with a version, but we have a prime
+#                # package so we use it whether it has a version or not
+#            }
+#        }
+#        else { # No primary package was selected, use the best alternative
+#            if ( $result->{err} ) {
+#                $self->log_warn("Found conflicting versions for package '$package'\n" . $result->{err});
+#            }
+#
+#            # Despite possible conflicting versions, we choose to record
+#            # something rather than nothing
+#            $prime{$package}{file}    = $result->{file};
+#            $prime{$package}{version} = $result->{version} if defined( $result->{version} );
+#        }
+#    }
+#
+#    # Stringify versions
+#    for my $key ( grep { exists $prime{$_}->{version} }
+#                  keys %prime ) {
+#        $prime{$key}->{version}
+#            = $prime{$key}->{version}->stringify if ref($prime{$key}->{version});
+#    }
+#
+#    return \%prime;
+#}
 
 # our recommends syntax contains extra info that needs to be ignored at this
 # stage
