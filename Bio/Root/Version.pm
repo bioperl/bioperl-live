@@ -41,7 +41,7 @@ variable set if it's not already.
 
 =cut
 
-our $VERSION = '1.006924'; # pre-1.7
+our $VERSION = '1.006925'; # pre-1.7
 $VERSION = eval $VERSION;
 
 sub import {
