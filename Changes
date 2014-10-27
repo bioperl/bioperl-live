@@ -17,6 +17,11 @@ Bugs and requested features list:
 CPAN releases are branched from 'master'.
 ---------------------------------------------------------
 
+1.6.925
+
+    * Minor release
+    * Minor fixes in Bio::Root::Build to deal with META.json/yml for CPAN indexing
+
 1.6.924
 
     [Significant changes]
