@@ -260,7 +260,6 @@ my $build = Bio::Root::Build->new(
         }
                            },
     dynamic_config      => 1,
-    #create_makefile_pl  => 'passthrough',
     recursive_test_files => 1,
 
     # Extra files needed for BioPerl modules
@@ -271,24 +270,6 @@ my $build = Bio::Root::Build->new(
 );
 
 my $accept = $build->args('accept');
-
-# how much do I hate this?  Let me count the ways.....
-#if (!$build->feature('EntrezGene')) {
-#    warn <<WARN;
-############################## WARNING #############################
-#
-#Bio::ASN1::EntrezGene not found. This is an *optional* module;
-#however, because it has a circular dependency with BioPerl we do not
-#include it on our list of recommended modules.
-#
-#If you require EntrezGene functionality, you can install
-#Bio::ASN1::EntrezGene after BioPerl has finished installing.
-#
-############################## WARNING #############################
-#
-#WARN
-#    sleep 3;
-#}
 
 my $proceed = prompt_for_biodb($accept)
     if $build->feature('Bio::DB::GFF') || $build->feature('MySQL Tests') ||
