@@ -522,12 +522,13 @@ sub spliced_seq {
     my @locset = $self->location->each_Location;
     my @locs;
     if ( not $nosort ) {
-        @locs = map { $_->[0] }
+#        @locs = map { $_->[0] }
         # sort so that most negative is first basically to order
         # the features on the opposite strand 5'->3' on their strand
         # rather than they way most are input which is on the fwd strand
 
-        sort { $a->[1] <=> $b->[1] } # Yes Tim, Schwartzian transformation
+#        sort { $a->[1] <=> $b->[1] } # Yes Tim, Schwartzian transformation
+		my @proc_locs =
         map {
              $fstrand = $_->strand unless defined $fstrand;
              $mixed   = 1 if defined $_->strand && $fstrand != $_->strand;
@@ -537,6 +538,16 @@ sub spliced_seq {
              }
              [ $_, $_->start * ($_->strand || 1) ];
         } @locset;
+
+		my @sort_locs;
+		if ( $fstrand == 1 ) {
+			@sort_locs = sort { $a->[1] <=> $b->[1] } @proc_locs; # Yes Tim, Schwartzian transformation
+		}elsif ( $fstrand == -1 ){
+			@sort_locs = sort { $b->[1] <=> $a->[1] } @proc_locs; # Yes Tim, Schwartzian transformation
+		} else {
+			@sort_locs = @proc_locs;
+		}
+		@locs = map { $_->[0] } @sort_locs;
 
         if ( $mixed ) {
             $self->warn(  "Mixed strand locations, spliced seq using the "
