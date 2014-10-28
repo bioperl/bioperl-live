@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 362);
+    test_begin(-tests => 364);
 
     use_ok 'Bio::Seq';
     use_ok 'Bio::SeqIO';
@@ -325,3 +325,12 @@ for my $sf (@split_sfs) {
     is $sf->end, $end, 'End';
     is $sf->length, $length, 'Expected length';
 }
+
+# spliced_seq() on the reverse strand, bug #88 (github)
+$seq = Bio::SeqIO->new( -file => test_input_file('AF222649-rc.gbk') )->next_seq;
+# All should start with "ATG"
+for my $feat ( $seq->get_SeqFeatures('CDS') ) {
+    ok $feat->spliced_seq->seq =~ /^ATG/, "Reverse strand is spliced correctly";
+}
+        
+
