@@ -154,7 +154,7 @@ use Bio::SeqIO;
 use HTTP::Request::Common qw (POST);
 use Bio::SeqFeature::Generic;
 use Bio::Seq::Meta::Array;
-
+$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
 
 use base qw(Bio::Tools::Analysis::SimpleAnalysisBase);
 
@@ -195,9 +195,10 @@ sub  _run {
     # delay repeated calls by default by 3 sec, set delay() to change
     $self->sleep;
     $self->status('TERMINATED_BY_ERROR');
-    my $request = POST 'http://npsa-pbil.ibcp.fr/cgi-bin/secpred_hnn.pl',
+    my $request = POST 'https://npsa-prabi.ibcp.fr/cgi-bin/secpred_hnn.pl',
         Content_Type => 'form-data',
-            Content  => [title => "",
+            Content  => [
+			 title => "",
                          notice => $self->seq->seq,
                          ali_width => 70,
                         ];
