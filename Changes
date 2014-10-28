@@ -19,8 +19,19 @@ CPAN releases are branched from 'master'.
 
 1.6.925
 
-    * Minor release
-    * Minor fixes in Bio::Root::Build to deal with META.json/yml for CPAN indexing
+    * WrapperBase quoted option values [majensen]
+    * Various documentation fixes and updates [bosborne]
+    
+   [Bug Fixes]
+   
+    * Fixes in Bio::Root::Build to deal with META.json/yml for CPAN indexing [cjfields]
+    * NeXML parser fixes [fjossandon]
+    * Bug fix for Bio::DB::SeqFeature memory adapter [lstein]
+    * Issue #70: CONTIG parsing in GenBank output fixed [fjossandon]
+    * Issue #76: Circular genome fixes with Bio::Location::Split [fjossandon]
+    * Issue #80: Fix lack of caching issue with Bio::DB::Taxonomy [fjossandon]
+    * Issue #81: small updates to make sure possible memory leaks are detected [cjfields]
+    * Issue #84: EMBL format wrapping problem [nyamned]
 
 1.6.924
 
