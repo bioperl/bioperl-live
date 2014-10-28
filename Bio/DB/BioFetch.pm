@@ -135,7 +135,7 @@ BEGIN {
 	    fasta     => 'fasta',
 	    namespace => 'uniprot',
 	},
-    'uniprot' => {
+	'uniprot' => {
 	    default   => 'swiss',
 	    swissprot => 'swiss',
 	    fasta     => 'fasta',
