@@ -4,15 +4,15 @@
 use strict;
 
 BEGIN {
-	use lib '.';
-	use Bio::Root::Test;
-	
-	test_begin(-tests => 5,
-			   -requires_modules => [qw(IO::String
-									    LWP::UserAgent
-										HTTP::Request::Common)],
-			   -requires_networking => 1);
-	
+        use lib '.';
+        use Bio::Root::Test;
+        
+        test_begin(-tests => 5,
+                        -requires_modules => [qw(IO::String
+                                                LWP::UserAgent
+                        HTTP::Request::Common)],
+                           -requires_networking => 1);
+        
     use_ok('Bio::DB::MeSH');
 }
 
@@ -27,6 +27,6 @@ SKIP: {
     is $t->each_twig(), 2;
     eval {$t = $mesh->get_exact_term("Sinus Thrombosis, Intracranial");};
     skip "Couldn't connect to MeSH with Bio::DB::MeSH. Skipping those tests", 2 if $@;
-    is $t->description, "Formation or presence of a blood clot (THROMBUS) in the CRANIAL SINUSES, large endothelium-lined venous channels situated within the SKULL. Intracranial sinuses, also called cranial venous sinuses, include the superior sagittal, cavernous, lateral, petrous sinuses, and many others. Cranial sinus thrombosis can lead to severe HEADACHE; SEIZURE; and other neurological defects.";
+    like $t->description, qr/Thrombus/i;
     is $t->id, "D012851";
 }
