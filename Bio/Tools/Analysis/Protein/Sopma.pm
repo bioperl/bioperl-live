@@ -154,12 +154,12 @@ use Bio::SeqIO;
 use HTTP::Request::Common qw (POST);
 use Bio::SeqFeature::Generic;
 use Bio::Seq::Meta::Array;
-
+$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
 
 use base qw(Bio::Tools::Analysis::SimpleAnalysisBase);
 
 #extends array for 2struc.
-my $URL = 'http://npsa-pbil.ibcp.fr/cgi-bin/secpred_sopma.pl';
+my $URL = 'https://npsa-prabi.ibcp.fr/cgi-bin/secpred_sopma.pl';
 my $ANALYSIS_NAME= 'Sopma';
 my $ANALYSIS_SPEC= {name => 'Sopma', type => 'Protein'};
 my $INPUT_SPEC = [
@@ -450,7 +450,7 @@ sub  _run {
     # delay repeated calls by default by 3 sec, set delay() to change
     $self->sleep;
     $self->status('TERMINATED_BY_ERROR');
-    my $request = POST 'http://npsa-pbil.ibcp.fr/cgi-bin/secpred_sopma.pl',
+    my $request = POST 'https://npsa-prabi.ibcp.fr/cgi-bin/secpred_sopma.pl',
         Content_Type => 'form-data',
             Content  => [title     => "",
                          notice    => $self->seq->seq,
