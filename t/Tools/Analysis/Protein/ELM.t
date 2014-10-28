@@ -2,7 +2,6 @@
 # $Id$
 
 use strict;
-
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
@@ -41,5 +40,6 @@ exit if $tool->status eq 'TERMINATED_BY_ERROR';
 ok my $raw = $tool->result('');
 print $raw if $verbose;
 ok my $parsed = $tool->result('parsed');
-is $parsed->{'CLV_NDR_NDR_1'}{'locus'}[0], '54-56';
+
+is $parsed->{'CLV_NRD_NRD_1'}{'locus'}[0], '54-56';
 ok my @res = $tool->result('Bio::SeqFeatureI');
