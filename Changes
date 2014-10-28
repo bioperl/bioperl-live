@@ -32,6 +32,7 @@ CPAN releases are branched from 'master'.
     * Issue #80: Fix lack of caching issue with Bio::DB::Taxonomy [fjossandon]
     * Issue #81: small updates to make sure possible memory leaks are detected [cjfields]
     * Issue #84: EMBL format wrapping problem [nyamned]
+    * Fix various Bio::Tools::Analysis remote server config problems [cjfields]
 
 1.6.924
 
