@@ -25,6 +25,7 @@ CPAN releases are branched from 'master'.
    [Bug Fixes]
    
     * Fixes in Bio::Root::Build to deal with META.json/yml for CPAN indexing [cjfields]
+    * Bio::SeqFeature::Generic spliced_seq() bug fix [Eric Snyder, via bosborne]
     * NeXML parser fixes [fjossandon]
     * Bug fix for Bio::DB::SeqFeature memory adapter [lstein]
     * Issue #70: CONTIG parsing in GenBank output fixed [fjossandon]
