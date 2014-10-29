@@ -1,0 +1,91 @@
+LOCUS       AF222649rc              1659 bp    RNA     linear   VRL 10-JAN-2001
+DEFINITION  Influenza A virus (A/Quail/Hong Kong/NT28/99(H9N2)) segment 3 PA
+            (PA) gene, partial cds.
+ACCESSION   AF222649rc
+VERSION     AF222649rc.1  
+KEYWORDS    .
+SOURCE      Influenza A virus (A/Quail/Hong Kong/NT28/99(H9N2))
+  ORGANISM  Influenza A virus (A/Quail/Hong Kong/NT28/99(H9N2))
+            Viruses; ssRNA negative-strand viruses; Orthomyxoviridae;
+            Influenzavirus A.
+REFERENCE   1  (bases 1 to 1659)
+  AUTHORS   Guan,Y., Shortridge,K.F., Krauss,S., Chin,P.S., Dyrting,K.C.,
+            Ellis,T.M., Webster,R.G. and Peiris,M.
+  TITLE     H9N2 influenza viruses possessing H5N1-like internal genomes
+            continue to circulate in poultry in southeastern China
+  JOURNAL   J. Virol. 74 (20), 9372-9380 (2000)
+   PUBMED   11000205
+REFERENCE   2  (bases 1 to 1659)
+  AUTHORS   Guan,Y., Krauss,S., Webster,R.G. and Shortridge,K.F.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (10-JAN-2000) Virology and Molecular Biology, St. Jude
+            Children's Research Hospital, 332 N. Lauderdale, Memphis, TN 38105,
+            USA
+FEATURES             Location/Qualifiers
+     source          complement(1..1659)
+                     /organism="Influenza A virus (A/Quail/Hong
+                     Kong/NT28/99(H9N2))"
+                     /mol_type="genomic RNA"
+                     /strain="A/Quail/Hong Kong/NT28/99(H9N2)"
+                     /db_xref="taxon:109241"
+                     /segment="3"
+     gene            complement(1..1653)
+                     /gene="PA"
+     CDS             complement(1..1653)
+                     /gene="PA"
+                     /codon_start=1
+                     /product="PA"
+                     /protein_id="AAG48207.1"
+                     /db_xref="GI:12060686"
+                     /translation="MEDFVRQCFSPMIVELAEKAMKEYGEDPKIETNKFAAICTHLEV
+                     CFMYSDFHFIDERGESIIVEFGDPNVLLKHRFEIIEGRDRTMAWTVVNSICNTTGVEK
+                     PKYLPDLYDYKENRFIEIGVTRREVHIYYLEKANKIKSERTHIHIFSFTGEEMATKAD
+                     YTLDEESRARIKTRLFTIRQELASRGLWDSFRQSERGEETIEERFEITGTMRRLADQS
+                     LPPNFSSLENFRAYVDGFEPNGCIEGKLSQMSKEVTARIEPFLKTTPRPLKLPDGPPC
+                     SQRSKFLLMDALKLSIEDPSHEGEGIPLYDAIKCMKTFFGWKEPKIIKPHEKGINPNY
+                     LLAWKQVLAELQDIENDEKIPKTKNMKKTSQLKWALGENMAPEKVDFEDCKDVGDLKQ
+                     YDSDEPELKSLASWIQSEFNKACELTDSSWVELDEIGEDVAPIEHIASMRRNYFTAEV
+                     SHCRATEYIMKGVYINTALLNASCAAMDDFQLIPMVSKCRTKEGRRKTNLYGFIIKGR
+                     SHLRNDTDVVNFVSMEFSLTDPRLEPHKWEKYCVLEVGDMLLR"
+     misc_feature    complement(4..1593)
+                     /gene="PA"
+                     /note="Influenza RNA-dependent RNA polymerase subunit PA;
+                     Region: Flu_PA; pfam00603"
+                     /db_xref="CDD:144261"
+     gene            complement(join(1081..1653,894..1079))
+                     /gene="PA-X"
+     CDS             complement(join(1081..1653,894..1079))
+                     /gene="PA-X"
+                     /product="PA-X"
+                     /codon_start=1
+BASE COUNT      374 a    412 c    312 g    561 t
+ORIGIN
+        1 tctcaggagc atgtccccta cttcaagaac acagtacttc tcccacttgt gtggctccaa
+       61 tctcgggtct gtaagagaaa attccatgct cacaaagttt accacatcag tatcattcct
+      121 caaatgggac cttcccttga taatgaaccc atacaggttt gttttccgtc tcccttcttt
+      181 tgttctgcat ttgcttacca ttgggatcaa ttggaagtca tccatggctg cacaagatgc
+      241 attgagcaac gctgtattga tatacactcc cttcattata tactcagtag cccggcaatg
+      301 tgacacttct gctgtgaagt aattccttct catactcgca atgtgctcga ttggggcaac
+      361 atcttctcct atttcatcaa gttctaccca gcttgaatcg gtcagttcac atgccttgtt
+      421 aaattcactc tggatccaac ttgctagcga tttgagctct ggttcatcac tatcatattg
+      481 tttcaggtca ccaacgtctt tgcagtcctc aaagtccact ttctccggtg ccatattctc
+      541 acctaatgcc cattttaatt ggcttgtttt cttcatgttc ttcgtttttg ggatcttttc
+      601 atcattttca atgtcctgga gctctgccag cacctgcttc caagctaaga gataatttgg
+      661 gtttataccc ttctcatgtg gtttgataat tttgggctct ttccagccga aaaatgtttt
+      721 catgcatttg atcgcatcat acagcggtat cccctctccc tcatgactcg ggtcctcaat
+      781 gcttaatttc aaagcatcca tcagtaagaa ttttgacctt tgggaacagg gaggtccatc
+      841 aggcaatttt agaggacgtg gtgttgtttt aagaaagggc tcaattctgg ccgttacctc
+      901 ttttgacatc tgagaaagct tgccctcaat gcagccgttc ggttcgaatc catccacata
+      961 ggctctaaag ttttcaaggc tggagaaatt cggtgggaga ctttggtcgg caagcctgcg
+     1021 cattgttcct gtgatttcaa atctttcttc aattgtctct tcgcctctct cggactgacg
+     1081 aaaggaatcc catagacccc tgctagccag ttcctgtctt atggtgaaca gcctagtttt
+     1141 gatccttgcc ctgctctctt catcaagggt atagtccgcc ttggtggcca tttcttcccc
+     1201 agtaaatgaa aagatgtgaa tgtgtgttct ctcggatttt atcttgttgg ccttttctag
+     1261 atagtatatg tgcacttccc tccgtgtcac tccaatctca atgaatcgat tctccttgta
+     1321 atcatacaga tctggaaggt atttaggttt ttcgactccc gtagtgttac agatgctatt
+     1381 cactactgtc catgccattg ttcggtctct tccttcaatt atttcaaatc ggtgtttcaa
+     1441 taacacattt ggatcaccaa attccacaat tattgattcg cctctttcgt caatgaagtg
+     1501 gaaatctgaa tacatgaagc agacttccag atgagtgcat attgccgcaa acttgttcgt
+     1561 ttcgattttc gggtcttccc cgtactcttt cattgccttt tccgcaagct cgacgatcat
+     1621 tgggctgaag cattgtcgca caaagtcttc cattttgaa
+//
