@@ -87,23 +87,26 @@ $ind->make_index(test_input_file('test.embl'));
 ok ( -e "Wibbl3" || -e "Wibbl3.pag" );
 is ($ind->fetch('AL031232')->length, 4870);
 
-$ind = Bio::Index::Swissprot->new(-filename   => 'Wibbl4',
-                                  -write_flag => 1);
-$ind->make_index(test_input_file('roa1.swiss'));
-ok ( -e "Wibbl4" || -e "Wibbl4.pag" );
-$seq = $ind->fetch('ROA1_HUMAN');
-is ($seq->display_id(), 'ROA1_HUMAN');
-$seq = $ind->fetch('P09651');
-is ($seq->display_id(), 'ROA1_HUMAN');
+SKIP: {
+    test_skip(-tests => 5, -requires_module => 'Data::Stag');
+    $ind = Bio::Index::Swissprot->new(-filename   => 'Wibbl4',
+                                      -write_flag => 1);
+    $ind->make_index(test_input_file('roa1.swiss'));
+    ok ( -e "Wibbl4" || -e "Wibbl4.pag" );
+    $seq = $ind->fetch('ROA1_HUMAN');
+    is ($seq->display_id(), 'ROA1_HUMAN');
+    $seq = $ind->fetch('P09651');
+    is ($seq->display_id(), 'ROA1_HUMAN');
 
-# test id_parser
-$ind = Bio::Index::Swissprot->new(-filename   => 'Wibbl4',
-                                  -write_flag => 1);
-$ind->id_parser(\&get_id);
-$ind->make_index(test_input_file('roa1.swiss'));
-ok ( -e "Wibbl4" || -e "Wibbl4.pag" );
-$seq = $ind->fetch('X12671');
-is ($seq->length,371);
+    # test id_parser
+    $ind = Bio::Index::Swissprot->new(-filename   => 'Wibbl4',
+                                      -write_flag => 1);
+    $ind->id_parser(\&get_id);
+    $ind->make_index(test_input_file('roa1.swiss'));
+    ok ( -e "Wibbl4" || -e "Wibbl4.pag" );
+    $seq = $ind->fetch('X12671');
+    is ($seq->length,371);
+}
 
 
 my $gb_ind = Bio::Index::GenBank->new(-filename => 'Wibbl5',
