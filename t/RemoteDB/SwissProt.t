@@ -10,7 +10,8 @@ BEGIN {
     test_begin(-tests               => 23,
                -requires_modules    => [qw(IO::String
                                            LWP::UserAgent
-                                           HTTP::Request::Common)],
+                                           HTTP::Request::Common
+                                           Data::Stag)],
                -requires_networking => 1);
 
     use_ok('Bio::DB::SwissProt');
