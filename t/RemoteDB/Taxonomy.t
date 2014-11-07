@@ -9,8 +9,9 @@ BEGIN {
 
     test_begin(
         -tests            => 202,
-        -requires_modules => [ 'DB_File',
-                               'XML::Twig' ]
+        -requires_modules => [qw(DB_File
+                                 LWP::UserAgent
+                                 XML::Twig )]
     );
 
     use_ok('Bio::DB::Taxonomy');

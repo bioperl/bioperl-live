@@ -5,13 +5,15 @@ use strict;
 
 BEGIN { 
     use lib '.';
-	use Bio::Root::Test;
-	
-	test_begin(-tests => 16,
-			   -requires_modules => [qw(IO::String HTTP::Request::Common)],
-			   -requires_networking => 1);
-	
-	use_ok('Bio::DB::EMBL');
+    use Bio::Root::Test;
+
+    test_begin(-tests => 16,
+               -requires_modules    => [qw(IO::String
+                                           LWP::UserAgent
+                                           HTTP::Request::Common)],
+               -requires_networking => 1);
+
+    use_ok('Bio::DB::EMBL');
 }
 
 my $verbose = test_debug();

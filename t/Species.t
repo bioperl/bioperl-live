@@ -54,7 +54,9 @@ is $species->rank, 'species';
 
 # We can make a species object from just an id an db handle
 SKIP: {
-    test_skip(-tests => 5, -requires_networking => 1);
+    test_skip(-tests => 5,
+              -requires_module     => 'LWP::UserAgent',
+              -requires_networking => 1);
     
     $species = Bio::Species->new(-id => 51351);
     my $taxdb = Bio::DB::Taxonomy->new(-source => 'entrez');

@@ -63,6 +63,7 @@ SKIP: {
 SKIP: {
     #swissprot
     ok $db2 = Bio::DB::BioFetch->new(-db => 'swissprot');
+    test_skip(-tests => 5, -requires_module => 'Data::Stag');
     eval {
         $seq = $db2->get_Seq_by_id('YNB3_YEAST');
     };

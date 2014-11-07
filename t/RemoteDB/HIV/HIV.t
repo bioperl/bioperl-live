@@ -7,8 +7,10 @@ BEGIN {
     use Bio::Root::Test;
     test_begin(
         -tests => 30,
-        -requires_modules => [qw( XML::Simple HTTP::Request::Common)],
-	);
+        -requires_modules => [qw(LWP::UserAgent
+                                 XML::Simple
+                                 HTTP::Request::Common)],
+        );
     use_ok('Bio::DB::HIV');
     use_ok('Bio::DB::WebDBSeqI');
     use_ok('Bio::DB::HIV::HIVAnnotProcessor');
