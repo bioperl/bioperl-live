@@ -62,10 +62,11 @@ is $trans, 'IGLGTQFVCYM';
 # these now run only with BIOPERLDEBUG set
 
 SKIP: {
-	test_skip(-tests => 12, -requires_networking => 1);
+	test_skip(-tests => 12, -requires_networking => 1, -requires_module => 'LWP::UserAgent');
 	
 	# swissprot
 	SKIP: {
+		test_skip(-tests => 2, -requires_module => 'Data::Stag');
 		eval {
 			$seq_object = get_sequence('swissprot',"ROA1_HUMAN");
 		};

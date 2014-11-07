@@ -59,8 +59,9 @@ is $renzs->each_enzyme, 16;
 ok  $out  = Bio::Restriction::IO->new(-format=>'base');
 
 SKIP: {
-   test_skip(-tests => 3, -requires_networking => 1);
-   #test_skip(-tests => 2, -requires_module => 'LWP::UserAgent');
+   test_skip(-tests => 3,
+             -requires_module     => 'LWP::UserAgent',
+             -requires_networking => 1);
     
     ok  $in  = Bio::Restriction::IO->new(-format=>'prototype',
                                           -current => 1);

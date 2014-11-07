@@ -7,7 +7,8 @@ BEGIN {
     use Bio::Root::Test;
     test_begin(
         -tests => 41,
-        -requires_modules => [qw( XML::Simple )]
+        -requires_modules => [qw(LWP::UserAgent
+                                 XML::Simple )]
     );
     use_ok('Bio::DB::Query::HIVQuery');
     use_ok('Bio::DB::HIV');
