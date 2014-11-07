@@ -184,7 +184,7 @@ option: id
   Option  : id
   Descr   : unique database identifier(s)
   Type    : required
-  Usage   : db=J00231 | id=J00231+BUM
+  Usage   : db=J00231 | id=J00231+HSFOS
   Arg     : string 
 
 The ID option should be able to process all UIDS in a database. It

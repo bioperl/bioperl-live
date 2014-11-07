@@ -23,9 +23,9 @@ Bio::DB::Flat - Interface for indexed flat files
                            -write_flag => 1);
   $db->build_index('/usr/share/embl/primate.embl',
                    '/usr/share/embl/protists.embl');
-  $seq       = $db->get_Seq_by_id('BUM');
+  $seq       = $db->get_Seq_by_id('HSFOS');
   @sequences = $db->get_Seq_by_acc('DIV' => 'primate');
-  $raw       = $db->fetch_raw('BUM');
+  $raw       = $db->fetch_raw('HSFOS');
 
 =head1 DESCRIPTION
 
