@@ -366,12 +366,9 @@ sub  _run {
     my $out = 'http://npsa-pbil.ibcp.fr/'.$next;
     my $req2 = HTTP::Request->new(GET=>$out);
     my $resp2 = $self->request($req2);
-	$self->status('COMPLETED') if $resp2 ne '';
-    print STDERR $resp2->content;
+    $self->status('COMPLETED') if $resp2 ne '';
     $self->{'_result'} = $resp2->content;
 }
-
-
 
 
 1;
