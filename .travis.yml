@@ -36,7 +36,6 @@ install:
 
 script:
     #- "./Build test"
-    - PERL5OPT=-MDevel::Cover=-coverage,subroutine prove -lr t
     - "./Build build && cover -test -report coveralls"
 
 #TODO - send emails to bioperl-guts-l
