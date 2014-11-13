@@ -38,7 +38,7 @@ script:
     #- "./Build test"
     #Devel::Cover coverage options are: statement, branch, condition, path, subroutine, pod, time, all and none
     #- "./Build build && cover -test -report coveralls" #complete version coverage test
-    - PERL5OPT=-MDevel::Cover=+ignore,prove,-coverage,pod,subroutine prove -lr t #limited version coverage test
+    - PERL5OPT=-MDevel::Cover=+ignore,prove,-coverage,statement,subroutine prove -lr t #limited version coverage test
     - cover -report coveralls
 
 #TODO - send emails to bioperl-guts-l
