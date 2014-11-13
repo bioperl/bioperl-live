@@ -38,7 +38,7 @@ script:
     #- "./Build test"
     #- "./Build build && cover -test -report coveralls" #uncomment for complete coverage test
     #Devel::Cover coverage options are: statement, branch, condition, path, subroutine, pod, time, all and none
-    - PERL5OPT=-MDevel::Cover=-subs_only,+ignore,prove prove -lr t #limit -coverage options
+    - PERL5OPT=-MDevel::Cover=+ignore,prove,-subs_only prove -lr t #limit -coverage options
     - cover
 
 after_success:
