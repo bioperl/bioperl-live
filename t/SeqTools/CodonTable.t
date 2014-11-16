@@ -3,11 +3,11 @@
 
 use strict;
 
-BEGIN { 
+BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 71);
+    test_begin(-tests => 81);
 
     use_ok('Bio::Tools::CodonTable');
     use_ok('Bio::CodonUsage::IO');
@@ -23,6 +23,17 @@ isa_ok $myCodonTable, 'Bio::Tools::CodonTable';
 $myCodonTable = Bio::Tools::CodonTable->new();
 is $myCodonTable->id(), 1;
 
+# invalid table should produce a warn and set default table (1)
+my $stderr = '';
+{
+    # capture stderr output
+    local *STDERR;
+    open STDERR, '>', \$stderr;
+    $myCodonTable->id(99);
+}
+like $stderr, qr/Not a valid codon table ID/;
+is $myCodonTable->id, 1;
+
 # change codon table
 $myCodonTable->id(10);
 is $myCodonTable->id, 10;
@@ -30,12 +41,12 @@ is $myCodonTable->name(), 'Euplotid Nuclear';
 
 # enumerate tables as object method
 my $table = $myCodonTable->tables();
-cmp_ok (keys %{$table}, '>=', 17); # currently 17 known tables
-is $table->{11}, q{"Bacterial"};
+cmp_ok (keys %{$table}, '>=', 19); # currently 19 known tables
+is $table->{11}, 'Bacterial, Archaeal and Plant Plastid';
 
 # enumerate tables as class method
 $table = Bio::Tools::CodonTable->tables;
-cmp_ok (values %{$table}, '>=', 17); # currently 17 known tables
+cmp_ok (values %{$table}, '>=', 19); # currently 19 known tables
 is $table->{23}, 'Thraustochytrium Mitochondrial';
 
 # translate codons
@@ -74,7 +85,7 @@ is $myCodonTable->translate('jj',1), '';
 is $myCodonTable->translate('jjg'), 'X';
 is $myCodonTable->translate('jjg',1), 'X';
 
-is $myCodonTable->translate('gt'), ''; 
+is $myCodonTable->translate('gt'), '';
 is $myCodonTable->translate('gt',1), 'V';
 
 is $myCodonTable->translate('g'), '';
@@ -89,20 +100,20 @@ ggkggyggsggvgghggdggbggxgtmgtrgtwgtkgtygtsgtvgthgtdgtbgtxtartaytcmtcrtcwt
 cktcytcstcvtchtcdtcbtcxtgyttrttytramgamggmgrracratrayytaytgytrsaasagsartaa;
 SEQ
     $seq =~ s/\s+//g;
-@ii = grep { length == 3 } split /(.{3})/, $seq; 
+@ii = grep { length == 3 } split /(.{3})/, $seq;
 print join (' ', @ii), "\n" if( $DEBUG);
 my $prot = <<PROT;
 MKNTTTTTTTTTTTRSIIIIQHPPPPPPPPPPPRRRRRRRRRRRLLLLLLLLLLLEDAAAAAAAAAAAGGG
 GGGGGGGGVVVVVVVVVVV*YSSSSSSSSSSSCLF*RRRBBBLLLZZZ*
 PROT
-
     $prot =~ s/\s//;
 @res = split //, $prot;
 print join (' ', @res), "\n" if( $DEBUG );
+
 $test = 1;
 for my $i (0..$#ii) {
     if ($res[$i] ne $myCodonTable->translate($ii[$i]) ) {
-        $test = 0; 
+        $test = 0;
         print $ii[$i], ": |", $res[$i], "| ne |",
         $myCodonTable->translate($ii[$i]),  "| @ $i\n" if( $DEBUG);
         last ;
@@ -110,12 +121,14 @@ for my $i (0..$#ii) {
 }
 ok $test;
 
-# reverse translate amino acids 
+# reverse translate amino acids
 
 is $myCodonTable->revtranslate('U'), 0;
 is $myCodonTable->revtranslate('O'), 0;
 is $myCodonTable->revtranslate('J'), 9;
 is $myCodonTable->revtranslate('I'), 3;
+my @RNA_codons = $myCodonTable->revtranslate('M', 'RNA');
+is $RNA_codons[0], 'aug'; # test RNA output
 
 @ii = qw(A l ACN Thr sER ter Glx);
 @res = (
@@ -144,10 +157,10 @@ $test = 1;
  }
 ok $test;
 
-#  boolean tests
-$myCodonTable->id(1);
+# boolean tests
+$myCodonTable->id(1); # Standard table
 
-ok $myCodonTable->is_start_codon('ATG');  
+ok $myCodonTable->is_start_codon('ATG');
 is $myCodonTable->is_start_codon('GGH'), 0;
 ok $myCodonTable->is_start_codon('HTG');
 is $myCodonTable->is_start_codon('CCC'), 0;
@@ -164,12 +177,9 @@ is $myCodonTable->is_unknown_codon('UAG'), 0;
 
 is $myCodonTable->translate_strict('ATG'), 'M';
 
-
-
 #
 # adding a custom codon table
 #
-
 
 my @custom_table =
     ( 'test1',
@@ -177,7 +187,7 @@ my @custom_table =
     );
 
 ok my $custct = $myCodonTable->add_table(@custom_table);
-is $custct, 25;
+is $custct, 26;
 is $myCodonTable->translate('atgaaraayacmacracwacka'), 'MKNTTTT';
 ok $myCodonTable->id($custct);
 is $myCodonTable->translate('atgaaraayacmacracwacka'), 'MKXXTTT';
@@ -202,18 +212,19 @@ is $myCodonTable->reverse_translate_all($seq), 'GCBWSNNNNTTYCAYAARYTN';
 
 #
 # test reverse_translate_best(), requires a Bio::CodonUsage::Table object
-# 
+#
 
-ok $seq = Bio::PrimarySeq->new(-seq =>'ACDEFGHIKLMNPQRSTVWY');
+ok $seq = Bio::PrimarySeq->new(-seq =>'ACDEFGHIKLMNPQRSTVWYX');
 ok my $io = Bio::CodonUsage::IO->new(-file => test_input_file('MmCT'));
 ok my $cut = $io->next_data();
-is $myCodonTable->reverse_translate_best($seq,$cut), 'GCCTGCGACGAGTTCGGCCACATCAAGCTGATGAACCCCCAGCGCTCCACCGTGTGGTAC';
+is $myCodonTable->reverse_translate_best($seq,$cut), 'GCCTGCGACGAGTTCGGCCACATCAAGCTGATGAACCCCCAGCGCTCCACCGTGTGGTACNNN';
+is $myCodonTable->reverse_translate_all($seq, $cut, 15), 'GCNTGYGAYGARTTYGGVCAYATYAARCTSATGAAYCCNCARMGVWSYACHGTSTGGTAYNNN';
 
 #
 # test 'Strict' table, requires a Bio::CodonUsage::Table object
 #
 
-$myCodonTable = Bio::Tools::CodonTable->new();
+$myCodonTable = Bio::Tools::CodonTable->new(); # Default Standard table
 
 #  boolean tests
 is $myCodonTable->is_start_codon('ATG'), 1;
@@ -222,10 +233,22 @@ is $myCodonTable->is_start_codon('TTG'), 1;
 is $myCodonTable->is_start_codon('CTG'), 1;
 is $myCodonTable->is_start_codon('CCC'), 0;
 
-$myCodonTable->id(24);
+$myCodonTable->id(0); # Special 'Strict' table (ATG-only start)
 
 is $myCodonTable->is_start_codon('ATG'), 1;
 is $myCodonTable->is_start_codon('GTG'), 0;
 is $myCodonTable->is_start_codon('TTG'), 0;
 is $myCodonTable->is_start_codon('CTG'), 0;
 is $myCodonTable->is_start_codon('CCC'), 0;
+
+# Pterobranchia Mitochondrial codon table
+$myCodonTable->id(24);
+is $myCodonTable->is_start_codon('GTG'), 1;
+is $myCodonTable->is_start_codon('CTG'), 1;
+is $myCodonTable->translate_strict('TGA'), 'W';
+
+# Candidate Division SR1 and Gracilibacteria codon table
+$myCodonTable->id(25);
+is $myCodonTable->is_start_codon('GTG'), 1;
+is $myCodonTable->is_start_codon('CTG'), 0;
+is $myCodonTable->translate_strict('TGA'), 'G';
