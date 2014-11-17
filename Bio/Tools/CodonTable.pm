@@ -213,7 +213,7 @@ BEGIN {
      'Bacterial, Archaeal and Plant Plastid',# 11
      'Alternative Yeast Nuclear',# 12
      'Ascidian Mitochondrial',# 13
-     'Alternative Flatworm Mitochondriall',# 14
+     'Alternative Flatworm Mitochondrial',# 14
      'Blepharisma Nuclear',# 15
      'Chlorophycean Mitochondrial',# 16
      '', '',  '', '',
