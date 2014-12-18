@@ -243,6 +243,12 @@ sub _calculate_offsets {
     return \%offsets;
 }
 
+# Compiling the below regular expressions speeds up seq/subseq() by
+# about 7% from 7.76s to 7.22s over 32358 calls on Variant
+# Effect Prediction data.
+
+my $nl = qr/\n/;
+my $cr = qr/\r/;
 
 =head2 seq
 
@@ -289,8 +295,12 @@ sub subseq {
 
     seek($fh, $filestart,0);
     read($fh, $data, $filestop-$filestart+1);
-    $data =~ s/\n//g;
-    $data =~ s/\r//g;
+
+    # The following two s/// statements can take a signficiant portion
+    # of time, in Variant Effect Prediction.  To speed things up we
+    # compile the match.
+    $data =~ s/$nl//g;
+    $data =~ s/$cr//g;
 
     if ($strand == -1) {
         # Reverse-complement the sequence
