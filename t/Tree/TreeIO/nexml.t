@@ -4,7 +4,7 @@
 use strict;
 use Bio::Root::Test;
 test_begin( -tests            => 46,
-            -requires_modules => [qw(Bio::Phylo)]);
+            -requires_modules => [qw(Bio::Phylo XML::Twig)]);
 
 use_ok( 'Bio::Tree::Tree' );
 use_ok( 'Bio::TreeIO' );
