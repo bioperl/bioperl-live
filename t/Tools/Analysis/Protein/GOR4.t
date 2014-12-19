@@ -7,8 +7,9 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 13,
-               -requires_modules => [qw(IO::String LWP::UserAgent)],
+    test_begin(-tests => 0,
+               -requires_modules => [qw(IO::String
+                                        LWP::UserAgent)],
                -requires_networking => 1);
     
     use_ok("Bio::Seq");
@@ -22,7 +23,7 @@ ok my $tool = Bio::Tools::Analysis::Protein::GOR4->new(-seq=>$seq->primary_seq);
 SKIP: {
     ok $tool->run();
     skip "Skipping tests since we got terminated by a server error", 9 if $tool->status eq 'TERMINATED_BY_ERROR';
-    ok my $raw = $tool->result('');
+    ok my $raw    = $tool->result('');
     ok my $parsed = $tool->result('parsed');
     
     is $parsed->[0]{'coil'}, '56';
