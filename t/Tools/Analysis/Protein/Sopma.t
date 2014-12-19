@@ -10,6 +10,7 @@ BEGIN {
     test_begin(-tests => 0,
                -requires_modules => [qw(IO::String
                                         LWP::UserAgent)]);
+               -requires_networking => 1);
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Tools::Analysis::Protein::Sopma');
@@ -28,8 +29,6 @@ ok $tool = Bio::Tools::Analysis::Protein::Sopma->new( -seq=>$seq,
                                                       -window_width => 15);
 
 SKIP: {
-    test_skip(-tests => 12, -requires_networking => 1);
-
     ok $tool->run();
     skip "Tool was terminated by some error: problem connecting to server?", 11 if $tool->status eq 'TERMINATED_BY_ERROR';
 
