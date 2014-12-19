@@ -139,6 +139,48 @@ use base qw(Bio::DB::IndexedBase);
 our $obj_class = 'Bio::PrimarySeq::Fasta';
 our $file_glob = '*.{fa,FA,fasta,FASTA,fast,FAST,dna,DNA,fna,FNA,faa,FAA,fsa,FSA}';
 
+# Compiling the below regular expressions speeds up the Pure Perl
+# seq/subseq() by about 7% from 7.76s to 7.22s over 32358 calls on
+# Variant Effect Prediction data.
+my $nl = qr/\n/;
+my $cr = qr/\r/;
+
+sub strip_nlcr {
+    $_ = shift;
+    # The following two s/// statements can take a signficiant portion
+    # of time, in Variant Effect Prediction. To speed things up we
+    # compile the match portion.
+
+    # print "FOO\n"; # uncomment this to show which routine is called.
+    s/$nl//g;
+    s/$cr//g;
+    return $_;
+}
+
+# C can do the above about much faster. But this requires the Inline::C
+# module. So we wrap the C code in an eval. If the eval works,
+# the above strip_nlcr function is overwritten.
+eval q{
+    use Inline C  => <<'END_OF_C_CODE';
+    /* Strip all new line (\n) and carriage return (\r) characters
+   from string str */
+   SV* strip_nlcr(char* str) {
+       int i, j = 0;
+       int size;
+       size = strlen(str);
+
+       for (i = 0; i < size; i++) {
+	   if (str[i] != '\n' && str[i] != '\r') {
+             if (str[i] == '\0') break;
+             str[j++] = str[i];
+	   }
+       }
+       str[j] = '\0';
+       return newSVpv(str, j);
+   }
+END_OF_C_CODE
+};
+
 
 =head2 new
 
@@ -243,13 +285,6 @@ sub _calculate_offsets {
     return \%offsets;
 }
 
-# Compiling the below regular expressions speeds up seq/subseq() by
-# about 7% from 7.76s to 7.22s over 32358 calls on Variant
-# Effect Prediction data.
-
-my $nl = qr/\n/;
-my $cr = qr/\r/;
-
 =head2 seq
 
  Title   : seq, sequence, subseq
@@ -296,11 +331,7 @@ sub subseq {
     seek($fh, $filestart,0);
     read($fh, $data, $filestop-$filestart+1);
 
-    # The following two s/// statements can take a signficiant portion
-    # of time, in Variant Effect Prediction.  To speed things up we
-    # compile the match.
-    $data =~ s/$nl//g;
-    $data =~ s/$cr//g;
+    $data = strip_nlcr($data);
 
     if ($strand == -1) {
         # Reverse-complement the sequence
