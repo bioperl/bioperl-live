@@ -241,7 +241,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::DB::IndexedBase;
 
 BEGIN {
-    @AnyDBM_File::ISA = qw(DB_File GDBM_File NDBM_File SDBM_File) 
+    @AnyDBM_File::ISA = qw(DB_File GDBM_File NDBM_File SDBM_File)
         if(!$INC{'AnyDBM_File.pm'});
 }
 
@@ -682,6 +682,8 @@ sub _close_index {
     return 1;
 }
 
+# Compiling the below regular expression speeds up _parse_compound_id
+my $compound_id = qr/^ (.+?) (?:\:([\d_]+)(?:,|-|\.\.)([\d_]+))? (?:\/(.+))? $/x;
 
 sub _parse_compound_id {
     # Handle compound IDs:
@@ -699,7 +701,7 @@ sub _parse_compound_id {
     if ( (not defined $start ) &&
          (not defined $stop  ) &&
          (not defined $strand) &&
-         ($id =~ /^ (.+?) (?:\:([\d_]+)(?:,|-|\.\.)([\d_]+))? (?:\/(.+))? $/x) ) {
+         ($id =~ m{$compound_id}) ) {
         # Start, stop and strand not provided and ID looks like a compound ID
         ($id, $start, $stop, $strand) = ($1, $2, $3, $4);
     }
