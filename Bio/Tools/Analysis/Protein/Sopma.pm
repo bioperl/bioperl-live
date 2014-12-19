@@ -465,6 +465,7 @@ sub  _run {
 
     #### get text only version of results ## 
     my ($next) = $text =~ /Prediction.*?=(.*?)>/;
+    return $self unless $next;
     my $out    = "http://npsa-pbil.ibcp.fr/". "$next";
     my $req2   = HTTP::Request->new(GET=>$out);
     my $resp2  = $self->request ($req2);
