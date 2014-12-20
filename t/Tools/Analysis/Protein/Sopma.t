@@ -9,7 +9,7 @@ BEGIN {
 
     test_begin(-tests => 0,
                -requires_modules => [qw(IO::String
-                                        LWP::UserAgent)]);
+                                        LWP::UserAgent)],
                -requires_networking => 1);
 
     use_ok('Bio::PrimarySeq');
