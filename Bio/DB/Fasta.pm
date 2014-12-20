@@ -163,21 +163,19 @@ sub strip_crnl {
 eval q{
     use Inline C  => <<'END_OF_C_CODE';
     /* Strip all new line (\n) and carriage return (\r) characters
-   from string str */
-   SV* strip_crnl(char* str) {
-       int i, j = 0;
-       int size;
-       size = strlen(str);
-
-       for (i = 0; i < size; i++) {
-	   if (str[i] != '\n' && str[i] != '\r') {
-             if (str[i] == '\0') break;
-             str[j++] = str[i];
-	   }
-       }
-       str[j] = '\0';
-       return newSVpv(str, j);
-   }
+       from string str
+    */
+    char* strip_crnl(char* str) {
+        char *s;
+        char *s2 = str;
+        for (s = str; *s; *s++) {
+	    if (*s != '\n' && *s != '\r') {
+              *s2++ = *s;
+	    }
+        }
+        *s2 = '\0';
+        return str;
+    }
 END_OF_C_CODE
 };
 
@@ -373,8 +371,7 @@ sub header {
     read($fh, $data, $headerlen);
     # On Windows chomp remove '\n' but leaves '\r'
     # when reading '\r\n' in binary mode
-    $data =~ s/\n//g;
-    $data =~ s/\r//g;
+    $data = strip_crnl($data);
     substr($data, 0, 1) = '';
     return $data;
 }
