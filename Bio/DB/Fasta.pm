@@ -145,26 +145,26 @@ our $file_glob = '*.{fa,FA,fasta,FASTA,fast,FAST,dna,DNA,fna,FNA,faa,FAA,fsa,FSA
 my $nl = qr/\n/;
 my $cr = qr/\r/;
 
-sub strip_nlcr {
-    $_ = shift;
-    # The following two s/// statements can take a signficiant portion
-    # of time, in Variant Effect Prediction. To speed things up we
-    # compile the match portion.
-
-    # print "FOO\n"; # uncomment this to show which routine is called.
-    s/$nl//g;
-    s/$cr//g;
-    return $_;
+# Remove carriage returns (\r) and newlines (\n) from a string.  When
+# called from subseq, this can take a signficiant portion of time, in
+# Variant Effect Prediction. Therefore we compile the match
+# portion.
+sub strip_crnl {
+    my $str = shift;
+    $str =~ s/$nl//g;
+    $str =~ s/$cr//g;
+    return $str;
 }
 
-# C can do the above about much faster. But this requires the Inline::C
-# module. So we wrap the C code in an eval. If the eval works,
-# the above strip_nlcr function is overwritten.
+# C can do perfrom strip_crnl much faster. But this requires the
+# Inline::C module which we don't require people to have. So we make
+# this optional by wrapping the C code in an eval. If the eval works,
+# the Perl strip_crnl() function is overwritten.
 eval q{
     use Inline C  => <<'END_OF_C_CODE';
     /* Strip all new line (\n) and carriage return (\r) characters
    from string str */
-   SV* strip_nlcr(char* str) {
+   SV* strip_crnl(char* str) {
        int i, j = 0;
        int size;
        size = strlen(str);
@@ -331,7 +331,7 @@ sub subseq {
     seek($fh, $filestart,0);
     read($fh, $data, $filestop-$filestart+1);
 
-    $data = strip_nlcr($data);
+    $data = strip_crnl($data);
 
     if ($strand == -1) {
         # Reverse-complement the sequence

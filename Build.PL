@@ -105,6 +105,8 @@ my %recommends = (
         '/Bio::DB::*,Bio::Tools::Run::RemoteBlast,'.
         'Bio::Tools::Analysis::Protein*,Bio::Tools::Analysis::DNA*'],
 
+    'Inline::C'                => [0.67,
+        'Speeding up code like Fasta Bio::DB::Fasta'],
     'IO::Scalar'               => [0,
         'Deal with non-seekable filehandles/Bio::Tools::GuessSeqFormat'],
 
@@ -264,7 +266,7 @@ my $build = Bio::Root::Build->new(
 
     # Extra files needed for BioPerl modules
     xml_files => {'./Bio/DB/HIV/lanl-schema.xml' => 'lib/Bio/DB/HIV/lanl-schema.xml'},
-    
+
     #pm_files           => {} # modules in Bio are treated as if they were in lib and auto-installed
     #script_files       => [] # scripts in scripts directory are installed on-demand
 );
