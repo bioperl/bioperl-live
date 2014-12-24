@@ -139,6 +139,46 @@ use base qw(Bio::DB::IndexedBase);
 our $obj_class = 'Bio::PrimarySeq::Fasta';
 our $file_glob = '*.{fa,FA,fasta,FASTA,fast,FAST,dna,DNA,fna,FNA,faa,FAA,fsa,FSA}';
 
+# Compiling the below regular expressions speeds up the Pure Perl
+# seq/subseq() by about 7% from 7.76s to 7.22s over 32358 calls on
+# Variant Effect Prediction data.
+my $nl = qr/\n/;
+my $cr = qr/\r/;
+
+# Remove carriage returns (\r) and newlines (\n) from a string.  When
+# called from subseq, this can take a signficiant portion of time, in
+# Variant Effect Prediction. Therefore we compile the match
+# portion.
+sub strip_crnl {
+    my $str = shift;
+    $str =~ s/$nl//g;
+    $str =~ s/$cr//g;
+    return $str;
+}
+
+# C can do perfrom strip_crnl much faster. But this requires the
+# Inline::C module which we don't require people to have. So we make
+# this optional by wrapping the C code in an eval. If the eval works,
+# the Perl strip_crnl() function is overwritten.
+eval q{
+    use Inline C  => <<'END_OF_C_CODE';
+    /* Strip all new line (\n) and carriage return (\r) characters
+       from string str
+    */
+    char* strip_crnl(char* str) {
+        char *s;
+        char *s2 = str;
+        for (s = str; *s; *s++) {
+	    if (*s != '\n' && *s != '\r') {
+              *s2++ = *s;
+	    }
+        }
+        *s2 = '\0';
+        return str;
+    }
+END_OF_C_CODE
+};
+
 
 =head2 new
 
@@ -243,7 +283,6 @@ sub _calculate_offsets {
     return \%offsets;
 }
 
-
 =head2 seq
 
  Title   : seq, sequence, subseq
@@ -289,8 +328,8 @@ sub subseq {
 
     seek($fh, $filestart,0);
     read($fh, $data, $filestop-$filestart+1);
-    $data =~ s/\n//g;
-    $data =~ s/\r//g;
+
+    $data = strip_crnl($data);
 
     if ($strand == -1) {
         # Reverse-complement the sequence
@@ -332,8 +371,7 @@ sub header {
     read($fh, $data, $headerlen);
     # On Windows chomp remove '\n' but leaves '\r'
     # when reading '\r\n' in binary mode
-    $data =~ s/\n//g;
-    $data =~ s/\r//g;
+    $data = strip_crnl($data);
     substr($data, 0, 1) = '';
     return $data;
 }
