@@ -10,6 +10,7 @@ use XML::Twig;
 use strict;
 use warnings;
 use Getopt::Long;
+use Data::Dumper;
 my $verbose = 0;
 my $plain   = 0;
 my $help    = 0;
@@ -22,32 +23,58 @@ die("$USAGE\n") if $help;
 
 my $ua = new LWP::UserAgent();
 
-my $urlbase = 'http://www.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=taxonomy&term=';
+my $urlbase = 'http://www.ncbi.nlm.nih.gov/entrez/eutils/';
+my $esearch = 'esearch.fcgi?db=taxonomy&usehistory=y&term=';
+my $esummary = 'esummary.fcgi?db=taxonomy&query_key=QUERYKEY&WebEnv=WEBENV';
 
 my (@organisms) = @ARGV;
 die("must provide valid organism") unless @organisms;
 my $organismstr = join(" OR ", @organisms);
 $organismstr =~ s/\s/\+/g;
 
-my $response = $ua->get($urlbase.$organismstr);
+# Esearch
+my $response = $ua->get($urlbase . $esearch . $organismstr);
 my $t = XML::Twig->new();
 print $response->content,"\n"if($verbose);
 $t->parse($response->content);
 my $root = $t->root;
-my $list = $root->first_child('IdList');
-my @data;
-foreach my $child ($list->children('Id') ) {
-    push @data, $child->text;
-    if( $plain ) { print $child->text, "\n" }
-}
-unless( $plain  ) {
-    $list = $root->first_child('TranslationStack');
-    foreach my $set ($list->children('TermSet') ) {
-	foreach my $term ( $set->children('Term') ) {
-	    print "\"",$term->text(), "\", ", shift @data, "\n";
-	}
+my $querykey = $root->first_child('QueryKey')->text;
+my $webenv = $root->first_child('WebEnv')->text;
+
+# Esummary
+$esummary =~ s/QUERYKEY/$querykey/;
+$esummary =~ s/WEBENV/$webenv/;
+$response = $ua->get($urlbase . $esummary);
+$t = XML::Twig->new();
+print $response->content,"\n"if($verbose);
+$t->parse($response->content);
+$root = $t->root;
+
+# Parse XML
+my %taxinfo;
+foreach my $docsum ($root->children) {
+    foreach my $item ($docsum->children('Item')) {
+        if ($item->{att}{Name} eq 'ScientificName') {
+            my $sciname = $item->text;
+            $taxinfo{lc $sciname}{sciname} = $sciname;
+            $taxinfo{lc $sciname}{tid} = $docsum->first_child_text('Id');
+            last;
+        }
     }
 }
+
+# Output in same order as given on command line
+foreach my $orgn (@organisms) {
+    if (exists $taxinfo{lc $orgn}) {
+        my $tid = $taxinfo{lc $orgn}{tid};
+        
+        if ($plain) { print $tid, "\n"; }
+        else { print join(", ", "'$orgn'", $tid), "\n"; }
+    }
+    else { print "'$orgn' not found\n"; }
+}
+
+
 
 =head1 NAME
 
