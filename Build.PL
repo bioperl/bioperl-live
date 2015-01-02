@@ -107,6 +107,7 @@ my %recommends = (
 
     'Inline::C'                => [0.67,
         'Speeding up code like Fasta Bio::DB::Fasta'],
+
     'IO::Scalar'               => [0,
         'Deal with non-seekable filehandles/Bio::Tools::GuessSeqFormat'],
 

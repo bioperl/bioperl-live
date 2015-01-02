@@ -335,8 +335,7 @@ sub subqual {
     read($fh, $data, $filestop-$filestart+1);
 
     # Process quality score
-    $data =~ s/\n//g;
-    $data =~ s/\r//g;
+    Bio::DB::IndexedBase::_strip_crnl($data);
     my $subqual = 0;
     $subqual = 1 if ( $start || $stop );
     my @data;
@@ -379,9 +378,9 @@ sub header {
     seek($fh, $offset, 0);
     read($fh, $data, $headerlen);
     # On Windows chomp remove '\n' but leaves '\r'
-    # when reading '\r\n' in binary mode
-    $data =~ s/\n//g;
-    $data =~ s/\r//g;
+    # when reading '\r\n' in binary mode,
+    # _strip_crnl removes both
+    $data = Bio::DB::IndexedBase::_strip_crnl($data);
     substr($data, 0, 1) = '';
     return $data;
 }
