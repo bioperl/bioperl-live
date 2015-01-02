@@ -13,6 +13,8 @@ BEGIN {
 }
 
 my $verbose = 0; #test_debug();
+my $nl = qr/\n/;
+my $cr = qr/\r/;
 
 my $treeio = Bio::TreeIO->new(
   -format => 'nhx',
@@ -85,8 +87,8 @@ sub read_file {
   binmode $IN;
   $string = <$IN>;
   close $IN;
-  $string =~ s/\n//g;
-  $string =~ s/\r//g; # For files with Windows line-endings
+  $string =~ s/$nl//g;
+  $string =~ s/$cr//g; # For files with Windows line-endings
   #print STDERR "STR: $string\n";
   return $string;
 }
