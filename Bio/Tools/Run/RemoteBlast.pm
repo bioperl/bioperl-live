@@ -49,6 +49,9 @@ via HTTP
 
   my $str = Bio::SeqIO->new(-file=>'amino.fa' , -format => 'fasta' );
 
+  #optional: send BLAST request to a cloud service provider instead of NCBI
+  #$factory->set_url_base("http://host.my.cloud.service.provider.com/cgi-bin/blast.cgi");
+
   while (my $input = $str->next_seq()){
     #Blast a sequence against a database:
 
@@ -713,11 +716,13 @@ sub _load_input {
 
  Title   : set_url_base
  Usage   : $self->set_url_base($url)
- Function: Method to override the default NCBI BLAST database
+ Function: Method to override the default URL to access the NCBI BLAST web service
  Returns : None
- Args    : string (database url like
+ Args    : string (URL used for remote BLAST searches)
  NOTE    : This is highly experimental; we cannot maintain support on
-           databases other than the default NCBI database at this time
+           web services other than the default NCBI BLAST web service at this
+           time. Only some URL parameters may be supported by other BLAST
+           web services.
 
 =cut
 
@@ -730,7 +735,7 @@ sub set_url_base {
 
  Title   : get_url_base
  Usage   : my $url = $self->set_url_base
- Function: Get the current URL for BLAST database searching
+ Function: Get the current URL for BLAST searching
  Returns : string (URL used for remote blast searches)
  Args    : None
 
