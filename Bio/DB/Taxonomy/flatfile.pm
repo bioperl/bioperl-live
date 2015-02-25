@@ -99,6 +99,9 @@ $DEFAULT_PARENT_INDEX  = 'parents';
 
 $DB_BTREE->{'flags'} = R_DUP; # allow duplicate values in DB_File BTREEs
 
+# 8192 bytes; this seems to work to keep OS X from complaining
+$DB_HASH->{'bsize'} = 0x2000;
+
 @DIVISIONS =   ([qw(BCT Bacteria)],
                 [qw(INV Invertebrates)],
                 [qw(MAM Mammals)],
