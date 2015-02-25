@@ -21,10 +21,11 @@ Bio::DB::Taxonomy::local - Create and use a taxonomy from local files
   use Bio::DB::Taxonomy;
 
   my $db = Bio::DB::Taxonomy->new(-source    => 'local' ,  
-                                  -adaptor   => 'NCBI',  # NCBI taxonomy
-                                  -create    => 1,       # create database
-                                  -data_files => {
-                                    -dsn        => 'dbi:DB_File',
+                                  -adaptor   => 'DB_File',
+                                  -taxonomy  => 'NCBI',      # NCBI taxonomy (default)
+                                  -create    => 1,           # create database
+                                  -adaptor_args => {         # adaptor-spec. args
+                                    -directory  => 'NCBI-Taxonomy',
                                     -nodesfile  => 'nodes.dmp',
                                     -namesfile  => 'names.dmp',
                                   },
@@ -44,6 +45,14 @@ usable common format), and a database interface. It is mainly meant to act as a
 replacement for Bio::DB::Taxonomy::flatfile that's flexible (allowing for
 alternative backends such as SQLite or Neo4J, and possibly allowing different
 taxonomies, such as Silva or Greengenes).
+
+=head1 TODO
+
+* Initial implementation focused on NCBI and DB_File (rewrite of flatfile)
+
+* Reimplementation focused on NCBI and SQLite or similar
+
+* Make a short-hand DSN-like call available
 
 =head1 FEEDBACK
 
@@ -112,10 +121,8 @@ sub new {
     
     my $self = $class->SUPER::new(@args);
     
-    my ($type, $)
-    
-    #my ( $dir, $nodesfile, $namesfile, $force ) =
-    #  $self->_rearrange( [qw(DIRECTORY NODESFILE NAMESFILE FORCE)], @args );
+    my ($adaptor, $tax, $create, $data_files) =
+      $self->_rearrange( [qw(ADAPTOR TAXONOMY CREATE DATA_FILES)], @args );
     
     return $self;
 }
