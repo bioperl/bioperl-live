@@ -160,7 +160,7 @@ sub new {
 sub get_num_taxa {
     my ($self) = @_;
     
-    my $ct = $self->_dbh_do(SQL<<);
+    my $ct = $self->_dbh_do(<<SQL);
     SELECT COUNT(*) FROM taxon
 SQL
     
