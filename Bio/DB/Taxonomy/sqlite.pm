@@ -31,6 +31,11 @@ NCBI taxonomy using a simple SQLite3 database stored locally on disk.
 The required database files, nodes.dmp and names.dmp can be obtained from
 ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
 
+=head1 TODO
+
+Beyond completing the implementation and optimization, this will
+likely be rolled into a more flexible backend at some future point.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -154,14 +159,12 @@ sub new {
 
 sub get_num_taxa {
     my ($self) = @_;
-    if ( not exists $self->{_num_taxa} ) {
-        my $num = 0;
-        while ( my ( $parent, undef ) = each %{ $self->{_parent2children} } ) {
-            $num++;
-        }
-        $self->{_num_taxa} = $num;
-    }
-    return $self->{_num_taxa};
+    
+    my $ct = $self->_dbh_do(SQL<<);
+    SELECT COUNT(*) FROM taxon
+SQL
+    
+    return shift @{$ct};
 }
 
 =head2 get_taxon
@@ -480,7 +483,10 @@ SQL
         $dbh->do("COMMIT");
         $dbh->do("PRAGMA foreign_keys = ON");
         close $NAMES;
+        $self->{dbh} = $dbh;
+        $self->{'_initialized'} = 1;
     }
+    1;
 }
 
 # connect the internal db handle
@@ -488,35 +494,12 @@ sub _db_connect {
     my $self = shift;
     return if $self->{'_initialized'};
 
-    my $dir = $self->index_directory;
-
-    #my $nodeindex         = catfile($dir, $DEFAULT_NODE_INDEX);
-    #my $name2idindex      = catfile($dir, $DEFAULT_NAME2ID_INDEX);
-    #my $id2nameindex      = catfile($dir, $DEFAULT_ID2NAME_INDEX);
-    #my $parent2childindex = catfile($dir, $DEFAULT_PARENT_INDEX);
-    #$self->{'_nodes'}           = [];
-    #$self->{'_id2name'}         = [];
-    #$self->{'_name2id'}         = {};
-    #$self->{'_parent2children'} = {};
-    #
-    #if( ! -e $nodeindex ||
-    #    ! -e $name2idindex ||
-    #    ! -e $id2nameindex ) {
-    #    $self->warn("Index files have not been created");
-    #    return 0;
-    #}
-    #tie ( @{$self->{'_nodes'}}, 'DB_File', $nodeindex, O_RDWR,undef, $DB_RECNO)
-    #    || $self->throw("$! $nodeindex");
-    #tie (@{$self->{'_id2name'}}, 'DB_File', $id2nameindex,O_RDWR, undef,
-    #    $DB_RECNO) || $self->throw("$! $id2nameindex");
-    #
-    #tie ( %{$self->{'_name2id'}}, 'DB_File', $name2idindex, O_RDWR,undef,
-    #    $DB_HASH) || $self->throw("$! $name2idindex");
-    #$self->{'_parentbtree'} = tie( %{$self->{'_parent2children'}},
-    #                               'DB_File', $parent2childindex,
-    #                               O_RDWR, 0644, $DB_BTREE);
-    #
-    #$self->{'_initialized'} = 1;
+    my ($dir, $db_name) = ($self->index_directory, $self->db_name);
+    
+    # TODO: we're ignoring index_directory for now, may add support for this
+    # down the way
+    $self->{dbh} = DBI->connect("dbi:SQLite:dbname=$db_name","","") or die $!;
+    $self->{'_initialized'} = 1;
 }
 
 sub _init_db {
@@ -530,6 +513,14 @@ sub _init_db {
     1;
 }
 
+sub _dbh_do {
+    my ($self, $sql) = @_;
+    # TODO: more sanity checks
+    my $rows = $self->{dbh}->do($sql) or $self->throw( $self->{dbh}->errstr );
+    return $rows;
+}
+
+# TODO: check data size, this is a ballpark estimate (could be reduced)
 sub taxon_schema {
     my $self   = shift;
     return {
