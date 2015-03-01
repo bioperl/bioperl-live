@@ -94,39 +94,39 @@ is $n->node_name, 'Homo sapiens';
 is $n->scientific_name, $n->node_name;
 is ${$n->name('scientific')}[0], $n->node_name;
 
-#my %common_names = map { $_ => 1 } $n->common_names;
-#is keys %common_names, 3, ref($db).": common names";
-#ok exists $common_names{human};
-#ok exists $common_names{man};
-#
-#is $n->division, 'Primates';
-#is $n->genetic_code, 1;
-#is $n->mitochondrial_genetic_code, 2;
-## these are entrez-only, data not available in dmp files
+my %common_names = map { $_ => 1 } $n->common_names;
+is keys %common_names, 3, ref($db).": common names";
+ok exists $common_names{human};
+ok exists $common_names{man};
+
+is $n->division, 'Primates';
+is $n->genetic_code, 1;
+is $n->mitochondrial_genetic_code, 2;
+# these are entrez-only, data not available in dmp files
 #if ($db eq $db_entrez) {
 #    ok defined $n->pub_date;
 #    ok defined $n->create_date;
 #    ok defined $n->update_date;
 #}
-#
-## briefly test some Bio::Tree::NodeI methods
-#ok my $ancestor = $n->ancestor;
-#is $ancestor->scientific_name, 'Homo';
-## unless set explicitly, Bio::Taxon doesn't return anything for
-## each_Descendent; must ask the database directly
-#ok my @children = $ancestor->db_handle->each_Descendent($ancestor);
-#cmp_ok @children, '>', 0;
-#
+
+# briefly test some Bio::Tree::NodeI methods
+ok my $ancestor = $n->ancestor;
+is $ancestor->scientific_name, 'Homo';
+# unless set explicitly, Bio::Taxon doesn't return anything for
+# each_Descendent; must ask the database directly
+ok my @children = $ancestor->db_handle->each_Descendent($ancestor);
+cmp_ok @children, '>', 0;
+
 #sleep(3) if $db eq $db_entrez;
 #
 ## do some trickier things...
-#ok my $n2 = $db->get_Taxonomy_Node('89593');
-#is $n2->scientific_name, 'Craniata';
-#
-## briefly check we can use some Tree methods
-#my $tree = Bio::Tree::Tree->new();
+ok my $n2 = $db->get_Taxonomy_Node('89593');
+is $n2->scientific_name, 'Craniata';
+
+# briefly check we can use some Tree methods
+my $tree = Bio::Tree::Tree->new();
 #is $tree->get_lca($n, $n2)->scientific_name, 'Craniata';
-#
+
 ## get lineage_nodes
 #my @nodes = $tree->get_nodes;
 #is scalar(@nodes), 0;
@@ -140,7 +140,7 @@ is ${$n->name('scientific')}[0], $n->node_name;
 #like($tree->get_lineage_string($n), qr/cellular organisms;Eukaryota/);
 #like($tree->get_lineage_string($n,'-'), qr/cellular organisms-Eukaryota/);
 #like($tree->get_lineage_string($n2), qr/cellular organisms;Eukaryota/);
-#
+
 ## can we actually form a Tree and use other Tree methods?
 #ok $tree = Bio::Tree::Tree->new(-node => $n);
 #cmp_ok($tree->number_nodes, '>', 20);
