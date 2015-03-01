@@ -186,51 +186,68 @@ SQL
 
 sub get_taxon {
     my ($self) = shift;
-    $self->throw_not_implemented();
-#    my ( $taxonid, $name );
-#
-#    if ( @_ > 1 ) {
-#        ( $taxonid, $name ) = $self->_rearrange( [qw(TAXONID NAME)], @_ );
-#        if ($name) {
-#            ( $taxonid, my @others ) = $self->get_taxonids($name);
-#            $self->warn(
-#"There were multiple ids ($taxonid @others) matching '$name', using '$taxonid'"
-#            ) if @others > 0;
-#        }
-#    }
-#    else {
-#        $taxonid = shift;
-#    }
-#
-#    return unless $taxonid;
-#
-#    $taxonid =~ /^\d+$/ || return;
-#    my $node = $self->{'_nodes'}->[$taxonid] || return;
-#    length($node) || return;
-#    my ( $taxid, undef, $rank, $code, $divid, $gen_code, $mito ) =
-#      split( SEPARATOR, $node );
-#    last unless defined $taxid;
-#    my ($taxon_names) = $self->{'_id2name'}->[$taxid];
-#    my ( $sci_name, @common_names ) = split( SEPARATOR, $taxon_names );
-#
-#    my $taxon = Bio::Taxon->new(
-#        -name         => $sci_name,
-#        -common_names => [@common_names],
-#        -ncbi_taxid =>
-#          $taxid,    # since this is a real ncbi taxid, explicitly set it as one
-#        -rank              => $rank,
-#        -division          => $DIVISIONS[$divid]->[1],
-#        -genetic_code      => $gen_code,
-#        -mito_genetic_code => $mito
-#    );
-#
-#    # we can't use -dbh or the db_handle() method ourselves or we'll go
-#    # infinite on the merge attempt
-#    $taxon->{'db_handle'} = $self;
-#
-#    $self->_handle_internal_id($taxon);
-#
-#    return $taxon;
+    my ( $taxonid, $name );
+
+    if ( @_ > 1 ) {
+        ( $taxonid, $name ) = $self->_rearrange( [qw(TAXONID NAME)], @_ );
+        if ($name) {
+            ( $taxonid, my @others ) = $self->get_taxonids($name);
+            $self->warn(
+"There were multiple ids ($taxonid @others) matching '$name', using '$taxonid'"
+            ) if @others > 0;
+        }
+    }
+    else {
+        $taxonid = shift;
+    }
+
+    return unless $taxonid;
+
+    $taxonid =~ /^\d+$/ || $self->throw("TaxID must be integer, got [$taxonid]");
+    
+    my ( $parent_id, $rank, $code, $divid, $gen_code, $mito, $nm, $uniq, $class );
+    # single join or two calls?
+    my $sth = $self->_prepare_cached(<<SQL);
+    SELECT tax.parent_id, tax.rank, tax.code, tax.division_id, tax.gencode_id, tax.mito_id, names.name, names.uniq_name, names.class
+    FROM taxon as tax, names
+    WHERE
+        tax.taxon_id = ?
+    AND
+        names.taxon_id = tax.taxon_id
+SQL
+    
+    $sth->bind_columns(\$parent_id, \$rank, \$code, \$divid, \$gen_code, \$mito, \$nm, \$uniq, \$class);
+    
+    $sth->execute($taxonid) or $self->throw($sth->errstr);
+    
+    my ($sci_name, @common_names);
+    
+    while ($sth->fetch) {
+        if ($class eq 'scientific name') {
+            $sci_name = $nm;
+        } else {
+            push @common_names, $nm;
+        }
+    }
+        
+    my $taxon = Bio::Taxon->new(
+        -name         => $sci_name,
+        -common_names => [@common_names],
+        -ncbi_taxid =>
+          $taxonid,    # since this is a real ncbi taxid, explicitly set it as one
+        -rank              => $rank,
+        -division          => $DIVISIONS[$divid]->[1],
+        -genetic_code      => $gen_code,
+        -mito_genetic_code => $mito
+    );
+    
+    # we can't use -dbh or the db_handle() method ourselves or we'll go
+    # infinite on the merge attempt
+    $taxon->{'db_handle'} = $self;
+    
+    $self->_handle_internal_id($taxon);
+    
+    return $taxon;
 }
 
 *get_Taxonomy_Node = \&get_taxon;
@@ -563,7 +580,6 @@ sub taxon_schema {
         parent_id       INTEGER,
         left_id         INTEGER,
         right_id        INTEGER,
-        name            VARCHAR(100),
         rank            VARCHAR(25),
         code            VARCHAR(5),
         division_id     INTEGER,
