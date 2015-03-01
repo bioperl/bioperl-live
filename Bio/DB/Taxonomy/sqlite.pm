@@ -81,20 +81,19 @@ Internal methods are usually preceded with a _
 
 package Bio::DB::Taxonomy::sqlite;
 
+use 5.010;
 use strict;
 use DB_File;
 use Bio::Taxon;
 use File::Spec::Functions;
+use Data::Dumper;
 use DBI;
 
 use constant SEPARATOR => ':';
 
 our $DEFAULT_INDEX_DIR     = $Bio::Root::IO::TEMPDIR;    # /tmp
+our $DEFAULT_CACHE_SIZE    = 0;    # /tmp
 our $DEFAULT_DB_NAME       = 'taxonomy.sqlite';
-our $DEFAULT_NODE_INDEX    = 'nodes';
-our $DEFAULT_NAME2ID_INDEX = 'names2id';
-our $DEFAULT_ID2NAME_INDEX = 'id2names';
-our $DEFAULT_PARENT_INDEX  = 'parents';
 
 our @DIVISIONS = (
     [qw(BCT Bacteria)],
@@ -126,21 +125,25 @@ use base qw(Bio::DB::Taxonomy);
 
 =cut
 
+# TODO: get rid of globals!
 sub new {
     my ( $class, @args ) = @_;
 
     my $self = $class->SUPER::new(@args);
-    my ( $dir, $nodesfile, $namesfile, $db, $force ) =
-      $self->_rearrange( [qw(DIRECTORY NODESFILE NAMESFILE DB FORCE)], @args );
+    
+    my ( $dir, $nodesfile, $namesfile, $db, $force, $cs ) =
+      $self->_rearrange( [qw(DIRECTORY NODESFILE NAMESFILE DB FORCE CACHE)], @args );
 
     $self->index_directory( $dir || $DEFAULT_INDEX_DIR );
     
     $self->db_name( $db || $DEFAULT_DB_NAME );
     
+    $self->cache_size($cs // $DEFAULT_CACHE_SIZE);
+    
     if ($nodesfile) {
         $self->_build_index( $nodesfile, $namesfile, $force );
     }
-
+    
     $self->_db_connect;
     return $self;
 }
@@ -160,11 +163,11 @@ sub new {
 sub get_num_taxa {
     my ($self) = @_;
     
-    my $ct = $self->_dbh_do(<<SQL);
+    my $ct = $self->_dbh_fetch(<<SQL);
     SELECT COUNT(*) FROM taxon
 SQL
     
-    return shift @{$ct};
+    return @{$ct}[0];
 }
 
 =head2 get_taxon
@@ -183,50 +186,51 @@ SQL
 
 sub get_taxon {
     my ($self) = shift;
-    my ( $taxonid, $name );
-
-    if ( @_ > 1 ) {
-        ( $taxonid, $name ) = $self->_rearrange( [qw(TAXONID NAME)], @_ );
-        if ($name) {
-            ( $taxonid, my @others ) = $self->get_taxonids($name);
-            $self->warn(
-"There were multiple ids ($taxonid @others) matching '$name', using '$taxonid'"
-            ) if @others > 0;
-        }
-    }
-    else {
-        $taxonid = shift;
-    }
-
-    return unless $taxonid;
-
-    $taxonid =~ /^\d+$/ || return;
-    my $node = $self->{'_nodes'}->[$taxonid] || return;
-    length($node) || return;
-    my ( $taxid, undef, $rank, $code, $divid, $gen_code, $mito ) =
-      split( SEPARATOR, $node );
-    last unless defined $taxid;
-    my ($taxon_names) = $self->{'_id2name'}->[$taxid];
-    my ( $sci_name, @common_names ) = split( SEPARATOR, $taxon_names );
-
-    my $taxon = Bio::Taxon->new(
-        -name         => $sci_name,
-        -common_names => [@common_names],
-        -ncbi_taxid =>
-          $taxid,    # since this is a real ncbi taxid, explicitly set it as one
-        -rank              => $rank,
-        -division          => $DIVISIONS[$divid]->[1],
-        -genetic_code      => $gen_code,
-        -mito_genetic_code => $mito
-    );
-
-    # we can't use -dbh or the db_handle() method ourselves or we'll go
-    # infinite on the merge attempt
-    $taxon->{'db_handle'} = $self;
-
-    $self->_handle_internal_id($taxon);
-
-    return $taxon;
+    $self->throw_not_implemented();
+#    my ( $taxonid, $name );
+#
+#    if ( @_ > 1 ) {
+#        ( $taxonid, $name ) = $self->_rearrange( [qw(TAXONID NAME)], @_ );
+#        if ($name) {
+#            ( $taxonid, my @others ) = $self->get_taxonids($name);
+#            $self->warn(
+#"There were multiple ids ($taxonid @others) matching '$name', using '$taxonid'"
+#            ) if @others > 0;
+#        }
+#    }
+#    else {
+#        $taxonid = shift;
+#    }
+#
+#    return unless $taxonid;
+#
+#    $taxonid =~ /^\d+$/ || return;
+#    my $node = $self->{'_nodes'}->[$taxonid] || return;
+#    length($node) || return;
+#    my ( $taxid, undef, $rank, $code, $divid, $gen_code, $mito ) =
+#      split( SEPARATOR, $node );
+#    last unless defined $taxid;
+#    my ($taxon_names) = $self->{'_id2name'}->[$taxid];
+#    my ( $sci_name, @common_names ) = split( SEPARATOR, $taxon_names );
+#
+#    my $taxon = Bio::Taxon->new(
+#        -name         => $sci_name,
+#        -common_names => [@common_names],
+#        -ncbi_taxid =>
+#          $taxid,    # since this is a real ncbi taxid, explicitly set it as one
+#        -rank              => $rank,
+#        -division          => $DIVISIONS[$divid]->[1],
+#        -genetic_code      => $gen_code,
+#        -mito_genetic_code => $mito
+#    );
+#
+#    # we can't use -dbh or the db_handle() method ourselves or we'll go
+#    # infinite on the merge attempt
+#    $taxon->{'db_handle'} = $self;
+#
+#    $self->_handle_internal_id($taxon);
+#
+#    return $taxon;
 }
 
 *get_Taxonomy_Node = \&get_taxon;
@@ -245,18 +249,14 @@ sub get_taxon {
 
 sub get_taxonids {
     my ( $self, $query ) = @_;
-    my $ids = $self->{'_name2id'}->{ lc($query) };
-    unless ($ids) {
-        if ( $query =~ /_/ ) {
+    
+    my $taxids = $self->{dbh}->selectcol_arrayref(<<SQL);
+    SELECT taxon_id FROM names
+    WHERE
+        name LIKE "$query"
+SQL
 
-            # try again converting underscores to spaces
-            $query =~ s/_/ /g;
-            $ids = $self->{'_name2id'}->{ lc($query) };
-        }
-        $ids || return;
-    }
-    my @ids = split( SEPARATOR, $ids );
-    return wantarray() ? @ids : shift @ids;
+    return wantarray() ? @{$taxids} : @{$taxids}[0];
 }
 
 *get_taxonid = \&get_taxonids;
@@ -274,27 +274,28 @@ sub get_taxonids {
 
 sub get_Children_Taxids {
     my ( $self, $node ) = @_;
-    $self->warn(
-        "get_Children_Taxids is deprecated, use each_Descendent instead");
-    my $id;
-    if ( ref($node) ) {
-        if ( $node->can('object_id') ) {
-            $id = $node->object_id;
-        }
-        elsif ( $node->can('ncbi_taxid') ) {
-            $id = $node->ncbi_taxid;
-        }
-        else {
-            $self->warn(
-                "Don't know how to extract a taxon id from the object of type "
-                  . ref($node)
-                  . "\n" );
-            return;
-        }
-    }
-    else { $id = $node }
-    my @vals = $self->{'_parentbtree'}->get_dup($id);
-    return @vals;
+    $self->deprecated();
+    #$self->warn(
+    #    "get_Children_Taxids is deprecated, use each_Descendent instead");
+    #my $id;
+    #if ( ref($node) ) {
+    #    if ( $node->can('object_id') ) {
+    #        $id = $node->object_id;
+    #    }
+    #    elsif ( $node->can('ncbi_taxid') ) {
+    #        $id = $node->ncbi_taxid;
+    #    }
+    #    else {
+    #        $self->warn(
+    #            "Don't know how to extract a taxon id from the object of type "
+    #              . ref($node)
+    #              . "\n" );
+    #        return;
+    #    }
+    #}
+    #else { $id = $node }
+    #my @vals = $self->{'_parentbtree'}->get_dup($id);
+    #return @vals;
 }
 
 =head2 ancestor
@@ -381,8 +382,8 @@ sub index_directory {
 
  Title   : db_name
  Funtion : Get/set the name of the SQLite3 database where data is stored
- Usage   : $obj->index_directory($newval)
- Returns : value of index_directory (a scalar)
+ Usage   : $obj->db_name($newval)
+ Returns : value of db_name (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
 =cut
@@ -395,6 +396,27 @@ sub db_name {
     my $self = shift;
     return $self->{'db_name'} = shift if @_;
     return $self->{'db_name'};
+}
+
+=head2 cache_size
+
+ Title   : cache_size
+ Funtion : Get/set the cachesize used for loading the SQLite3 database
+ Usage   : $obj->cache_size($newval)
+ Returns : value of cache_size (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+ Note    : we do no checking on whether this value is an integer (SQLite does this for use)
+
+=cut
+
+# TODO: this may need some disambiguation w/ index_directory above; for now we
+# assume this doesn't have a full path name (though I see no reason why this
+# shouldn't allow that)
+
+sub cache_size {
+    my $self = shift;
+    return $self->{'cache_size'} = shift if defined($_[0]);
+    return $self->{'cache_size'};
 }
 
 # internal method which does the indexing
@@ -410,7 +432,10 @@ sub _build_index {
     my $dbh = DBI->connect("dbi:SQLite:dbname=$db_name","","") or die $!;
 
     $dbh->do('PRAGMA synchronous = 0');      # Non transaction safe!!!
-    $dbh->do('PRAGMA cache_size = 100000');  # TODO: make this so user can define the cache size?
+    
+    if ($self->cache_size) {
+        $dbh->do('PRAGMA cache_size = '.$self->cache_size) 
+    }
 
     if (! -e $db_name || $force) {
         
@@ -420,7 +445,7 @@ sub _build_index {
             or $self->throw("Could not read node file '$nodesfile': $!");
     
         my $sth = $dbh->prepare_cached(<<SQL);
-    INSERT INTO taxon (taxon_id, parent_id, rank, code, division_id, gencode_id, mito_id) VALUES (?,?,?,?,?,?,?)
+    INSERT OR IGNORE INTO taxon (taxon_id, parent_id, rank, code, division_id, gencode_id, mito_id) VALUES (?,?,?,?,?,?,?)
 SQL
         $dbh->do("BEGIN");
         while (<$NODES>) {
@@ -513,12 +538,20 @@ sub _init_db {
     1;
 }
 
-sub _dbh_do {
+sub _dbh_fetch {
     my ($self, $sql) = @_;
     # TODO: more sanity checks
-    my $rows = $self->{dbh}->do($sql) or $self->throw( $self->{dbh}->errstr );
+    my $rows = $self->{dbh}->selectrow_arrayref($sql) or $self->throw( $self->{dbh}->errstr );
     return $rows;
 }
+
+sub _prepare_cached {
+    my ($self, $sql) = @_;
+    # TODO: more sanity checks
+    my $sth = $self->{dbh}->prepare_cached($sql) or $self->throw( $self->{dbh}->errstr );
+    $sth;
+}
+
 
 # TODO: check data size, this is a ballpark estimate (could be reduced)
 sub taxon_schema {
@@ -556,12 +589,12 @@ SCHEMA
 sub DESTROY {
     my $self = shift;
     
-    undef $self->{_dbh};
+    undef $self->{dbh};
     
-    my $default_temp = quotemeta $DEFAULT_INDEX_DIR;
-    if ($self->{index_directory} =~ m/^$default_temp/) {
-        unlink catfile($self->index_directory(),$self->db_name());
-    }
+    #my $default_temp = quotemeta $DEFAULT_INDEX_DIR;
+    #if ($self->{index_directory} =~ m/^$default_temp/) {
+    #    unlink catfile($self->index_directory(),$self->db_name());
+    #}
 }
 
 1;

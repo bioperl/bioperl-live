@@ -18,11 +18,13 @@ BEGIN {
 
 my $temp_dir = test_output_dir();
 
+# TODO: run basic tests making sure that a database is not regenerated if
+# present or unless forced
+
 ok my $db_flatfile = Bio::DB::Taxonomy->new(
     -source    => 'sqlite',
     -nodesfile => test_input_file('taxdump', 'nodes.dmp'),
     -namesfile => test_input_file('taxdump', 'names.dmp'),
-    
 );
 isa_ok $db_flatfile, 'Bio::DB::Taxonomy::sqlite';
 isa_ok $db_flatfile, 'Bio::DB::Taxonomy';
@@ -32,9 +34,9 @@ isa_ok $db_flatfile, 'Bio::DB::Taxonomy';
 # and are implied to be temporary. So test the ability of flatfile->DESTROY to
 # remove the temporary index files at object destruction (this also affects files
 # in "test_output_dir()", since the folder is created inside the temporary folder)
-no warnings qw(once); # silence 'Name "$Bio::Root::IO::TEMPDIR" used only once'
-
-is $db_flatfile->{index_directory}, $Bio::Root::IO::TEMPDIR, 'removal of temporary index files: no -directory';
+#no warnings qw(once); # silence 'Name "$Bio::Root::IO::TEMPDIR" used only once'
+#
+#is $db_flatfile->{index_directory}, $Bio::Root::IO::TEMPDIR, 'removal of temporary index files: no -directory';
 
 #$db_flatfile->DESTROY;
 #ok not -e ($db_flatfile->{index_directory} . '/id2names');
@@ -59,8 +61,9 @@ is $db_flatfile->{index_directory}, $Bio::Root::IO::TEMPDIR, 'removal of tempora
 #ok not -e ($db_flatfile->{index_directory} . '/parents');
 #
 # Generate the object (and the files) again for the remaining tests
+
 ok my $db = Bio::DB::Taxonomy->new(
-    -source    => 'flatfile',
+    -source    => 'sqlite',
     -directory => $temp_dir,
     -nodesfile => test_input_file('taxdump', 'nodes.dmp'),
     -namesfile => test_input_file('taxdump', 'names.dmp'),
@@ -69,13 +72,15 @@ ok my $db = Bio::DB::Taxonomy->new(
 
 my $id;
 
-is $db->get_num_taxa, 189;
+# taxid data in the nodes.dmp file should be unique, we ignore repeated values
+# if seen
 
-#eval { $id = $db->get_taxonid('Homo sapiens');};
-#skip "Unable to connect to entrez database; no network or server busy?", 38 if $@;
-#
-#is $id, 9606;
-#
+is $db->get_num_taxa, 188;
+
+lives_ok {$id = $db->get_taxonid('Homo sapiens')};
+
+is $id, 9606;
+
 ## easy test on human, try out the main Taxon methods
 #ok $n = $db->get_taxon(9606);
 #is $n->id, 9606;
@@ -242,6 +247,8 @@ is $db->get_num_taxa, 189;
 #    cmp_ok @descs, '>=', 17;
 #}
 
-
+END {
+    #unlink 'taxonomy.sqlite' if (-e 'taxonomy.sqlite');
+}
 
 done_testing();
