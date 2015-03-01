@@ -244,16 +244,6 @@ $tree->contract_linear_paths;
 my $ids = join(",", map { $_->id } $tree->get_nodes);
 is $ids, '131567,9606';
 
-#SKIP: {
-#    test_skip(-tests => 1, -requires_networking => 1);
-#    eval {$db_entrez->get_taxon(10090);};
-#    skip "Unable to connect to entrez database; no network or server busy?", 1 if $@;
-#
-#    my $lca = $db_entrez->get_taxon(314146);
-#    my @descs = $db_entrez->get_all_Descendents($lca);
-#    cmp_ok @descs, '>=', 17;
-#}
-
 END {
     #unlink 'taxonomy.sqlite' if (-e 'taxonomy.sqlite');
 }

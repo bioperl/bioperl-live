@@ -276,10 +276,14 @@ sub get_taxonids {
     
     # TODO: note we're not cleaning the query here, so you could technically
     # have a fuzzy match (or Bobby Tables someone)
+    
+    # TODO: OR'd match seems poor optimally
     my $taxids = $self->{dbh}->selectcol_arrayref(<<SQL);
     SELECT DISTINCT taxon_id FROM names
     WHERE
         name LIKE "$query"
+    OR
+        uniq_name LIKE "$query"
 SQL
 
     return wantarray() ? @{$taxids} : @{$taxids}[0];

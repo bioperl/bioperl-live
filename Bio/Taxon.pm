@@ -425,6 +425,13 @@ sub parent_id {
  Function: If the parent_id is explicitly set, trust it
  Returns : simple boolean value (whether or not it has been set)
  Args    : none
+ Notes   : Previously, the parent_id method was to be deprecated in favor of
+           using ancestor(). However this removes one key optimization point,
+           namely when an implementation has direct access to the taxon's
+           parent ID when retrieving the information for the taxon ID.  This
+           method is in place so implementations can choose to (1) check whether
+           the parent_id is set and (2) trust that the implementation (whether
+           it is self or another implementation) set the parent_id correctly.
 
 =cut
 
@@ -546,10 +553,7 @@ sub ancestor {
     my $dbh = $self->db_handle;
     #*** could avoid the db lookup if we knew our current id was definitely
     #    information from the db...
-    
-    # TODO: you must trust your implementation to get it right.
-    # If there is a parent_id set, trust it. If not, fall back to calling this
-    # method 
+
     my $definitely_from_dbh = $self->_get_similar_taxon_from_db($self);
     return $dbh->ancestor($definitely_from_dbh);
 }
