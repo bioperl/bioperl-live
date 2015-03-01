@@ -82,17 +82,18 @@ lives_ok {$id = $db->get_taxonid('Homo sapiens')};
 is $id, 9606;
 
 ## easy test on human, try out the main Taxon methods
-#ok $n = $db->get_taxon(9606);
-#is $n->id, 9606;
-#is $n->object_id, $n->id;
-#is $n->ncbi_taxid, $n->id;
-#is $n->parent_id, 9605;
-#is $n->rank, 'species';
-#
-#is $n->node_name, 'Homo sapiens';
-#is $n->scientific_name, $n->node_name;
-#is ${$n->name('scientific')}[0], $n->node_name;
-#
+my $n;
+ok $n = $db->get_taxon(9606);
+is $n->id, 9606;
+is $n->object_id, $n->id;
+is $n->ncbi_taxid, $n->id;
+is $n->parent_id, 9605;
+is $n->rank, 'species';
+
+is $n->node_name, 'Homo sapiens';
+is $n->scientific_name, $n->node_name;
+is ${$n->name('scientific')}[0], $n->node_name;
+
 #my %common_names = map { $_ => 1 } $n->common_names;
 #is keys %common_names, 3, ref($db).": common names";
 #ok exists $common_names{human};
