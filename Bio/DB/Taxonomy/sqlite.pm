@@ -460,6 +460,11 @@ sub _build_index {
         open my $NODES, '<', $nodesfile
             or $self->throw("Could not read node file '$nodesfile': $!");
     
+        # TODO: this has the really unnecessary 'OR IGNORE' option added,
+        # apparently b.c the test data expects to handle cases where the TaxID
+        # is repeated in this table (which should never happen in this table). I
+        # will likely change this to throw under those circumstances
+        
         my $sth = $dbh->prepare_cached(<<SQL);
     INSERT OR IGNORE INTO taxon (taxon_id, parent_id, rank, code, division_id, gencode_id, mito_id) VALUES (?,?,?,?,?,?,?)
 SQL
@@ -494,7 +499,7 @@ SQL
             my ($taxid, $name, $unique_name, $class) = split(/\t\|\t/,$_);
             # don't include the fake root node 'root' or 'all' with id 1
             next if $taxid == 1;
-    
+            
             $class =~ s/\s+\|\s*$//;            
             $sth->execute($taxid, $name, $unique_name, $class) or $self->throw($sth->errstr);
         }
