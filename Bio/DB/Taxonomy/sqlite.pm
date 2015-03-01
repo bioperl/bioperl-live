@@ -425,10 +425,6 @@ sub db_name {
 
 =cut
 
-# TODO: this may need some disambiguation w/ index_directory above; for now we
-# assume this doesn't have a full path name (though I see no reason why this
-# shouldn't allow that)
-
 sub cache_size {
     my $self = shift;
     return $self->{'cache_size'} = shift if defined($_[0]);
@@ -482,7 +478,7 @@ SQL
         }
         $dbh->do("COMMIT");
         
-        # TODO:index parent_id
+        # TODO:index parent_id?
         close $NODES;
         
         $self->debug("Loading name table data\n");
@@ -585,13 +581,7 @@ SCHEMA
 
 sub DESTROY {
     my $self = shift;
-    
     undef $self->{dbh};
-    
-    #my $default_temp = quotemeta $DEFAULT_INDEX_DIR;
-    #if ($self->{index_directory} =~ m/^$default_temp/) {
-    #    unlink catfile($self->index_directory(),$self->db_name());
-    #}
 }
 
 1;
