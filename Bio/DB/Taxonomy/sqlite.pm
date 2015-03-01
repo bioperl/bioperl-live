@@ -233,8 +233,7 @@ SQL
     my $taxon = Bio::Taxon->new(
         -name         => $sci_name,
         -common_names => [@common_names],
-        -ncbi_taxid =>
-          $taxonid,    # since this is a real ncbi taxid, explicitly set it as one
+        -ncbi_taxid   => $taxonid,    
         -rank              => $rank,
         -division          => $DIVISIONS[$divid]->[1],
         -genetic_code      => $gen_code,
@@ -496,31 +495,8 @@ SQL
             # don't include the fake root node 'root' or 'all' with id 1
             next if $taxid == 1;
     
-            $class =~ s/\s+\|\s*$//;
-            my $lc_name = lc($name);
-            my $orig_name = $name;
-            
-            # NOTE: From original implementation
-            # ----
-            # unique names aren't always in the correct column, sometimes they
-            # are uniqued by adding bracketed rank names to the normal name;
-            # store the uniqued version then fix the name for normal use
-            # ----
-            # TODO: the above no longer seems to be the case (e.g. all 'unique
-            # names' in that column appear to be truly unique as of 2015/2/28).
-            # Can add a column constraint to catch this, but I think (beyond
-            # much data munging) we can now skip this step and simply load the
-            # table in.
-
-            # TODO: maybe FTS4 table for full-text search?
-            
-            # As of 2015/2/28 it appears this conditional is never true
-            if ($lc_name =~ /\(class\)$/) { # it seems that only rank of class is ever used in this situation
-                $name =~ s/\s+\(class\)$//;
-                $lc_name = lc($name);
-            }
-            
-            $sth->execute($taxid, $lc_name, lc($unique_name), $class) or $self->throw($sth->errstr);
+            $class =~ s/\s+\|\s*$//;            
+            $sth->execute($taxid, $name, $unique_name, $class) or $self->throw($sth->errstr);
         }
         $dbh->do("COMMIT");
         $dbh->do("PRAGMA foreign_keys = ON");
