@@ -226,6 +226,11 @@ sub new {
     defined $div        && $self->division($div);
     defined $dbh        && $self->db_handle($dbh);
     
+    # Making an administrative decision to override this behavior, particularly
+    # for optimization reasons (if it works to cache it up front, why not?
+    # Please trust your implementations to get it right)
+    
+    # Original note:
     # deprecated and will issue a warning when method called,
     # eventually to be removed completely as option
     defined $parent_id  && $self->parent_id($parent_id);
@@ -396,14 +401,16 @@ sub ncbi_taxid {
            parent_taxon_id() is a synonym of this method.
  Returns : value of parent_id (a scalar)
  Args    : none
- Status  : deprecated
 
 =cut
 
 sub parent_id {
     my $self = shift;
     if (@_) {
-        $self->warn("You can no longer set the parent_id - use ancestor() instead");
+        $self->{parent_id} = shift;
+    }
+    if (defined $self->{parent_id}) {
+        return $self->{parent_id}
     }
     my $ancestor = $self->ancestor() || return;
     return $ancestor->id;
@@ -411,6 +418,19 @@ sub parent_id {
 
 *parent_taxon_id = \&parent_id;
 
+=head2 trusted_parent_id
+
+ Title   : trusted_parent_id
+ Usage   : $taxon->trusted_parent_id()
+ Function: If the parent_id is explicitly set, trust it
+ Returns : simple boolean value (whether or not it has been set)
+ Args    : none
+
+=cut
+
+sub trusted_parent_id {
+    return defined $_[0]->{parent_id};
+}
 
 =head2 genetic_code
 
@@ -526,6 +546,10 @@ sub ancestor {
     my $dbh = $self->db_handle;
     #*** could avoid the db lookup if we knew our current id was definitely
     #    information from the db...
+    
+    # TODO: you must trust your implementation to get it right.
+    # If there is a parent_id set, trust it. If not, fall back to calling this
+    # method 
     my $definitely_from_dbh = $self->_get_similar_taxon_from_db($self);
     return $dbh->ancestor($definitely_from_dbh);
 }

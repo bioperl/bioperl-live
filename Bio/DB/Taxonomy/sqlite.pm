@@ -233,7 +233,15 @@ SQL
     my $taxon = Bio::Taxon->new(
         -name         => $sci_name,
         -common_names => [@common_names],
-        -ncbi_taxid   => $taxonid,    
+        -ncbi_taxid   => $taxonid,
+        
+        # TODO:
+        # Okay, this is a pretty goofy thing; we have the parent_id in hand
+        # but can't assign it b/c of semantics (one apparently must call
+        # ancestor() to get this, which seems roundabout if the information is
+        # already at hand)
+        
+        -parent_id    => $parent_id,   
         -rank              => $rank,
         -division          => $DIVISIONS[$divid]->[1],
         -genetic_code      => $gen_code,
@@ -290,7 +298,7 @@ SQL
 
 sub get_Children_Taxids {
     my ( $self, $node ) = @_;
-    $self->deprecated();
+    $self->deprecated(); # ?
     #$self->warn(
     #    "get_Children_Taxids is deprecated, use each_Descendent instead");
     #my $id;
@@ -333,15 +341,19 @@ sub ancestor {
       unless $taxon->db_handle && $taxon->db_handle eq $self;
     my $id =
       $taxon->id || $self->throw("The supplied Taxon is missing its id!");
-
-    my $node = $self->{'_nodes'}->[$id];
-    if ( length($node) ) {
-        my ( undef, $parent_id ) = split( SEPARATOR, $node );
-        $parent_id || return;
-        $parent_id eq $id && return;    # one of the roots
-        return $self->get_taxon($parent_id);
+    
+    # TODO:
+    # Note here we explicitly set the parent ID, but use a separate method to
+    # check whether it is defined. Mixing back-end databases, even if from the
+    # same source, should still work (since a different backend wouldn't
+    # explicitly set the parent_id)
+    
+    if (defined $taxon->trusted_parent_id) {
+        return $self->get_taxon($taxon->parent_id);
+    } else {
+        # TODO: would there be any other option?
+        return;
     }
-    return;
 }
 
 =head2 each_Descendent
@@ -360,13 +372,26 @@ sub each_Descendent {
     $self->throw("Must supply a Bio::Taxon")
       unless ref($taxon) && $taxon->isa('Bio::Taxon');
     $self->throw("The supplied Taxon must belong to this database")
-      unless $taxon->db_handle && $taxon->db_handle eq $self;
+      unless $taxon->db_handle && $taxon->db_handle eq $self;  # yikes
+    
     my $id =
       $taxon->id || $self->throw("The supplied Taxon is missing its id!");
-
-    my @desc_ids = $self->{'_parentbtree'}->get_dup($id);
+    
+    #my ( $parent_id, $rank, $code, $divid, $gen_code, $mito, $nm, $uniq, $class );
+    # single join or two calls?
+    
+    # probably not optimal, maybe set up as a cached statement with bindings?
+    my $desc_ids = $self->{dbh}->selectcol_arrayref(<<SQL) or $self->throw($self->{dbh}->errstr);
+    SELECT tax.taxon_id
+    FROM taxon as tax
+    WHERE
+        tax.parent_id = $id
+SQL
+    
+    return unless ref $desc_ids eq 'ARRAY';
+    
     my @descs;
-    foreach my $desc_id (@desc_ids) {
+    foreach my $desc_id (@$desc_ids) {
         push( @descs, $self->get_taxon($desc_id) || next );
     }
     return @descs;
