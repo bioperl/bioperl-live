@@ -274,8 +274,10 @@ SQL
 sub get_taxonids {
     my ( $self, $query ) = @_;
     
+    # TODO: note we're not cleaning the query here, so you could technically
+    # have a fuzzy match (or Bobby Tables someone)
     my $taxids = $self->{dbh}->selectcol_arrayref(<<SQL);
-    SELECT taxon_id FROM names
+    SELECT DISTINCT taxon_id FROM names
     WHERE
         name LIKE "$query"
 SQL
@@ -348,7 +350,11 @@ sub ancestor {
     # same source, should still work (since a different backend wouldn't
     # explicitly set the parent_id)
     
-    if (defined $taxon->trusted_parent_id) {
+    if ($taxon->trusted_parent_id) {
+        # this is the failsafe when we hit the root node
+        if ($taxon->parent_id eq $id) {
+            return;
+        }
         return $self->get_taxon($taxon->parent_id);
     } else {
         # TODO: would there be any other option?
@@ -496,7 +502,7 @@ SQL
             my ($taxid,$parent,$rank,$code,$divid,undef,$gen_code,undef,$mito) = split(/\t\|\t/,$_);
             next if $taxid == 1;
             if ($parent == 1) {
-                $parent = $taxid;
+                $parent = undef;
             }
             
             $sth->execute($taxid, $parent, $rank, $code, $divid, $gen_code, $mito) or die $sth->errstr.": TaxID $taxid";
@@ -518,10 +524,16 @@ SQL
             next if /^$/;
             chomp;
             my ($taxid, $name, $unique_name, $class) = split(/\t\|\t/,$_);
+            
             # don't include the fake root node 'root' or 'all' with id 1
             next if $taxid == 1;
             
-            $class =~ s/\s+\|\s*$//;            
+            $class =~ s/\s+\|\s*$//;
+            
+            #if ($name =~ /\(class\)$/) { # it seems that only rank of class is ever used in this situation
+            #    $name =~ s/\s+\(class\)$//;
+            #}
+            
             $sth->execute($taxid, $name, $unique_name, $class) or $self->throw($sth->errstr);
         }
         $dbh->do("COMMIT");
