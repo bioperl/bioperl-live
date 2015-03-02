@@ -19,7 +19,8 @@ Bio::DB::Taxonomy::sqlite - SQLite-based implementation of Bio::DB::Taxonomy::fl
 
   use Bio::DB::Taxonomy;
 
-  my $db = Bio::DB::Taxonomy->new(-source    => 'sqlite' ,
+  my $db = Bio::DB::Taxonomy->new(-source    => 'sqlite',
+                                  -db        => 'mytax.db'  # default 'taxonomy.sqlite'
                                   -nodesfile => 'nodes.dmp',
                                   -namesfile => 'names.dmp');
 
@@ -28,6 +29,27 @@ Bio::DB::Taxonomy::sqlite - SQLite-based implementation of Bio::DB::Taxonomy::fl
 This is an implementation of Bio::DB::Taxonomy which stores and accesses the
 NCBI taxonomy using a simple SQLite3 database stored locally on disk.
 
+With this implementation, one can do the same basic searches as with the 'flatfile'
+database.  A test lookup of 1000 NCBI TaxIDs with full lineage information took
+about 2 seconds on my older MacBook Pro laptop with an on-disk implementation.  
+
+A few key differences:
+
+=over 4
+
+=item * You can use typical SQL syntax to run a query search; for instance, if you want you can run:
+
+   @ids = sort $db->get_taxonids('Chloroflexi%');
+
+=item * In-memory database is allowed
+   
+  my $db = Bio::DB::Taxonomy->new(-source    => 'sqlite',
+                                  -db        => ':memory:',
+                                  -nodesfile => 'nodes.dmp',
+                                  -namesfile => 'names.dmp');
+
+=back
+
 The required database files, nodes.dmp and names.dmp can be obtained from
 ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
 
@@ -35,13 +57,17 @@ ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
 
 =over 4
 
-=item Optimize codebase
+=item * Small optimizations, such as optimizing name lookups
 
-=item Clean up SQL (kinda a mess right now)
+=item * Possibly use L<recursive CTE|http://www.sqlite.org/lang_with.html> to do lineage lookups 
 
-=item Check compat. with other NCBI-specific L<Bio::DB::Taxonomy> implementations
+=item * Clean up SQL (still kind of a mess right now)
 
-=item Plan out feasibility of allowing other backends (Neo4J, other DBI, etc)
+=item * Check compat. with other NCBI-specific L<Bio::DB::Taxonomy> implementations
+
+=item * Plan out feasibility of allowing other backends (Neo4J, other DBI, etc)
+
+=item * Optionally calculate left/right ID values for TaxID nodes
 
 =back
 
@@ -246,13 +272,6 @@ SQL
         -name         => $sci_name,
         -common_names => [@common_names],
         -ncbi_taxid   => $taxonid,
-        
-        # TODO:
-        # Okay, this is a pretty goofy thing; we have the parent_id in hand
-        # but can't assign it b/c of semantics (one apparently must call
-        # ancestor() to get this, which seems roundabout if the information is
-        # already at hand)
-        
         -parent_id    => $parent_id,   
         -rank              => $rank,
         -division          => $DIVISIONS[$divid]->[1],
@@ -371,63 +390,27 @@ sub ancestor {
         if ($taxon->parent_id eq $id) {
             return;
         }
-        my $anc = $self->get_taxon(-taxonid => $taxon->parent_id);
-        $taxon->ancestor($anc);
-        return $anc;
-        
+        return $self->get_taxon(-taxonid => $taxon->parent_id);
     } else {
         # TODO: would there be any other option?
         return;
     }
 }
 
-=head2 ancestors
+# TODO: this may act as a drop-in for a recursive CTE lookup
 
- Title   : ancestors
- Usage   : my @ancestor_taxa = $db->ancestors($taxon)
- Function: Retrieve the full ancestor taxon of a supplied Taxon from the
-           database. 
- Returns : List of Bio::Taxon
- Args    : Bio::Taxon (that was retrieved from this database)
+#=head2 ancestors
+#
+# Title   : ancestors
+# Usage   : my @ancestor_taxa = $db->ancestors($taxon)
+# Function: Retrieve the full ancestor taxon of a supplied Taxon from the
+#           database. 
+# Returns : List of Bio::Taxon
+# Args    : Bio::Taxon (that was retrieved from this database)
+#
+#=cut
 
-=cut
-
-#sub ancestors {
-#    my ( $self, $taxon ) = @_;
-#    $self->throw("Must supply a Bio::Taxon")
-#      unless ref($taxon) && $taxon->isa('Bio::Taxon');
-#    $self->throw("The supplied Taxon must belong to this database")
-#      unless $taxon->db_handle && $taxon->db_handle eq $self;
-#    my $id =
-#      $taxon->id || $self->throw("The supplied Taxon is missing its id!");
-#    
-#    my $sth = $self->{dbh}->prepare_cached(<<SQL);
-#    WITH RECURSIVE
-#        ancestor(id) AS (
-#          SELECT taxon_id FROM taxon WHERE id=@BASELINE
-#          UNION
-#          SELECT derivedfrom.xfrom, checkin.mtime
-#            FROM ancestor, derivedfrom, checkin
-#           WHERE ancestor.id=derivedfrom.xto
-#             AND checkin.id=derivedfrom.xfrom
-#           ORDER BY checkin.mtime DESC
-#           LIMIT 20
-#        )
-#    SELECT * FROM checkin JOIN ancestor USING(id);
-#SQL
-#    
-#    if ($taxon->trusted_parent_id) {
-#        # this is the failsafe when we hit the root node
-#        if ($taxon->parent_id eq $id) {
-#            return;
-#        }
-#        my $anc = $self->get_taxon(-taxonid => $taxon->parent_id);
-#        
-#    } else {
-#        # TODO: would there be any other option?
-#        return;
-#    }
-#}
+#sub ancestors { ... }
 
 =head2 each_Descendent
 
@@ -605,15 +588,18 @@ SQL
             
             $sth->execute($taxid, $name, $unique_name, $class) or $self->throw($sth->errstr);
         }
+        close $NAMES;
+
         $dbh->do("COMMIT");
         
-        $self->debug("Creating taxon/parent index\n");
+        $self->debug("Creating taxon index\n");
         $dbh->do("CREATE INDEX parent_idx ON taxon (parent_id)") or $self->throw($dbh->errstr);
-        $self->debug("Creating name/taxon index\n");
-        $dbh->do("CREATE INDEX name_taxon_idx ON names (taxon_id,name)") or $self->throw($dbh->errstr);
+        $self->debug("Creating name index\n");
+        $dbh->do("CREATE INDEX name_idx ON names (name)") or $self->throw($dbh->errstr);
+        $self->debug("Creating taxon name table index\n");
+        $dbh->do("CREATE INDEX taxon_name_idx ON names (taxon_id)") or $self->throw($dbh->errstr);
+
         $dbh->do("PRAGMA foreign_keys = ON");
-        
-        close $NAMES;
         
         #$dbh->do('PRAGMA synchronous = 1');
         $self->{dbh} = $dbh;
