@@ -144,7 +144,7 @@ sub new {
     my $self = $class->SUPER::new(@args);
     
     my ( $dir, $nodesfile, $namesfile, $db, $force, $cs ) =
-      $self->_rearrange( [qw(DIRECTORY NODESFILE NAMESFILE DB FORCE CACHE)], @args );
+      $self->_rearrange( [qw(DIRECTORY NODESFILE NAMESFILE DB FORCE CACHE_SIZE)], @args );
 
     $self->index_directory( $dir || $DEFAULT_INDEX_DIR );
     
@@ -371,12 +371,63 @@ sub ancestor {
         if ($taxon->parent_id eq $id) {
             return;
         }
-        return $self->get_taxon($taxon->parent_id);
+        my $anc = $self->get_taxon(-taxonid => $taxon->parent_id);
+        $taxon->ancestor($anc);
+        return $anc;
+        
     } else {
         # TODO: would there be any other option?
         return;
     }
 }
+
+=head2 ancestors
+
+ Title   : ancestors
+ Usage   : my @ancestor_taxa = $db->ancestors($taxon)
+ Function: Retrieve the full ancestor taxon of a supplied Taxon from the
+           database. 
+ Returns : List of Bio::Taxon
+ Args    : Bio::Taxon (that was retrieved from this database)
+
+=cut
+
+#sub ancestors {
+#    my ( $self, $taxon ) = @_;
+#    $self->throw("Must supply a Bio::Taxon")
+#      unless ref($taxon) && $taxon->isa('Bio::Taxon');
+#    $self->throw("The supplied Taxon must belong to this database")
+#      unless $taxon->db_handle && $taxon->db_handle eq $self;
+#    my $id =
+#      $taxon->id || $self->throw("The supplied Taxon is missing its id!");
+#    
+#    my $sth = $self->{dbh}->prepare_cached(<<SQL);
+#    WITH RECURSIVE
+#        ancestor(id) AS (
+#          SELECT taxon_id FROM taxon WHERE id=@BASELINE
+#          UNION
+#          SELECT derivedfrom.xfrom, checkin.mtime
+#            FROM ancestor, derivedfrom, checkin
+#           WHERE ancestor.id=derivedfrom.xto
+#             AND checkin.id=derivedfrom.xfrom
+#           ORDER BY checkin.mtime DESC
+#           LIMIT 20
+#        )
+#    SELECT * FROM checkin JOIN ancestor USING(id);
+#SQL
+#    
+#    if ($taxon->trusted_parent_id) {
+#        # this is the failsafe when we hit the root node
+#        if ($taxon->parent_id eq $id) {
+#            return;
+#        }
+#        my $anc = $self->get_taxon(-taxonid => $taxon->parent_id);
+#        
+#    } else {
+#        # TODO: would there be any other option?
+#        return;
+#    }
+#}
 
 =head2 each_Descendent
 
@@ -485,19 +536,22 @@ sub _build_index {
     # TODO: need to disambiguate using index_directory here since we only have
     # one file.  Mayeb ignore it in favor of having full path for db_name?
     my ($dir, $db_name) = ($self->index_directory, $self->db_name);
-    
-    # TODO: we're ignoring index_directory for now, may add support for this
-    # down the way
-    my $dbh = DBI->connect("dbi:SQLite:dbname=$db_name","","") or die $!;
-
-    $dbh->do('PRAGMA synchronous = 0');      # Non transaction safe!!!
-    
-    if ($self->cache_size) {
-        $dbh->do('PRAGMA cache_size = '.$self->cache_size) 
-    }
-
     if (! -e $db_name || $force) {
         
+        # TODO: we're ignoring index_directory for now, may add support for this
+        # down the way
+        my $dbh = DBI->connect("dbi:SQLite:dbname=$db_name","","") or die $!;
+        
+        $self->debug("Running SQLite version:".$dbh->{sqlite_version}."\n");
+    
+        #$dbh->do('PRAGMA synchronous = 0');      # Non transaction safe!!!
+        
+        if ($self->cache_size) {
+            my $cs = $self->cache_size;
+            $self->debug("Setting cache size $cs\n");
+            $dbh->do("PRAGMA cache_size = $cs") 
+        }
+
         $self->debug("Loading taxon table data\n");
         $self->_init_db($dbh);
         open my $NODES, '<', $nodesfile
@@ -523,9 +577,8 @@ SQL
             
             $sth->execute($taxid, $parent, $rank, $code, $divid, $gen_code, $mito) or die $sth->errstr.": TaxID $taxid";
         }
-        $dbh->do("COMMIT");
+        $dbh->do("COMMIT") or $self->throw($dbh->errstr);
         
-        # TODO:index parent_id?
         close $NODES;
         
         $self->debug("Loading name table data\n");
@@ -553,8 +606,16 @@ SQL
             $sth->execute($taxid, $name, $unique_name, $class) or $self->throw($sth->errstr);
         }
         $dbh->do("COMMIT");
+        
+        $self->debug("Creating taxon/parent index\n");
+        $dbh->do("CREATE INDEX parent_idx ON taxon (parent_id)") or $self->throw($dbh->errstr);
+        $self->debug("Creating name/taxon index\n");
+        $dbh->do("CREATE INDEX name_taxon_idx ON names (taxon_id,name)") or $self->throw($dbh->errstr);
         $dbh->do("PRAGMA foreign_keys = ON");
+        
         close $NAMES;
+        
+        #$dbh->do('PRAGMA synchronous = 1');
         $self->{dbh} = $dbh;
         $self->{'_initialized'} = 1;
     }
@@ -570,7 +631,15 @@ sub _db_connect {
     
     # TODO: we're ignoring index_directory for now, may add support for this
     # down the way
-    $self->{dbh} = DBI->connect("dbi:SQLite:dbname=$db_name","","") or die $!;
+    my $dbh = DBI->connect("dbi:SQLite:dbname=$db_name","","") or die $!;
+    $dbh->do("PRAGMA foreign_keys = ON");
+    if ($self->cache_size) {
+        my $cs = $self->cache_size;
+        $self->debug("Setting cache size $cs\n");
+        $dbh->do("PRAGMA cache_size = $cs") 
+    }
+    $self->{dbh} = $dbh;
+
     $self->{'_initialized'} = 1;
 }
 
@@ -606,7 +675,7 @@ sub taxon_schema {
     return {
     taxon   => <<SCHEMA,
     (
-        taxon_id        INTEGER PRIMARY KEY NOT NULL,
+        taxon_id        INTEGER UNIQUE PRIMARY KEY NOT NULL,
         parent_id       INTEGER,
         left_id         INTEGER,
         right_id        INTEGER,
