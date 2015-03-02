@@ -33,6 +33,18 @@ ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
 
 =head1 TODO
 
+=over 4
+
+=item Optimize codebase
+
+=item Clean up SQL (kinda a mess right now)
+
+=item Check compat. with other NCBI-specific L<Bio::DB::Taxonomy> implementations
+
+=item Plan out feasibility of allowing other backends (Neo4J, other DBI, etc)
+
+=back
+
 Beyond completing the implementation and optimization, this will
 likely be rolled into a more flexible backend at some future point.
 
