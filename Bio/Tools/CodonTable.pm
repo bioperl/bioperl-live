@@ -127,13 +127,11 @@ only differences are in available initiator codons.
 
 
 NCBI Genetic Codes home page:
+     (Last update of the Genetic Codes: April 30, 2013)
      http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi?mode=c
 
-EBI Translation Table Viewer:
-     http://www.ebi.ac.uk/cgi-bin/mutations/trtables.cgi
-
-Amended ASN.1 version with ids 16 and 21 is at:
-     ftp://ftp.ebi.ac.uk/pub/databases/geneticcode/
+ASN.1 version with ids 1 to 25 is at:
+     ftp://ftp.ncbi.nih.gov/entrez/misc/data/gc.prt
 
 Thanks to Matteo diTomasso for the original Perl implementation
 of these tables.
@@ -202,30 +200,33 @@ BEGIN {
 
     @NAMES =            #id
     (
+     'Strict', #0, special option for ATG-only start
      'Standard',        #1
      'Vertebrate Mitochondrial',#2
      'Yeast Mitochondrial',# 3
-     'Mold, Protozoan, and CoelenterateMitochondrial and Mycoplasma/Spiroplasma',#4
+     'Mold, Protozoan, and Coelenterate Mitochondrial and Mycoplasma/Spiroplasma',#4
      'Invertebrate Mitochondrial',#5
      'Ciliate, Dasycladacean and Hexamita Nuclear',# 6
      '', '',
-     'Echinoderm Mitochondrial',#9
+     'Echinoderm and Flatworm Mitochondrial',#9
      'Euplotid Nuclear',#10
-     '"Bacterial"',# 11
+     'Bacterial, Archaeal and Plant Plastid',# 11
      'Alternative Yeast Nuclear',# 12
      'Ascidian Mitochondrial',# 13
-     'Flatworm Mitochondrial',# 14
+     'Alternative Flatworm Mitochondrial',# 14
      'Blepharisma Nuclear',# 15
      'Chlorophycean Mitochondrial',# 16
      '', '',  '', '',
      'Trematode Mitochondrial',# 21
      'Scenedesmus obliquus Mitochondrial', #22
      'Thraustochytrium Mitochondrial', #23
-     'Strict', #24, option for only ATG start
+     'Pterobranchia Mitochondrial', #24
+     'Candidate Division SR1 and Gracilibacteria', #25
      );
 
     @TABLES =
     qw(
+       FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSS**VVVVAAAADDEEGGGG
        FFLLSSSSYY**CCWWTTTTPPPPHHQQRRRRIIMMTTTTNNKKSSRRVVVVAAAADDEEGGGG
@@ -245,7 +246,8 @@ BEGIN {
        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG
        FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSSKVVVVAAAADDEEGGGG
+       FFLLSSSSYY**CCGWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        );
 
    #           (bases used for these tables, for reference)
@@ -255,6 +257,7 @@ BEGIN {
 
     @STARTS =
     qw(
+       -----------------------------------M----------------------------
        ---M---------------M---------------M----------------------------
        --------------------------------MMMM---------------M------------
        ----------------------------------MM----------------------------
@@ -262,11 +265,11 @@ BEGIN {
        ---M----------------------------MMMM---------------M------------
        -----------------------------------M----------------------------
        '' ''
-       -----------------------------------M----------------------------
+       -----------------------------------M---------------M------------
        -----------------------------------M----------------------------
        ---M---------------M------------MMMM---------------M------------
        -------------------M---------------M----------------------------
-       -----------------------------------M----------------------------
+       ---M------------------------------MM---------------M------------
        -----------------------------------M----------------------------
        -----------------------------------M----------------------------
        -----------------------------------M----------------------------
@@ -274,21 +277,22 @@ BEGIN {
        -----------------------------------M---------------M------------
        -----------------------------------M----------------------------
        --------------------------------M--M---------------M------------
-       -----------------------------------M----------------------------
+       ---M---------------M---------------M---------------M------------
+       ---M-------------------------------M---------------M------------
        );
 
     my @nucs = qw(t c a g);
     my $x = 0;
     ($CODONS, $TRCOL) = ({}, {});
     for my $i (@nucs) {
-    for my $j (@nucs) {
-        for my $k (@nucs) {
-        my $codon = "$i$j$k";
-        $CODONS->{$codon} = $x;
-        $TRCOL->{$x} = $codon;
-        $x++;
+        for my $j (@nucs) {
+            for my $k (@nucs) {
+                my $codon = "$i$j$k";
+                $CODONS->{$codon} = $x;
+                $TRCOL->{$x} = $codon;
+                $x++;
+            }
         }
-    }
     }
     %IUPAC_DNA = Bio::Tools::IUPAC->iupac_iub();
     %IUPAC_AA = Bio::Tools::IUPAC->iupac_iup();
@@ -316,25 +320,26 @@ sub new {
  Title   : id
  Usage   : $obj->id(3); $id_integer = $obj->id();
  Function: Sets or returns the id of the translation table.  IDs are
-           integers from 1 to 15, excluding 7 and 8 which have been
-           removed as redundant. If an invalid ID is given the method
-           returns 0, false.
+           integers from 0 (special ATG-only start) to 25, excluding
+           7-8 and 17-20 which have been removed. If an invalid ID is
+           given the method returns 1, the standard table.
  Example :
- Returns : value of id, a scalar, 0 if not a valid
+ Returns : value of id, a scalar, warn and fall back to 1 (standard table)
+           if specified id is not valid
  Args    : newvalue (optional)
 
 =cut
 
 sub id{
-   my ($self,$value) = @_;
-   if( defined $value) {
-       if (  !(defined $TABLES[$value-1]) or $TABLES[$value-1] eq '') {
-       $self->warn("Not a valid codon table ID [$value] ");
-       $value = 0;
-       }
-       $self->{'id'} = $value;
-   }
-   return $self->{'id'};
+    my ($self,$value) = @_;
+    if( defined $value) {
+        if (  not defined $TABLES[$value] or $TABLES[$value] eq '') {
+            $self->warn("Not a valid codon table ID [$value], using [1] instead ");
+            $value = 1;
+        }
+        $self->{'id'} = $value;
+    }
+    return $self->{'id'};
 }
 
 =head2 name
@@ -353,7 +358,7 @@ sub name{
    my ($self) = @_;
 
    my ($id) = $self->{'id'};
-   return $NAMES[$id-1];
+   return $NAMES[$id];
 }
 
 =head2 tables
@@ -372,8 +377,8 @@ sub name{
 
 sub tables{
   my %tables;
-  for my $id (1 .. @NAMES) {
-    my $name = $NAMES[$id-1];
+  for my $id (0 .. $#NAMES) {
+    my $name = $NAMES[$id];
     $tables{$id} = $name if $name;
   }
   return \%tables;
@@ -424,37 +429,38 @@ sub translate {
     if ($seq =~ /[^actg]/ ) { #ambiguous chars
         for (my $i = 0; $i < (length($seq) - (CODONSIZE-1)); $i+= CODONSIZE) {
             my $triplet = substr($seq, $i, CODONSIZE);
-        if( $triplet eq $CODONGAP ) {
-        $protein .= $GAP;
-        } elsif (exists $CODONS->{$triplet}) {
-        $protein .= substr($TABLES[$id-1], 
-                   $CODONS->{$triplet},1);
-        } else {
-        $protein .= $self->_translate_ambiguous_codon($triplet);
-        }
-    }
-    } else { # simple, strict translation
-    for (my $i = 0; $i < (length($seq) - (CODONSIZE -1)); $i+=CODONSIZE) {
-            my $triplet = substr($seq, $i, CODONSIZE); 
             if( $triplet eq $CODONGAP ) {
-        $protein .= $GAP;
-        } if (exists $CODONS->{$triplet}) {
-                $protein .= substr($TABLES[$id-1], $CODONS->{$triplet}, 1);
-        } else {
+                $protein .= $GAP;
+            } elsif (exists $CODONS->{$triplet}) {
+                $protein .= substr($TABLES[$id],
+                           $CODONS->{$triplet},1);
+            } else {
+                $protein .= $self->_translate_ambiguous_codon($triplet);
+            }
+        }
+    } else { # simple, strict translation
+        for (my $i = 0; $i < (length($seq) - (CODONSIZE -1)); $i+=CODONSIZE) {
+            my $triplet = substr($seq, $i, CODONSIZE);
+            if( $triplet eq $CODONGAP ) {
+                $protein .= $GAP;
+            }
+            if (exists $CODONS->{$triplet}) {
+                $protein .= substr($TABLES[$id], $CODONS->{$triplet}, 1);
+            } else {
                 $protein .= 'X';
             }
         }
     }
     if ($partial == 2 && $complete_codon) { # 2 overhanging nucleotides
-    my $triplet = substr($seq, ($partial -4)). "n";
-    if( $triplet eq $CODONGAP ) {
-        $protein .= $GAP;
-    } elsif (exists $CODONS->{$triplet}) {
-        my $aa = substr($TABLES[$id-1], $CODONS->{$triplet},1);       
-        $protein .= $aa;
-    } else {
-        $protein .= $self->_translate_ambiguous_codon($triplet, $partial);
-    }
+        my $triplet = substr($seq, ($partial -4)). "n";
+        if( $triplet eq $CODONGAP ) {
+            $protein .= $GAP;
+        } elsif (exists $CODONS->{$triplet}) {
+            my $aa = substr($TABLES[$id], $CODONS->{$triplet},1);
+            $protein .= $aa;
+        } else {
+            $protein .= $self->_translate_ambiguous_codon($triplet, $partial);
+        }
     }
     return $protein;
 }
@@ -467,23 +473,23 @@ sub _translate_ambiguous_codon {
     my @codons = $self->unambiguous_codons($triplet);
     my %aas =();
     foreach my $codon (@codons) {
-    $aas{substr($TABLES[$id-1],$CODONS->{$codon},1)} = 1;
+        $aas{substr($TABLES[$id],$CODONS->{$codon},1)} = 1;
     }
     my $count = scalar keys %aas;
     if ( $count == 1 ) {
-    $aa = (keys %aas)[0];
+        $aa = (keys %aas)[0];
     }
     elsif ( $count == 2 ) {
-    if ($aas{'D'} and $aas{'N'}) {
-        $aa = 'B';
-    }
-    elsif ($aas{'E'} and $aas{'Q'}) {
-        $aa = 'Z';
+        if ($aas{'D'} and $aas{'N'}) {
+            $aa = 'B';
+        }
+        elsif ($aas{'E'} and $aas{'Q'}) {
+            $aa = 'Z';
+        } else {
+            $partial ? ($aa = '') : ($aa = 'X');
+        }
     } else {
-        $partial ? ($aa = '') : ($aa = 'X');
-    }
-    } else {
-    $partial ? ($aa = '') :  ($aa = 'X');
+        $partial ? ($aa = '') :  ($aa = 'X');
     }
     return $aa;
 }
@@ -520,7 +526,7 @@ sub translate_strict{
 
    return 'X' unless defined $CODONS->{$value};
 
-   return substr( $TABLES[$id-1], $CODONS->{$value}, 1 );
+   return substr( $TABLES[$id], $CODONS->{$value}, 1 );
 }
 
 =head2 revtranslate
@@ -554,8 +560,9 @@ sub revtranslate {
         $value = ucfirst $value;
         $value = $THREELETTERSYMBOLS{$value};
     }
-    if ( defined $value and $value =~ /$VALID_PROTEIN/
-          and length($value) == 1 ) {
+    if (    defined $value and $value =~ /$VALID_PROTEIN/
+        and length($value) == 1
+        ) {
         my $id = $self->{'id'};
 
         $value = uc $value;
@@ -563,18 +570,18 @@ sub revtranslate {
         foreach my $aa (@aas) {
             #print $aa, " -2\n";
             $aa = '\*' if $aa eq '*';
-          while ($TABLES[$id-1] =~ m/$aa/g) {
-              my $p = pos $TABLES[$id-1];
-              push (@codons, $TRCOL->{--$p});
-          }
+            while ($TABLES[$id] =~ m/$aa/g) {
+                my $p = pos $TABLES[$id];
+                push (@codons, $TRCOL->{--$p});
+            }
         }
     }
 
-   if ($coding and uc ($coding) eq 'RNA') {
-       for my $i (0..$#codons)  {
-          $codons[$i] =~ tr/t/u/;
-       }
-   }
+    if ($coding and uc ($coding) eq 'RNA') {
+        for my $i (0..$#codons)  {
+            $codons[$i] =~ tr/t/u/;
+        }
+    }
 
    return @codons;
 }
@@ -597,7 +604,6 @@ sub revtranslate {
 =cut
 
 sub reverse_translate_all {
-
     my ($self, $obj, $cut, $threshold) = @_;
 
     ## check args are OK
@@ -642,7 +648,6 @@ sub reverse_translate_all {
     }
 
     return $self->_make_iupac_string(\@data);
-
 }
 
 =head2 reverse_translate_best
@@ -689,7 +694,7 @@ sub reverse_translate_best {
             $self->throw("Input sequence contains invalid character: $aa");
         }
     }
-   $str;
+   return $str;
 }
 
 =head2 is_start_codon
@@ -742,7 +747,7 @@ sub _codon_is {
 
    my $id = $self->{'id'};
    for my $c ( $self->unambiguous_codons($value) ) {
-       my $m = substr( $table->[$id-1], $CODONS->{$c}, 1 );
+       my $m = substr( $table->[$id], $CODONS->{$c}, 1 );
        return 0 unless $m eq $key;
    }
    return 1;
@@ -818,21 +823,19 @@ sub _unambiquous_codons {
 sub add_table {
     my ($self, $name, $table, $starts) = @_;
 
-    $name ||= 'Custom'. scalar @NAMES + 1;
-    $starts ||= $STARTS[0]; 
+    $name   ||= 'Custom' . $#NAMES + 1;
+    $starts ||= $STARTS[1];
     $self->throw('Suspect input!')
         unless length($table) == 64 and length($starts) == 64;
 
-    push @NAMES, $name;
+    push @NAMES,  $name;
     push @TABLES, $table;
     push @STARTS, $starts;
 
-    return scalar @NAMES;
-
+    return $#NAMES;
 }
 
 sub _make_iupac_string {
-
     my ($self, $cod_ref) = @_;
     if(ref($cod_ref) ne 'ARRAY') {
         $self->throw(" I need a reference to a list of references to codons, ".
@@ -855,7 +858,6 @@ sub _make_iupac_string {
         }
     }
     return $iupac_string;
-
 }
 
 

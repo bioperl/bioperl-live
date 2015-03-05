@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/bioperl/bioperl-live.svg?branch=master)](https://travis-ci.org/bioperl/bioperl-live)
+[![Coverage Status](https://coveralls.io/repos/bioperl/bioperl-live/badge.png?branch=master)](https://coveralls.io/r/bioperl/bioperl-live?branch=master)
 
 # Getting Started
 

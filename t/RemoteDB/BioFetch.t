@@ -63,6 +63,7 @@ SKIP: {
 SKIP: {
     #swissprot
     ok $db2 = Bio::DB::BioFetch->new(-db => 'swissprot');
+    test_skip(-tests => 5, -requires_module => 'Data::Stag');
     eval {
         $seq = $db2->get_Seq_by_id('YNB3_YEAST');
     };
@@ -124,13 +125,13 @@ SKIP: {
 # unisave
 SKIP: {
     ok $db = Bio::DB::BioFetch->new(-db      => 'unisave',
-                                    -verbose => $verbose);
+                                    -verbose => $verbose ? $verbose : -1);
     eval {
-        $seq = $db->get_Seq_by_acc('LAM1_MOUSE');
+        $seq = $db->get_Seq_by_acc('P14733');
     };
     skip($dbwarn, 4) if $@;
     isa_ok($seq, 'Bio::SeqI');
-    is($seq->display_id, 'LAM1_MOUSE');
+    is($seq->display_id, 'LMNB1_MOUSE');
     is($seq->accession, 'P14733');
-    is($seq->length, 587);
+    is($seq->length, 588);
 }

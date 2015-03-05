@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 26);
+    test_begin(-tests => 27);
 
     use_ok('Bio::Seq');
     use_ok('Bio::SeqIO');
@@ -80,17 +80,20 @@ my $cut_feat = Bio::SeqFeature::Generic->new(-primary_tag => 'CDS',
                                                        protein_id => 'YP_718205.1',
                                                       } );
 $seq_obj->add_SeqFeature($cut_feat);
-is $cut_feat->seq->seq,       'TTTTTAA', 'cut by origin sequence';
-is $cut_feat->start,           16,       'cut by origin start using $feat->start';
-is $cut_feat->end,             2,        'cut by origin end using $feat->end';
-is $cut_feat->location->start, 16,       'cut by origin start using $feat->location->start';
-is $cut_feat->location->end,   2,        'cut by origin end using $feat->location->end';
+is $cut_feat->seq->seq,         'TTTTTAA', 'cut by origin sequence using $feat->seq';
+is $cut_feat->spliced_seq->seq, 'TTTTTAA', 'cut by origin sequence using $feat->spliced_seq';
+is $cut_feat->start,             16,       'cut by origin start using $feat->start';
+is $cut_feat->end,               2,        'cut by origin end using $feat->end';
+is $cut_feat->location->start,   16,       'cut by origin start using $feat->location->start';
+is $cut_feat->location->end,     2,        'cut by origin end using $feat->location->end';
 
 SKIP: {
-    test_skip(-tests => 3, -requires_module => 'LWP::UserAgent', -requires_networking => 1);
+    test_skip(-tests => 3,
+              -requires_modules    => [qw(Bio::DB::GenBank
+                                          LWP::UserAgent )],
+              -requires_networking => 1);
     my $db_in;
     eval {
-        use Bio::DB::GenBank;
         ok $db_in = Bio::DB::GenBank->new();
         my $seq_obj = $db_in->get_Seq_by_id('AF032048.1');
     };

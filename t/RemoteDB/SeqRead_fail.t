@@ -27,13 +27,19 @@ sub fetch {
     my ($id, $class) = @_;
     print "###################### $class  ####################################\n" if $verbose;
     my $seq;
-    ok defined( my $gb = $class->new('-verbose'=>$verbose,
-									 '-delay'=>0,
-									 '-retrievaltype' => 'tempfile') ), "defined for $class";
+    ok defined( my $gb = $class->new('-verbose'       => $verbose,
+                                     '-delay'         => 0,
+                                     '-retrievaltype' => 'tempfile') ), "defined for $class";
+
+    if ($class eq 'Bio::DB::SwissProt') {
+        test_skip(-tests => 1, -requires_module => 'Data::Stag');
+        next if $@;
+    }
+
     eval { $seq = $gb->get_Seq_by_id($id) };
     if ($@ || !defined $seq) {
-		ok 1, "error or undef for $class";
-		return;
+        ok 1, "error or undef for $class";
+        return;
     }
     ok 0, "failure for $class";
 }

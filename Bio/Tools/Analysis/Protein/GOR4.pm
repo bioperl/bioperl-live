@@ -153,12 +153,12 @@ use Bio::SeqIO;
 use HTTP::Request::Common qw(POST);
 use Bio::SeqFeature::Generic;
 use Bio::Seq::Meta::Array;
-
+$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
 
 use base qw(Bio::Tools::Analysis::SimpleAnalysisBase);
 
 use constant MIN_STRUC_LEN => 3;
-my $URL = 'http://npsa-pbil.ibcp.fr/cgi-bin/secpred_gor4.pl';
+my $URL = 'https://npsa-prabi.ibcp.fr/cgi-bin/secpred_sopma.pl';
 my $ANALYSIS_NAME = 'GOR4';
 my $ANALYSIS_SPEC = {name => 'Gor4', type => 'Protein'};
 my $INPUT_SPEC    = [
@@ -366,11 +366,9 @@ sub  _run {
     my $out = 'http://npsa-pbil.ibcp.fr/'.$next;
     my $req2 = HTTP::Request->new(GET=>$out);
     my $resp2 = $self->request($req2);
-	$self->status('COMPLETED') if $resp2 ne '';
+    $self->status('COMPLETED') if $resp2 ne '';
     $self->{'_result'} = $resp2->content;
 }
-
-
 
 
 1;

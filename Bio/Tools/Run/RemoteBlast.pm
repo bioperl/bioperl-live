@@ -161,6 +161,7 @@ use IO::String;
 use Bio::SearchIO;
 use LWP;
 use HTTP::Request::Common;
+use Bio::Root::Version;
 
 use constant {
     NOT_FINISHED => 0,

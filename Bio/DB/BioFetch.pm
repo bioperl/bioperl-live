@@ -26,14 +26,14 @@ Bio::DB::BioFetch - Database object interface to BioFetch retrieval
 
  $bf = Bio::DB::BioFetch->new();
 
- $seq = $bf->get_Seq_by_id('BUM');  # EMBL or SWALL ID
+ $seq = $bf->get_Seq_by_id('HSFOS');  # EMBL or SWALL ID
 
  # change formats, storage procedures
  $bf = Bio::DB::BioFetch->new(-format        => 'fasta',
  			     -retrievaltype => 'tempfile',
   			     -db            => 'EMBL');
 
- $stream = $bf->get_Stream_by_id(['BUM','J00231']);
+ $stream = $bf->get_Stream_by_id(['HSFOS','J00231']);
  while (my $s = $stream->next_seq) {
     print $s->seq,"\n";
  }
@@ -135,7 +135,7 @@ BEGIN {
 	    fasta     => 'fasta',
 	    namespace => 'uniprot',
 	},
-    'uniprot' => {
+	'uniprot' => {
 	    default   => 'swiss',
 	    swissprot => 'swiss',
 	    fasta     => 'fasta',

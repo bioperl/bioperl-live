@@ -16,7 +16,6 @@ BEGIN {
 
     test_begin(-tests               => 7,
                -requires_modules    => [qw(IO::String
-                                           LWP
                                            LWP::UserAgent)],
                -requires_networking => 1);
 
@@ -30,7 +29,7 @@ ok( -e $inputfilename);
 my $remote_rpsblast
     = Bio::Tools::Run::RemoteBlast->new(-verbose    => test_debug(),
                                         -prog       => 'blastp',
-                                        -data       => 'cdsearch/cdd',
+                                        -data       => 'cdd',
                                         -readmethod => 'blasttable',
                                         -expect     => '1e-10',
                                         );
@@ -76,6 +75,7 @@ SKIP: {
         $remote_rpsblast->remove_rid($rids[0]);
         my $count = 0;
         isa_ok($rc, 'Bio::SearchIO');
+        
         while (my $result = $rc->next_result) {
             while ( my $hit = $result->next_hit ) {
                 $count++;

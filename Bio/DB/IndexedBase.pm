@@ -241,7 +241,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::DB::IndexedBase;
 
 BEGIN {
-    @AnyDBM_File::ISA = qw(DB_File GDBM_File NDBM_File SDBM_File) 
+    @AnyDBM_File::ISA = qw(DB_File GDBM_File NDBM_File SDBM_File)
         if(!$INC{'AnyDBM_File.pm'});
 }
 
@@ -266,6 +266,46 @@ use constant PROTEIN   => 3;
 
 use constant DIE_ON_MISSMATCHED_LINES => 1;
 # you can avoid dying if you want but you may get incorrect results
+
+
+# Compiling the below regular expressions speeds up the Pure Perl
+# seq/subseq() from Bio::DB::Fasta by about 7% from 7.76s to 7.22s
+# over 32358 calls on Variant Effect Prediction data.
+my $nl = qr/\n/;
+my $cr = qr/\r/;
+
+# Remove carriage returns (\r) and newlines (\n) from a string.  When
+# called from subseq, this can take a signficiant portion of time, in
+# Variant Effect Prediction. Therefore we compile the match portion.
+sub _strip_crnl {
+    my $str = shift;
+    $str =~ s/$nl//g;
+    $str =~ s/$cr//g;
+    return $str;
+}
+
+# C can do perfrom _strip_crnl much faster. But this requires the
+# Inline::C module which we don't require people to have. So we make
+# this optional by wrapping the C code in an eval. If the eval works,
+# the Perl strip_crnl() function is overwritten.
+eval q{
+    use Inline C  => <<'END_OF_C_CODE';
+    /* Strip all new line (\n) and carriage return (\r) characters
+       from string str
+    */
+    char* _strip_crnl(char* str) {
+        char *s;
+        char *s2 = str;
+        for (s = str; *s; *s++) {
+            if (*s != '\n' && *s != '\r') {
+              *s2++ = *s;
+            }
+        }
+        *s2 = '\0';
+        return str;
+    }
+END_OF_C_CODE
+};
 
 
 =head2 new
@@ -682,6 +722,8 @@ sub _close_index {
     return 1;
 }
 
+# Compiling the below regular expression speeds up _parse_compound_id
+my $compound_id = qr/^ (.+?) (?:\:([\d_]+)(?:,|-|\.\.)([\d_]+))? (?:\/(.+))? $/x;
 
 sub _parse_compound_id {
     # Handle compound IDs:
@@ -699,7 +741,7 @@ sub _parse_compound_id {
     if ( (not defined $start ) &&
          (not defined $stop  ) &&
          (not defined $strand) &&
-         ($id =~ /^ (.+?) (?:\:([\d_]+)(?:,|-|\.\.)([\d_]+))? (?:\/(.+))? $/x) ) {
+         ($id =~ m{$compound_id}) ) {
         # Start, stop and strand not provided and ID looks like a compound ID
         ($id, $start, $stop, $strand) = ($1, $2, $3, $4);
     }

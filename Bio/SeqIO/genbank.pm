@@ -499,7 +499,9 @@ sub next_seq {
                 }
             }
 
-            # Comments
+            # Comments may be plain text or Structured Comments.
+            # Structured Comments are made up of tag/value pairs and have beginning 
+            # and end delimiters like ##*-Data-START## and ##*-Data-END##
             elsif ($line =~ /^COMMENT\s+(\S.*)/) {
                 if ($annotation) {
                     my $comment = $1;
@@ -507,8 +509,20 @@ sub next_seq {
                         last if ($line =~ /^\S/);
                         $comment .= $line;
                     }
-                    $comment =~ s/\n/ /g;
                     $comment =~ s/  +/ /g;
+                    # Structured Comment, do not remove returns in the tabular section
+                    if ( my ( $text, $table )= $comment
+                        =~ /([^#]*)(##\S+Data-START##.+?##\S+Data-END##)/is
+                        ) {
+                        $text    =~ s/\n/ /g if $text;
+                        $table   =~ s/START##/START##\n/;
+                        $table   =~ s/^\s+//gm;
+                        $comment = $text . "\n" . $table;
+                    }
+                    # Plain text, remove returns
+                    else {
+                        $comment =~ s/\n/ /g;
+                    }
                     $annotation->add_Annotation(
                         'comment',
                         Bio::Annotation::Comment->new(

@@ -42,19 +42,24 @@ email or the web:
 use Bio::SeqIO;
 use Getopt::Long;
 
-my ($format) = 'fasta';
+my ($format,$outfile) = 'fasta';
 
 GetOptions(
-	   'format:s'  => \$format,
-	   );
+    'f|format:s'  => \$format,
+    'o|out|outfile:s' => \$outfile,
+    );
 
 my $oformat = 'fasta';
 
 # this implicity uses the <> file stream
-my $seqin = Bio::SeqIO->new( -format => $format, -file => shift); 
-my $seqout = Bio::SeqIO->new( -format => $oformat, -file => ">-" );
-
-
+my $seqin = Bio::SeqIO->new( -format => $format, -fh => \*ARGV); 
+my $seqout;
+if( $outfile ) {
+    $seqout = Bio::SeqIO->new( -format => $oformat, -file => ">$outfile" );
+} else {
+# defaults to writing to STDOUT
+    $seqout = Bio::SeqIO->new( -format => $oformat );
+}
 while( (my $seq = $seqin->next_seq()) ) {
 	my $pseq = $seq->translate();
 	$seqout->write_seq($pseq);

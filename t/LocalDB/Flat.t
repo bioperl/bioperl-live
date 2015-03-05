@@ -4,13 +4,13 @@
 use strict;
 
 BEGIN {
-	use lib '.';
-	use Bio::Root::Test;
+    use lib '.';
+    use Bio::Root::Test;
 
-	test_begin(-tests => 25,
-                -requires_module => 'DB_File');
+    test_begin(-tests => 25,
+               -requires_module => 'DB_File');
 
-	use_ok('Bio::DB::Flat');
+    use_ok('Bio::DB::Flat');
 }
 
 my $verbose = test_debug();
@@ -21,10 +21,10 @@ my $tmpdir = test_output_dir();
 
 my $db = Bio::DB::Flat->new(-directory  => $tmpdir,
                             -index      => 'bdb',
-									 -dbname     => 'mydb',
-									 -format     => 'fasta',
-									 -verbose    => $verbose,
-									 -write_flag => 1 );
+                            -dbname     => 'mydb',
+                            -format     => 'fasta',
+                            -verbose    => $verbose,
+                            -write_flag => 1 );
 ok($db);
 my $dir = test_input_file('AAC12660.fa');
 my $result = $db->build_index(glob($dir));
@@ -39,7 +39,7 @@ undef $db;
 $db = Bio::DB::Flat->new(-directory  => $tmpdir,
                          -index      => 'bdb',
                          -format     => 'embl',
-						 -dbname     => 'myembl',
+                         -dbname     => 'myembl',
                          -verbose    => $verbose,
                          -write_flag => 1 );
 
@@ -63,12 +63,12 @@ is($seq->length,192);
 undef $db;
 
 $db = Bio::DB::Flat->new(-directory  => $tmpdir,
-			 -index      => 'binarysearch',
-			 -format     => 'fasta',
-			 -dbname     => 'mybinfa',
-			 -verbose    => $verbose,
-			 -write_flag => 1
-			 );
+                         -index      => 'binarysearch',
+                         -format     => 'fasta',
+                         -dbname     => 'mybinfa',
+                         -verbose    => $verbose,
+                         -write_flag => 1
+                         );
 
 $dir= test_input_file('dbfa', '1.fa');
 $result = $db->build_index($dir);
@@ -78,30 +78,32 @@ ok($seq);
 is($seq->length,808);
 undef $db;
 
-$db = Bio::DB::Flat->new(-directory  => $tmpdir,
-			 -index      => 'binarysearch',
-			 -format     => 'swiss',
-			 -dbname     => 'mybinswiss',
-			 -verbose    => $verbose,
-			 -write_flag => 1
-			 );
-$dir= test_input_file('swiss.dat');
-$result = $db->build_index($dir);
+SKIP: {
+    test_skip(-tests => 4, -requires_module => 'Data::Stag');
+    $db = Bio::DB::Flat->new(-directory  => $tmpdir,
+                             -index      => 'binarysearch',
+                             -format     => 'swiss',
+                             -dbname     => 'mybinswiss',
+                             -verbose    => $verbose,
+                             -write_flag => 1
+                             );
+    $dir= test_input_file('swiss.dat');
+    $result = $db->build_index($dir);
 
-ok($result);
-$seq = $db->get_Seq_by_id('ACON_CAEEL');
-ok($seq);
-is($seq->length,788);
+    ok($result);
+    $seq = $db->get_Seq_by_id('ACON_CAEEL');
+    ok($seq);
+    is($seq->length,788);
 
-$seq = $db->get_Seq_by_id('ACON_CAEEL');
-ok($seq && ref($seq));
+    $seq = $db->get_Seq_by_id('ACON_CAEEL');
+    ok($seq && ref($seq));
 
-undef $db;
-
+    undef $db;
+}
 $db = Bio::DB::Flat->new(-directory  => $tmpdir,
                          -index      => 'binarysearch',
                          -format     => 'fasta',
-								 -dbname     => 'myfasta',
+                         -dbname     => 'myfasta',
                          -verbose    => $verbose,
                          -write_flag => 1 );
 
@@ -116,7 +118,7 @@ undef $db;
 $db = Bio::DB::Flat->new(-directory  => $tmpdir,
                          -index      => 'bdb',
                          -format     => 'fasta',
-								 -dbname     => 'mybfasta',
+                         -dbname     => 'mybfasta',
                          -verbose    => $verbose,
                          -write_flag => 1 );
 
@@ -124,6 +126,6 @@ $dir = test_input_file('tmp.fst');
 $result = $db->build_index(glob($dir));
 ok($result);
 for my $id ( qw(TEST00001 TEST00002 TEST00003 TEST00004) ) {
-	$seq = $db->get_Seq_by_id($id);
-	is($seq->length,98);
+    $seq = $db->get_Seq_by_id($id);
+    is($seq->length,98);
 }

@@ -243,7 +243,6 @@ sub _calculate_offsets {
     return \%offsets;
 }
 
-
 =head2 seq
 
  Title   : seq, sequence, subseq
@@ -289,8 +288,8 @@ sub subseq {
 
     seek($fh, $filestart,0);
     read($fh, $data, $filestop-$filestart+1);
-    $data =~ s/\n//g;
-    $data =~ s/\r//g;
+
+    $data = Bio::DB::IndexedBase::_strip_crnl($data);
 
     if ($strand == -1) {
         # Reverse-complement the sequence
@@ -332,8 +331,7 @@ sub header {
     read($fh, $data, $headerlen);
     # On Windows chomp remove '\n' but leaves '\r'
     # when reading '\r\n' in binary mode
-    $data =~ s/\n//g;
-    $data =~ s/\r//g;
+    $data = Bio::DB::IndexedBase::_strip_crnl($data);
     substr($data, 0, 1) = '';
     return $data;
 }

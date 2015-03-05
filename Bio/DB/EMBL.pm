@@ -23,7 +23,7 @@ Bio::DB::EMBL - Database object interface for EMBL entry retrieval
   $embl = Bio::DB::EMBL->new();
 
   # remember that EMBL_ID does not equal GenBank_ID!
-  $seq = $embl->get_Seq_by_id('BUM'); # EMBL ID
+  $seq = $embl->get_Seq_by_id('HSFOS'); # EMBL ID
   print "cloneid is ", $seq->id, "\n";
 
   # or changeing to accession number and Fasta format ...

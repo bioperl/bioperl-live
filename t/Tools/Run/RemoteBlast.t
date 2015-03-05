@@ -9,7 +9,6 @@ BEGIN {
 
     test_begin(-tests               => 21,
                -requires_modules    => [qw(IO::String
-                                           LWP
                                            LWP::UserAgent)],
                -requires_networking => 1);
 

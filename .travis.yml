@@ -26,6 +26,8 @@ install:
     - "cpanm Bio::Phylo | tail -n 1"
     - "cpanm Test::Weaken | tail -n 1"
     - "cpanm Test::Memory::Cycle | tail -n 1"
+    #Test coverage from Coveralls
+    #- cpanm --quiet --notest Devel::Cover::Report::Coveralls
     #for some reason tests and deps aren't skipped here.  Will have to look into it more...
     #git repos, seems to only work for simple checkouts, so pure perl only (TODO: look into before_script for more detail)
     - "git clone https://github.com/bioperl/Bio-Root.git; export PERL5LIB=$( pwd )/Bio-Root/lib:$PERL5LIB"
@@ -34,6 +36,10 @@ install:
 
 script:
     - "./Build test"
+    #Devel::Cover coverage options are: statement, branch, condition, path, subroutine, pod, time, all and none
+    #- "./Build build && cover -test -report coveralls" #complete version coverage test
+    #- PERL5OPT=-MDevel::Cover=+ignore,prove,-coverage,statement,subroutine prove -lr t #limited version coverage test
+    #- cover -report coveralls
 
 #TODO - send emails to bioperl-guts-l
 notifications:

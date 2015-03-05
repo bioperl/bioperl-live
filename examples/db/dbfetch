@@ -39,7 +39,7 @@ searches returning more than one entry per query term are not in these
 specs.
 
 In its default setup, type one or more EMBL accession numbers
-(e.g. J00231), entry name (e.g. BUM) or sequence version into the
+(e.g. J00231), entry name (e.g. HSFOS) or sequence version into the
 seach dialog to retieve hypertext linked enties.
 
 Note that for practical reasons only the first 50 identifiers
@@ -276,7 +276,7 @@ sub print_prompt {
 	  $q->p("This page allows you to retrieve up to ". MAXIDS .
 		 " entries at the time from various up-to-date biological databases."),
 	  $q->p("For EMBL, enter an  accession number (e.g. J00231) or entry name (e.g.
-		 BUM) or a sequence version (e.g. J00231.1), or any combination of them
+		 HSFOS) or a sequence version (e.g. J00231.1), or any combination of them
 		 separated by a non-word character into your browser's search dialog.
 		 SWALL examples are: fos_human, p53_human.
 		 For short Ensembl entries, try : AL122059, AL031002, AL031030 .

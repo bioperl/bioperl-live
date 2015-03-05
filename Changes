@@ -17,6 +17,36 @@ Bugs and requested features list:
 CPAN releases are branched from 'master'.
 ---------------------------------------------------------
 
+1.6.925
+
+    * WrapperBase quoted option values [majensen]
+    * Various documentation fixes and updates [bosborne]
+    
+   [Bug Fixes]
+   
+    * Fixes in Bio::Root::Build to deal with META.json/yml for CPAN indexing [cjfields]
+    * Bio::SeqFeature::Generic spliced_seq() bug fix [Eric Snyder, via bosborne]
+    * NeXML parser fixes [fjossandon]
+    * Bug fix for Bio::DB::SeqFeature memory adapter [lstein]
+    * Issue #70: CONTIG parsing in GenBank output fixed [fjossandon]
+    * Issue #76: Circular genome fixes with Bio::Location::Split [fjossandon]
+    * Issue #80: Fix lack of caching issue with Bio::DB::Taxonomy [fjossandon]
+    * Issue #81: Small updates to make sure possible memory leaks are detected [cjfields]
+    * Issue #84: EMBL format wrapping problem [nyamned]
+    * Issue #90: Missing entries for translation tables 24 and 25 [fjossandon]
+    * Issue #95: Speed up of Bio::DB::Fasta::subseq by using a compiled regex
+      or compiled C code (when Inline::C is installed) [rocky]
+    * Fix various Bio::Tools::Analysis remote server config problems [cjfields]
+    * Added several missing 'Data::Stag' and 'LWP::UserAgent' requirements [fjossandon]
+    * Added a workaround in Bio::DB::Registry to get Username in Windows [fjossandon]
+    * For HMMer report parsing, changed "$hsp->bits" to return 0 instead of undef
+      to be consistent with "$hit->bits" behaviour [fjossandon]
+    * Fixed a bug in HMMer3 parsing, where an homology line ending in CS or RF
+      aminoacids made "next_seq" confused and broke the parser [fjossandon]
+    * Adjusted FTLocationFactory.pm to comply with current GenBank Feature Table
+      Definition, so now "join(complement(C..D),complement(A..B))" is equivalent
+      to "complement(join(A..B,C..D))" [fjossandon]
+
 1.6.924
 
     [Significant changes]

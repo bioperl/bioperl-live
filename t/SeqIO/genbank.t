@@ -1,12 +1,11 @@
 # -*-Perl-*- Test Harness script for Bioperl
-# $Id$
 
 use strict;
 
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 296);
+    test_begin(-tests => 301);
     use_ok('Bio::SeqIO::genbank');
 }
 
@@ -693,3 +692,28 @@ is $features[0]->primary_tag, 'CDS', 'Correct primary tag for feature';
 @features = $seq->remove_SeqFeatures;
 is $#features, 9, 'Got 10 features';
 
+# Handle Structured Comments in COMMENT section
+$seq = Bio::SeqIO->new(-format => 'genbank',
+                       -file   => test_input_file('KF527485.gbk') )->next_seq;
+my $comment = ($seq->get_Annotations('comment') )[0];
+is($comment->as_text, "Comment: 
+##Assembly-Data-START##
+Assembly Method :: Lasergene v. 10
+Sequencing Technology :: ABI37XL; Sanger dideoxy sequencing
+##Assembly-Data-END##",
+"Got correct Structured Comment");
+
+$seq = Bio::SeqIO->new(-format => 'genbank',
+                       -file   => test_input_file('HM138502.gbk') )->next_seq;
+$comment = ($seq->get_Annotations('comment') )[0];
+ok( $comment->as_text
+        =~ /^Comment: Swine influenza A \(H1N1\) virus isolated during human swine flu outbreak of 2009/,
+    "Got correct Structured Comment"
+);
+ok( $comment->as_text =~ /^##GISAID_EpiFlu\(TM\)Data-START##/m,
+    "Got correct Structured Comment" );
+ok( $comment->as_text =~ /^Subtype :: H1N1/m,
+    "Got correct Structured Comment"
+);
+ok( $comment->as_text =~ /^##GISAID_EpiFlu\(TM\)Data-END##/m,
+    "Got correct Structured Comment" );

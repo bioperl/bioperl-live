@@ -40,7 +40,7 @@ use File::Temp 'tempdir';
 use File::Spec;
 use Fcntl qw(O_CREAT O_RDWR);
 
-our $VERSION = '1.10';
+our $VERSION = '1.11';
 
 my %DBHandles;
 
