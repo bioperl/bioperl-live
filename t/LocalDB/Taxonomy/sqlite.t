@@ -245,7 +245,7 @@ my $ids = join(",", map { $_->id } $tree->get_nodes);
 is $ids, '131567,9606';
 
 END {
-    #unlink 'taxonomy.sqlite' if (-e 'taxonomy.sqlite');
+    unlink 'taxonomy.sqlite' if (-e 'taxonomy.sqlite');
 }
 
 done_testing();
