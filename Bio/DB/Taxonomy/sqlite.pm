@@ -410,7 +410,49 @@ sub ancestor {
 #
 #=cut
 
-#sub ancestors { ... }
+sub ancestors {
+    my ( $self, $taxid ) = @_;
+    #$self->throw("Must supply a Bio::Taxon")
+    #  unless ref($taxon) && $taxon->isa('Bio::Taxon');
+    #$self->throw("The supplied Taxon must belong to this database")
+    #  unless $taxon->db_handle && $taxon->db_handle eq $self;
+    #my $id =
+    #  $taxon->id || $self->throw("The supplied Taxon is missing its id!");
+    #
+    #my ( $parent_id, $rank, $code, $divid, $gen_code, $mito, $nm, $uniq, $class );
+
+    my $sth = $self->_prepare_cached(<<SQL);
+    WITH RECURSIVE
+        ancestor(taxon_id,parent_id) AS (
+            SELECT taxon_id,parent_id FROM taxon WHERE taxon_id=?
+            UNION
+            SELECT taxon.taxon_id,taxon.parent_id
+                FROM ancestor,taxon
+                WHERE
+                    ancestor.taxon_id=taxon.parent_id
+            )
+    SELECT taxon_id FROM ancestor
+SQL
+    
+    $sth->execute($taxid) or $self->throw($sth->errstr);
+    
+    $sth->dump_results;
+    
+    die;
+    
+#    my $sth = $self->_prepare_cached(<<SQL);
+#    SELECT tax.parent_id, tax.rank, tax.code, tax.division_id, tax.gencode_id, tax.mito_id, names.name, names.uniq_name, names.class
+#    FROM taxon as tax, names
+#    WHERE
+#        tax.taxon_id = ?
+#    AND
+#        names.taxon_id = tax.taxon_id
+#SQL
+#    
+#    $sth->bind_columns(\$parent_id, \$rank, \$code, \$divid, \$gen_code, \$mito, \$nm, \$uniq, \$class);
+    
+    
+}
 
 =head2 each_Descendent
 
