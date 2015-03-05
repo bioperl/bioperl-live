@@ -539,6 +539,7 @@ use warnings;
 =cut
 
 sub matches_MT {
+    use integer;
     my( $self, @args ) = @_;
     my($type, $action, $beg, $end) = $self->_rearrange( [qw(TYPE ACTION START END)], @args);
     my @actions = qw( identities conserved searchutils );
