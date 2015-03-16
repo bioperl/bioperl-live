@@ -488,16 +488,16 @@ sub _db_connect {
         $self->warn("Index files have not been created");
         return 0;
     }
-    tie ( @{$self->{'_nodes'}}, 'DB_File', $nodeindex, O_RDWR,undef, $DB_RECNO) 
+    tie ( @{$self->{'_nodes'}}, 'DB_File', $nodeindex, O_RDONLY,undef, $DB_RECNO) 
         || $self->throw("$! $nodeindex");
-    tie (@{$self->{'_id2name'}}, 'DB_File', $id2nameindex,O_RDWR, undef, 
+    tie (@{$self->{'_id2name'}}, 'DB_File', $id2nameindex,O_RDONLY, undef, 
         $DB_RECNO) || $self->throw("$! $id2nameindex");
     
-    tie ( %{$self->{'_name2id'}}, 'DB_File', $name2idindex, O_RDWR,undef, 
+    tie ( %{$self->{'_name2id'}}, 'DB_File', $name2idindex, O_RDONLY,undef, 
         $DB_HASH) || $self->throw("$! $name2idindex");
     $self->{'_parentbtree'} = tie( %{$self->{'_parent2children'}},
                                    'DB_File', $parent2childindex, 
-                                   O_RDWR, 0644, $DB_BTREE);
+                                   O_RDONLY, 0644, $DB_BTREE);
 
     $self->{'_initialized'} = 1;
 }
