@@ -122,6 +122,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::PrimarySeqI;
 use strict;
 use Bio::Tools::CodonTable;
+use List::MoreUtils qw/none/;
 
 use base qw(Bio::Root::RootI);
 
@@ -909,6 +910,7 @@ sub _find_orfs_nucleotide {
 
     # go through each base of the sequence, and each reading frame for each base
     my $seqlen = CORE::length $sequence;
+    my @start_frame_order;
     for( my $j = 0; $j <= $seqlen-3; $j++ ) {
         my $frame = $j % 3;
 
@@ -921,13 +923,13 @@ sub _find_orfs_nucleotide {
                 my @this_orf = ( $current_orf_start[$frame], $j+3, undef, $frame );
                 my $this_orf_length = $this_orf[2] = ( $this_orf[1] - $this_orf[0] );
 
-                $self->warn( "Translating partial ORF "
+		if ($first_only && $frame == $start_frame_order[0]) {
+		  $self->warn( "Translating partial ORF "
                                  .$self->_truncate_seq( $self->_orf_sequence( $sequence, \@this_orf ))
-                                 .' from end of nucleotide sequence'
-                            )
-                    if $first_only && $is_last_codon_in_frame;
-
-                return \@this_orf if $first_only;
+				   .' from end of nucleotide sequence'
+				  ) if $is_last_codon_in_frame;
+		  return \@this_orf;
+		}
                 push @orfs, \@this_orf;
                 $current_orf_start[$frame] = -1;
             }
@@ -935,6 +937,7 @@ sub _find_orfs_nucleotide {
         # if this is a start codon
         elsif ( $is_start->($this_codon) ) {
             $current_orf_start[$frame] = $j;
+	    push @start_frame_order, $frame;
         }
     }
 
