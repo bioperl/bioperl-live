@@ -7,7 +7,7 @@ use Data::Dumper;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin( -tests => 310 );
+    test_begin( -tests => 312 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -286,6 +286,19 @@ is $aa->seq, 'M' or diag( "Translation: " . $aa->seq );
 
 # test for character '?' in the sequence string
 is $seq->seq('TTGGTGGCG?CAACT'), 'TTGGTGGCG?CAACT';
+
+# issue #105 - when there are starts and stops in both frame 0 and
+# frame 1, frame 0 start < frame 1 start, then should return the frame
+# 0 ORF per the pod ('the first orf') even if frame 1 stop < frame 0 stop
+
+$seq->seq('ATGAATGTAAATAA');
+$aa = $seq->translate( -orf => 1 );
+my $aa0 = $seq->translate(-frame => 0);
+is $aa->seq, $aa0->seq, "frame 0 start, frame 1 stop < frame 0 stop";
+$seq->seq('AAATGAATGTAAATAA');
+$aa = $seq->translate( -orf => 1, -frame=>1 );
+my $aa2 = $seq->translate(-frame => 2);
+is $aa->seq, $aa2->seq, "frame 1 start, frame 2 stop < frame 1 stop";
 
 # test for some aliases
 $seq = Bio::PrimarySeq->new(
