@@ -464,6 +464,7 @@ sub trunc {
     my $out;
     if (   $self->isa('Bio::Seq::LargePrimarySeq')
         or $self->isa('Bio::Seq::LargeSeq')
+        or $self->isa('Bio::Seq::RichSeq')
         ) {
         my ($seqclass, $opts) = $self->_setup_class;
         $out = $seqclass->new(
