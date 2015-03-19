@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 73);
+    test_begin(-tests => 76);
 
     use_ok('Bio::Seq');
     use_ok('Bio::Seq::RichSeq');
@@ -191,6 +191,15 @@ is ($richseq->division, 'Fungi');
 is ($richseq->keywords, 'JUNK1; JUNK2');
 $richseq->seq_version('2');
 is ($richseq->seq_version, 2);
+
+# Test adding a feature to a RichSeq type, then
+# trunc() and see if the feature vanishes (we shouldn't
+# be using clone() for RichSeq types)
+$richseq->add_SeqFeature($newfeat);
+is $richseq->feature_count, 1;
+my $newrichseq = $richseq->trunc(1,5);
+is $newrichseq->feature_count, 0, "Don't use clone for trunc of Bio::Seq::RichSeq";
+is $newrichseq->length, 5;
 
 # tests for subtle misbehaviors
 $seq = Bio::Seq->new(-primary_id => 'blah', -accession_number => 'foo');
