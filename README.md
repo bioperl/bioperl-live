@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/bioperl/bioperl-live.svg?branch=master)](https://travis-ci.org/bioperl/bioperl-live)
 [![Coverage Status](https://coveralls.io/repos/bioperl/bioperl-live/badge.png?branch=master)](https://coveralls.io/r/bioperl/bioperl-live?branch=master)
-
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.16344.svg)](https://zenodo.org/badge/doi/10.5281/zenodo.16344.svg)
 # Getting Started
 
 Please see the the `INSTALL` or `INSTALL.WIN` documents for installation
