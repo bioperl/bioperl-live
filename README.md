@@ -1,10 +1,15 @@
 [![Build Status](https://travis-ci.org/bioperl/bioperl-live.svg?branch=master)](https://travis-ci.org/bioperl/bioperl-live)
 [![Coverage Status](https://coveralls.io/repos/bioperl/bioperl-live/badge.png?branch=master)](https://coveralls.io/r/bioperl/bioperl-live?branch=master)
 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.16344.svg)](http://dx.doi.org/10.5281/zenodo.16344)
+[![Documentation Status](https://readthedocs.org/projects/bioperl-live/badge/?version=latest)](https://readthedocs.org/projects/bioperl-live/?badge=latest)
+
 # Getting Started
 
 Please see the the `INSTALL` or `INSTALL.WIN` documents for installation
 instructions.
+
+Note that these documents are gradually being migrated to a specific
+http://readthedocs.org site.
 
 # About BioPerl
 
