@@ -1,0 +1,19 @@
+ID   TEST standard; DNA; 10 BP.
+XX
+AC   TEST;
+XX
+DT   09-APR-2015
+XX
+DE   Test of space before quoted qualifier.
+XX
+XX
+FH   Key             Location/Qualifiers
+FT   CDS             1..10
+FT                   /*tag= x
+FT                   /gene= "someT"
+FT                   /product= "somewordandt extthatisquite lon
+FT                   gandthereforewraps"
+XX
+SQ   Sequence 10 BP; 10 A; 0 C; 0 G; 9 T; 0 U; 0 Other;
+     aaaaaaaaaa       10
+//

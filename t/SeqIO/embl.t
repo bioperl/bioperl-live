@@ -8,7 +8,7 @@ BEGIN {
     use lib '../..';
     use Bio::Root::Test;
 
-    test_begin(-tests => 96);
+    test_begin(-tests => 100);
 
     use_ok('Bio::SeqIO::embl');
 }
@@ -327,4 +327,22 @@ foreach my $feature ($seq->top_SeqFeatures) {
     $out->write_seq($seq);
 
     ok($string =~ m/ID   test_id;/, "The ID field was written correctly");
+}
+
+# Test lenient handling of space after '=' sign in qualifiers:
+{
+    my $ent = Bio::SeqIO->new( -file => test_input_file('test_space.embl'),
+                               -format => 'embl');
+    my $seq;
+    eval { $seq = $ent->next_seq(); };
+    my $error=$@;
+    is($error, '', 'EMBL format with space after equal sign parses');
+
+    my ($feature)=$seq->all_SeqFeatures;
+    is($feature->primary_tag, 'CDS', 'CDS read');
+
+    ok($feature->has_tag('product'), '/product found');
+
+    my ($value)=$feature->get_tag_values('product');
+    is($value, 'somewordandt extthatisquite lon gandthereforewraps', 'Qualifier /product value matches');
 }
