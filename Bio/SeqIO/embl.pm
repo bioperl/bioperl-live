@@ -1358,7 +1358,7 @@ sub _read_FTHelper_EMBL {
     # intact to provide informative error messages.)
   QUAL: for (my $i = 0; $i < @qual; $i++) {
         $_ = $qual[$i];
-        my( $qualifier, $value ) = m{^/([^=]+)(?:=(.+))?}
+        my( $qualifier, $value ) = m{^/([^=]+)(?:=\s*(.+))?}
             or $self->throw("Can't see new qualifier in: $_\nfrom:\n"
                             . join('', map "$_\n", @qual));
         if (defined $value) {
