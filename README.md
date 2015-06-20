@@ -62,8 +62,7 @@ The BioPerl directory structure is organized as follows:
 
 # Documentation
 
-For documentation on BioPerl see the **HOWTO** documents and tutorials online at
-http://bioperl.org.
+For documentation on BioPerl see the **HOWTO** documents online at http://www.bioperl.org/wiki/HOWTOs.
 
 Useful documentation in the form of example code can also be found in the
 **`examples/`** and **`scripts/`** directories. The current collection includes

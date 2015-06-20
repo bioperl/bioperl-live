@@ -527,11 +527,13 @@ ACCTGC(4/8) is at 6+4 i.e. 10.
 =cut
 
 sub site {
-    my ($self, $site) = @_;
-    if ( $site ) {
+    my ( $self, $site ) = @_;
+    
+    if ($site) {
 
         $self->throw("Unrecognized characters in site: [$site]")
             if $site =~ /[^ATGCMRWSYKVHDBN\^]/i;
+
         # we may have to redefine this if there is a ^ in the sequence
 
         # first, check and see if we have a cut site in the sequence
@@ -539,22 +541,23 @@ sub site {
 
         $self->{'_site'} = $site;
 
-        my ($first, $second) = $site =~ /(.*)\^(.*)/;
+        my ( $first, $second ) = $site =~ /(.*)\^(.*)/;
         $site = "$1$2" if defined $first;
         $self->{'_site'} = $site;
 
-
         # now set the recognition site as a new Bio::PrimarySeq object
         # we need it before calling cut() and complementary_cut()
-        $self->{_seq} = Bio::PrimarySeq->new(-id=>$self->name,
-                                            -seq=>$site,
-                                            -verbose=>$self->verbose,
-                                            -alphabet=>'dna');
+        $self->{_seq} = Bio::PrimarySeq->new(
+            -id       => $self->name,
+            -seq      => $site,
+            -verbose  => $self->verbose,
+            -alphabet => 'dna'
+        );
 
-        if (defined $first) {
-            $self->cut(length $first);
-            $self->complementary_cut(length $second);
-	    $self->revcom_site();
+        if ( defined $first ) {
+            $self->cut( length $first );
+            $self->complementary_cut( length $second );
+            $self->revcom_site();
         }
     }
     return $self->{'_site'};

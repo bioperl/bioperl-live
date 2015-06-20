@@ -76,7 +76,6 @@ package Bio::Restriction::IO::prototype;
 use vars qw(%WITH_REFM_FIELD);
 use strict;
 
-#use Bio::Restriction::IO;
 use Bio::Restriction::Enzyme;
 use Bio::Restriction::EnzymeCollection;
 

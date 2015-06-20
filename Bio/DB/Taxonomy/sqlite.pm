@@ -42,7 +42,7 @@ A few key differences:
    @ids = sort $db->get_taxonids('Chloroflexi%');
 
 =item * In-memory database is allowed
-   
+
   my $db = Bio::DB::Taxonomy->new(-source    => 'sqlite',
                                   -db        => ':memory:',
                                   -nodesfile => 'nodes.dmp',
