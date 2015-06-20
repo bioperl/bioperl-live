@@ -18,11 +18,6 @@ o Contact info
 
  BioPerl mailing list: bioperl-l@bioperl.org
 
- There's quite a variety of tools available in BioPerl, and more are
- added all the time. If the tool you're looking for isn't described in
- the documentation please write us, it could be undocumented or in
- process.
-
  Project website : http://bioperl.org/
 
  Bug reports : https://github.com/bioperl/bioperl-live/issues
@@ -38,7 +33,7 @@ o The directory structure
 
    - Bio/ - BioPerl modules
 
-   - doc/ - Documentation utilities
+   - deobfuscator/ - Code for tracing OOP relationships
 
    - examples/ - Scripts demonstrating the many uses of BioPerl
 
@@ -55,6 +50,9 @@ o The directory structure
           based on the specific classes being tested
 
    - t/data/ - Data files used for the tests, provides good example data
+
+   - travis_scripts/ - script to customize Travis
+
 
 o Documentation
 
