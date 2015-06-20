@@ -38,11 +38,11 @@ The BioPerl directory structure is organized as follows:
 
 * **`Bio/`** - BioPerl modules
 
-* **`doc/`** - Documentation utilities
+* **`deobfuscator/`** - Code for tracing OOP relationships
 
 * **`examples/`** - Scripts demonstrating the many uses of BioPerl
 
-* **`ide/`** - files for developing BioPerl using an IDE
+* **`ide/`** - Files for developing BioPerl using an IDE
 
 * **`maintenance/`** - BioPerl housekeeping scripts
 
@@ -55,6 +55,8 @@ The BioPerl directory structure is organized as follows:
   based on the specific classes being tested
 
 * **`t/data/`** - Data files used for the tests, provides good example data
+
+* **`travis_scripts/`** - script to customize Travis
 
 # Documentation
 
