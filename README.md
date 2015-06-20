@@ -22,11 +22,7 @@ research.
 
 # Contact info
 
-BioPerl mailing list: bioperl-l@bioperl.org
-
-There's quite a variety of tools available in BioPerl, and more are added all
-the time. If the tool you're looking for isn't described in the documentation
-please write us, it could be undocumented or in process.
+* BioPerl mailing list: bioperl-l@bioperl.org
 
 * Project website : http://bioperl.org/
 
