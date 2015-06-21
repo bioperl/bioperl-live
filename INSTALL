@@ -1,75 +1,30 @@
-Installing BioPerl for Unix
-
-     * 1 BIOPERL INSTALLATION
-     * 2 SYSTEM REQUIREMENTS
-     * 3 OPTIONAL
-     * 4 ADDITIONAL INSTALLATION INFORMATION
-     * 5 PRELIMINARY PREPARATION
-     * 6 INSTALLING BIOPERL THE EASY WAY USING Build.PL
-     * 7 INSTALLING BIOPERL THE EASY WAY USING CPAN
-     * 8 WHERE ARE THE MAN PAGES?
-     * 9 EXTERNAL PROGRAMS
-          * 9.1 Environment Variables
-     * 10 INSTALLING BIOPERL SCRIPTS
-     * 11 INSTALLING BIOPERL IN A PERSONAL MODULE AREA
-     * 12 INSTALLING BIOPERL MODULES THE HARD WAY
-     * 13 USING MODULES NOT INSTALLED IN THE STANDARD LOCATION
-     * 14 THE TEST SYSTEM
-     * 15 BUILDING THE OPTIONAL bioperl-ext PACKAGE
-          * 16.1 CONFIGURING for BSD and Solaris boxes
-          * 16.2 INSTALLATION
-
 BIOPERL INSTALLATION
 
-For the most up-to-date installation instructions please see the
-BioPerl wiki:
+The following are instructions for installing BioPerl on
+Unix, Linux, and Mac OS X. Windows installation instructions can be 
+found in INSTALL.WIN.
 
-  http://www.bioperl.org/wiki/Installing_BioPerl
-
-BioPerl has been installed on many forms of Unix, Win9X/NT/2000/XP,
-and on Mac OS X. The following are instructions for installing BioPerl 
-for Unix/Linux/Mac OS X. Windows installation instructions can be found 
-in INSTALL.WIN. For installing BioPerl for Mac OS X using Fink, see:
-
-http://www.bioperl.org/wiki/Getting_BioPerl#Mac_OS_X_using_fink
 
 SYSTEM REQUIREMENTS
 
     * Perl 5.6.1 or later; version 5.8 and greater are highly
       recommended. Modules are generally tested against perl 5.8 and
       above.
+    * make. For Mac OS X, this requires installing the Xcode Developer 
+      Tools.
 
-    * External modules: BioPerl uses functionality provided in other
-      Perl modules. Some of these are included in the standard perl
-      package but some need to be obtained from the CPAN site. The
-      list of external modules is included in the DEPENDENCIES file.
-
-OPTIONAL
-
-   * ANSI C or GNU C compiler (gcc) for XS extensions (the bioperl-ext
-     package; see BUILDING THE OPTIONAL bioperl-ext PACKAGE, below).
-
-ADDITIONAL INSTALLATION INFORMATION
-
-   * Additional information on BioPerl and MAC OS:
-      * OS 9 - http://bioperl.org/Core/mac-bioperl.html
-            NOTE: These are severely out-of-date and require MacPerl
-            (the latest version of which is 5.6.1rc1). As such, we do
-            not currently support BioPerl on OS 9
-      * OS X - Installing using Fink (in Getting BioPerl)
 
 PRELIMINARY PREPARATION
 
-   This is optional, but regardless of your subsequent choice of
-   installation method, it will help to carry out the following steps.
-   They will increase the likelyhood of installation success
-   (especially of optional dependencies).
+These are optional, but regardless of your subsequent choice of
+installation method, it will help to carry out the following steps.
+They will increase the likelyhood of installation success
+(especially of optional dependencies).
 
      * Upgrade CPAN:
 
  >perl -MCPAN -e shell
  cpan>install Bundle::CPAN
- cpan>q
 
      * Install/upgrade Module::Build, and make it your preferred
        installer:
@@ -78,64 +33,9 @@ PRELIMINARY PREPARATION
  cpan>install Module::Build
  cpan>o conf prefer_installer MB
  cpan>o conf commit
- cpan>q
 
      * Install the expat library by whatever method is
-       appropriate for your system.
-
-     * If your expat library is installed in a non-standard location,
-       tell CPAN about it:
-
- >cpan
- cpan>o conf makepl_arg "EXPATLIBPATH=/non-standard/lib EXPATINCPATH=/non-standard/include"
- cpan>o conf commit
-
-
-INSTALLING BIOPERL THE EASY WAY USING Build.PL
-
-The advantage of this approach is it's stepwise, so it's easy to stop
-and analyze in case of any problem.
-
-Download, then unpack the tar file. For example:
-
- >tar xvfz BioPerl-1.6.923.tar.gz
- >cd BioPerl-1.6.923
-
-Now issue the build commands:
-
- >perl Build.PL
- >./Build test
-
-If you've installed everything perfectly and all the network
-connections are working then you may pass all the tests run in the
-'./Build test' phase. It's also possible that you may fail some tests.
-Possible explanations: problems with local Perl installation, network
-problems, previously undetected bug in BioPerl, flawed test script,
-problems with CGI script using for sequence retrieval at public
-database, and so on. Remember that there are over 900 modules in
-BioPerl and the test suite is running more than 12000 individual
-tests, a few failed tests may not affect your usage of BioPerl.
-
-If you decide that the failed tests will not affect how you intend to
-use BioPerl and you'd like to install anyway, or if all tests were
-fine, do:
-
- >./Build install
-
-If you're concerned about a failed test and need assistance or advice
-then contact bioperl-l@bioperl.org. (You could provide us the detailed
-results of the failed test(s): see the `THE TEST SYSTEM' below for
-information on how to generate such results.)
-
-To './Build install' you need write permission in the
-perl5/site_perl/source area (or similar, depending on your
-environment). Usually this will require you becoming root, so you will
-want to talk to your systems manager if you don't have the necessary
-privileges.
-
-It is also straightforward to install the package outside of the this
-standard Perl5 location. See INSTALLING BIOPERL IN A PERSONAL MODULE
-AREA, below.
+       appropriate for your system (e.g. yum, homebrew).
 
 
 INSTALLING BIOPERL THE EASY WAY USING CPAN
@@ -148,7 +48,7 @@ Or you might have the cpan alias installed:
 
  >cpan
 
-Then find the name of the BioPerl version you want:
+Then find the name of the latest BioPerl package:
 
  cpan>d /bioperl/
 
@@ -158,37 +58,73 @@ Distribution    CJFIELDS/BioPerl-1.6.901.tar.gz
 Distribution    CJFIELDS/BioPerl-1.6.922.tar.gz
 Distribution    CJFIELDS/BioPerl-1.6.923.tar.gz
 
-Now install:
+And install:
 
  cpan>install CJFIELDS/BioPerl-1.6.923.tar.gz
 
 If you've installed everything perfectly and all the network
-connections are working then you may pass all the tests run in the
-'./Build test' phase. It's also possible that you may fail some tests.
-Possible explanations: problems with local Perl installation, network
-problems, previously undetected bug in BioPerl, flawed test script,
-problems with CGI script used for sequence retrieval at public
-database, and so on. Remember that there are over 900 modules in
-BioPerl and the test suite is running more than 12000 individual
-tests, a few failed tests may not affect your usage of BioPerl.
+connections are working then you will pass all the tests run in the
+'./Build test' phase. Sometimes you may see a failed test. Remember that 
+there are over 900 modules in BioPerl and the test suite is running more 
+than 12000 individual tests, a failed test may not affect your usage 
+of BioPerl.
 
-If you decide that the failed tests will not affect how you intend to
-use BioPerl and you'd like to install anyway do:
+If there's a failed test and you think that the failed test will not 
+affect how you intend to use BioPerl then do:
 
  cpan>force install C/CJ/CJFIELDS/BioPerl-1.6.923.tar.gz
 
 If you're concerned about a failed test and need assistance or advice
-then contact bioperl-l@bioperl.org. (You could provide us the detailed
-results of the failed test(s): see the `THE TEST SYSTEM' below for
-information on how to generate such results.)
+then contact bioperl-l@bioperl.org, and provide us the detailed
+results of the failed install.
 
-WHERE ARE THE MAN PAGES?
 
-Previously, when using Makefile.PL (no longer covered in this
-documentation), we had to disable the automatic creation of man pages
-because this step was triggering a "line too long" error on some OSs
-due to shell constraints. If you want man pages installed use the
-Build.PL installation process discussed above.
+INSTALLING BIOPERL FROM GITHUB
+
+The very latest version of Bioperl is at github.com. If you want this 
+version then download it from https://github.com/bioperl/bioperl-live
+as a *zip file, or retrieve it using the command line:
+
+ >git clone https://github.com/bioperl/bioperl-live.git
+ >cd bioperl-live
+
+If you've downloaded the *zip file then unzip that and cd to the
+BioPerl directory.
+
+Issue the build commands:
+
+ >perl Build.PL
+
+You will be asked a few questions about installing BioPerl scripts
+and running various test suites, hit <return> to accept the defaults.
+
+Test and install:
+
+ >./Build test
+ >./Build install
+
+You may need root permissions in order to run './Build install', so you 
+will want to talk to your systems manager if you don't have the necessary
+privileges.
+
+It is also straightforward to install the package in your own home
+directory, see INSTALLING BIOPERL USING local::lib, below.
+
+
+INSTALLING BIOPERL USING local::lib
+
+If you lack permission to install Perl modules into the standard
+system directories you can install them in your home directory
+using local::lib. The instructions for first installing
+local::lib are found here:
+
+http://search.cpan.org/search?query=local%3A%3Alib
+
+Once local::lib is installed you can install BioPerl using a 
+command like this:
+
+ >perl -MCPAN -Mlocal::lib -e 'CPAN::install(C/CJ/CJFIELDS/BioPerl-1.6.923.tar.gz)'
+
 
 EXTERNAL PROGRAMS
 
@@ -203,7 +139,7 @@ bioperl-run distribution; however, two commonly-used modules are still
 distributed with the BioPerl core (Bio::Tools::Run::StandAloneBlast,
 Bio::Tools::Run::RemoteBlast).
 
-    Environment Variables
+    * Environment Variables
 
 Some modules which run external programs need certain environment
 variables set. If you do not have a local copy of the specific
@@ -255,6 +191,7 @@ Some environment variables include:
 |               |(e.g. http://USERNAME:PASSWORD@proxy.example.com:8080). |
 +------------------------------------------------------------------------+
 
+
 INSTALLING BIOPERL SCRIPTS
 
 BioPerl comes with a set of production-quality scripts that are
@@ -267,108 +204,11 @@ The installation directory can be specified by:
 
 By default they install to /usr/bin or similar, depending on platform.
 
-INSTALLING BIOPERL IN A PERSONAL MODULE AREA
-
-If you lack permission to install perl modules into the standard
-site_perl/ system area you can configure BioPerl to install itself
-anywhere you choose. Ideally this would be a personal perl directory
-or standard place where you plan to put all your 'local' or personal
-perl modules.
-
-   Example:
-
- >perl Build.PL --install_base /home/users/dag
- >./Build test
- >./Build install
-
-This tells perl to install all the various parts of bioperl in the
-desired place, e.g. creating:
-
-   /home/users/dag/lib/perl5/Bio/Perl.pm
-
-Then in your BioPerl script you would write:
-
- use lib "/home/users/dag/lib/perl5/";
- use Bio::Perl;
-
-For more information on these sorts of custom installs see the
-documentation for Module::Build.
-
-If you are used to using something like:
-
- >perl Makefile.PL PREFIX=/home/users/dag
-
-You can get similar behaviour by using this instead:
-
- >perl Build.PL --prefix /home/users/dag
-
-For more information, see Module::Build::Cookbook documentation for
-Installing_in_the_same_location_as_ExtUtils::MakeMaker
-
-You can also use CPAN to install modules in your local directory.
-First enter the CPAN shell, then set the arguments for the commands
-"perl Makefile.PL" and "./Build install", like this:
-
- >perl -e shell -MCPAN
- cpan>o conf makepl_arg LIB=/home/users/dag/My_Local_Perl_Modules
- cpan>o conf mbuild_install_arg "--install_path lib=/home/users/dag/My_Local_Perl_Modules"
- cpan>o conf commit
-
-INSTALLING BIOPERL MODULES THE HARD WAY
-
-As a last resort, you can simply copy all files in Bio/ to any
-directory in which you have write privileges. This is generally NOT
-recommended since some modules may require special configuration
-(currently none do, but don't rely on this).
-
-You will need to set "use lib '/path/to/my/bioperl/modules';" in your
-perl scripts so that you can access these modules if they are not
-installed in the standard site_perl/ location. See above for an
-example.
-
-To get manpage documentation to work correctly you will have to
-configure man so that it looks in the proper directory. On most
-systems this will just involve adding an additional directory to your
-$MANPATH environment variable.
-
-The installation of the Compile directory can be similarly redirected,
-but execute the make commands from the Compile/SW directory.
-
-If all else fails and you are unable to access the perl distribution
-directories, ask your system administrator to place the files there
-for you. You can always execute perl scripts in the same directory as
-the location of the modules (Bio/ in the distribution) since perl
-always checks the current working directory when looking for modules.
-
-USING MODULES NOT INSTALLED IN THE STANDARD LOCATION
-
-You can explicitly tell perl where to look for modules by using the
-Lib module which comes standard with perl.
-
-   Example:
-
- #!/usr/bin/perl
- use lib "/home/users/dag/lib/perl5/";
- use Bio::Perl;
- #<...insert whizzy perl code here...>
-
-Or, you can set the environmental variable PERL5LIB:
-
-   csh or tcsh:
-
- setenv PERL5LIB /home/users/dag/lib/perl5/
-
-   bash or sh:
-
- export PERL5LIB=/home/users/dag/lib/perl5/
 
 THE TEST SYSTEM
 
 The BioPerl test system is located in the t/ directory and is
-automatically run whenever you execute the './Build test' command
-(having previously run 'Perl Build.PL'; if you have already installed
-BioPerl answer 'no' to script installation to get nicer test output
-later).
+automatically run whenever you execute the './Build test' command.
 
 For the 1.6 release and beyond, tests have been organized into groups
 based upon the specific task or class the module being tested belongs
@@ -377,12 +217,9 @@ the Seq test you would type:
 
  >./Build test --test_files t/Seq/Seq.t --verbose
 
-The ./ ensures you are using the Build script in the current directory
-to make sure you are testing the modules in this directory not ones
-installed elsewhere. The --test_files arguement can be used multiple
-times to try a set of test scripts in one go. The --verbose arguement
-outputs the detailed test results, instead of just the summary you see
-during './Build test'.
+The --test_files argument can be used multiple times to try a set of test 
+scripts in one go. The --verbose arguement outputs the detailed test results, 
+instead of just the summary you see during './Build test'.
 
 The '--test-files' argument can also work as a glob. For instance, to
 run tests on all SearchIO modules, use the following:
@@ -404,43 +241,3 @@ will require that new modules come with a test suite with some minimal
 tests.  Modules that lack adequate tests or could otherwise be
 considered 'unstable' will be moved into a separate developer
 distribution until adequate tests are added and the API stablizes.
-
-BUILDING THE OPTIONAL bioperl-ext PACKAGE
-
-The bioperl-ext package contains C code and XS extensions for various
-alignment and trace file modules (Bio::Tools::pSW for DNA
-Smith-Waterman, Bio::Tools::dpAlign for protein Smith-Waterman,
-Bio::SearchDist for EVD fitting of extreme value, Bio::SeqIO::staden).
-
-This Installation may work out-of-the box for most platforms except
-BSD and Solaris boxes. For other platforms skip this next paragraph.
-Of note, the code for bioperl-ext has not been updated along with the
-rest of bioperl, so one may expect to see some issues. If so, please
-report them to the BioPerl mailing list. Patches for these modules are
-always welcome.
-
-    CONFIGURING for BSD and Solaris boxes
-
-You should add the line -fPIC to the CFLAGS line in
-Compile/SW/libs/makefile. This makes the compile generate position
-independent code, which is required for these architectures. In
-addition, on some Solaris boxes, the generated Makefile does not make
-the correct -fPIC/-fpic flags for the C compiler that is used. This
-requires manual editing of the generated Makefile to switch case. Try
-it out once, and if you get errors, try editing the -fpic line
-
-    INSTALLATION
-
-Move to the directory bioperl-ext. This is available as a separate
-package released from ftp://bioperl.org/pub/bioperl/DIST. This is
-where the C code and XS extension for the bp_sw module is held and
-execute these commands: (possibly after making the change for BSD and
-Solaris, as detailed above)
-
- perl Makefile.PL   # makes the system specific makefile
- make          # builds all the libaries
- make test     # runs a short test
- make install  # installs the package correctly.
-
-This should install the compiled extension. The Bio::Tools::pSW module
-will work cleanly now.
