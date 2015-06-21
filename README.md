@@ -102,7 +102,7 @@ The upcoming **1.7 release** will be the last release series to utilize the alte
 
 # Caveats and Warnings
 
-When you run the tests ("`./Build test`") some tests may issue warnings messages or even fail. Sometimes this is because we didn't have anyone to test the test system on the combination of your operating system, version of perl, and associated libraries and other modules. Because BioPerl depends on several
+When you run the tests with `./Build test` some tests may issue warnings messages or even fail. Sometimes this is because we didn't have anyone to test the test system on the combination of your operating system, version of perl, and associated libraries and other modules. Because BioPerl depends on several
 outside libraries we may not be able to test every single combination so if
 there are warnings you may find that the package is still perfectly useful.
 
