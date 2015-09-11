@@ -748,9 +748,9 @@ sub _codon_is {
    my $id = $self->{'id'};
    for my $c ( $self->unambiguous_codons($value) ) {
        my $m = substr( $table->[$id], $CODONS->{$c}, 1 );
-       return 0 unless $m eq $key;
+       if ($m eq $key) { return 1; }
    }
-   return 1;
+   return 0;
 }
 
 =head2 is_unknown_codon
