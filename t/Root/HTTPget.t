@@ -1,5 +1,4 @@
 # -*-Perl-*- Test Harness script for Bioperl
-# $Id: RootIO.t 16840 2010-02-16 17:14:12Z cjfields $
 
 use strict;
 use warnings;

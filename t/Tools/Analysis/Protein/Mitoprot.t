@@ -27,7 +27,9 @@ my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDSFFGSDFDGDS'.
 ok $tool = Bio::Tools::Analysis::Protein::Mitoprot->new( -seq=>$seq);
 SKIP: {
 	ok $tool->run();
-	skip('Server terminated with an error, skipping tests', 4) if $tool->status eq 'TERMINATED_BY_ERROR';
+        skip( 'Server terminated with an error, skipping tests', 4 )
+            if ( $tool->status eq 'TERMINATED_BY_ERROR'
+            or   $tool->result =~ /certificate verify failed/ );
 	ok my $raw = $tool->result('');
 	ok my $parsed = $tool->result('parsed');
 	is ($parsed->{'charge'}, -13);

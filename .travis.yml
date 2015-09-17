@@ -30,7 +30,7 @@ install:
     #- cpanm --quiet --notest Devel::Cover::Report::Coveralls
     #for some reason tests and deps aren't skipped here.  Will have to look into it more...
     #git repos, seems to only work for simple checkouts, so pure perl only (TODO: look into before_script for more detail)
-    - "git clone https://github.com/bioperl/Bio-Root.git; export PERL5LIB=$( pwd )/Bio-Root/lib:$PERL5LIB"
+    #- "git clone https://github.com/bioperl/Bio-Root.git; export PERL5LIB=$( pwd )/Bio-Root/lib:$PERL5LIB"
     #This installs BioPerl itself:
     - "perl ./Build.PL --accept"
 

@@ -914,8 +914,6 @@
 ,"examples/root/README"
 ,"examples/root/exceptions1.pl"
 ,"examples/root/exceptions2.pl"
-,"examples/root/lib/TestInterface.pm"
-,"examples/root/lib/TestObject.pm"
 ,"examples/root/exceptions4.pl"
 ,"examples/sirna/rnai_finder.cgi"
 ,"examples/sirna/TAG"

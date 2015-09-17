@@ -13,8 +13,8 @@ make 2>&1 | tail -n 1
 cd ..
 
 # push Bio-Root to front
-git clone https://github.com/bioperl/Bio-Root.git
-export PERL5LIB=$( pwd )/Bio-Root/lib:$( pwd ):$PERL5LIB
+# git clone https://github.com/bioperl/Bio-Root.git
+# export PERL5LIB=$( pwd )/Bio-Root/lib:$( pwd ):$PERL5LIB
 
 export SAMTOOLS=$( pwd )/samtools
 
