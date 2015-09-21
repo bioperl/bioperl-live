@@ -1,5 +1,4 @@
 # -*-Perl-*- Test Harness script for Bioperl
-# $Id$
 
 use strict;
 
@@ -7,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 450,
+    test_begin(-tests => 464,
 			   -requires_module => 'IO::Scalar');
 	
 	use_ok('Bio::Tools::CodonTable');
@@ -78,9 +77,43 @@ ok $seqin = Bio::SeqIO->new(-file => test_input_file("test.tsv"),
                          -trim => 1);
 run_tests([@names],[@accs],[4,4,4,4,4,5,5,5,5,5],[@psg],[@rs]);
 
+# Tests to check that 'description' is read from 'table' format
+ok $seqin = Bio::SeqIO->new(
+    -file   => test_input_file("test-1.tab"),
+    -format => 'table',
+    -header => 1,
+    -display_id => 1, 
+    -accession_number => 1, 
+    -seq => 3, 
+    -desc => 2
+);
+ok($seqin);
+my $seq = $seqin->next_seq;
+ok($seq);
+is( $seq->desc, 'd1');
+is( $seq->display_id, 'n1');
+is( $seq->seq, 'aaaa');
+$seq = $seqin->next_seq;
+ok($seq);
+is( $seq->desc, 'd2');
+is( $seq->display_id, 'n2');
+is( $seq->seq, 'tttt');
+
 $seqin->close();
 
-# need Spreadsheet::ParseExcel installed for testing Excel format
+# Tests to check that we can _not_ write to 'table' format
+ok $seqin = Bio::SeqIO->new(
+    -file   => test_input_file("test-1.tab.gb"),
+    -format => 'genbank'
+);
+ok($seqin);
+my $seq = $seqin->next_seq;
+ok($seq);
+my $tmpfile = test_output_file();
+my $seqout = Bio::SeqIO->new( -format => 'table', -file => ">$tmpfile" );
+dies_ok { $seqout->write_seq($seq) } "write_seq() not implemented";
+
+# Need Spreadsheet::ParseExcel installed for testing Excel format
 SKIP: {
 	test_skip(-tests => 112, -requires_module => 'Spreadsheet::ParseExcel');
 

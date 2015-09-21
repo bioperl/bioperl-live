@@ -23,12 +23,11 @@ Bio::SeqIO::table - sequence input/output stream from a delimited table
 
 =head1 SYNOPSIS
 
-  # It is probably best not to use this object directly, but
-  # rather go through the SeqIO handler system. Go:
+  # Do not to use this object directly, use Bio::SeqIO, for example:
 
-  $stream = Bio::SeqIO->new(-file => $filename, -format => 'table');
+  $in = Bio::SeqIO->new(-file => $filename, -format => 'table');
 
-  while ( my $seq = $stream->next_seq() ) {
+  while ( my $seq = $in->next_seq() ) {
 	# do something with $seq
   }
 
@@ -126,6 +125,8 @@ use base qw(Bio::SeqIO);
                     containing the accession number of the sequence
  -seq               The one-based index of the column containing
                     the sequence string of the sequence
+ -desc              The one-based index of the column containing
+                    the description of the sequence
  -species           The one-based index of the column containing the
                     species for the sequence record; if not a
                     number, will be used as the static species
@@ -178,6 +179,7 @@ sub _initialize {
         $header,
         $delim,
         $display_id,
+        $desc,
         $accnr,
         $seq,
         $taxon,
@@ -188,6 +190,7 @@ sub _initialize {
                                   HEADER
                                   DELIM
                                   DISPLAY_ID
+                                  DESC
                                   ACCESSION_NUMBER
                                   SEQ
                                   SPECIES
@@ -209,6 +212,7 @@ sub _initialize {
     $attrs->{-display_id} = $display_id if defined($display_id);
     $attrs->{-accession_number} = $accnr if defined($accnr);
     $attrs->{-seq} = $seq if defined($seq);
+    $attrs->{-desc} = $desc if defined($desc);
     if (defined($taxon)) {
         if (ref($taxon) || ($taxon =~ /^\d+$/)) {
             # either a static object, or a column reference
@@ -580,6 +584,17 @@ sub trim_values{
 
     return $self->{'trim_values'} = shift if @_;
     return $self->{'trim_values'};
+}
+
+=head2 write_seq
+
+ Title: write_seq
+ Usage: write_seq() is not implemented for table format output.
+
+=cut
+
+sub write_seq {
+    shift->throw("write_seq() not implemented for 'table' format");
 }
 
 =head1 Internal methods
