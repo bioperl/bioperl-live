@@ -1,0 +1,16 @@
+LOCUS       n1                         4 bp    dna     linear   UNK 
+DEFINITION  d1
+ACCESSION   n1
+KEYWORDS    .
+FEATURES             Location/Qualifiers
+ORIGIN      
+        1 aaaa
+//
+LOCUS       n2                         4 bp    dna     linear   UNK 
+DEFINITION  d2
+ACCESSION   n2
+KEYWORDS    .
+FEATURES             Location/Qualifiers
+ORIGIN      
+        1 tttt
+//
