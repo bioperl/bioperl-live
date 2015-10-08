@@ -121,6 +121,10 @@ additional arguments are as follows:
  -autoindex        Boolean flag. If true, features in the database will be
                    reindexed every time they change. This is the default.
 
+ -fts              Boolean flag. If true, when the -create flag is true, the
+                   attribute table will be created and indexed index for
+                   full-text search using the most recent FTS extension
+                   supported by DBD::SQLite.
 
  -tmpdir           Directory in which to place temporary files during "fast" loading.
                    Defaults to File::Spec->tmpdir(). (synonyms -dump_dir, -dumpdir, -tmp)
@@ -144,6 +148,7 @@ use strict;
 
 use base 'Bio::DB::SeqFeature::Store::DBI::mysql';
 use Bio::DB::SeqFeature::Store::DBI::Iterator;
+use DBD::SQLite;
 use DBI qw(:sql_types);
 use Memoize;
 use Cwd qw(abs_path getcwd);
@@ -228,6 +233,7 @@ sub init {
       $pass,
       $dbi_options,
       $writeable,
+      $fts,
       $create,
      ) = rearrange(['DSN',
 		    ['TEMP','TEMPORARY'],
@@ -238,6 +244,7 @@ sub init {
 		    ['PASS','PASSWD','PASSWORD'],
 		    ['OPTIONS','DBI_OPTIONS','DBI_ATTR'],
 		    ['WRITE','WRITEABLE'],
+		    'FTS',
 		    'CREATE',
 		   ],@_);
   $dbi_options  ||= {};
@@ -260,6 +267,7 @@ sub init {
     $self->{dbh_file} = "$cwd/$db_file";
   }
   $self->{dbh}       = $dbh;
+  $self->{fts}       = $fts;
   $self->{is_temp}   = $is_temporary;
   $self->{namespace} = $namespace;
   $self->{writeable} = $writeable;
@@ -328,15 +336,14 @@ END
   id  integer primary key autoincrement,
   tag text    not null
 );
-create index index_attributelist_id  on attributelist(id);
 create index index_attributelist_tag on attributelist(tag);
 END
 	  parent2child => <<END,
 (
-  id    integer not null,
-  child integer not null
-);
-create unique index index_parent2child_id_child on parent2child(id,child);
+  id    integer,
+  child integer,
+  primary key(id, child)
+) without rowid;
 END
 
 	  meta => <<END,
@@ -354,6 +361,10 @@ END
 )
 END
 	 };
+
+  if ($self->{'fts'}) {
+    delete($defs->{attribute});
+  }
 
   unless ($self->_has_spatial_index) {
     $defs->{feature_location} = <<END;
@@ -376,8 +387,8 @@ END
    seqid             integer not null,
    bin               integer not null,
    cum_count         integer not null,
-   unique(typeid,seqid,bin)
-);
+   primary key (typeid,seqid,bin)
+) without rowid;
 END
   }
   return $defs;
@@ -388,13 +399,16 @@ sub _init_database {
 
     # must do this first before calling table_definitions
     $self->_create_spatial_index;
+    $self->_create_attribute_fts;
     $self->SUPER::_init_database(@_);
 }
 
+# FIXME: ensure this works with _create_attribute_fts...
 sub init_tmp_database {
     my $self = shift;
     my $erase = shift;
     $self->_create_spatial_index;
+    $self->_create_attribute_fts;
     $self->SUPER::init_tmp_database(@_);
 }
 
@@ -406,6 +420,42 @@ sub _create_spatial_index{
     if (USE_SPATIAL) {
 	$dbh->do("CREATE VIRTUAL TABLE feature_index USING RTREE(id,seqid,bin,start,end)");
     }
+}
+
+sub _create_attribute_fts{
+    my $self = shift;
+    my $dbh   = $self->dbh;
+    if ($self->{'fts'}) {
+        my @fts_versions;
+        for (@fts_versions = grep(/^ENABLE_FTS[0-9]+$/, DBD::SQLite::compile_options)) { s/ENABLE_// }
+        # use the latest supported FTS version.
+        # DBD::SQLite::compile_options appears to be sorted
+        # alphabetically, so this should work through version FTS9.
+        die 'fts not supported by this version of DBD::SQLite' if (!@fts_versions);
+        $dbh->do("DROP TABLE IF EXISTS attribute");
+        $dbh->do("CREATE VIRTUAL TABLE "
+             . $self->_attribute_table
+             . " USING " . $fts_versions[-1]
+             . "(id integer not null, attribute_id integer not null, attribute_value text)");
+    }
+}
+
+###
+# return 1 if an existing attribute table in the connected database is an FTS
+# table, else 0
+#
+sub _has_fts {
+    my $self = shift;
+    if (!defined($self->{'has_fts'})) {
+        # If the attribute table is a virtual table, assume it is an FTS
+        # table. Per http://www.sqlite.org/fileformat2.html:
+        # For (sqlite_master) rows that define views, triggers, and virtual
+        # tables, the rootpage column is 0 or NULL.
+        ($self->{'has_fts'}) = $self->dbh->selectrow_array("select count(*) from sqlite_master where type = 'table' and name = '"
+                                                           . $self->_attribute_table 
+                                                           . "' and (rootpage = 0 or rootpage is null);");
+    }
+    return $self->{'has_fts'};
 }
 
 sub _has_spatial_index {
@@ -786,30 +836,38 @@ sub _search_attributes {
   my $attributelist_table = $self->_attributelist_table;
   my $type_table          = $self->_type_table;
   my $typelist_table      = $self->_typelist_table;
+  my $has_fts             = $self->_has_fts;
 
   my @tags    = @$attribute_names;
   my $tag_sql = join ' OR ',("al.tag=?") x @tags;
 
   my $perl_regexp = join '|',@words;
 
-  my @wild_card_words = map { "%$_%" } @words;
-  my $sql_regexp = join ' OR ',("a.attribute_value LIKE ?")  x @words;
-  # CROSS JOIN disables SQLite's table reordering optimization
+  my $sql_regexp;
+  my @wild_card_words;
+  if ($has_fts) {
+      $sql_regexp = "a.attribute_value MATCH ?";
+      @wild_card_words = join(' OR ', @words);
+  } else {
+      $sql_regexp = join ' OR ',("a.attribute_value LIKE ?")  x @words;
+      @wild_card_words = map { "%$_%" } @words;
+  }
+  # CROSS JOIN hinders performance with FTS attribute table for DBD::SQLite 1.42
   my $sql = <<END;
 SELECT name,attribute_value,tl.tag,n.id
   FROM $attributelist_table        AS al
-       CROSS JOIN $attribute_table AS a  ON al.id = a.attribute_id
-       CROSS JOIN $name_table      AS n  ON n.id = a.id
-       CROSS JOIN $type_table      AS t  ON t.id = n.id
-       CROSS JOIN $typelist_table  AS tl ON tl.id = t.typeid
+       JOIN $attribute_table AS a  ON al.id = a.attribute_id
+       JOIN $name_table      AS n  ON n.id  = a.id
+       JOIN $type_table      AS t  ON t.id  = n.id
+       JOIN $typelist_table  AS tl ON tl.id = t.typeid
   WHERE ($tag_sql)
     AND ($sql_regexp)
     AND n.display_name=1
 END
   $sql .= "LIMIT $limit" if defined $limit;
-  $self->_print_query($sql,@tags,@words) if DEBUG || $self->debug;
+  $self->_print_query($sql,@tags,@wild_card_words) if DEBUG || $self->debug;
   my $sth = $self->_prepare($sql);
-  $sth->execute(@tags,@wild_card_words) or $self->throw($sth->errstr);
+  $sth->execute(@tags, @wild_card_words) or $self->throw($sth->errstr);
 
   my @results;
   while (my($name,$value,$type,$id) = $sth->fetchrow_array) {
@@ -851,11 +909,14 @@ sub _attributes_sql {
   my $attribute_table       = $self->_attribute_table;
   my $attributelist_table   = $self->_attributelist_table;
 
-  my $from = "$attribute_table AS a INDEXED BY index_attribute_id, $attributelist_table AS al";
+  my $from = "$attribute_table AS a" . ($self->_has_fts 
+                                        ? ''
+                                        : " INDEXED BY index_attribute_id") . ", $attributelist_table AS al";
+  my $a_al_join = $self->_has_fts ? 'a.attribute_id MATCH al.id' : 'a.attribute_id=al.id';
 
   my $where = <<END;
   a.id=$join
-  AND   a.attribute_id=al.id
+  AND   $a_al_join
   AND ($wf)
 END
 
