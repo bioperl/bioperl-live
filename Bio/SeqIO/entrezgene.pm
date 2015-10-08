@@ -196,7 +196,7 @@ sub next_seq {
 
     #Basic data
     #$xval->{summary}=~s/\n//g;
-    my $seq = Bio::Seq->new(
+    $seq = Bio::Seq->new(
         -display_id       => $xval->{gene}{locus},
         -accession_number => $xval->{'track-info'}{geneid},
         -desc             => $xval->{summary}
