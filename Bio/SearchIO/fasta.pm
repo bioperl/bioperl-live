@@ -1094,7 +1094,7 @@ sub next_result {
                     $self->_pushback($_);
                     last;
                 }
-                elsif (/^>>>(\*\*\*|\\\\\\|<<<)/o) {
+                elsif (/^>>>(\*\*\*|\/\/\/|<<<)/o) {
                     $self->end_element( { Name => "Hsp" } );
                     last;
                 }
