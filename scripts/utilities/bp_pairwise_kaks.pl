@@ -11,7 +11,7 @@ bp_pairwise_kaks - script to calculate pairwise Ka,Ks for a set of sequences
 
 bp_pairwise_kaks.PLS -i t/data/worm_fam_2785.cdna [-f fasta/genbank/embl...] [-msa tcoffee/clustal] [-kaks yn00/codeml]
 
-=head1 DESCRIPTION 
+=head1 DESCRIPTION
 
   This script will take as input a dataset of cDNA sequences verify
  that they contain no stop codons, align them in protein space,
@@ -57,7 +57,7 @@ eval {
     # Ka/Ks estimators
     require Bio::Tools::Run::Phylo::PAML::Codeml;
     require Bio::Tools::Run::Phylo::PAML::Yn00;
-    
+
     # Multiple Sequence Alignment programs
     require Bio::Tools::Run::Alignment::Clustalw;
     require Bio::Tools::Run::Alignment::TCoffee;
@@ -79,14 +79,14 @@ my ($aln_prog, $kaks_prog,$format, $output,
     $cdna,$verbose,$help) = qw(clustalw codeml fasta);
 
 GetOptions(
-	   'i|input:s'      => \$cdna,
-	   'o|output:s'     => \$output,
-	   'f|format:s'     => \$format,
-	   'msa:s'          => \$aln_prog,
-	   'kaks:s'         => \$kaks_prog,
-	   'v|verbose'      => \$verbose,
-	   'h|help'         => \$help,
-	   );
+           'i|input:s'      => \$cdna,
+           'o|output:s'     => \$output,
+           'f|format:s'     => \$format,
+           'msa:s'          => \$aln_prog,
+           'kaks:s'         => \$kaks_prog,
+           'v|verbose'      => \$verbose,
+           'h|help'         => \$help,
+           );
 
 if( $help ) {
     exec('perldoc',$0);
@@ -98,7 +98,7 @@ if( $aln_prog =~ /clus/i ) {
     $aln_factory = Bio::Tools::Run::Alignment::Clustalw->new(-verbose => $verbose);
 } elsif( $aln_prog =~ /t\_?cof/i ) {
     $aln_factory = Bio::Tools::Run::Alignment::TCoffee->new(-verbose => $verbose);
-} else { 
+} else {
     warn("Did not provide either 'clustalw' or 'tcoffee' as alignment program names");
     exit(0);
 }
@@ -113,11 +113,11 @@ if( $kaks_prog =~ /yn00/i ) {
 } elsif( $kaks_prog =~ /codeml/i ) {
     # change the parameters here if you want to tweak your Codeml running!
     $kaks_factory = Bio::Tools::Run::Phylo::PAML::Codeml->new
-	(-verbose => $verbose,
-	 -params => { 'runmode' => -2,
-		      'seqtype' => 1,
-		  }
-	 );
+        (-verbose => $verbose,
+         -params => { 'runmode' => -2,
+                      'seqtype' => 1,
+                  }
+         );
 }
 unless ( $kaks_factory->executable ) {
     warn("Could not find the executable for $kaks_prog, make sure you have installed it and you have defined PAMLDIR or it is in your PATH");
@@ -125,12 +125,12 @@ unless ( $kaks_factory->executable ) {
 }
 
 unless ( $cdna && -f $cdna && -r $cdna &&  ! -z $cdna ) {
-    warn("Did not specify a valid cDNA sequence file as input"); 
+    warn("Did not specify a valid cDNA sequence file as input");
     exit(0);
 }
 
-my $seqin = new Bio::SeqIO(-file   => $cdna, 
-			   -format => $format);
+my $seqin = new Bio::SeqIO(-file   => $cdna,
+                           -format => $format);
 
 my %seqs;
 my @prots;
@@ -138,11 +138,11 @@ while( my $seq = $seqin->next_seq ) {
     $seqs{$seq->display_id} = $seq;
     my $protein = $seq->translate();
     my $pseq = $protein->seq();
-    
+
     $pseq =~ s/\*$//;
     if( $pseq =~ /\*/ ) {
-	warn("provided a cDNA (".$seq->display_id.") sequence with a stop codon, PAML will choke!");
-	exit(0);
+        warn("provided a cDNA (".$seq->display_id.") sequence with a stop codon, PAML will choke!");
+        exit(0);
     }
     # Tcoffee can't handle '*'
     $pseq =~ s/\*//g;
@@ -157,7 +157,7 @@ if( @prots < 2 ) {
 local * OUT;
 if( $output ) {
     open(OUT, ">$output") || die("cannot open output $output for writing");
-} else { 
+} else {
     *OUT = *STDOUT;
 }
 
@@ -170,42 +170,42 @@ my @each = $dna_aln->each_seq();
 $kaks_factory->alignment($dna_aln);
 
 my ($rc,$parser) = $kaks_factory->run();
-if( $rc <= 0 ) { 
+if( $rc <= 0 ) {
     warn($kaks_factory->error_string,"\n");
     exit;
 }
 my $result = $parser->next_result;
 
 if ($result->version =~ m/3\.15/) {
-	warn("This script does not work with v3.15 of PAML!  Please use 3.14 instead.");
-	exit(0);
+        warn("This script does not work with v3.15 of PAML!  Please use 3.14 instead.");
+        exit(0);
 }
 
 my $MLmatrix = $result->get_MLmatrix();
 
 my @otus = $result->get_seqs();
 
-my @pos = map { 
+my @pos = map {
     my $c= 1;
     foreach my $s ( @each ) {
-	last if( $s->display_id eq $_->display_id );
-	$c++;
+        last if( $s->display_id eq $_->display_id );
+        $c++;
     }
-    $c; 
-} @otus; 
+    $c;
+} @otus;
 
 print OUT join("\t", qw(SEQ1 SEQ2 Ka Ks Ka/Ks PROT_PERCENTID CDNA_PERCENTID)), "\n";
 for( my $i = 0; $i < (scalar @otus -1) ; $i++) {
     for( my $j = $i+1; $j < (scalar @otus); $j++ ) {
-	my $sub_aa_aln = $aa_aln->select_noncont($pos[$i],$pos[$j]);
-	my $sub_dna_aln = $dna_aln->select_noncont($pos[$i],$pos[$j]);
-	print OUT join("\t",  
-		       $otus[$i]->display_id,
-		       $otus[$j]->display_id,$MLmatrix->[$i]->[$j]->{'dN'},
-		       $MLmatrix->[$i]->[$j]->{'dS'},
-		       $MLmatrix->[$i]->[$j]->{'omega'},
-		       sprintf("%.2f",$sub_aa_aln->percentage_identity),
-		       sprintf("%.2f",$sub_dna_aln->percentage_identity),
-		       ), "\n";
+        my $sub_aa_aln = $aa_aln->select_noncont($pos[$i],$pos[$j]);
+        my $sub_dna_aln = $dna_aln->select_noncont($pos[$i],$pos[$j]);
+        print OUT join("\t",
+                       $otus[$i]->display_id,
+                       $otus[$j]->display_id,$MLmatrix->[$i]->[$j]->{'dN'},
+                       $MLmatrix->[$i]->[$j]->{'dS'},
+                       $MLmatrix->[$i]->[$j]->{'omega'},
+                       sprintf("%.2f",$sub_aa_aln->percentage_identity),
+                       sprintf("%.2f",$sub_dna_aln->percentage_identity),
+                       ), "\n";
     }
 }
