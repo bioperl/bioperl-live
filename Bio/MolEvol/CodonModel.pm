@@ -68,8 +68,10 @@ the web:
 
 Email jason-at-bioperl-dot-org
 
-This is based on work from Alisha Holloway at UC Davis and Corbin
-Jones at UNC-Chapel Hill.
+This is based on code and work from Alisha Holloway at UC Davis and Corbin
+Jones at UNC-Chapel Hill. See Population Genomics: Whole-Genome Analysis of Polymorphism and Divergence in Drosophila simulans
+http://dx.doi.org/http://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.0050310 and
+http://www.dpgp.org/
 
 =head1 APPENDIX
 
@@ -85,7 +87,7 @@ package Bio::MolEvol::CodonModel;
  Title   : codon_path
  Usage   : return a matrix of edit paths between codons
  Example : my $codon_path = Bio::MolEvol::CodonModel->codon_path;
- Returns : Hash reference
+ Returns : Hash reference, the array values for each codon path are num of Nonsyn & syn changes respectively.
  Args    : none
 
 

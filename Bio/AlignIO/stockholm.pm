@@ -597,7 +597,7 @@ sub write_aln {
     my $tag = 'AC';
     for my $seq ($aln->each_seq) {
         if (my $acc = $seq->accession_number) {
-	    my $text = sprintf("%-4s%-22s%-3s%s\n",$seq_ann,
+	    my $text = sprintf("%-4s%-22s %-3s%s\n",$seq_ann,
 			       $aln->displayname($seq->get_nse), $tag, $acc);
 	    $self->_print($text) || return 0;
         }

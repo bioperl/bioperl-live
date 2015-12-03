@@ -38,6 +38,7 @@ my $INDEX_SUB		= 1;
 my $NOALIAS_TARGET	= 0;
 my $SUMMARY_STATS	= 0;
 my $NOSUMMARY_STATS  = 0;
+my $FTS = 0;
 
 ## Two flags based on http://stackoverflow.com/questions/1232116
 ## how-to-create-pod-and-use-pod2usage-in-perl
@@ -62,6 +63,7 @@ GetOptions( 'd|dsn=s'			=> \$DSN,
 	    'noalias-target'		=> \$NOALIAS_TARGET,
 	    'summary'			=> \$SUMMARY_STATS,
         'N|nosummary'    => \$NOSUMMARY_STATS,
+	    'fts'			=> \$FTS,
 
 	    ## I miss '--help' when it isn't there!
 	    'h|help!'			=> \$opt_help,
@@ -85,6 +87,10 @@ pod2usage( -verbose => 2 ) if $opt_man;
 		-exitval => 2,
 	      );
 
+pod2usage( -message => "\n--fts requires --create\n",
+           -verbose => 0,
+           -exitval => 2,
+) if ($FTS and not $CREATE);
 
 
 ## POD
@@ -169,6 +175,13 @@ Compress database tables to save space (default false)
 Turn on indexing of subfeatures (default true) Use --nosubfeatures to
 switch this off.
 
+=item --fts
+
+Index the attribute table for full-text search (default false). Applicable
+only when --create is specified. Currently applicable to the DBI::SQLite
+storage adaptor only (using the most recent supported FTS indexing method,
+which may not be portable to older DBI::SQLite versions). 
+
 =item --summary
 
 Generate summary statistics for coverage graphs (default false) This
@@ -232,6 +245,7 @@ my $store = Bio::DB::SeqFeature::Store->new
     -write      => 1,
     -create     => $CREATE,
     -compress   => $COMPRESS,
+    -fts        => $FTS,
 )
 or die "Couldn't create connection to the database";
 
