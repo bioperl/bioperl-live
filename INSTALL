@@ -7,10 +7,10 @@ found in INSTALL.WIN.
 
 SYSTEM REQUIREMENTS
 
- * Perl 5.6.1 or later; version 5.8 and greater are highly
-   recommended. Modules are generally tested against perl 5.8 and
+ * `Perl 5.6.1 or higher` Version 5.8 or higher is highly
+   recommended. Modules are tested against version 5.8 and
    above.
- * make. For Mac OS X, this requires installing the Xcode Developer 
+ * `make` For Mac OS X, this requires installing the Xcode Developer 
    Tools.
 
 
@@ -18,39 +18,35 @@ PRELIMINARY PREPARATION
 
 These are optional, but regardless of your subsequent choice of
 installation method, it will help to carry out the following steps.
-They will increase the likelyhood of installation success
-(especially of optional dependencies).
+They will increase the likelihood of installation success
+(especially of the optional dependencies).
 
- * Upgrade CPAN:
+* Upgrade CPAN:
 
- >perl -MCPAN -e shell
- >cpan>install Bundle::CPAN
+perl -MCPAN -e shell
 
- * Install/upgrade Module::Build, and make it your preferred
-   installer:
+* Install or upgrade `Module::Build`, and make it your preferred installer:
 
- >cpan
- >cpan>install Module::Build
- >cpan>o conf prefer_installer MB
- >cpan>o conf commit
+cpan>install Module::Build
+cpan>o conf prefer_installer MB
+cpan>o conf commit
 
- * Install the expat library by whatever method is
-   appropriate for your system (e.g. yum, homebrew).
+* Install the *expat* library by whatever method is appropriate for your system (e.g. `apt`, `yum`, `homebrew`).
 
 
 INSTALLING BIOPERL THE EASY WAY USING CPAN
 
 You can use the CPAN shell to install BioPerl. For example:
 
- >perl -MCPAN -e shell
+perl -MCPAN -e shell
 
-Or you might have the cpan alias installed:
+Or you might have the `cpan` alias installed:
 
- >cpan
+cpan
 
 Then find the name of the latest BioPerl package:
 
- >cpan>d /bioperl/
+cpan>d /bioperl/
 
  ....
 
@@ -58,13 +54,13 @@ Then find the name of the latest BioPerl package:
  Distribution    CJFIELDS/BioPerl-1.6.922.tar.gz
  Distribution    CJFIELDS/BioPerl-1.6.924.tar.gz
 
-And install:
+And install the most recent:
 
- >cpan>install CJFIELDS/BioPerl-1.6.924.tar.gz
+cpan>install CJFIELDS/BioPerl-1.6.924.tar.gz
 
 If you've installed everything perfectly and all the network
 connections are working then you will pass all the tests run in the
-'./Build test' phase. Sometimes you may see a failed test. Remember that 
+`./Build test` phase. Sometimes you may see a failed test. Remember that 
 there are over 900 modules in BioPerl and the test suite is running more 
 than 12000 individual tests, a failed test may not affect your usage 
 of BioPerl.
@@ -72,7 +68,7 @@ of BioPerl.
 If there's a failed test and you think that the failed test will not 
 affect how you intend to use BioPerl then do:
 
- >cpan>force install C/CJ/CJFIELDS/BioPerl-1.6.923.tar.gz
+cpan>force install C/CJ/CJFIELDS/BioPerl-1.6.923.tar.gz
 
 If you're concerned about a failed test and need assistance or advice
 then contact bioperl-l@bioperl.org, and provide us the detailed
@@ -85,86 +81,84 @@ The very latest version of Bioperl is at github.com. If you want this
 version then download it from https://github.com/bioperl/bioperl-live
 as a *zip file, or retrieve it using the command line:
 
- >git clone https://github.com/bioperl/bioperl-live.git
- >cd bioperl-live
+git clone https://github.com/bioperl/bioperl-live.git
+cd bioperl-live
 
 If you've downloaded the *zip file then unzip that and cd to the
 BioPerl directory.
 
 Issue the build commands:
 
- >perl Build.PL
+perl Build.PL
 
 You will be asked a few questions about installing BioPerl scripts
-and running various test suites, hit <return> to accept the defaults.
+and running various test suites, hit *return* to accept the defaults.
 
 Test:
 
- >./Build test
+./Build test
 
 Install:
 
- >./Build install
+./Build install
 
-You may need root permissions in order to run './Build install', so you 
+You may need root permissions in order to run `./Build install`, so you 
 will want to talk to your systems manager if you don't have the necessary
 privileges. Or you can install the package in your own home
-directory, see INSTALLING BIOPERL USING local::lib, below.
+directory, see INSTALLING BIOPERL USING local::lib.
 
 
 INSTALLING BIOPERL USING local::lib
 
 If you lack permission to install Perl modules into the standard
 system directories you can install them in your home directory
-using local::lib. The instructions for first installing
-local::lib are found here:
+using `local::lib`. The instructions for first installing
+`local::lib` are found here:
 
-http://search.cpan.org/search?query=local%3A%3Alib
+https://metacpan.org/pod/local::lib
 
-Once local::lib is installed you can install BioPerl using a 
+Once `local::lib` is installed you can install BioPerl using a 
 command like this:
 
- >perl -MCPAN -Mlocal::lib -e 'CPAN::install(C/CJ/CJFIELDS/BioPerl-1.6.924.tar.gz)'
-
+perl -MCPAN -Mlocal::lib -e 'CPAN::install(C/CJ/CJFIELDS/BioPerl-1.6.924.tar.gz)'
 
 INSTALLING BIOPERL SCRIPTS
 
 BioPerl comes with a set of production-quality scripts that are
 kept in the scripts/ directory. You can install these scripts if you'd
-like, simply answer the questions during 'perl Build.PL'.
+like, simply answer the questions during `perl Build.PL`.
 The installation directory can be specified by:
 
- >perl Build.PL
- >./Build install --install_path script=/foo/scripts
+perl Build.PL
+./Build install --install_path script=/foo/scripts
 
-By default they install to /usr/bin or similar, depending on platform.
+By default they install to */usr/bin* or similar, depending on platform.
 
 
 THE TEST SYSTEM
 
-The BioPerl test system is located in the t/ directory and is
-automatically run whenever you execute the './Build test' command.
+The BioPerl test system is located in the *t/* directory and is
+automatically run whenever you execute the `./Build test` command.
 
-For the 1.6 release and beyond, tests have been organized into groups
+The tests have been organized into groups
 based upon the specific task or class the module being tested belongs
 to. If you want to investigate the behavior of a specific test such as
 the Seq test you would type:
 
- >./Build test --test_files t/Seq/Seq.t --verbose
+./Build test --test_files t/Seq/Seq.t --verbose
 
-The --test_files argument can be used multiple times to try a set of test 
-scripts in one go. The --verbose arguement outputs the detailed test results, 
-instead of just the summary you see during './Build test'.
+The `--test_files` argument can be used multiple times to try a set of test 
+scripts in one go. The `--verbose` arguement outputs the detailed test results, instead of just the summary you see during `./Build test`.
 
-The '--test-files' argument can also work as a glob. For instance, to
+The `--test-files` argument can also work as a glob. For instance, to
 run tests on all SearchIO modules, use the following:
 
- >./Build test --test_files t/SearchIO* --verbose
+./Build test --test_files t/SearchIO* --verbose
 
 If you are trying to learn how to use a module, often the test suite
 is a good place to look. All good extreme programmers try and write a
 test BEFORE they write the module to insure that their module behaves
-the way they expect. You'll notice some 'ok' and 'skip' commands in a
+the way they expect. You'll notice some `ok` and `skip` commands in a
 test, this is part of the Perl test suite that signifies a passed test
 with an 'ok N', where N is the test number. Alternatively you can tell
 Perl to skip tests. This is useful when, for example, your test
