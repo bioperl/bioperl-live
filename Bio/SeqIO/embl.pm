@@ -1356,11 +1356,14 @@ sub _read_FTHelper_EMBL {
 
     # Now parse and add any qualifiers.  (@qual is kept
     # intact to provide informative error messages.)
-  QUAL: for (my $i = 0; $i < @qual; $i++) {
-        $_ = $qual[$i];
-        my( $qualifier, $value ) = m{^/([^=]+)(?:=\s*(.+))?}
+  QUAL:
+    for (my $i = 0; $i < @qual; $i++) {
+        my $data = $qual[$i];
+        my ( $qualifier, $value ) = ($data =~ m{^/([^=]+)(?:=\s*(.+))?})
             or $self->throw("Can't see new qualifier in: $_\nfrom:\n"
                             . join('', map "$_\n", @qual));
+        $qualifier = '' if not defined $qualifier;
+
         if (defined $value) {
             # Do we have a quoted value?
             if (substr($value, 0, 1) eq '"') {
