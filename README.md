@@ -1,9 +1,14 @@
 [![Build Status](https://travis-ci.org/bioperl/bioperl-live.svg?branch=v1.6.x)](https://travis-ci.org/bioperl/bioperl-live)
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.16344.svg)](http://dx.doi.org/10.5281/zenodo.16344)
+[![Documentation Status](https://readthedocs.org/projects/bioperl/badge/?version=latest)](https://readthedocs.org/projects/bioperl/?badge=latest)
 
 # Getting Started
 
 Please see the the `INSTALL` or `INSTALL.WIN` documents for installation
 instructions.
+
+Note that these documents are gradually being migrated to a specific
+http://readthedocs.org site.
 
 # About BioPerl
 
@@ -14,33 +19,28 @@ Our website (http://bioperl.org/) provides an online resource of modules,
 scripts, and web links for developers of Perl-based software for life science
 research.
 
-# Contact info
+# Contact Information
 
-BioPerl mailing list: bioperl-l@bioperl.org
-
-There's quite a variety of tools available in BioPerl, and more are added all
-the time. If the tool you're looking for isn't described in the documentation
-please write us, it could be undocumented or in process.
+* BioPerl mailing list: bioperl-l@bioperl.org
 
 * Project website : http://bioperl.org/
 
 * Bug reports : https://github.com/bioperl/bioperl-live/issues
 
-Please send us bugs, in particular about documentation which you think is
-unclear or problems in installation. We are also very interested in functions
-which don't work the way you think they do!
+Please submit bugs, in particular about documentation which you think is
+unclear, or about problems in installation. We are also very interested in functions which don't work the way you think they do!
 
-# The directory structure
+# The Directory Structure
 
 The BioPerl directory structure is organized as follows:
 
 * **`Bio/`** - BioPerl modules
 
-* **`doc/`** - Documentation utilities
+* **`deobfuscator/`** - Code for tracing OOP relationships
 
 * **`examples/`** - Scripts demonstrating the many uses of BioPerl
 
-* **`ide/`** - files for developing BioPerl using an IDE
+* **`ide/`** - Files for developing BioPerl using an IDE
 
 * **`maintenance/`** - BioPerl housekeeping scripts
 
@@ -54,10 +54,11 @@ The BioPerl directory structure is organized as follows:
 
 * **`t/data/`** - Data files used for the tests, provides good example data
 
+* **`travis_scripts/`** - script to customize Travis
+
 # Documentation
 
-For documentation on BioPerl see the **HOWTO** documents and tutorials online at
-http://bioperl.org.
+For documentation on BioPerl see the **HOWTO** documents online at http://www.bioperl.org/wiki/HOWTOs.
 
 Useful documentation in the form of example code can also be found in the
 **`examples/`** and **`scripts/`** directories. The current collection includes
@@ -80,9 +81,7 @@ way.
 
 # Releases
 
-BioPerl releases are always available from the website at
-http://www.bioperl.org/DIST or in CPAN. The latest code can be found at
-https://github.com/bioperl.
+BioPerl releases are always available from the website at http://www.bioperl.org/DIST or in CPAN. The latest code can be found at https://github.com/bioperl.
 
 * BioPerl currently uses a sematic numbering scheme to indicate stable release
   series vs. development release series. A release number is a three digit
@@ -96,42 +95,22 @@ https://github.com/bioperl.
     fixes or additional code that doesn't add significant functionality to the
     code base.
 
-* From the **1.0 release until the 1.6 release**, even numbers (`1.0`, `1.2`, etc)
-  indicated stable releases. Stable releases were well tested and recommended
-  for most uses. Odd numbers (`1.1`, `1.3`, etc) were development releases which one
-  would only use if one were interested in the latest and greatest features. The
-  final number (e.g. `1.2.0`, `1.2.1`) is the bug fix release. The higher the number
-  the more bug fixes has been incorporated. In theory you can upgrade from one
-  bug fix release to the next with no changes to your own code (for production
-  cases, obviously check things out carefully before you switch over).
+From the **1.0 release until the 1.6 release** even numbers (e.g. `1.4`) indicated stable releases. Stable releases were well tested and recommended for most uses. Odd numbers (e.g. `1.3`) were development releases which one would only use if one were interested in the latest features. The final number (e.g. in `1.2.1`) is the point or patch release. The higher the number the more bug fixes has been incorporated. In theory you can upgrade from one point or patch release to the next with no changes to your own code (for production cases, obviously check things out carefully before you switch over).
 
-* The upcoming **1.7 release** will be the last release series to utilize the
-  alternating 'stable'/'developer' convention. Starting immediately after the
-  final 1.6 branch, we will start splitting BioPerl into several smaller
-  easier-to-manage distributions. These will have independent versions, all
-  likely starting with v1.7.0. **We do not anticipate major API changes in the
-  1.7.x release series*, merely that the code will be restructured in a way to
-  make maintenance more feasible. We anticipate retaining semantic versioning
-  until the **v2.x** release.
+The upcoming **1.7 release** will be the last release series to utilize the alternating 'stable'/'developer' convention. Starting immediately after the final 1.6 branch, we will start splitting BioPerl into several smaller easier-to-manage distributions. These will have independent versions, all likely starting with v1.7.0. **We do not anticipate major API changes in the 1.7.x release series, merely that the code will be restructured in a way to make maintenance more feasible.** We anticipate retaining semantic versioning until the 2.x release.
 
-# Caveats and warnings
+# Caveats and Warnings
 
-When you run the tests ("`./Build test`") some tests may issue warnings messages
-or even fail. Sometimes this is because we didn't have anyone to test the test
-system on the combination of your operating system, version of perl, and
-associated libraries and other modules. Because BioPerl depends on several
+When you run the tests with `./Build test` some tests may issue warnings messages or even fail. Sometimes this is because we didn't have anyone to test the test system on the combination of your operating system, version of perl, and associated libraries and other modules. Because BioPerl depends on several
 outside libraries we may not be able to test every single combination so if
 there are warnings you may find that the package is still perfectly useful.
 
 If you install the bioperl-run system and run tests when you don't have the
-program installed you'll get messages like '`program XXX not found, skipping
-tests`'. That's okay, BioPerl is doing what it is supposed to do. If you wanted
+program installed you'll get messages like `program XXX not found, skipping
+tests`. That's okay, BioPerl is doing what it is supposed to do. If you wanted
 to run the program you'd need to install it first.
 
-Not all scripts in the `examples/` directory are correct and up-to-date. We need
-volunteers to help maintain these so if you find they do not submit a bug report
-to https://github.com/bioperl/bioperl-live/issues and consider helping out in
-their maintenance.
+Not all scripts in the `examples/` directory are correct and up-to-date. If you find an issue with a script please submit a bug report to https://github.com/bioperl/bioperl-live/issues and consider helping out in their maintenance.
 
 If you are confused about what modules are appropriate when you try and solve a
 particular issue in bioinformatics we urge you to look at HOWTO documents first.
@@ -236,8 +215,7 @@ All modules are in the **`Bio/`** namespace,
 * **`Bio::Biblio`** is where *bibliographic data and database access objects*
   are kept
 
-* **`Variation`** represent *sequences with mutations and variations* applied so
-  one can compare and represent wild-type and mutation versions of a sequence.
+* **`Variation`** represent *sequences with mutations and variations* applied so one can compare and represent wild-type and mutation versions of a sequence.
 
 * **`Root`**, basic objects for the *internals of BioPerl*
 
@@ -251,7 +229,6 @@ these notes may help you.
   included in the release.
 
 * Some methods, or the Application Programming Interface (API), have changed or
-  been removed. You may find that scripts which worked with BioPerl 1.4 may give
-  you warnings or may not work at all (although we have tried very hard to
+  been removed. You may find that scripts which worked with BioPerl 1.4 may give you warnings or may not work at all (although we have tried very hard to
   minimize this!). Send an email to the list and we'll be happy to give you
   pointers.
