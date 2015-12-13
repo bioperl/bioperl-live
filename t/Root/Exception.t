@@ -1,26 +1,24 @@
 # -*-Perl-*- Test Harness script for Bioperl
-# $Id$
 
 use strict;
 
 BEGIN {
     eval {require Error;};
 
-    use lib '.';
+    use lib qw( . t/lib );
     use Bio::Root::Test;
 
-    test_begin(-tests => 8,
+    test_begin(-tests => 7,
                -requires_module => 'Error');
 
-    use lib './examples/root/lib';
-    use_ok('TestObject');
+    use_ok('Bio::Root::TestObject');
 }
 
 use Error qw(:try);
 $Error::Debug = test_debug();
 
 # Set up a tester object.
-ok my $test = TestObject->new(-verbose => test_debug());
+ok my $test = Bio::Root::TestObject->new(-verbose => test_debug());
 
 is $test->data('Eeny meeny miney moe.'), 'Eeny meeny miney moe.';
 

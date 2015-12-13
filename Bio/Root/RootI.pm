@@ -2,18 +2,6 @@ package Bio::Root::RootI;
 use strict;
 use Carp 'confess','carp';
 
-# ABSTRACT: abstract interface to root object code
-# AUTHOR:   Steve Chervitz <sac@bioperl.org>
-# AUTHOR:   Ewan Birney <birney@ebi.ac.uk>
-# AUTHOR:   Lincoln Stein
-# OWNER:    Steve Chervitz
-# OWNER:    Ewan Birney
-# OWNER:    Lincoln Stein
-# LICENSE:  Perl_5
-
-# CONTRIBUTOR: Sendu Bala <bix@sendu.me.uk>
-# CONTRIBUTOR: Jason Stajich
-
 =head1 SYNOPSIS
 
   # any bioperl or bioperl compliant object is a RootI
@@ -78,6 +66,10 @@ run time (i.e., you can't verify that an implementation is complete by
 running C<perl -wc> on it). So it should be standard practice for a test
 of an implementation to check each method and verify that it doesn't
 throw a L<Bio::Exception::NotImplemented>.
+
+=head1 AUTHOR Steve Chervitz
+
+Ewan Birney, Lincoln Stein, Steve Chervitz, Sendu Bala, Jason Stajich
 
 =cut
 

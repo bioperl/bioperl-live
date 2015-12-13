@@ -1,11 +1,6 @@
 package Bio::Root::Exception;
 use strict;
 
-# ABSTRACT: generic exception objects for Bioperl
-# AUTHOR:   Steve Chervitz <sac@bioperl.org>
-# OWNER:    2001 Steve Chervitz
-# LICENSE:  Perl_5
-
 =head1 SYNOPSIS
 
 =head2 Throwing exceptions using L<Error.pm throw|Error::throw>:
@@ -148,6 +143,8 @@ See these RFC's:
      http://dev.perl.org/rfc/88.pod
 
 =head1 EXCEPTIONS
+
+=head1 AUTHOR Steve Chervitz
 
 =cut
 

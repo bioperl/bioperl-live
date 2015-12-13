@@ -4,15 +4,6 @@ use Bio::Root::IO;
 use Scalar::Util qw(blessed reftype);
 use base qw(Bio::Root::RootI);
 
-# ABSTRACT: hash-based implementation of L<Bio::Root::RootI>
-# AUTHOR:   Steve Chervitz <sac@bioperl.org>
-# AUTHOR:   Ewan Birney
-# AUTHOR:   Lincoln Stein
-# OWNER:    Steve Chervitz
-# OWNER:    Ewan Birney
-# OWNER:    Lincoln Stein
-# LICENSE:  Perl_5
-
 =head1 SYNOPSIS
 
   # Any Bioperl-compliant object is a RootI compliant object
@@ -138,6 +129,10 @@ other pre-defined exception types:
        # an exception occurred.
    };
    # the ending semicolon is essential!
+
+=head1 AUTHOR Steve Chervitz
+
+Ewan Birney, Lincoln Stein
 
 =cut
 

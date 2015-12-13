@@ -5,11 +5,6 @@ use Data::Dumper qw( Dumper );
 use File::Spec;
 use base qw(Bio::Root::Root);
 
-# ABSTRACT: object serialisation methods
-# AUTHOR:   Will Spooner <whs@sanger.ac.uk>
-# OWNER:    Will Spooner
-# LICENSE:  Perl_5
-
 =head1 SYNOPSIS
 
   my $storable = Bio::Root::Storable->new();
@@ -21,7 +16,6 @@ use base qw(Bio::Root::Root);
   # Store/retrieve using object retriever
   my $storable2 = $storable->new_retrievable();
   $storable2->retrieve();
-
 
 =head1 DESCRIPTION
 
@@ -45,6 +39,8 @@ Perl Data::Dumper module) is used instead.
 
 ASCII storage can be enabled by default by setting the value of
 $Bio::Root::Storable::BINARY to false.
+
+=head1 AUTHOR Will Spooner
 
 =cut
 

@@ -14,12 +14,9 @@ Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
 =cut
 
-#'
-
-package TestObject;
+package Bio::Root::TestObject;
 
 use strict;
-
 
 # Define a special type of error "Bio::TestException" as a subclass of Error.
 # Note two things:
@@ -29,8 +26,7 @@ use strict;
 #   4. If Error.pm isn't available this statement doesn't matter.
 @Bio::TestException::ISA = qw( Bio::Root::Exception );
 
-use base qw(Bio::Root::Root TestInterface);
-
+use base qw( Bio::Root::Root );
 
 # Note that we're not implementing foo(), so calling it
 # will result in a Bio::Root::NotImplemented exception.

@@ -4,11 +4,6 @@ use Bio::Root::IO;
 use Bio::Root::Exception;
 use base qw(Bio::Root::Root Exporter);
 
-# ABSTRACT: general-purpose utility module
-# AUTHOR:   Steve Chervitz <sac@bioperl.org>
-# OWNER:    1996-2007 Steve Chervitz
-# LICENSE:  Perl_5
-
 =head1 SYNOPSIS
 
 =head2 Object Creation
@@ -74,6 +69,8 @@ as needed.
 
 This module was originally developed under the auspices of the
 Saccharomyces Genome Database: http://www.yeastgenome.org/
+
+=head1 AUTHOR Steve Chervitz
 
 =cut
 

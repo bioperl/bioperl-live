@@ -7,13 +7,6 @@ use File::Copy;
 use Fcntl;
 use base qw(Bio::Root::Root);
 
-# ABSTRACT: module providing several methods often needed when dealing with file IO
-# AUTHOR:   Hilmar Lapp <hlapp@gmx.net>
-# OWNER:    Hilmar Lapp
-# LICENSE:  Perl_5
-
-# CONTRIBUTOR: Mark A. Jensen <maj@fortinbras.us>
-
 =head1 SYNOPSIS
 
     # Use stream I/O in your module
@@ -60,6 +53,8 @@ is special behavior when a object like a parser might share a
 filehandle with an object like an indexer where it is not proper to
 close the filehandle as it will continue to be reused until the end of the
 stream is reached.  In general you won't want to play with this flag.
+
+=head1 AUTHOR Hilmar Lapp
 
 =cut
 

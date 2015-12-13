@@ -146,8 +146,7 @@ use Bio::SeqFeature::Generic;
 use base qw(Bio::Tools::Analysis::SimpleAnalysisBase);
 $FLOAT = '[+-]?\d*\.\d*';
 
-my $URL = 'http://ihg.gsf.de/cgi-bin/paolo/mitofilter?';
-
+my $URL = 'https://ihg.gsf.de/cgi-bin/paolo/mitofilter?';
 
 my %STATUS =  map { $_ => 1 } qw(CREATED COMPLETED TERMINATED_BY_ERROR);
 
@@ -311,7 +310,7 @@ sub _run {
     $self->sleep;
 
     $self->status('TERMINATED_BY_ERROR');
-    my $url = $self->url . "seq=".lc($self->seq->seq). "&seqnam=";
+    my $url = $self->url . "seq=" . lc($self->seq->seq) . "&seqnam=";
     my $request = GET $url;
     my $content = $self->request($request);
     my $text = $content->content; #1st reponse

@@ -2,11 +2,6 @@ package Bio::Root::Build;
 use strict;
 use warnings;
 
-# ABSTRACT: a common Module::Build subclass base for BioPerl distributions
-# AUTHOR:   Sendu Bala <bix@sendu.me.uk>
-# OWNER:    Sendu Bala
-# LICENSE:  Perl_5
-
 =head1 SYNOPSIS
 
   ...TO BE ADDED
@@ -28,6 +23,8 @@ those for Module::Build, and so caused serious issues with newer versions
 (including giving incorrect meta data). Other problematic methods involving
 automatic installation of prereq modules via CPAN were also removed as they do
 not work with more modern perl tools such as perlbrew and cpanm.
+
+=head1 AUTHOR Sendu Bala
 
 =cut
 
