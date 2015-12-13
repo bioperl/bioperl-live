@@ -67,6 +67,10 @@ SKIP: {
         -requires_networking => 1
     );
 
+    eval {$in = Bio::Restriction::IO->new(-format  => 'prototype',
+                                          -current => 1); };
+    skip "Couldn't connect to REBASE with Bio::Restriction::IO. Skipping those tests", 3 if $@;
+
     ok $in = Bio::Restriction::IO->new(
         -format  => 'prototype',
         -current => 1
@@ -75,4 +79,3 @@ SKIP: {
     ok my $coll = $in->read;
     cmp_ok $coll->each_enzyme, '>=', 307;
 }
-
