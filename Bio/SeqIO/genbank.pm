@@ -1716,10 +1716,10 @@ sub _read_FTHelper_GenBank {
   QUAL:
     for (my $i = 0; $i < @qual; $i++) {
         my $data = $qual[$i];
-        my ( $qualifier, $value ) = ($data =~ m{^/([^=]+)(?:=(.+))?})
+        my ( $qualifier, $value ) = ($data =~ m{^/([^=]+)(?:=\s*(.+))?})
             or $self->warn(  "cannot see new qualifier in feature $key: "
-                           . $qual[$i]);
-        $qualifier = '' unless( defined $qualifier );
+                           . $data);
+        $qualifier = '' if not defined $qualifier;
 
         if (defined $value) {
             # Do we have a quoted value?
