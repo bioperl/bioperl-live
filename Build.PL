@@ -81,10 +81,6 @@ my %recommends = (
         0, 'OO-based exception handling (very optional)/Bio::Root::Exception'
     ],
 
-    'HTML::TableExtract' => [
-        0, 'HTML parsing/Bio::DB::SeqVersion::gi'
-    ],
-
     'GD' => [ 0, 'Alignment graphic output/Bio::Align::Graphics' ],
 
     'Graph' => [
