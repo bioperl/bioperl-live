@@ -49,4 +49,3 @@ branches:
   only:
     - master
     - v1.6.x
-    - topic/1.6-cherry
