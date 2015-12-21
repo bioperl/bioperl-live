@@ -4,206 +4,142 @@
    Contents
 
      * 1 Introduction
-     * 2 Requirements
-     * 3 To install Perl on Windows
-     * 4 CPAN for ActivePerl and Strawberry Perl
-     * 5 Installation using CPAN or manual installation
-     * 6 Beyond the Core
-     * 7 Bioperl in Cygwin
+     * 2 Perl Options
+     * 3 Installing Perl on Windows
+     * 4 CPAN for Strawberry Perl and ActivePerl
+     * 5 Bioperl in Cygwin
 
 1 Introduction
 
-This installation guide was written by Barry Moore, Nathan Haigh and other Bioperl 
-authors based on the original work of Paul Boutros.
+This installation guide was written by Barry Moore, Nathan Haigh
+and other Bioperl authors based on the original work of Paul Boutros. The
+guide has been updated by Paul Cantalupo and Francisco Ossandon.
+*Note* For Windows it is recommended to install BioPerl version 1.6.924 or
+newer, since many Windows-specific bugs from previous versions were fixed.
 
-Please report problems and fixes to the BioPerl mailing list, *bioperl-l* 
-(http://lists.open-bio.org/mailman/listinfo/bioperl-l).
+Please report problems and/or fixes to the BioPerl mailing list.
 
-2 Requirements
+2 Perl Options
 
 There are a couple of ways of installing Perl on a Windows machine. One is
-to get the most recent build from Strawberry Perl (http://strawberryperl.com), 
-and the other is to get it from ActiveState (http://www.activestate.com). Both 
-are software companies that provide free builds of Perl for Windows users, but 
-Strawberry Perl is recommended since it is more CPAN friendly and because it 
-includes a compiler (`gcc`) and related tools. 
+to get the most recent build from [Strawberry Perl](http://strawberryperl.com/)
+and the other is to get it from [ActiveState](http://www.activestate.com/).
+Both are software companies that provide free builds of Perl for Windows
+users.
 
-3 To install Perl on Windows:
+Strawberry Perl is recommended since is more CPAN-friendly and
+because it includes a compiler (gcc), related tools and other external
+libraries. These installation steps were verified on December 2015 using
+ActivePerl 5.20.2.2002 (5.22 has been released but the MinGW package is not
+available for it yet) and Strawberry Perl 5.22.0.1 from a clean install.
 
-           1) Download the Strawberry Perl MSI from
-           http://strawberryperl.com/releases.html or ActivePerl MSI from
-           http://www.activestate.com/activeperl/downloads.
-           2) Run the Installer (accepting all defaults is fine).
+*Note* Only ActivePerl **5.18 or greater** is supported by the BioPerl team.
+This is because the necessary MinGW package needed for CPAN installations
+is only available for both 32-bit and 64-bit Windows since this version
+(32-bit was available on previous versions but only in the Business edition,
+see [ActivePerl MinGW PPM webpage](http://www.activestate.com/activeperl/downloads)).
 
-You can also build Perl yourself (which requires a C compiler) or download
-one of the other binary distributions. The Perl source for building it
-yourself is available from CPAN, as are a few other binary distributions
-that are alternatives to ActiveState. This approach is not recommended
-unless you have specific reasons for doing so and know what you're doing.
-If that's the case you probably don't need to be reading this guide.
+*Note* Support for installation through ActivePerl Perl Package Manager has been dropped in favor of CPAN.
 
-4 CPAN for ActivePerl and Strawberry Perl
+3 Installing Perl on Windows
 
-           1) Open a cmd window by going to Start >> Run and typing 'cmd'
-           into the box and pressing return.
-     
-           2) Type 'cpan' to enter the CPAN shell.
-    
-           3) At the cpan> prompt, type 'install CPAN' to upgrade to the
-           latest version.
-    
-           4) Quit (by typing 'q') and reload cpan. You may be asked some
-           configuration questions; accepting defaults is fine.
-    
-           5) At the cpan> prompt, type 'o conf prefer_installer MB' to tell
-           CPAN to prefer to use Build.PL scripts for installation. Type 'o
-           conf commit' to save that choice.
-    
-           6) At the cpan> prompt, type 'install Module::Build'.
-     
-           7) At the cpan> prompt, type 'install Test::Harness'.
-     
-           8) At the cpan> prompt, type 'install Test::Most'.
+1. Download the [Strawberry Perl MSI](http://strawberryperl.com/releases.html) or [ActivePerl MSI](http://www.activestate.com/activeperl/downloads).
+2. Run the Installer (accepting all defaults is fine).
 
-You can now follow the unix instructions for installing using CPAN (preferred), or install manually:
+You can also build Perl yourself (which requires a C compiler). The Perl
+source for building it yourself is available from [CPAN](http://www.cpan.org/).
+This approach is not recommended unless you have specific reasons for doing so
+and know what you're doing.
 
-           9) Download the .zip version of the package you want.
-    
-           10) Extract the archive in the normal way.
-    
-           11) In a cmd window 'cd' to the directory you extracted to. Eg. if
-           you extracted to directory 'Temp', 'cd Temp\bioperl-1.5.2_100'
-    
-           12) Type 'perl Build.PL' and answer the questions appropriately.
-    
-           13) Type 'perl Build test'. All the tests should pass, but if they
-           don't, let us know. Your usage of Bioperl may not be affected
-           by the failure, so you can choose to continue anyway.
-    
-           14) Type 'perl Build install' to install Bioperl.
+[Cygwin](http://en.wikipedia.org/wiki/Cygwin) is a [UNIX](http://en.wikipedia.org/wiki/UNIX)
+emulation environment for Windows and comes with its own copy of Perl. Information on Cygwin and Bioperl is found below.
 
-GUI Installation
+### Installation using the ActiveState Perl Package Manager
 
-           1) Start the Perl Package Manager GUI from the Start menu.
+This installation is not supported nor recommended anymore, because the last
+BioPerl package produced for it was the old version 1.6.1 (2009) and many
+Windows-specific bugs were fixed in more recent versions 1.6.923 and 1.6.924.
+Please install using the CPAN instructions below.
 
-           2) Go to Edit >> Preferences and click the Repositories tab. Add a
-           new repository for each of the following (note the difference based
-           on the perl version). NOTE - The DB_File installed with ActivePerl
-           5.10 and above is a stub (i.e. it does not work). The Trouchelle
-           database below has a working DB_File.
+4 CPAN for Strawberry Perl and ActivePerl
 
-                              Repositories to add
-       +----------------------------------------------------------------+
-       |           Name           |              Location               |
-       |--------------------------+-------------------------------------|
-       |BioPerl-Release Candidates|http://bioperl.org/DIST/RC           |
-       |--------------------------+-------------------------------------|
-       |BioPerl-Regular Releases  |http://bioperl.org/DIST              |
-       |--------------------------+-------------------------------------|
-       |Kobes                     |http://theoryx5.uwinnipeg.ca/ppms    |
-       |--------------------------+-------------------------------------|
-       |Bribes                    |http://www.Bribes.org/perl/ppm       |
-       |--------------------------+-------------------------------------|
-       |Trouchelle                |http://trouchelle.com/ppm            |
-       +----------------------------------------------------------------+
+Both CPAN and manual methods ultimately need the accessory compiling program
+MinGW, which incorporates the necessary tools like dmake and gcc. MinGW comes
+by default with Strawberry Perl, but must it be installed through PPM for
+ActivePerl (CPAN will display a warning if not present). Also, CPAN need to be
+upgraded to >= v1.81, [Module::Build](https://metacpan.org/pod/Module::Build)
+to be upgraded (>= v0.2805) and [Test::Harness](https://metacpan.org/pod/Test::Harness) to be upgraded to >= v2.62.
 
-           3) Select View >> All Packages.
-           4) In the search box type bioperl.
-           5) Right click the latest version of Bioperl available and choose
-           install. (Note for users of previous Bioperl releases: you should
-           not have to use the Bundle-BioPerl package anymore.)
-           5a) From bioperl 1.5.2 onward, all 'optional' pre-requisites will
-           be marked for installation. If you see that some of them complain
-           about needing a command-line installation (eg. XML::SAX::ExpatXS),
-           and you want those particular pre-requisites, stop now (skip step
-           6) and see the 'Command-line Installation' section.
-           7) Click the green arrow (Run marked actions) to complete the
-           installation.
+### Dmake for ActivePerl
 
-Command-line Installation
+1) Install MinGW package through PPM: Using a cmd window type
 
-           Use the ActiveState ppm-shell:
-     
-	   1) Open a cmd window by going to Start >> Run and typing
-	   'cmd' and pressing return.
-     
-    2) Do 
-	      C:> ppm-shell
-	      ppm>
-           
-    3) Make sure you have the module PPM-Repositories. Try installing it:
-              ppm> install PPM-Repositories
-     
-    4) For BioPerl 1.6.1, we require at least the following
-           repositories. You may have some present already.
-     
-              ppm> repo add http://bioperl.org/DIST
-              ppm> repo add uwinnipeg
-              ppm> repo add trouchelle
-     
-           Because you have installed PPM-Repositories, PPM will know
-           your Perl version, and select the correct repo from the
-           table above.
-     
-     5) Install BioPerl (not "bioperl"). 
-     
-              ppm> install BioPerl
-    
+`ppm install MinGW`.
 
-5 Installation using CPAN or manual installation
+It is `important` to check if ActiveState provides the
+[MinGW package](http://code.activestate.com/ppm/MinGW/) for your ActivePerl version,
+since each version have to wait its own release. For example,
+although MinGW has been available since ActivePerl version 5.18,
+the release for newest version 5.22 it's still not available (December 2015).
 
-When using ActivePerl, installation using PPM is preferred since it is
-easier, but if you run into problems, or a PPM isn't available for the
-latest version/package of BioPerl, or you want to choose which optional
-dependencies to install, you can install manually by downloading the
-appropriate package or by using CPAN (installation using CPAN will always
-get you the latest version). Both manual methods ultimately need an
-accessory compiling program like MinGW, which incorporates the necessary
-tools like dmake and gcc. MinGW comes by default with Strawberry Perl, but
-must be installed through PPM for ActivePerl. Also CPAN neeed to be upgraded
-to >= v1.81, Module::Build to be installed (>= v0.2805) and Test::Harness to
-be upgraded to >= v2.62:
-   
-Dmake for ActivePerl
+### Start the install with CPAN
 
-           1) Install MinGW package through PPM: Using a cmd window type
-           'ppm install MinGW' for 32bits Windows or 'ppm install MinGW64' for
-           64bits Windows. Is IMPORTANT to check previously if ActiveState
-           provides the MinGW package for your ActivePerl version. For example,
-           although ActivePerl 5.18.2.1802 is currently available (May 2014),
-           the download page point mainly at ActivePerl 5.16.3.1604, and the
-           MinGW package is available for version 5.16 but NOT for version 5.18.
+1) Open a cmd window by going to `Start >> Run` and typing `cmd`
+into the box and pressing return.
 
-6 Beyond the Core
+2) Type `cpan` to enter the CPAN shell.
 
-You may find that you want some of the features of other Bioperl packages
-like bioperl-run or bioperl-db. Check this by doing a Bioperl search in PPM.  
-If these are not available, though, you can use the following instructions for 
-installing the other distributions.
+3) At the `cpan>` prompt, type `install CPAN` to upgrade to the
+latest version.
 
-For bioperl-run, bioperl-db and bioperl-network v1.5.2 or higher you can use
-the PPD or CPAN installation instructions above. For other packages you will
-need nmake (see also the CPAN installation instructions), and a willingness
-to experiment. You'll have to read the installation documents for each
-component that you want to install, and use nmake where the instructions
-call for make, like so:
+4) Quit (by typing 'q') and reload CPAN. You may be asked some
+configuration questions; accepting defaults is fine.
 
-    perl Makefile.PL
-    nmake
-    nmake test
-    nmake install
+5) At the `cpan>` prompt, type `o conf prefer_installer MB` to tell
+CPAN to prefer to use `Build.PL` scripts for installation, and the type `o conf commit` to save that choice.
 
-7 Bioperl in Cygwin
+6) At the `cpan>` prompt, type `install Module::Build`.
+
+7) At the `cpan>` prompt, type `install Test::Harness`.
+
+8) At the `cpan>` prompt, type `install Test::Most`.
+
+### Finish the install with CPAN
+
+You can now follow the instructions INSTALLING BIOPERL THE EASY WAY
+USING CPAN in the INSTALL file.
+
+### Finish the install with BioPerl from GitHub
+
+For the bleeding edge version install manually using a ZIP file from the
+GitHub repository:
+
+1) Go to [GitHub](https://github.com/bioperl/bioperl-live) and press the
+`Download ZIP` button.
+
+2) Extract the archive in the normal way.
+
+3) In a cmd window `cd` to the directory you extracted to. Eg. if
+you extracted to directory 'bioperl-live', `cd bioperl-live`
+
+4) Type `perl Build.PL` and answer the questions appropriately.
+
+5) Type `perl Build test`. All the tests should pass, but if they don't,
+[let us know](https://github.com/bioperl/bioperl-live/issues). Your usage of
+Bioperl may not be affected by the failure, so you can choose to continue
+anyway.
+
+6) Type `perl Build install` to install Bioperl.
+
+5 Bioperl in Cygwin
 
 Cygwin is a Unix emulator and shell environment available free at
-http://www.cygwin.com. It has been reported that Bioperl v. 1.* runs well 
-within Cygwin, though the latest release has not been tested with Cygwin. Some
-users claim that installation of Bioperl is easier within Cygwin than
-within Windows, but these may be users with UNIX backgrounds. A note on
-Cygwin: it doesn't write to your Registry, it doesn't alter your system or
-your existing files in any way, it doesn't create partitions, it simply
-creates a cygwin/ directory and writes all of its files to that directory.
-To uninstall Cygwin just delete that directory.
+http://www.cygwin.com. Some users claim that installation of Bioperl is
+easier within Cygwin than within Windows, but these may be users with UNIX
+backgrounds. A note on Cygwin: it doesn't write to your Registry, it doesn't
+alter your system or your existing files in any way, it doesn't create
+partitions, it simply creates a *cygwin/* directory and writes all of its
+files to that directory. To uninstall Cygwin just delete that directory.
 
 To get Bioperl running first install the basic Cygwin package as well as
 the Cygwin `perl`, `make`, `binutils`, and `gcc` packages. Clicking the View
