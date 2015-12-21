@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 816 );
+    test_begin( -tests => 817 );
 
     use_ok('Bio::SearchIO');
 }
@@ -1674,3 +1674,12 @@ while ( my $hit = $result->next_hit ) {
     is( $hit->name, shift @valid, 'Check Hit_filter filtered hits ID' );
 }
 is( @valid, 0 );
+
+# Test for correct parsing of results from query sequences containing stops.
+# Without the patch, parsing dies with "Quantifier follows nothing in regex;" error
+$searchio = Bio::SearchIO->new(
+    '-format' => 'hmmer',
+    '-file'   => test_input_file('hmmscan_qry_stop.txt'),
+);
+eval { $searchio->next_result; };
+is( $@, '', 'Correct parsing of alignments with stops' );

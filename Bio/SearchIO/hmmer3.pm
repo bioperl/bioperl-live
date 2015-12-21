@@ -718,7 +718,9 @@ sub next_result {
                                 my @data = split( " ", $buffer );
 
                                 my $line_offset = 0;
-                                while ($buffer =~ m/$data[-2]/g) {
+                                # Use \Q\E on match to avoid errors on alignments
+                                # that include stop codons (*)
+                                while ($buffer =~ m/\Q$data[-2]\E/g) {
                                     $line_offset = pos $buffer;
                                 }
                                 if ($line_offset != 0) {

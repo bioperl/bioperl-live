@@ -1,0 +1,63 @@
+# hmmscan :: search sequence(s) against a profile database
+# HMMER 3.0 (March 2010); http://hmmer.org/
+# Copyright (C) 2010 Howard Hughes Medical Institute.
+# Freely distributed under the GNU General Public License (GPLv3).
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query sequence file:             FQ377874.faa
+# target HMM database:             HMM_Profiles.hmm
+# output directed to file:         FQ377874.txt
+# number of worker threads:        8
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       gi|328801650|gb|CBW53803.1|  [L=243]
+Description: IS1296 A transposase protein B [Mycoplasma mycoides subsp. capri LC str. 95010]
+Scores for complete sequence (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Model                       Description
+    ------- ------ -----    ------- ------ -----   ---- --  --------                    -----------
+    2.3e-88  289.2  12.7    3.8e-88  288.5   8.8    1.3  1  IS3_IS150_ORF2.curated      
+
+
+Domain annotation for each model (and alignments):
+>> IS3_IS150_ORF2.curated  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !  288.5   8.8   7.6e-89   3.8e-88     145     386 ..       4     236 ..       1     238 [. 0.94
+
+  Alignments for each domain:
+  == domain 1    score: 288.5 bits;  conditional E-value: 7.6e-89
+       IS3_IS150_ORF2.curated 145 eiyhrhrgrYGYRRitlaLrlSEkrGkqiNhKrvqrLMkelgLkSv.iRvKk.kyrsyrgevgivadNlLqRqFkadkPnek 224
+                                   i+ ++ + YGYRR++++L      G  +NhK++ rL kelg      R K  +y sy+g+vg+ adN+L R+F +   n k
+  gi|328801650|gb|CBW53803.1|   4 DIFSKSFETYGYRRLKITLK---SKGYIVNHKKILRLTKELGVQCIkFRTKNgRYSSYKGTVGKIADNVLKRNFHSLQAN-K 81 
+                                  69999***************...*******************87642344434**********************99998.5 PP
+
+       IS3_IS150_ORF2.curated 225 W.vTDVTEFkvgggkKlYLSpIlDLFNrEIisyslserpdaklVkktLerAlkklgpdevpvlHSPRLLSDqGwqYqskay. 304
+                                    +TDVTEFkv+ g+KlYLSpI+DL+N EIisys  + p+++l+  +L++Alkk+ ++ +++ HS     DqG++Yq+  + 
+  gi|328801650|gb|CBW53803.1|  82 L*CTDVTEFKVN-GQKLYLSPIIDLYNDEIISYSIQTNPNLNLTNSMLDKALKKVKNTNGLLIHS-----DQGFHYQH--Is 155
+                                  788*********.****************************************************.....******98..75 PP
+
+       IS3_IS150_ORF2.curated 305 .remLeeqGirqSMSRKGnclDNavmEsffgtLKsEifygnlkkFeslddLeraItdYIey.YNheRIhlKLkgltPveYRt 384
+                                   + +Lee  i qSMSRKGnclDNa +E+ffg LK Ei+y   +k++s+++L++ I+ YI y YN+ RI++KLkgl+Pv+ R 
+  gi|328801650|gb|CBW53803.1| 156 *AKKLEENNITQSMSRKGNCLDNAIIENFFGLLKQEIYY--GEKYNSVEELTKRIHKYI-Y*YNNIRIKEKLKGLSPVQFRK 234
+                                  6689***********************************..67****************.*********************9 PP
+
+       IS3_IS150_ORF2.curated 385 qr 386
+                                  q+
+  gi|328801650|gb|CBW53803.1| 235 QS 236
+                                  97 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query sequence(s):                         1  (243 residues)
+Target model(s):                         116  (57162 nodes)
+Passed MSV filter:                        38  (0.327586); expected 2.3 (0.02)
+Passed bias filter:                       38  (0.327586); expected 2.3 (0.02)
+Passed Vit filter:                        31  (0.267241); expected 0.1 (0.001)
+Passed Fwd filter:                         1  (0.198276); expected 0.0 (1e-05)
+Initial search space (Z):                116  [actual number of targets]
+Domain search space  (domZ):               1  [number of targets reported over threshold]
+# CPU time: 0.91u 0.30s 00:00:01.20 Elapsed: 00:00:01.71
+# Mc/sec: 8.09
+//

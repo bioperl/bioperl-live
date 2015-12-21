@@ -163,7 +163,7 @@ sub next_seq {
         } elsif ($entry =~ /^END_SEQUENCE/) {
             # the sequence may be over, but some other info can come after
             next;
-        } elsif ($entry =~ /^WR{/) {
+        } elsif ($entry =~ /^WR\{/) {
             # Whole-Read items 
             # Programs like Consed or Autofinish add it to phd file. See doc:
             #   http://www.phrap.org/consed/distributions/README.16.0.txt
