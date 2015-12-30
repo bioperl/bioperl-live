@@ -60,5 +60,5 @@ notifications:
 # whitelist branches
 branches:
   only:
-#    - master
-     - feat-travis-containers
+    - master
+
