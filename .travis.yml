@@ -7,13 +7,18 @@ perl:
   - "5.12"
   - "5.10"
 
+sudo: false
 env: PERL_CPANM_OPT="--notest --force --skip-satisfied"
 
+addons:
+  apt:
+    packages:
+      - libdb-dev
+      - graphviz
+      - libgd2-xpm-dev
+      - libxml2-dev
+
 install:
-    # upgrade source lists first
-    - "sudo apt-get update 2>&1 | tail -n 1"
-    #This should solve problem installing Perl's DB_File & GraphViz
-    - "sudo apt-get install libdb-dev graphviz libgd2-xpm-dev libxml2-dev 2>&1 | tail -n 4"
     #These are recommended or required Perl libraries:
     - "cpanm GD 2>&1 | tail -n 1"
     - "cpanm HTML::TableExtract DBI Data::Stag DB_File 2>&1 | tail -n 1"
@@ -55,4 +60,5 @@ notifications:
 # whitelist branches
 branches:
   only:
-    - master
+#    - master
+     - feat-travis-containers
