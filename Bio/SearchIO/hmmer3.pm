@@ -619,7 +619,7 @@ sub next_result {
                                     # Values assigned when IF succeeded
                                 }
                                 else {
-                                    print "Missed this line: $buffer\n";
+                                    print STDERR "Missed this line: $buffer\n";
                                     next;
                                 }
 
@@ -767,7 +767,7 @@ sub next_result {
                                 next;
                             }
                             else {
-                                print "Missed this line: $buffer\n";
+                                print STDERR "Missed this line: $buffer\n";
                             }
                         }
                     }
@@ -985,7 +985,7 @@ sub next_result {
             }
         }
         else {
-            print "Missed line: $buffer\n";
+            print STDERR "Missed line: $buffer\n";
             $self->debug($buffer);
         }
         $last = $buffer;
