@@ -36,7 +36,7 @@ print $hsp->start('hit'), $hsp->end('hit'), $hsp->start('query'),
 
 =head1 DESCRIPTION
 
-Code to parse output from hmmsearch, hmmscan, and nhmmer, compatible with
+Code to parse output from hmmsearch, hmmscan, phmmer and nhmmer, compatible with
 both version 2 and version 3 of the HMMER package from L<http://hmmer.org>.
 
 =head1 FEEDBACK
@@ -218,6 +218,7 @@ sub next_result {
         # Get the query info
         elsif ( $buffer =~ /^\#\squery (?:\w+ )?file\:\s+(\S+)/ ) {
             if (   $self->{'_reporttype'} eq 'HMMSEARCH'
+                || $self->{'_reporttype'} eq 'PHMMER'
                 || $self->{'_reporttype'} eq 'NHMMER' )
             {
                 $self->{'_hmmfileline'} = $lineorig;
@@ -246,6 +247,7 @@ sub next_result {
         elsif ( $buffer =~ m/^\#\starget\s\S+\sdatabase\:\s+(\S+)/ ) {
 
             if (   $self->{'_reporttype'} eq 'HMMSEARCH'
+                || $self->{'_reporttype'} eq 'PHMMER'
                 || $self->{'_reporttype'} eq 'NHMMER' )
             {
                 $self->{'_hmmseqline'} = $lineorig;
@@ -293,6 +295,7 @@ sub next_result {
                      )
                 ) {
                 if (   $self->{'_reporttype'} eq 'HMMSEARCH'
+                    or $self->{'_reporttype'} eq 'PHMMER'
                     or $self->{'_reporttype'} eq 'NHMMER'
                     ) {
                     my ($qry_file)    = $self->{_hmmfileline} =~ m/^\#\squery (?:\w+ )?file\:\s+(\S+)/;
@@ -366,6 +369,7 @@ sub next_result {
             defined $self->{'_reporttype'}
             && (   $self->{'_reporttype'} eq 'HMMSEARCH'
                 || $self->{'_reporttype'} eq 'HMMSCAN'
+                || $self->{'_reporttype'} eq 'PHMMER'
                 || $self->{'_reporttype'} eq 'NHMMER' )
             )
         {
@@ -552,7 +556,7 @@ sub next_result {
                             }
 
                             # Grab hsp data from table, push into @hsp;
-                            if ($self->{'_reporttype'} =~ m/(?:HMMSCAN|HMMSEARCH|NHMMER)/) {
+                            if ($self->{'_reporttype'} =~ m/(?:HMMSCAN|HMMSEARCH|PHMMER|NHMMER)/) {
                                 my ( $domain_num, $score,    $bias,
                                      $ceval,      $ieval,
                                      $hmm_start,  $hmm_stop, $hmm_cov,
@@ -583,7 +587,7 @@ sub next_result {
 
                                     # Try to get the Hit length from the alignment information
                                     $hitlength = 0;
-                                    if ($self->{'_reporttype'} eq 'HMMSEARCH') {
+                                    if ($self->{'_reporttype'} eq 'HMMSEARCH' || $self->{'_reporttype'} eq 'PHMMER') {
                                         # For Hmmsearch, if seq coverage ends in ']' it means that the alignment
                                         # runs until the end. In that case add the END coordinate to @hitinfo
                                         # to use it as Hit Length
@@ -1045,7 +1049,7 @@ sub end_element {
     my $rc;
 
     if ( $nm eq 'HMMER_program' ) {
-        if ( $self->{'_last_data'} =~ /(N?HMM\S+)/i ) {
+        if ( $self->{'_last_data'} =~ /([NP]?HMM\S+)/i ) {
             $self->{'_reporttype'} = uc $1;
         }
     }

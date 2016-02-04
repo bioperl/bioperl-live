@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 817 );
+    test_begin( -tests => 824 );
 
     use_ok('Bio::SearchIO');
 }
@@ -1683,3 +1683,30 @@ $searchio = Bio::SearchIO->new(
 );
 eval { $searchio->next_result; };
 is( $@, '', 'Correct parsing of alignments with stops' );
+
+
+# Test for correct parsing of phmmer results
+# Without the patch, parsing skips all lines from phmmer output
+{
+	my $searchio = Bio::SearchIO->new(
+		-format => 'hmmer',
+		-file   => test_input_file('phmmer.out')
+	);
+	
+	my $result = $searchio->next_result;
+	if ( defined $result ) {
+
+		is( $result->algorithm,         'PHMMER',  'Check algorithm' );
+		is( $result->query_name,        'A0R3R7',  'Check query_name' );
+		is( $result->query_length,       762,      'Check query_length absence' );
+		is( $result->query_description, '',        'Check query_description' );
+		is( $result->num_hits(),         8,        'Check num_hits' );
+
+		my $hit = $result->next_model;
+		if ( defined $hit ) {
+			is( $hit->name, 'cath|4_0_0|1vs0A03/639-759', 'query name okay' );
+			is( $hit->num_hsps(), 1, 'Check num_hsps' );
+		}
+	}
+
+}
