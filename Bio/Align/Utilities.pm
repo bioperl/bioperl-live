@@ -148,13 +148,12 @@ sub aa_to_dna_aln {
 
     foreach my $seq ( $aln->each_seq ) {
         my $aa_seqstr = $seq->seq();
-        my $id        = $seq->display_id;
-        my $dnaseq =
-          $dnaseqs->{$id} || $aln->throw( "cannot find " . $seq->display_id );
+        my $pepid     = $seq->display_id;
+        my $dnaseq    = $dnaseqs->{$pepid} || $aln->throw( "cannot find " . $seq->display_id );
         my $start_offset = ( $seq->start - 1 ) * CODONSIZE;
-
         $dnaseq = $dnaseq->seq();
-        my $dnalen = $dnaseqs->{$id}->length;
+        my $dnalen = $dnaseqs->{$pepid}->length;
+        my $dnaid = $dnaseqs->{$pepid}->display_id || $pepid; # try to use DNAseq obj ID (issue #137)
         my $nt_seqstr;
         my $j = 0;
         for ( my $i = 0 ; $i < $alnlen ; $i++ ) {
@@ -170,7 +169,7 @@ sub aa_to_dna_aln {
         $nt_seqstr .= $GAP x ( ( $alnlen * 3 ) - length($nt_seqstr) );
 
         my $newdna = Bio::LocatableSeq->new(
-            -display_id => $id,
+            -display_id => $dnaid,
             -alphabet   => 'dna',
             -start      => $start_offset + 1,
             -end        => ( $seq->end * CODONSIZE ),
