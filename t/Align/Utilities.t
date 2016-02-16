@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 13);
+    test_begin(-tests => 14);
 	
 	use_ok('Bio::Align::Utilities', qw(:all));
 	use_ok('Bio::SimpleAlign');
@@ -24,9 +24,9 @@ $aa_align->add_seq(Bio::LocatableSeq->new(-id => "n2", -seq => "MLIDVRTPLALR"));
 $aa_align->add_seq(Bio::LocatableSeq->new(-id => "n3", -seq => "MLI-VR-SLALR"));
 
 my %dnaseqs = ();
-$dnaseqs{'n1'} = Bio::PrimarySeq->new(-id => "n1", -seq => 'atgctgatagacgtaggcatgctagtactgaga');
-$dnaseqs{'n2'} = Bio::PrimarySeq->new(-id => "n2", -seq => 'atgctgatcgacgtacgcaccccgctagcactcaga');
-$dnaseqs{'n3'} = Bio::PrimarySeq->new(-id => "n3", -seq => 'atgttgattgtacgctcgcttgcacttaga');
+$dnaseqs{'n1'} = Bio::PrimarySeq->new(-id => "n1dna", -seq => 'atgctgatagacgtaggcatgctagtactgaga');
+$dnaseqs{'n2'} = Bio::PrimarySeq->new(-id => "n2dna", -seq => 'atgctgatcgacgtacgcaccccgctagcactcaga');
+$dnaseqs{'n3'} = Bio::PrimarySeq->new(-id => "n3dna", -seq => 'atgttgattgtacgctcgcttgcacttaga');
 my $dna_aln;
 
 ok( $dna_aln = &aa_to_dna_aln($aa_align, \%dnaseqs));
@@ -39,6 +39,8 @@ is $dna_aln->num_residues, 99;
 is $dna_aln->num_sequences, 3;
 is $dna_aln->consensus_string(50), "atgctgat?gacgtacgc????cgctagcact?aga";
 
+my @dnaseqs = $dna_aln->each_seq;
+is $dnaseqs[0]->display_id, 'n1dna';
 $dna_aln->verbose(-1);
 my $replicates;
 ok $replicates = &bootstrap_replicates($dna_aln,3);
