@@ -302,13 +302,13 @@ sub next_seq {
                   my ($date, $version) = split(' ', $line, 2);
                   $date =~ tr/,//d; # remove comma if new version
                   if ($version) {
-                  if ($version =~ /\(Rel\. (\d+), Created\)/xms ) {
+                  if ($version =~ /\(Rel\. (\d+), Created\)/ms ) {
                       my $release = Bio::Annotation::SimpleValue->new(
                                                                       -tagname    => 'creation_release',
                                                                       -value      => $1
                                                                      );
                       $annotation->add_Annotation($release);
-                  } elsif ($version =~ /\(Rel\. (\d+), Last updated, Version (\d+)\)/xms ) {
+                  } elsif ($version =~ /\(Rel\. (\d+), Last updated, Version (\d+)\)/ms ) {
                       my $release = Bio::Annotation::SimpleValue->new(
                                                                       -tagname    => 'update_release',
                                                                       -value      => $1
@@ -677,7 +677,7 @@ sub write_seq {
             my @dates =  $seq->get_dates();
             my $ct = 1;
             my $date_flag = 0;
-            my ($cr) = $seq->annotation->get_Annotations("creation_release");
+	    my ($cr) = $seq->annotation->get_Annotations("creation_release");
             my ($ur) = $seq->annotation->get_Annotations("update_release");
             my ($uv) = $seq->annotation->get_Annotations("update_version");
 
@@ -688,10 +688,10 @@ sub write_seq {
             foreach my $dt (@dates) {
                 if (!$date_flag) {
                     $self->_write_line_EMBL_regex("DT   ","DT   ",
-                                                  $dt." (Rel. $cr, Created)",
+                                                  $dt." (Rel. ".($cr->value()).", Created)",
                                                   '\s+|$',80) if $ct == 1;
                     $self->_write_line_EMBL_regex("DT   ","DT   ",
-                                                  $dt." (Rel. $ur, Last updated, Version $uv)",
+                                                  $dt." (Rel. ".($ur->value()).", Last updated, Version ".($uv->value()).")",
                                                   '\s+|$',80) if $ct == 2;
                 } else {        # other formats?
                     $self->_write_line_EMBL_regex("DT   ","DT   ",
@@ -1356,11 +1356,14 @@ sub _read_FTHelper_EMBL {
 
     # Now parse and add any qualifiers.  (@qual is kept
     # intact to provide informative error messages.)
-  QUAL: for (my $i = 0; $i < @qual; $i++) {
-        $_ = $qual[$i];
-        my( $qualifier, $value ) = m{^/([^=]+)(?:=\s*(.+))?}
+  QUAL:
+    for (my $i = 0; $i < @qual; $i++) {
+        my $data = $qual[$i];
+        my ( $qualifier, $value ) = ($data =~ m{^/([^=]+)(?:=\s*(.+))?})
             or $self->throw("Can't see new qualifier in: $_\nfrom:\n"
                             . join('', map "$_\n", @qual));
+        $qualifier = '' if not defined $qualifier;
+
         if (defined $value) {
             # Do we have a quoted value?
             if (substr($value, 0, 1) eq '"') {
