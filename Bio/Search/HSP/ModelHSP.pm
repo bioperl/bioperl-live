@@ -141,6 +141,25 @@ sub meta {
     return $previous;
 }
 
+=head2 noncanonical_string
+
+ Title   : noncanonical_string
+ Usage   : my $nc_seq = $hsp->noncanonical_string();
+ Function: Returns noncanonical string (NC) data for this HSP or undef
+ Returns : string of noncanonical data or undef
+ Args    : [optional] string to set value
+
+=cut
+
+sub noncanonical_string {
+    my ($self,$value) = @_;
+    my $previous = $self->{'NC_SEQ'};
+    if( defined $value  ) {
+        $self->{'NC_SEQ'} = $value;
+    }
+    return $previous;
+}
+
 =head2 custom_score
 
  Title   : custom_score
