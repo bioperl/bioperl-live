@@ -21,6 +21,16 @@ CPAN releases are branched from 'master'.
 
     * WrapperBase quoted option values [majensen]
     * Various documentation fixes and updates [bosborne]
+
+    [New features]
+
+    * Bio::SearchIO::infernal
+      - Issue #131: added CMSEARCH parsing support for Infernal 1.1 [pcantalupo]
+    * Bio::Search::HSP::ModelHSP
+      - Added a 'noncanonical_string' method to retrieve the NC line from CMSEARCH
+        reports [pcantalupo]
+    * Bio::Search::Result::INFERNALResult
+      - Added new module to represent features of Infernal reports [pcantalupo]
     
    [Bug Fixes]
    

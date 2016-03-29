@@ -31,13 +31,14 @@ Bio::SearchIO::infernal - SearchIO-based Infernal parser
 =head1 DESCRIPTION
 
 This is a SearchIO-based parser for Infernal output from the cmsearch program.
-It currently parses cmsearch output for Infernal versions 0.7-1.0; older
+It currently parses cmsearch output for Infernal versions 0.7-1.1; older
 versions may work but will not be supported.
 
-As the first stable version has been released (and output has stabilized) it is
-highly recommended that users upgrade to using the latest Infernal release.
-Support for the older pre-v.1 developer releases will be dropped for future core
-1.6 releases. 
+The latest version of Infernal is 1.1. The output has changed substantially
+relative to version 1.0. Versions 1.x are stable releases (and output has
+stabilized) therefore it is highly recommended that users upgrade to using
+the latest Infernal release. Support for the older pre-v.1 developer releases
+will be dropped for future core 1.6 releases.
 
 =head1 FEEDBACK
 
@@ -76,6 +77,7 @@ Email cjfields-at-uiuc-dot-edu
 =head1 CONTRIBUTORS
 
   Jeffrey Barrick, Michigan State University
+  Paul Cantalupo, University of Pittsburgh
 
 =head1 APPENDIX
 
@@ -105,42 +107,48 @@ our %MAPPING = (
         'Hsp_pvalue'      => 'HSP-pvalue', # pvalues only in v0.81, optional
         'Hsp_query-from'  => 'HSP-query_start',
         'Hsp_query-to'    => 'HSP-query_end',
+        'Hsp_query-strand'=> 'HSP-query_strand',
         'Hsp_hit-from'    => 'HSP-hit_start', 
         'Hsp_hit-to'      => 'HSP-hit_end', 
+        'Hsp_hit-strand'  => 'HSP-hit_strand',
         'Hsp_gaps'        => 'HSP-hsp_gaps', 
         'Hsp_hitgaps'     => 'HSP-hit_gaps',
         'Hsp_querygaps'   => 'HSP-query_gaps',
         'Hsp_qseq'        => 'HSP-query_seq',
+        'Hsp_ncline'      => 'HSP-nc_seq',
         'Hsp_hseq'        => 'HSP-hit_seq',
         'Hsp_midline'     => 'HSP-homology_seq',
+        'Hsp_pline'       => 'HSP-pp_seq',
         'Hsp_structure'   => 'HSP-meta',
         'Hsp_align-len'   => 'HSP-hsp_length',
         'Hsp_stranded'    => 'HSP-stranded',
-        
+
         'Hit_id'        => 'HIT-name',
         'Hit_len'       => 'HIT-length',
         'Hit_gi'        => 'HIT-ncbi_gi',
         'Hit_accession' => 'HIT-accession',
+        'Hit_desc'      => 'HIT-description',
         'Hit_def'       => 'HIT-description',
-        'Hit_signif'    => 'HIT-significance', # evalues only in v0.81, optional
-        'Hit_p'         => 'HIT-p',            # pvalues in 1.0, optional
-        'Hit_score'     => 'HIT-score', # best HSP bit score
-        'Hit_bits'      => 'HIT-bits', # best HSP bit score
- 
+        'Hit_signif'    => 'HIT-significance', # evalues in v1.1 and v0.81, optional
+        'Hit_p'         => 'HIT-p',            # pvalues only in 1.0, optional
+        'Hit_score'     => 'HIT-score', # best HSP bit score (in v1.1, the only HSP bit score)
+        'Hit_bits'      => 'HIT-bits',  # best HSP bit score (ditto)
+
         'Infernal_program'  => 'RESULT-algorithm_name', # get/set 
         'Infernal_version'  => 'RESULT-algorithm_version', # get/set 
         'Infernal_query-def'=> 'RESULT-query_name', # get/set 
         'Infernal_query-len'=> 'RESULT-query_length', 
         'Infernal_query-acc'=> 'RESULT-query_accession', # get/set 
         'Infernal_querydesc'=> 'RESULT-query_description', # get/set
+        'Infernal_cm'       => 'RESULT-cm_name',
         'Infernal_db'       => 'RESULT-database_name',  # get/set 
-        'Infernal_db-len'   => 'RESULT-database_entries', # none yet
-        'Infernal_db-let'   => 'RESULT-database_letters', # none yet
+        'Infernal_db-len'   => 'RESULT-database_entries', # in v1.1 only
+        'Infernal_db-let'   => 'RESULT-database_letters', # in v1.1 only
 	     );
 
 my $MINSCORE = 0;
 my $DEFAULT_ALGORITHM = 'cmsearch';
-my $DEFAULT_VERSION = '1.0';
+my $DEFAULT_VERSION = '1.1';
 
 my @VALID_SYMBOLS = qw(5-prime 3-prime single-strand unknown gap);
 my %STRUCTURE_SYMBOLS = (
@@ -188,7 +196,7 @@ sub _initialize {
     $handler->register_factory(
         'result',
         Bio::Factory::ObjectFactory->new(
-            -type      => 'Bio::Search::Result::GenericResult',
+            -type      => 'Bio::Search::Result::INFERNALResult',
             -interface => 'Bio::Search::Result::ResultI',
             -verbose   => $self->verbose
         )
@@ -211,13 +219,13 @@ sub _initialize {
             -verbose   => $self->verbose
         )
     );
-	
+
     defined $model     && $self->model($model);
     defined $database  && $self->database($database);
     defined $accession && $self->query_accession($accession);
     defined $convert   && $self->convert_meta($convert);
     defined $desc      && $self->query_description($desc);
-    
+
     $version ||= $DEFAULT_VERSION;
     $self->version($version);
     $symbols ||= \%STRUCTURE_SYMBOLS;
@@ -247,11 +255,20 @@ sub next_result {
             next if $line =~ m{^\s*$};
             # newer output starts with model name
             if ($line =~ m{^\#\s+cmsearch\s}) {
-                $self->{'_handlerset'} = 'latest';
-			} elsif ($line =~ m{^CM\s\d+:}) {
-                $self->{'_handlerset'} = 'pre-1.0';
-            } else {
-                $self->{'_handlerset'} ='old';
+              my $secondline = $self->_readline;
+              if ($secondline =~ m{INFERNAL 1\.1}) {
+                $self->{'_handlerset'} = '1.1';
+              }
+              else {
+                $self->{'_handlerset'} = 'latest';  # v1.0
+              }
+              $self->_pushback($secondline);
+            }
+            elsif ($line =~ m{^CM\s\d+:}) {
+              $self->{'_handlerset'} = 'pre-1.0';
+            }
+            else {
+              $self->{'_handlerset'} ='old';
             }
             last;
         }
@@ -263,10 +280,307 @@ sub next_result {
 		#	-version => 1.007);
 		#}
     }
-    return ($self->{'_handlerset'} eq 'latest')  ? $self->_parse_latest :
-		   ($self->{'_handlerset'} eq 'pre-1.0') ? $self->_parse_pre :
-			$self->_parse_old;
+    return ($self->{'_handlerset'} eq '1.1')     ? $self->_parse_v1_1 :
+           ($self->{'_handlerset'} eq 'latest')  ? $self->_parse_latest :
+           ($self->{'_handlerset'} eq 'pre-1.0') ? $self->_parse_pre :
+           $self->_parse_old;
 }
+
+
+sub _parse_v1_1 {
+  my ($self) = @_;
+  my $seentop = 0;
+  local $/ = "\n";
+  my ($accession, $description) = ($self->query_accession, $self->query_description);
+  my ($buffer, $last, %modelcounter, @hit_list, %hitindex,
+                                     @hsp_list, %hspindex);
+  $self->start_document();
+  $buffer = $self->_readline;
+  if ( !defined $buffer || $buffer =~ m/^\[ok/ ) {  # end of report
+      return undef;
+  }
+  else {
+      $self->_pushback($buffer);
+  }
+
+  PARSER: # Parse each line of report
+  while ( defined( $buffer = $self->_readline ) ) {
+    my $hit_counter = 0;
+    my $lineorig = $buffer;
+    chomp $buffer;
+
+    # INFERNAL program name
+    if ( $buffer =~ m/^\#\s(\S+)\s\:\:\s/ ) {
+      $seentop = 1;
+      my $prog = $1;
+      $self->start_element( { 'Name' => 'Result' } );
+      $self->element_hash( { 'Infernal_program' => uc($prog) } );
+    }
+
+    # INFERNAL version and release date
+    elsif ( $buffer =~ m/^\#\sINFERNAL\s+(\S+)\s+\((.+)\)/ ) {
+      my $version     = $1;
+      my $versiondate = $2;
+      $self->{'_cmidline'} = $buffer;
+      $self->element_hash( { 'Infernal_version' => $version } );
+    }
+
+    # Query info
+    elsif ( $buffer =~ /^\#\squery (?:\w+ )?file\:\s+(\S+)/ ) {
+      $self->{'_cmfileline'} = $lineorig;
+      $self->element_hash( { 'Infernal_cm' => $1 } );
+    }
+
+    # Database info
+    elsif ( $buffer =~ m/^\#\starget\s\S+\sdatabase\:\s+(\S+)/ ) {
+      $self->{'_cmseqline'} = $lineorig;
+      $self->element_hash( { 'Infernal_db' => $1 } );
+    }
+
+    # Query data
+    elsif ( $buffer =~ m/^Query:\s+(\S+)\s+\[CLEN=(\d+)\]$/ ) {
+      $self->element_hash( { 'Infernal_query-def' => $1, 
+                             'Infernal_query-len' => $2,
+                             'Infernal_query-acc' => $accession,
+                             'Infernal_querydesc' => $description,
+                            } );
+    }
+
+    # Get query accession
+    elsif ( $buffer =~ s/^Accession:\s+// && ! $accession) {
+      $buffer =~ s/\s+$//;
+      $self->element_hash( { 'Infernal_query-acc' => $buffer } );
+    }
+
+    # Get query description
+    elsif ( $buffer =~ s/^Description:\s+// && ! $description) {
+      $buffer =~ s/\s+$//;
+      $self->element_hash( { 'Infernal_querydesc' => $buffer } );
+    }
+
+    # Process hit table - including those below inclusion threshold
+    elsif ( $buffer =~ m/^Hit scores:/) {
+      @hit_list = ();   # here is case there are multi-query reports
+      while ( defined( $buffer = $self->_readline ) ) {
+        if ( $buffer =~ m/^Hit alignments:/ ) {
+          $self->_pushback($buffer);
+          last;
+        }
+        elsif (   $buffer =~ m/^\s+rank\s+E-value/
+               || $buffer =~ m/\-\-\-/
+               || $buffer =~ m/^$/
+               || $buffer =~ m/No hits detected/ ) {
+          next;
+        }
+
+        # Process hit
+        $hit_counter++;
+        my ($rank, $threshold, $eval, $score,
+            $bias, $hitid, $start, $end, $strand,
+            $mdl, $truc, $gc, @desc) = split( " ", $buffer );
+        my $desc = join " ", @desc;
+        $desc = '' if ( !defined($desc) );
+
+        push @hit_list, [ $hitid, $desc, $eval, $score ];
+        $hitindex{ $hitid.$hit_counter } = $#hit_list;
+      }
+    }
+
+    # Process hit alignments
+    elsif ( $buffer =~ /^Hit alignments:/ ) {
+      my $hitid;
+      my $align_counter = 0;
+      while ( defined( $buffer = $self->_readline ) ) {
+        if ( $buffer =~ /^Internal CM pipeline statistics summary/ ) {
+          $self->_pushback($buffer);
+          last;
+        }
+        if ( $buffer =~ m/^\>\>\s(\S*)\s+(.*)/ ) {  # defline of hit
+          $hitid    = $1;
+          my $desc = $2;
+          $align_counter++;
+          my $hitid_alignctr = $hitid.$align_counter;
+          $modelcounter{$hitid_alignctr} = 0;
+
+          # The Hit Description from the Hit table can be truncated if
+          # it is too long, so use the '>>' line description instead
+          $hit_list[ $hitindex{$hitid_alignctr} ][1] = $desc;
+
+          # Process hit information table
+          while ( defined( $buffer = $self->_readline ) ) {
+            if (   $buffer =~ m/^Internal CM pipeline statistics/
+                || $buffer =~ m/NC$/
+                || $buffer =~ m/^\>\>/ ) {
+              $self->_pushback($buffer);
+              last;
+            }
+            elsif (   $buffer =~ m/^\s+rank\s+E-value/
+                   || $buffer =~ m/^\s----/
+                   || $buffer =~ m/^$/
+                   || $buffer =~ m/No hits detected/ ) {
+              next;
+            }
+
+            # Get hsp data from table, push into @hsp;
+            my ( $rank,      $threshold, $eval,
+                 $score,     $bias,      $model,
+                 $cm_start,  $cm_stop,   $cm_cov,
+                 $seq_start, $seq_stop,  $seq_strand, $seq_cov,
+                 $acc,       $trunc,     $gc,
+                 ) = split( " ", $buffer );
+
+            # Try to get the Hit Length from the alignment information.
+            # For cmsearch, if sequence coverage ends in ']' it means that the
+            # alignment runs full-length flush to the end of the target.
+            my $hitlength = ( $seq_cov =~ m/\]$/ ) ? $seq_stop : 0;
+
+            my $tmphit = $hit_list[ $hitindex{$hitid_alignctr} ];
+            if ( !defined $tmphit ) {
+              $self->warn("Incomplete information: can't find HSP $hitid in list of hits\n");
+              next;
+            }
+
+            push @hsp_list, [ $hitid,
+                              $cm_start, $cm_stop,
+                              $seq_start, $seq_stop,
+                              $score,     $eval,
+                              $hitlength];
+            $modelcounter{$hitid_alignctr}++;
+            my $hsp_key = $hitid_alignctr . "_" . $modelcounter{$hitid_alignctr};
+            $hspindex{$hsp_key} = $#hsp_list;
+          }
+        }
+        elsif ( $buffer =~ m/NC$/ ) { # start of HSP
+          # need CS line to get number of spaces before structure data
+          my $csline = $self->_readline;
+          $csline =~ m/^(\s+)\S+ CS$/;
+          my $offset = length($1);
+          $self->_pushback($csline);
+          $self->_pushback($buffer); # set up for loop
+
+          my ($ct, $strln) = 0;
+          my $hspdata;
+          HSP:
+          my %hspline = ('0' => 'nc',    '1' => 'meta',
+                         '2' => 'query', '3' => 'midline',
+                         '4' => 'hit',   '5' => 'pp');
+          HSP:
+          while (defined ($buffer = $self->_readline)) {
+            chomp $buffer;
+            if (   $buffer =~ /^>>\s/
+                || $buffer =~ /^Internal CM pipeline statistics/) {
+              $self->_pushback($buffer);
+              last HSP;
+            }
+            elsif ( $ct % 6 == 0 && $buffer =~ /^$/ ) {
+              next;
+            }
+            my $iterator = $ct % 6;
+            # NC line ends with ' NC' so remove these from the strlen count
+            $strln = ( length($buffer) - 3 ) if $iterator == 0;
+            my $data = substr($buffer, $offset, $strln-$offset);
+            $hspdata->{ $hspline{$iterator} } .= $data;
+
+            $ct++;
+          } # 'HSP' while loop
+
+          my $strlen = 0;
+          # catch any insertions and add them into the actual length
+          while ($hspdata->{'query'} =~ m{\*\[\s*(\d+)\s*\]\*}g) {
+            $strlen += $1;
+          }
+          # add on the actual residues
+          $strlen += $hspdata->{'query'} =~ tr{A-Za-z}{A-Za-z};
+          my $metastr = ($self->convert_meta) ? ($self->simple_meta($hspdata->{'meta'})) :
+                              $hspdata->{'meta'};
+
+          my $hitid_alignctr = $hitid . $align_counter;
+          my $hsp_key = $hitid_alignctr . "_" . $modelcounter{$hitid_alignctr};
+          my $hsp = $hsp_list[ $hspindex{$hsp_key} ];
+          push (@$hsp, $hspdata->{'nc'},    $metastr,
+                       $hspdata->{'query'}, $hspdata->{'midline'},
+                       $hspdata->{'hit'},   $hspdata->{'pp'});
+        }
+      }
+    }  # end of 'Hit alignments:' section of report
+
+    # Process internal pipeline stats (end of report)
+    elsif ( $buffer =~ m/Internal CM pipeline statistics summary:/ ) {
+      while ( defined( $buffer = $self->_readline ) ) {
+        last if ( $buffer =~ m!^//! );
+
+        if ( $buffer =~ /^Target sequences:\s+(\d+)\s+\((\d+) residues/ ) {
+          $self->element_hash( { 'Infernal_db-len' => $1,
+                                 'Infernal_db-let' => $2, } );
+        }
+      }
+      last;    # of the outer while defined $self->readline
+    }
+
+    # Leftovers
+    else {
+      #print STDERR "Missed line: $buffer\n";
+      $self->debug($buffer);
+    }
+    $last = $buffer;
+  } # PARSER end
+
+  # Final processing of hits and hsps
+  my $hit_counter = 0;
+  foreach my $hit ( @hit_list ) {
+    $hit_counter++;
+    my ($hit_name, $hit_desc, $hit_signif, $hit_score) = @$hit;
+    my $num_hsp = $modelcounter{$hit_name . $hit_counter} || 0;
+
+    $self->start_element( { 'Name' => 'Hit' } );
+    $self->element_hash( {'Hit_id'    => $hit_name,
+                          'Hit_desc'  => $hit_desc,
+                          'Hit_signif'=> $hit_signif,
+                          'Hit_score' => $hit_score,
+                          'Hit_bits'  => $hit_score, } );
+    for my $i ( 1 .. $num_hsp ) {
+      my $hsp_key = $hit_name . $hit_counter . "_" . $i;
+      my $hsp = $hsp_list[ $hspindex{$hsp_key} ];
+      if ( defined $hsp ) {
+        my $hspid = shift @$hsp;
+
+        my ($cm_start,  $cm_stop, $seq_start, $seq_stop,
+            $score,     $eval,    $hitlength, $ncline,
+            $csline, $qseq, $midline, $hseq, $pline) = @$hsp;
+        if ( $hitlength != 0 ) {
+            $self->element(
+                { 'Name' => 'Hit_len', 'Data' => $hitlength }
+            );
+        }
+
+        $self->start_element( { 'Name' => 'Hsp' } );
+        $self->element_hash( { 'Hsp_stranded'   => 'HIT',
+                               'Hsp_query-from' => $cm_start,
+                               'Hsp_query-to'   => $cm_stop,
+                               'Hsp_hit-from'   => $seq_start,
+                               'Hsp_hit-to'     => $seq_stop,
+                               'Hsp_score'      => $score,
+                               'Hsp_bit-score'  => $score,
+                               'Hsp_evalue'     => $eval,
+                               'Hsp_ncline'     => $ncline,
+                               'Hsp_structure'  => $csline,
+                               'Hsp_qseq'       => $qseq,
+                               'Hsp_midline'    => $midline,
+                               'Hsp_hseq'       => $hseq,
+                               'Hsp_pline'      => $pline,
+                             } );
+
+        $self->end_element( { 'Name' => 'Hsp' } );
+      }
+    }
+    $self->end_element( { 'Name' => 'Hit' } );
+  }
+
+  $self->end_element( { 'Name' => 'Result' } );
+  my $result = $self->end_document();
+  return $result;
+}
+
 
 =head2 start_element
 
@@ -323,6 +637,14 @@ sub end_element {
                 $self->{'_values'} );
         }
         my $lastelem = shift @{ $self->{'_elements'} };
+
+        # Infernal 1.1 allows one to know hit->length in some instances
+        # so remove it so it doesn't carry over to next hit. Tried flushing
+        # all 'type' values from {_values} buffer but it breaks legacy tests
+        if ($type eq 'hit' ) {
+          delete $self->{_values}{'HIT-length'};
+          delete $self->{_values}{'HSP-hit_length'};
+        }
     }
     elsif ( $MAPPING{$nm} ) {
         if ( ref( $MAPPING{$nm} ) =~ /hash/i ) {
@@ -519,7 +841,7 @@ sub model {
 
  Title   : database
  Usage   : my $database = $parser->database();
- Function: Get/Set database; Infernal currently does not output
+ Function: Get/Set database; pre-v.1 versions of Infernal do not output
            the database name
  Returns : String (database name)
  Args    : [optional] String (database name)
@@ -536,7 +858,7 @@ sub database {
 
  Title   : algorithm
  Usage   : my $algorithm = $parser->algorithm();
- Function: Get/Set algorithm; current versions of Infernal do not output
+ Function: Get/Set algorithm; pre-v.1 versions of Infernal do not output
            the algorithm name
  Returns : String (algorithm name)
  Args    : [optional] String (algorithm name)
@@ -553,7 +875,7 @@ sub algorithm {
 
  Title   : query_accession
  Usage   : my $acc = $parser->query_accession();
- Function: Get/Set query (model) accession; Infernal currently does not output
+ Function: Get/Set query (model) accession; pre-v1.1 Infernal does not output
            the accession number (Rfam accession #)
  Returns : String (accession)
  Args    : [optional] String (accession)
@@ -570,7 +892,7 @@ sub query_accession {
 
  Title   : query_description
  Usage   : my $acc = $parser->query_description();
- Function: Get/Set query (model) description; Infernal currently does not output
+ Function: Get/Set query (model) description; pre-v1.1 Infernal does not output
            the Rfam description
  Returns : String (description)
  Args    : [optional] String (description)
@@ -731,8 +1053,8 @@ sub _parse_latest {
 			# store absolute DB length
 			$self->element_hash({
 					'Infernal_db-let'   => $1 * 1e6
-				});		
-		}		
+				});
+		}
 		elsif ($line =~ m{^CM(?:\s(\d+))?:\s*(\S+)}xms) {
 			# not sure, but it's possible single reports may contain multiple
 			# models; if so, they should be rolled over into a new ResultI
@@ -794,7 +1116,7 @@ sub _parse_latest {
             if (!$self->in_element('hsp')) {
                 $self->start_element({'Name' => 'Hsp'});
             }
-            
+
             # hsp is similar to older output
         } elsif ($line =~ m{^(\s+)[<>\{\}\(\)\[\]:_,-\.]+}xms) { # start of HSP
             $self->_pushback($line); # set up for loop
@@ -816,7 +1138,7 @@ sub _parse_latest {
                 # it is possible to have homology lines consisting
                 # entirely of spaces if the subject has a large
                 # insertion where nothing matches the model
-                
+
                 # exit loop if at end of file or upon next hit/HSP
                 if ($line =~ m{^\s{0,2}\S+}) {
                     $self->_pushback($line);
@@ -827,31 +1149,31 @@ sub _parse_latest {
                 # strlen set only with structure lines (proper length)
                 $strln = length($line) if $iterator == 0;
                 # only grab the data needed (hit start and stop in hit line above)
-												
+
                 my $data = substr($line, $offset, $strln-$offset);
                 $hsp->{ $hsp_key{$iterator} } .= $data;
-                
+
                 $ct++;
             }
-            
+
             # query start, end are from the actual query length (entire hit is
             # mapped to CM data, so all CM data is represented)
             # works for now...
-            if ($self->in_element('hsp')) {				
+            if ($self->in_element('hsp')) {
 				# In some cases with HSPs unaligned residues are present in
 				# the hit or query (Ex: '*[ 8]*' is 8 unaligned residues).
 				# This info needs to be passed on unmodifed to the HSP class
 				# and handled there as it is subjectively changed based on
 				# use.
                 my $strlen = 0;
-				
+
 				# catch any insertions and add them into the actual length
 				while ($hsp->{'query'} =~ m{\*\[\s*(\d+)\s*\]\*}g) {
 					$strlen += $1;
 				}
 				# add on the actual residues
 				$strlen += $hsp->{'query'} =~ tr{A-Za-z}{A-Za-z};
-				
+
                 my $metastr = ($self->convert_meta) ? ($self->simple_meta($hsp->{'meta'})) :
                             $hsp->{'meta'};
                 $self->element_hash(
@@ -973,7 +1295,7 @@ sub _parse_pre {
             if (!$self->in_element('hsp')) {
                 $self->start_element({'Name' => 'Hsp'});
             }
-            
+
             # hsp is similar to older output
         } elsif ($line =~ m{^(\s+)[<>\{\}\(\)\[\]:_,-\.]+}xms) { # start of HSP
             $self->_pushback($line); # set up for loop
@@ -995,7 +1317,7 @@ sub _parse_pre {
                 # it is possible to have homology lines consisting
                 # entirely of spaces if the subject has a large
                 # insertion where nothing matches the model
-                
+
                 # exit loop if at end of file or upon next hit/HSP
                 if ($line =~ m{^\s{0,2}\S+}) {
                     $self->_pushback($line);
@@ -1006,19 +1328,19 @@ sub _parse_pre {
                 # strlen set only with structure lines (proper length)
                 $strln = length($line) if $iterator == 0;
                 # only grab the data needed (hit start and stop in hit line above)
-												
+
                 my $data = substr($line, $offset, $strln-$offset);
                 $hsp->{ $hsp_key{$iterator} } .= $data;
-                
+
                 $ct++;
             }
-            
+
             # query start, end are from the actual query length (entire hit is
             # mapped to CM data, so all CM data is represented)
             # works for now...
             if ($self->in_element('hsp')) {
                 my $strlen = $hsp->{'query'} =~ tr{A-Za-z}{A-Za-z};
-                
+
                 my $metastr;
                 $metastr = ($self->convert_meta) ? ($self->simple_meta($hsp->{'meta'})) :
                             ($hsp->{'meta'});
