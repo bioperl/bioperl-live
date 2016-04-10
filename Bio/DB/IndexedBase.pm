@@ -790,7 +790,7 @@ sub _check_linelength {
     my ($self, $linelength) = @_;
     return if not defined $linelength;
     $self->throw(
-        "Each line of the qual file must be less than 65,536 characters. Line ".
+        "Each line of the file must be less than 65,536 characters. Line ".
         "$. is $linelength chars."
     ) if $linelength > 65535;
 }

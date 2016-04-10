@@ -1,0 +1,102 @@
+# cmsearch :: search CM(s) against a sequence database
+# INFERNAL 1.1.1 (July 2014)
+# Copyright (C) 2014 Howard Hughes Medical Institute.
+# Freely distributed under the GNU General Public License (GPLv3).
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query CM file:                         RF00174.cm
+# target sequence database:              NC_000913.fna
+# CM configuration:                      glocal
+# number of worker threads:              16
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       Cobalamin  [CLEN=191]
+Accession:   RF00174
+Hit scores:
+ rank     E-value  score  bias  sequence                        start     end   mdl trunc   gc  description
+ ----   --------- ------ -----  ----------------------------- ------- -------   --- ----- ----  -----------
+  (1) !   8.7e-16   98.2   0.0  gi|556503834|ref|NC_000913.3| 4163384 4163574 +  cm    no 0.54  Escherichia coli str. K-12 substr. MG1655, com
+ ------ inclusion threshold ------
+  (2) ?      0.63    8.4   0.0  gi|556503834|ref|NC_000913.3| 4593356 4593565 +  cm    no 0.53  Escherichia coli str. K-12 substr. MG1655, com
+
+
+Hit alignments:
+>> gi|556503834|ref|NC_000913.3|  Escherichia coli str. K-12 substr. MG1655, complete genome
+ rank     E-value  score  bias mdl mdl from   mdl to       seq from      seq to       acc trunc   gc
+ ----   --------- ------ ----- --- -------- --------    ----------- -----------      ---- ----- ----
+  (1) !   8.7e-16   98.2   0.0  cm        1      191 []     4163384     4163574 + .. 0.98    no 0.54
+
+                                                               v              v                                  NC
+                                        :::::::::::::::[[[[[[,<<<____________>>>,,,,,(((,,,<<<<<_______>>>>>,,<< CS
+                      Cobalamin       1 uuaaauugaaacgaugauGGUuccccuuuaaagugaaggguuAAaaGGGAAcccGGUGaaAaUCCgggGCuG 72     
+                                         U +A  ++ +   UG::GGU C : U          : GUUAA AGGGAA:CC:GUG++AAUC:GG:GCUG
+  gi|556503834|ref|NC_000913.3| 4163384 CUGUAGCAUCCACUUGCCGGU-CCUGU----------GAGUUAAUAGGGAAUCCAGUGCGAAUCUGGAGCUG 4163444
+                                        *********************.98888..........99********************************* PP
+
+                                        v    v            v                                                      NC
+                                        <____>>>,<<<---<<<<------<<<<<<-----......<<<-<<<<<<______>>>>>>--->>>>> CS
+                      Cobalamin      73 cCCCCgCaACuGUAAgcGgagagcaccccccAauAa......GCCACUggcccgcaagggccGGGAAGGCgg 138    
+                                          C C CA+C:GUAAG:: AG+ ++::::::  + +      G:CACU::C   +++  G::GGGAAG:C::
+  gi|556503834|ref|NC_000913.3| 4163445 A-CGCGCAGCGGUAAGGAAAGGUGCGAUGAUUGCGUuaugcgGACACUGCC--AUUC--GGUGGGAAGUCAU 4163511
+                                        *.*********************************9***************..5555..************* PP
+
+                                                                v                                       NC
+                                        >>>>----------..........>>>>---->>>,,,,)))]]]]]]::::::::::::::: CS
+                      Cobalamin     139 ggggaaggaaugac..........cCgcgAGcCaGGAGACCuGCCaucaguuuuugaaucucc 191    
+                                        ::::   +A+U+ C           ::C+AGCC:G+AGACCUGCC::C ++  U G AUCU  
+  gi|556503834|ref|NC_000913.3| 4163512 CAUCUCUUAGUAUCuuagauacccCUCCAAGCCCGAAGACCUGCCGGCCAACGUCGCAUCUGG 4163574
+                                        **********9998************************************************* PP
+
+>> gi|556503834|ref|NC_000913.3|  Escherichia coli str. K-12 substr. MG1655, complete genome
+ rank     E-value  score  bias mdl mdl from   mdl to       seq from      seq to       acc trunc   gc
+ ----   --------- ------ ----- --- -------- --------    ----------- -----------      ---- ----- ----
+  (2) ?      0.63    8.4   0.0  cm        1      191 []     4593356     4593565 + .. 0.72    no 0.53
+
+                                                       v                                    v             v   v  NC
+                                        :::::::::::::::[[[[[[,<<<____________>>>,,,,,(((,,,<<<<<_______>>>>>,,<< CS
+                      Cobalamin       1 uuaaauugaaacgaugauGGUuccccuuuaaagugaaggguuAAaaGGGAAcccGGUGaaAaUCCgggGCuG 72     
+                                          A AUU+A+++    :UGG  :C +U ++  G     G: +AA : GGAA:  G         C  :+  G
+  gi|556503834|ref|NC_000913.3| 4593356 GGAGAUUAAUCUUUACGUGGG-UCGUUGAUCGG---CUGACGAACCAGGAAGAUGU-------ACGCCAGUG 4593416
+                                        *********************.88877554444...5777779*********9996.......7999***** PP
+
+                                               v       v  v       vvvvvv     vvv    vvv                          NC
+                                        <____>>>,<<<---<<<<.------<<<<<<-----<<<-<<<<<<_____.................... CS
+                      Cobalamin      73 cCCCCgCaACuGUAAgcGg.agagcaccccccAauAaGCCACUggcccgcaa.................... 123    
+                                        CCCCCGC +C GU+A ::     GCA ++ ++ A   GCCA   G+C G                       
+  gi|556503834|ref|NC_000913.3| 4593417 CCCCCGCUGCGGUGACGCAa-CCGCAGAUGAUUAGU-GCCA---GACGG---aaugagugggugguaucaac 4593480
+                                        ***************88873.333333333333333.4544...33333...44566655444444444444 PP
+
+                                                  vvv      vvvvvvvvv                                             NC
+                                        ........._>>>>>>--->>>>>>>>>----------.................................. CS
+                      Cobalamin     124 .........gggccGGGAAGGCggggggaaggaaugac.................................. 152    
+                                                                                                                
+  gi|556503834|ref|NC_000913.3| 4593481 aauaaaacc-----------------------------aguaaugaucggcgcaaaagaggcgcagaugaag 4593523
+                                        444444444.............................5666666666666666666666666777777777 PP
+
+                                          v  v                    v                NC
+                                        ..>>>>----.>>>,,,,)))]]]]]]::::::::::::::: CS
+                      Cobalamin     153 ..cCgcgAGc.CaGGAGACCuGCCaucaguuuuugaaucucc 191    
+                                           :: +AG+ C GGA AC : CCA:  + + + + AU    
+  gi|556503834|ref|NC_000913.3| 4593524 cuGGCAAAGUuCUGGAUACUGCCCACCGACGCAGUCAUGCGA 4593565
+                                        76788899966******************************* PP
+
+
+
+Internal CM pipeline statistics summary:
+----------------------------------------
+Query model(s):                                                  1  (191 consensus positions)
+Target sequences:                                                1  (9283304 residues searched)
+Target sequences re-searched for truncated hits:                 1  (1840 residues re-searched)
+Windows   passing  local HMM SSV           filter:            7160  (0.4322); expected (0.35)
+Windows   passing  local HMM Viterbi       filter:                  (off)
+Windows   passing  local HMM Viterbi  bias filter:                  (off)
+Windows   passing  local HMM Forward       filter:             171  (0.01188); expected (0.005)
+Windows   passing  local HMM Forward  bias filter:             139  (0.0095); expected (0.005)
+Windows   passing glocal HMM Forward       filter:              76  (0.005795); expected (0.005)
+Windows   passing glocal HMM Forward  bias filter:              69  (0.005313); expected (0.005)
+Envelopes passing glocal HMM envelope defn filter:              70  (0.002021); expected (0.005)
+Envelopes passing glocal CM  CYK           filter:               2  (4.534e-05); expected (0.0001)
+Total CM hits reported:                                          2  (4.319e-05); includes 0 truncated hit(s)
+
+# CPU time: 11.74u 1.00s 00:00:12.74 Elapsed: 00:00:02.27
+//
+[ok]

@@ -171,8 +171,11 @@ sub _calculate_offsets {
             if ($line =~ /^>(\S+)/) {
                 print STDERR "Indexed $count sequences...\n"
                     if $self->{debug} && (++$count%1000) == 0;
-
-                $self->_check_linelength($linelen);
+                
+                # please, do not enforce arbitrary line length requirements.
+                # It's good practice but not enforced.
+                
+                #$self->_check_linelength($linelen);
                 my $pos = tell($fh);
                 if (@ids) {
                     my $strlen  = $pos - $offset - length($line);
@@ -450,6 +453,5 @@ sub description  {
     return (split(/\s+/, $header, 2))[1];
 }
 *desc = \&description;
-
 
 1;

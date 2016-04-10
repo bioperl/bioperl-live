@@ -1,0 +1,44 @@
+# cmsearch :: search CM(s) against a sequence database
+# INFERNAL 1.1.1 (July 2014)
+# Copyright (C) 2014 Howard Hughes Medical Institute.
+# Freely distributed under the GNU General Public License (GPLv3).
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query CM file:                         Cobalamin.c.cm
+# target sequence database:              mrum-tRNAs10.fa
+# number of worker threads:              4
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       Cobalamin  [CLEN=191]
+Accession:   RF00174
+Description: Cobalamin riboswitch
+Hit scores:
+ rank     E-value  score  bias  sequence  start    end   mdl trunc   gc  description
+ ----   --------- ------ -----  -------- ------ ------   --- ----- ----  -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Hit alignments:
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Internal CM pipeline statistics summary:
+----------------------------------------
+Query model(s):                                                  1  (191 consensus positions)
+Target sequences:                                               10  (1544 residues searched)
+Target sequences re-searched for truncated hits:                10  (4632 residues re-searched)
+Windows   passing  local HMM SSV           filter:               1  (0.01198); expected (0.35)
+Windows   passing  local HMM Viterbi       filter:                  (off)
+Windows   passing  local HMM Viterbi  bias filter:                  (off)
+Windows   passing  local HMM Forward       filter:               0  (0); expected (0.02)
+Windows   passing  local HMM Forward  bias filter:               0  (0); expected (0.02)
+Windows   passing glocal HMM Forward       filter:               0  (0); expected (0.02)
+Windows   passing glocal HMM Forward  bias filter:               0  (0); expected (0.02)
+Envelopes passing glocal HMM envelope defn filter:               0  (0); expected (0.02)
+Envelopes passing  local CM  CYK           filter:               0  (0); expected (0.0001)
+Total CM hits reported:                                          0  (0); includes 0 truncated hit(s)
+
+# CPU time: 0.01u 0.01s 00:00:00.02 Elapsed: 00:00:00.03
+//
+[ok]

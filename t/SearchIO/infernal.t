@@ -2,17 +2,171 @@
 # $Id: SearchIO_infernal.t 14672 2008-04-22 21:42:50Z cjfields $
 
 use strict;
+use warnings;
 
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    
-    test_begin(-tests => 412);
-    
+
+    test_begin(-tests => 496);
+
     use_ok('Bio::SearchIO');
 }
 
-my ($result, $iter, $hit, $hsp, $algorithm, $meta);
+my ($in, $result, $iter, $hit, $hsp, $algorithm, $meta);
+
+### Infernal v. 1.1 ###
+{
+    # one query vs one database sequence report
+    $in = Bio::SearchIO->new(
+        -format  => 'infernal',
+        -file    => test_input_file('cmsearch_output.txt')
+    );
+    $result = $in->next_result;
+    isa_ok($result, 'Bio::Search::Result::ResultI');
+    is( ref($result), 'Bio::Search::Result::INFERNALResult', 'Check for the correct Result reference type');
+    is( $result->algorithm,         'CMSEARCH',    'Check algorithm' );
+    is( $result->algorithm_version, '1.1.1',       'Check cmsearch algorithm version' );
+    is( $result->cm_name,           'RF00174.cm',  'Check cm_name');
+    is( $result->database_name,     'NC_000913.fna','Check database_name' );
+    is( $result->database_entries,  1,              'Check database_entries' );
+    is( $result->database_letters,  9283304,        'Check database_letters' );
+    is( $result->query_name,        'Cobalamin',    'Check query_name' );
+    is( $result->query_length,      191,            'Check query_length' );
+    is( $result->query_accession,   'RF00174',      'Check query_accession' );
+    is( $result->query_description, '',             'Check query_description' );
+    is( $result->num_hits(),        2,              'Check num_hits' );
+
+    # 1st hit
+
+    $hit = $result->next_hit;
+    is( ref($hit), 'Bio::Search::Hit::ModelHit', 'Check for the correct hit reference type' );
+    is( $hit->algorithm, 'CMSEARCH', "Hit algorithm");
+    is( $hit->name,              'gi|556503834|ref|NC_000913.3|', 'Check hit name' );
+    is( $hit->description,       'Escherichia coli str. K-12 substr. MG1655, complete genome', 'Check hit description' );
+    is( $hit->length,             0,       'Check hit length' );
+    is( $hit->score,              98.2,    'Check hit score' );
+    is( $hit->bits,               98.2,    'Check hit bits' );
+    is( $hit->num_hsps,           1,       'Check number of HSPs' );
+    float_is( $hit->significance, 8.7e-16, 'Check hit significance' );
+    is($hit->rank,                1,       'Check hit rank' );
+
+    $hsp = $hit->next_hsp;
+    is( ref($hsp), 'Bio::Search::HSP::ModelHSP', 'Check for correct hsp reference type' );
+    isa_ok( $hsp, 'Bio::Search::HSP::HSPI' );
+    isa_ok( $hsp->get_aln, 'Bio::Align::AlignI' );
+    isa_ok( $hsp->hit,     'Bio::SeqFeature::Similarity', "Check for hsp hit isa seqfeature similarity" );
+
+    is( $hsp->hit->seq_id(),   'gi|556503834|ref|NC_000913.3|', 'Check for HSP hit seq_id' );
+    is( $hsp->query->seq_id(), 'Cobalamin', 'Check for HSP query seq_id' );
+    is( $hsp->start('query'),     1,       'Check hsp query start' );
+    is( $hsp->end('query'),       191,     'Check hsp query end' );
+    is( $hsp->start('hit'),       4163384, 'Check hsp hit start' );
+    is( $hsp->end('hit'),         4163574, 'Check hsp hit end' );
+    is( $hsp->score,              98.2,    'Check hsp score' );
+    is( $hsp->bits,               98.2,    'Check hsp bits' );
+    float_is( $hsp->significance, 8.7e-16, 'Check hsp evalue' );
+
+    is( $hsp->length('query'), 191, 'Check for hsp query length' );
+    is( $hsp->length('hit'),   191, 'Check for hsp hit length' );
+    is( $hsp->length,          207, 'Check for hsp total length' );
+    is( $hsp->gaps('query'),   16,   'Check for hsp query gaps' );
+    is( $hsp->gaps('hit'),     16,   'Check for hsp hit gaps' );
+    is( $hsp->gaps,            32,   'Check for hsp total gaps' );
+    is( $hsp->strand('hit'),      1,       'Check hsp hit strand' );
+    
+    # 2nd hit 
+     
+    $hit = $result->next_hit;
+    is( $hit->name,              'gi|556503834|ref|NC_000913.3|',                 'Check hit name' );
+    is( $hit->description,       'Escherichia coli str. K-12 substr. MG1655, complete genome','Check hit description' );
+    is( $hit->score,              8.4,  'Check hit score' );
+    is( $hit->raw_score,          8.4, "Check hit raw_score");
+    is( $hit->bits,               8.4,    'Check hit bits' );
+    float_is( $hit->significance, 0.63, 'Check hit significance' );
+    is( $hit->length,             0,  'Check hit length' );
+    is($hit->rank, 2, "Hit rank");
+
+    $hsp = $hit->next_hsp;
+    is( $hsp->hit->seq_id(),   'gi|556503834|ref|NC_000913.3|', 'Check for hit seq_id' );
+    is( $hsp->query->seq_id(), 'Cobalamin', 'Check for query seq_id' );
+    is( $hsp->start('query'),     1,       'Check hsp query start' );
+    is( $hsp->end('query'),       191,     'Check hsp query end' );
+    is( $hsp->start('hit'),       4593356, 'Check hsp hit start' );
+    is( $hsp->end('hit'),         4593565, 'Check hsp hit end' );
+    is( $hsp->score,              8.4,     'Check hsp score' );
+    is( $hsp->bits,               8.4,     'Check hsp bits' );
+    float_is( $hsp->significance, 0.63,    'Check hsp evalue' );
+
+    is( $hsp->gaps('query'),   67,   'Check for hsp query gaps' );
+    is( $hsp->gaps('hit'),     48,   'Check for hsp hit gaps' );
+    is( $hsp->gaps,            115,   'Check for hsp total gaps' );
+    is( $hsp->strand('hit'),      1,       'Check hsp hit strand' );
+
+    is( $hsp->noncanonical_string,
+        '               v                                    v             v   v        v       v  v       vvvvvv     vvv    vvv                                   vvv      vvvvvvvvv                                              v  v                    v               ',
+        'Check for NC string');
+    is( $hsp->meta,
+        ':::::::::::::::[[[[[[,<<<____________>>>,,,,,(((,,,<<<<<_______>>>>>,,<<<____>>>,<<<---<<<<.------<<<<<<-----<<<-<<<<<<_____............................._>>>>>>--->>>>>>>>>----------....................................>>>>----.>>>,,,,)))]]]]]]:::::::::::::::',
+        'Check for CS string');
+    is( $hsp->query_string,
+        'uuaaauugaaacgaugauGGUuccccuuuaaagugaaggguuAAaaGGGAAcccGGUGaaAaUCCgggGCuGcCCCCgCaACuGUAAgcGg.agagcaccccccAauAaGCCACUggcccgcaa.............................gggccGGGAAGGCggggggaaggaaugac....................................cCgcgAGc.CaGGAGACCuGCCaucaguuuuugaaucucc',
+        'Check for query string');
+    is( $hsp->homology_string,
+        '  A AUU+A+++    :UGG  :C +U ++  G     G: +AA : GGAA:  G         C  :+  GCCCCCGC +C GU+A ::     GCA ++ ++ A   GCCA   G+C G                                                                                                  :: +AG+ C GGA AC : CCA:  + + + + AU    ',
+        'Check for homology string');
+    is( $hsp->hit_string,
+        'GGAGAUUAAUCUUUACGUGGG-UCGUUGAUCGG---CUGACGAACCAGGAAGAUGU-------ACGCCAGUGCCCCCGCUGCGGUGACGCAa-CCGCAGAUGAUUAGU-GCCA---GACGG---aaugagugggugguaucaacaauaaaacc-----------------------------aguaaugaucggcgcaaaagaggcgcagaugaagcuGGCAAAGUuCUGGAUACUGCCCACCGACGCAGUCAUGCGA',
+        'Check for hit string');
+    is( $hsp->posterior_string,
+        '*********************.88877554444...5777779*********9996.......7999********************88873.333333333333333.4544...33333...44566655444444444444444444444.............................566666666666666666666666677777777776788899966*******************************',
+        'Check for posterior probability string');
+
+    isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
+    isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
+    ($meta) = $hsp->feature1->get_tag_values('meta');
+    is($meta, ':::::::::::::::[[[[[[,<<<____________>>>,,,,,(((,,,<<<<<_______>>>>>,,<<<____>>>,<<<---<<<<.------<<<<<<-----<<<-<<<<<<_____............................._>>>>>>--->>>>>>>>>----------....................................>>>>----.>>>,,,,)))]]]]]]:::::::::::::::', "Check hsp feature1 get_tag_values");
+    ($meta) = $hsp->feature2->get_tag_values('meta');
+    is($meta, ':::::::::::::::[[[[[[,<<<____________>>>,,,,,(((,,,<<<<<_______>>>>>,,<<<____>>>,<<<---<<<<.------<<<<<<-----<<<-<<<<<<_____............................._>>>>>>--->>>>>>>>>----------....................................>>>>----.>>>,,,,)))]]]]]]:::::::::::::::', "Check hsp feature2 get_tag_values");
+
+    $result = $in->next_result;
+    is( $result, undef, 'Check for undefined result' );
+
+
+    # multi query vs multi sequence database report
+    $in = Bio::SearchIO->new(
+        -format  => 'infernal',
+        -file    => test_input_file('cmsearch.multi.out')
+    );
+      # 1st query
+    $result = $in->next_result;
+    is( $result->num_hits,   12, 'Check result num_hits - multi report');
+    is( $result->query_name, 'tRNA5', 'Check result query_name - multi report');
+    $hit = $result->next_hit;
+    is( $hit->length,        72, 'Check hit length - multi report' );
+
+      # 2nd query
+    $result = $in->next_result;
+    is( $result->num_hits,   1, 'Check result#2 num_hits - multi report');
+    is( $result->query_name, 'Cobalamin', 'Check result#2 query_name - multi report');
+    $hit = $result->next_hit;
+    is( $hit->length,        0, 'Check result#2 hit length - multi report' );
+    $hsp = $hit->next_hsp;
+    is( $hsp->strand('hit'), -1, 'Check result#2 hsp hit strand - multi report');
+
+
+    # report with no hits
+    $in = Bio::SearchIO->new(
+        -format  => 'infernal',
+        -file    => test_input_file('cmsearch.nohit.out')
+    );
+    $result = $in->next_result;
+    is( $result->cm_name, 'Cobalamin.c.cm', 'Check cm_name' );
+    $hit = $result->next_hit;
+    is( $hit, undef, 'Check for undefined hit' );
+
+}
+
 
 ### Infernal v. 1.0 ####
 
@@ -107,7 +261,7 @@ warning_like {$hit->frame}
 warning_like {$hit->range}
     qr'range not implemented for Model-based searches',
     'Hit range not implemented';
-warning_like {$hit->seq_inds} 
+warning_like {$hit->seq_inds}
     qr'seq_inds not implemented for Model-based searches',
     'Hit seq_inds not implemented';
 
@@ -250,7 +404,7 @@ is($hsp->strand('hit'), 1, "HSP strand");
 $searchio = Bio::SearchIO->new( -format => 'infernal',
                                 -file   => test_input_file('test.infernal'),
                                 # version is reset to the correct one by parser
-                                -version => 0.7, 
+                                -version => 0.7,
                                 -model => 'Purine',
                                 -query_acc => 'RF00167',
                                 -query_desc => 'Purine riboswitch',
@@ -410,7 +564,7 @@ is($hit->length, 0, "Hit length");
 is($hit->locus, '', "Hit locus");
 is($hit->n, 1, "Hit n");
 is($hit->name, 'gi|633168|emb|X83878.1|', "Hit name");
-is($hit->num_hsps, 1, "Hit num_hsps"); 
+is($hit->num_hsps, 1, "Hit num_hsps");
 is($hit->overlap, 0, "Hit overlap");
 is($hit->query_length, 102, "Hit query_length");
 is($hit->rank, 2, "Hit rank");
@@ -473,7 +627,7 @@ my $symbols = {
 $searchio = Bio::SearchIO->new( -format => 'infernal',
                                 -file   => test_input_file('test.infernal'),
                                 # version is reset to the correct one by parser
-                                -version => 0.7, 
+                                -version => 0.7,
                                 -model => 'Purine',
                                 -query_acc => 'RF00167',
                                 -query_desc => 'Purine riboswitch',
@@ -664,7 +818,7 @@ is($hit->length, 0, "Hit length");
 is($hit->locus, 'BSU51115', "Hit locus");
 is($hit->n, 11, "Hit n");
 is($hit->name, 'gi|2239287|gb|U51115.1|BSU51115', "Hit name");
-is($hit->num_hsps, 11, "Hit num_hsps"); 
+is($hit->num_hsps, 11, "Hit num_hsps");
 is($hit->overlap, 0, "Hit overlap");
 is($hit->query_length, 102, "Hit query_length");
 is($hit->rank, 2, "Hit rank");
