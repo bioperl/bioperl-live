@@ -5,11 +5,8 @@
 
 # Getting Started
 
-Please see the the `INSTALL` or `INSTALL.WIN` documents for installation
+Please see the the [INSTALL](http://bioperl.org/INSTALL.html) or [INSTALL.WIN](http://bioperl.org/INSTALL.WIN.html) documents for installation
 instructions.
-
-Note that these documents are gradually being migrated to a specific
-http://readthedocs.org site.
 
 # About BioPerl
 
@@ -59,7 +56,7 @@ The BioPerl directory structure is organized as follows:
 
 # Documentation
 
-For documentation on BioPerl see the **HOWTO** documents online at https://bioperl.github.io/howtos.
+For documentation on BioPerl see the **HOWTO** documents online at http://bioperl.org/howtos.
 
 Useful documentation in the form of example code can also be found in the
 **`examples/`** and **`scripts/`** directories. The current collection includes
