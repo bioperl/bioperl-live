@@ -813,7 +813,7 @@ sub _to_annotation {
     return unless $links;
     my @dbxrefs;
     for my $string (@{$links}) {
-        my ($db, $id) = split(':',$string);
+        my ($db, $id) = split(':',$string,2);
         push @dbxrefs, Bio::Annotation::DBLink->new(-database => $db, -primary_id => $id);
     }
 
