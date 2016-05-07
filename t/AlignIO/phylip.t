@@ -69,13 +69,13 @@ my $ls = $aln->get_seq_by_pos(2);
 is($ls->display_id, 'Pan_panisc');
 is($ls->start, 1);
 is($ls->end,47);
+is($ls->length,50);
 
 # bug 2984
 TODO: {
     local $TODO = 'problems with default strand';
     # shouldn't this be 0?
     is($ls->strand,0);
-    is($ls->length,50);
 }
 
 # check to see that newlines between header and sequences are parsed correctly
