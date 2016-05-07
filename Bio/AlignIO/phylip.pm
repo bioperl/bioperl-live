@@ -216,7 +216,7 @@ sub next_aln {
                 ($name, $str) = split (/\s+/,$entry, 2);
             }
         } else { # 1. traditional phylip.
-            $entry =~ /^(.{10})\s+(.+)$/;
+            $entry =~ /^(.{1,10})\s(.+)$/;
             $name = $1;
             $str = $2;
             $name =~ s/\s+$//; # eat any trailing spaces
