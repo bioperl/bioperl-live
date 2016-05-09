@@ -1,5 +1,4 @@
 # -*-Perl-*- Test Harness script for Bioperl
-# $Id: phylip.t 14971 2008-10-28 16:08:52Z cjfields $
 
 use strict;
 
@@ -7,7 +6,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 17);
+    test_begin(-tests => 20);
 
 	use_ok('Bio::AlignIO::phylip');
 }
@@ -28,7 +27,6 @@ is($aln->get_seq_by_pos(2)->seq(), 'CCTCAGATCACTCTTTGGCAACGACCCCTCGTCACAATAA'.
    'GAAGAAATCTGTTGACTCAGATTGGTTGCACTTTAAATTTT' );
 
 # PHYLIP interleaved with long Ids
-
 $str = Bio::AlignIO->new(
     '-file' => test_input_file("protpars_longid.phy"),
     '-format' => 'phylip',
@@ -51,9 +49,7 @@ isa_ok($aln,'Bio::Align::AlignI');
 is $aln->get_seq_by_pos(1)->get_nse, 'SINFRUP001/1-4940';
 # is $aln->get_seq_by_pos(2)->get_nse, 'SINFRUP002/1-84';
 
-
 # PHYLIP interleaved
-
 $str = Bio::AlignIO->new(
     '-file' => test_input_file("testaln.phylip"),
     '-format' => 'phylip');
@@ -73,17 +69,36 @@ my $ls = $aln->get_seq_by_pos(2);
 is($ls->display_id, 'Pan_panisc');
 is($ls->start, 1);
 is($ls->end,47);
+is($ls->length,50);
 
 # bug 2984
 TODO: {
-    local $TODO = 'problems with default strand, length?';
+    local $TODO = 'problems with default strand';
     # shouldn't this be 0?
     is($ls->strand,0);
-    is($ls->length,47);
 }
 
 # check to see that newlines between header and sequences are parsed correctly
-$str = Bio::AlignIO->new('-file' => test_input_file("codeml45b.mlc"), '-format' => 'phylip', '-longid' => 1);
+$str = Bio::AlignIO->new('-file' => test_input_file("codeml45b.mlc"), -format => 'phylip', '-longid' => 1);
 $aln = $str->next_aln();
 $ls = $aln->get_seq_by_pos(9);
 ok($ls->display_id eq "Pop_trich_ch", "newline between header and sequences is parsed correctly");
+
+# bug 123 "Problem with newer versions of AlignIO to write alignment data #123"
+my $io = Bio::AlignIO->new(
+    -file => test_input_file("ORTHOMCL2345.cluster.aa.fa.aln.aa.phy.txt"),
+    -format => 'phylip');
+$aln = $io->next_aln();
+isa_ok($aln,'Bio::SimpleAlign');
+
+# Alignment file where an id has spaces in it
+$io = Bio::AlignIO->new(
+    -file => test_input_file("ids-with-spaces.phy"),
+    -format => 'phylip');
+$aln = $io->next_aln();
+isa_ok($aln,'Bio::SimpleAlign');
+is($aln->get_seq_by_pos(1)->display_id, 'A_BAD_ID');
+
+
+
+
