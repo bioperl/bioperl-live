@@ -93,10 +93,12 @@ use base qw(Bio::Root::Root);
 =head2 assess_bootstrap
 
  Title   : assess_bootstrap
- Usage   : my $tree_with_bs = $stats->assess_bootstrap(\@bs_trees);
- Function: Calculates the bootstrap for internal nodes based on
+ Usage   : my $tree_with_bs = $stats->assess_bootstrap(\@bs_trees,$guide_tree);
+ Function: Calculates the bootstrap for internal nodes based on the percentage
+           of times \@bs_trees agree with each internal node
  Returns : L<Bio::Tree::TreeI>
  Args    : Arrayref of L<Bio::Tree::TreeI>s
+           Guide tree, L<Bio::Tree::TreeI>s
 
 =cut
 
