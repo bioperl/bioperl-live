@@ -68,7 +68,7 @@ distribution INSTALL file. Installing on windows using ActiveState Perl is
 covered in the INSTALL.WIN file.  We highly suggest reading the installation
 instructions on the BioPerl website:
 
-L<http://www.bioperl.org/wiki/Installing_BioPerl>
+L<http://bioperl.org/INSTALL.html>
 
 Note that only the following are supported at this time with the current API:
 
@@ -161,7 +161,7 @@ workings of the package. Feel free to contribute.
 For a more detailed history of the BioPerl project, we recommend the History of
 BioPerl:
 
-L<http://www.bioperl.org/wiki/History_of_BioPerl>
+L<http://bioperl.org/articles/History_of_BioPerl.html>
 
 =head1 COPYRIGHT
 
