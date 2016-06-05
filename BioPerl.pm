@@ -22,7 +22,7 @@ BioPerl - Perl Modules for Biology
 
 If you're new to BioPerl, you should start reading the BioPerl HOWTO's:
 
-L<http://www.bioperl.org/wiki/HOWTOs>
+L<http://bioperl.org/howtos/index.html>
 
 =head2 References for Individual Modules
 
