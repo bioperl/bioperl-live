@@ -132,7 +132,7 @@ sure is a problem, post a bug report using our Bugzilla tracking system:
 
 L<https://github.com/bioperl/bioperl-live/issues>
 
-Please read the main bug tracking (L<http://www.bioperl.org/wiki/Bugs>) for an
+Please read the main bug tracking (L<http://www.bioperl.org/articles/Bugs.html>) for an
 overview of what we expect in a bug report. Specifically, having a code and
 data example where appropriate helps tremendously.  We gladly accept all patches
 after a quick code review.
