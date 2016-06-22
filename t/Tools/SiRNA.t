@@ -30,7 +30,7 @@ isa_ok( $sirna, 'Bio::Tools::SiRNA' ) ;
 
 # first test - cds only
 my @pairs = $sirna->design;
-is ( scalar(@pairs), 65, "CDS only: got ". scalar(@pairs) );
+is ( scalar(@pairs), 62, "CDS only: got ". scalar(@pairs) );
 
 
 # next test - include 3prime utr
@@ -42,7 +42,7 @@ foreach my $feat (@feats) {
 ok( $sirna->include_3pr(1) ) ;
 @pairs = $sirna->design;
 print "With 3p UTR: got ",scalar(@pairs),"\n" if $DEBUG;
-is( scalar(@pairs), 140 );
+is( scalar(@pairs), 124 );
 
 
 #third test - naked sequence
@@ -52,4 +52,4 @@ isa_ok($newseq, 'Bio::Seq') ;
 ok( $sirna->target($newseq) );
 @pairs = $sirna->design;
 print "Bare sequence: got ",scalar(@pairs),"\n" if $DEBUG;
-is ( scalar(@pairs),  142 ) ;
+is ( scalar(@pairs),  126 ) ;
