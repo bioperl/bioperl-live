@@ -195,7 +195,7 @@ sub _initialize {
 sub get_num_taxa {
     my ($self) = @_;
     # Use this URL query to get the ID of all the taxa in the NCBI Taxonomy database:
-    # http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=taxonomy&term=all[Filter]
+    # https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=taxonomy&term=all[Filter]
     # Only the first 20 taxa IDs are returned (good because the list is long),
     # and the total number is reported as well (which is what we are interested
     # in).

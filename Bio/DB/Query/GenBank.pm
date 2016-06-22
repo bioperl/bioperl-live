@@ -178,7 +178,7 @@ receive when you generate a SeqIO stream from the query.
 
   An up to date list of database names supported by NCBI eUtils is
   always available at:
-  http://eutils.ncbi.nlm.nih.gov/entrez/eutils/einfo.fcgi?
+  https://eutils.ncbi.nlm.nih.gov/entrez/eutils/einfo.fcgi?
 
   However, note that not all of these databases return datatypes that
   are parsable by Bio::DB::GenBank
