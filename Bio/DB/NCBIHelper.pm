@@ -36,7 +36,7 @@ constructing a URL for querying NCBI GenBank and NCBI GenPept and the
 common HTML stripping done in L<postprocess_data>().
 
 The base NCBI query URL used is:
-http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi
 
 =head1 FEEDBACK
 
@@ -96,7 +96,7 @@ use URI::Escape qw(uri_unescape);
 
 use base qw(Bio::DB::WebDBSeqI Bio::Root::Root);
 
-our $HOSTBASE = 'http://eutils.ncbi.nlm.nih.gov';
+our $HOSTBASE = 'https://eutils.ncbi.nlm.nih.gov';
 our $MAX_ENTRIES = 19000;
 our $REQUEST_DELAY = 3;
 our %CGILOCATION = (
