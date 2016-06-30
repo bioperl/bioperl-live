@@ -176,7 +176,7 @@ sub to_string {
     my $gffio = Bio::Tools::GFF->new(-gff_version => $format); # try to set it
     
     # just in case that behaviour changes (at the moment, an invalid format throws an exception, but it might return undef in the future
-    return "" unless defined $gffio;  # be kind and don't return undef in case the person is putting teh output directly into a printstatement without testing it
+    return "" unless defined $gffio;  # be kind and don't return undef in case the person is putting the output directly into a print statement without testing it
     # now $gffio is either false, or a valid GFF formatter
 
     my ($GFF,$cigar,$score);
