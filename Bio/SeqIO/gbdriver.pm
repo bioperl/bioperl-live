@@ -396,7 +396,7 @@ sub write_seq {
 
  Title   : seqhandler
  Usage   : $stream->seqhandler($handler)
- Function: Get/Set teh Bio::Seq::HandlerBaseI object
+ Function: Get/Set the Bio::Seq::HandlerBaseI object
  Returns : Bio::Seq::HandlerBaseI 
  Args    : Bio::Seq::HandlerBaseI 
 
