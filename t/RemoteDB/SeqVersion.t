@@ -38,13 +38,13 @@ SKIP: {
 
     $latest_gi = $query->get_recent(27478738);
     is($latest_gi, 42659163, 'get_recent, integer');
-    is($query->get_status(27478738), 'dead');
+    is($query->get_status(27478738), 'suppressed');
 
     # check that default type is "gi"
     ok $query = Bio::DB::SeqVersion->new();
     ok my $ref = $query->get_history(3245);
     is($ref->[0]->[0], 578167, 'get_history');
-    is($query->get_status('3245'), 'dead');
+    is($query->get_status('3245'), 'suppressed');
 }
 
 done_testing();
