@@ -20,7 +20,7 @@ addons:
 
 install:
     #These are recommended or required Perl libraries:
-    - "cpanm GD 2>&1 | tail -n 1"
+    - "cpanm GD 2>&1 CGI | tail -n 1"
     - "cpanm HTML::TableExtract DBI Data::Stag DB_File 2>&1 | tail -n 1"
     - "cpanm DBD::mysql DBD::Pg DBD::SQLite 2>&1 | tail -n 1"
     - "cpanm Algorithm::Munkres Array::Compare Convert::Binary::C Error 2>&1 | tail -n 1"
