@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 62);
+    test_begin(-tests => 61);
 
     use_ok 'Bio::Root::Root';
 }
@@ -290,19 +290,9 @@ is $obj->t7, 1, 'original is not modified';
                           -warn_version  => $v + 0.001,
                           -throw_version => $v + 0.002);
     }
-
-    sub plain_incorrect {
-        my $self = shift;
-        $self->deprecated(-message => 'This is not going to work',
-                          -warn_version  => '1.2.3.4',
-                          -throw_version => 'a.b.c.d');
-    }
 }
 
 my $foo = Bio::Foo5->new();
-
-throws_ok { $foo->plain_incorrect } qr/Version must be numerical/,
-    'must use proper versioning scheme';
 
 warning_like{ $foo->not_good } qr/This is not good/,
     'warns for versions >= current version';

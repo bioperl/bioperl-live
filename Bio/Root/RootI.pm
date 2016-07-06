@@ -229,11 +229,14 @@ sub deprecated{
 
     $throw_version ||= $version;
     $warn_version  ||= $class_version;
-
+    
+    $throw_version =~ s/_//g;
+    $warn_version =~ s/_//g;
+    
     for my $v ( $warn_version, $throw_version) {
         no warnings 'numeric';
         $self->throw("Version must be numerical, such as 1.006000 for v1.6.0, not $v")
-            unless !defined $v || $v + 0 eq $v;
+            unless !defined $v || $v + 0 == $v;
     }
 
     # below default insinuates we're deprecating a method and not a full module
