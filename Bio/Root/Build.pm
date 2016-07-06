@@ -41,6 +41,8 @@ BEGIN {
 our @extra_types = qw(options excludes_os feature_requires test); # test must always be last in the list!
 our $checking_types = "requires|conflicts|".join("|", @extra_types);
 
+our $VERSION = $Bio::Root::Version::VERSION;
+
 =head2 find_pm_files
 
 Our modules are in Bio, not lib
