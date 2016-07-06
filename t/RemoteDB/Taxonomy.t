@@ -175,10 +175,17 @@ for my $db ($db_entrez, $db_flatfile) {
         $db eq $db_entrez ? is($id, undef) : is($id, 32061);
 
         @ids = $db->get_taxonids('Rhodotorula');
-        cmp_ok @ids, '>=' , 8;
-        @ids = $db->get_taxonids('Rhodotorula <Microbotryomycetidae>');
-        is @ids, 1;
-        is $ids[0], 231509;
+        cmp_ok @ids, '>=' , 2;
+        if ($db eq $db_entrez) {
+            ok grep { $_ == 592558 } @ids;
+            ok grep { $_ == 5533 } @ids;
+        } else {
+            # note the locally cached flatfile is out-of-date, but technically
+            # correct for testing purposes
+            diag(join(",", @ids));
+            ok grep { $_ == 266791 } @ids;
+            ok grep { $_ == 5533 } @ids;
+        }
     }
 }
 
