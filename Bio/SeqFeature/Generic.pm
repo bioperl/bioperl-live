@@ -685,7 +685,9 @@ sub attach_seq {
  Function: returns the truncated sequence (if there) for this
  Example :
  Returns : sub seq (a Bio::PrimarySeqI compliant object) on attached sequence
-           bounded by start & end, or undef if there is no sequence attached
+           bounded by start & end, or undef if there is no sequence attached.
+           If the strand is defined and set to -1, the returned sequence is
+           the reverse-complement of the region
  Args    : none
 
 =cut
