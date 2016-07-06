@@ -969,7 +969,7 @@ sub _print_EMBL_FTHelper {
             #
             # Long qualifiers, that will be line wrapped, are always quoted
             elsif (!$FTQUAL_NO_QUOTE{$tag} or length("/$tag=$value")>=60) {
-                my $pat = $value =~ /\s/ ? '\s|\-|$' : '.|\-|$';
+                my $pat = $value =~ /\s+/ ? '\s+|\-|$' : '.|\-|$';
                 $self->_write_line_EMBL_regex("FT                   ",
                                               "FT                   ",
                                               "/$tag=\"$value\"",$pat,80) || return;

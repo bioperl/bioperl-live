@@ -423,10 +423,3 @@ ok $fh2, 'tempfile() in scalar context';
 ok close $fh2;
 }
 
-my $TESTURL = 'http://www.google.com/index.html';
-
-$rio = Bio::Root::IO->new();
-
-ok $rio = Bio::Root::IO->new(-url=>$TESTURL), 'default -url method';
-lives_ok {$rio = Bio::Root::IO->new(-url=>$TESTURL)};
-
