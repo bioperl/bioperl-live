@@ -184,7 +184,6 @@ Bio/DB/SeqFeature/Store/GFF3Loader.pm
 Bio/DB/SeqFeature/Store/Loader.pm
 Bio/DB/SeqFeature/Store/LoadHelper.pm
 Bio/DB/SeqFeature/Store/memory.pm
-Bio/DB/SeqHound.pm
 Bio/DB/SeqI.pm
 Bio/DB/SeqVersion.pm
 Bio/DB/SeqVersion/gi.pm
@@ -899,9 +898,9 @@ ide/bioperl-mode/site-lisp/bioperl-mode.el
 ide/bioperl-mode/site-lisp/bioperl-skel.el
 ide/bioperl-mode/site-lisp/pod.el
 ide/bioperl.komodo
-INSTALL
+INSTALL-WIN.md
+INSTALL.md
 INSTALL.SKIP
-INSTALL.WIN
 LICENSE
 maintenance/authors.pl
 maintenance/big_split/file_classification.csv
@@ -1880,7 +1879,6 @@ t/RemoteDB/HIV/HIVQueryHelper.t
 t/RemoteDB/MeSH.t
 t/RemoteDB/Query/GenBank.t
 t/RemoteDB/RefSeq.t
-t/RemoteDB/SeqHound.t
 t/RemoteDB/SeqRead_fail.t
 t/RemoteDB/SeqVersion.t
 t/RemoteDB/SwissProt.t
