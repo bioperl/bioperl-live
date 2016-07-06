@@ -70,6 +70,8 @@ my %recommends = (
             . 'Bio::SeqIO::nexml,Bio::TreeIO::nexml'
     ],
 
+    'CGI' => [ 0, 'CGI-y things/Bio::DB::Query::HIVQuery' ],
+    
     'Clone' => [ 0, 'Cloning objects/Bio::Root::Root,Bio::Tools::Primer3' ],
 
     'Convert::Binary::C' =>
