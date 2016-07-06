@@ -36,8 +36,7 @@ variable set if it's not already.
 
 =cut
 
-our $VERSION = '1.007000_001'; # pre-1.7
-$VERSION = eval $VERSION;
+our $VERSION = '1.007000_001';
 
 sub import {
     # try to handle multiple levels of inheritance:
