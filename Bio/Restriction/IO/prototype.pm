@@ -97,6 +97,8 @@ sub read {
     my $self = shift;
     my $coll = Bio::Restriction::EnzymeCollection->new(-empty => 1);
     my ($seentop, $last_type);
+    
+    ENZYME:
     while (defined (my $line = $self->_readline)) {
         chomp $line;
         next unless $line;
@@ -118,6 +120,12 @@ sub read {
         $site =~ s/\s+//g;
         
         my $precut;
+        if ($site =~ /,/) {
+            $self->warn("Split site support not present for Bio::Restriction::Enzyme yet,".
+                        "skipping $enzyme [$site]");
+            next ENZYME;
+        }
+        
         if ($site =~ m/^\((\d+\/\d+)\)[RYATGCN]+/) {
             $precut=$1;
             $site =~ s/\($precut\)//;
