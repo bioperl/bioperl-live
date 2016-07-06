@@ -989,7 +989,7 @@ sub next_result {
             }
         }
         else {
-            print STDERR "Missed line: $buffer\n";
+            print STDERR "Missed this line: $buffer\n";
             $self->debug($buffer);
         }
         $last = $buffer;
