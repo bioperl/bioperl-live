@@ -15,7 +15,7 @@ BEGIN {
 
 my $TESTURL = 'http://www.google.com/index.html';
 
-my $rio = Bio::Root::IO->new();
+my $rio;
 
 ok $rio = Bio::Root::IO->new(-url=>$TESTURL), 'default -url method';
 lives_ok {$rio = Bio::Root::IO->new(-url=>$TESTURL)};
