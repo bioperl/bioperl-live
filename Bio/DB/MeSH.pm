@@ -110,11 +110,11 @@ my  $RESULT_SPEC =
 
 
 sub _init {
+    # Note: Base URL is now set in _webmodule(), depending on which is selected
     my $self = shift;
-    $self->url($URL);
-    $self->{'_ANALYSIS_SPEC'} =$ANALYSIS_SPEC;
-    $self->{'_INPUT_SPEC'} =$INPUT_SPEC;
-    $self->{'_RESULT_SPEC'} =$RESULT_SPEC;
+    $self->{'_ANALYSIS_SPEC'} = $ANALYSIS_SPEC;
+    $self->{'_INPUT_SPEC'}    = $INPUT_SPEC;
+    $self->{'_RESULT_SPEC'}   = $RESULT_SPEC;
     $self->{'_ANALYSIS_NAME'} = $ANALYSIS_SPEC->{'name'};
     $self->_webmodule;
     return $self;
@@ -124,13 +124,21 @@ sub _init {
 sub _webmodule {
     my ($self) = shift;
     $self->{'_webmodule'} = '';
+
+    # Prefer WWW::Mechanize if available and use $URL
     eval {
         require WWW::Mechanize;
     };
     unless ($@) {
         $self->{'_webmodule'} = 'WWW::Mechanize';
+        $self->url($URL);
         return;
     }
+
+    # Next 2 webagents use cgi alternative URL
+    $self->_set_cgi_base_url;
+
+    # Use Bio::WebAgent alternative
     eval {
         require LWP::UserAgent;
     };
@@ -138,9 +146,41 @@ sub _webmodule {
         $self->{'_webmodule'} = 'Bio::WebAgent';
         return;
     }
+
+    # Last chance
     require Bio::Root::HTTPget;
     $self->{'_webmodule'} = 'Bio::Root::HTTPget';
     1;
+}
+
+
+sub _set_cgi_base_url {
+    my ($self) = shift;
+
+    # Try to get webpage corresponding to current year.
+    # If it fails, try to get previous years until success or 2003
+    my $year = 1900 + (localtime)[5];
+    my $pass = 0;
+    while ($pass == 0 and $year > 2003) {
+        my $response;
+        eval {
+            $response = $self->get( "http://www.nlm.nih.gov/cgi/mesh/$year/MB_cgi" )
+        };
+        # Note: error 404 is acceptable because it can mean that webpage is not yet
+        # implemented for current year. Absence of internet generates error 500.
+        if ($@ or $response->{'_rc'} > 404) {
+            $self->warn("Could not connect to the server\n") and return;
+        }
+
+        # Success close the loop, fail makes it try with the another year
+        if ($response->is_success) {
+            $pass = 1;
+        }
+        else {
+            $year -= 1;
+        }
+    }
+    $self->url("http://www.nlm.nih.gov/cgi/mesh/$year/MB_cgi");
 }
 
 =head2 get_exact_term
@@ -183,32 +223,9 @@ sub run {
 sub _cgi_url {
     my($self, $field, $term) = @_;
 
-    # Try to get webpage corresponding to current year.
-    # If it fails, try to get previous years until success or 2003
-    my $year = 1900 + (localtime)[5];
-    my $pass = 0;
-    while ($pass == 0 and $year > 2003) {
-        my $response;
-        eval {
-            $response = $self->get( "http://www.nlm.nih.gov/cgi/mesh/$year/MB_cgi" )
-        };
-        # Note: error 404 is acceptable because it can mean that webpage is not yet
-        # implemented for current year. Absence of internet generates error 500.
-        if ($@ or $response->{'_rc'} > 404) {
-            $self->warn("Could not connect to the server\n") and return;
-        }
-
-        # Success close the loop, fail makes it try with the another year
-        if ($response->is_success) {
-            $pass = 1;
-        }
-        else {
-            $year -= 1;
-        }
-    }
-
-  # we don't bother to URI::Escape $field and $term as this is an untainted private sub
-  return "http://www.nlm.nih.gov/cgi/mesh/$year/MB_cgi?field=$field&term=$term";
+    # we don't bother to URI::Escape $field and $term as this is an untainted private sub
+    my $base_url = $self->url;
+    return "$base_url?field=$field&term=$term";
 }
 
 
