@@ -17,5 +17,6 @@ pod2htm*.tmp
 t/LocalDB/SeqFeature_*.t
 blib*
 *.bak
+MANIFEST
 MYMETA.yml
 MYMETA.json
