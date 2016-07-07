@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl 
+#!/usr/bin/perl
 
 # Example usage of a SearchIO::psiblast parser of traditional format Blast 
 # and PSI-Blast reports.

@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 #
 # PROGRAM  : hitdisplay.pl
 # PURPOSE  : Demonstrate Bio::Tk::HitDisplay
