@@ -8,8 +8,8 @@ use warnings;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 2,
-	       -requires_networking => 1);
+    test_begin(-tests => 3,
+               -requires_networking => 1);
     use_ok 'Bio::Root::IO';
 }
 
