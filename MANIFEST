@@ -668,6 +668,7 @@ Bio/Tools/Analysis/Protein/Domcut.pm
 Bio/Tools/Analysis/Protein/ELM.pm
 Bio/Tools/Analysis/Protein/GOR4.pm
 Bio/Tools/Analysis/Protein/HNN.pm
+Bio/Tools/Analysis/Protein/Mitoprot.pm
 Bio/Tools/Analysis/Protein/NetPhos.pm
 Bio/Tools/Analysis/Protein/Scansite.pm
 Bio/Tools/Analysis/Protein/Sopma.pm
@@ -2023,6 +2024,7 @@ t/Tools/Analysis/Protein/Domcut.t
 t/Tools/Analysis/Protein/ELM.t
 t/Tools/Analysis/Protein/GOR4.t
 t/Tools/Analysis/Protein/HNN.t
+t/Tools/Analysis/Protein/Mitoprot.t
 t/Tools/Analysis/Protein/NetPhos.t
 t/Tools/Analysis/Protein/Scansite.t
 t/Tools/Analysis/Protein/Sopma.t

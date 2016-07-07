@@ -147,6 +147,7 @@ NB: This list of packages is not authoritative. See the 'requires',
 |------------------------------------------------------------------------------|
 | * Bio::PhyloNetwork - IO::String                                             |
 | * Bio::DB::CUTG - IO::String                                                 |
+| * Bio::DB::SeqHound - IO::String                                             |
 | * Bio::DB::WebDBSeqI - IO::String                                            |
 | * Bio::Index::Blast - IO::String                                             |
 | * Bio::Index::BlastTable - IO::String                                        |
@@ -158,6 +159,7 @@ NB: This list of packages is not authoritative. See the 'requires',
 | * Bio::Tools::Analysis::Protein::ELM - IO::String                            |
 | * Bio::Tools::Analysis::Protein::GOR4 - IO::String                           |
 | * Bio::Tools::Analysis::Protein::HNN - IO::String                            |
+| * Bio::Tools::Analysis::Protein::Mitoprot - IO::String                       |
 | * Bio::Tools::Analysis::Protein::NetPhos - IO::String                        |
 | * Bio::Tools::Analysis::Protein::Scansite - IO::String                       |
 | * Bio::Tools::Analysis::Protein::Sopma - IO::String                          |
