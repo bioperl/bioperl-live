@@ -182,7 +182,6 @@ for my $db ($db_entrez, $db_flatfile) {
         } else {
             # note the locally cached flatfile is out-of-date, but technically
             # correct for testing purposes
-            diag(join(",", @ids));
             ok grep { $_ == 266791 } @ids;
             ok grep { $_ == 5533 } @ids;
         }
