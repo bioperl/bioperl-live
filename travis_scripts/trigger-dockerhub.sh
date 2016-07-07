@@ -8,9 +8,9 @@ dockerapi="https://registry.hub.docker.com/u/bioperl/bioperl/trigger"
 ## Travis runs a build for several versions of Perl, but we want to
 ## trigger only for the same version of Perl as is running in the
 ## Docker container
-docker_perl="5.018"
+docker_perl="5.18"
 
-if [[ ${TRAVIS_PERL_VERSION:0:5} != "$docker_perl" ]] ; then
+if [[ ${TRAVIS_PERL_VERSION:0:4} != "$docker_perl" ]] ; then
     echo "Triggering Docker Hub only for Perl $docker_perl, not $TRAVIS_PERL_VERSION"
     exit 0
 fi
