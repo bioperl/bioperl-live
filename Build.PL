@@ -223,9 +223,13 @@ my $build = Bio::Root::Build->new(
         'ExtUtils::Manifest' => '1.52',  # allows spaces in file names
     },
 
+    configure_requires => {
+        'Module::Build' => 0.42,
+    },
+    
     build_requires => {
+        'Module::Build' => 0.42,
         'CPAN'          => 1.81,
-        'Module::Build' => 0.2805,
         'Test::Harness' => 2.62,
         'Test::Most'    => 0,
         'URI::Escape'   => 0

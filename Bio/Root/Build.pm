@@ -31,7 +31,7 @@ not work with more modern perl tools such as perlbrew and cpanm.
 
 BEGIN {
     # we really need Module::Build to be installed
-    eval "use base 'Module::Build'; 1" or die "This package requires Module::Build v0.2805 or greater to install itself.\n$@";
+    eval "use base 'Module::Build'; 1" or die "This package requires Module::Build v0.42 or greater to install itself.\n$@";
 
     # ensure we'll be able to reload this module later by adding its path to inc
     use Cwd;
@@ -243,41 +243,6 @@ sub test_internet {
         return "Could not connect to the internet (http://search.cpan.org/)";
     }
     return;
-}
-
-=head2 dist_dir
-
-Nice directory names for dist-related actions
-=cut
-
-sub dist_dir {
-    my ($self) = @_;
-    my $version = $self->dist_version;
-    if ($version =~ /^\d\.\d{6}\d$/) {
-        # 1.x.x.100 returned as 1.x.x.1
-        $version .= '00';
-    }
-    $version =~ s/00(\d)/$1./g;
-    $version =~ s/\.$//;
-
-    if (my ($minor, $rev) = $version =~ /^\d\.(\d)\.\d\.(\d+)$/) {
-        my $dev = ! ($minor % 2 == 0);
-        if ($rev == 100) {
-            my $replace = $dev ? "_$rev" : '';
-            $version =~ s/\.\d+$/$replace/;
-        }
-        elsif ($rev < 100) {
-            $rev = sprintf("%03d", $rev);
-            $version =~ s/\.\d+$/_$rev-RC/;
-        }
-        else {
-            $rev -= 100 unless $dev;
-            my $replace = $dev ? "_$rev" : ".$rev";
-            $version =~ s/\.\d+$/$replace/;
-        }
-    }
-
-    return "$self->{properties}{dist_name}-$version";
 }
 
 =head2 ACTION_ppmdist
