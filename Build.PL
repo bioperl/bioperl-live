@@ -71,7 +71,7 @@ my %recommends = (
     ],
 
     'CGI' => [ 0, 'CGI-y things/Bio::DB::Query::HIVQuery' ],
-    
+
     'Clone' => [ 0, 'Cloning objects/Bio::Root::Root,Bio::Tools::Primer3' ],
 
     'Convert::Binary::C' =>
@@ -223,7 +223,7 @@ my $build = Bio::Root::Build->new(
     configure_requires => {
         'Module::Build' => 0.42,
     },
-    
+
     build_requires => {
         'Module::Build' => 0.42,
         'CPAN'          => 1.81,
@@ -337,8 +337,12 @@ if ( $build->args('network') ) {
 # Add additional files here
 $build->add_build_element('xml');
 
+if ( ! -e 'MANIFEST' ) {
+    $build->ACTION_manifest();
+}
+
 # Create the build script and exit
-$build->create_build_script;
+$build->create_build_script();
 
 exit;
 

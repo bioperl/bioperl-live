@@ -27,7 +27,6 @@ install:
     - "cpanm XML::SAX XML::SAX::Writer XML::Simple XML::LibXML XML::Twig XML::Writer 2>&1 | tail -n 1"
     - "cpanm PostScript::TextBlock Set::Scalar Sort::Naturally YAML | tail -n 1"
     - "cpanm Math::Random Spreadsheet::ParseExcel | tail -n 1"
-    - "cpanm Bio::ASN1::EntrezGene"
     - "cpanm Bio::Phylo | tail -n 1"
     - "cpanm Test::Weaken | tail -n 1"
     - "cpanm Test::Memory::Cycle | tail -n 1"
