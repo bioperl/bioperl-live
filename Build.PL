@@ -135,8 +135,6 @@ my %recommends = (
 
     'Set::Scalar' => [ 0, 'Proper operation/Bio::Tree::Compatible' ],
 
-    'SOAP::Lite' => [ 0, 'Bibliographic queries/Bio::DB::Biblio::soap' ],
-
     'Sort::Naturally' => [
         0,
         'Sort lexically, but sort numeral parts numerically/'
