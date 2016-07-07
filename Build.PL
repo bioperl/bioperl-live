@@ -165,7 +165,7 @@ my %recommends = (
     'XML::LibXML' =>
         [ 0, 'Parsing XML/Bio::SeqIO::seqxml,Bio::TreeIO::phyloxml' ],
 
-    'XML::Parser' => [ 0, 'Parsing XML/Bio::Biblio::IO::medlinexml' ],
+    'XML::Parser' => [ 0, 'Parsing XML/Bio::OntologyIO::InterProParser' ],
 
     'XML::Parser::PerlSAX' => [
         0,
@@ -187,8 +187,7 @@ my %recommends = (
 
     'XML::Twig' => [
         0,
-        'Parsing XML/Bio::Variation::IO::xml,Bio::DB::Taxonomy::entrez,'
-            . 'Bio::DB::Biblio::eutils'
+        'Parsing XML/Bio::Variation::IO::xml,Bio::DB::Taxonomy::entrez'
     ],
 
     'XML::Writer' => [
