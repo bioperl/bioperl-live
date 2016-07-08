@@ -121,7 +121,7 @@ sub read {
         
         my $precut;
         if ($site =~ /,/) {
-            $self->warn("Split site support not present for Bio::Restriction::Enzyme yet,".
+            $self->warn("Split site support not available for Bio::Restriction::Enzyme yet, ".
                         "skipping $enzyme [$site]");
             next ENZYME;
         }
