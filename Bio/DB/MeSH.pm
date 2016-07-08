@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::DB::MeSH
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 #
@@ -22,16 +22,17 @@ Bio::DB::MeSH - Term retrieval from a Web MeSH database
 =head1 DESCRIPTION
 
 This class retrieves a term from the Medical Subject Headings database
-by the National Library of Medicine of USA. 
-See L<http://www.nlm.nih.gov/mesh/meshhome.html>.
+by the National Library of Medicine of USA. See
+L<http://www.nlm.nih.gov/mesh/meshhome.html>. It uses the latest
+data available (updates happen on weekdays). If it fails, an archive
+cgi scripts accessing older data from previous year is used.
 
 This class implements L<Bio::SimpleAnalysisI> and wraps its methods under
 L<get_exact_term>.
 
 By default, web access uses L<WWW::Mechanize>, but in its absence
 falls back to bioperl module L<Bio::WebAgent> which is a subclass of
-L<LWP::UserAgent>. If not even that is not installed, it uses
-L<Bio::Root::HTTPget>.
+L<LWP::UserAgent>.
 
 =head1 SEE ALSO
 
@@ -48,15 +49,15 @@ Bioperl mailing lists Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -135,7 +136,7 @@ sub _webmodule {
         return;
     }
 
-    # Next 2 webagents use cgi alternative URL
+    # Bio::WebAgent uses cgi alternative URL
     $self->_set_cgi_base_url;
 
     # Use Bio::WebAgent alternative
@@ -147,10 +148,7 @@ sub _webmodule {
         return;
     }
 
-    # Last chance
-    require Bio::Root::HTTPget;
-    $self->{'_webmodule'} = 'Bio::Root::HTTPget';
-    1;
+    $self->throw("Bio::DB::MeSH needs either WWW::Mechanize or Bio::WebAgent");
 }
 
 
@@ -171,8 +169,7 @@ sub _set_cgi_base_url {
         if ($@ or $response->{'_rc'} > 404) {
             $self->warn("Could not connect to the server\n") and return;
         }
-
-        # Success close the loop, fail makes it try with the another year
+        # Success closes the loop, fail makes it try with the another year
         if ($response->is_success) {
             $pass = 1;
         }
@@ -282,25 +279,6 @@ sub  _run {
             $self->status('COMPLETED');
         }
         return;
-    } else {
-        $self->debug("using Bio::Root::HTTPget...\n");
-        my $agent = Bio::Root::HTTPget->new();
-        if ($value =~ /\w\d{6}/) {
-            $self->{'_content'} =
-                eval {
-                    $agent->get( $self->_cgi_url('uid', $value) )
-                };
-            $self->warn("Could not connect to the server\n") and return
-                if $@;
-        } else {
-            $self->{'_content'} =
-                eval {
-                    $agent->get( $self->_cgi_url('entry', $value) )
-                };
-            $self->debug("Could not connect to the server\n") and return
-                if $@;
-        }
-        $self->status('COMPLETED');
     }
 }
 
