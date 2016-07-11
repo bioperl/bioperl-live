@@ -52,7 +52,7 @@ sub new    {
   my ($method,$source) = @_;
   $method ||= '';
   $source ||= '';
-  if ($source eq '' && $method =~ /^([\w-]+):([\w-]*)$/) {
+  if ($source eq '' && $method =~ /^([\w-\.]+):([\w-\.]*)$/) {
     $method = $1;
     $source = $2;
   }
