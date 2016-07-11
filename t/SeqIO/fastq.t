@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 140 );
+    test_begin( -tests => 149 );
 
     use_ok('Bio::SeqIO::fastq');
     use_ok('Bio::Seq::Quality');
@@ -32,6 +32,19 @@ my %example_files = (
                            '28 32 24 28 33 25 23 27 27 28 27 28 26',
         'display_id'    => 'DS6BPQV01A2G0A',
         'desc'          => undef,
+        'count'         => 1
+        },
+    RT98876             => {
+        'variant'       => 'sanger',
+        'seq'           => 'CCGCCATTTCTTCAAATCTTTTCTTTTCTTTAGGAGTCATCAATTTCCAT'.
+                           'TTCTCTGCACATTTCTTTGAAAATTA',
+        'qual'          => '31 34 34 34 34 34 34 34 34 33 34 34 34 34 34 34 '.
+                           '34 34 34 34 34 32 32 34 34 34 34 34 34 34 34 34 '.
+                           '30 34 34 34 34 34 34 34 34 34 34 34 34 34 32 32 '.
+                           '34 34 34 34 34 34 34 34 34 34 34 34 34 34 34 34 '.
+                           '34 34 34 34 33 30 30 27 33 34 29 2',
+        'display_id'    => 'Illumina_SRR125365.38',
+        'desc'          => 's_5_1_0001_qseq_37 length=76',
         'count'         => 1
         },
     test1_sanger            => {
@@ -430,5 +443,6 @@ my $in = Bio::SeqIO->new(-format    => 'fastq',
 
 lives_and {my $seq = $in->next_seq;
            is($seq->seq, 'G');} 'edge case; single 0 in quality fails';
+
 
 
