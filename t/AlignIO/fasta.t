@@ -6,7 +6,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 10);
+    test_begin(-tests => 12);
 	
 	use_ok('Bio::AlignIO::fasta');
 }
@@ -21,12 +21,16 @@ $str = Bio::AlignIO->new(
 		 -format => 'fasta');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
+is $aln->get_seq_by_pos(1)->display_id, 'AK1H_ECOLI/114-431', 
+  "fasta input test ";
 is $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/114-431/1-318', 
   "fasta input test ";
 is ($aln->get_seq_by_pos(1)->description, 'DESCRIPTION HERE', 
     "fasta input test for description");
-is ($aln->get_seq_by_pos(11)->display_id, 'AK_YEAST',
+is ($aln->get_seq_by_pos(11)->display_id, 'AK_YEAST/134-472',
     "fasta input test for id");
+is $aln->get_seq_by_pos(11)->get_nse, 'AK_YEAST/134-472/134-472', 
+  "fasta input test, captures formatted start/end";
 
 is ($aln->get_seq_by_pos(2)->end, 318,
     "fasta input test for end");

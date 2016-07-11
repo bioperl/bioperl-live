@@ -128,7 +128,7 @@ sub next_aln {
     $seqchar =~ s/\s//g;
 
     #  Put away last name and sequence
-    if ( $name =~ /(\S+)\/(\d+)-(\d+)$/ ) {
+    if ( $name =~ /(\S+\/(\d+)-(\d+))$/ ) {
         $seqname = $1;
         $start   = $2;
         $end     = $3;
