@@ -33,6 +33,10 @@ if [[ -n "$TRAVIS_TAG" && "$TRAVIS_TAG" != "false" ]] ; then
     curl -H "Content-Type: application/json" \
          --data '{"docker_tag": "stable"}' \
          -X POST $dockerapi/$DOCKERHUB_TOKEN/
+elif [[ "$TRAVIS_BRANCH" != "master" ]] ; then
+    # if someone were to create a branch that matches the whitelisting
+    # pattern, we skip that here, and only trigger on master
+    echo "Not triggering Docker Hub for branches other than master"
 else
     echo "Triggering rebuild of Docker image bioperl/bioperl:latest"
     curl -H "Content-Type: application/json" \
