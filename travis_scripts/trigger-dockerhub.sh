@@ -27,8 +27,11 @@ fi
 
 ## Should check for tag names that indicate release candidates rather
 ## than release names, and then skip those.
+## However, this is already taken care of by the regular expression
+## for whitelisting branches.
 
 if [[ -n "$TRAVIS_TAG" && "$TRAVIS_TAG" != "false" ]] ; then
+    # if we are building a whitelisted tag, we trigger the stable image
     echo "Triggering rebuild of Docker image bioperl/bioperl:stable"
     curl -H "Content-Type: application/json" \
          --data '{"docker_tag": "stable"}' \
@@ -38,6 +41,7 @@ elif [[ "$TRAVIS_BRANCH" != "master" ]] ; then
     # pattern, we skip that here, and only trigger on master
     echo "Not triggering Docker Hub for branches other than master"
 else
+    # not a pull request, not a tag, and the branch is master
     echo "Triggering rebuild of Docker image bioperl/bioperl:latest"
     curl -H "Content-Type: application/json" \
          --data '{"docker_tag": "latest"}' \
