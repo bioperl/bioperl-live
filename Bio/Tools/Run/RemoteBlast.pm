@@ -179,7 +179,7 @@ use base qw(Bio::Root::IO Exporter);
 
 our @EXPORT = qw( NOT_FINISHED ERR_QBSTATUS ERR_NOCONTENT ERR_HTTPFAIL ERR_QBNONSPEC );
 our $MODVERSION = $Bio::Root::Version::VERSION;
-our $URLBASE = 'http://blast.ncbi.nlm.nih.gov/Blast.cgi';
+our $URLBASE = 'https://blast.ncbi.nlm.nih.gov/Blast.cgi';
 
 # In GET/PUTPARAMS the values are regexes which validate the input.
 our %PUTPARAMS = (
