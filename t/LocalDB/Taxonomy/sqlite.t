@@ -8,7 +8,8 @@ BEGIN {
     use Bio::Root::Test;
 
     test_begin(
-        -requires_modules => [qw(DB_File DBI DBD::SQLite )]
+        
+        -requires_modules => [qw( 5.010 DB_File DBI DBD::SQLite )]
     );
 
     use_ok('Bio::DB::Taxonomy');
