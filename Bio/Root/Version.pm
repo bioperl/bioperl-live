@@ -36,7 +36,7 @@ variable set if it's not already.
 
 =cut
 
-our $VERSION = '1.007000_004';
+our $VERSION = '1.007000_005';
 
 sub import {
     # try to handle multiple levels of inheritance:
