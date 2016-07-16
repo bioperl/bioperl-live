@@ -17,10 +17,44 @@ Bugs and requested features list:
 CPAN releases are branched from 'master'.
 ---------------------------------------------------------
 
-1.6.925
+Philosophy for 1.7.x:
 
-    * WrapperBase quoted option values [majensen]
-    * Various documentation fixes and updates [bosborne]
+In order to reduce the number of dependencies, we are actively encouraging
+developers wanting to submit new code with additional dependencies to release
+code in a separate repository and release it on CPAN. We can help assist in this
+process and can also place this under the 'bioperl' Github organization (and
+similarly under the bioperl umbrella account in CPAN), though this is not
+required.
+
+We will also be moving additonal code to other repositories and will release
+them separately on CPAN. Modules considered obsolute (relies on a dead web
+service or utilizes strict dependencies that are also considered obsolete) will
+be removed.
+
+1.7.0 - "Disney"
+
+    [New site]
+    
+    * We have migrated to Github Pages. This was actually planned, but the
+      recent OBF server compromise forced our hand.
+      
+      Brian Osborne [bosborne] took this under his wing to move docs and has
+      done a tremendous amount of work formatting the site and working out some
+      of the idiosyncracies with the new Jekyll-based design.  Mark Jensen, Paul
+      Cantalupo and Franscison Ossandon also helped.  Kudos!!
+
+    [Code changes]
+    
+    * Previously deprecated modules removed
+      * Bio::Tools::Infernal, Bio::Tools::ERPIN, Bio::Tools::RNAMotif
+    * Bio::DB::SeqHound has been removed due to the service no longer being
+      available
+    * Bio::Tools::Analysis::Protein::Mitoprot has been removed for security
+      reasons due to the server no longer having a valid cert
+    * Bio::EUtilities, Bio::Biblio are now separate releases on CPAN
+    * Bio::Coordinate, Bio::SearchIO::blastxml,
+      Bio::SearchIO::Writer::BSMLResultWriter is now a separate release to be
+      added on CPAN
 
     [New features]
 
@@ -31,6 +65,8 @@ CPAN releases are branched from 'master'.
         reports [pcantalupo]
     * Bio::Search::Result::INFERNALResult
       - Added new module to represent features of Infernal reports [pcantalupo]
+    * WrapperBase quoted option values [majensen]
+    * Various documentation fixes and updates [bosborne]
     
    [Bug Fixes]
    
@@ -38,6 +74,9 @@ CPAN releases are branched from 'master'.
     * Bio::SeqFeature::Generic spliced_seq() bug fix [Eric Snyder, via bosborne]
     * NeXML parser fixes [fjossandon]
     * Bug fix for Bio::DB::SeqFeature memory adapter [lstein]
+    * RT 103272 : SeqFeature database deletion skipped features with a decimal -
+      Joshua Fortriede (Xenbase)
+    * RT 98374: AlignIO issues with sequence names not correctly parsing - Xiaoyu Zhuo
     * Issue #70: CONTIG parsing in GenBank output fixed [fjossandon]
     * Issue #76: Circular genome fixes with Bio::Location::Split [fjossandon]
     * Issue #80: Fix lack of caching issue with Bio::DB::Taxonomy [fjossandon]
