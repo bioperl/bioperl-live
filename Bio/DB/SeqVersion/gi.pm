@@ -41,14 +41,14 @@ All sequence entries at GenBank are identified by a pair of
 identifiers, an accession and a numeric identifier, and this number is
 frequently called a GI number (B<G>enInfo B<I>dentifier). The accession
 is stable, but each new version of the sequence entry for the accession
-receives a new GI number (see L<http://www.ncbi.nlm.nih.gov/Sitemap/sequenceIDs.html>
+receives a new GI number (see L<https://www.ncbi.nlm.nih.gov/genbank/sequenceids/#historical_note>
 for more information on GenBank identifiers). One accession
 can have one or more GI numbers and the highest of these is the most recent,
 or "live", GI.
 
 Information on an accession and its associated GI numbers is available at
 the Sequence Revision History page at NCBI,
-L<http://www.ncbi.nlm.nih.gov/entrez/sutils/girevhist.cgi>, this information is
+L<https://www.ncbi.nlm.nih.gov/genbank/sequencerevisionhistory/>, this information is
 not available in file format. This module queries the Web page and retrieves GI
 numbers and related data given an accession (e.g. NP_111111, A11111, P12345) or
 a GI number (e.g. 2, 11111111) as query.
@@ -109,7 +109,7 @@ use base qw(Bio::DB::SeqVersion);
 # Private class variables
 
 # TODO: this may be an unstable setting (text is actually minimal XHTML)
-my $URL = 'http://www.ncbi.nlm.nih.gov/nuccore/%s?report=girevhist&format=text';
+my $URL = 'https://www.ncbi.nlm.nih.gov/nuccore/%s?report=girevhist&format=text';
 
 =head2 new
 

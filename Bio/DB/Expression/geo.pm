@@ -64,10 +64,10 @@ use Bio::Expression::DataSet;
 use Bio::Expression::Platform;
 use Bio::Expression::Sample;
 
-use constant URL_PLATFORMS => 'http://www.ncbi.nlm.nih.gov/geo/query/browse.cgi?pgsize=100000&mode=platforms&submitter=-1&filteron=0&filtervalue=-1&private=1&sorton=pub_date&sortdir=1&start=1';
-use constant URL_PLATFORM => 'http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?form=text&view=full&acc=';
-use constant URL_DATASET => 'http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?form=text&view=full&acc=';
-use constant URL_SAMPLE => 'http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?form=text&view=full&acc=';
+use constant URL_PLATFORMS => 'https://www.ncbi.nlm.nih.gov/geo/browse/?view=platforms';
+use constant URL_PLATFORM => 'https://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?form=text&view=full&acc=';
+use constant URL_DATASET => 'https://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?form=text&view=full&acc=';
+use constant URL_SAMPLE => 'https://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?form=text&view=full&acc=';
 
 =head2 _initialize()
 

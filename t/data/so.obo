@@ -906,7 +906,7 @@ relationship: part_of SO:0000764 ! BAC_clone
 [Term]
 id: SO:0000154
 name: PAC
-def: "P1 Artificial Chromosome. These vectors can hold large inserts, typically 80-200 kb, and propagate in E. coli as a single copy episome." [http://www.ncbi.nlm.nih.gov/genome/guide/mouse/glossary.htm]
+def: "P1 Artificial Chromosome. These vectors can hold large inserts, typically 80-200 kb, and propagate in E. coli as a single copy episome." [https://www.ncbi.nlm.nih.gov/genome/guide/mouse/glossary.htm]
 synonym: "P1" RELATED []
 is_a: SO:0000440 ! vector
 relationship: part_of SO:0000762 ! PAC_clone
@@ -1997,7 +1997,7 @@ is_a: SO:0000209 ! rRNA_primary_transcript
 [Term]
 id: SO:0000326
 name: SAGE_tag
-def: "A short diagnostic sequence tag, serial analysis of gene expression (SAGE), that allows the quantitative and simultaneous analysis of a large number of transcripts." [http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids=7570003&dopt=Abstract]
+def: "A short diagnostic sequence tag, serial analysis of gene expression (SAGE), that allows the quantitative and simultaneous analysis of a large number of transcripts." [https://www.ncbi.nlm.nih.gov/pubmed/7570003]
 subset: SOFA
 is_a: SO:0000324 ! tag
 
@@ -2454,7 +2454,7 @@ is_a: SO:0000274 ! snRNA
 [Term]
 id: SO:0000397
 name: U6atac_snRNA
-def: "U6atac_snRNA -An snRNA required for the splicing of the minor U12-dependent class of eukaryotic nuclear introns. It forms a base paired complex with U4atac_snRNA (SO:0000394)." [http:http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=retrieve&db=pubmed&list_uids=1 2409455&dopt=Abstract]
+def: "U6atac_snRNA -An snRNA required for the splicing of the minor U12-dependent class of eukaryotic nuclear introns. It forms a base paired complex with U4atac_snRNA (SO:0000394)." [https://www.ncbi.nlm.nih.gov/pubmed/12409455]
 subset: SOFA
 is_a: SO:0000274 ! snRNA
 
@@ -3833,13 +3833,13 @@ is_a: SO:0000655 ! ncRNA
 [Term]
 id: SO:0000591
 name: pseudoknot
-def: "A stem-loop RNA structure where nucleotides in the loop participate in complementary interactions with a region of RNA downstream of the stem-loop." [http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids=12519954&dopt=Abstract]
+def: "A stem-loop RNA structure where nucleotides in the loop participate in complementary interactions with a region of RNA downstream of the stem-loop." [https://www.ncbi.nlm.nih.gov/pubmed/12519954]
 is_a: SO:0000002 ! sequence_secondary_structure
 
 [Term]
 id: SO:0000592
 name: H_pseudoknot
-def: "A pseudoknot which contains two stems and at least two loops." [http://www.ncbi.nlm.nih.gov 80/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids=10334330&dopt=Abstract]
+def: "A pseudoknot which contains two stems and at least two loops." [https://www.ncbi.nlm.nih.gov/pubmed/10334330]
 synonym: "H-pseudoknot" RELATED []
 is_a: SO:0000591 ! pseudoknot
 
@@ -4414,7 +4414,7 @@ is_obsolete: true
 [Term]
 id: SO:0000683
 name: exonic_splice_enhancer
-def: "Exonic splicing enhancers (ESEs) facilitate exon definition by assisting in the recruitment of splicing factors to the adjacent intron." [http://www.ncbi.nlm.nih.gov 80/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids=12403462&dopt=Abstract]
+def: "Exonic splicing enhancers (ESEs) facilitate exon definition by assisting in the recruitment of splicing factors to the adjacent intron." [https://www.ncbi.nlm.nih.gov/pubmed/12403462]
 is_a: SO:0000344 ! splice_enhancer
 
 [Term]
@@ -6182,7 +6182,7 @@ is_a: SO:1001268 ! recoding_stimulatory_region
 [Term]
 id: SO:1001261
 name: recoded_mRNA
-def: "A gene coding an mRNA which is recoded before translation, usually by special cis-acting signals." [http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids=8811194&dopt=Abstract]
+def: "A gene coding an mRNA which is recoded before translation, usually by special cis-acting signals." [https://www.ncbi.nlm.nih.gov/pubmed/8811194]
 is_a: SO:0000115 ! transcript_feature
 
 [Term]
@@ -6198,7 +6198,7 @@ is_a: SO:0000118 ! transcript_with_translational_frameshift
 [Term]
 id: SO:1001264
 name: mRNA_recoded_by_translational_bypass
-def: "A gene whose mRNA is translated by ribosomes that suspend translation at a particular codon and resume translation at a particular non-overlapping downstream codon." [http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids=8811194&dopt=Abstract]
+def: "A gene whose mRNA is translated by ribosomes that suspend translation at a particular codon and resume translation at a particular non-overlapping downstream codon." [https://www.ncbi.nlm.nih.gov/pubmed/8811194]
 is_a: SO:1001261 ! recoded_mRNA
 
 [Term]
@@ -6220,7 +6220,7 @@ is_a: SO:1001265 ! mRNA_recoded_by_codon_redefinition
 [Term]
 id: SO:1001268
 name: recoding_stimulatory_region
-def: "A site in an mRNA sequence that stimulates the recoding of the same mRNA." [http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids=12519954&dopt=Abstract]
+def: "A site in an mRNA sequence that stimulates the recoding of the same mRNA." [https://www.ncbi.nlm.nih.gov/pubmed/12519954]
 synonym: "recoding_stimulatory_signal" RELATED []
 relationship: part_of SO:0000234 ! mRNA
 
@@ -6319,7 +6319,7 @@ is_a: SO:1001277 ! three_prime_recoding_site
 [Term]
 id: SO:1001287
 name: distant_three_prime_recoding_signal
-def: "A recoding signal that is found many hundreds of nucleotides 3' of a redefined stop codon." [http://www.ncbi.nlm.nih.gov 80/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids=8709208&dopt=Abstract]
+def: "A recoding signal that is found many hundreds of nucleotides 3' of a redefined stop codon." [https://www.ncbi.nlm.nih.gov/pubmed/8709208]
 is_a: SO:1001277 ! three_prime_recoding_site
 
 [Term]

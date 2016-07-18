@@ -31,7 +31,7 @@ in the NCBI TinySeq XML format.  A TinySeq is a lightweight XML file
 of sequence information on one or more sequences, analgous to FASTA
 format.
 
-See L<http://www.ncbi.nlm.nih.gov/dtd/NCBI_TSeq.mod.dtd> for the DTD.
+See L<https://www.ncbi.nlm.nih.gov/dtd/NCBI_TSeq.mod.dtd> for the DTD.
 
 =head1 FEEDBACK
 
@@ -120,13 +120,13 @@ sub new {
 }
 
 #######################################
-# Event hadling methods for PerlSax   #
+# Event handling methods for PerlSax  #
 #######################################
 
 sub doctype_decl {
     my ($self, $doctype) = @_;
     # make sure we have a tinyseq
-    unless ($doctype->{'SystemId'} eq 'http://www.ncbi.nlm.nih.gov/dtd/NCBI_TSeq.dtd') {
+    unless ($doctype->{'SystemId'} eq 'https://www.ncbi.nlm.nih.gov/dtd/NCBI_TSeq.dtd') {
 	$self->throw("This document doesn't use the NCBI TinySeq dtd; it's a ", $doctype->{'SystemId'} );
     }
 

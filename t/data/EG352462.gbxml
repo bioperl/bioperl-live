@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE GBSet PUBLIC "-//NCBI//NCBI GBSeq/EN" "http://www.ncbi.nlm.nih.gov/dtd/NCBI_GBSeq.dtd">
+<!DOCTYPE GBSet PUBLIC "-//NCBI//NCBI GBSeq/EN" "https://www.ncbi.nlm.nih.gov/dtd/NCBI_GBSeq.dtd">
 <GBSet>
 <GBSeq>
   <GBSeq_locus>EG352462</GBSeq_locus>

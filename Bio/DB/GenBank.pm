@@ -98,7 +98,7 @@ evaluating to TRUE.
 =head2 Running
 
 Alternate methods are described at
-L<http://www.ncbi.nlm.nih.gov/entrez/query/static/efetchseq_help.html>
+L<https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.EFetch>
 
 NOTE: strand should be 1 for plus or 2 for minus.
 

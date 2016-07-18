@@ -23,7 +23,7 @@ die("$USAGE\n") if $help;
 
 my $ua = new LWP::UserAgent();
 
-my $urlbase = 'http://www.ncbi.nlm.nih.gov/entrez/eutils/';
+my $urlbase = 'https://www.ncbi.nlm.nih.gov/entrez/eutils/';
 my $esearch = 'esearch.fcgi?db=taxonomy&usehistory=y&term=';
 my $esummary = 'esummary.fcgi?db=taxonomy&query_key=QUERYKEY&WebEnv=WEBENV';
 

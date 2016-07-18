@@ -128,7 +128,7 @@ only differences are in available initiator codons.
 
 NCBI Genetic Codes home page:
      (Last update of the Genetic Codes: April 30, 2013)
-     http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi?mode=c
+     https://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi?mode=c
 
 ASN.1 version with ids 1 to 25 is at:
      ftp://ftp.ncbi.nih.gov/entrez/misc/data/gc.prt

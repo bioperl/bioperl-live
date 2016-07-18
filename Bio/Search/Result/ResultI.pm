@@ -442,8 +442,8 @@ sub algorithm_reference{
  Comments: The default implementation in ResultI returns an empty string
            rather than throwing a NotImplemented exception, since
            the RID may not always be available and is not critical.
-           See: (1) http://www.ncbi.nlm.nih.gov/Class/MLACourse/Modules/BLAST/rid.html
-                (2) http://www.ncbi.nlm.nih.gov/staff/tao/URLAPI/new/node63.html
+           See: (1) https://www.ncbi.nlm.nih.gov/Class/MLACourse/Modules/BLAST/rid.html
+                (2) https://www.ncbi.nlm.nih.gov/staff/tao/URLAPI/new/node63.html
 =cut
 
 sub rid{
