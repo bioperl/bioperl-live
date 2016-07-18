@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE TSeqSet PUBLIC "-//NCBI//NCBI TSeq/EN" "http://www.ncbi.nlm.nih.gov/dtd/NCBI_TSeq.dtd">
+<!DOCTYPE TSeqSet PUBLIC "-//NCBI//NCBI TSeq/EN" "https://www.ncbi.nlm.nih.gov/dtd/NCBI_TSeq.dtd">
 <TSeqSet>
 <TSeq>
   <TSeq_seqtype value="nucleotide"/>
