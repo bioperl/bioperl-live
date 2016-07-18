@@ -104,7 +104,7 @@ via HTTP
 Class for remote execution of the NCBI Blast via HTTP.
 
 For a description of the many CGI parameters see:
-http://www.ncbi.nlm.nih.gov/BLAST/Doc/urlapi.html
+https://www.ncbi.nlm.nih.gov/BLAST/Doc/urlapi.html
 
 Various additional options and input formats are available.
 

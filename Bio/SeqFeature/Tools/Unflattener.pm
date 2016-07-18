@@ -2401,7 +2401,7 @@ sub _resolve_container_for_sf{
 
 
        # SPECIAL CASE FOR /ribosomal_slippage
-       # See: http://www.ncbi.nlm.nih.gov/collab/FT/
+       # See: https://www.ncbi.nlm.nih.gov/collab/FT/
        if (!$inside && $sf->has_tag('ribosomal_slippage')) {
 	   if ($self->verbose > 0) {
 	       printf STDERR "    Checking for ribosomal_slippage\n";

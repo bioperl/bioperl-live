@@ -114,8 +114,8 @@ BEGIN {
     $Revision = '$Id$';
     $DATE = localtime(time);
     %RemoteURLDefault = ( 
-      'PROTEIN' => 'http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=protein&cmd=search&term=%s',			  
-      'NUCLEOTIDE' => 'http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=nucleotide&cmd=search&term=%s'
+      'PROTEIN' => 'https://www.ncbi.nlm.nih.gov/protein?term=%s',			  
+      'NUCLEOTIDE' => 'https://www.ncbi.nlm.nih.gov/nucleotide?term=%s'
     );
     $MaxDescLen = 60;
     $AlignmentLineWidth = 60;

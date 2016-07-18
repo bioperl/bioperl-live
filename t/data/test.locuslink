@@ -43,15 +43,15 @@ ALIAS_PROT: diamine oxidase
 ALIAS_PROT: Amiloride-binding protein-1
 UNIGENE: Hs.75741
 BUTTON: unigene.gif
-LINK: http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Hs&CID=75741
+LINK: https://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Hs&CID=75741
 OMIM: 104610
 ECNUM: 1.4.3.6
 MAP: 7q34-q36|RefSeq|C|
 MAPLINK: default_human_gene|ABP1
 BUTTON: snp.gif
-LINK: http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?locusId=26
+LINK: https://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?locusId=26
 BUTTON: homol.gif
-LINK: http://www.ncbi.nlm.nih.gov/HomoloGene/homolquery.cgi?TEXT=26[loc]&TAXID=9606
+LINK: https://www.ncbi.nlm.nih.gov/HomoloGene/homolquery.cgi?TEXT=26[loc]&TAXID=9606
 BUTTON: gdb.gif
 LINK: http://gdbwww.gdb.org/gdb-bin/genera/accno?GDB:127105
 BUTTON: ensembl.gif
@@ -135,7 +135,7 @@ ALIAS_PROT: arg
 ALIAS_PROT: Abelson murine leukemia viral (v-abl) oncogene homolog 2 (arg,
 UNIGENE: Hs.121521
 BUTTON: unigene.gif
-LINK: http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Hs&CID=121521
+LINK: https://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Hs&CID=121521
 OMIM: 164690
 ECNUM: 2.7.1.112
 MAP: 1q24-q25|<a href="http://gdbwww.gdb.org/gdb-bin/genera/accno?GDB:119641">HUGO</a>|C|
@@ -143,9 +143,9 @@ MAPLINK: default_human_gene|ABL2
 PHENOTYPE: Leukemia, acute myeloid, with eosinophilia
 PHENOTYPE_ID: 164690
 BUTTON: snp.gif
-LINK: http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?locusId=27
+LINK: https://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?locusId=27
 BUTTON: homol.gif
-LINK: http://www.ncbi.nlm.nih.gov/HomoloGene/homolquery.cgi?TEXT=27[loc]&TAXID=9606
+LINK: https://www.ncbi.nlm.nih.gov/HomoloGene/homolquery.cgi?TEXT=27[loc]&TAXID=9606
 BUTTON: gdb.gif
 LINK: http://gdbwww.gdb.org/gdb-bin/genera/accno?GDB:119641
 BUTTON: ensembl.gif

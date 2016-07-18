@@ -57,7 +57,7 @@ foreach (@ids) {
 # handle the remainder
 @ids = grep {!$GOT{$_}} @ids;
 if (@ids) {
-  my $request = POST('http://www.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi',
+  my $request = POST('https://www.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi',
 		     [rettype    => $MAPPING{$db}{rettype},
 		      db         => $MAPPING{$db}{db},
 		      tool       => 'bioperl',
@@ -237,7 +237,7 @@ database access services, one for data source "genbank" (nucleotide
 entries) and the other for data source "genpep" (protein entries).
 
 This script works by forwarding its requests to NCBI's eutils script,
-which lives at http://www.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi.
+which lives at https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi.
 It then reformats the output according to the BioFetch format so the
 sequences can be processed and returned by the Bio::DB::BioFetch
 module.  Returned entries are temporarily cached on the Web server's
