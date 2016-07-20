@@ -1,10 +1,40 @@
 # BioPerl Installation
 
-The following are instructions for installing BioPerl on
-Unix, Linux, and Mac OS X. Windows installation instructions can be 
-found in INSTALL.WIN.
+There are two principle ways to get BioPerl onto your system. One (and
+the still most common) is to install it locally on your machine. To do
+this, refer to and follow the instructions below for installing BioPerl on
+Unix, Linux, and Mac OS X. For installing BioPerl on Windows, please
+read INSTALL.WIN. The other way is to use a Docker image with a
+BioPerl build, whether one we support or one you build yourself.
 
-# System Requirments
+# Using BioPerl via Docker
+
+If you don't have Docker installed already, instructions for [how to install Docker] on Linux, MacOSX, and Windows are available online.
+
+We officially support several builds (latest, stable, and releases)
+hosted in the [bioperl/bioperl] repo on Docker Hub. These images do not
+have a pre-defined entrypoint. If you have a BioPerl script in the
+current directory, you can run it as simple as this:
+
+```
+docker run -t --rm -v `pwd`:/work -w /work bioperl/bioperl perl my-script.pl
+```
+
+Or run an interactive shell:
+
+```
+docker run -ti --rm -v `pwd`:/work -w /work bioperl/bioperl bash
+```
+
+You can also build your own Docker image of BioPerl, using the same
+base image and pre-built dependencies that we use. Simply build off of
+the [bioperl/bioperl-deps] image.
+
+# Installing BioPerl locally
+
+Note that this documentation is for Unix, Linux, and MacOSX. For installing BioPerl on Windows, please read INSTALL.WIN.
+
+## System Requirments
 
  * `Perl 5.6.1 or higher` Version 5.10 or higher is highly
    recommended. Modules are tested against version 5.14 and
@@ -12,7 +42,7 @@ found in INSTALL.WIN.
  * `make` For Mac OS X, this requires installing the Xcode Developer 
    Tools.
 
-# Preliminary Preparation
+## Preliminary Preparation
 
 These are optional, but regardless of your subsequent choice of
 installation method, it will help to carry out the following steps.
@@ -35,7 +65,7 @@ cpan>o conf commit
 
 * Install the `expat` library by whatever method is appropriate for your system (e.g. `apt`, `yum`, `homebrew`).
 
-# Installing BioPerl the Easy Way
+## Installing BioPerl the Easy Way
 
 We highly recommend using
 [cpanminus](https://metacpan.org/pod/distribution/App-cpanminus/bin/cpanm) for
@@ -102,7 +132,7 @@ If you're concerned about a failed test and need assistance or advice
 then contact bioperl-l@bioperl.org, and provide us the detailed
 results of the failed install.
 
-# Installing BioPerl from Github
+## Installing BioPerl from Github
 
 **NOTE:** We generally do not recommend installing the latest code from Github
 unless you absolutely need the latest bug fixes. 
@@ -116,7 +146,7 @@ git clone https://github.com/bioperl/bioperl-live.git
 cd bioperl-live
 ```
 
-## Using cpanm
+### Using cpanm
 
 If you have `cpanm`, you can install within the checkout directory by simply using:
 
@@ -126,7 +156,7 @@ cpanm --interactive .
 
 to run interative installation, or you can leave out the `--interactive` flag to accept the defaults.
 
-## Using the Installation Script
+### Using the Installation Script
 
 Issue the build commands:
 
@@ -154,7 +184,7 @@ will want to talk to your systems manager if you don't have the necessary
 privileges. Or you can install the package in your own home
 directory, see INSTALLING BIOPERL USING `local::lib`.
 
-# Installing Bioperl using `local::lib`
+## Installing Bioperl using `local::lib`
 
 If you lack permission to install Perl modules into the standard
 system directories you can install them in your home directory
@@ -168,7 +198,7 @@ command like this:
 perl -MCPAN -Mlocal::lib -e 'CPAN::install(C/CJ/CJFIELDS/BioPerl-1.6.924.tar.gz)'
 ```
 
-# Installing BioPerl Scripts
+## Installing BioPerl Scripts
 
 BioPerl comes with a set of production-quality scripts that are
 kept in the scripts/ directory. You can install these scripts if you'd
@@ -181,7 +211,7 @@ perl Build.PL ./Build install --install_path script=/foo/scripts
 
 By default they install to `/usr/bin` or similar, depending on platform.
 
-# The Test System
+## The Test System
 
 The BioPerl test system is located in the `t/` directory and is
 automatically run whenever you execute the `./Build test` command.
@@ -226,3 +256,7 @@ will require that new modules come with a test suite with some minimal
 tests.  Modules that lack adequate tests or could otherwise be
 considered 'unstable' will be moved into a separate developer
 distribution until adequate tests are added and the API stablizes.
+
+[how to install Docker]: https://docs.docker.com/engine/installation/
+[bioperl/bioperl]: https://hub.docker.com/r/bioperl/bioperl/
+[bioperl/bioperl-deps]: https://hub.docker.com/r/bioperl/bioperl-deps/
