@@ -147,8 +147,9 @@ conventions apply:
    '>file'      # open file for writing
    '>>file'     # open file for appending
    '+<file'     # open file read/write
-   'command |'  # open a pipe from the command
-   '| command'  # open a pipe to the command
+
+To read from or write to a piped command, open a filehandle and use the -fh
+option.
 
 =item -fh
 
@@ -177,6 +178,19 @@ some HTML tags:
       $string =~ s|(>)(\w+)|$1<font color="Red">$2</font>|g;
       # print into STDOUT
       print $string;
+  }
+
+Filehandles can also be used to read from or write to a piped command:
+
+  use Bio::SeqIO;
+  #convert .fastq.gz to .fasta
+  open my $zcat, 'zcat seq.fastq.gz |' or die $!;
+  my $in=Bio::SeqIO->new(-fh=>$zcat,
+                         -format=>'fastq');
+  my $out=Bio::SeqIO->new(-file=>'>seq.fasta',
+                          -format=>'fasta');
+  while (my $seq=$in->next_seq) {
+      $out->write_seq($seq) 
   }
 
 =item -string
