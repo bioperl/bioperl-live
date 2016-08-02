@@ -7,6 +7,9 @@ use File::Copy;
 use Fcntl;
 use base qw(Bio::Root::Root);
 
+# as of 2016, worked on most systems, but will test this in a RC
+my %modes = ( 0 => 'r', 1 => 'w', 2 => 'rw' );
+
 =head1 SYNOPSIS
 
     # Use stream I/O in your module
@@ -350,16 +353,22 @@ sub mode {
         my $mode;
         my $fh = $self->_fh;
         if (defined $fh) {
-            # Determine read/write status of filehandle
-            no warnings 'io';
-            if ( defined( read $fh, my $content, 0 ) ) {
-                # Successfully read 0 bytes
-                $mode = 'r'
-            }
-            if ( defined( syswrite $fh, '') ) {
-                # Successfully wrote 0 bytes
-                $mode ||= '';
-                $mode  .= 'w';
+            # use fcntl if not Windows-based
+            if ($^O !~ /MSWin32/) {
+                my $m = fcntl($fh, F_GETFL, 0);
+                $mode = exists $modes{$m & 3}  ? $modes{$m & 3} : '?';
+            } else {
+                # Determine read/write status of filehandle
+                no warnings 'io';
+                if ( defined( read $fh, my $content, 0 ) ) {
+                    # Successfully read 0 bytes
+                    $mode = 'r'
+                }
+                if ( defined( syswrite $fh, '') ) {
+                    # Successfully wrote 0 bytes
+                    $mode ||= '';
+                    $mode  .= 'w';
+                }
             }
         } else {
            # Stream does not have a filehandle... cannot determine mode
