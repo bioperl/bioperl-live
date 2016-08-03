@@ -1,6 +1,4 @@
 #!/usr/bin/env perl
-use strict;
-use warnings;
 
 =head1 NAME
 
@@ -49,17 +47,18 @@ email or the web:
 =head1 EDIT HISTORY
 
 2010-11-22 - Matt Oates
-	First features added.
-=cut
+First features added.
 
+=head1 DEPENDENCY
 
-
-# Includes
-=head1 DEPENDANCY
 B<Getopt::Long> Used to parse command line options.
 B<Pod::Usage> Used for usage and help output.
 B<Bio::SeqIO> Used to cut up sequences and parse FASTA.
+
 =cut
+
+use strict;
+use warnings;
 use Getopt::Long;                     #Deal with command line options
 use Pod::Usage;                       #Print a usage man page from the POD comments after __END__
 use Bio::SeqIO;
@@ -88,10 +87,10 @@ my @files = @ARGV;
 #Print out some help if it was asked for or if no arguments were given.
 pod2usage(-exitstatus => 0, -verbose => 2) if $help;
 
-pod2usage(-exitstatus => 0, -verbose => 1, -msg => 'Please specify the sequence files you wish to cut.') 
+pod2usage(-exitstatus => 0, -verbose => 1, -msg => 'Please specify the sequence files you wish to cut.')
     unless scalar @files;
 
-pod2usage(-exitstatus => 0, -verbose => 1, -msg => 'Please specify the region you wish to cut -s 1 -e 10 or 1-10.') 
+pod2usage(-exitstatus => 0, -verbose => 1, -msg => 'Please specify the region you wish to cut -s 1 -e 10 or 1-10.')
     unless defined $end;
 
 my $out = Bio::SeqIO->newFh(-file => ">$outfile", -format => $format) or die "Couldn't open selected output sequence file.";

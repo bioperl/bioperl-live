@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::SeqIO::bsml
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Charles Tilford (tilfordc@bms.com)
 # Copyright (C) Charles Tilford 2001
@@ -21,10 +21,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # Also at:   http://www.gnu.org/copyleft/lesser.html
 
-
 # Much of the basic documentation in this module has been
 # cut-and-pasted from the embl.pm (Ewan Birney) SeqIO module.
-
 
 =head1 NAME
 
@@ -78,15 +76,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -247,7 +245,7 @@ sub next_seq {
     my %specs = ('common_name' => 'y',
 		 'genus'       => 'y',
 		 'species'     => 'y',
-		 'sub_species' => 'y', 
+		 'sub_species' => 'y',
 		 );
     my %seqMap = (
 		  'add_date'     => [ qw(date date-created date-last-updated)],
@@ -281,7 +279,7 @@ sub next_seq {
 		$value ||= $content if ($name =~ /$match/i);
 	    }
 	    if ($value ne "") {
-		
+
 		if( $method eq 'seq_version'&& $value =~ /\S+\.(\d+)/ ) {
 		    # hack for the fact that data in version is actually
 		    # ACCESSION.VERSION
@@ -355,30 +353,29 @@ sub next_seq {
 		-location => "RefJournal",
 		);
     for my $ref ( $xmlSeq->getElementsByTagName ("Reference") ) {
-	my %refVals;
-	for my $tag (keys %tags) {
-	    my $rt = &FIRSTDATA($ref->getElementsByTagName($tags{$tag})
-				->item(0));
-	    next unless ($rt);
-	    $rt =~ s/^[\s\r\n]+//; # Kill leading space
-	    $rt =~ s/[\s\r\n]+$//; # Kill trailing space
-	    $rt =~ s/[\s\r\n]+/ /; # Collapse internal space runs
-	    $refVals{$tag} = $rt;
-	}
+		my %refVals;
+		for my $tag (keys %tags) {
+	    	my $rt = &FIRSTDATA($ref->getElementsByTagName($tags{$tag})->item(0));
+	    	next unless ($rt);
+	    	$rt =~ s/^[\s\r\n]+//; # Kill leading space
+	    	$rt =~ s/[\s\r\n]+$//; # Kill trailing space
+	    	$rt =~ s/[\s\r\n]+/ /; # Collapse internal space runs
+	    	$refVals{$tag} = $rt;
+		}
 	my $reference = Bio::Annotation::Reference->new( %refVals );
-	
+
 	# Pull out any <Reference> information hidden in <Attributes>
 	my %refMap = (
 		      comment         => [ 'comment', 'remark' ],
 		      medline         => [ 'medline', ],
 		      pubmed          => [ 'pubmed' ],
 		      start           => [ 'start', 'begin' ],
-		      end             => [ 'stop', 'end' ],		      
+		      end             => [ 'stop', 'end' ],
 		      );
 	my @refCom = ();
 	my $floppies = &GETFLOPPIES($ref);
 	for my $attr (@{$floppies}) {
-	    my ($name, $content) = &FLOPPYVALS($attr);	    
+	    my ($name, $content) = &FLOPPYVALS($attr);
 	    my $value = "";
 	    # Cycle through the Seq methods:
 	    for my $method (keys %refMap) {
@@ -412,12 +409,12 @@ sub next_seq {
     for my $feat ( $xmlSeq->getElementsByTagName("Feature") ) {
 	$bioSeq->add_SeqFeature( $self->_parse_bsml_feature($feat) );
     }
-    
+
     $species->classification( @classification );
     $bioSeq->species( $species );
-    
+
     $bioSeq->annotation->add_Annotation('dblink' => $_) for @links;
-    
+
     $self->{'current_node'}++;
     return $bioSeq;
 }
@@ -999,7 +996,7 @@ sub _parse_bsml_feature {
     for my $attr (@{$floppies}) {
 	my ($name, $content) = &FLOPPYVALS($attr);
 	# Don't know what the object is, dump it to a tag:
-	$basegsf->add_tag_value(lc($name), $content);	
+	$basegsf->add_tag_value(lc($name), $content);
     }
 
     # Mostly this helps with debugging, but may be of utility...

@@ -8,13 +8,13 @@ bp_netinstall.pl
 
   bp_netinstall.pl -b|--build_param_str BUILD_STRING [options]
 
-options: 
+  options:
 
- -h|--help                Show this message 
- -d|--dev                 Use the development version of bioperl from git 
+ -h|--help                Show this message
+ -d|--dev                 Use the development version of bioperl from git
  --build_param_str=<args> Parameters that are passed in at 'perl Build.PL'
  --install_param_str=<args>
-                          Use this string to predefine './Build install' 
+                          Use this string to predefine './Build install'
                             parameters such as 'install_base' for
                             bioperl installation
  --bioperl_path           Path to BioPerl tarball (will not download BioPerl)
@@ -38,8 +38,6 @@ Scott Cain scain@cpan.org
 2010. This script may be distributed under the same license as perl.
 
 =cut
-
-
 
 # Universal Net-based installer
 # Save this to disk as "bp_netinstall.pl" and run:
@@ -77,7 +75,7 @@ BEGIN {
         or pod2usage(2);
   pod2usage(2) if $show_help;
 
-  $perl_path = $Config{perlpath}; 
+  $perl_path = $Config{perlpath};
 
   print STDERR "\nAbout to install BioPerl and all its prerequisites.\n";
   print STDERR "\nYou will be asked various questions during this process. You can almost always";
@@ -108,7 +106,7 @@ BEGIN {
 
   $working_dir = getcwd;
 
-  $tmpdir = tempdir(CLEANUP=>1) 
+  $tmpdir = tempdir(CLEANUP=>1)
     or die "Could not create temporary directory: $!";
 
   $binaries = $Config{'binexp'};
@@ -312,7 +310,7 @@ sub do_get_distro {
             exit(-1);
         }
         $distribution = ($local_name =~ /gbrowse/)
-                      ? "Generic-Genome-Browser" : "bioperl-live"; 
+                      ? "Generic-Genome-Browser" : "bioperl-live";
         chdir $tmpdir;
         extract_tarball($local_name,$distribution);
     }
@@ -324,7 +322,7 @@ sub do_get_distro {
         my $filename = 'bioperl-live.tar.gz'; # =determine_filename();
         my $url = BIOPERL_LIVE_URL."/$filename";
 
-        my $rc = mirror($url, $filename); 
+        my $rc = mirror($url, $filename);
         unless ($rc == RC_OK or $rc == RC_NOT_MODIFIED){
             print STDERR "Failed to get nightly bioperl-live file: $rc\n";
             return undef;
@@ -353,7 +351,7 @@ sub determine_filename {
   die "Could not get directory listing of bioperl nightly build url: $rc\n"
       unless ($rc == RC_OK or $rc == RC_NOT_MODIFIED);
 
-  my $filename; 
+  my $filename;
   open my $LIST, '<', $listing or die "Could not read file '$listing': $!\n";
   while (my $line = <$LIST>) {
     if ($line =~ /href="(bioperl-live.*?\.tar\.gz)"/) {
@@ -362,7 +360,7 @@ sub determine_filename {
     }
   }
   close $LIST;
-  unlink $listing; 
+  unlink $listing;
   return $filename;
 }
 
@@ -377,7 +375,7 @@ sub extract_tarball {
 
   if ($extracted[0]->{'name'} =~ /^(bioperl.*?)\//) {
     my $bioperl_dir = $1;
-    move($bioperl_dir, $distribution) or die "couldn't move bioperl dir: $@"; 
+    move($bioperl_dir, $distribution) or die "couldn't move bioperl dir: $@";
   }
 
   chdir $distribution

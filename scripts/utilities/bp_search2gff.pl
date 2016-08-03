@@ -12,7 +12,7 @@ Usage:
 
 =head1 DESCRIPTION
 
-This script will turn a SearchIO report (BLAST, FASTP, SSEARCH, 
+This script will turn a SearchIO report (BLAST, FASTP, SSEARCH,
 AXT, WABA) into GFF.
 
 The options are:
@@ -98,7 +98,7 @@ my (
     $onehsp,       # flag: whether to consider only the first HSP for a hit
     $quiet,        # flag: run quietly
     $help          # flag: show help screen
-);                 
+);
 
 # set defaults:
 $format    = 'blast';

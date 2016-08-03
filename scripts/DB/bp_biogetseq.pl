@@ -41,7 +41,7 @@ bp_biogetseq - sequence retrieval using OBDA registry
 
 =head1 DESCRIPTION
 
-This script retrives sequences from the source defined by users
+This script retrieves sequences from the source defined by users
 registry setup.  The current alternatives are from a local indexed
 file, sql database or over the web.
 

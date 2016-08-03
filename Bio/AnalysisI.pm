@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::AnalysisI
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Martin Senger <martin.senger@gmail.com>
 # For copyright and disclaimer see below.
@@ -38,15 +38,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -665,10 +665,10 @@ sub elapsed { shift->throw_not_implemented(); }
 =head2 times
 
  Usage   : $job->times ('formatted')
- Returns : a hash refrence with all time characteristics
+ Returns : a hash reference with all time characteristics
  Args    : optional
 
-It is a convenient method returning a hash reference with the folowing
+It is a convenient method returning a hash reference with the following
 keys:
 
    created
