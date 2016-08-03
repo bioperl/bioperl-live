@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::Index::Stockholm
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Chris Fields <cjfields@uiuc.edu>
 #
@@ -34,8 +34,8 @@ Bio::Index::Stockholm
 
 =head1 DESCRIPTION
 
-Indexes Stockholm format alignments such as those from Pfam and Rfam.  
-Returns raw stream data using the ID or a Bio::SimpleAlign object 
+Indexes Stockholm format alignments such as those from Pfam and Rfam.
+Returns raw stream data using the ID or a Bio::SimpleAlign object
 (via Bio::AlignIO).
 
 This module also allows for ID parsing using a callback:
@@ -72,15 +72,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -123,7 +123,7 @@ sub _version {
                 -verbose     => 0);
 
   Function: Returns a new index object.  If filename is
-            specified, then open_dbm() is immediately called. 
+            specified, then open_dbm() is immediately called.
             Bio::Index::Abstract->new() will usually be called
             directly only when opening an existing index.
   Returns : A new index object
@@ -153,7 +153,7 @@ sub new {
 
  Title   : fetch_report
  Usage   : my $align = $idx->fetch_report($id);
- Function: Returns a Bio::SimpleAlign object 
+ Function: Returns a Bio::SimpleAlign object
            for a specific alignment
  Returns : Bio::SimpleAlign
  Args    : valid id
@@ -173,7 +173,7 @@ sub fetch_report{
 
  Title   : fetch_aln
  Usage   : my $align = $idx->fetch_aln($id);
- Function: Returns a Bio::SimpleAlign object 
+ Function: Returns a Bio::SimpleAlign object
            for a specific alignment
  Returns : Bio::SimpleAlign
  Args    : valid id
@@ -194,9 +194,9 @@ sub fetch_report{
   Function: Specialist function to index report file(s).
             Is provided with a filename and an integer
             by make_index in its SUPER class.
-  Example : 
-  Returns : 
-  Args    : 
+  Example :
+  Returns :
+  Args    :
 
 =cut
 
@@ -213,7 +213,7 @@ sub _index_file {
   open my $STOCKHOLM, '<', $file or $self->throw("Could not read file '$file': $!");
 
   my %done_ids;
-    
+
   # In Windows, text files have '\r\n' as line separator, but when reading in
   # text mode Perl will only show the '\n'. This means that for a line "ABC\r\n",
   # "length $_" will report 4 although the line is 5 bytes in length.
@@ -235,7 +235,7 @@ sub _index_file {
         $done_ids{$id} = 1;
       }
 
-      %done_ids = () if ( m{//} );    
+      %done_ids = () if ( m{//} );
   }
   close $STOCKHOLM;
 
@@ -280,10 +280,10 @@ sub id_parser {
 sub default_id_parser {
   my $line = shift;
   my %accs;
-    
+
   if ( $line =~ /^#=GF AC\s+(\S+)/ ) {
     $accs{$1}++;
-  } 
+  }
   keys %accs;
 }
 
@@ -318,11 +318,11 @@ sub default_id_parser {
  Usage   : $value = $self->dbm_package();
            $self->dbm_package($value);
 
- Function: Gets or sets the name of the Perl dbm module used. 
+ Function: Gets or sets the name of the Perl dbm module used.
            If the value is unset, then it returns the value of
            the package variable $USE_DBM_TYPE or if that is
            unset, then it chooses the best available dbm type,
-           choosing 'DB_File' in preference to 'SDBM_File'. 
+           choosing 'DB_File' in preference to 'SDBM_File'.
            Bio::Abstract::Index may work with other dbm file
            types.
 
@@ -339,10 +339,10 @@ sub default_id_parser {
            at the approprite place
 
            This provides for a way to get the actual
-           file contents and not an object 
+           file contents and not an object
 
            WARNING: you must parse the record deliminter
-           *yourself*. Abstract wont do this for you 
+           *yourself*. Abstract wont do this for you
            So this code
 
            $fh = $index->get_stream($myid);
@@ -359,7 +359,7 @@ sub default_id_parser {
 
  Returns : A filehandle object
  Args    : string represents the accession number
- Notes   : This method should not be used without forethought 
+ Notes   : This method should not be used without forethought
 
 
 =head2 open_dbm
@@ -369,7 +369,7 @@ sub default_id_parser {
             object.  Write access is only given if explicitly
             asked for by calling new(-write => 1) or having set
             the write_flag(1) on the index object.  The type of
-            dbm file opened is that returned by dbm_package(). 
+            dbm file opened is that returned by dbm_package().
             The name of the file to be is opened is obtained by
             calling the filename() method.
 
@@ -385,8 +385,8 @@ sub default_id_parser {
             index module.  Used to permanently identify an index
             file as having been created by a particular version
             of the index module.  Must be provided by the sub class
-  Example : 
-  Returns : 
+  Example :
+  Returns :
   Args    : none
 
 =head2 _filename
@@ -394,9 +394,9 @@ sub default_id_parser {
   Title   : _filename
   Usage   : $index->_filename( FILE INT )
   Function: Indexes the file
-  Example : 
-  Returns : 
-  Args    : 
+  Example :
+  Returns :
+  Args    :
 
 =head2 _file_handle
 
@@ -419,7 +419,7 @@ sub default_id_parser {
             track the number of files indexed.  Sets or gets
             the number of files indexed when called with or
             without an argument.
-  Example : 
+  Example :
   Returns : INT
   Args    : INT
 
@@ -443,7 +443,7 @@ sub default_id_parser {
   Usage   : $packed_string = $index->pack_record( LIST )
   Function: Packs an array of scalars into a single string
             joined by ASCII 034 (which is unlikely to be used
-            in any of the strings), and returns it. 
+            in any of the strings), and returns it.
   Example : $packed_string = $index->pack_record( $fileNumber, $begin, $end )
   Returns : STRING or undef
   Args    : LIST

@@ -1,6 +1,4 @@
 #!perl
-
-
 # command-line script for HIV sequence queries
 # using HIV.pm and HIVQuery.pm
 
@@ -53,14 +51,14 @@ are described below.
 =head2 TIPS
 
 The LANL database is pretty complex and extensive. Use the C<find> facility to
-explore the available database tables and fields. To identify aliases for a particular field, use C<find alias [fieldname]>. For example, to find a short alias to the 
+explore the available database tables and fields. To identify aliases for a particular field, use C<find alias [fieldname]>. For example, to find a short alias to the
 weirdly named field C<seq_sample.ssam_second_receptor>, do
 
  hivq> find alias seq_sample.ssam_second_receptor
 
 which returns
 
- coreceptor             second_receptor 
+ coreceptor             second_receptor
 
 Now, instead of the following query
 
@@ -72,7 +70,7 @@ you know you can do
 
 Use the C<outfile> command to set the file that receives the retrieved
 sequences. You can change the current output file simply by issuing a
-new C<outfile> command during the session. The output file defaults to 
+new C<outfile> command during the session. The output file defaults to
 standard output.
 
 Use the C<query> command to validate a query without hitting the
@@ -89,10 +87,10 @@ line. Then execute the following from the shell:
 
 =head1 COMMANDS
 
-Here is a complete list of commands. Options in single brackets (C<[req_option]>) are 
+Here is a complete list of commands. Options in single brackets (C<[req_option]>) are
 required; options in double brackets (C<[[opt_option]]>) are optional.
 
- confirm            : Toggle interactive confirmation before 
+ confirm            : Toggle interactive confirmation before
                       executing queries
  exit               : Quit script
  find               : Explore database schema
@@ -101,12 +99,12 @@ required; options in double brackets (C<[[opt_option]]>) are optional.
   find fields [table]         Display all fields in [table]
   find alias [field]          Display valid aliases for [field]
  help [[command]]   : Show command help
-                      if [[command]] not specified, list all 
+                      if [[command]] not specified, list all
                       available commands
  id                 : Display current session id
  outfile [filename] : Set file for collecting retrieved data
  ping               : Check if LANL DB is available
- prerun [[query]]   : Execute query but retreive hit count only
+ prerun [[query]]   : Execute query but retrieve hit count only
                       if [[query]] not specified, use current query
  query [query]      : Validate and set current query
  run [[query]]      : Execute query and retrieve data
@@ -441,7 +439,7 @@ while ( !$done ) {
 sub error {
     my $msg = shift;
     if ($msg =~ /MSG:/) {
-	($msg) = grep (/^MSG:/, split(/\n|\r/,$msg));	
+	($msg) = grep (/^MSG:/, split(/\n|\r/,$msg));
 	$msg =~ s/^MSG: *//;
 	$msg =~ s/\sat\s.*$//;
     }
@@ -452,7 +450,7 @@ sub error {
 sub outputPrerun {
     print (($state{curct} ? $state{curct} : "No")
 	. " sequence"
-	. ($state{curct}>1 ? "s" : "") 
+	. ($state{curct}>1 ? "s" : "")
 	. " returned\n");
     print "Query: ".$state{query}."\n";
     return 1;
@@ -470,7 +468,7 @@ sub outputSeqs {
 	    foreach my $an ($seq->annotation->get_keys($cat)) {
 		next if ($an eq 'accession');
 		my $value = $seq->annotation->get_value($cat, $an);
-		# next line: kludge to skip if there's an annotation 
+		# next line: kludge to skip if there's an annotation
 		# object instead of a value (I believe this is a bug)
 		next if ref($value);
 		$nameline .= "\t".join('=', "'$an'", "'".$value."'");
@@ -602,7 +600,7 @@ sub outputInColumns {
     }
     return 1;
 }
-    
+
 sub debug {
     print STDERR shift()."\n" if $opt_v;
     return;

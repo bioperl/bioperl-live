@@ -27,7 +27,7 @@ Specifies the sequence file to be read.
 
 =item B<--format>
 
-Format of the file specifed by B<--input>. If not given, it will try to guess the
+Format of the file specified by B<--input>. If not given, it will try to guess the
 correct format from the file extension.
 
 =item B<--feature>
@@ -80,7 +80,7 @@ my $in = new Bio::SeqIO(-file => $input,
 my $out;
 if ($output ) {
     $out = new Bio::SeqIO(-file => ">$output", -format => 'fasta');
-} else { 
+} else {
     $out = new Bio::SeqIO(-format => 'fasta'); # use STDOUT for output
 }
 
@@ -91,7 +91,7 @@ while( my $seq = $in->next_seq ) {
         my $s = $f->spliced_seq;
         if( $featuretype =~ /gene|CDS/ ) {
             $s->display_id($f->has_tag('gene') ? join(',',sort $f->each_tag_value('gene')) :
-                           $f->has_tag('label') ? join(',',$f->each_tag_value('label')): 
+                           $f->has_tag('label') ? join(',',$f->each_tag_value('label')):
                            $s->display_id);
         } else {
             $s->display_id(sprintf("%s_%s_%d",
