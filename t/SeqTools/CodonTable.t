@@ -160,16 +160,21 @@ ok $test;
 # boolean tests
 $myCodonTable->id(1); # Standard table
 
-ok $myCodonTable->is_start_codon('ATG');
-is $myCodonTable->is_start_codon('GGH'), 0;
-ok $myCodonTable->is_start_codon('HTG');
-is $myCodonTable->is_start_codon('CCC'), 0;
+ok $myCodonTable->is_start_codon('ATG'), 'is_start_codon, ATG';
+is $myCodonTable->is_start_codon('GGH'), 0, 'is_start_codon, GGH';
+ok $myCodonTable->is_start_codon('HTG'), 'is_start_codon, HTG';
+is $myCodonTable->is_start_codon('CCC'), 0, 'is_start_codon, CCC';
 
-ok $myCodonTable->is_ter_codon('UAG');
-ok $myCodonTable->is_ter_codon('TaG');
-ok $myCodonTable->is_ter_codon('TaR');
-ok $myCodonTable->is_ter_codon('tRa');
-is $myCodonTable->is_ter_codon('ttA'), 0;
+ok $myCodonTable->is_ter_codon('UAG'), 'is_ter_codon, U should map to T, UAG';
+ok $myCodonTable->is_ter_codon('TaG'), 'is_ter_codon,TaG';
+ok $myCodonTable->is_ter_codon('TaR'), 'is_ter_codon,TaR';
+ok $myCodonTable->is_ter_codon('tRa'), 'is_ter_codon,tRa';
+is $myCodonTable->is_ter_codon('ttA'), 0, 'is_ter_codon,ttA';
+
+# Ambiguous codons should fail
+is $myCodonTable->is_ter_codon('NNN'), 0, 'is_ter_codon, ambiguous codons should fail, NNN';
+is $myCodonTable->is_ter_codon('TAN'), 0, 'is_ter_codon, ambiguous codons should fail, TAN';
+is $myCodonTable->is_ter_codon('CC'), 0, 'is_ter_codon, incomplete codons should fail, CC';
 
 ok $myCodonTable->is_unknown_codon('jAG');
 ok $myCodonTable->is_unknown_codon('jg');
