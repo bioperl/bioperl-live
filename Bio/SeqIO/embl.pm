@@ -1356,14 +1356,33 @@ sub _read_FTHelper_EMBL {
 
     # Now parse and add any qualifiers.  (@qual is kept
     # intact to provide informative error messages.)
+    my $last_unquoted_qualifier;
   QUAL:
     for (my $i = 0; $i < @qual; $i++) {
         my $data = $qual[$i];
-        my ( $qualifier, $value ) = ($data =~ m{^/([^=]+)(?:=\s*(.+))?})
-            or $self->throw("Can't see new qualifier in: $_\nfrom:\n"
+        my ( $qualifier, $value );
+	
+	unless (( $qualifier, $value ) = ($data =~ m{^/([^=]+)(?:=\s*(.+))?})) {
+	   if ( defined $last_unquoted_qualifier ) {
+	      # handle case of unquoted multiline - read up everything until the next qualifier
+	      do {
+                 # Protein sequence translations need to be joined without spaces,
+                 # other qualifiers need those.
+		 $value .= ' ' if $qualifier ne "translation";
+                 $value .= $data;
+	      } while defined($data = $qual[++$i]) && $data !~ m[^/];
+	      $i--;
+              $out->field->{$last_unquoted_qualifier}->[-1] .= $value;
+              $last_unquoted_qualifier = undef;
+	      next QUAL;
+	   } else {
+              $self->throw("Can't see new qualifier in: $_\nfrom:\n"
                             . join('', map "$_\n", @qual));
+	   }
+	}
         $qualifier = '' if not defined $qualifier;
 
+        $last_unquoted_qualifier = undef;
         if (defined $value) {
             # Do we have a quoted value?
             if (substr($value, 0, 1) eq '"') {
@@ -1393,7 +1412,9 @@ sub _read_FTHelper_EMBL {
                 $value =~ s/^"|"$//g;
                 # Undouble internal quotes
                 $value =~ s/""/"/g; #"
-            }
+            } else {
+              $last_unquoted_qualifier = $qualifier;
+	    }
         } else {
             $value = '_no_value';
         }
