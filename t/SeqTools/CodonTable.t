@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 81);
+    test_begin(-tests => 84);
 
     use_ok('Bio::Tools::CodonTable');
     use_ok('Bio::CodonUsage::IO');
