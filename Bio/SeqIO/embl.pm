@@ -1362,7 +1362,7 @@ sub _read_FTHelper_EMBL {
         my $data = $qual[$i];
         my ( $qualifier, $value );
 	
-	unless (( $qualifier, $value ) = ($data =~ m{^/([^=]+)(?:=\s*(.+))?})) {
+	unless (( $qualifier, $value ) = ($data =~ m{^/([^=]+)(?:=\s*(.*))?})) {
 	   if ( defined $last_unquoted_qualifier ) {
 	      # handle case of unquoted multiline - read up everything until the next qualifier
 	      do {
