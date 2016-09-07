@@ -172,8 +172,8 @@ sub next_aln {
     $strand = $strand eq '+' ? 1 : $strand eq '-' ? -1 : 0;
 	my $seq = Bio::LocatableSeq->new('-seq'          => $text,
 					 '-display_id'   => $src,
-					 '-start'        => $start,
-					 '-end'          => $start + $size - 1,
+					 '-start'        => $strand > 0 ? $start                : ($srcsize-($start+$size-2)),
+					 '-end'          => $strand > 0 ? ($start + $size - 1)  : ($srcsize-($start-1)) ,
 					 '-strand'       => $strand,
 					 '-alphabet'     => $self->alphabet,
 					);
