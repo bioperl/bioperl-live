@@ -2,7 +2,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 107,
+    test_begin( -tests => 109,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)] );
 }
 use strict;
@@ -150,13 +150,21 @@ my $test_files = [
     # Test stream
     ok my $db = Bio::DB::Fasta->new( $test_file, -reindex => 1);
     ok my $stream = $db->get_PrimarySeq_stream;
-    isa_ok $stream, 'Bio::DB::Indexed::Stream';
+    isa_ok $stream, 'Bio::DB::Indexed::Stream';    
     my $count = 0;
-    while (my $seq = $stream->next_seq) {
+    
+    # note use of modified iterator, needed b/c of overloading
+    while (defined(my $seq = $stream->next_seq)) {
         $count++;
     }
-    is $count, 5;
-
+    is $count, 7;
+    
+    # bug #170 (Github)
+    # retrieve seq with ID of 0
+    my $seq = $db->get_Seq_by_id(0);
+    isa_ok $seq, 'Bio::PrimarySeq::Fasta';
+    is $seq->display_id, 0;
+    
     # ActivePerl will not allow deletion if the tie-hash is still active
     $db->DESTROY;
     # Strawberry Perl temporary file
@@ -256,6 +264,8 @@ my $test_files = [
     ok $db->get_all_ids;
     my @ids = sort $db->get_all_primary_ids();
     is_deeply \@ids, [ qw(
+        0
+        1
         123
         CEESC12R
         CEESC13F
