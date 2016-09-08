@@ -124,7 +124,7 @@ print Dumper \%NEWAUTHORS;
 # this is where the action is
 #
 sub findauthors {
-    my ($filename) = @_;
+    my ($filename) = $_;
     return unless ($filename =~ /\.PLS$/ or $filename =~ /\.p[ml]$/);
     return unless -e $filename;
 
