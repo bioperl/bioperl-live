@@ -1702,7 +1702,10 @@ sub query_length {
            if available, for the hit
  Returns : a scalar string (empty string if not set)
  Args    : none
-
+ Note    : As of Sept. 2016 NCBI records will no longer have a
+           GI; this attributue will remain in place for older
+           records
+           
 =cut
 
 sub ncbi_gi {
