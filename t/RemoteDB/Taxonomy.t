@@ -8,7 +8,7 @@ BEGIN {
     use Bio::Root::Test;
 
     test_begin(
-        -tests            => 202,
+        -tests            => 214,
         -requires_modules => [qw(DB_File
                                  LWP::UserAgent
                                  XML::Twig )]
@@ -103,7 +103,7 @@ for my $db ($db_entrez, $db_flatfile) {
         is ${$n->name('scientific')}[0], $n->node_name;
 
         my %common_names = map { $_ => 1 } $n->common_names;
-        is keys %common_names, 3, ref($db).": common names";
+        cmp_ok keys %common_names, '>=', 3, ref($db).": common names";
         ok exists $common_names{human};
         ok exists $common_names{man};
 
@@ -446,3 +446,29 @@ ok $node2 = $db_list->get_taxon( -names => [ 'o__Chroococcales', 'g__Microcoleus
 is $node2->scientific_name, $node1->scientific_name;
 is $node2->id, $node1->id;
 is $node2->internal_id, $node1->internal_id;
+
+# tests for #182
+SKIP: {
+    test_skip(-tests => 12, -requires_networking => 1);
+
+    my $db=Bio::DB::Taxonomy->new(-source=>"entrez");
+    
+    my @taxa = qw(viruses Deltavirus unclassified plasmid);
+    
+    for my $taxon (@taxa) {
+        test_taxid($db, $taxon);
+    }
+    
+    sub test_taxid {
+        my ($db, $taxa) = @_;
+        my @taxonids = $db->get_taxonids($taxa);
+        cmp_ok(scalar(@taxonids), '>', 0, "Got IDs returned for $taxa:".join(',', @taxonids));
+        my $taxon; 
+        lives_ok { $taxon = $db->get_taxon(-taxonid => pop @taxonids) } "IDs generates a Bio::Taxonomy::Node";
+        if (defined $taxon) {
+            like( $taxon->scientific_name, qr/$taxa/i, "Name returned matches $taxa");
+        } else {
+            ok(0, "No taxon object returned for $taxa");
+        }
+    }
+}

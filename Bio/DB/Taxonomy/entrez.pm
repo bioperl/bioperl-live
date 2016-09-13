@@ -321,7 +321,6 @@ sub get_taxon {
         $taxonid = join(',', @uncached);
         
         $p{'id'} = $taxonid;
-        $self->debug("id is $taxonid\n");
 
         my $twig = $self->_run_query($self->_build_url($EntrezFetch, \%p));
         my $root = $twig->root;
@@ -357,35 +356,37 @@ sub get_taxon {
             # requested node, we may as well cache data for the ancestors to
             # reduce the number of accesses to website in future
             my $lineage_ex = $taxon->first_child('LineageEx');
-            my ($ancestor, $lineage_data, @taxa);
-            foreach my $lineage_taxon ($lineage_ex->children) {
-                my $lineage_taxid = $lineage_taxon->first_child_text('TaxId');
-                
-                if (exists $DATA_CACHE->{minimal_info}->{$lineage_taxid} || exists $DATA_CACHE->{full_info}->{$lineage_taxid}) {
-                    $lineage_data = $DATA_CACHE->{minimal_info}->{$lineage_taxid} || $DATA_CACHE->{full_info}->{$lineage_taxid};
-                    next;
-                }
-                else {
-                    $lineage_data = {};
-                }
-                
-                $lineage_data->{id} = $lineage_taxid;
-                $lineage_data->{scientific_name} = $lineage_taxon->first_child_text('ScientificName');
-                $lineage_data->{rank} = $lineage_taxon->first_child_text('Rank');
-                
-                $RELATIONS->{ancestors}->{$lineage_taxid} = $ancestor->{id} if $ancestor;
-                
-                $DATA_CACHE->{minimal_info}->{$lineage_taxid} = $lineage_data;
-            } continue { $ancestor = $lineage_data; unshift(@taxa, $lineage_data); }
+            if (defined $lineage_ex) {
+                my ($ancestor, $lineage_data, @taxa);
+                foreach my $lineage_taxon ($lineage_ex->children) {
+                    my $lineage_taxid = $lineage_taxon->first_child_text('TaxId');
+                    
+                    if (exists $DATA_CACHE->{minimal_info}->{$lineage_taxid} || exists $DATA_CACHE->{full_info}->{$lineage_taxid}) {
+                        $lineage_data = $DATA_CACHE->{minimal_info}->{$lineage_taxid} || $DATA_CACHE->{full_info}->{$lineage_taxid};
+                        next;
+                    }
+                    else {
+                        $lineage_data = {};
+                    }
+                    
+                    $lineage_data->{id} = $lineage_taxid;
+                    $lineage_data->{scientific_name} = $lineage_taxon->first_child_text('ScientificName');
+                    $lineage_data->{rank} = $lineage_taxon->first_child_text('Rank');
+                    
+                    $RELATIONS->{ancestors}->{$lineage_taxid} = $ancestor->{id} if $ancestor;
+                    
+                    $DATA_CACHE->{minimal_info}->{$lineage_taxid} = $lineage_data;
+                } continue { $ancestor = $lineage_data; unshift(@taxa, $lineage_data); }
             
-            $RELATIONS->{ancestors}->{$taxid} = $ancestor->{id} if $ancestor;
-            
-            # go through the lineage in reverse so we can remember the children
-            my $child = $data;
-            foreach my $lineage_data (@taxa) {
-                $RELATIONS->{children}->{$lineage_data->{id}}->{$child->{id}} = 1;
-            } continue { $child = $lineage_data; }
-            
+                $RELATIONS->{ancestors}->{$taxid} = $ancestor->{id} if $ancestor;
+
+                # go through the lineage in reverse so we can remember the children
+                my $child = $data;
+                foreach my $lineage_data (@taxa) {
+                    $RELATIONS->{children}->{$lineage_data->{id}}->{$child->{id}} = 1;
+                } continue { $child = $lineage_data; }
+            }
+
             delete $DATA_CACHE->{minimal_info}->{$taxid};
             $DATA_CACHE->{full_info}->{$taxid} = $data;
             push(@results, $self->_make_taxon($data));
