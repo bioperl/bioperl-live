@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests               => 15,
+    test_begin(-tests               => 16,
                -requires_modules    => [qw(IO::String
                                            LWP::UserAgent
                                            HTML::HeadParser
@@ -28,18 +28,26 @@ my $seqio=Bio::SeqIO->new( -verbose => $verbose,
 
 my $seq = $seqio->next_seq();
 ok $tool = Bio::Tools::Analysis::Protein::ELM->new( 
-					-seq=>$seq->primary_seq);
-ok $tool->compartment(['golgi', 'er']);
-ok my $cmp = $tool->compartment();
-is $cmp->[1], 'GO:0005783';
-ok $tool->species(9606);
-is $tool->species, 9606;
+					-seq=>$seq->primary_seq), 'new object';
+ok $tool->compartment(['golgi', 'er']), 'set compartment';
+ok my $cmp = $tool->compartment(), 'get compartment';
+is $cmp->[1], 'GO:0005783', 'check compartment';
+ok $tool->species(9606), 'set species()';
+is $tool->species, 9606, 'get species()';;
 
-ok $tool->run ();
-exit if $tool->status eq 'TERMINATED_BY_ERROR';
-ok my $raw = $tool->result('');
-print $raw if $verbose;
-ok my $parsed = $tool->result('parsed');
+my $req_status = $tool->run();
 
-is $parsed->{'CLV_NRD_NRD_1'}{'locus'}[0], '54-56';
-ok my @res = $tool->result('Bio::SeqFeatureI');
+ok $req_status, 'run';
+
+is $tool->status(), 'TERMINATED_BY_ERROR';
+
+SKIP: {
+    skip "Bad run() status, possible time out or error so skipping tests", 4 if !$req_status or $tool->status eq 'TERMINATED_BY_ERROR';
+ 
+    ok my $raw = $tool->result('');
+    print $raw if $verbose;
+    ok my $parsed = $tool->result('parsed');
+    
+    is $parsed->{'CLV_NRD_NRD_1'}{'locus'}[0], '54-56';
+    ok my @res = $tool->result('Bio::SeqFeatureI');
+};
