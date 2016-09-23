@@ -554,8 +554,8 @@ sub _write_ID_line {
 
         $mol ||= '';            # 'unassigned'; ?
         $id_line = "ID   $name; SV $version; $topology; $mol; STD; $div; $len BP.\nXX\n";
-        $self->_print($id_line);
     }
+    $self->_print($id_line);
 }
 
 =head2 _is_valid_division
