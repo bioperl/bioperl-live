@@ -329,6 +329,35 @@ sub ACTION_realclean {
     }
 }
 
+=head2 get_metadata
+
+This wraps the base metafile method to add in version information from
+Bio::Root::Version to META.json and META.yml if it isn't already present. Note
+this should be compliant with meta_add and meta_merge, but occurs after those
+steps. If a version is already set and dist_version differs from the set one, a
+warning is printed.
+
+=cut
+
+sub get_metadata {
+    my ($self, %args) = @_;
+    my $metadata = $self->SUPER::get_metadata(%args);
+    
+    if (exists $metadata->{provides}) {
+        my $ver = $self->dist_version;
+        my $pkgs = $metadata->{provides};
+        for my $p (keys %{$pkgs}) {
+            if (!exists($pkgs->{$p}->{'version'})) {
+                $pkgs->{$p}->{'version'} = $ver;
+            } else {
+                $self->log_warn("Note: Module $p has a set version: ".$pkgs->{$p}->{'version'}."\n")
+                    if $pkgs->{$p}->{'version'} ne $ver;
+            }
+        }
+    }
+    return $metadata;
+}
+
 =head2 make_zip
 
 Makes zip file for windows users and bzip2 files as well
