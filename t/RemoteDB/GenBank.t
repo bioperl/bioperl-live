@@ -18,11 +18,12 @@ BEGIN {
 
 my %expected_lengths = (
     'MUSIGHBA1' => 408,
+	'J00522.1' => 408,
     'AF303112'  => 1611,
     'AF303112.1' => 1611,
     'AF041456'  => 1156,
     'CELRABGDI' => 1743,
-    'JH374761'  => 38055
+    'JH374761'  => 38055,
 );
 
 my ($gb, $seq, $seqio, $seqin);
