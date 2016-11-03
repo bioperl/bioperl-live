@@ -643,7 +643,6 @@ sub _from_gff3_string {
 # taken from Bio::DB::GFF
 sub unescape {
   my $v = shift;
-  $v =~ tr/+/ /;
   $v =~ s/%([0-9a-fA-F]{2})/chr hex($1)/ge;
   return $v;
 }
@@ -1031,14 +1030,18 @@ sub _gff3_string {
     for my $tag ( @all_tags ) {
     next if exists $SKIPPED_TAGS{$tag};
         # next if $tag eq 'Target';
-        if ($tag eq 'Target' && ! $origfeat->isa('Bio::SeqFeature::FeaturePair')){  
-            # simple Target,start,stop
-            my($target_id, $b,$e,$strand) = $feat->get_tag_values($tag); 
-            next unless(defined($e) && defined($b) && $target_id);
-            ($b,$e)= ($e,$b) if(defined $strand && $strand<0);
-            $target_id =~ s/([\t\n\r%&\=;,])/sprintf("%%%X",ord($1))/ge;    
-            push @groups, sprintf("Target=%s %d %d", $target_id,$b,$e);
-            next;
+        if ($tag eq 'Target' && ! $origfeat->isa('Bio::SeqFeature::FeaturePair')){             
+            my @values = $feat->get_tag_values($tag);
+            if(scalar(@values) > 1){ # How is it possible that Target is has a value list ??
+                # simple Target,start,stop
+                my ($target_id, $b,$e,$strand) = $feat->get_tag_values($tag); 
+                next unless(defined($e) && defined($b) && $target_id);
+                ($b,$e)= ($e,$b) if(defined $strand && $strand<0);
+                #if we have the strand we will print it
+                if($strand){ push @groups, sprintf("Target=%s %d %d %s", $target_id,$b,$e,$strand); }
+                else{ push @groups, sprintf("Target=%s %d %d", $target_id,$b,$e); }
+                next;
+            }        
         }
 
         my $valuestr;
