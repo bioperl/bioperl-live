@@ -10,6 +10,8 @@ _build*
 _Inline
 pm_to_blib*
 *.tar.gz
+*.tar.bz2
+*.zip
 .lwpcookies
 cover_db
 pod2htm*.tmp
