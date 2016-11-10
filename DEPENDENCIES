@@ -18,8 +18,7 @@ NB: This list of packages is not authoritative. See the 'requires',
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| AcePerl                   | * Ace - Interface to ACEDB (Popular  |   None    |
-|                           |   Genome DB)                         |           |
+| AcePerl                   | * Ace - NA                           |   None    |
 |                           | * Ace::Sequence::Homol - NA          |           |
 |==============================================================================|
 | Used by:                                                                     |
@@ -32,8 +31,7 @@ NB: This list of packages is not authoritative. See the 'requires',
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| Algorithm-Munkres         | * Algorithm::Munkres - Solution to   |   None    |
-|                           |   classical Assignment Problem       |           |
+| Algorithm-Munkres         | * Algorithm::Munkres - NA            |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
@@ -42,8 +40,7 @@ NB: This list of packages is not authoritative. See the 'requires',
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| Archive-Tar               | * Archive::Tar - Read, write and     |   None    |
-|                           |   manipulate tar files               |           |
+| Archive-Tar               | * Archive::Tar - NA                  |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
@@ -52,8 +49,7 @@ NB: This list of packages is not authoritative. See the 'requires',
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| Array-Compare             | * Array::Compare - Class to compare  |   None    |
-|                           |   two arrays                         |           |
+| Array-Compare             | * Array::Compare - NA                |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
@@ -62,9 +58,7 @@ NB: This list of packages is not authoritative. See the 'requires',
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| Bio-ASN1-EntrezGene       | * Bio::ASN1::EntrezGene - Parser     |   None    |
-|                           |   for NCBI Entrez Gene (ASN.1-       |           |
-|                           |   format)                            |           |
+| Bio-ASN1-EntrezGene       | * Bio::ASN1::EntrezGene - NA         |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
@@ -73,18 +67,66 @@ NB: This list of packages is not authoritative. See the 'requires',
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| Compress-Zlib             | * Compress::Zlib - Interface to      |   None    |
-|                           |   zlib compression library           |           |
+| Bio-FeatureIO             | * Bio::SeqFeature::Annotated - NA    |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
-| * Bio::DB::SeqFeature::Store - Compress::Zlib                                |
+| * Bio::Tools::Phylo::Gumby - Bio::SeqFeature::Annotated                      |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| Convert-Binary-C          | * Convert::Binary::C - Binary Data   |   None    |
-|                           |   Conversion using C Types           |           |
+| Bio-Graphics              | * Bio::Graphics::Wiggle::Loader - NA |   None    |
+|==============================================================================|
+| Used by:                                                                     |
+|------------------------------------------------------------------------------|
+| * Bio::DB::SeqFeature::Store::berkeleydb - Bio::Graphics::Wiggle::Loader     |
+ ==============================================================================
+ ==============================================================================
+| Distribution              | Module used - Description            | Min. ver. |
+|---------------------------+--------------------------------------+-----------|
+| Bio-Phylo                 | * Bio::Phylo - NA                    |   None    |
+|                           | * Bio::Phylo::Factory - NA           |           |
+|                           | * Bio::Phylo::Forest::Tree - NA      |           |
+|                           | * Bio::Phylo::IO - NA                |           |
+|                           | * Bio::Phylo::Matrices - NA          |           |
+|                           | * Bio::Phylo::Matrices::Datum - NA   |           |
+|                           | * Bio::Phylo::Matrices::Matrix - NA  |           |
+|==============================================================================|
+| Used by:                                                                     |
+|------------------------------------------------------------------------------|
+| * Bio::Nexml::Factory - Bio::Phylo                                           |
+| * Bio::Nexml::Factory - Bio::Phylo::Factory                                  |
+| * Bio::Nexml::Factory - Bio::Phylo::Forest::Tree                             |
+| * Bio::Nexml::Factory - Bio::Phylo::IO                                       |
+| * Bio::Nexml::Factory - Bio::Phylo::Matrices                                 |
+| * Bio::Nexml::Factory - Bio::Phylo::Matrices::Datum                          |
+| * Bio::Nexml::Factory - Bio::Phylo::Matrices::Matrix                         |
+ ==============================================================================
+ ==============================================================================
+| Distribution              | Module used - Description            | Min. ver. |
+|---------------------------+--------------------------------------+-----------|
+| Bio-SamTools              | * Bio::DB::Sam - NA                  |   None    |
+|==============================================================================|
+| Used by:                                                                     |
+|------------------------------------------------------------------------------|
+| * Bio::Assembly::IO::sam - Bio::DB::Sam                                      |
+ ==============================================================================
+ ==============================================================================
+| Distribution              | Module used - Description            | Min. ver. |
+|---------------------------+--------------------------------------+-----------|
+| BioPerl-Run               | * Bio::Tools::Run::Bowtie - NA       |   None    |
+|                           | * Bio::Tools::Run::Samtools - NA     |           |
+|==============================================================================|
+| Used by:                                                                     |
+|------------------------------------------------------------------------------|
+| * Bio::Assembly::IO::bowtie - Bio::Tools::Run::Bowtie                        |
+| * Bio::Assembly::IO::bowtie - Bio::Tools::Run::Samtools                      |
+ ==============================================================================
+ ==============================================================================
+| Distribution              | Module used - Description            | Min. ver. |
+|---------------------------+--------------------------------------+-----------|
+| Convert-Binary-C          | * Convert::Binary::C - NA            |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
@@ -93,8 +135,16 @@ NB: This list of packages is not authoritative. See the 'requires',
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| DBI                       | * DBI - Generic Database Interface   |   None    |
-|                           |   (see DBD modules)                  |           |
+| DBD-SQLite                | * DBD::SQLite - NA                   |   None    |
+|==============================================================================|
+| Used by:                                                                     |
+|------------------------------------------------------------------------------|
+| * Bio::DB::SeqFeature::Store::DBI::SQLite - DBD::SQLite                      |
+ ==============================================================================
+ ==============================================================================
+| Distribution              | Module used - Description            | Min. ver. |
+|---------------------------+--------------------------------------+-----------|
+| DBI                       | * DBI - NA                           |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
@@ -102,6 +152,7 @@ NB: This list of packages is not authoritative. See the 'requires',
 | * Bio::DB::GFF::Adaptor::dbi::caching_handle - DBI                           |
 | * Bio::DB::SeqFeature::Store::DBI::mysql - DBI                               |
 | * Bio::DB::SeqFeature::Store::DBI::Pg - DBI                                  |
+| * Bio::DB::Taxonomy::sqlite - DBI                                            |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
@@ -117,20 +168,55 @@ NB: This list of packages is not authoritative. See the 'requires',
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
+| Digest-MD5                | * Digest::MD5 - NA                   |   None    |
+|==============================================================================|
+| Used by:                                                                     |
+|------------------------------------------------------------------------------|
+| * Bio::DB::IndexedBase - Digest::MD5                                         |
+ ==============================================================================
+ ==============================================================================
+| Distribution              | Module used - Description            | Min. ver. |
+|---------------------------+--------------------------------------+-----------|
+| Encode                    | * Encode - NA                        |   None    |
+|==============================================================================|
+| Used by:                                                                     |
+|------------------------------------------------------------------------------|
+| * Bio::DB::SeqVersion::gi - Encode                                           |
+ ==============================================================================
+ ==============================================================================
+| Distribution              | Module used - Description            | Min. ver. |
+|---------------------------+--------------------------------------+-----------|
+| Error                     | * Error - NA                         |   None    |
+|==============================================================================|
+| Used by:                                                                     |
+|------------------------------------------------------------------------------|
+| * Bio::Root::Root - Error                                                    |
+ ==============================================================================
+ ==============================================================================
+| Distribution              | Module used - Description            | Min. ver. |
+|---------------------------+--------------------------------------+-----------|
+| GD                        | * GD - NA                            |   None    |
+|                           | * GD::Simple - NA                    |           |
+|==============================================================================|
+| Used by:                                                                     |
+|------------------------------------------------------------------------------|
+| * Bio::Align::Graphics - GD                                                  |
+| * Bio::Align::Graphics - GD::Simple                                          |
+ ==============================================================================
+ ==============================================================================
+| Distribution              | Module used - Description            | Min. ver. |
+|---------------------------+--------------------------------------+-----------|
 | Graph                     | * Graph::Directed - NA               |   None    |
-|                           | * Graph::Undirected - NA             |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
 | * Bio::PhyloNetwork - Graph::Directed                                        |
 | * Bio::Ontology::SimpleGOEngine::GraphAdaptor - Graph::Directed              |
-| * Bio::Assembly::Tools::ContigSpectrum - Graph::Undirected                   |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| HTML-Parser               | * HTML::HeadParser -  Parse <HEAD>   |   None    |
-|                           |   section of HTML documents          |           |
+| HTML-Parser               | * HTML::HeadParser - NA              |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
@@ -140,8 +226,45 @@ NB: This list of packages is not authoritative. See the 'requires',
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| IO-String                 | * IO::String - IO::File interface    |   None    |
-|                           |   for in-core strings                |           |
+| HTML-TableExtract         | * HTML::TableExtract - NA            |   None    |
+|==============================================================================|
+| Used by:                                                                     |
+|------------------------------------------------------------------------------|
+| * Bio::DB::SeqVersion::gi - HTML::TableExtract                               |
+ ==============================================================================
+ ==============================================================================
+| Distribution              | Module used - Description            | Min. ver. |
+|---------------------------+--------------------------------------+-----------|
+| HTTP-Message              | * HTTP::Request::Common - NA         |   None    |
+|                           | * HTTP::Response - NA                |           |
+|==============================================================================|
+| Used by:                                                                     |
+|------------------------------------------------------------------------------|
+| * Bio::DB::DBFetch - HTTP::Request::Common                                   |
+| * Bio::DB::HIV - HTTP::Request::Common                                       |
+| * Bio::DB::NCBIHelper - HTTP::Request::Common                                |
+| * Bio::DB::SwissProt - HTTP::Request::Common                                 |
+| * Bio::DB::WebDBSeqI - HTTP::Request::Common                                 |
+| * Bio::DB::Query::WebQuery - HTTP::Request::Common                           |
+| * Bio::Tools::Run::RemoteBlast - HTTP::Request::Common                       |
+| * Bio::DB::WebDBSeqI - HTTP::Response                                        |
+ ==============================================================================
+ ==============================================================================
+| Distribution              | Module used - Description            | Min. ver. |
+|---------------------------+--------------------------------------+-----------|
+| IO-Compress               | * Compress::Zlib - NA                |   None    |
+|                           | * IO::Uncompress::Gunzip - NA        |           |
+|==============================================================================|
+| Used by:                                                                     |
+|------------------------------------------------------------------------------|
+| * Bio::DB::SeqFeature::Store - Compress::Zlib                                |
+| * Bio::Assembly::IO::bowtie - IO::Uncompress::Gunzip                         |
+| * Bio::Assembly::IO::sam - IO::Uncompress::Gunzip                            |
+ ==============================================================================
+ ==============================================================================
+| Distribution              | Module used - Description            | Min. ver. |
+|---------------------------+--------------------------------------+-----------|
+| IO-String                 | * IO::String - NA                    |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
@@ -151,7 +274,6 @@ NB: This list of packages is not authoritative. See the 'requires',
 | * Bio::Index::Blast - IO::String                                             |
 | * Bio::Index::BlastTable - IO::String                                        |
 | * Bio::Index::Hmmer - IO::String                                             |
-| * Bio::SearchIO::Writer::BSMLResultWriter - IO::String                       |
 | * Bio::SeqIO::game::gameWriter - IO::String                                  |
 | * Bio::Tools::Analysis::DNA::ESEfinder - IO::String                          |
 | * Bio::Tools::Analysis::Protein::Domcut - IO::String                         |
@@ -163,50 +285,46 @@ NB: This list of packages is not authoritative. See the 'requires',
 | * Bio::Tools::Analysis::Protein::Sopma - IO::String                          |
 | * Bio::Tools::Phylo::Molphy - IO::String                                     |
 | * Bio::Tools::Phylo::PAML - IO::String                                       |
+| * Bio::Tools::Phylo::PAML::Codeml - IO::String                               |
 | * Bio::Tools::Run::RemoteBlast - IO::String                                  |
 | * Bio::TreeIO::cluster - IO::String                                          |
+| * Bio::TreeIO::nexml - IO::String                                            |
 | * Bio::TreeIO::nexus - IO::String                                            |
 | * Bio::Variation::IO::xml - IO::String                                       |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| Math-Random               | * Math::Random - Random Number       |   None    |
-|                           |   Generators                         |           |
+| MIME-Base64               | * MIME::Base64 - NA                  |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
-| * Bio::PhyloNetwork::RandomFactory - Math::Random                            |
+| * Bio::DB::SeqFeature::Store::DBI::Pg - MIME::Base64                         |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| Memoize                   | * Memoize - Automatically cache      |   None    |
-|                           |   results of functions               |           |
+| Memoize                   | * Memoize - NA                       |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
 | * Bio::DB::SeqFeature::Store::DBI::mysql - Memoize                           |
 | * Bio::DB::SeqFeature::Store::DBI::Pg - Memoize                              |
+| * Bio::DB::SeqFeature::Store::DBI::SQLite - Memoize                          |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| Module-Build              | * Module::Build - Build, test, and   |  0.2805   |
-|                           |   install Perl modules               |           |
-|                           | * Module::Build::PPMMaker - NA       |           |
+| Module-Build              | * Module::Build - NA                 |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
-| * Bio::Root::Build - Module::Build                                           |
 | * Bio::Root::Test - Module::Build                                            |
-| * Bio::Root::Build - Module::Build::PPMMaker                                 |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| PostScript                | * PostScript::TextBlock - Objects    |   None    |
-|                           |   used by PS::Document               |           |
+| PostScript                | * PostScript::TextBlock - NA         |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
@@ -215,8 +333,7 @@ NB: This list of packages is not authoritative. See the 'requires',
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| SVG                       | * SVG - Generate SVG images and      |   2.26    |
-|                           |   files                              |           |
+| SVG                       | * SVG - NA                           |   2.26    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
@@ -225,8 +342,7 @@ NB: This list of packages is not authoritative. See the 'requires',
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| SVG-Graph                 | * SVG::Graph - Series of Modules to  |   None    |
-|                           |   produce SVG graphs                 |           |
+| SVG-Graph                 | * SVG::Graph - NA                    |   None    |
 |                           | * SVG::Graph::Data - NA              |           |
 |                           | * SVG::Graph::Data::Node - NA        |           |
 |                           | * SVG::Graph::Data::Tree - NA        |           |
@@ -241,8 +357,7 @@ NB: This list of packages is not authoritative. See the 'requires',
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| Set-Scalar                | * Set::Scalar - Set of scalars (inc  |   None    |
-|                           |   references)                        |           |
+| Set-Scalar                | * Set::Scalar - NA                   |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
@@ -251,39 +366,16 @@ NB: This list of packages is not authoritative. See the 'requires',
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| Spreadsheet-ParseExcel    | * Spreadsheet::ParseExcel - Get      |   None    |
-|                           |   information from Excel file        |           |
+| Spreadsheet-ParseExcel    | * Spreadsheet::ParseExcel - NA       |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
-| * Bio::Microarray::Tools::MitoChipV2Parser - Spreadsheet::ParseExcel         |
-| * Bio::Microarray::Tools::ReseqChip - Spreadsheet::ParseExcel                |
 | * Bio::SeqIO::excel - Spreadsheet::ParseExcel                                |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| Spreadsheet-WriteExcel    | * Spreadsheet::WriteExcel - Write    |   None    |
-|                           |   cross-platform Excel binary file.  |           |
-|==============================================================================|
-| Used by:                                                                     |
-|------------------------------------------------------------------------------|
-| * Bio::Microarray::Tools::ReseqChip - Spreadsheet::WriteExcel                |
- ==============================================================================
- ==============================================================================
-| Distribution              | Module used - Description            | Min. ver. |
-|---------------------------+--------------------------------------+-----------|
-| Statistics-Frequency      | * Statistics::Frequency - NA         |   None    |
-|==============================================================================|
-| Used by:                                                                     |
-|------------------------------------------------------------------------------|
-| * Bio::Microarray::Tools::ReseqChip - Statistics::Frequency                  |
- ==============================================================================
- ==============================================================================
-| Distribution              | Module used - Description            | Min. ver. |
-|---------------------------+--------------------------------------+-----------|
-| Storable                  | * Storable - Persistent data         |   None    |
-|                           |   structure mechanism                |           |
+| Storable                  | * Storable - NA                      |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
@@ -293,34 +385,22 @@ NB: This list of packages is not authoritative. See the 'requires',
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| Test-Exception            | * Test::Exception - Functions for    |   None    |
-|                           |   testing exception-based code       |           |
+| Test-Most                 | * Test::Most - NA                    |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
-| * Bio::Root::Test - Test::Exception                                          |
+| * Bio::Root::Test - Test::Most                                               |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
 | Test-Simple               | * Test::Builder - NA                 |   None    |
-|                           | * Test::More - More functions for    |           |
-|                           |   writing tests                      |           |
+|                           | * Test::Builder::Module - NA         |           |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
-| * Bio::Root::Test::Warn - Test::Builder                                      |
-| * Bio::Root::Test - Test::More                                               |
- ==============================================================================
- ==============================================================================
-| Distribution              | Module used - Description            | Min. ver. |
-|---------------------------+--------------------------------------+-----------|
-| Test-Warn                 | * Test::Warn - NA                    |   None    |
-|==============================================================================|
-| Used by:                                                                     |
-|------------------------------------------------------------------------------|
-| * Bio::Root::Test - Test::Warn                                               |
-| * Bio::Root::Test::Warn - Test::Warn                                         |
+| * Bio::Root::Test - Test::Builder                                            |
+| * Bio::Root::Test - Test::Builder::Module                                    |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
@@ -334,20 +414,18 @@ NB: This list of packages is not authoritative. See the 'requires',
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| Time-HiRes                | * Time::HiRes - High resolution      |   None    |
-|                           |   time, sleep, and alarm             |           |
+| Time-HiRes                | * Time::HiRes - NA                   |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
+| * Bio::DB::GenericWebAgent - Time::HiRes                                     |
 | * Bio::DB::SeqFeature::Store::Loader - Time::HiRes                           |
 | * Bio::DB::SeqFeature::Store::DBI::mysql - Time::HiRes                       |
-| * Bio::DB::SeqFeature::Store::DBI::Pg - Time::HiRes                          |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| Tree-DAG_Node             | * Tree::DAG_Node - base class for    |   None    |
-|                           |   trees                              |           |
+| Tree-DAG_Node             | * Tree::DAG_Node - NA                |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
@@ -357,25 +435,18 @@ NB: This list of packages is not authoritative. See the 'requires',
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
 | URI                       | * URI - NA                           |   None    |
-|                           | * URI::Escape - General URI          |           |
-|                           |   escaping/unescaping functions      |           |
+|                           | * URI::Escape - NA                   |           |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
 | * Bio::DB::NCBIHelper - URI                                                  |
 | * Bio::DB::Query::WebQuery - URI                                             |
-| * Bio::Tools::EUtilities::EUtilParameters - URI                              |
 | * Bio::DB::CUTG - URI::Escape                                                |
-| * Bio::DB::Biblio::eutils - URI::Escape                                      |
-| * Bio::FeatureIO::gff - URI::Escape                                          |
-| * Bio::FeatureIO::interpro - URI::Escape                                     |
-| * Bio::SeqFeature::Annotated - URI::Escape                                   |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| WWW-Mechanize             | * WWW::Mechanize - Automates web     |   None    |
-|                           |   page form & link interaction       |           |
+| WWW-Mechanize             | * WWW::Mechanize - NA                |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
@@ -388,20 +459,17 @@ NB: This list of packages is not authoritative. See the 'requires',
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
-| * Bio::DB::Fasta - Win32                                                     |
 | * Bio::DB::GFF - Win32                                                       |
-| * Bio::DB::Qual - Win32                                                      |
+| * Bio::DB::IndexedBase - Win32                                               |
 | * Bio::Root::IO - Win32                                                      |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| XML-DOM                   | * XML::DOM - Implements Level 1 of   |   None    |
-|                           |   W3's DOM                           |           |
+| XML-DOM                   | * XML::DOM - NA                      |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
-| * Bio::FeatureIO::interpro - XML::DOM                                        |
 | * Bio::SeqIO::bsml - XML::DOM                                                |
 | * Bio::SeqIO::interpro - XML::DOM                                            |
  ==============================================================================
@@ -412,30 +480,20 @@ NB: This list of packages is not authoritative. See the 'requires',
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
-| * Bio::FeatureIO::interpro - XML::DOM::XPath                                 |
 | * Bio::SeqIO::interpro - XML::DOM::XPath                                     |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| XML-LibXML                | * XML::LibXML - Interface to the     |   None    |
-|                           |   libxml library                     |           |
+| XML-LibXML                | * XML::LibXML - NA                   |   None    |
 |                           | * XML::LibXML::Reader - NA           |           |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
+| * Bio::SeqIO::seqxml - XML::LibXML                                           |
 | * Bio::TreeIO::phyloxml - XML::LibXML                                        |
+| * Bio::SeqIO::seqxml - XML::LibXML::Reader                                   |
 | * Bio::TreeIO::phyloxml - XML::LibXML::Reader                                |
- ==============================================================================
- ==============================================================================
-| Distribution              | Module used - Description            | Min. ver. |
-|---------------------------+--------------------------------------+-----------|
-| XML-Parser                | * XML::Parser - Flexible fast        |   None    |
-|                           |   parser with plug-in styles         |           |
-|==============================================================================|
-| Used by:                                                                     |
-|------------------------------------------------------------------------------|
-| * Bio::Biblio::IO::medlinexml - XML::Parser                                  |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
@@ -445,8 +503,8 @@ NB: This list of packages is not authoritative. See the 'requires',
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
 | * Bio::ClusterIO::dbsnp - XML::SAX                                           |
-| * Bio::SearchIO::blastxml - XML::SAX                                         |
 | * Bio::SeqIO::bsml_sax - XML::SAX                                            |
+| * Bio::SeqIO::gbxml - XML::SAX                                               |
 | * Bio::SeqIO::tigrxml - XML::SAX                                             |
  ==============================================================================
  ==============================================================================
@@ -461,38 +519,33 @@ NB: This list of packages is not authoritative. See the 'requires',
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| XML-Simple                | * XML::Simple - Easy API to          |   None    |
-|                           |   maintain XML (esp config files)    |           |
+| XML-Simple                | * XML::Simple - NA                   |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
 | * Bio::DB::HIV::HIVQueryHelper - XML::Simple                                 |
 | * Bio::DB::Query::HIVQuery - XML::Simple                                     |
-| * Bio::Tools::EUtilities - XML::Simple                                       |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| XML-Twig                  | * XML::Twig - A module for easy      |   None    |
-|                           |   processing of XML                  |           |
+| XML-Twig                  | * XML::Twig - NA                     |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
-| * Bio::DB::Biblio::eutils - XML::Twig                                        |
 | * Bio::DB::Taxonomy::entrez - XML::Twig                                      |
 | * Bio::Variation::IO::xml - XML::Twig                                        |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| XML-Writer                | * XML::Writer - Module for writing   |    0.4    |
-|                           |   XML documents                      |           |
+| XML-Writer                | * XML::Writer - NA                   |    0.4    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
-| * Bio::SearchIO::Writer::BSMLResultWriter - XML::Writer                      |
 | * Bio::SeqIO::agave - XML::Writer                                            |
 | * Bio::SeqIO::chadoxml - XML::Writer                                         |
+| * Bio::SeqIO::seqxml - XML::Writer                                           |
 | * Bio::SeqIO::tinyseq - XML::Writer                                          |
 | * Bio::SeqIO::game::gameWriter - XML::Writer                                 |
 | * Bio::Variation::IO::xml - XML::Writer                                      |
@@ -500,57 +553,19 @@ NB: This list of packages is not authoritative. See the 'requires',
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
-| bioperl-ext               | * Bio::Ext::Align - NA               |   None    |
-|                           | * Bio::SeqIO::staden::read - NA      |           |
+| libwww-perl               | * LWP - NA                           |   5.64    |
+|                           | * LWP::UserAgent - NA                |           |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
-| * Bio::SearchDist - Bio::Ext::Align                                          |
-| * Bio::Tools::AlignFactory - Bio::Ext::Align                                 |
-| * Bio::Tools::dpAlign - Bio::Ext::Align                                      |
-| * Bio::Tools::pSW - Bio::Ext::Align                                          |
-| * Bio::SeqIO::abi - Bio::SeqIO::staden::read                                 |
-| * Bio::SeqIO::alf - Bio::SeqIO::staden::read                                 |
-| * Bio::SeqIO::ctf - Bio::SeqIO::staden::read                                 |
-| * Bio::SeqIO::exp - Bio::SeqIO::staden::read                                 |
-| * Bio::SeqIO::pln - Bio::SeqIO::staden::read                                 |
-| * Bio::SeqIO::ztr - Bio::SeqIO::staden::read                                 |
- ==============================================================================
- ==============================================================================
-| Distribution              | Module used - Description            | Min. ver. |
-|---------------------------+--------------------------------------+-----------|
-| libwww-perl               | * HTTP::Request - Class              |   5.64    |
-|                           |   encapsulating HTTP Requests        |           |
-|                           | * HTTP::Request::Common - Functions  |           |
-|                           |   that generate HTTP::Requests       |           |
-|                           | * HTTP::Response - Class             |           |
-|                           |   encapsulating HTTP Responses       |           |
-|                           | * LWP - Libwww-perl                  |           |
-|                           | * LWP::Simple - Simple procedural    |           |
-|                           |   interface to libwww-perl           |           |
-|                           | * LWP::UserAgent - A WWW UserAgent   |           |
-|                           |   class                              |           |
-|==============================================================================|
-| Used by:                                                                     |
-|------------------------------------------------------------------------------|
-| * Bio::Tools::EUtilities::EUtilParameters - HTTP::Request                    |
-| * Bio::DB::DBFetch - HTTP::Request::Common                                   |
-| * Bio::DB::HIV - HTTP::Request::Common                                       |
-| * Bio::DB::NCBIHelper - HTTP::Request::Common                                |
-| * Bio::DB::SwissProt - HTTP::Request::Common                                 |
-| * Bio::DB::WebDBSeqI - HTTP::Request::Common                                 |
-| * Bio::DB::Query::WebQuery - HTTP::Request::Common                           |
-| * Bio::Tools::Run::RemoteBlast - HTTP::Request::Common                       |
-| * Bio::DB::WebDBSeqI - HTTP::Response                                        |
 | * Bio::Tools::Protparam - LWP                                                |
 | * Bio::Tools::Run::RemoteBlast - LWP                                         |
-| * Bio::DB::Biblio::eutils - LWP::Simple                                      |
-| * Bio::Root::IO - LWP::Simple                                                |
 | * Bio::DB::GenericWebAgent - LWP::UserAgent                                  |
 | * Bio::DB::MeSH - LWP::UserAgent                                             |
 | * Bio::DB::WebDBSeqI - LWP::UserAgent                                        |
 | * Bio::DB::Query::WebQuery - LWP::UserAgent                                  |
 | * Bio::Root::Build - LWP::UserAgent                                          |
+| * Bio::Root::IO - LWP::UserAgent                                             |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
@@ -571,4 +586,14 @@ NB: This list of packages is not authoritative. See the 'requires',
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
 | * Bio::DB::WebDBSeqI - Apache2::SubProcess                                   |
+ ==============================================================================
+ ==============================================================================
+| Distribution              | Module used - Description            | Min. ver. |
+|---------------------------+--------------------------------------+-----------|
+| version                   | * version - NA                       |   None    |
+|==============================================================================|
+| Used by:                                                                     |
+|------------------------------------------------------------------------------|
+| * Bio::SeqIO::mbsout - version                                               |
+| * Bio::SeqIO::msout - version                                                |
  ==============================================================================
