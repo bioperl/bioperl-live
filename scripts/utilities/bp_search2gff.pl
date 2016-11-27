@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-bp_search2gff
+bp_search2gff - turn a SearchIO report into GFF
 
 =head1 SYNOPSIS
 

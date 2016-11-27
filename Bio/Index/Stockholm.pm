@@ -13,7 +13,7 @@
 
 =head1 NAME
 
-Bio::Index::Stockholm
+Bio::Index::Stockholm - Interface for indexing Stockholm files
 
 =head1 SYNOPSIS
 
@@ -342,7 +342,7 @@ sub default_id_parser {
            file contents and not an object
 
            WARNING: you must parse the record deliminter
-           *yourself*. Abstract wont do this for you
+           *yourself*. Abstract won't do this for you
            So this code
 
            $fh = $index->get_stream($myid);

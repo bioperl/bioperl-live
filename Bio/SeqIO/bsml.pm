@@ -162,13 +162,16 @@ my $nvtoken = ": ";  # The token used if a name/value pair has to be stuffed
 
 =cut
 
-# LS: this seems to get overwritten on line 1317, generating a redefinition error.  Dead code?
-# CAT: This was inappropriately added in revision 1.10 - I added the check for existance of a sequence factory to the actual _initialize
+# LS: this seems to get overwritten on line 1317, generating a redefinition error.
+# Dead code?
+# CAT: This was inappropriately added in revision 1.10 - I added the check for
+# existence of a sequence factory to the actual _initialize
 # sub _initialize {
 #   my($self,@args) = @_;
 #   $self->SUPER::_initialize(@args);
 #   if( ! defined $self->sequence_factory ) {
-#       $self->sequence_factory(Bio::Seq::SeqFactory->new(-verbose => $self->verbose(), -type => 'Bio::Seq::RichSeq'));
+#       $self->sequence_factory(Bio::Seq::SeqFactory->new(-verbose => $self->verbose(),
+#         -type => 'Bio::Seq::RichSeq'));
 #   }
 # }
 
@@ -608,7 +611,12 @@ sub to_bsml {
 	my $seqRefs = []; my $featRefs = [];
 	# Array references to hold <Attribute> values (not objects):
 	my $seqDesc = [];
-	push @{$seqDesc}, ["comment" , "This file generated to BSML 2.2 standards - joins will be collapsed to a single feature enclosing all members of the join"];
+    push @{$seqDesc},
+    [
+    "comment",
+    "This file generated to BSML 2.2 standards - " .
+    "joins will be collapsed to a single feature enclosing all members of the join"
+    ];
 	push @{$seqDesc}, ["description" , eval{$bioSeq->desc}];
 	for my $kwd ( eval{$bioSeq->get_keywords} ) {
 	    push @{$seqDesc}, ["keyword" , $kwd];

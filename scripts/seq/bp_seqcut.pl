@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-I<bp_seqcut.pl>
+bp_seqcut.pl - cut FASTA sequences with a given range
 
 =head1 USAGE
 

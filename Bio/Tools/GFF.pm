@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::Tools::GFF
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by the Bioperl core team
 #
@@ -105,15 +105,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -127,7 +127,7 @@ the bugs and their resolution.  Bug reports can be submitted the web:
 
 Email mrp-at-sanger.ac.uk
 
-=head1 CONTRIBUTORS 
+=head1 CONTRIBUTORS
 
 Jason Stajich, jason-at-biperl-dot-org
 Chris Mungall, cjm-at-fruitfly-dot-org
@@ -180,9 +180,9 @@ my %SKIPPED_TAGS = map { $_ => 1 } qw(score);
 {   # make a class variable such that we can generate unique ID's over
     # a session, no matter how many instances of GFF.pm we make
     # since these have to be unique within the scope of a GFF file.
-    
+
     my $gff3_featureID = 0;
-    
+
     sub _incrementGFF3ID {
         my ($self) = @_;
         return ++ $gff3_featureID;
@@ -193,7 +193,7 @@ my %SKIPPED_TAGS = map { $_ => 1 } qw(score);
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-  
+
     my ($gff_version, $noparse) = $self->_rearrange([qw(GFF_VERSION NOPARSE)],@args);
 
     # initialize IO
@@ -261,7 +261,7 @@ sub _parse_header{
                 $self->throw("##FASTA directive must be followed by fasta header, not: $line");
             }
         }
-         
+
         if ($line =~ /^\>(.*)/) {
             # seq data can be at header or footer
             my $seq = $self->_parse_sequence($line);
@@ -269,7 +269,7 @@ sub _parse_header{
                 $self->_seq_by_id_h->{$seq->primary_id} = $seq;
             }
         }
-             
+
 
         if(!$handled){
             push @unhandled, $line;
@@ -290,7 +290,7 @@ sub _parse_sequence {
     my ($self, $line) = @_;
 
     if ($line =~ /^\>(.*)/) {
-        
+
         my $seqid = $1;
         $seqid =~ s/\s+$//;
         my $desc = '';
@@ -312,12 +312,12 @@ sub _parse_sequence {
         return if $self->ignore_sequence;
 
         my $seqfactory = Bio::Seq::SeqFactory->new('Bio::Seq');
-        my $seq = $seqfactory->create(-seq=>$res, 
+        my $seq = $seqfactory->create(-seq=>$res,
                                       -id=>$seqid,
                                       -desc=>$desc);
         $seq->accession_number($seqid);
         if ($self->features_attached_to_seqs) {
-            my @feats = 
+            my @feats =
               @{$self->_feature_idx_by_seq_id->{$seqid}};
             $seq->add_SeqFeature($_) foreach @feats;
             @{$self->_feature_idx_by_seq_id->{$seqid}} = ();
@@ -334,7 +334,7 @@ sub _parse_sequence {
 
  Title   : next_segment
  Usage   : my $seq = $gffio->next_segment;
- Function: Returns a Bio::LocatableSeq object corresponding to a 
+ Function: Returns a Bio::LocatableSeq object corresponding to a
            GFF "##sequence-region" header line.
  Example :
  Returns : A Bio::LocatableSeq object, or undef if
@@ -360,15 +360,15 @@ sub next_segment{
  Example :
  Returns : A Bio::SeqFeatureI implementing object, or undef if there are no
            more features.
- Args    : none    
+ Args    : none
 
 =cut
 
 sub next_feature {
     my ($self) = @_;
-    
+
     my $gff_string;
-    
+
     # be graceful about empty lines or comments, and make sure we return undef
     # if the input's consumed
     while(($gff_string = $self->_readline()) && defined($gff_string)) {
@@ -387,7 +387,7 @@ sub next_feature {
                 last unless $gff_string;
             }
         }
-        last; 
+        last;
     }
     return unless $gff_string;
 
@@ -456,7 +456,7 @@ sub from_gff_string {
 sub _from_gff1_string {
     my ($gff, $feat, $string) = @_;
     chomp $string;
-    my ($seqname, $source, $primary, $start, $end, $score, 
+    my ($seqname, $source, $primary, $start, $end, $score,
         $strand, $frame, @group) = split(/\t/, $string);
 
     if ( !defined $frame ) {
@@ -511,15 +511,15 @@ sub _from_gff2_string {
     # text-translated tab symbols but no "real" tabs, so splitting on
     # \t is safe, and $attribs gets the entire attributes field to be
     # parsed later
-   
+
     # sendu: but the tag value pair can (should?) be separated by a tab. The
     # 'no tabs' thing seems to apply only to the free text that is allowed for
     # the value
 
-    my ($seqname, $source, $primary, $start, 
+    my ($seqname, $source, $primary, $start,
         $end, $score, $strand, $frame, @attribs) = split(/\t+/, $string);
     my $attribs = join ' ', @attribs;
-   
+
     if ( !defined $frame ) {
         $feat->throw("[$string] does not look like GFF2 to me");
     }
@@ -539,40 +539,40 @@ sub _from_gff2_string {
     if ( $strand eq '.' ) { $feat->strand(0); }
 
 
-    #  <Begin Inefficient Code from Mark Wilkinson> 
+    #  <Begin Inefficient Code from Mark Wilkinson>
     # this routine is necessay to allow the presence of semicolons in
     # quoted text Semicolons are the delimiting character for new
     # tag/value attributes.  it is more or less a "state" machine, with
     # the "quoted" flag going up and down as we pass thorugh quotes to
     # distinguish free-text semicolon and hash symbols from GFF control
     # characters
-     
+
     my $flag = 0; # this could be changed to a bit and just be twiddled
     my @parsed;
 
     # run through each character one at a time and check it
     # NOTE: changed to foreach loop which is more efficient in perl
     # --jasons
-    for my $a ( split //, $attribs ) { 
+    for my $a ( split //, $attribs ) {
         # flag up on entering quoted text, down on leaving it
         if( $a eq '"') { $flag = ( $flag == 0 ) ? 1:0 }
         elsif( $a eq ';' && $flag ) { $a = "INSERT_SEMICOLON_HERE"}
-        elsif( $a eq '#' && ! $flag ) { last } 
+        elsif( $a eq '#' && ! $flag ) { last }
         push @parsed, $a;
     }
     $attribs = join "", @parsed; # rejoin into a single string
 
-    # <End Inefficient Code>   
+    # <End Inefficient Code>
     # Please feel free to fix this and make it more "perlish"
 
     my @key_vals = split /;/, $attribs;   # attributes are semicolon-delimited
 
     foreach my $pair ( @key_vals ) {
         # replace semicolons that were removed from free-text above.
-        $pair =~ s/INSERT_SEMICOLON_HERE/;/g;        
+        $pair =~ s/INSERT_SEMICOLON_HERE/;/g;
 
         # separate the key from the value
-        my ($blank, $key, $values) = split  /^\s*([\w\d]+)\s/, $pair; 
+        my ($blank, $key, $values) = split  /^\s*([\w\d]+)\s/, $pair;
 
         if( defined $values ) {
             my @values;
@@ -580,18 +580,18 @@ sub _from_gff2_string {
             # and remove it from the $values string
             while ($values =~ s/"(.*?)"//){
                 # and push it on to the list of values (tags may have
-                # more than one value... and the value may be undef) 
+                # more than one value... and the value may be undef)
                 push @values, $1;
             }
 
             # and what is left over should be space-separated
             # non-free-text values
 
-            my @othervals = split /\s+/, $values;  
+            my @othervals = split /\s+/, $values;
             foreach my $othervalue(@othervals){
-                # get rid of any empty strings which might 
+                # get rid of any empty strings which might
                 # result from the split
-                if (CORE::length($othervalue) > 0) {push @values, $othervalue}  
+                if (CORE::length($othervalue) > 0) {push @values, $othervalue}
             }
 
             foreach my $value(@values){
@@ -606,13 +606,13 @@ sub _from_gff3_string {
     my ($gff, $feat, $string) = @_;
     chomp($string);
 
-    # according to the now nearly final GFF3 spec, columns should 
+    # according to the now nearly final GFF3 spec, columns should
     # be tab separated, allowing unescaped spaces to occur in
     # column 9
 
-    my ($seqname, $source, $primary, $start, $end, 
+    my ($seqname, $source, $primary, $start, $end,
         $score, $strand, $frame, $groups) = split(/\t/, $string);
-    
+
     if ( ! defined $frame ) {
         $feat->throw("[$string] does not look like GFF3 to me");
     }
@@ -706,7 +706,7 @@ sub gff_string{
 
  Title   : _gff1_string
  Usage   : $gffstr = $gffio->_gff1_string
- Function: 
+ Function:
  Example :
  Returns : A GFF1-formatted string representation of the SeqFeature
  Args    : A Bio::SeqFeatureI implementing object to be GFF-stringified
@@ -735,7 +735,7 @@ sub _gff1_string{
     } elsif ( $feat->strand == -1 ) {
         $strand = '-';
     }
-   
+
     if( $feat->can('seqname') ) {
         $name = $feat->seq_id();
         $name ||= 'SEQ';
@@ -768,7 +768,7 @@ sub _gff1_string{
 
  Title   : _gff2_string
  Usage   : $gffstr = $gffio->_gff2_string
- Function: 
+ Function:
  Example :
  Returns : A GFF2-formatted string representation of the SeqFeature
  Args    : A Bio::SeqFeatureI implementing object to be GFF2-stringified
@@ -827,7 +827,7 @@ sub _gff2_string{
     # standard identifiers ([A-Za-z][A-Za-z0-9_]*).  Free text values
     # must be quoted with double quotes".
     # MW
-   
+
     my @group;
 
     foreach my $tag ( $feat->get_all_tags ) {
@@ -855,11 +855,11 @@ sub _gff2_string{
         ! $feat->has_tag('Group')  &&
         $origfeat->isa('Bio::SeqFeature::FeaturePair') ) {
         $str2 = sprintf("Target %s %d %d", $origfeat->feature1->seq_id,
-                       ( $origfeat->feature1->strand < 0 ? 
+                       ( $origfeat->feature1->strand < 0 ?
                          ( $origfeat->feature1->end,
                            $origfeat->feature1->start) :
                          ( $origfeat->feature1->start,
-                           $origfeat->feature1->end) 
+                           $origfeat->feature1->end)
                          )) . ($str2?" ; ".$str2:"");  # need to put Target information before other tag/value pairs - mw
     }
     return $str1."\t".$str2;
@@ -932,18 +932,18 @@ sub _gff25_string {
                 unless( defined $value && length($value) ) {
                     $value = '""';
                 } elsif ($value =~ /[^A-Za-z0-9_]/){
-                    $value =~ s/\t/\\t/g; # substitute tab and newline 
+                    $value =~ s/\t/\\t/g; # substitute tab and newline
                     # characters
                     $value =~ s/\n/\\n/g; # to their UNIX equivalents
                     $value = '"' . $value . '" ';
-                } # if the value contains 
-                  # anything other than valid 
-                  # tag/value characters, then 
+                } # if the value contains
+                  # anything other than valid
+                  # tag/value characters, then
                   # quote it
                 push @v, $value;
                 # for this tag (allowed in GFF2 and .ace format)
             }
-            if (($tag eq 'Group') || ($tag eq 'Target')){ # hopefully we wont get both...
+            if (($tag eq 'Group') || ($tag eq 'Target')){ # hopefully we won't get both...
                 push @firstgroup, "$tag ".join(" ", @v);
             } else {
                 push @group, "$tag ".join(" ", @v);
@@ -956,11 +956,11 @@ sub _gff25_string {
         ! $feat->has_tag('Group') &&
         $origfeat->isa('Bio::SeqFeature::FeaturePair') ) {
         $str2 = sprintf("Target %s ; tstart %d ; tend %d", $origfeat->feature1->seq_id,
-                        ( $origfeat->feature1->strand < 0 ? 
+                        ( $origfeat->feature1->strand < 0 ?
                           ( $origfeat->feature1->end,
                             $origfeat->feature1->start) :
                           ( $origfeat->feature1->start,
-                            $origfeat->feature1->end) 
+                            $origfeat->feature1->end)
                         )) . ($str2?" ; ".$str2:""); # need to put the target info before other tag/value pairs - mw
     }
     return $str1 . "\t".  $str2;
@@ -971,7 +971,7 @@ sub _gff25_string {
 
   Title   : _gff3_string
   Usage   : $gffstr = $gffio->_gff3_string
-  Function: 
+  Function:
   Example :
   Returns : A GFF3-formatted string representation of the SeqFeature
   Args    : A Bio::SeqFeatureI implementing object to be GFF3-stringified
@@ -1030,34 +1030,34 @@ sub _gff3_string {
     for my $tag ( @all_tags ) {
     next if exists $SKIPPED_TAGS{$tag};
         # next if $tag eq 'Target';
-        if ($tag eq 'Target' && ! $origfeat->isa('Bio::SeqFeature::FeaturePair')){             
+        if ($tag eq 'Target' && ! $origfeat->isa('Bio::SeqFeature::FeaturePair')){
             my @values = $feat->get_tag_values($tag);
             if(scalar(@values) > 1){ # How is it possible that Target is has a value list ??
                 # simple Target,start,stop
-                my ($target_id, $b,$e,$strand) = $feat->get_tag_values($tag); 
+                my ($target_id, $b,$e,$strand) = $feat->get_tag_values($tag);
                 next unless(defined($e) && defined($b) && $target_id);
                 ($b,$e)= ($e,$b) if(defined $strand && $strand<0);
                 #if we have the strand we will print it
                 if($strand){ push @groups, sprintf("Target=%s %d %d %s", $target_id,$b,$e,$strand); }
                 else{ push @groups, sprintf("Target=%s %d %d", $target_id,$b,$e); }
                 next;
-            }        
+            }
         }
 
         my $valuestr;
-        # a string which will hold one or more values 
-        # for this tag, with quoted free text and 
+        # a string which will hold one or more values
+        # for this tag, with quoted free text and
         # space-separated individual values.
         my @v;
         for my $value ( $feat->get_tag_values($tag) ) {
-            if(  defined $value && length($value) ) { 
+            if(  defined $value && length($value) ) {
                                 #$value =~ tr/ /+/;  #spaces are allowed now
                 if ( ref $value eq 'Bio::Annotation::Comment') {
                     $value = $value->text;
                 }
 
                 if ($value =~ /[^a-zA-Z0-9\,\;\=\.:\%\^\*\$\@\!\+\_\?\-]/) {
-                    $value =~ s/\t/\\t/g; # substitute tab and newline 
+                    $value =~ s/\t/\\t/g; # substitute tab and newline
                     # characters
                     $value =~ s/\n/\\n/g; # to their UNIX equivalents
 
@@ -1078,20 +1078,20 @@ sub _gff3_string {
         push @groups, "$tag=".join(",",@v);
     }
     # Add Target information for Feature Pairs
-    if( $feat->has_tag('Target') && 
+    if( $feat->has_tag('Target') &&
         ! $feat->has_tag('Group') &&
         $origfeat->isa('Bio::SeqFeature::FeaturePair') ) {
 
         my $target_id = $origfeat->feature1->seq_id;
-        $target_id =~ s/([\t\n\r%&\=;,])/sprintf("%%%X",ord($1))/ge;    
+        $target_id =~ s/([\t\n\r%&\=;,])/sprintf("%%%X",ord($1))/ge;
 
-        push @groups, sprintf("Target=%s %d %d", 
+        push @groups, sprintf("Target=%s %d %d",
                               $target_id,
-                              ( $origfeat->feature1->strand < 0 ? 
+                              ( $origfeat->feature1->strand < 0 ?
                                 ( $origfeat->feature1->end,
                                   $origfeat->feature1->start) :
                                 ( $origfeat->feature1->start,
-                                  $origfeat->feature1->end) 
+                                  $origfeat->feature1->end)
                                 ));
     }
 
@@ -1127,7 +1127,7 @@ sub _gff3_string {
                            $feat->end(),
                            $score,
                            $strand,
-                           $frame, 
+                           $frame,
                            join(';', @groups));
     }
     return $gff_string;
@@ -1138,7 +1138,7 @@ sub _gff3_string {
 
   Title   : _gff_version
   Usage   : $gffversion = $gffio->gff_version
-  Function: 
+  Function:
   Example :
   Returns : The GFF version this parser will accept and emit.
   Args    : none
@@ -1221,7 +1221,7 @@ sub _seq_by_id_h {
  Usage   :
  Function: Returns all Bio::Seq objects populated by GFF3 file
  Example :
- Returns : 
+ Returns :
  Args    :
 
 =cut
@@ -1246,7 +1246,7 @@ sub get_seqs {
     Note that this mode will incur higher memory usage because features
     will have to be cached until the relevant feature comes along
 
- Example : 
+ Example :
  Returns : value of features_attached_to_seqs (a boolean)
  Args    : on set, new value (a boolean, optional)
 
@@ -1270,7 +1270,7 @@ sub features_attached_to_seqs{
     Setting this B<before> parsing means that all sequence data will be
     ignored
 
- Example : 
+ Example :
  Returns : value of ignore_sequence (a boolean)
  Args    : on set, new value (a boolean, optional)
 

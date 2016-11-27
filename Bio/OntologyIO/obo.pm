@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::OntologyIO::obo
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Sohel Merchant, s-merchant at northwestern.edu
 #
@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::OntologyIO::obo
+Bio::OntologyIO::obo - parser for OBO flat-file format
 
 =head1 SYNOPSIS
 
@@ -63,15 +63,15 @@ Bioperl mailing lists  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -505,7 +505,7 @@ sub _header {
 
         if ( !$line ) {
             if ( !$format_version_header_flag ) {
-                $self->throw("Format Error - Cannot find tag format-version." . 
+                $self->throw("Format Error - Cannot find tag format-version." .
                              "This is required in header" );
             }
 
@@ -515,7 +515,7 @@ sub _header {
 
         # Check if there is a header
         if ( $line =~ /\[\w*\]/ ) {
-                $self->throw("Format Error - Cannot find tag format-version." . 
+                $self->throw("Format Error - Cannot find tag format-version." .
                              "This is required in header." );
           }
 
@@ -533,7 +533,7 @@ sub _header {
                            |default-namespace:
                            |remark:
                            |subsetdef:
-                           |import: 
+                           |import:
                            |synonymtypedef:
                            |idspace:
                            |default-relationship-id-prefix:
@@ -792,7 +792,7 @@ sub _split_on_comma {
 sub _check_colon {
     my ( $self, $line, $line_no ) = @_;
     if ( $line && !( $line =~ /:/ ) ) {
-        $self->throw("OBO File Format Error on line $line_no $line\n" . 
+        $self->throw("OBO File Format Error on line $line_no $line\n" .
                      "Cannot find key-terminating colon"
         );
     }

@@ -2,7 +2,7 @@
 # BioPerl module for Bio::Assembly::Contig
 #   Mostly based on Bio::SimpleAlign by Ewan Birney
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Robson Francisco de Souza <rfsouza@citri.iq.usp.br>
 #
@@ -184,15 +184,15 @@ Bioperl mailing lists  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -266,8 +266,8 @@ sub new {
     $self->{'_nof_residues'} = 0;
     $self->{'_nof_seqs'} = 0;
     # $self->{'_nof_segments'} = 0; # Let's not make it heavier than needed by now...
-    
-    # for cases where SF::Collection is shared between Bio::Assembly::Contig 
+
+    # for cases where SF::Collection is shared between Bio::Assembly::Contig
     if ($collection) {
         $self->throw("Collection must implement Bio::SeqFeature::CollectionI") unless $collection->isa('Bio::SeqFeature::CollectionI');
         $self->{'_sfc'} = $collection;
@@ -331,7 +331,7 @@ sub assembly {
     if (defined $assembly && ! $assembly->isa("Bio::Assembly::Scaffold"));
     # We create a circular reference to a Scaffold object. It is made weak
     # to prevent memory leaks.
-    $self->{'_assembly'} = $assembly if (defined $assembly); 
+    $self->{'_assembly'} = $assembly if (defined $assembly);
     weaken($self->{'_assembly'});
 
     return $self->{'_assembly'};
@@ -495,7 +495,7 @@ sub remove_features {
                 $self->{'_elem'}{$seqID}{'_feat'}{$tag} eq $feat);
         }
     }
-   
+
     # Removing Bio::SeqFeature objects
     return $self->get_features_collection->delete(@args);
 }
@@ -1137,11 +1137,11 @@ sub add_seq {
     # Our locatable sequences are always considered to be complete sequences
     $seq->start(1);
     $seq->end($seq->_ungapped_len);
-    
+
     my $alphabet = $seq->alphabet;
-    
+
     $alphabet = lc($alphabet) if defined $alphabet;
-    
+
     $self->warn("Adding non-nucleotidic sequence ".$seqID)
         if (!$alphabet || ($alphabet ne 'dna' && $alphabet ne 'rna'));
 
@@ -1205,10 +1205,10 @@ sub remove_seq {
     # Updating residue count
     $self->{'_nof_residues'} -= $seq->length() +
     &_nof_gaps( $self->{'_elem'}{$seqID}{'_gaps'}, $seq->length );
-    
+
     # Update number of sequences
-    $self->{'_nof_seqs'}--; 
-    
+    $self->{'_nof_seqs'}--;
+
     # Update order of sequences (order starts at 1)
     my $max_order = $self->{'_nof_seqs'} + 1;
     my $target_order = $max_order + 1;
@@ -1461,7 +1461,7 @@ alignment.
 
              Notice that the from (arg1) is interpretted as a regex,
              so be careful about quoting meta characters (eg
-             $contig->map_chars('.','-') wont do what you want)
+             $contig->map_chars('.','-') won't do what you want)
 
  Returns   :
  Argument  : 'from' rexexp
@@ -2169,7 +2169,7 @@ sub _register_gaps {
  Function  : number of residues in total in the alignment
  Returns   : integer
  Argument  :
- Note      : deprecated in favor of num_residues() 
+ Note      : deprecated in favor of num_residues()
 
 =cut
 

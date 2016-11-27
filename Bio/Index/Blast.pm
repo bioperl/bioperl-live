@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::Index::Blast
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Jason Stajich <jason@bioperl.org>
 #
@@ -13,7 +13,7 @@
 
 =head1 NAME
 
-Bio::Index::Blast - Indexes Blast reports and supports retrieval 
+Bio::Index::Blast - Indexes Blast reports and supports retrieval
 based on query accession(s)
 
 =head1 SYNOPSIS
@@ -72,15 +72,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -124,7 +124,7 @@ sub _version {
                 -verbose     => 0);
 
   Function: Returns a new index object.  If filename is
-            specified, then open_dbm() is immediately called. 
+            specified, then open_dbm() is immediately called.
             Bio::Index::Abstract->new() will usually be called
             directly only when opening an existing index.
   Returns : A new index object
@@ -154,7 +154,7 @@ sub new {
 
  Title   : fetch_report
  Usage   : my $blastreport = $idx->fetch_report($id);
- Function: Returns a Bio::SearchIO report object 
+ Function: Returns a Bio::SearchIO report object
            for a specific blast report
  Returns : Bio::SearchIO
  Args    : valid id
@@ -174,7 +174,7 @@ sub fetch_report{
 
  Title   : fetch_result
  Usage   : my $blastreport = $idx->fetch_result($id);
- Function: Returns a Bio::SearchIO report object 
+ Function: Returns a Bio::SearchIO report object
            for a specific blast report
  Returns : Bio::SearchIO
  Args    : valid id
@@ -195,9 +195,9 @@ sub fetch_report{
   Function: Specialist function to index BLAST report file(s).
             Is provided with a filename and an integer
             by make_index in its SUPER class.
-  Example : 
-  Returns : 
-  Args    : 
+  Example :
+  Returns :
+  Args    :
 
 =cut
 
@@ -260,7 +260,7 @@ sub _index_file {
   Function: Stores or returns the code used by record_id to
             parse the ID for record from a string.  Useful
             for (for instance) specifying a different
-            parser for different flavours of blast dbs. 
+            parser for different flavours of blast dbs.
             Returns \&default_id_parser (see below) if not
             set. If you supply your own id_parser
             subroutine, then it should expect a fasta
@@ -304,15 +304,15 @@ sub default_id_parser {
 =head2 blast_parser_type
 
   Title   : blast_parser_type
-  Usage   : $index->blast_parser_type() # returns 
+  Usage   : $index->blast_parser_type() # returns
   Function: Get/Set SearchIO-based text (-m0) BLAST parser. Only values in
             local %VALID_PARSERS hash allowed.
   Returns : String
-  Args    : [optional] 
+  Args    : [optional]
   Note    : This only allows simple text-based parsing options; tabular, XML,
             or others are not supported (see Bio::Index::BlastTable for tab
             output).
-  
+
 =cut
 
 my %VALID_PARSERS = map {$_ =>1} qw(blast blast_pull);
@@ -358,11 +358,11 @@ sub blast_parser_type {
  Usage   : $value = $self->dbm_package();
            $self->dbm_package($value);
 
- Function: Gets or sets the name of the Perl dbm module used. 
+ Function: Gets or sets the name of the Perl dbm module used.
            If the value is unset, then it returns the value of
            the package variable $USE_DBM_TYPE or if that is
            unset, then it chooses the best available dbm type,
-           choosing 'DB_File' in preference to 'SDBM_File'. 
+           choosing 'DB_File' in preference to 'SDBM_File'.
            Bio::Abstract::Index may work with other dbm file
            types.
 
@@ -379,10 +379,10 @@ sub blast_parser_type {
            at the approprite place
 
            This provides for a way to get the actual
-           file contents and not an object 
+           file contents and not an object
 
            WARNING: you must parse the record deliminter
-           *yourself*. Abstract wont do this for you 
+           *yourself*. Abstract won't do this for you
            So this code
 
            $fh = $index->get_stream($myid);
@@ -399,7 +399,7 @@ sub blast_parser_type {
 
  Returns : A filehandle object
  Args    : string represents the accession number
- Notes   : This method should not be used without forethought 
+ Notes   : This method should not be used without forethought
 
 
 =head2 open_dbm
@@ -409,7 +409,7 @@ sub blast_parser_type {
             object.  Write access is only given if explicitly
             asked for by calling new(-write => 1) or having set
             the write_flag(1) on the index object.  The type of
-            dbm file opened is that returned by dbm_package(). 
+            dbm file opened is that returned by dbm_package().
             The name of the file to be is opened is obtained by
             calling the filename() method.
 
@@ -425,8 +425,8 @@ sub blast_parser_type {
             index module.  Used to permanently identify an index
             file as having been created by a particular version
             of the index module.  Must be provided by the sub class
-  Example : 
-  Returns : 
+  Example :
+  Returns :
   Args    : none
 
 =head2 _filename
@@ -434,9 +434,9 @@ sub blast_parser_type {
   Title   : _filename
   Usage   : $index->_filename( FILE INT )
   Function: Indexes the file
-  Example : 
-  Returns : 
-  Args    : 
+  Example :
+  Returns :
+  Args    :
 
 =head2 _file_handle
 
@@ -459,7 +459,7 @@ sub blast_parser_type {
             track the number of files indexed.  Sets or gets
             the number of files indexed when called with or
             without an argument.
-  Example : 
+  Example :
   Returns : INT
   Args    : INT
 
@@ -483,7 +483,7 @@ sub blast_parser_type {
   Usage   : $packed_string = $index->pack_record( LIST )
   Function: Packs an array of scalars into a single string
             joined by ASCII 034 (which is unlikely to be used
-            in any of the strings), and returns it. 
+            in any of the strings), and returns it.
   Example : $packed_string = $index->pack_record( $fileNumber, $begin, $end )
   Returns : STRING or undef
   Args    : LIST

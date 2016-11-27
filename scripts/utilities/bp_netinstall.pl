@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-bp_netinstall.pl
+bp_netinstall.pl - Net-based installer of BioPerl
 
 =head1 SYNOPSIS
 

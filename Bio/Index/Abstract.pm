@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Index::Abstract
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Ewan Birney <birney@sanger.ac.uk>
 #          and James Gilbert <jgrg@sanger.ac.uk>
@@ -48,15 +48,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -119,7 +119,7 @@ BEGIN {
                 -dbm_package => 'DB_File',
                 -verbose     => 0);
   Function: Returns a new index object.  If filename is
-            specified, then open_dbm() is immediately called. 
+            specified, then open_dbm() is immediately called.
             Bio::Index::Abstract->new() will usually be called
             directly only when opening an existing index.
   Returns : A new index object
@@ -137,7 +137,7 @@ sub new {
     my($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
     my( $filename, $write_flag, $dbm_package, $cachesize, $ffactor, $pathtype ) =
-        $self->_rearrange([qw(FILENAME 
+        $self->_rearrange([qw(FILENAME
 			      WRITE_FLAG
 			      DBM_PACKAGE
 			      CACHESIZE
@@ -192,11 +192,11 @@ sub new {
  Usage   : $value = $self->dbm_package();
            $self->dbm_package($value);
 
- Function: Gets or sets the name of the Perl dbm module used. 
+ Function: Gets or sets the name of the Perl dbm module used.
            If the value is unset, then it returns the value of
            the package variable $USE_DBM_TYPE or if that is
            unset, then it chooses the best available dbm type,
-           choosing 'DB_File' in preference to 'SDBM_File'. 
+           choosing 'DB_File' in preference to 'SDBM_File'.
            Bio::Abstract::Index may work with other dbm file
            types.
 
@@ -257,10 +257,10 @@ sub db {
            at the approprite place
 
            This provides for a way to get the actual
-           file contents and not an object 
+           file contents and not an object
 
            WARNING: you must parse the record deliminter
-           *yourself*. Abstract wont do this for you 
+           *yourself*. Abstract won't do this for you
            So this code
 
            $fh = $index->get_stream($myid);
@@ -277,7 +277,7 @@ sub db {
 
  Returns : A filehandle object
  Args    : string represents the accession number
- Notes   : This method should not be used without forethought 
+ Notes   : This method should not be used without forethought
 
 =cut
 
@@ -355,7 +355,7 @@ sub ffactor {
             object.  Write access is only given if explicitly
             asked for by calling new(-write => 1) or having set
             the write_flag(1) on the index object.  The type of
-            dbm file opened is that returned by dbm_package(). 
+            dbm file opened is that returned by dbm_package().
             The name of the file to be is opened is obtained by
             calling the filename() method.
 
@@ -383,7 +383,7 @@ sub open_dbm {
 
 	# Choose mode for opening dbm file (read/write+create or read-only).
 	my $mode_flags = $self->write_flag ? O_RDWR|O_CREAT : O_RDONLY;
- 
+
 	# Open the dbm file
 	if ($dbm_type eq 'DB_File') {
 		my $hash_inf = DB_File::HASHINFO->new();
@@ -406,7 +406,7 @@ sub open_dbm {
 
 	# Now, if we're a Bio::Index::Abstract caterpillar, then we
 	# transform ourselves into a Bio::Index::<something> butterfly!
-	if( ref($self) eq "Bio::Index::Abstract" ) { 
+	if( ref($self) eq "Bio::Index::Abstract" ) {
 		my $pkg = $self->_code_base();
 		bless $self, $pkg;
 	}
@@ -428,8 +428,8 @@ sub open_dbm {
             index module.  Used to permanently identify an index
             file as having been created by a particular version
             of the index module.  Must be provided by the sub class
-  Example : 
-  Returns : 
+  Example :
+  Returns :
   Args    : none
 
 =cut
@@ -445,7 +445,7 @@ sub _version {
  Usage   : $code = $db->_code_base();
  Function:
  Example :
- Returns : Code package to be used with this 
+ Returns : Code package to be used with this
  Args    :
 
 
@@ -475,7 +475,7 @@ sub _code_base {
             module and version of that module that made it.  If the
             index is empty, then it adds the information to the
             database.
-  Example : 
+  Example :
   Returns : 1 or exception
   Args    : none
 
@@ -510,9 +510,9 @@ sub _type_and_version {
             are the same size as when the database was built,
             or throws an exception.  Called by the new()
             function.
-  Example : 
+  Example :
   Returns : 1 or exception
-  Args    : 
+  Args    :
 
 =cut
 
@@ -567,11 +567,11 @@ sub make_index {
 			}
 		} else {
 			if(  $^O =~ /MSWin/i ) {
-				($files[$i] =~ m|^[A-Za-z]:/|) || 
+				($files[$i] =~ m|^[A-Za-z]:/|) ||
 				  $self->throw("Not an absolute file path '$files[$i]'");
 			} else {
-				($files[$i] =~ m|^/|) || 
-				  $self->throw("Not an absolute file path '$files[$i]'"); 
+				($files[$i] =~ m|^/|) ||
+				  $self->throw("Not an absolute file path '$files[$i]'");
 			}
 		}
 		$self->throw("File does not exist '$files[$i]'")   unless -e $files[$i];
@@ -596,9 +596,9 @@ sub make_index {
 			 if( ($record = $self->db->{"__FILENAME_$file"}) ) {
 				 ($number,$size) = $self->unpack_record($record);
 
-				 # if it is the same size - fine. Otherwise die 
+				 # if it is the same size - fine. Otherwise die
 				 if( -s $file == $size ) {
-					 $self->warn("File $file already indexed. Skipping..."); 
+					 $self->warn("File $file already indexed. Skipping...");
 					 next FILE;
 				 } else {
 					 $self->throw("In index, $file has changed size ($size). Indicates that the index is out of date");
@@ -653,7 +653,7 @@ sub pathtype {
 	    $self->throw("Type of path can only be 'relative' or 'absolute', not [$type].");
 	}
 	$self->{'_filepathtype'} = $type;
-    }	
+    }
 
     return $self->{'_filepathtype'};
 }
@@ -664,9 +664,9 @@ sub pathtype {
   Title   : _filename
   Usage   : $index->_filename( FILE INT )
   Function: Indexes the file
-  Example : 
-  Returns : 
-  Args    : 
+  Example :
+  Returns :
+  Args    :
 
 =cut
 
@@ -716,7 +716,7 @@ sub _file_handle {
             track the number of files indexed.  Sets or gets
             the number of files indexed when called with or
             without an argument.
-  Example : 
+  Example :
   Returns : INT
   Args    : INT
 
@@ -763,7 +763,7 @@ sub add_record {
   Usage   : $packed_string = $index->pack_record( LIST )
   Function: Packs an array of scalars into a single string
             joined by ASCII 034 (which is unlikely to be used
-            in any of the strings), and returns it. 
+            in any of the strings), and returns it.
   Example : $packed_string = $index->pack_record( $fileNumber, $begin, $end )
   Returns : STRING or undef
   Args    : LIST
@@ -801,7 +801,7 @@ sub unpack_record {
 
  Title   : count_records
  Usage   : $recs = $seqdb->count_records()
- Function: return count of all recs in the index 
+ Function: return count of all recs in the index
  Example :
  Returns : a scalar
  Args    : none
