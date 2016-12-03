@@ -7,29 +7,6 @@ Unix, Linux, and Mac OS X. For installing BioPerl on Windows, please
 read INSTALL.WIN. The other way is to use a Docker image with a
 BioPerl build, whether one we support or one you build yourself.
 
-# Using BioPerl via Docker
-
-If you don't have Docker installed already, instructions for [how to install Docker] on Linux, MacOSX, and Windows are available online.
-
-We officially support several builds (latest, stable, and releases)
-hosted in the [bioperl/bioperl] repo on Docker Hub. These images do not
-have a pre-defined entrypoint. If you have a BioPerl script in the
-current directory, you can run it as simple as this:
-
-```
-docker run -t --rm -v `pwd`:/work -w /work bioperl/bioperl perl my-script.pl
-```
-
-Or run an interactive shell:
-
-```
-docker run -ti --rm -v `pwd`:/work -w /work bioperl/bioperl bash
-```
-
-You can also build your own Docker image of BioPerl, using the same
-base image and pre-built dependencies that we use. Simply build off of
-the [bioperl/bioperl-deps] image.
-
 # Installing BioPerl locally
 
 Note that this documentation is for Unix, Linux, and MacOSX. For installing BioPerl on Windows, please read INSTALL.WIN.
@@ -39,7 +16,7 @@ Note that this documentation is for Unix, Linux, and MacOSX. For installing BioP
  * `Perl 5.6.1 or higher` Version 5.10 or higher is highly
    recommended. Modules are tested against version 5.14 and
    above.
- * `make` For Mac OS X, this requires installing the Xcode Developer 
+ * `make` For Mac OS X, this requires installing the Xcode Developer
    Tools.
 
 ## Preliminary Preparation
@@ -103,29 +80,29 @@ Then find the name of the latest BioPerl package:
 cpan>d /bioperl/
  ....
 
- Distribution    CJFIELDS/BioPerl-1.6.901.tar.gz
- Distribution    CJFIELDS/BioPerl-1.6.922.tar.gz
- Distribution    CJFIELDS/BioPerl-1.6.924.tar.gz
+ Distribution    C/CJ/CJFIELDS/BioPerl-1.007001.tar.gz
+ Distribution    C/CJ/CJFIELDS/BioPerl-1.007001.tar.gz
+ Distribution    C/CJ/CJFIELDS/BioPerl-1.007001.tar.gz
 ```
 
 And install the most recent:
 
 ```
-cpan>install CJFIELDS/BioPerl-1.6.924.tar.gz
+cpan>install C/CJ/CJFIELDS/BioPerl-1.007001.tar.gz
 ```
 
 If you've installed everything perfectly and all the network
 connections are working then you will pass all the tests run in the
-`./Build test` phase. Sometimes you may see a failed test. Remember that 
-there are over 900 modules in BioPerl and the test suite is running more 
-than 12000 individual tests, a failed test may not affect your usage 
+`./Build test` phase. Sometimes you may see a failed test. Remember that
+there are over 900 modules in BioPerl and the test suite is running more
+than 12000 individual tests, a failed test may not affect your usage
 of BioPerl.
 
-If there's a failed test and you think that the failed test will not 
+If there's a failed test and you think that the failed test will not
 affect how you intend to use BioPerl then do:
 
 ```
-cpan>force install C/CJ/CJFIELDS/BioPerl-1.6.923.tar.gz
+cpan>force install C/CJ/CJFIELDS/BioPerl-1.007001.tar.gz
 ```
 
 If you're concerned about a failed test and need assistance or advice
@@ -135,9 +112,9 @@ results of the failed install.
 ## Installing BioPerl from Github
 
 **NOTE:** We generally do not recommend installing the latest code from Github
-unless you absolutely need the latest bug fixes. 
+unless you absolutely need the latest bug fixes.
 
-The very latest version of Bioperl is at github.com. If you want this 
+The very latest version of Bioperl is at github.com. If you want this
 version then download it from https://github.com/bioperl/bioperl-live as a
 `tar.gz` or `zip` file, or retrieve it using the command line:
 
@@ -179,7 +156,7 @@ Install:
 ./Build install
 ```
 
-You may need root permissions in order to run `./Build install`, so you 
+You may need root permissions in order to run `./Build install`, so you
 will want to talk to your systems manager if you don't have the necessary
 privileges. Or you can install the package in your own home
 directory, see INSTALLING BIOPERL USING `local::lib`.
@@ -191,11 +168,11 @@ system directories you can install them in your home directory
 using [local::lib](https://metacpan.org/pod/local::lib). The instructions for first installing
 `local::lib` are found in the link.
 
-Once `local::lib` is installed you can install BioPerl using a 
+Once `local::lib` is installed you can install BioPerl using a
 command like this:
 
 ```
-perl -MCPAN -Mlocal::lib -e 'CPAN::install(C/CJ/CJFIELDS/BioPerl-1.6.924.tar.gz)'
+perl -MCPAN -Mlocal::lib -e 'CPAN::install(C/CJ/CJFIELDS/BioPerl-1.007001.tar.gz)'
 ```
 
 ## Installing BioPerl Scripts
@@ -225,7 +202,7 @@ the Seq test you would type:
 ./Build test --test_files t/Seq/Seq.t --verbose
 ```
 
-The `--test_files` argument can be used multiple times to try a set of test 
+The `--test_files` argument can be used multiple times to try a set of test
 scripts in one go. The `--verbose` arguement outputs the detailed test results, instead of just the summary you see during `./Build test`.
 
 The `--test-files` argument can also work as a glob. For instance, to run tests on all SearchIO modules, use the following:
@@ -238,7 +215,7 @@ You can also use the command-line tool `prove` to run tests as well, which
 is quite useful if you are developing code:
 
 ```
-prove -lrv t/SearchIO* 
+prove -lrv t/SearchIO*
 ```
 
 If you are trying to learn how to use a module, often the test suite
@@ -260,3 +237,27 @@ distribution until adequate tests are added and the API stablizes.
 [how to install Docker]: https://docs.docker.com/engine/installation/
 [bioperl/bioperl]: https://hub.docker.com/r/bioperl/bioperl/
 [bioperl/bioperl-deps]: https://hub.docker.com/r/bioperl/bioperl-deps/
+
+# Using BioPerl via Docker
+
+If you don't have Docker installed already, instructions for [how to install Docker] on Linux, MacOSX, and Windows are available online.
+
+We officially support several builds (latest, stable, and releases)
+hosted in the [bioperl/bioperl] repo on Docker Hub. These images do not
+have a pre-defined entrypoint. If you have a BioPerl script in the
+current directory, you can run it as simple as this:
+
+```
+docker run -t --rm -v `pwd`:/work -w /work bioperl/bioperl perl my-script.pl
+```
+
+Or run an interactive shell:
+
+```
+docker run -ti --rm -v `pwd`:/work -w /work bioperl/bioperl bash
+```
+
+You can also build your own Docker image of BioPerl, using the same
+base image and pre-built dependencies that we use. Simply build off of
+the [bioperl/bioperl-deps] image.
+
