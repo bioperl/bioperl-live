@@ -1190,10 +1190,10 @@ sub _toDsspKey {
 
     if ( ! $chain_id) { # parse the lone argument
 	( $key_num, $chain_id, $ins_code ) 
-	    = $key_num =~ m/([0-9]+)
-                            ([a-zA-z]?)
-                            (?::([a-zA-Z]))?/xms
-              ? ( $1, $2, $3 )
+	    = $key_num =~ m/^(\-?[0-9]+) # PDB coords can be negative
+                            ([a-zA-Z]?)
+                            (?::([a-zA-Z\-]))?$/x # missing chains are '-'
+              ? ( $1, $3, $2 )
 	      : $self->throw("Could not derive PDB key $key_num");
      }
     
