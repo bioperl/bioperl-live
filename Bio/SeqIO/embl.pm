@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::SeqIO::EMBL
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
@@ -83,15 +83,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -225,7 +225,7 @@ sub next_seq {
         if (defined $topology && $topology eq 'circular') {
             $params{'-is_circular'} = 1;
         }
-    
+
         if (defined $mol ) {
             if ($mol =~ /DNA/) {
                 $alphabet = 'dna';
@@ -236,12 +236,12 @@ sub next_seq {
             }
         }
     } else {
-    
+
         # Old style header (EMBL Release < 87, before June 2006)
         if ($line =~ /^ID\s+(\S+)[^;]*;\s+(\S+)[^;]*;\s+(\S+)[^;]*;/) {
         ($name, $mol, $div) = ($1, $2, $3);
         }
-    
+
         if ($mol) {
             if ( $mol =~ /circular/ ) {
             $params{'-is_circular'} = 1;
@@ -436,7 +436,7 @@ sub next_seq {
     while ( defined ($buffer) && $buffer =~ /^XX/ ) {
         $buffer = $self->_readline();
     }
-    
+
     if ( $buffer =~ /^CO/  ) {
 	# bug#2982
 	# special : create contig as annotation
@@ -509,7 +509,7 @@ sub _write_ID_line {
             # but if it is not present, use the sequence ID or the empty string
             $name = $seq->id() || '';
         }
- 
+
         $self->warn("No whitespace allowed in EMBL id [". $name. "]") if $name =~ /\s/;
 
         # Use the sequence version, or default to 1.
@@ -803,7 +803,7 @@ sub write_seq {
                 }
                 $self->_print("XX\n") || return;
             }
-            
+
             # Comment lines
             foreach my $comment ( $seq->annotation->get_Annotations('comment') ) {
                 $self->_write_line_EMBL_regex("CC   ", "CC   ", $comment->text, '\s+|$', 80) || return; #'
@@ -877,20 +877,20 @@ sub write_seq {
 	    my $clen = $str =~ tr/c/c/;
 	    my $glen = $str =~ tr/g/g/;
 	    my $tlen = $str =~ tr/t/t/;
-	    
+
 	    my $len = $seq->length();
 	    my $olen = $seq->length() - ($alen + $tlen + $clen + $glen);
 	    if ( $olen < 0 ) {
 		$self->warn("Weird. More atgc than bases. Problem!");
 	    }
-	    
+
 	    $self->_print("SQ   Sequence $len BP; $alen A; $clen C; $glen G; $tlen T; $olen other;\n") || return;
 
 	    my $nuc = 60;       # Number of nucleotides per line
 	    my $whole_pat = 'a10' x 6; # Pattern for unpacking a whole line
 	    my $out_pat   = 'A11' x 6; # Pattern for packing a line
 	    my $length = length($str);
-	    
+
 	    # Calculate the number of nucleotides which fit on whole lines
 	    my $whole = int($length / $nuc) * $nuc;
 
@@ -913,9 +913,9 @@ sub write_seq {
 		    return;         # Add the length to the end
 	    }
 	}
-	    
+
 	$self->_print( "//\n") || return;
-	
+
 	$self->flush if $self->_flush_on_write && defined $self->_fh;
     }
     return 1;
@@ -953,7 +953,7 @@ sub _print_EMBL_FTHelper {
     $self->_write_line_EMBL_regex(sprintf("FT   %-15s ",$fth->key),
                                   "FT                   ",$fth->loc,
                                   '\,|$',80) || return; #'
-    foreach my $tag ( keys %{$fth->field} ) {
+    foreach my $tag (sort keys %{$fth->field} ) {
         if ( ! defined $fth->field->{$tag} ) {
             next;
         }
@@ -989,10 +989,10 @@ sub _print_EMBL_FTHelper {
 =head2 _read_EMBL_Contig()
 
  Title   : _read_EMBL_Contig
- Usage   : 
+ Usage   :
  Function: convert CO lines into annotations
- Returns : 
- Args    : 
+ Returns :
+ Args    :
 
 =cut
 
@@ -1117,7 +1117,7 @@ sub _read_EMBL_Species {
 
 #    $$buffer = $_;
 	$self->_pushback($_);
-	
+
     $sci_name =~ s{\.$}{};
     $sci_name || return;
 
@@ -1173,7 +1173,7 @@ sub _read_EMBL_Species {
         $names{$name}++;
         # this code breaks examples like: Xenopus (Silurana) tropicalis
         # commenting out, see bug 3158
-        
+
         #if ($names{$name} > 1 && ($name ne $class[$i - 1])) {
         #    $self->warn("$acc seems to have an invalid species classification:$name ne $class[$i - 1]");
         #}
@@ -1361,7 +1361,7 @@ sub _read_FTHelper_EMBL {
     for (my $i = 0; $i < @qual; $i++) {
         my $data = $qual[$i];
         my ( $qualifier, $value );
-	
+
 	unless (( $qualifier, $value ) = ($data =~ m{^/([^=]+)(?:=\s*(.*))?})) {
 	   if ( defined $last_unquoted_qualifier ) {
 	      # handle case of unquoted multiline - read up everything until the next qualifier
