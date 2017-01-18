@@ -953,7 +953,7 @@ sub _print_EMBL_FTHelper {
     $self->_write_line_EMBL_regex(sprintf("FT   %-15s ",$fth->key),
                                   "FT                   ",$fth->loc,
                                   '\,|$',80) || return; #'
-    foreach my $tag ( keys %{$fth->field} ) {
+    foreach my $tag (sort keys %{$fth->field} ) {
         if ( ! defined $fth->field->{$tag} ) {
             next;
         }
