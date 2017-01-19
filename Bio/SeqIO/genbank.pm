@@ -1273,7 +1273,7 @@ sub _print_GenBank_FTHelper {
         sprintf( "     %-16s%s", $fth->key, $spacer ),
                  " " x 21, $fth->loc, "\,\|\$", 80 );
 
-    foreach my $tag ( keys %{ $fth->field } ) {
+    foreach my $tag ( sort keys %{ $fth->field } ) {
         # Account for hash structure in Annotation::DBLink, not the expected array
         if ( $tag eq 'db_xref' and grep /HASH/, @{ $fth->field->{$tag} }) {
             for my $ref ( @{ $fth->field->{$tag} } ) {
