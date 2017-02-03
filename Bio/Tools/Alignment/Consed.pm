@@ -1709,7 +1709,7 @@ Recursion is kewl, but this sub should likely be _reverse_recurse.
 
 
 sub reverse_recurse($$) {
-    my ($r_source,my $r_destination) = @_;
+    my ($r_source, $r_destination) = @_;
     if (!@$r_source) {
         return $r_destination;
     }
