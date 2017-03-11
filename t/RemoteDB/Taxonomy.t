@@ -1,5 +1,4 @@
 # -*-Perl-*- Test Harness script for Bioperl
-# $Id$
 
 use strict;
 
@@ -8,7 +7,7 @@ BEGIN {
     use Bio::Root::Test;
 
     test_begin(
-        -tests            => 214,
+        -tests            => 220,
         -requires_modules => [qw(DB_File
                                  LWP::UserAgent
                                  XML::Twig )]
@@ -452,18 +451,18 @@ SKIP: {
     test_skip(-tests => 12, -requires_networking => 1);
 
     my $db=Bio::DB::Taxonomy->new(-source=>"entrez");
-    
+
     my @taxa = qw(viruses Deltavirus unclassified plasmid);
-    
+
     for my $taxon (@taxa) {
         test_taxid($db, $taxon);
     }
-    
+
     sub test_taxid {
         my ($db, $taxa) = @_;
         my @taxonids = $db->get_taxonids($taxa);
         cmp_ok(scalar(@taxonids), '>', 0, "Got IDs returned for $taxa:".join(',', @taxonids));
-        my $taxon; 
+        my $taxon;
         lives_ok { $taxon = $db->get_taxon(-taxonid => pop @taxonids) } "IDs generates a Bio::Taxonomy::Node";
         if (defined $taxon) {
             like( $taxon->scientific_name, qr/$taxa/i, "Name returned matches $taxa");
@@ -471,4 +470,33 @@ SKIP: {
             ok(0, "No taxon object returned for $taxa");
         }
     }
+}
+
+# tests for #212
+SKIP: {
+        test_skip( -tests => 12, -requires_networking => 0 );
+
+        my $db = Bio::DB::Taxonomy->new( -source => "entrez" );
+
+        # String                 | What I expect | What I get
+        # ---------------------- | ------------- | ----------
+        # 'Lissotriton vulgaris' | 8324          | 8324
+        # 'Chlorella vulgaris'   | 3077          | 3077
+        # 'Phygadeuon solidus'   | 1763951       | 1763951
+        # 'Ovatus'               | 666060        | 666060
+        # 'Phygadeuon ovatus'    | "No hit"      | 666060
+        # 'Trimorus ovatus'      | "No hit"      | 666060
+
+        my @ids = $db_entrez->get_taxonids('Lissotriton vulgaris');
+        is $ids[0], 8324, 'Correct: Lissotriton vulgaris';
+        my @ids = $db_entrez->get_taxonids('Chlorella vulgaris');
+        is $ids[0], 3077, 'Correct: Chlorella vulgaris';
+        my @ids = $db_entrez->get_taxonids('Phygadeuon solidus');
+        is $ids[0], 1763951, 'Correct: Phygadeuon solidus';
+        my @ids = $db_entrez->get_taxonids('Ovatus');
+        is $ids[0], 666060, 'Correct: Ovatus';
+        my @ids = $db_entrez->get_taxonids('Phygadeuon ovatus');
+        is $ids[0], 'No hit', 'Correct: No hit';
+        my @ids = $db_entrez->get_taxonids('Trimorus ovatus');
+        is $ids[0], 'No hit', 'Correct: No hit';
 }
