@@ -436,7 +436,7 @@ sub _create_attribute_fts{
         $dbh->do("CREATE VIRTUAL TABLE "
              . $self->_attribute_table
              . " USING " . $fts_versions[-1]
-             . "(id integer not null, attribute_id integer not null, attribute_value text)");
+             . "(id, attribute_id, attribute_value)");
     }
 }
 
