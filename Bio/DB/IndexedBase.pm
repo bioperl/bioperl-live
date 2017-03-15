@@ -274,13 +274,11 @@ use constant DIE_ON_MISSMATCHED_LINES => 1;
 my $nl = qr/\n/;
 my $cr = qr/\r/;
 
-# Remove carriage returns (\r) and newlines (\n) from a string.  When
-# called from subseq, this can take a signficiant portion of time, in
-# Variant Effect Prediction. Therefore we compile the match portion.
+# Remove carriage returns (\r) and newlines (\n) from a string.
+# Using translate with delete is much faster than the regex with "s".
 sub _strip_crnl {
     my $str = shift;
-    $str =~ s/$nl//g;
-    $str =~ s/$cr//g;
+    $str =~ tr/\n\r//d;
     return $str;
 }
 
