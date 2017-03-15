@@ -267,46 +267,46 @@ use constant PROTEIN   => 3;
 use constant DIE_ON_MISSMATCHED_LINES => 1;
 # you can avoid dying if you want but you may get incorrect results
 
-
-# Compiling the below regular expressions speeds up the Pure Perl
-# seq/subseq() from Bio::DB::Fasta by about 7% from 7.76s to 7.22s
-# over 32358 calls on Variant Effect Prediction data.
-my $nl = qr/\n/;
-my $cr = qr/\r/;
-
 # Remove carriage returns (\r) and newlines (\n) from a string.  When
 # called from subseq, this can take a signficiant portion of time, in
 # Variant Effect Prediction. Therefore we compile the match portion.
 sub _strip_crnl {
-    my $str = shift;
-    $str =~ s/$nl//g;
-    $str =~ s/$cr//g;
-    return $str;
-}
-
-# C can do perfrom _strip_crnl much faster. But this requires the
-# Inline::C module which we don't require people to have. So we make
-# this optional by wrapping the C code in an eval. If the eval works,
-# the Perl strip_crnl() function is overwritten.
-eval q{
-    use Inline C  => <<'END_OF_C_CODE';
-    /* Strip all new line (\n) and carriage return (\r) characters
-       from string str
-    */
-    char* _strip_crnl(char* str) {
-        char *s;
-        char *s2 = str;
-        for (s = str; *s; *s++) {
-            if (*s != '\n' && *s != '\r') {
-              *s2++ = *s;
+    eval 'require Inline::C';
+    if($INC{'Inline/C.pm'}){
+        # C can do perfrom _strip_crnl much faster. But this requires the
+        # Inline::C module which we don't require people to have. So we make
+        # this optional by wrapping the C code in an eval. If the eval works,
+        # the Perl strip_crnl() function is overwritten.
+        Inline->bind(C => q(
+        /* Strip all new line (\n) and carriage return (\r) characters
+        from string str
+        */
+        char* _strip_crnl(char* str) {
+	    char *s;
+	    char *s2 = str;
+	    for (s = str; *s; *s++) {
+              if (*s != '\n' && *s != '\r') {
+		*s2++ = *s;
+	      }
             }
-        }
-        *s2 = '\0';
-        return str;
+	    *s2 = '\0';
+	    return str;
+        } ));
     }
-END_OF_C_CODE
-};
-
+    else{
+	# Compiling the below regular expressions speeds up the Pure Perl
+	# seq/subseq() from Bio::DB::Fasta by about 7% from 7.76s to 7.22s
+	# over 32358 calls on Variant Effect Prediction data.
+	my $nl = qr/\n/;
+	my $cr = qr/\r/;
+	
+	*Bio::DB::IndexedBase::_strip_crnl = sub {my $str = shift;
+						  $str =~ s/$nl//g;
+						  $str =~ s/$cr//g;
+						  return $str};
+    }
+    return _strip_crnl(@_);
+}
 
 =head2 new
 
