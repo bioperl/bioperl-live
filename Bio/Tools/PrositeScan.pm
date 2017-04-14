@@ -8,7 +8,8 @@ Bio::Tools::PrositeScan - Parser for ps_scan result
   use Bio::Tools::PrositeScan;
 
   my $factory = Bio::Tools::PrositeScan->new(
-      -file => 'out.PrositeScan'
+      -file   => 'out.PrositeScan',
+      -format => 'fasta'
   );
 
   while(my $match = $factory->next_prediction){
@@ -46,6 +47,12 @@ use base qw(Bio::Root::Root Bio::Root::IO);
   Usage   : Bio::Tools::PrositeScan->new(-file => 'out.PrositeScan');
             Bio::Tools::PrositeScan->new(-fh => \*FH);
   Returns : L<Bio::Tools::PrositeScan>
+  Args    : -format => string representing the format type for the
+                       ps_scan output, REQUIRED
+
+The C<-format> argument must currently be set to C<fasta> since this is the
+only parser implemented. This corresponds with using the ps_scan arguments
+C<-o fasta>.
 
 =cut
 
