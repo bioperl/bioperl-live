@@ -474,7 +474,7 @@ SKIP: {
 
 # tests for #212
 SKIP: {
-        test_skip( -tests => 12, -requires_networking => 0 );
+        test_skip( -tests => 12, -requires_networking => 1 );
 
         my $db = Bio::DB::Taxonomy->new( -source => "entrez" );
 
