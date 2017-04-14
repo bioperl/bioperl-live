@@ -13,8 +13,8 @@ Bio::Tools::PrositeScan - Parser for ps_scan result
 
   while(my $match = $factory->next_prediction){
       #  $match is of Bio::SeqFeature::FeaturePair
-      my $q_id = $fatch->feature1->seq_id;
-      my $h_id = $fatch->feature2->seq_id;
+      my $q_id = $match->feature1->seq_id;
+      my $h_id = $match->feature2->seq_id;
   }
 
 =head1 DESCRIPTION
