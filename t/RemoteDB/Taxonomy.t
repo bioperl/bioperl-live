@@ -487,16 +487,17 @@ SKIP: {
         # 'Phygadeuon ovatus'    | "No hit"      | 666060
         # 'Trimorus ovatus'      | "No hit"      | 666060
 
-        my @ids = $db_entrez->get_taxonids('Lissotriton vulgaris');
+        my @ids;
+        @ids = $db->get_taxonids('Lissotriton vulgaris');
         is $ids[0], 8324, 'Correct: Lissotriton vulgaris';
-        my @ids = $db_entrez->get_taxonids('Chlorella vulgaris');
+        @ids = $db->get_taxonids('Chlorella vulgaris');
         is $ids[0], 3077, 'Correct: Chlorella vulgaris';
-        my @ids = $db_entrez->get_taxonids('Phygadeuon solidus');
+        @ids = $db->get_taxonids('Phygadeuon solidus');
         is $ids[0], 1763951, 'Correct: Phygadeuon solidus';
-        my @ids = $db_entrez->get_taxonids('Ovatus');
+        @ids = $db->get_taxonids('Ovatus');
         is $ids[0], 666060, 'Correct: Ovatus';
-        my @ids = $db_entrez->get_taxonids('Phygadeuon ovatus');
+        @ids = $db->get_taxonids('Phygadeuon ovatus');
         is $ids[0], 'No hit', 'Correct: No hit';
-        my @ids = $db_entrez->get_taxonids('Trimorus ovatus');
+        @ids = $db->get_taxonids('Trimorus ovatus');
         is $ids[0], 'No hit', 'Correct: No hit';
 }
