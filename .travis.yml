@@ -31,6 +31,7 @@ install:
     - "cpanm Bio::Phylo | tail -n 1"
     - "cpanm Test::Weaken | tail -n 1"
     - "cpanm Test::Memory::Cycle | tail -n 1"
+    - "cpanm Test::Most | tail -n 1"
     #Test coverage from Coveralls
     #- cpanm --quiet --notest Devel::Cover::Report::Coveralls
     #for some reason tests and deps aren't skipped here.  Will have to look into it more...
