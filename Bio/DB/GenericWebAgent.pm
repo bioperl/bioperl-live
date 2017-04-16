@@ -186,14 +186,10 @@ sub ua {
 
 =cut
 
-# TODO deal with small state-related bug with file
-
 sub get_Response {
     my ($self, @args) = @_;
     my ($cache, $file, $cb, $size) = $self->_rearrange([qw(CACHE_RESPONSE FILE CB READ_SIZE_HINT)],@args);
     $self->throw("Can't have both callback and file") if $file && $cb;
-    # make -file accept more perl-like write-append type data.
-    $file =~ s{^>}{} if $file; 
     my @opts = grep {defined $_} ($file || $cb, $size);
     $cache = (defined $cache && $cache == 0) ? 0 : 1;
     my $pobj = $self->parameter_base;
@@ -363,7 +359,10 @@ sub _dump_request_content {
     return unless defined $self->{_response_cache};
     $self->throw("Must pass file name") unless $file;
     require Bio::Root::IO;
-    my $out = Bio::Root::IO->new(-file => ">$file");
+    # If $file was NOT specified in write ">" or append ">>" mode, then
+    # assume that the file should be opened in write mode. 
+    $file = ">$file" if $file !~ /^>/;
+    my $out = Bio::Root::IO->new(-file => $file);
     $out->_print($self->{_response_cache}->content);
     $out->flush();
     $out->close;
