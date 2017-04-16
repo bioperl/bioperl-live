@@ -10,4 +10,9 @@ BEGIN {
 }
 
 # check pod is syntactically correct
-all_pod_files_ok( all_pod_files(qw(Bio scripts examples maintenance)) )
+# Files in Bio::Root come from another git project. Those use an extended POD
+# format that Test::Pod doesn't think is valid.
+my @pod_files = grep(!m{^Bio/Root},
+		     all_pod_files(qw(Bio scripts examples maintenance)));
+
+all_pod_files_ok( @pod_files )
