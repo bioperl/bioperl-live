@@ -8,23 +8,46 @@ Bio::Tools::PrositeScan - Parser for ps_scan result
   use Bio::Tools::PrositeScan;
 
   my $factory = Bio::Tools::PrositeScan->new(
-      -file => 'out.PrositeScan'
+      -file   => 'out.PrositeScan',
+      -format => 'fasta'
   );
 
   while(my $match = $factory->next_prediction){
-      #  $match is of Bio::SeqFeature::FeaturePair
-      my $q_id = $fatch->feature1->seq_id;
-      my $h_id = $fatch->feature2->seq_id;
+      #  $match is a Bio::SeqFeature::FeaturePair
+
+      # Sequence ID
+      my $seq_id = $match->seq_id;
+
+      # PROSITE accession number
+      my $psac = $match->hseq_id;
+
+      # Coordinates
+      my @coords = ( $match->start, $match->end );
+
+      # Subsequence
+      my $seq = $match->feature1->seq;
   }
 
 =head1 DESCRIPTION
 
-This is the parser of the output of ps_scan program. It takes either a file
-handler or a file name, and returns a Bio::SeqFeature::FeaturePair object.
+This is a parser of the output of the ps_scan program. It takes either a file
+handle or a file name, and returns a L<Bio::SeqFeature::FeaturePair> object.
+
+Note that the current implementation parses the entire file at once.
 
 =head1 AUTHOR
 
 Juguang Xiao, juguang@tll.org.sg
+
+=head1 SEE ALSO
+
+=over
+
+=item * L<ps_scan software|ftp://ftp.expasy.org/databases/prosite/ps_scan>
+
+=item * L<PROSITE User Manual|http://prosite.expasy.org/prosuser.html>
+
+=back
 
 =cut
 
@@ -46,6 +69,12 @@ use base qw(Bio::Root::Root Bio::Root::IO);
   Usage   : Bio::Tools::PrositeScan->new(-file => 'out.PrositeScan');
             Bio::Tools::PrositeScan->new(-fh => \*FH);
   Returns : L<Bio::Tools::PrositeScan>
+  Args    : -format => string representing the format type for the
+                       ps_scan output, REQUIRED
+
+The C<-format> argument must currently be set to C<fasta> since this is the
+only parser implemented. This corresponds with using the ps_scan arguments
+C<-o fasta>.
 
 =cut
 
@@ -72,12 +101,15 @@ sub format {
 =head2 next_prediction
 
   Title   : new
-  Usage   : 
+  Usage   :
       while($result = $factory->next_prediction){
           ;
       }
 
-  Returns : a Bio::SeqFeature::FeaturePair object
+  Returns : a Bio::SeqFeature::FeaturePair object where
+            feature1 is the matched subsequence and
+            feature2 is the PROSITE accession number.
+            See <http://prosite.expasy.org/prosuser.html#conv_ac>.
 
 =cut
 
@@ -153,7 +185,6 @@ sub _parse_fasta {
         push @matches, $fp;
     }
     push @{$self->{_matches}}, @matches;
-    
 }
 
 sub _attach_seq {
