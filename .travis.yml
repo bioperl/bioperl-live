@@ -6,6 +6,11 @@ perl:
   - "5.16"
   - "5.14"
 
+matrix:
+  include:
+    - perl: 5.18
+      env: COVERAGE=1   # enables coverage+coveralls reporting
+
 sudo: false
 env: PERL_CPANM_OPT="--notest --force --skip-satisfied"
 
