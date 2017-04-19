@@ -12,7 +12,10 @@ matrix:
       env: COVERAGE=1   # enables coverage+coveralls reporting
 
 sudo: false
-env: PERL_CPANM_OPT="--notest --force --skip-satisfied"
+env:
+  global:
+    - PERL_CPANM_OPT="--notest --force --skip-satisfied"
+    - BIOPERL_NETWORK_TESTING=0   # disables the network tests
 
 addons:
   apt:
@@ -22,38 +25,33 @@ addons:
       - libgd2-xpm-dev
       - libxml2-dev
 
+before_install:
+  - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
+  - source ~/travis-perl-helpers/init
+  - build-perl
+  - perl -V
+  - cpanm DBD::mysql DBD::Pg DBD::SQLite 2>&1 | tail -n 1
+  - cpanm Test::Pod 2>&1 | tail -n 1
+  - cpanm Bio::ASN1::EntrezGene 2>&1 | tail -n 1
+  - if [ "$BIOPERL_NETWORK_TESTING" = "1" ]; then
+      export TRAVIS_AUTHOR_TESTING=1;
+      export TRAVIS_RELEASE_TESTING=1;
+      cpanm LWP::UserAgent LWP::Protocol::https 2>&1 | tail -n 1;
+    fi
+  - build-dist
+  - cd $BUILD_DIR
 install:
-    #These are recommended or required Perl libraries:
-    - "cpanm GD 2>&1 CGI | tail -n 1"
-    - "cpanm HTML::TableExtract DBI Data::Stag DB_File 2>&1 | tail -n 1"
-    - "cpanm DBD::mysql DBD::Pg DBD::SQLite 2>&1 | tail -n 1"
-    - "cpanm Algorithm::Munkres Array::Compare Convert::Binary::C Error 2>&1 | tail -n 1"
-    - "cpanm Graph SVG SVG::Graph GraphViz 2>&1 | tail -n 1"
-    - "cpanm XML::DOM::XPath XML::Parser XML::Parser::PerlSAX 2>&1 | tail -n 1"
-    - "cpanm XML::SAX XML::SAX::Writer XML::Simple XML::LibXML XML::Twig XML::Writer 2>&1 | tail -n 1"
-    - "cpanm PostScript::TextBlock Set::Scalar Sort::Naturally YAML | tail -n 1"
-    - "cpanm Math::Random Spreadsheet::ParseExcel | tail -n 1"
-    - "cpanm Bio::Phylo | tail -n 1"
-    - "cpanm Test::Weaken | tail -n 1"
-    - "cpanm Test::Memory::Cycle | tail -n 1"
-    - "cpanm Test::Most | tail -n 1"
-    #Test coverage from Coveralls
-    #- cpanm --quiet --notest Devel::Cover::Report::Coveralls
-    #for some reason tests and deps aren't skipped here.  Will have to look into it more...
-    #git repos, seems to only work for simple checkouts, so pure perl only (TODO: look into before_script for more detail)
-    #- "git clone https://github.com/bioperl/Bio-Root.git; export PERL5LIB=$( pwd )/Bio-Root/lib:$PERL5LIB"
-    #This installs BioPerl itself:
-    - "perl ./Build.PL --accept"
-
+  - cpan-install --deps
+  - cpan-install --coverage
+before_script:
+  - coverage-setup
 script:
-    - "./Build test"
-    #Devel::Cover coverage options are: statement, branch, condition, path, subroutine, pod, time, all and none
-    #- "./Build build && cover -test -report coveralls" #complete version coverage test
-    #- PERL5OPT=-MDevel::Cover=+ignore,prove,-coverage,statement,subroutine prove -lr t #limited version coverage test
-    #- cover -report coveralls
-
+  - export AUTHOR_TESTING=${TRAVIS_AUTHOR_TESTING:=0}
+  - export RELEASE_TESTING=${TRAVIS_RELEASE_TESTING:=0}
+  - prove -l -j$(test-jobs) $(test-files)
 after_success:
-    - ./travis_scripts/trigger-dockerhub.sh
+  - coverage-report
+  - ./travis_scripts/trigger-dockerhub.sh
 
 #TODO - send emails to bioperl-guts-l
 notifications:
