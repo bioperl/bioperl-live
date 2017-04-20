@@ -9,13 +9,24 @@ perl:
 matrix:
   include:
     - perl: 5.18
-      env: COVERAGE=1   # enables coverage+coveralls reporting
+      env: COVERAGE=1 TEST_PARTITION=1
+    - perl: 5.18
+      env: COVERAGE=1 TEST_PARTITION=2
+    - perl: 5.18
+      env: COVERAGE=1 TEST_PARTITION=3
+    - perl: 5.18
+      env: COVERAGE=1 TEST_PARTITION=4
+    - perl: 5.18
+      env: COVERAGE=1 TEST_PARTITION=5
+    - perl: 5.18
+      env: COVERAGE=1 TEST_PARTITION=6
 
 sudo: false
 env:
   global:
     - PERL_CPANM_OPT="--notest --force --skip-satisfied"
     - BIOPERL_NETWORK_TESTING=0   # disables the network tests
+    - TEST_PARTITIONS=6
 
 addons:
   apt:
