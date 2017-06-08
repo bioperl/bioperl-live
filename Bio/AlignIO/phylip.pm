@@ -30,9 +30,9 @@ This example shows how to write to phylip format:
         $phylipstream->write_aln($aln);
     }
 
-    # Do it again with phylip sequential format format
+    # With phylip sequential format format
     $phylipstream->interleaved(0);
-    # can also initialize the object like this
+    # Or initialize the object like this
     $phylipstream = Bio::AlignIO->new(-interleaved => 0,
                                       -format      => 'phylip',
                                       -fh          => \*STDOUT,
@@ -44,7 +44,7 @@ This example shows how to write to phylip format:
         $phylipstream->write_aln($aln);
     }
 
-This examples shows how to read phylip format:
+This example shows how to read phylip format:
 
     my $in = Bio::AlignIO->new(
       -file        => $inFile,
