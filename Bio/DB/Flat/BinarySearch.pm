@@ -363,7 +363,7 @@ sub get_Seq_by_id {
         );
     }
     else {
-        $self->{_seqio}->fh($fh);
+        $self->{_seqio}->_fh($fh);
     }
 
     return $self->{_seqio}->next_seq;

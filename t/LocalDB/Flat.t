@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 25,
+    test_begin(-tests => 27,
                -requires_module => 'DB_File');
 
     use_ok('Bio::DB::Flat');
@@ -59,7 +59,6 @@ $seq = $db->get_Seq_by_acc('CH236947.1');
 ok($seq && ref($seq));
 is($seq->length,192);
 
-
 undef $db;
 
 $db = Bio::DB::Flat->new(-directory  => $tmpdir,
@@ -70,12 +69,16 @@ $db = Bio::DB::Flat->new(-directory  => $tmpdir,
                          -write_flag => 1
                          );
 
-$dir= test_input_file('dbfa', '1.fa');
+$dir = test_input_file('dbfa', '1.fa');
 $result = $db->build_index($dir);
 ok($result);
 $seq = $db->get_Seq_by_id('AW057119');
 ok($seq);
-is($seq->length,808);
+is($seq->length, 808);
+$seq = $db->get_Seq_by_id('AW057118');
+ok($seq);
+is($seq->length, 299);
+
 undef $db;
 
 SKIP: {
