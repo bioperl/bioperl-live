@@ -1,9 +1,7 @@
 #
 # BioPerl module for Bio::SeqIO::PIR
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
-#
-# Cared for by Aaron Mackey <amackey@virginia.edu>
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Copyright Aaron Mackey
 #
@@ -43,15 +41,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -110,21 +108,23 @@ sub next_seq {
     my ($self) = @_;
     local $/ = "\n>";
     return unless my $line = $self->_readline;
-    if( $line eq '>' ) {	# handle the very first one having no comment
-	return unless $line = $self->_readline;
+    if ( $line eq '>' ) {    # handle the very first one having no comment
+        return unless $line = $self->_readline;
     }
-    my ($top, $desc,$seq) = ( $line =~ /^(.+?)\n(.+?)\n([^>]*)/s )  or
-	$self->throw("Cannot parse entry PIR entry [$line]");
+    my ( $top, $desc, $seq ) = ( $line =~ /^(.+?)\n(.*?)\n([^>]*)/s )
+        or $self->throw("Cannot parse entry PIR entry [$line]");
 
-    my ( $type,$id );
-	if ( $top =~ /^>?(\S{2});(\S+)\s*$/ ) {
-	  ( $type,$id ) = ($1, $2);
-	  if (!exists $VALID_TYPE{$type} ) {
-		$self->throw("PIR stream read attempted without proper two-letter sequence code [ $type ]");
-	  }
-	} else {
-	  $self->throw("Line does not match PIR format [ $line ]");
-	}
+    my ( $type, $id );
+    if ( $top =~ /^>?(\S{2});(\S+)\s*$/ ) {
+        ( $type, $id ) = ( $1, $2 );
+        if ( ! exists $VALID_TYPE{$type} ) {
+            $self->throw(
+                "PIR stream read attempted without proper two-letter sequence code [ $type ]"
+            );
+        }
+    } else {
+        $self->throw("Line does not match PIR format [ $line ]");
+    }
 
     # P - indicates complete protein
     # F - indicates protein fragment
@@ -132,17 +132,18 @@ sub next_seq {
     # suitable for writing out.
     $seq =~ s/\*//g;
     $seq =~ s/[\(\)\.\/\=\,]//g;
-    $seq =~ s/\s+//g;		# get rid of whitespace
+    $seq =~ s/\s+//g;    # get rid of whitespace
 
     my ($alphabet) = ('protein');
+
     # TODO - not processing SFS data
-    return $self->sequence_factory->create
-	(-seq        => $seq,
-	 -primary_id => $id,
-	 -id         => $id,
-	 -desc       => $desc,
-	 -alphabet   => $alphabet
-	 );
+    return $self->sequence_factory->create(
+        -seq        => $seq,
+        -primary_id => $id,
+        -id         => $id,
+        -desc       => $desc,
+        -alphabet   => $alphabet
+    );
 }
 
 =head2 write_seq
