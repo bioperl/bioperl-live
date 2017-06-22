@@ -37,6 +37,7 @@ addons:
       - libxml2-dev
 
 before_install:
+  - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
   - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
   - source ~/travis-perl-helpers/init
   - build-perl
@@ -44,6 +45,10 @@ before_install:
   - cpanm DBD::mysql DBD::Pg DBD::SQLite 2>&1 | tail -n 1
   - cpanm Test::Pod 2>&1 | tail -n 1
   - cpanm Bio::ASN1::EntrezGene 2>&1 | tail -n 1
+  - if [ "$TRAVIS_EVENT_TYPE" = "cron" -a "$BRANCH" = "network-cron-master" ]; then
+      export BIOPERL_NETWORK_TESTING=1;
+      git fetch origin master:master; git checkout master;
+    fi
   - if [ "$BIOPERL_NETWORK_TESTING" = "1" ]; then
       export TRAVIS_AUTHOR_TESTING=1;
       export TRAVIS_RELEASE_TESTING=1;
@@ -78,3 +83,4 @@ branches:
   only:
     - master
     - /^release-[1-9]*-[0-9]*-[0-9]*$/
+    - network-cron-master
