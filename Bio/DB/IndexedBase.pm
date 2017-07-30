@@ -245,6 +245,7 @@ BEGIN {
 }
 
 use strict;
+no warnings 'once';
 use IO::File;
 use AnyDBM_File;
 use Fcntl;
@@ -833,8 +834,10 @@ sub _fh {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
     my $file = $self->file($id) or return;
-    return $self->_fhcache( File::Spec->catfile($self->{dirname}, $file) ) or
-        $self->throw( "Can't open file $file");
+    eval {
+      return $self->_fhcache( File::Spec->catfile($self->{dirname}, $file));
+    };
+    $self->throw( "Can't open file $file") if $@;;
 }
 
 
