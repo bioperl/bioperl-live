@@ -4,7 +4,7 @@
 # For example, $hsp->get_aln will return a Bio::SimpleAlign object,
 # not the alignment in a printable form.
 # This script was used to create the table in the SearchIO HOWTO,
-# found at http://bioperl.open-bio.org/wiki/HOWTO:SearchIO
+# found at http://bioperl.org/howtos/SearchIO_HOWTO.html
 # Brian Osborne
 
 use strict;
@@ -60,7 +60,7 @@ while ( my $result = $in->next_result ) {
       print "Hit\tnum_hsps\t" .            $hit->num_hsps . "\n";
       print "Hit\tambiguous_aln\t" .       $hit->ambiguous_aln . "\n";
       print "Hit\toverlap\t" .             $hit->overlap . "\n";
-      print "Hit\tn\t" .                   $hit->n . "\n"; 
+      print "Hit\tn\t" .                   $hit->n . "\n";
       print "Hit\tlogical_length\t" .      $hit->logical_length . "\n";
       print "Hit\tlength_aln\t" .          $hit->length_aln . "\n";
       print "Hit\tgaps\t" .                $hit->gaps . "\n";

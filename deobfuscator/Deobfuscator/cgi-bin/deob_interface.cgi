@@ -150,7 +150,7 @@ Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                       - General discussion
-  http://www.bioperl.org/wiki/Mailing_lists   - About the mailing lists
+  http://bioperl.org/Support.html   - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -317,7 +317,7 @@ print <<CSHL;
     <br>
     <br>
     <div>
-        <form name="searchForm" action="">         
+        <form name="searchForm" action="">
             <input type="hidden" name="Search">
             <input type="hidden" name="module">
 			<input type="hidden" name="sort_order" value="$sort_order">

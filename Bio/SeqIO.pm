@@ -1,6 +1,6 @@
 # BioPerl module for Bio::SeqIO
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
 #       and Lincoln Stein  <lstein@cshl.org>
@@ -190,7 +190,7 @@ Filehandles can also be used to read from or write to a piped command:
   my $out=Bio::SeqIO->new(-file=>'>seq.fasta',
                           -format=>'fasta');
   while (my $seq=$in->next_seq) {
-      $out->write_seq($seq) 
+      $out->write_seq($seq)
   }
 
 =item -string
@@ -205,12 +205,12 @@ A string to read the sequences from. For example:
 Specify the format of the file.  Supported formats include fasta,
 genbank, embl, swiss (SwissProt), Entrez Gene and tracefile formats
 such as abi (ABI) and scf. There are many more, for a complete listing
-see the SeqIO HOWTO (L<http://bioperl.open-bio.org/wiki/HOWTO:SeqIO>).
+see the SeqIO HOWTO (L<http://bioperl.org/howtos/SeqIO_HOWTO.html>).
 
 If no format is specified and a filename is given then the module will
 attempt to deduce the format from the filename suffix. If there is no
 suffix that Bioperl understands then it will attempt to guess the
-format based on file content. If this is unsuccessful then SeqIO will 
+format based on file content. If this is unsuccessful then SeqIO will
 throw a fatal error.
 
 The format name is case-insensitive: 'FASTA', 'Fasta' and 'fasta' are
@@ -303,15 +303,15 @@ Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
  bioperl-l@bioperl.org
 
-rather than to the module maintainer directly. Many experienced and 
-responsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+responsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -395,11 +395,11 @@ sub new {
         unless( defined $params{-file} ||
                 defined $params{-fh}   ||
                 defined $params{-string} ) {
-            $class->throw("file argument provided, but with an undefined value") 
+            $class->throw("file argument provided, but with an undefined value")
                 if exists $params{'-file'};
-            $class->throw("fh argument provided, but with an undefined value") 
+            $class->throw("fh argument provided, but with an undefined value")
                 if exists $params{'-fh'};
-            $class->throw("string argument provided, but with an undefined value") 
+            $class->throw("string argument provided, but with an undefined value")
                 if exists($params{'-string'});
             # $class->throw("No file, fh, or string argument provided"); # neither defined
         }
@@ -505,7 +505,7 @@ sub _initialize {
     # note that this should come last because it propagates the sequence
     # factory to the sequence builder
     $seqfact && $self->sequence_factory($seqfact);
-        
+
     #bug 2160
     $alphabet && $self->alphabet($alphabet);
 

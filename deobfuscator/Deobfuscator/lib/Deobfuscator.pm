@@ -82,7 +82,7 @@ files aren't in the correct place.
 
 =item C<< error: couldn't close database >>
 
-One of the Berkeley databases couldn't be closed. This might just be a 
+One of the Berkeley databases couldn't be closed. This might just be a
 transient filesystem error.
 
 =back
@@ -105,7 +105,7 @@ This software requires:
 
 =item A working installation of the Berkeley DB
 
-The Berkeley DB comes standard with most UNIX distributions, so you may 
+The Berkeley DB comes standard with most UNIX distributions, so you may
 already have it installed. See L<http://www.sleepycat.com> for more information.
 
 =item BioPerl
@@ -146,7 +146,7 @@ Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                       - General discussion
-  http://www.bioperl.org/wiki/Mailing_lists   - About the mailing lists
+  http://bioperl.org/Support.html   - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -225,7 +225,7 @@ Function: traverses the inheritance tree for a given class to determine
 
 Returns : a reference to a hash. The hash keys are fully-qualified class
           names, such as 'Bio::SeqIO'. The hash values are references to
-          an array of hashes, where each array element is a reference to 
+          an array of hashes, where each array element is a reference to
           a hash containing two key-value pairs, 'method' and 'class';
 
 Args    : a list of fully-qualified class names
@@ -334,7 +334,7 @@ sub _load_module {
     my $module = shift;
     eval "require $module";
     my $err = $@ || 'eval returned undef';
-    
+
     if ($@) { return $@ }
     else { return }
 }
@@ -351,12 +351,12 @@ Args    : a filename as a scalar
 
 sub open_db {
     my ($filename) = @_;
-    
+
     my %hash;
     my $hashref = \%hash;
-    
+
     tie %hash, "DB_File", $filename or die "error: couldn't open $filename: $!\n";
-    
+
     return $hashref;
 }
 
@@ -372,7 +372,7 @@ Args    : a hashref to a tied Berkeley DB
 
 sub close_db {
     my ($hashref) = @_;
-    
+
     untie $hashref or die "error: couldn't close database: $!\n";
 }
 
@@ -396,7 +396,7 @@ sub get_pkg_docs {
 
     # hash to store our hash value, now split out into its constituent parts
     my %record;
-        
+
     my $rec_sep = 'DaVe-ReC-sEp';
 
     # if the method isn't in our db
@@ -405,7 +405,7 @@ sub get_pkg_docs {
     }
 
     # grab the constituent parts of the pkg record
-    ( $record{'short_desc'}, $record{'synopsis'}, $record{'desc'} ) = 
+    ( $record{'short_desc'}, $record{'synopsis'}, $record{'desc'} ) =
         ( split $rec_sep, $db_hashref->{$pkg_name} );
 
     # return just the part that was asked for
@@ -451,20 +451,20 @@ sub get_method_docs {
     # put individual info types into separate hash entries...
     foreach my $part (@parts) {
         if ($part =~ /^-(\w+)\|(.*)/) { $record{$1} = $2; }
-    
+
     # ... and put the whole thing into one big string
         $whole_record .= "$part\n";
     }
 
     # return a specific part if that was asked for
     if ($info_type) {
-        # return just the part that was asked for      
+        # return just the part that was asked for
         if ( exists( $record{$info_type} ) ) {
 
 			# if there's really nothing in there, say so.
 			if ( ( $record{$info_type} =~ /^[\s\n]*$/)
          	|| ( $record{$info_type} eq '') ) { return 0; }
-			else { 
+			else {
 				return $record{$info_type};
 			}
         }

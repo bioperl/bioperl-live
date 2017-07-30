@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::SearchIO::fasta
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Jason Stajich <jason-at-bioperl.org>
 #
@@ -29,13 +29,13 @@ Bio::SearchIO::fasta - A SearchIO parser for FASTA results
 
 This object contains the event based parsing code for FASTA format
 reports.  It creates L<Bio::Search::HSP::FastaHSP> objects instead of
-L<Bio::Search::HSP::GenericHSP> for the HSP objects. 
+L<Bio::Search::HSP::GenericHSP> for the HSP objects.
 
 This module will parse -m 9 -d 0 output as well as default m 1 output
 from FASTA as well as SSEARCH.
 
 Also see the SearchIO HOWTO:
-L<http://bioperl.open-bio.org/wiki/HOWTO:SearchIO>.
+L<http://bioperl.org/howtos/SearchIO_HOWTO.html>.
 
 =head1 FEEDBACK
 
@@ -48,15 +48,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -170,9 +170,9 @@ use base qw(Bio::SearchIO);
 
  Title   : new
  Usage   : my $obj = Bio::SearchIO::fasta->new();
- Function: Builds a new Bio::SearchIO::fasta object 
+ Function: Builds a new Bio::SearchIO::fasta object
  Returns : Bio::SearchIO::fasta
- Args    : -idlength - set ID length to something other 
+ Args    : -idlength - set ID length to something other
                        than the default (6), this is only
                        necessary if you have compiled FASTA
                        with a new default id length to display
@@ -488,7 +488,7 @@ sub next_result {
                     } elsif ($_ eq "E2()") {
                         $_ = "evalue2";
                     }
-                    
+
                     $_;
                 }
             } @labels[ $rel ? 5 : 4 .. $#labels ];
@@ -507,12 +507,12 @@ sub next_result {
 		    $m9HSP = 1;
                     # parse HSP, add to last parsed Hit
                     my %hspData;
-                    
+
                     my @line = split;
 
                     @hspData{@labels} = splice( @line, @line - @labels );
                     $hspData{lframe} = $hit_signifs[-1]->{lframe};
-                    
+
                     push @{$hit_signifs[-1]->{HSPs}}, \%hspData;
 
                     next;
@@ -557,7 +557,7 @@ sub next_result {
 
                 @data{qw(id desc acc)} = ( $id, $desc, $acc );
                 $data{HSPs} = [ \%hspData ];
-                
+
                 push @hit_signifs, \%data;
             }
         }
@@ -683,7 +683,7 @@ sub next_result {
             if ( $self->in_element('hsp') ) {
                 $self->end_element( { 'Name' => 'Hsp' } );
             }
-            
+
             my $firstHSP = 0;
             if ($1 ne ">--") {
                 $firstHSP = 1;
@@ -706,7 +706,7 @@ sub next_result {
                     $self->end_element( { 'Name' => 'Hit' } );
                     shift @hit_signifs if @hit_signifs;
                 }
-    
+
                 $self->start_element( { 'Name' => 'Hit' } );
                 $self->element(
                     {
@@ -721,7 +721,7 @@ sub next_result {
                         'Data' => $id
                     }
                 );
-    
+
                 #$self->debug("Hit ID is $id\n");
                 my @pieces = split( /\|/, $id );
                 my $acc = pop @pieces;
@@ -781,7 +781,7 @@ sub next_result {
                     }
                 );
             }
-            
+
             $self->start_element( { 'Name' => 'Hsp' } );
 
             $self->element(
@@ -986,7 +986,7 @@ sub next_result {
             }
 
             $self->_processHits(@hit_signifs) if @hit_signifs;
-            
+
             $self->end_element( { 'Name' => 'FastaOutput' } );
             return $self->end_document();
         }
@@ -1002,7 +1002,7 @@ sub next_result {
                 }
 
                 $self->_processHits(@hit_signifs) if (@hit_signifs);
-                
+
                 $self->end_element( { 'Name' => 'FastaOutput' } );
                 $self->_pushback($_);
                 return $self->end_document();
@@ -1353,8 +1353,8 @@ sub characters {
 
  Title   : _mode
  Usage   : $obj->_mode($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of _mode
  Args    : newvalue (optional)
 
@@ -1377,7 +1377,7 @@ sub _mode {
            This is different than 'in' because within can be tested
            for a whole block.
  Returns : boolean
- Args    : string element name 
+ Args    : string element name
 
 
 =cut
@@ -1403,7 +1403,7 @@ sub within_element {
            This is different than 'in' because within can be tested
            for a whole block.
  Returns : boolean
- Args    : string element name 
+ Args    : string element name
 
 
 =cut
@@ -1507,7 +1507,7 @@ sub attach_EventHandler {
  Title   : _will_handle
  Usage   : Private method. For internal use only.
               if( $self->_will_handle($type) ) { ... }
- Function: Provides an optimized way to check whether or not an element of a 
+ Function: Provides an optimized way to check whether or not an element of a
            given type is to be handled.
  Returns : Reference to EventHandler object if the element type is to be handled.
            undef if the element type is not to be handled.
