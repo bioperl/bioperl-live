@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::SearchIO
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Jason Stajich <jason-at-bioperl.org>
 #
@@ -13,7 +13,7 @@
 
 =head1 NAME
 
-Bio::SearchIO - Driver for parsing Sequence Database Searches 
+Bio::SearchIO - Driver for parsing Sequence Database Searches
 (BLAST, FASTA, ...)
 
 =head1 SYNOPSIS
@@ -25,7 +25,7 @@ Bio::SearchIO - Driver for parsing Sequence Database Searches
    while ( my $result = $searchio->next_result() ) {
        while( my $hit = $result->next_hit ) {
         # process the Bio::Search::Hit::HitI object
-           while( my $hsp = $hit->next_hsp ) { 
+           while( my $hsp = $hit->next_hsp ) {
             # process the Bio::Search::HSP::HSPI object
            }
        }
@@ -46,7 +46,7 @@ represents one Blast/Fasta/HMMER whatever report.
 
 A list of module names and formats is below:
 
-  blast      BLAST (WUBLAST, NCBIBLAST,bl2seq)   
+  blast      BLAST (WUBLAST, NCBIBLAST,bl2seq)
   fasta      FASTA -m9 and -m0
   blasttable BLAST -m9 or -m8 output (both NCBI and WUBLAST tabular)
   megablast  MEGABLAST
@@ -60,7 +60,7 @@ A list of module names and formats is below:
   wise       Genewise -genesf format
 
 Also see the SearchIO HOWTO:
-http://bioperl.open-bio.org/wiki/HOWTO:SearchIO
+http://bioperl.org/howtos/SearchIO_HOWTO.html
 
 =head1 FEEDBACK
 
@@ -73,15 +73,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -129,7 +129,7 @@ use base qw(Bio::Root::IO Bio::Event::EventGeneratorI Bio::AnalysisParserI);
 
  Title   : new
  Usage   : my $obj = Bio::SearchIO->new();
- Function: Builds a new Bio::SearchIO object 
+ Function: Builds a new Bio::SearchIO object
  Returns : Bio::SearchIO initialized with the correct format
  Args    : -file           => $filename
            -format         => format
@@ -178,14 +178,14 @@ default ones if none are supplied as arguments.
 sub new {
   my($caller,@args) = @_;
   my $class = ref($caller) || $caller;
-    
+
   # or do we want to call SUPER on an object if $caller is an
   # object?
   if( $class =~ /Bio::SearchIO::(\S+)/ ) {
-    my ($self) = $class->SUPER::new(@args);        
+    my ($self) = $class->SUPER::new(@args);
     $self->_initialize(@args);
     return $self;
-  } else { 
+  } else {
     my %param = @args;
     @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
     my $format = $param{'-format'} ||
@@ -212,7 +212,7 @@ sub new {
 
     # normalize capitalization to lower case
     $format = "\L$format";
-    
+
     return unless( $class->_load_format_module($format) );
     return "Bio::SearchIO::${format}"->new(@args);
   }
@@ -374,7 +374,7 @@ sub next_result {
  Title   : write_result
  Usage   : $stream->write_result($result_result, @other_args)
  Function: Writes data from the $result_result object into the stream.
-         : Delegates to the to_string() method of the associated 
+         : Delegates to the to_string() method of the associated
          : WriterI object.
  Returns : 1 for success and 0 for error
  Args    : Bio::Search:Result::ResultI object,
@@ -396,7 +396,7 @@ sub write_result {
    my $str = $self->writer->to_string( $result, @args);
    $self->{'_notfirsttime'} = 1;
    $self->_print( "$str" ) if defined $str;
-   
+
    $self->flush if $self->_flush_on_write && defined $self->_fh;
    return 1;
 }
@@ -429,7 +429,7 @@ sub write_report {
    my $str = $self->writer->to_string( $result, @args);
    $self->{'_notfirsttime'} = 1;
    $self->_print( "$str" ) if defined $str;
-   
+
    $self->flush if $self->_flush_on_write && defined $self->_fh;
    return 1;
 }
@@ -480,10 +480,10 @@ sub result_count {
  Title   : inclusion_threshold
  Usage   : my $incl_thresh = $isreb->inclusion_threshold;
          : $isreb->inclusion_threshold(1e-5);
- Function: Get/Set the e-value threshold for inclusion in the PSI-BLAST 
+ Function: Get/Set the e-value threshold for inclusion in the PSI-BLAST
            score matrix model (blastpgp) that was used for generating the reports
            being parsed.
- Returns : number (real) 
+ Returns : number (real)
            Default value: $Bio::SearchIO::IteratedSearchResultEventBuilder::DEFAULT_INCLUSION_THRESHOLD
  Args    : number (real)  (e.g., 0.0001 or 1e-4 )
 
@@ -503,7 +503,7 @@ sub inclusion_threshold {
  Returns   : Scientific notation number with this format: 1.0e-05.
  Argument  : Scientific notation number or float (when setting)
  Comments  : Screening of significant hits uses the data provided on the
-           : description line. For NCBI BLAST1 and WU-BLAST, this data 
+           : description line. For NCBI BLAST1 and WU-BLAST, this data
            : is P-value. for NCBI BLAST2 it is an Expect value.
 
 =cut
@@ -527,7 +527,7 @@ sub signif { shift->max_significance(@_) }
  Returns   : Integer or scientific notation number.
  Argument  : Integer or scientific notation number (when setting)
  Comments  : Screening of significant hits uses the data provided on the
-           : description line. 
+           : description line.
 
 =cut
 
@@ -567,7 +567,7 @@ sub min_query_length {
 
  Title     : best_hit_only
  Usage     : print "only getting best hit.\n" if $obj->best_hit_only;
- Purpose   : Set/Get the indicator for whether or not to process only 
+ Purpose   : Set/Get the indicator for whether or not to process only
            : the best BlastHit.
  Returns   : Boolean (1 | 0)
  Argument  : Boolean (1 | 0) (when setting)
@@ -586,7 +586,7 @@ sub best_hit_only {
  Usage     : print "checking all hits.\n" if $obj->check_all_hits;
  Purpose   : Set/Get the indicator for whether or not to process all hits.
            : If false, the parser will stop processing hits after the
-           : the first non-significance hit or the first hit that fails 
+           : the first non-significance hit or the first hit that fails
            : any hit filter.
  Returns   : Boolean (1 | 0)
  Argument  : Boolean (1 | 0) (when setting)
@@ -604,9 +604,9 @@ sub check_all_hits {
  Title   : _load_format_module
  Usage   : *INTERNAL SearchIO stuff*
  Function: Loads up (like use) a module at run time on demand
- Example : 
- Returns : 
- Args    : 
+ Example :
+ Returns :
+ Args    :
 
 =cut
 
@@ -614,7 +614,7 @@ sub _load_format_module {
   my ($self,$format) = @_;
   my $module = "Bio::SearchIO::" . $format;
   my $ok;
-  
+
   eval {
       $ok = $self->_load_module($module);
   };
@@ -703,8 +703,8 @@ sub _guess_format {
    return 'exonerate' if ( /\.exon(erate)?/i );
 }
 
-sub close { 
-    my $self = shift;    
+sub close {
+    my $self = shift;
 
     if( $self->writer ) {
         $self->_print($self->writer->end_report());

@@ -48,9 +48,9 @@ for details.
 
 While going through and trying to parse each module, deob_index.pl also
 reports what pieces of the documentation it can't find. For example, if
-a method's documentation doesn't describe the data type it returns, this 
+a method's documentation doesn't describe the data type it returns, this
 script logs that information to a file. This type of automated documentation-
-checking could be used to standardize and improve the documentation in 
+checking could be used to standardize and improve the documentation in
 BioPerl.
 
 deob_index.pl creates four files:
@@ -67,20 +67,20 @@ This file is used by L<deob_interface.cgi>.
 
 A Berkeley DB, which stores package-level documentation, such as
 the synopsis and the description. Each key is a package name,
-e.g. "Bio::SeqIO", and each value string is composed of the 
-individual pieces of the documentation kept separate by 
-unique string record separators. The individual pieces of 
-documentation are pulled out of the string using the 
+e.g. "Bio::SeqIO", and each value string is composed of the
+individual pieces of the documentation kept separate by
+unique string record separators. The individual pieces of
+documentation are pulled out of the string using the
 get_pkg_docs function in Deobfuscator.pm. See that package
 for details.
 
 =item C<< methods.db >>
 
-Like packages.db, methods.db is also a Berkeley DB, except it 
+Like packages.db, methods.db is also a Berkeley DB, except it
 stores various pieces of information about individual methods
 available to a class. Each method might have documentation
 about its usage, its arguments, its return values, an example,
-and a description of its function. 
+and a description of its function.
 
 Each key is the fully-qualified method name, e.g.
 "Bio::SeqIO::next_seq". Each value is a string containing all
@@ -184,7 +184,7 @@ This software requires:
 
 =item A working installation of the Berkeley DB
 
-The Berkeley DB comes standard with most UNIX distributions, so you may 
+The Berkeley DB comes standard with most UNIX distributions, so you may
 already have it installed. See L<http://www.sleepycat.com> for more information.
 
 =item BioPerl
@@ -222,7 +222,7 @@ will cause deob_index.pl to report them as errors. Although the consistency
 of this standard is desirable for end-users of the documentation, this code
 probably needs to be a little bit more flexible (patches welcome!).
 
-This software has only been tested in a UNIX environment. 
+This software has only been tested in a UNIX environment.
 
 
 =head1 FEEDBACK
@@ -234,7 +234,7 @@ Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                       - General discussion
-  http://www.bioperl.org/wiki/Mailing_lists   - About the mailing lists
+  http://bioperl.org/Support.html   - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -308,12 +308,12 @@ and stores the info in a database.
 
 USAGE: deob_index.pl [-s bioperl-version] [-x exclude_file] <BioPerl lib dir> <output dir>
 
-where 
+where
 
 <BioPerl lib dir> is the BioPerl distribution you'd like to index
 
     e.g. /export/share/lib/perl5/site_perl/5.8.7/Bio/
-    
+
 and
 
 <output dir> is where the output files should be placed
@@ -385,7 +385,7 @@ my %FLAG;
 $pkg_db->{'__BioPerl_Version'} = $opt_s ? $opt_s : 'unknown';
 
 # keep stats on our indexing
-my %stats = ( 
+my %stats = (
               'files'    => 0,
               'pkg_name' => 0,
               'desc'     => 0,
@@ -429,7 +429,7 @@ chmod($mode, $pkg_file, $meth_file, $list_file);
 sub extract_pod {
     my ($file) = $_;
     my $long_file = $File::Find::name;
-    
+
     # skip if it's on our exclude list
     foreach my $one (keys %exclude) {
         if ($File::Find::name =~ /$one$/) {

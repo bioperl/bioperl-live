@@ -117,7 +117,7 @@ sequence object.
 
 There is more information in the Feature-Annotation HOWTO about each
 field and how it is mapped to the Sequence object
-L<http://bioperl.open-bio.org/wiki/HOWTO:Feature-Annotation>.
+L<http://bioperl.org/howtos/Features_and_Annotations_HOWTO.html>.
 
 =head1 FEEDBACK
 
@@ -500,7 +500,7 @@ sub next_seq {
             }
 
             # Comments may be plain text or Structured Comments.
-            # Structured Comments are made up of tag/value pairs and have beginning 
+            # Structured Comments are made up of tag/value pairs and have beginning
             # and end delimiters like ##*-Data-START## and ##*-Data-END##
             elsif ($line =~ /^COMMENT\s+(\S.*)/) {
                 if ($annotation) {
