@@ -245,7 +245,7 @@ BEGIN {
 }
 
 use strict;
-no warnings 'once';
+use warnings;
 use IO::File;
 use AnyDBM_File;
 use Fcntl;
@@ -504,7 +504,10 @@ sub get_all_primary_ids  {
     return keys %{shift->{offsets}};
 }
 
+{
+no warnings 'once';
 *ids = *get_all_ids = \&get_all_primary_ids;
+}
 
 
 =head2 index_file
@@ -622,7 +625,10 @@ sub get_Seq_by_id {
     return $self->{obj_class}->new($self, $id);
 }
 
+{
+no warnings 'once';
 *get_Seq_by_version = *get_Seq_by_primary_id = *get_Seq_by_acc = \&get_Seq_by_id;
+}
 
 
 =head2 _calculate_offsets
@@ -834,10 +840,9 @@ sub _fh {
     my ($self, $id) = @_;
     $self->throw('Need to provide a sequence ID') if not defined $id;
     my $file = $self->file($id) or return;
-    eval {
-      return $self->_fhcache( File::Spec->catfile($self->{dirname}, $file));
-    };
-    $self->throw( "Can't open file $file") if $@;;
+    return eval {
+      $self->_fhcache( File::Spec->catfile($self->{dirname}, $file));
+    } or $self->throw( "Can't open file $file" );
 }
 
 
