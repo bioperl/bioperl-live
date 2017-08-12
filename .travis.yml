@@ -1,4 +1,9 @@
 language: perl
+cache:
+  directories:
+    # local::lib caching
+    - $HOME/perl5
+
 perl:
   - "5.26"
   - "5.24"
