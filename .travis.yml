@@ -62,8 +62,8 @@ before_install:
   - build-dist
   - cd $BUILD_DIR
 install:
-  - cpan-install --deps
-  - cpan-install --coverage
+  - cpan-install --update-prereqs --deps
+  - cpan-install --update-prereqs --coverage
 before_script:
   - coverage-setup
 script:
