@@ -25,7 +25,7 @@ if [[ -z "$DOCKERHUB_TOKEN" ]] ; then
     exit 1
 fi
 
-if [[ -n "$COVERAGE" ]] ; then
+if [[ -n "$COVERAGE" && "$COVERAGE" != "0" ]] ; then
     echo "Not triggering Docker Hub for code coverage build."
     exit 0
 fi
