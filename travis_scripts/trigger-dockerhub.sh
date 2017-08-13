@@ -20,14 +20,14 @@ if [[ "$TRAVIS_PULL_REQUEST" != "false" ]] ; then
     exit 0
 fi
 
-if [[ -n "$COVERAGE" ]] ; then
-    echo "Not triggering Docker Hub for code coverage build."
-    exit 1
-fi
-
 if [[ -z "$DOCKERHUB_TOKEN" ]] ; then
     echo "No API token for Docker Hub, add to repository settings."
     exit 1
+fi
+
+if [[ -n "$COVERAGE" ]] ; then
+    echo "Not triggering Docker Hub for code coverage build."
+    exit 0
 fi
 
 ## Should check for tag names that indicate release candidates rather
