@@ -25,6 +25,11 @@ if [[ -z "$DOCKERHUB_TOKEN" ]] ; then
     exit 1
 fi
 
+if [[ -n "$COVERAGE" ]] ; then
+    echo "Not triggering Docker Hub for code coverage build."
+    exit 0
+fi
+
 ## Should check for tag names that indicate release candidates rather
 ## than release names, and then skip those.
 ## However, this is already taken care of by the regular expression
