@@ -556,6 +556,7 @@ sub handle_feature { #overridden
   $feature_id = '' unless defined $feature_id;
   $name       = '' unless defined $name;  # prevent uninit variable warnings
   # push @{$unreserved->{Alias}},$feature_id  if $has_loadid && $feature_id ne $name;
+  # If DEBUG != 0, any Parent attribute is also copied over (as 'parent_id')
   $unreserved->{parent_id} = \@parent_ids   if DEBUG && @parent_ids;
 
   # POSSIBLY A PERMANENT HACK -- TARGETS BECOME ALIASES
