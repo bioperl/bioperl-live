@@ -70,6 +70,7 @@ use strict;
 use Carp 'croak';
 use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::SeqFeature::Store::LoadHelper;
+use constant DEBUG => 0;
 
 use base 'Bio::DB::SeqFeature::Store::Loader';
 
@@ -555,7 +556,8 @@ sub handle_feature { #overridden
   $feature_id = '' unless defined $feature_id;
   $name       = '' unless defined $name;  # prevent uninit variable warnings
   # push @{$unreserved->{Alias}},$feature_id  if $has_loadid && $feature_id ne $name;
-  $unreserved->{parent_id} = \@parent_ids   if @parent_ids;
+  # If DEBUG != 0, any Parent attribute is also copied over (as 'parent_id')
+  $unreserved->{parent_id} = \@parent_ids   if DEBUG && @parent_ids;
 
   # POSSIBLY A PERMANENT HACK -- TARGETS BECOME ALIASES
   # THIS IS TO ALLOW FOR TARGET-BASED LOOKUPS
