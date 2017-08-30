@@ -120,7 +120,7 @@ sub next_seq {
 		my $wingwhere = index($line, $wing);
 
 		# the interpro XML is not fully formed, so we need to convert the 
-		# extra double quotes and ampersands into appropriate XML chracter codes
+		# extra double quotes and ampersands into appropriate XML character codes
 		if($where > 0){
 			my @linearray = split /$zinc/, $line;
 			$finishedline = join "&quot;zincins&quot;", $linearray[0], $linearray[2];

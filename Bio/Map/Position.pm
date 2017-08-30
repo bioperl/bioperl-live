@@ -229,7 +229,7 @@ sub absolute {
 
  Title   : value
  Usage   : my $pos = $position->value;
- Function: Get/Set the value for this postion
+ Function: Get/Set the value for this position
  Returns : scalar, value
  Args    : [optional] new value to set
 

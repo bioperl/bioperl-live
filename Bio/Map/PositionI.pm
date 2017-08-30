@@ -23,7 +23,7 @@ Bio::Map::PositionI - Abstracts the notion of a position having a value in the c
 
 =head1 DESCRIPTION
 
-This object stores one of the postions that a mappable object
+This object stores one of the positions that a mappable object
 (e.g. Marker) may have in a map.
 
 Positions can have non-numeric values or other methods to store the locations,

@@ -173,7 +173,7 @@ sub haplotype_block{
  Title   : input_block 
  Usage   : $obj->input_block()
  Function: returns haplotype block. By now will produce the same output than
-           $self->haplotype_block. but for compatiblity, this method is kept. 
+           $self->haplotype_block. but for compatibility, this method is kept.
            This method is deprecated.
  Returns : reference to array of array with the haplotype input value 
  Args    : none 
@@ -367,7 +367,7 @@ sub _generateCombinations{
  Usage   : internal
  Function: take the haplotype and a list of possible combination
            for that length. Generate a subset and scan it to find if
-           the information is enought to define the haplotype set.
+           the information is enough to define the haplotype set.
  Returns :
  Args    : none
  Status  : private

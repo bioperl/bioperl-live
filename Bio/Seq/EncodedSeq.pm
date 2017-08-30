@@ -175,7 +175,7 @@ use base qw(Bio::LocatableSeq);
                       gap ('G') or backward frameshift ('B') should
                       have one or more gap characters; if the encoding
                       specifies G or B, but no (or not enough) gap
-                      characters exist, *they'll be added*; similary,
+                      characters exist, *they'll be added*; similarly,
                       if there are gap characters without a
                       corresponding G or B encoding, G's will be
                       inserted into the encoding.  This allows some

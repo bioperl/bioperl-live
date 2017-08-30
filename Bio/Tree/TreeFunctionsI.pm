@@ -31,7 +31,7 @@ Bio::Tree::TreeFunctionsI - Decorated Interface implementing basic Tree explorat
 
 =head1 DESCRIPTION
 
-This interface provides a set of implementated Tree functions which
+This interface provides a set of implemented Tree functions which
 only use the defined methods in the TreeI or NodeI interface.
 
 =head1 FEEDBACK
@@ -129,7 +129,7 @@ sub find_node {
    }
 
    # could actually do this by testing $rootnode->can($type) but
-   # it is possible that a tree is implemeted with different node types
+   # it is possible that a tree is implemented with different node types
    # - although it is unlikely that the root node would be richer than the
    # leaf nodes.  Can't handle NHX tags right now
 
@@ -542,7 +542,7 @@ sub merge_lineage {
  Function: Splices out all nodes in the tree that have an ancestor and only one
            descendent.
  Returns : n/a
- Args    : none for normal behaviour, true to dis-regard the ancestor requirment
+ Args    : none for normal behaviour, true to dis-regard the ancestor requirement
            and re-root the tree as necessary
 
  For example, if we are the tree $tree:

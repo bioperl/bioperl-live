@@ -1244,7 +1244,7 @@ sub end_document {
  Title   : result_count
  Usage   : my $count = $searchio->result_count
  Function: Returns the number of results processed
- Returns : interger
+ Returns : integer
  Args    : none
 
 =cut

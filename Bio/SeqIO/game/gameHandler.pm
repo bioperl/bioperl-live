@@ -114,7 +114,7 @@ sub end_document {
  Usage   : $seqs = $handler->load
  Function: start parsing
  Returns : a ref to a list of sequence objects
- Args    : an optional flag to supress <computation_analysis> elements (not used yet)
+ Args    : an optional flag to suppress <computation_analysis> elements (not used yet)
 
 =cut
 

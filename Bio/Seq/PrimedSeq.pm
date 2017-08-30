@@ -300,7 +300,7 @@ sub get_primer {
 
  Title   : annotated_sequence
  Usage   : my $annotated_sequence_object = $primedseq->annotate_sequence();
- Function: Get an annotated sequence object containg the left and right 
+ Function: Get an annotated sequence object containing the left and right
            primers
  Returns : An annotated sequence object or 0 if not defined.
  Args    : 

@@ -65,7 +65,7 @@ Ewan Birney E<lt>birney@sanger.ac.ukE<gt>
 
 =head1 DEVELOPERS
 
-This class has been written with an eye out of inheritence. The fields
+This class has been written with an eye out of inheritance. The fields
 the actual object hash are:
 
    _gsf_tag_hash  = reference to a hash for the tags

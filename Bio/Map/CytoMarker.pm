@@ -22,7 +22,7 @@ Bio::Map::CytoMarker - An object representing a marker.
 
 =head1 DESCRIPTION
 
-This object handles markers with a positon in a cytogenetic map known.
+This object handles markers with a position in a cytogenetic map known.
 This marker will have a name and a position.
 
 =head1 FEEDBACK

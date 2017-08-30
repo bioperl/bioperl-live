@@ -146,7 +146,7 @@ sub fetch {
 		$seq = $seqio->next_seq();	
 	}
 
-	# we essentially assumme that the primary_id for the database
+	# we essentially assume that the primary_id for the database
 	# is the display_id
 	if (ref($seq) && $seq->isa('Bio::PrimarySeqI') &&
 		 $seq->primary_id =~ /^\D+$/) {

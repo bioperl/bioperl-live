@@ -267,8 +267,8 @@ sub _cuts_from_site {
 
  Title   : _meth
  Usage   : ($pos, $meth) = $self->_meth('2(5)');
- Function: Separates methylation postion and coce from a string.
-           Adjusts the postion depending on enzyme site length
+ Function: Separates methylation position and coce from a string.
+           Adjusts the position depending on enzyme site length
            and symmetry 
  Returns : array of position and methylation code
  Args    : 1. reference to Enzyme object
@@ -402,7 +402,7 @@ sub _make_multisites {
 
 The examples we have of multiply cutting enzymes cut only four
 times. This protected method deals only with a string of two
-integers separated with a slash, e.g. '12/7'. The numbers represent the postions
+integers separated with a slash, e.g. '12/7'. The numbers represent the positions
 BEFORE the start of the recognition site, i.e. negative positions.
 
 =cut

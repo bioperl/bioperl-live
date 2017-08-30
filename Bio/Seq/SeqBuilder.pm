@@ -355,7 +355,7 @@ sub make_object{
 
 =head1 Implementation specific methods
 
-These methods allow to conveniently configure this sequence object
+These methods allow one to conveniently configure this sequence object
 builder as to which slots are desired, and under which circumstances a
 sequence object should be abandoned altogether. The default mode is
 want_all(1), which means the builder will report all slots as wanted
@@ -564,7 +564,7 @@ sub want_all{
            Conditions in this implementation are closures (anonymous
            functions) which are passed one parameter, a hash reference
            the keys of which are equal to initialization
-           paramaters. The closure must return TRUE to make the object
+           parameters. The closure must return TRUE to make the object
            'wanted.'
 
            Conditions will be implicitly ANDed.

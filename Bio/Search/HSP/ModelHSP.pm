@@ -97,7 +97,7 @@ Plus Bio::Seach::HSP::ModelHSP methods
            -hsp_length=> Length of the HSP (including gaps)
            -identical => # of residues that that matched identically
            -conserved => # of residues that matched conservatively 
-                           (only protein comparisions; 
+                           (only protein comparisons;
 			    conserved == identical in nucleotide comparisons)
            -hsp_gaps   => # of gaps in the HSP
            -query_gaps => # of gaps in the query in the alignment

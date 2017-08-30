@@ -116,7 +116,7 @@ sub new {
 
  Title   : atom 
  Usage   : 
- Function:  nothing useful untill I get symbolic references to do what I want
+ Function:  nothing useful until I get symbolic references to do what I want
  Returns : 
  Args    : 
 
@@ -133,7 +133,7 @@ sub atom {
 
  Title   : add_atom
  Usage   : 
- Function:  nothing useful untill I get symbolic references to do what I want
+ Function:  nothing useful until I get symbolic references to do what I want
  Returns : 
  Args    : 
 

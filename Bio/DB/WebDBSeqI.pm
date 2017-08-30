@@ -26,7 +26,7 @@ for retrieving sequences
 =head1 DESCRIPTION
 
 Provides core set of functionality for connecting to a web based
-database for retriving sequences.
+database for retrieving sequences.
 
 Users wishing to add another Web Based Sequence Dabatase will need to
 extend this class (see L<Bio::DB::SwissProt> or L<Bio::DB::NCBIHelper> for
@@ -344,7 +344,7 @@ sub get_Stream_by_gi {
   Returns : a Bio::SeqIO stream object
   Args    : $ref : a reference to an array of accession.version strings for
                    the desired sequence entries
-  Note    : For GenBank, this is implemeted in NCBIHelper
+  Note    : For GenBank, this is implemented in NCBIHelper
 
 =cut
 

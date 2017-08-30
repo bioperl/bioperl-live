@@ -17,7 +17,7 @@ Bio::LiveSeq::Mutation - Mutation event descriptor class
 
 =head1 SYNOPSIS
 
-  # full descrition of a point mutation
+  # full description of a point mutation
   $mutation1a = Bio::LiveSeq::Mutation->new ( -seq => 'A',
 					      -seqori => 'T',
 					      -pos  => 100,

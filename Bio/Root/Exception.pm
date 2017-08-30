@@ -119,7 +119,7 @@ Error.pm is not available.
 
 =head2 Throwing exceptions within Bioperl modules
 
-Error.pm is not part of the Bioperl distibution, and may not be
+Error.pm is not part of the Bioperl distribution, and may not be
 present within  any given perl installation. So, when you want to
 throw an exception in a Bioperl module, the safe way to throw it
 is to use L<Bio::Root::Root/throw> which can use Error.pm

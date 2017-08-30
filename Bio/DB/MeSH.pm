@@ -184,7 +184,7 @@ sub _set_cgi_base_url {
 
   Title   : get_exact_term
   Usage   : $s = $db->get_exact_term($value);
-  Function: Retrive a single MeSH term using a unique ID or exact name.
+  Function: Retrieve a single MeSH term using a unique ID or exact name.
   Example :
   Returns : a Bio::Phenotype::MeSH::Term object
   Args    : scalar, UID or name of a MeSH term
@@ -286,7 +286,7 @@ sub  _run {
 sub result {
     my ($self,$value) = @_;
 
-    $self->throw("Could not retrive results") unless $self->status('COMPLETED');
+    $self->throw("Could not retrieve results") unless $self->status('COMPLETED');
 
     # no processing
     return $self->{'_content'} if $value && $value eq 'raw';

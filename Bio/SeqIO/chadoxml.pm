@@ -348,7 +348,7 @@ GenBank data file for a Drosophila melanogaster genome scaffold has the molecule
 type of "DNA", when converting to chadoxml, a $seqSOtype argument of
 "golden_path_region" can be supplied to save the scaffold as a feature of type
 "golden_path_region" in chadoxml, instead of "DNA". a feature with primary tag
-of 'source' must be present in the sequence feature list of $seq, to decribe the
+of 'source' must be present in the sequence feature list of $seq, to describe the
 whole sequence record.
 
 In the current implementation:
@@ -495,7 +495,7 @@ EOUSAGE
     undef(my @top_featrels);
     undef (my %srcfhash);
 
-    local($^W) = 0; # supressing warnings about uninitialized fields.
+    local($^W) = 0; # suppressing warnings about uninitialized fields.
 
         if (!$name && $seq->can('attributes') ) {
             ($name) = $seq->attributes('Alias');

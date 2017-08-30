@@ -48,7 +48,7 @@ element
 
 =head1 DESCRIPTION
 
-A transcription factor modelled as a mappable element. It can have mulitple
+A transcription factor modelled as a mappable element. It can have multiple
 binding sites (positions) near multiple genes (maps).
 
 =head1 FEEDBACK

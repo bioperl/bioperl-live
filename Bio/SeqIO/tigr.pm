@@ -263,7 +263,7 @@ sub _process_pseudochromosome
 		return;
 	}
 
-	$self->throw("Reached end of _process_psuedochromosome");
+	$self->throw("Reached end of _process_pseudochromosome");
 }
 
 sub _process_assembly
@@ -364,7 +364,7 @@ sub _process_assembly_seq()
 			     "with no <ASSEMBLY_SEQUENCE> in the stream");
 	}
 
-	# Protect agains lots of smaller lines
+	# Protect against lots of smaller lines
 	my @chunks;
 
 	do {

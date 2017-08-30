@@ -171,7 +171,7 @@ sub new {
    my ($class, @args) = @_;
    my $self = $class->SUPER::new(@args);
    # default: turn OFF the warnings
-   $self->{supress_warnings} = 1;
+   $self->{suppress_warnings} = 1;
    my($qual,$seq,$id,$acc,$pid,$desc,$given_id,$alphabet,$trace_indices) =
    $self->_rearrange([qw( QUAL SEQ DISPLAY_ID ACCESSION_NUMBER PRIMARY_ID DESC
      ID ALPHABET TRACE_INDICES )], @args);
@@ -188,7 +188,7 @@ sub new {
    # Import sequence first
    if (!$seq) {
       my $id;
-      unless ($self->{supress_warnings} == 1) {
+      unless ($self->{suppress_warnings} == 1) {
          $self->warn("You did not provide sequence information during the ".
            "construction of a Bio::Seq::SeqWithQuality object. Sequence ".
            "components for this object will be empty.");
@@ -427,7 +427,7 @@ sub display_id {
            called the accession_number. For sequences from established
            databases, the implementors should try to use the correct
            accession number. Notice that primary_id() provides the unique id
-           for the implemetation, allowing multiple objects to have the same
+           for the implementation, allowing multiple objects to have the same
            accession number in a particular implementation. For sequences
            with no accession number, this method should return "unknown".
            This method sets the accession_number for the SeqWithQuality
@@ -457,7 +457,7 @@ sub accession_number {
  Usage   : $unique_implementation_key = $obj->primary_id();
  Function: Returns the unique id for this object in this implementation.
            This allows implementations to manage their own object ids in a
-           way the implementaiton can control clients can expect one id to
+           way the implementation can control clients can expect one id to
            map to one object. For sequences with no accession number, this
            method should return a stringified memory location.
            This method sets the primary_id for the SeqWithQuality object.
@@ -632,13 +632,13 @@ sub trace_indices {
 sub length {
    my $self = shift;
    if (!$self->{seq_ref}) {
-      unless ($self->{supress_warnings} == 1) {
+      unless ($self->{suppress_warnings} == 1) {
          $self->warn("Can't find {seq_ref} here in length().");
       }
       return;
    }
    if (!$self->{qual_ref}) {
-      unless ($self->{supress_warnings} == 1) {
+      unless ($self->{suppress_warnings} == 1) {
          $self->warn("Can't find {qual_ref} here in length().");
       }
       return;
@@ -646,7 +646,7 @@ sub length {
    my $seql = $self->{seq_ref}->length();
 
    if ($seql != $self->{qual_ref}->length()) {
-      unless ($self->{supress_warnings} == 1) {
+      unless ($self->{suppress_warnings} == 1) {
          $self->warn("Sequence length (".$seql.") is different from quality ".
            "length (".$self->{qual_ref}->length().") in the SeqWithQuality ".
            "object. This can only lead to problems later.");

@@ -383,7 +383,7 @@ sub cut {
     return $self;
 }
 
-=head2 mulitple_digest
+=head2 multiple_digest
 
  Title     : multiple_digest
  Function  : perform a multiple digest on a sequence

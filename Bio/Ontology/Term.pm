@@ -164,7 +164,7 @@ sub new {
     defined($is_obsolete)  && $self->is_obsolete( $is_obsolete );
     defined($comment)      && $self->comment( $comment  );
     defined($dbxrefs)      && $self->add_dbxref(-dbxrefs => $dbxrefs);
-    # deprecated methods, allow to pass on to get the dep. notification
+    # deprecated methods, allow one to pass on to get the dep. notification
     ref($dblinks)          && $self->add_dblink(@$dblinks);
     ref($references)       && $self->add_reference(@$references);
 
@@ -938,7 +938,7 @@ sub description {
 
 =head1  Deprecated methods
 
-Used for looking up the methods that supercedes them.
+Used for looking up the methods that supersedes them.
 
 =cut
 

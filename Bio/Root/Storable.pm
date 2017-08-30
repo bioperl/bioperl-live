@@ -26,7 +26,7 @@ should be called during object instantiation.
 
 Object storage is recursive; If the object being stored contains other
 storable objects, these will be stored separately, and replaced by a
-skeleton object in the parent heirarchy. When the parent is later
+skeleton object in the parent hierarchy. When the parent is later
 retrieved, its children remain in the skeleton state until explicitly
 retrieved by the parent. This lazy-retrieve approach has obvious
 memory efficiency benefits for certain applications.
@@ -106,7 +106,7 @@ sub _initialise_storable {
 
   Arg [1]   : string (optional)
   Function  : Accessor for the file to write state into.
-              Should not normaly use as a setter - let Root::IO
+              Should not normally use as a setter - let Root::IO
               do this for you.
   Returntype: string
   Exceptions:

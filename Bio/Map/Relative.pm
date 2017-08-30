@@ -183,7 +183,7 @@ sub absolute_conversion {
         $self->throw("Relative to a Mappable, but this Mappable has no positions on the supplied Position's map") unless $value;
     }
     if (ref($value)) {
-        # psuedo-recurse
+        # pseudo-recurse
         my $rel = $value->relative;
         $value = $rel->absolute_conversion($value);
     }

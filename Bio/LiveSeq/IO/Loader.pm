@@ -135,7 +135,7 @@ sub entry2liveseq {
             integer (optional) "flanking": amount of flanking bases to be kept
             boolean (optional) "getswissprotinfo": if set to "0" it will avoid
              trying to fetch information from a crossreference to a SwissProt
-             entry, avoding the process of creation of AARange objects
+             entry, avoiding the process of creation of AARange objects
              It is "1" (on) by default
 
             Alternative to a gene_name, a position can be given: an

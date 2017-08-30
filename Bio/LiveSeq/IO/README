@@ -14,7 +14,7 @@ Bio::LiveSeq::IO::Loader
 
 Bio::LiveSeq::IO::BioPerl
 
-	is the preferred method which uses Bio::DB::EMBL to retrive
+	is the preferred method which uses Bio::DB::EMBL to retrieve
 	sequences over the Web by accession number.
 
 Bio::LiveSeq::IO::SRS

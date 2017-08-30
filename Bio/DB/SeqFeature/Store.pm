@@ -2620,7 +2620,7 @@ you want to calculate the coverage density. An object is returned
 corresponding to the requested region. It contains a tag called
 "coverage" that will return an array ref of "bins" length. Each
 element of the array describes the number of features that overlap the
-bin at this postion.
+bin at this position.
 
 Arguments:
 

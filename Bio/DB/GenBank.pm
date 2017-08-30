@@ -54,7 +54,7 @@ Bio::DB::GenBank - Database object interface to GenBank
     # or ... best when downloading very large files, prevents
     # keeping all of the file in memory
 
-    # also don't want features, just sequence so let's save bandwith
+    # also don't want features, just sequence so let's save bandwidth
     # and request Fasta sequence
     $gb = Bio::DB::GenBank->new(-retrievaltype => 'tempfile' ,
 			                      -format => 'Fasta');

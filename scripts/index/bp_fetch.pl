@@ -50,7 +50,7 @@ db information
 options only for expert use
 
   -dir  <dir>    - directory to find the index files
-                  (overrides BIOPERL_INDEX environment varaible)
+                  (overrides BIOPERL_INDEX environment variable)
   -type <type>   - type of DBM file to open
                   (overrides BIOPERL_INDEX_TYPE environment variable)
 
@@ -163,7 +163,7 @@ BEGIN {
 
   if ( $@ ) {
     if ( !exists $ENV{'BIOPERL_SAVVY'} ) {
-      print STDERR ("\nbp_fetch cannot find Bio::DB::GenBank and Bio::DB::EMBL modules\nThis is most likely because LWP has not been installed\nThis does not effect local indexing\nset environment variable BIOPERL_SAVVY to supress this message\n\n");
+      print STDERR ("\nbp_fetch cannot find Bio::DB::GenBank and Bio::DB::EMBL modules\nThis is most likely because LWP has not been installed\nThis does not effect local indexing\nset environment variable BIOPERL_SAVVY to suppress this message\n\n");
     }
   }
 }
@@ -264,7 +264,7 @@ for my $arg ( @ARGV ) {
       };
       /^local$/ && do {
 	if ( !$dir ) {
-	  die "\nNo directory specified for index\nDirectory must be specified by the environment varaible BIOPERL_INDEX or --dir option\ngo bp_index with no arguments for more help\n\n";
+	  die "\nNo directory specified for index\nDirectory must be specified by the environment variable BIOPERL_INDEX or --dir option\ngo bp_index with no arguments for more help\n\n";
 	}
 
 	#

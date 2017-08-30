@@ -58,7 +58,7 @@ Bio::Perl - Functional access to BioPerl for people who don't know objects
 
   $seq_object = get_sequence('genbank',"AI129902");
 
-  # BLAST a sequence (assummes an internet connection)
+  # BLAST a sequence (assumes an internet connection)
 
   $blast_report = blast_sequence($seq_object);
 

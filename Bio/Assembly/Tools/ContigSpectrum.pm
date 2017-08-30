@@ -1819,7 +1819,7 @@ sub _update_overlap_stats {
   Args    : Bio::Assembly::Contig object reference
             Bio::LocatableSeq contig sequence 1
             Bio::LocatableSeq contig sequence 2
-            minium overlap length [optional]
+            minimum overlap length [optional]
             minimum overlap identity percentage[optional]
 
 =cut

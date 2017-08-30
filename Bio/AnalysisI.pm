@@ -676,7 +676,7 @@ keys:
    ended
    elapsed
 
-See C<create> for remarks on time formating.
+See C<create> for remarks on time formatting.
 
 An example - both for unformatted and formatted times:
 

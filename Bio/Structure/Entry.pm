@@ -212,7 +212,7 @@ sub add_model {
 				}
 				push @{$self->{'model'}}, $m;
 				# create a stringified version of our ref
-				# not used untill we get symbolic ref working
+				# not used until we get symbolic ref working
 				#my $str_ref = "$self";
 				#$m->_grandparent($str_ref);
 			}
@@ -798,7 +798,7 @@ sub parent {
 		$self->throw("parent: you need to supply an argument to get the parent from\n");
 	}
 
-	# for now we pass on to _parent, untill we get the symbolic ref thing working.
+	# for now we pass on to _parent, until we get the symbolic ref thing working.
 	$self->_parent($obj);
 }
 

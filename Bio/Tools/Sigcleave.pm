@@ -92,7 +92,7 @@ In both cases, the "threshold" setting controls the score reporting
 level. If no value for threshold is passed in by the user, the code
 defaults to a reporting value of 3.5.
 
-In this implemntation the accessor will never return any
+In this implementation the accessor will never return any
 score/position pair which does not meet the threshold limit. This is
 the slightly different from the behaviour of the 8.1 EGCG sigcleave
 program which will report the highest of the under-threshold results

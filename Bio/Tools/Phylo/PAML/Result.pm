@@ -957,7 +957,7 @@ sub get_CodonFreqs{
 }
 
 
-=head2 BASEML Relavent values
+=head2 BASEML Relevant values
 
 =cut
 

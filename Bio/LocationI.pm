@@ -358,7 +358,7 @@ sub is_remote{
 
             The interface *does not* require implementing classes to
             accept setting of a different policy. The implementation
-            provided here does, however, allow to do so.
+            provided here does, however, allow one to do so.
 
             Implementors of this interface are expected to initialize
             every new instance with a

@@ -125,7 +125,7 @@ $Util = Bio::Root::Root->new();
 
  Title     : date_format
  Usage     : $Util->date_format( [FMT], [DATE])
- Purpose   : -- Get a string containing the formated date or time
+ Purpose   : -- Get a string containing the formatted date or time
            :    taken when this routine is invoked.
            : -- Provides a way to avoid using `date`.
            : -- Provides an interface to localtime().
@@ -331,7 +331,7 @@ sub num2month {
            :            gzip, which is the default)
            :   -OUTFILE => String (name of the output compressed file, full path).
            :   -EXE  => Name of executable for compression utility to use.
-           :            Will supercede those in @COMPRESSION_UTILS defined by
+           :            Will supersede those in @COMPRESSION_UTILS defined by
            :            this module. If the absolute path to the executable is not provided,
            :            it will be searched in the PATH env variable.
  Throws    : Exception if file cannot be compressed.
@@ -455,7 +455,7 @@ sub compress {
            :            gzip, which is the default)
            :   -OUTFILE => String (name of the output uncompressed file, full path).
            :   -EXE  => Name of executable for uncompression utility to use.
-           :            Will supercede those in @UNCOMPRESSION_UTILS defined by
+           :            Will supersede those in @UNCOMPRESSION_UTILS defined by
            :            this module. If the absolute path to the executable is not provided,
            :            it will be searched in the PATH env variable.
  Throws    : Exception if file cannot be uncompressed.
@@ -882,7 +882,7 @@ sub create_filehandle {
            :                                   -FILE =>'usr/people/me/data.txt')
  Argument  : Same arguemnts as for create_filehandle().
  Returns   : Reference to a FileHandle object.
- Throws    : Propogates any exceptions thrown by Bio::Root::Utilities::get_newline().
+ Throws    : Propagates any exceptions thrown by Bio::Root::Utilities::get_newline().
 
 See Also : L<taste_file()|taste_file>, L<create_filehandle()|create_filehandle>
 
@@ -1039,7 +1039,7 @@ sub taste_file {
            :   mac (\r or 015 or ^M)
            :   unknown
  Throws    : Exception if argument is not a file
-           : Propogates any exceptions thrown by Bio::Root::Utilities::get_newline().
+           : Propagates any exceptions thrown by Bio::Root::Utilities::get_newline().
 
 See Also : L<get_newline()|get_newline>,  L<taste_file()|taste_file>
 

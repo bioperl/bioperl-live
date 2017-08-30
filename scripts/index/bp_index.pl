@@ -48,7 +48,7 @@ Options for expert use
 =head1 ENVIRONMENT
 
 bp_index and bp_fetch coordinate where the databases lie using the
-enviroment variable BIOPERL_INDEX. This can be overridden using the
+environment variable BIOPERL_INDEX. This can be overridden using the
 -dir option. There is no default value, so you must use the -dir option 
 or set BIOPERL_INDEX.
 
@@ -143,7 +143,7 @@ exec('perldoc',$0) unless @ARGV;
 my $name = shift;
 
 if( !$dir ) {
-    print STDERR "\nNo directory specified for index\nDirectory must be specified by the environment varaible BIOPERL_INDEX or -dir option\ngo bp_index with no arguments for more help\n\n";
+    print STDERR "\nNo directory specified for index\nDirectory must be specified by the environment variable BIOPERL_INDEX or -dir option\ngo bp_index with no arguments for more help\n\n";
     exit(1);
 }
 

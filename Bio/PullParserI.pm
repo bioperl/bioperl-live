@@ -47,7 +47,7 @@ would need to cache some data or otherwise behave differently during a
 sequential read.
 
 The main method in the system is get_field(). This method relies on the
-existance of a private hash reference accessible to it with the method
+existence of a private hash reference accessible to it with the method
 _fields(). That hash ref should have as keys all the sorts of data you will want
 to parse (eg. 'score'), and prior to parsing the values would be undefined. A
 user of your module can then call either $module-E<gt>get_field('score') or

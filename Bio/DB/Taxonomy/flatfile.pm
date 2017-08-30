@@ -506,7 +506,7 @@ sub _db_connect {
 =head2 index_directory
 
  Title   : index_directory
- Funtion : Get/set the location that index files are stored. (this module
+ Function : Get/set the location that index files are stored. (this module
            will index the supplied database)
  Usage   : $obj->index_directory($newval)
  Returns : value of index_directory (a scalar)

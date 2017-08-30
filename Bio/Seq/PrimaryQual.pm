@@ -327,7 +327,7 @@ sub header {
         called the accession_number. For sequences from established
         databases, the implementors should try to use the correct
         accession number. Notice that primary_id() provides the unique id
-        for the implemetation, allowing multiple objects to have the same
+        for the implementation, allowing multiple objects to have the same
         accession number in a particular implementation. For sequences
         with no accession number, this method should return "unknown".
  Returns : A string
@@ -354,7 +354,7 @@ sub accession_number {
  Usage   : $unique_implementation_key = $obj->primary_id();
  Function: Returns the unique id for this object in this implementation.
         This allows implementations to manage their own object ids in a
-        way the implementaiton can control clients can expect one id to
+        way the implementation can control clients can expect one id to
         map to one object. For sequences with no accession number, this
         method should return a stringified memory location.
  Returns : A string

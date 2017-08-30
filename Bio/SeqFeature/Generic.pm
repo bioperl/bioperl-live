@@ -46,7 +46,7 @@ the information for a feature on a sequence.
 For many Features, this is all you will need to use (for example, this
 is fine for Repeats in DNA sequence or Domains in protein
 sequence). For other features, which have more structure, this is a
-good base class to extend using inheritence to have new things: this
+good base class to extend using inheritance to have new things: this
 is what is done in the L<Bio::SeqFeature::Gene>,
 L<Bio::SeqFeature::Transcript> and L<Bio::SeqFeature::Exon>, which provide
 well coordinated classes to represent genes on DNA sequence (for
@@ -553,7 +553,7 @@ sub source_tag {
 
  Title   : has_tag
  Usage   : my $value = $feat->has_tag('some_tag');
- Function: Tests wether a feature contaings a tag
+ Function: Tests whether a feature containings a tag
  Returns : TRUE if the SeqFeature has the tag,
            and FALSE otherwise.
  Args    : The name of a tag

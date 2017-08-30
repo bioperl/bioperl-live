@@ -478,7 +478,7 @@ sub next_seq {
          -annotation => $annotation,
         );
 
-    # The annotation doesn't get added by the contructor
+    # The annotation doesn't get added by the constructor
     $seq->annotation($annotation);
 
     return $seq;
@@ -549,7 +549,7 @@ sub write_seq {
         $self->_print( "ID   $temp_line\n");
 
         # if there, write the accession line
-        local($^W) = 0;         # supressing warnings about uninitialized fields
+        local($^W) = 0;         # suppressing warnings about uninitialized fields
 
         if ( $self->_ac_generation_func ) {
             $temp_line = &{$self->_ac_generation_func}($seq);

@@ -416,7 +416,7 @@ Sequences producing significant alignments:                      (bits)    value
 			if( defined $v->{'start'} ) { 
 			    $start = $v->{'start'};
 			    # since strand can be + or - use the direction
-			    # to signify which whether to add or substract from end
+			    # to signify which whether to add or subtract from end
 			    my $d = $v->{'direction'} * ( $AlignmentLineWidth - $plen )*
 				$baselens{$v->{'name'}};
 			    if( length($piece) < $AlignmentLineWidth ) {

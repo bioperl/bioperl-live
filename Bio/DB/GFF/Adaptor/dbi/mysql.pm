@@ -111,7 +111,7 @@ This is the feature data table.  Its columns are:
     fid	           feature ID (integer)
     fref           reference sequence name (string)
     fstart         start position relative to reference (integer)
-    fstop          stop postion relative to reference (integer)
+    fstop          stop position relative to reference (integer)
     ftypeid        feature type ID (integer)
     fscore         feature score (float); may be null
     fstrand        strand; one of "+" or "-"; may be null

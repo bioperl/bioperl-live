@@ -192,7 +192,7 @@ sub aa_mut {
 
             Sets and returns codon_ori triplet.  If value is not set,
             returns false.  The string has to be three characters
-            long. The chracter content is not checked.
+            long. The character content is not checked.
 
  Example : 
  Returns : string

@@ -546,7 +546,7 @@ sub display_id {
            called the accession_number. For sequences from established
            databases, the implementors should try to use the correct
            accession number. Notice that primary_id() provides the
-           unique id for the implemetation, allowing multiple objects
+           unique id for the implementation, allowing multiple objects
            to have the same accession number in a particular implementation.
 
            For sequences with no accession number, this method should
@@ -579,7 +579,7 @@ sub accession_number {
  Usage   : $unique_key = $seqobj->primary_id;
  Function: Returns the unique id for this object in this
            implementation. This allows implementations to manage their
-           own object ids in a way the implementaiton can control
+           own object ids in a way the implementation can control
            clients can expect one id to map to one object.
 
            For sequences with no natural primary id, this method
@@ -801,7 +801,7 @@ This comprises of display_name and description.
  Usage   : $string = $seqobj->display_name();
  Function: Get or set a string which is what should be displayed to the user.
            The string should have no spaces (ideally, though a cautious
-           user of this interface would not assumme this) and should be
+           user of this interface would not assume this) and should be
            less than thirty characters (though again, double checking
            this is a good idea).
 
@@ -852,8 +852,8 @@ actually implemented on Bio::PrimarySeqI
            sequences this throws an exception of
            "Sequence is a protein. Cannot revcom".
 
-           The id is the same id as the orginal sequence, and the
-           accession number is also indentical. If someone wants to
+           The id is the same id as the original sequence, and the
+           accession number is also identical. If someone wants to
            track that this sequence has be reversed, it needs to
            define its own extensions.
 

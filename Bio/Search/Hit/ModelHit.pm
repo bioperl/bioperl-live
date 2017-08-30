@@ -171,7 +171,7 @@ Implementation of Bio::Search::Hit::HitI methods
  Usage   : $desc = $hit->description();
  Function: Retrieve the description for the hit
  Returns : a scalar string
- Args    : [optional] scalar string to set the descrition
+ Args    : [optional] scalar string to set the description
 
 =cut
 

@@ -116,7 +116,7 @@ sub read {
         chomp $line;
 
         my ($name, $prototype, $site, $meth, $vendor, $refs) = split /\t/, $line;
-        # we need mininum name and site
+        # we need minimum name and site
         unless ($site) {
             $self->warn("Can not parse line with name [$name]") if $self->verbose > 0;
             next;

@@ -25,7 +25,7 @@ Do not use this module directly.  Use it via the L<Bio::SeqIO> class.
 
 This object can product Bio::Seq::RichSeq objects from Lasergene sequence files.
 
-IT DOES NOT PARSE ANY ATTIBUTE VALUE PAIRS IN THE HEADER OF THE LASERGENE FORMATTED FILE.
+IT DOES NOT PARSE ANY ATTRIBUTE VALUE PAIRS IN THE HEADER OF THE LASERGENE FORMATTED FILE.
 
 IT DOES NOT WRITE THESE FILES EITHER.
 

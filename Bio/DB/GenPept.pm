@@ -184,7 +184,7 @@ sub default_format {
   Usage   : $seq = $db->get_Seq_by_acc('AAC73346');
   Function: Gets a Seq objects by accession number
   Returns : Bio::Seq object
-  Args    : accession number to retrive by
+  Args    : accession number to retrieve by
 
 =head1 Routines implemented by Bio::DB::NCBIHelper
 

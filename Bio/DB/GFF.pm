@@ -696,7 +696,7 @@ adaptor-specific arguments:
   -refclass      landmark Class; defaults to "Sequence"
 
 
-The commonly used 'dbi::mysqlopt' adaptor also recogizes the following
+The commonly used 'dbi::mysqlopt' adaptor also recognizes the following
 arguments.
 
   Argument       Description
@@ -2978,7 +2978,7 @@ sub get_features{
  Status  : abstract
 
 This method is used internally.  The callback arguments are the same
-as those used by make_feature().  This method must be overidden by
+as those used by make_feature().  This method must be overridden by
 subclasses.
 
 =cut
@@ -3008,7 +3008,7 @@ This method is used internally to fetch features either by their ID or
 their group ID.  $ids is a arrayref containing a list of IDs, $type is
 one of "feature" or "group", and $callback is a callback.  The
 callback arguments are the same as those used by make_feature().  This
-method must be overidden by subclasses.
+method must be overridden by subclasses.
 
 =cut
 

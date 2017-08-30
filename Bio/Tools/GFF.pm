@@ -1236,7 +1236,7 @@ sub get_seqs {
 
  Title   : features_attached_to_seqs
  Usage   : $obj->features_attached_to_seqs(1);
- Function: For use with GFF3 containg sequence only
+ Function: For use with GFF3 containing sequence only
 
     Setting this B<before> parsing ensures that all Bio::Seq object
     created will have the appropriate features added to them
@@ -1265,7 +1265,7 @@ sub features_attached_to_seqs{
 
  Title   : ignore_sequence
  Usage   : $obj->ignore_sequence(1);
- Function: For use with GFF3 containg sequence only
+ Function: For use with GFF3 containing sequence only
 
     Setting this B<before> parsing means that all sequence data will be
     ignored

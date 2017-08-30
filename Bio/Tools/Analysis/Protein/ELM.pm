@@ -205,7 +205,7 @@ sub compartment {
 
  name      : species
  usage     : $tool->species('9606');
- purpose   : get/setter for species selction for ELM server
+ purpose   : get/setter for species selection for ELM server
  arguments : none, taxon_id or Bio::Species object
  returns   : a string of the ncbi taxon_id
 

@@ -651,7 +651,7 @@ sub bits {
  Returns : +1 or -1 (0 if unknown)
  Args    : 'hit' or 'subject' or 'sbjct' to retrieve the strand of the subject
            'query' to retrieve the query strand (default)
-           'list' or 'array' to retreive both query and hit together
+           'list' or 'array' to retrieve both query and hit together
 
 =cut
 

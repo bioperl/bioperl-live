@@ -136,7 +136,7 @@ sub seqref {
     Title   : _seq_to_singlet
     Usage   : $singlet->seqref($seq)
     Function: Transform a sequence into a singlet
-    Returns : 1 for sucess
+    Returns : 1 for success
     Args    : A Bio::Seq-compliant object
 
 =cut

@@ -106,7 +106,7 @@ Juguang Xiao, juguang@tll.org.sg
 =head2 APPENDIX
 
 The rest of the documentation details each of the object methods.
-Interal methods are usually preceded with a _
+Internal methods are usually preceded with a _
 
 =cut
 

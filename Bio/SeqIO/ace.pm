@@ -24,7 +24,7 @@ from ace file format.  It only parses a DNA or
 Peptide objects contained in the ace file,
 producing PrimarySeq objects from them.  All
 other objects in the files will be ignored.  It
-doesn't attempt to parse any annotation attatched
+doesn't attempt to parse any annotation attached
 to the containing Sequence or Protein objects,
 which would probably be impossible, since
 everyone's ACeDB schema can be different.

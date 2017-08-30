@@ -590,7 +590,7 @@ sub remove_annotations {
  Title   : get_value
  Usage   : $ac->get_value($tagname) -or-
            $ac->get_value( $tag_level1, $tag_level2,... )
- Function: access the annotation value assocated with the given tags
+ Function: access the annotation value associated with the given tags
  Example :
  Returns : a scalar
  Args    : an array of tagnames that descend into the annotation tree

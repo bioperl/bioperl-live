@@ -41,7 +41,7 @@ Bio::DB::RefSeq - Database object interface for RefSeq retrieval
   # or ... best when downloading very large files, prevents
   # keeping all of the file in memory
 
-  # also don't want features, just sequence so let's save bandwith
+  # also don't want features, just sequence so let's save bandwidth
   # and request Fasta sequence
   $db = Bio::DB::RefSeq->new(-retrievaltype => 'tempfile' ,
  			       -format => 'fasta');
@@ -65,7 +65,7 @@ The functionality of this module is inherited from L<Bio::DB::DBFetch>
 which implements L<Bio::DB::WebDBSeqI>.
 
 This module retrieves entries from EBI although it
-retrives database entries produced at NCBI. When read into bioperl
+retrieves database entries produced at NCBI. When read into bioperl
 objects, the parser for GenBank format it used. RefSeq is a
 NONSTANDARD GenBank file so be ready for surprises.
 

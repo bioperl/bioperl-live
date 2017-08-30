@@ -244,7 +244,7 @@ sub set_Allele_Frequency {
 					     FREQUENCY
 					     FREQUENCIES
 					     )], @args);
-   if( defined $frequencies ) { # this supercedes the res
+   if( defined $frequencies ) { # this supersedes the res
        if( ref($frequencies) =~ /HASH/i ) {
 	   my ($markername,$alleles);
 	   while( ($markername,$alleles) = each %$frequencies ) {
@@ -488,7 +488,7 @@ sub get_number_individuals{
  Function: Fixes the number of individuals, call this with
            0 to unset.
            Only use this if you know what you are doing,
-           this is only relavent when you are just adding
+           this is only relevant when you are just adding
            allele frequency data for a population and want to
            calculate something like theta
  Returns : none

@@ -164,7 +164,7 @@ $MIN_INTRON=30; # This is the minimum intron size
  Usage   : my $obj = Bio::SearchIO::exonerate->new();
  Function: Builds a new Bio::SearchIO::exonerate object
  Returns : an instance of Bio::SearchIO::exonerate
- Args    : -min_intron => somewhat obselete option, how to determine if a
+ Args    : -min_intron => somewhat obsolete option, how to determine if a
                           an indel is an intron or a local gap.  Use VULGAR
                           rather than CIGAR to avoid this heuristic,default 30.
            -cigar       => 1   set this to 1 if you want to parse

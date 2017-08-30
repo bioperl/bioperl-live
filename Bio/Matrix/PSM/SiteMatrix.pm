@@ -17,7 +17,7 @@ position scoring matrix (or position weight matrix) and log-odds
   #or
   my ($a,$c,$g,$t,$score,$ic,$mid)=('05a011','110550','400001',
                                     '100104',0.001,19.2,'CRE1');
-  #Where a stands for all (this frequency=1), see explanation bellow
+  #Where a stands for all (this frequency=1), see explanation below
   my %param=(-pA=>$a,-pC=>$c,-pG=>$g,-pT=>$t,
              -lA=>$la, -lC=>$lc,-lG=>$lg,-lT=>$l,
              -IC=>$ic,-e_val=>$score, -id=>$mid);
@@ -75,7 +75,7 @@ Throws an exception if: You mix as an input array and string (for example A
 matrix is given as array, C - as string). The position vector is (0,0,0,0). One
 of the probability vectors is shorter than the rest.
 
-Summary of the methods I use most frequently (details bellow):
+Summary of the methods I use most frequently (details below):
 
   iupac - return IUPAC compliant consensus as a string
   score - Returns the score as a real number
@@ -188,7 +188,7 @@ use base qw(Bio::Root::Root Bio::Matrix::PSM::SiteMatrixI);
             -sites => int, the number of sites that went into this matrix
             -model => hash ref, background frequencies for A, C, G and T
             -correction => number, the number to add to all positions to achieve
-                           psuedo count correction (default 0: no correction)
+                           pseudo count correction (default 0: no correction)
                            NB: do not use correction when your input is
                            frequences!
             -accession_number => string, an accession number
@@ -273,7 +273,7 @@ sub new {
             $self->throw("Position meaningless-all frequencies are 0");
         }
         
-        # apply psuedo-count correction to all values - this will result in
+        # apply pseudo-count correction to all values - this will result in
         # very bad frequencies if the input is already frequences and a
         # correction value as large as 1 is used!
         if ($self->{correction}) {
@@ -360,7 +360,7 @@ sub calc_weight {
 
  Title   : next_pos
  Usage   :
- Function: Retrives the next position features: frequencies for A,C,G,T, the
+ Function: Retrieves the next position features: frequencies for A,C,G,T, the
            main letter (as in consensus) and the probabilty for this letter to
            occur at this position and the current position
  Returns : hash (pA,pC,pG,pT,logA,logC,logG,logT,base,prob,rel)
@@ -877,7 +877,7 @@ sub _uncompress_string {
  Usage   :
  Function: A method to provide a compressed frequency vector. It uses one byte
            to code the frequence for one of the probability vectors for one
-           position. Useful for relational database. Improvment of the previous
+           position. Useful for relational database. Improvement of the previous
            0..a coding.
  Example :  my $strA=$self->get_compressed_freq('A');
  Returns :  String

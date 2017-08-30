@@ -154,7 +154,7 @@ are still not below threshold in the current iteration.
 
 =item * oldhits()  [subset C]
 
-All hits that occured in a previous iteration, whether below or above
+All hits that occurred in a previous iteration, whether below or above
 threshold in the current iteration. Union of oldhits_below_threshold()
 + oldhits_newly_below_threshold() + oldhits_not_below_threshold()
 [subset H + subset I + subset G]. (Not applicable to the first

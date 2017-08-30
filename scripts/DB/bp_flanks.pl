@@ -246,7 +246,7 @@ sequence the subsequence was taken.
 
 The ID of the fasta entry is the name given at the command line joined
 by hyphen to the filename or accesion of the source sequence. If no id
-is given a series of consequtive integers is used.
+is given a series of consecutive integers is used.
 
 The tag=value pairs are:
 

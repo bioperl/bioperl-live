@@ -64,7 +64,7 @@ if it has also been installed.
 
 If L<Error> has been installed, L<throw>() will use it. This causes an
 Error.pm-derived object to be thrown. This can be caught within a
-C<catch{}> block, from wich you can extract useful bits of
+C<catch{}> block, from which you can extract useful bits of
 information. If L<Error> is not installed, it will use the
 L<Bio::Root::RootI>-based exception throwing facilty.
 

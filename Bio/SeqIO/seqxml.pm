@@ -906,7 +906,7 @@ sub element_property {
         push @{ $data->{'properties'} }, $annotation_obj;
     }
     else {
-        $self->throw("malformated property!");
+        $self->throw("malformatted property!");
     }
 }
 

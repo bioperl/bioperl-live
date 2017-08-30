@@ -126,7 +126,7 @@ use tied(%db) to recover the Bio::DB::IndexedBase object and call its methods.
  }
 
 In addition, you may invoke the FIRSTKEY and NEXTKEY tied hash methods directly
-to retrieve the first and next ID in the database, respectively. This allows to
+to retrieve the first and next ID in the database, respectively. This allows one to
 write the following iterative loop using just the object-oriented interface:
 
  my $db = Bio::DB::IndexedBase->new('/path/to/file');

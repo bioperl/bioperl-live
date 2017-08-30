@@ -41,7 +41,7 @@ Bio::Matrix::PSM::Psm - handle combination of site matricies
   # where pA through pG are the respective frequencies of the matrix (see also
   # Bio::Matrix::PSM::SiteMatrix), and everything else is self-explenatory, 
   # except for -instances (reference to an array of 
-  #  Bio::Matrix::PSM::InstanceSite objects) which is documented bellow.
+  #  Bio::Matrix::PSM::InstanceSite objects) which is documented below.
 
 =head1 DESCRIPTION
 
@@ -67,7 +67,7 @@ arrray of InstanceSite objects and then mast will return undef for
 SiteMatrix and transfac will return undef for InstanceSite. Probably I
 cannot see some other design issues that might arise from such
 approach, but it seems more straightforward.  Hilmar does not like
-this beacause it is an exception from the general BioPerl rules Should
+this because it is an exception from the general BioPerl rules Should
 I leave this as an option?  Also the header rightfully belongs the
 driver object, and could be retrieved as hashes.  I do not think it
 can be done any other way, unless we want to create even one more

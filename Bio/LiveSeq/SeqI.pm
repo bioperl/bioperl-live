@@ -248,7 +248,7 @@ sub labelsubseq {
            length, integer, '' or undef
            an optional strand (1 or -1) 4th argument
             if strand argument is not given, it will default to the object
-            argment. This argument is useful when a call is issued from a child
+            argument. This argument is useful when a call is issued from a child
             of a parent object containing the subseq method
 
 =cut
@@ -386,7 +386,7 @@ sub display_id {
  Function: Returns the unique biological id for a sequence, commonly
            called the accession_number.
            Notice that primary_id() provides the unique id for the
-           implemetation, allowing multiple objects to have the same accession
+           implementation, allowing multiple objects to have the same accession
            number in a particular implementation.
 
            For objects with no accession_number this method returns "unknown".

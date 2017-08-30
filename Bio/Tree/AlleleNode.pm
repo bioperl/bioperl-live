@@ -381,7 +381,7 @@ Methods inherited from L<Bio::Tree::Node>.
  Function: The human readable identifier for the node 
  Returns : value of human readable id
  Args    : newvalue (optional)
- Note    : id cannot contain the chracters '();:'
+ Note    : id cannot contain the characters '();:'
 
 "A name can be any string of printable characters except blanks,
 colons, semicolons, parentheses, and square brackets. Because you may

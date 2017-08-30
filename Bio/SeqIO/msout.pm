@@ -757,7 +757,7 @@ Function: returns a reference to a hash.  The keys of the hash are the letters '
           Bio::SeqIO::msout stream should be translated to.
 Returns : reference to a hash
 Args    : NONE  
-Synopsys:
+Synopsis:
 	
 	# retrieve the Bio::Seq object's sequence
 	my $haplotype = $seq->seq;

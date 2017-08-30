@@ -47,7 +47,7 @@ The Bioperl approach is that the "interesting facts" are represented by
 Bio::AnnotationI objects. The interface Bio::AnnotationI guarantees
 two methods
 
-   $obj->as_text(); # string formated to display to users
+   $obj->as_text(); # string formatted to display to users
 
 and
 

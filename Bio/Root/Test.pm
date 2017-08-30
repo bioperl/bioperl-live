@@ -189,7 +189,7 @@ our @TEMP_FILES;
                                         be skipped if either network tests
                                         haven't been enabled in Build.PL or an
                                         email hasn't been entered)
-           -excludes_os         => str (default none, if OS suppied, all tests
+           -excludes_os         => str (default none, if OS supplied, all tests
                                         will skip if running on that OS (eg.
                                         'mswin'))
            -framework           => str (default 'Test::Most', the Test module
@@ -257,7 +257,7 @@ sub test_begin {
                                         presence of a binary, skips if absent)
            -requires_env        => str (checks %ENV for a specific env. variable,
                                         skips if absent)
-           -excludes_os         => str (default none, if OS suppied, desired num
+           -excludes_os         => str (default none, if OS supplied, desired num
                                         of tests will skip if running on that OS
                                         (eg. 'mswin'))
            -requires_networking => 1   (if true the desired number of tests will
@@ -484,7 +484,7 @@ sub _skip {
             "unknown argument '$key' supplied, did you mistake 'required...' for 'requires...'?\n";
     }
 
-    # test user requirments and return
+    # test user requirements and return
     if ($os) {
         if ( $^O =~ /$os/i ) {
             return ( 'Not compatible with your Operating System',

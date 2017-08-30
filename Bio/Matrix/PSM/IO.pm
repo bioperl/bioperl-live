@@ -147,7 +147,7 @@ sub new {
 	my $format = $param{'-format'} ||
 	    $class->_guess_format( $param{'-file'} || $ARGV[0] ) ||
 	    'scoring';
-	$class->throw("$format format unrecognized or an argument error occured\n.") if (!grep(/$format/,@Bio::Matrix::PSM::IO::PSMFORMATS));
+	$class->throw("$format format unrecognized or an argument error occurred\n.") if (!grep(/$format/,@Bio::Matrix::PSM::IO::PSMFORMATS));
 	$format = "\L$format"; # normalize capitalization to lower case
 
 	# normalize capitalization

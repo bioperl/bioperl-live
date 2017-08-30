@@ -80,7 +80,7 @@ define.
  Usage   : $string    = $obj->display_name()
  Function: A string which is what should be displayed to the user
            the string should have no spaces (ideally, though a cautious
-           user of this interface would not assumme this) and should be
+           user of this interface would not assume this) and should be
            less than thirty characters (though again, double checking 
            this is a good idea)
  Returns : A scalar

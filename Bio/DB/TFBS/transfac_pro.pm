@@ -363,7 +363,7 @@ sub get_fragment {
  Function: Get a matrix that describes a binding site.
  Returns : Bio::Matrix::PSM::SiteMatrix
  Args    : string - a matrix id ('M...'), optionally a sequence string from
-           which base frequencies will be calcualted for the matrix model
+           which base frequencies will be calculated for the matrix model
            (default 0.25 each)
 
 =cut
@@ -781,7 +781,7 @@ sub _build_index {
     my ($self, $dat_dir, $force) = @_;
     
     # MLDBM would give us transparent complex data structures with DB_File,
-    # allowing just one index file, but its yet another requirment and we
+    # allowing just one index file, but its yet another requirement and we
     # don't strictly need it
     
     my $index_dir = $self->index_directory;
@@ -1740,7 +1740,7 @@ sub _db_connect {
 =head2 index_directory
 
  Title   : index_directory
- Funtion : Get/set the location that index files are stored. (this module
+ Function : Get/set the location that index files are stored. (this module
            will index the supplied database)
  Usage   : $obj->index_directory($newval)
  Returns : value of index_directory (a scalar)
@@ -1789,7 +1789,7 @@ sub _species_to_taxid {
         }
     }
     else {
-        # some species lines are poorly formated so custom handling
+        # some species lines are poorly formatted so custom handling
         SWITCH: for ($raw_species) {
             # for speed, go by common first letters
             my $first_letter = substr($raw_species, 0, 1);

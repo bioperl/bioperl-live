@@ -593,7 +593,7 @@ sub seq_id { shift->refseq }
  Status  : Public
 
 This indicates that the sequence was truncated during creation.  The
-returned flag is undef if no truncation occured.  If truncation did
+returned flag is undef if no truncation occurred.  If truncation did
 occur, the flag is actually an array ref in which the first element is
 true if truncation occurred on the left, and the second element
 occurred if truncation occurred on the right.
@@ -677,7 +677,7 @@ sub overlap_extent {
  Usage   : $unique_implementation_key = $obj->primary_id;
  Function: Returns the unique id for this object in this
            implementation. This allows implementations to manage their
-           own object ids in a way the implementaiton can control
+           own object ids in a way the implementation can control
            clients can expect one id to map to one object.
 
            For sequences with no accession number, this method should
@@ -742,7 +742,7 @@ sub display_name { shift->seq_id }
            called the accession_number. For sequences from established
            databases, the implementors should try to use the correct
            accession number. Notice that primary_id() provides the
-           unique id for the implemetation, allowing multiple objects
+           unique id for the implementation, allowing multiple objects
            to have the same accession number in a particular implementation.
 
            For sequences with no accession number, this method should return

@@ -54,7 +54,7 @@ phosphorylation sites in eukaryotic proteins.
 
 See L<http://www.cbs.dtu.dk/services/NetPhos/>.
 
-This the first implentation of Bio::SimpleAnalysisI which hopefully
+This the first implementation of Bio::SimpleAnalysisI which hopefully
 will make it easier to write wrappers on various services. This class
 uses a web resource and therefore inherits from Bio::WebAgent.
 
@@ -233,7 +233,7 @@ sub result {
 
  Usage   : $job->threshold(...)
  Returns  : The significance threshold of a prediction
- Args     : None (retrieves value) or a value beween 0 and 1.
+ Args     : None (retrieves value) or a value between 0 and 1.
  Purpose  : Get/setter of the threshold to be sumitted for analysis.
 
 =cut

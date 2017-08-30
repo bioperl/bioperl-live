@@ -64,7 +64,7 @@ length of the branch between the node and its ancestor, thus a root
 node in a Tree will not typically have a valid branch length.
 
 Various implementations of NodeI may extend the basic functions and
-allow storing of other information (like attatching a species object
+allow storing of other information (like attaching a species object
 or full sequences used to build a tree or alternative sequences).  If
 you don't know how to extend a Bioperl object please ask, happy to
 help, we would also greatly appreciate contributions with improvements

@@ -389,7 +389,7 @@ sub add_node {
 
   Title   : binomial
   Usage   : my $val = $obj->binomial;
-  Function: returns the binomial name if this taxonomy reachs species level
+  Function: returns the binomial name if this taxonomy reaches species level
   Returns : the binomial name
             OR undef if taxonmy does not reach species level
   Args    : [No arguments]
@@ -410,7 +410,7 @@ sub binomial {
   Usage   : $node = $taxonomy->get_node('species');
   Function: get a Bio::Taxonomy::Node object according to rank name
   Returns : a Bio::Taxonomy::Node object or undef if null
-  Args    : a vaild rank name
+  Args    : a valid rank name
 
 =cut
 

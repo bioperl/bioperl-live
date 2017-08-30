@@ -757,7 +757,7 @@ sub to_bsml {
 		next if (defined $args->{SKIPTAGS} &&
 			 $args->{SKIPTAGS} =~ /all/i);
 		# Tags can consume a lot of CPU cycles, and can often be
-		# rather non-informative, so -skiptags can allow total or
+		# rather non-informative, so -skiptags can allow one total or
 		# selective omission of tags.
 		for my $tag ($bioFeat->all_tags()) {
 		    next if (exists $args->{SKIPTAGS}{$tag});
@@ -841,7 +841,7 @@ sub to_bsml {
            document, where $mimetype is the value designated by this
            key. For generic XML use text/xml, for BSML use text/x-bsml
 
-   -return This option will be supressed, since the nature of this
+   -return This option will be suppressed, since the nature of this
            method is to print out the XML document. If you wish to
            retrieve the <Sequence> objects generated, use the to_bsml
            method directly.

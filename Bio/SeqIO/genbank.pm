@@ -89,7 +89,7 @@ associated Bio::AnnotationCollectionI object which is associated with
 Bio::Seq objects.  If it is explicitly requested that no annotations
 should be stored when parsing a record of course they will not be
 available when you try and get them.  If you are having this problem
-look at the type of SeqBuilder that is being used to contruct your
+look at the type of SeqBuilder that is being used to construct your
 sequence object.
 
  Comments             Annotation 'comment'
@@ -965,7 +965,7 @@ sub write_seq {
 
         my $circular = ($seq->is_circular) ? 'circular' : 'linear  ';
 
-        local($^W) = 0; # supressing warnings about uninitialized fields.
+        local($^W) = 0; # suppressing warnings about uninitialized fields.
 
         my $temp_line;
         if ( $self->_id_generation_func ) {
@@ -1330,7 +1330,7 @@ sub _read_GenBank_References {
     my (@refs);
     my $ref;
 
-    # assumme things are starting with RN
+    # assume things are starting with RN
     if ( $$buffer !~ /^REFERENCE/ ) {
         warn("Not parsing line '$$buffer' which maybe important");
     }

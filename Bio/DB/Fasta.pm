@@ -70,7 +70,7 @@ specific portion of the gi|gb|abc|xyz GenBank IDs.
 =head1 DATABASE CREATION AND INDEXING
 
 The object-oriented constructor is new(), the filehandle constructor is newFh()
-and the tied hash constructor is tie(). They all allow to index a single Fasta
+and the tied hash constructor is tie(). They all allow one to index a single Fasta
 file, several files, or a directory of files. See Bio::DB::IndexedBase.
 
 =head1 SEE ALSO

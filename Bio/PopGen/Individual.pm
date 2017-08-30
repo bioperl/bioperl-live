@@ -113,7 +113,7 @@ sub new {
       if( ref($genotypes) =~ /array/i ) {
 	  $self->add_Genotype(@$genotypes);
       } else { 
-	  $self->warn("Must provide a valid array reference to set the genotypes value in the contructor");
+	  $self->warn("Must provide a valid array reference to set the genotypes value in the constructor");
       }
   }
   return $self;

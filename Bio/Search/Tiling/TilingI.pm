@@ -19,7 +19,7 @@ Bio::Search::Tiling::TilingI - Abstract interface for an HSP tiling module
 
 Not used directly. Useful POD here for developers, however.
 
-The interface is desgined to make the following code conversion as
+The interface is designed to make the following code conversion as
 simple as possible:
 
 From:

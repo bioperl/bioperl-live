@@ -31,7 +31,7 @@ Bio::Variation::RNAChange and Bio::Variation::AAChange use them.
 See L<Bio::Variation::DNAMutation>, L<Bio::Variation::RNAChange>,
 and L<Bio::Variation::AAChange> for more information.
 
-These classes store information, heavy computation to detemine allele
+These classes store information, heavy computation to determine allele
 sequences is done elsewhere.
 
 The database cross-references are implemented as
@@ -199,10 +199,10 @@ sub each_Allele{
  Function:
 
            Returns or sets the boolean value indicating that the
-           variant descibed is a canonical mutation with two alleles
+           variant described is a canonical mutation with two alleles
            assinged to be the original (wild type) allele and mutated
            allele, respectively. If this value is not set, it is
-           assumed that the Variant descibes polymorphisms.
+           assumed that the Variant describes polymorphisms.
 
  Returns : a boolean
 

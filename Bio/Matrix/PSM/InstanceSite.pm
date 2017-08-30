@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-Bio::Matrix::PSM::InstanceSite - A PSM site occurance
+Bio::Matrix::PSM::InstanceSite - A PSM site occurrence
 
 =head1 SYNOPSIS
 

@@ -300,7 +300,7 @@ sub width {
  Usage   : $obj->block($newval)
  Function: Get/Set the length of each block for FASTA output. Sequence blocks
            will be split with a space. Configuring block, to a value of 10 for
-           example, allows to easily indentify a position in a sequence by eye.
+           example, allows one to easily identify a position in a sequence by eye.
  Default : same value used for width.
  Returns : value of block
  Args    : newvalue (optional)

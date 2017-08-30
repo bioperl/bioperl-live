@@ -376,7 +376,7 @@ sub _update_desc_mid {
             Substitutions and deletions are for a single residue, but additions
             can be additions of several residues.
             An alternative way to specify errors is by using array references
-            instead of scalar for the hash values. This allows to specify
+            instead of scalar for the hash values. This allows one to specify
             redundant mutations. For example, the case presented above would
             result in the same read sequence as the example below:
                $errors->{34}->{'%'} = ['C', 'T']    ; # substitution by a C and then a T

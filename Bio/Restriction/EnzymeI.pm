@@ -173,7 +173,7 @@ sub cuts_after {  shift->throw_not_implemented; }
 
 Note that the common notation ACCTGC(4/8) means that the forward
 strand cut is four nucleotides after the END of the recognition
-site. The forwad cut in the coordinates used here in Acc36I
+site. The forward cut in the coordinates used here in Acc36I
 ACCTGC(4/8) is at 6+4 i.e. 10.
 
 Note that REBASE uses notation where cuts within symmetic sites are

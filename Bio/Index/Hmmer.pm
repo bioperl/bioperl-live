@@ -314,7 +314,7 @@ sub _index_file {
  Usage   : $value = $self->write_flag();
            $self->write_flag($value);
  Function: Gets or sets the value of write_flag, which
-           is wether the dbm file should be opened with
+           is whether the dbm file should be opened with
            write access.
  Returns : The current value of write_flag (default 0)
  Args    : Value of write_flag if setting, or none if

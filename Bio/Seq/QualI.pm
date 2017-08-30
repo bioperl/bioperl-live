@@ -211,7 +211,7 @@ sub display_id {
 	called the accession_number. For sequences from established 
 	databases, the implementors should try to use the correct 
 	accession number. Notice that primary_id() provides the unique id 
-	for the implemetation, allowing multiple objects to have the same
+	for the implementation, allowing multiple objects to have the same
 	accession number in a particular implementation. For sequences
 	with no accession number, this method should return "unknown".
  Returns : A string.
@@ -240,7 +240,7 @@ sub accession_number {
 	   $unique_implementation_key = $obj->primary_id($new_prim_id);
  Function: Returns the unique id for this object in this implementation.
 	This allows implementations to manage their own object ids in a
-	way the implementaiton can control clients can expect one id to
+	way the implementation can control clients can expect one id to
 	map to one object. For sequences with no accession number, this
 	method should return a stringified memory location.
  Returns : A string
@@ -331,8 +331,8 @@ are encouraged to override these methods
  Usage   : @rev = @{$qual->revcom()};
  Function: Produces a new Bio::Seq::QualI implementing object which
 	is reversed from the original quality array.
-	The id is the same id as the orginal sequence, and the accession number
-	is also indentical. If someone wants to track that this sequence has
+	The id is the same id as the original sequence, and the accession number
+	is also identical. If someone wants to track that this sequence has
 	been reversed, it needs to define its own extensions
 
 	To do an inplace edit of an object you can go:

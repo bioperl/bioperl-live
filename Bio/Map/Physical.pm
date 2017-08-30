@@ -19,7 +19,7 @@ Bio::Map::Physical - A class for handling a Physical Map (such as FPC)
 
     use Bio::MapIO;
 
-    # accquire a Bio::Map::Physical using Bio::MapIO::fpc
+    # acquire a Bio::Map::Physical using Bio::MapIO::fpc
     my $mapio = Bio::MapIO->new(-format => "fpc",-file => "rice.fpc",
                                -readcor => 0);
 

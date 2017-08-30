@@ -486,7 +486,7 @@ sub collapse_nums {
            : be a standard, the structure of the HTML-formatted version
            : is even less so. Therefore, the use of this method to
            : reconstitute parsable Blast reports from HTML-format versions
-           : should be considered a temorary solution.
+           : should be considered a temporary solution.
 
 =cut
 

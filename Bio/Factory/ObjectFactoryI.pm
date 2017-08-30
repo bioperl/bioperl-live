@@ -101,7 +101,7 @@ sub create{
  Usage   : $obj = $factory->create_object(%args)
  Function: Create a new object.
 
-           This is supposed to supercede create(). Right now it only delegates
+           This is supposed to supersede create(). Right now it only delegates
            to create().
  Returns : a new object
  Args    : hash of initialization parameters

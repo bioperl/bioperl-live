@@ -137,7 +137,7 @@ use base qw(Bio::Search::HSP::HSPI);
            -identical => # of residues that that matched identically
            -percent_identity => (optional) percent identity
            -conserved => # of residues that matched conservatively
-                           (only protein comparisions;
+                           (only protein comparisons;
                             conserved == identical in nucleotide comparisons)
            -hsp_gaps   => # of gaps in the HSP
            -query_gaps => # of gaps in the query in the alignment

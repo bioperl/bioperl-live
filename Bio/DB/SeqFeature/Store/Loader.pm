@@ -284,7 +284,7 @@ sub verbose        { shift->{verbose}          }
 
 =head2 Internal Methods
 
-The following methods are used internally and may be overidden by
+The following methods are used internally and may be overridden by
 subclasses.
 
 =over 4

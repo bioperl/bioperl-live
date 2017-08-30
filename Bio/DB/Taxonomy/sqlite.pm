@@ -460,7 +460,7 @@ SQL
 =head2 index_directory
 
  Title   : index_directory
- Funtion : Get/set the location that index files are stored. (this module
+ Function : Get/set the location that index files are stored. (this module
            will index the supplied database)
  Usage   : $obj->index_directory($newval)
  Returns : value of index_directory (a scalar)
@@ -478,7 +478,7 @@ sub index_directory {
 =head2 db_name
 
  Title   : db_name
- Funtion : Get/set the name of the SQLite3 database where data is stored
+ Function : Get/set the name of the SQLite3 database where data is stored
  Usage   : $obj->db_name($newval)
  Returns : value of db_name (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
@@ -498,7 +498,7 @@ sub db_name {
 =head2 cache_size
 
  Title   : cache_size
- Funtion : Get/set the cachesize used for loading the SQLite3 database
+ Function : Get/set the cachesize used for loading the SQLite3 database
  Usage   : $obj->cache_size($newval)
  Returns : value of cache_size (a scalar)
  Args    : on set, new value (a scalar or undef, optional)

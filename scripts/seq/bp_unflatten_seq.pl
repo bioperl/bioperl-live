@@ -88,7 +88,7 @@ input file (can also be specified as last argument)
 
 input format (defaults to genbank)
 
-probably doesnt make so much sense to use this for non-flat formats;
+probably doesn't make so much sense to use this for non-flat formats;
 ie other than embl/genbank
 
 =item -to FORMAT

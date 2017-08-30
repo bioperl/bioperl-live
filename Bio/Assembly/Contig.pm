@@ -103,7 +103,7 @@ of the aligned sequences that were used to do the assembly.
 
 "gapped consensus" refers to positions in the aligned consensus
 sequence, which is the consensus sequence including the gaps inserted
-to align it agains the aligned sequences that were used to assemble
+to align it against the aligned sequences that were used to assemble
 the contig. So, its limits are [ 1, (consensus length + number of gaps
 in consensus) ]
 
@@ -424,7 +424,7 @@ sub downstream_neighbor {
              the feature attached to one of the contig aligned
              sequences, the feature is registered as an aligned
              sequence feature. If $flag is 0 and the feature is not
-             attched to any sequence in the contig, the feature is
+             attached to any sequence in the contig, the feature is
              simply added to the feature collection and no attachment
              or registration is made.
 
@@ -1267,7 +1267,7 @@ sub purge {
  Usage     : $contig->sort_alphabetically
  Function  :
 
-             Changes the order of the alignemnt to alphabetical on name
+             Changes the order of the alignment to alphabetical on name
              followed by numerical by number.
 
  Returns   :

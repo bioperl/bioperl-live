@@ -53,7 +53,7 @@ Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
 This object defines an abstract interface to basic sequence
 information - for most users of the package the documentation (and
 methods) in this class are not useful - this is a developers-only
-class which defines what methods have to be implmented by other Perl
+class which defines what methods have to be implemented by other Perl
 objects to comply to the Bio::PrimarySeqI interface. Go "perldoc
 Bio::Seq" or "man Bio::Seq" for more information on the main class for
 sequences.
@@ -213,7 +213,7 @@ sub display_id {
            called the accession_number. For sequences from established
            databases, the implementors should try to use the correct
            accession number. Notice that primary_id() provides the
-           unique id for the implemetation, allowing multiple objects
+           unique id for the implementation, allowing multiple objects
            to have the same accession number in a particular implementation.
 
            For sequences with no accession number, this method should return
@@ -236,7 +236,7 @@ sub accession_number {
  Usage   : $unique_implementation_key = $obj->primary_id;
  Function: Returns the unique id for this object in this
            implementation. This allows implementations to manage their
-           own object ids in a way the implementaiton can control
+           own object ids in a way the implementation can control
            clients can expect one id to map to one object.
 
            For sequences with no accession number, this method should
@@ -347,7 +347,7 @@ are encouraged to override these methods
            protein. Cannot revcom".
 
            The id is the same id as the original sequence, and the
-           accession number is also indentical. If someone wants to
+           accession number is also identical. If someone wants to
            track that this sequence has be reversed, it needs to
            define its own extensions.
 

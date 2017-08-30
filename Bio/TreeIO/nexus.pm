@@ -31,7 +31,7 @@ basically is just a remapping of trees.
 
 The nexus format allows node comments that are placed inside square
 brackets. Usually the comments (implemented as tags for nodes) are
-used to give a name for an internal node or record the bootstap value,
+used to give a name for an internal node or record the bootstrap value,
 but other uses are possible.
 
 The FigTree program by Andrew Rambaut adds various rendering

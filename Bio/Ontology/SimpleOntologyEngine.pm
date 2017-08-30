@@ -535,7 +535,7 @@ sub get_all_relationships {
 
  Title   : get_predicate_terms
  Usage   : get_predicate_terms(): TermI
- Function: Retrives all relationship types stored in the engine
+ Function: Retrieves all relationship types stored in the engine
  Example :
  Returns : reference to an array of Bio::Ontology::RelationshipType objects
  Args    :

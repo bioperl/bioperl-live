@@ -196,7 +196,7 @@ The following read-only accessors return values passed or created during new():
 
 =head2 Internal Methods
 
-The following methods are used internally and may be overidden by
+The following methods are used internally and may be overridden by
 subclasses.
 
 =over 4

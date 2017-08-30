@@ -51,7 +51,7 @@ Bio::SeqUtils - Additional methods for PrimarySeq objects
     my $revcomseq = Bio::SeqUtils->revcom_with_features($seq);
 
     # simulate cloning of a fragment into a vector. Cut the vector at
-    # positions 1000 and 1100 (deleting postions 1001 to 1099) and
+    # positions 1000 and 1100 (deleting positions 1001 to 1099) and
     # "ligate" a fragment into the sites. The fragment is
     # reverse-complemented in this example (option "flip"). 
     # All features of the vector and fragment are preserved and 

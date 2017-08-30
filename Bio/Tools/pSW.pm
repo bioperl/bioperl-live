@@ -254,14 +254,14 @@ sub pairwise_alignment{
 	if( $alc->alu(0)->text_label eq 'SEQUENCE' ) {
 	    push(@ostr1,$str1[$alc->alu(0)->start+1]);
 	} else {
-	    # assumme it is in insert!
+	    # assume it is in insert!
 	    push(@ostr1,'-');
 	}
 
 	if( $alc->alu(1)->text_label eq 'SEQUENCE' ) {
 	    push(@ostr2,$str2[$alc->alu(1)->start+1]);
 	} else {
-	    # assumme it is in insert!
+	    # assume it is in insert!
 	    push(@ostr2,'-');
 	}
 	$alctemp = $alc;

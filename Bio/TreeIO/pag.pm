@@ -255,7 +255,7 @@ sub next_tree{
 
  Title   : name_length
  Usage   : $self->name_length(20);
- Function: set mininum taxon name length
+ Function: set minimum taxon name length
  Returns : integer (length of name)
  Args    : integer
 

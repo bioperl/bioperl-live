@@ -149,7 +149,7 @@ sub next_result {
         -end          => $end,
         -strand       => 1,
         -score        => $rs_score,
-        #-type         => 'conserved_region', ***causes 740x increase in SeqFeatureDB storage requirments!
+        #-type         => 'conserved_region', ***causes 740x increase in SeqFeatureDB storage requirements!
         -source       => 'GERP');
     
     my $sv = Bio::Annotation::SimpleValue->new(-tagname => 'predicted', -value => 1);

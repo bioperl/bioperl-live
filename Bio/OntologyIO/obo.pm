@@ -465,7 +465,7 @@ sub _ont_engine {
     $self->{"_ont_engine"};
 }
 
-# Removes the escape chracters from the file
+# Removes the escape characters from the file
 sub _filter_line {
     my ( $self, $line ) = @_;
 

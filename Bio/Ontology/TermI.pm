@@ -340,7 +340,7 @@ sub get_secondary_ids {
 
 =head1  Deprecated methods
 
-Used for looking up the methods that supercedes them.
+Used for looking up the methods that supersedes them.
 
 =cut
 

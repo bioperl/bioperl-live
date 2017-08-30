@@ -41,7 +41,7 @@ Bio::DB::EMBL - Database object interface for EMBL entry retrieval
   # or ... best when downloading very large files, prevents
   # keeping all of the file in memory
 
-  # also don't want features, just sequence so let's save bandwith
+  # also don't want features, just sequence so let's save bandwidth
   # and request Fasta sequence
   $embl = Bio::DB::EMBL->new(-retrievaltype => 'tempfile' ,
  			    -format => 'fasta');

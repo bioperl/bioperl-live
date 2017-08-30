@@ -273,10 +273,10 @@ sub GCG_checksum {
  Function: if parsed gcg sequence contains a checksum field
          : we compare it to a value computed here on the parsed
          : sequence. A checksum mismatch would indicate some
-         : type of parsing failure occured.
+         : type of parsing failure occurred.
          :
  Returns : 1 for success, 0 for failure
- Args    : string containing parsed seq, value of parsed cheksum
+ Args    : string containing parsed seq, value of parsed checksum
 
 
 =cut

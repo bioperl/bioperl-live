@@ -86,7 +86,7 @@ score]
 
 See L<http://rulai.cshl.edu/tools/ESE2/>
 
-This the second implentation of Bio::SimpleAnalysisI which hopefully
+This the second implementation of Bio::SimpleAnalysisI which hopefully
 will make it easier to write wrappers on various services. This class
 uses a web resource and therefore inherits from L<Bio::WebAgent>.
 

@@ -9,7 +9,7 @@
 
 =head1 NAME
 
-Bio::Assembly::ScaffoldI - Abstract Inteface of Sequence Assemblies
+Bio::Assembly::ScaffoldI - Abstract Interface of Sequence Assemblies
 
 =head1 SYNOPSIS
 

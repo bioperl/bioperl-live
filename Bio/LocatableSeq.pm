@@ -655,7 +655,7 @@ sub trunc {
 sub validate_seq {
     my ($self, $seqstr, $throw) = @_;
     $seqstr = '' if not defined $seqstr;
-    $throw  = 0  if not defined $throw ; # 0 for backward compatiblity
+    $throw  = 0  if not defined $throw ; # 0 for backward compatibility
     if ( (CORE::length $seqstr > 0         ) &&
          ($seqstr !~ /^([$MATCHPATTERN]+)$/) ) {
         if ($throw) {

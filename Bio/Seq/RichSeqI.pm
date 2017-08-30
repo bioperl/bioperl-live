@@ -113,7 +113,7 @@ sub get_secondary_accessions{
 
  Title   : division
  Usage   :
- Function: Get (and set, depending on the implementation) the divison for
+ Function: Get (and set, depending on the implementation) the division for
            a sequence.
 
            Examples from GenBank are PLN (plants), PRI (primates), etc.

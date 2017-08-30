@@ -104,7 +104,7 @@ sequences overlap each other.
 Dynamic Programming was first introduced by Needleman-Wunsch (1970) to
 globally align two sequences. The idea of local alignment was later
 introduced by Smith-Waterman (1981). Gotoh (1982) improved both
-algorithms by introducing auxillary arrays that reduced the time
+algorithms by introducing auxiliary arrays that reduced the time
 complexity of the algorithms to O(m*n).  Miller-Myers (1988) exploits
 the divide-and-conquer idea introduced by Hirschberg (1975) to solve
 the affine gap cost dynamic programming using only linear space. At

@@ -1133,7 +1133,7 @@ sub _remove_deg {
 
  Title   : _rem_silent_snp
  Usage   : _rem_silent_snp()
- Function: there is the remote possibilty that one SNP won't be a
+ Function: there is the remote possibility that one SNP won't be a
            real SNP on this situation we have to remove this SNP,
            otherwise the program won't find any tag
  Returns : nonthing
@@ -1174,7 +1174,7 @@ sub _rem_silent_snp {
  Usage   :
  Function: list of snps that are not SNPs. All values for that
            SNPs on the set is the same one. Look stupid but can
-           happend and if this happend you will not find any tag
+           happened and if this happend you will not find any tag
  Returns : nothing
  Args    :
  Status  :
@@ -1442,7 +1442,7 @@ sub compare_arrays {
 
  Title   : _convert_to_numbers
  Usage   : _convert_to_numbers()
- Function: tranform the haplotype into numbers. before to do that
+ Function: transform the haplotype into numbers. before to do that
            we have to consider the variation on the set.
  Returns : nonthing
  Args    : ref to an AoA and a ref to an array

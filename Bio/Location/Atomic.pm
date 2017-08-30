@@ -91,7 +91,7 @@ sub new {
     # Do
     # my $location = $f1->location->union($f2->location);
     # We get an error without the following code which 
-    # explictly loads the Bio::Location::Simple class
+    # explicitly loads the Bio::Location::Simple class
     unless( $class->can('start') ) {
         eval { Bio::Root::Root->_load_module($class) };
         if ( $@ ) {
@@ -132,7 +132,7 @@ sub new {
   Usage   : $start = $loc->start();
   Function: get/set the start of this range
   Returns : the start of this range
-  Args    : optionaly allows the start to be set
+  Args    : optionally allows the start to be set
           : using $loc->start($start)
 
 =cut
@@ -149,7 +149,7 @@ sub start {
   Usage   : $end = $loc->end();
   Function: get/set the end of this range
   Returns : the end of this range
-  Args    : optionaly allows the end to be set
+  Args    : optionally allows the end to be set
           : using $loc->end($start)
 
 =cut
@@ -167,7 +167,7 @@ sub end {
   Usage   : $strand = $loc->strand();
   Function: get/set the strand of this range
   Returns : the strandidness (-1, 0, +1)
-  Args    : optionaly allows the strand to be set
+  Args    : optionally allows the strand to be set
           : using $loc->strand($strand)
 
 =cut
@@ -480,7 +480,7 @@ sub valid_Location {
 
             The interface *does not* require implementing classes to
             accept setting of a different policy. The implementation
-            provided here does, however, allow to do so.
+            provided here does, however, allow one to do so.
 
             Implementors of this interface are expected to initialize
             every new instance with a

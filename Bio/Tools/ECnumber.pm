@@ -69,7 +69,7 @@ Bio::Tools::ECnumber - representation of EC numbers (Enzyme Classification)
 =head1 DESCRIPTION
 
 L<Bio::Tools::ECnumber> is a representation of EC numbers, 
-the numerical heirarchy for Enzyme Classification.
+the numerical hierarchy for Enzyme Classification.
 
 See L<http://www.chem.qmul.ac.uk/iubmb/enzyme/> for more details.
 

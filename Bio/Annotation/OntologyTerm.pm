@@ -341,7 +341,7 @@ sub definition {
            another Term (e.g. the top level of the ontology).
  Returns : The ontology of this Term [TermI].
  Args    : The ontology of this Term [TermI or scalar -- which
-           becomes the name of the catagory term] (optional).
+           becomes the name of the category term] (optional).
 
 =cut
 

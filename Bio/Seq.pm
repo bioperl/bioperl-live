@@ -69,7 +69,7 @@ Bio::Seq - Sequence object, with features
 
     # you can get truncations, translations and reverse complements, these
     # all give back Bio::Seq objects themselves, though currently with no
-    # features transfered
+    # features transferred
 
     my $trunc = $seqobj->trunc(100,200);
     my $rev   = $seqobj->revcom();
@@ -669,7 +669,7 @@ sub display_id {
            called the accession_number. For sequences from established
            databases, the implementors should try to use the correct
            accession number. Notice that primary_id() provides the
-           unique id for the implemetation, allowing multiple objects
+           unique id for the implementation, allowing multiple objects
            to have the same accession number in a particular implementation.
 
            For sequences with no accession number, this method should return
@@ -889,7 +889,7 @@ sub namespace{
  Usage   : $string    = $obj->display_name()
  Function: A string which is what should be displayed to the user
            the string should have no spaces (ideally, though a cautious
-           user of this interface would not assumme this) and should be
+           user of this interface would not assume this) and should be
            less than thirty characters (though again, double checking
            this is a good idea)
 

@@ -42,7 +42,7 @@ individual residues of a pdb structure file.
 STRIDE is available here:
 http://webclu.bio.wzw.tum.de/stride/
 
-Methods are then available for extracting all of the infomation
+Methods are then available for extracting all of the information
 present within the output or convenient subsets of it.
 
 Although they are very similar in function, DSSP and STRIDE differ

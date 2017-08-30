@@ -343,7 +343,7 @@ sub named_meta_text {
            should extend to the end of the sequence.
 
            The return value may be a string or an array reference,
-           depending on the implentation. If in doubt, use
+           depending on the implementation. If in doubt, use
            submeta_text() which is a variant guarantied to return a
            string.  See L<submeta_text>.
 
@@ -469,7 +469,7 @@ sub named_submeta_text {
 
  Title   : meta_names
  Usage   : @meta_names  = $obj->meta_names()
- Function: Retrives an array of meta data set names. The default
+ Function: Retrieves an array of meta data set names. The default
            (unnamed) set name is guarantied to be the first name if it
            contains any data.
  Returns : an array of names

@@ -410,7 +410,7 @@ Occasionally a GenBank entry will have both implicit exons (from the
 mRNA location) B<and> explicit exon features.
 
 In this case, exons will still be transferred. Tag-value data from the
-explicit exon will be transfered to the implicit exon. If exons are
+explicit exon will be transferred to the implicit exon. If exons are
 shared between mRNAs these will be represented by different
 objects. Any inconsistencies between implicit and explicit will be
 reported.

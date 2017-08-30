@@ -475,7 +475,7 @@ methods. Internal methods are usually preceded with a _
            quality data.
 
            Current values accepted are:
-            'sanger'   (orginal FASTQ)
+            'sanger'   (original FASTQ)
                 ASCII encoding from 33-126, PHRED quality score from 0 to 93
             'solexa'   (aka illumina1.0)
                 ASCII encoding from 59-104, SOLEXA quality score from -5 to 40

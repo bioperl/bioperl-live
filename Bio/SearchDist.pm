@@ -48,7 +48,7 @@ The fitting procedure is better described in Sean Eddy's own code
 file in Compile/SW). Bascially it fits a EVD via a maximum likelhood
 method with pruning of the top end of the distribution so that real
 positives are discarded in the fitting procedure. This comes from
-an orginally idea of Richard Mott's and the likelhood fitting
+an originally idea of Richard Mott's and the likelhood fitting
 is from a book by Lawless [should ref here].
 
 

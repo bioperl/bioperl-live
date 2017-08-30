@@ -223,7 +223,7 @@ Bio::LocationI inherited methods follow
 
             The interface *does not* require implementing classes to accept
             setting of a different policy. The implementation provided here
-            does, however, allow to do so.
+            does, however, allow one to do so.
 
             Implementors of this interface are expected to initialize every
             new instance with a CoordinatePolicyI object. The implementation

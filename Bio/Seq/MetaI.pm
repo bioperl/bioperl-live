@@ -180,7 +180,7 @@ use base qw(Bio::Root::RootI);
            (reference).
 
            The return value may be a string or an array reference,
-           depending on the implentation. If in doubt, use meta_text()
+           depending on the implementation. If in doubt, use meta_text()
            which is a variant guarantied to return a string.  See
            L<meta_text>.
 
@@ -256,7 +256,7 @@ sub named_meta_text { shift->throw_not_implemented }
            sequence, they should be ignored.
 
            The return value may be a string or an array reference,
-           depending on the implentation. If in doubt, use
+           depending on the implementation. If in doubt, use
            submeta_text() which is a variant guarantied to return a
            string.  See L<submeta_text>.
 
@@ -321,7 +321,7 @@ sub named_submeta_text { shift->throw_not_implemented }
 
  Title   : meta_names
  Usage   : @meta_names  = $obj->meta_names()
- Function: Retrives an array of meta data set names. The default (unnamed)
+ Function: Retrieves an array of meta data set names. The default (unnamed)
            set name is guarantied to be the first name.
  Returns : an array of names
  Args    : none
@@ -389,7 +389,7 @@ sub named_meta_length { shift->throw_not_implemented }
 
 =head1 Bio::PrimarySeqI methods
 
-Implemeting classes will need to rewrite these Bio::PrimaryI methods.
+Implementing classes will need to rewrite these Bio::PrimaryI methods.
 
 =cut
 

@@ -367,7 +367,7 @@ sub write_seq {
     } qw(desc keywords division molecule is_circular);
     $prop{dates} = join("; ", $seq->get_dates) if $seq->can("get_dates");
 
-    local($^W) = 0;   # supressing warnings about uninitialized fields.
+    local($^W) = 0;   # suppressing warnings about uninitialized fields.
 
     # Reference lines
     my $count = 1;
