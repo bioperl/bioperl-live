@@ -168,7 +168,7 @@ This function is also overloaded to the - operator.
 
 =cut
 
-sub subtract {
+sub substract {
   my ($v1,$v2)=@_;
 
   $v1->throw("Vectors not the same size") unless ($v1->{dim} == $v2->{dim});
