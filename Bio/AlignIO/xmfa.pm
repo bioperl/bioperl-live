@@ -12,7 +12,7 @@ Bio::AlignIO::xmfa - XMFA MSA Sequence input/output stream
 
 =head1 SYNOPSIS
 
-Do not use this module directly.  Use it via the L<Bio::AlignIO> 
+Do not use this module directly.  Use it via the L<Bio::AlignIO>
 class.
 
 =head1 DESCRIPTION
@@ -27,20 +27,20 @@ Peter Schattner
 
 =head1 TODO
 
-Finish write_aln(), clean up code, allow LargeLocatableSeq (ie for
-very large sequences a'la Mauve)
+Finish write_aln(), clean up code, allow LargeLocatableSeq (e.g. for
+very large sequences from Mauve).
 
 =head1 FEEDBACK
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -117,7 +117,7 @@ sub next_aln {
             $seqchar .= $entry;
         }
     }
-    
+
     # this catches last sequence if '=' is not present (Mauve)
     if ( defined $name ) {
         my $seq = $self->_process_seq($name, $seqchar);
@@ -144,7 +144,7 @@ sub write_aln {
     my ($seq,$desc,$rseq,$name,$count,$length,$seqsub,$start,$end,$strand,$id);
 
     foreach my $aln (@aln) {
-        if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
+        if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) {
             $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
             next;
         }
@@ -161,7 +161,7 @@ sub write_aln {
             $name = sprintf("%d:%d-%d %s %s",$seqct,$start,$end,$strand,$id);
             $seq  = $rseq->seq();
             $desc = $rseq->description || '';
-            $self->_print (">$name $desc\n") or return ;	
+            $self->_print (">$name $desc\n") or return ;
             $count = 0;
             $length = length($seq);
             if(defined $seq && $length > 0) {
@@ -175,7 +175,7 @@ sub write_aln {
         my $alndesc = '';
         $alndesc = "score = ".$aln->score if ($aln->score);
         $self->_print("= $alndesc\n") || return 0;
-        
+
     }
     $self->flush if $self->_flush_on_write && defined $self->_fh;
     return 1;
@@ -184,7 +184,7 @@ sub write_aln {
 =head2 _get_len
 
  Title   : _get_len
- Usage   : 
+ Usage   :
  Function: determine number of alphabetic chars
  Returns : integer
  Args    : sequence string
@@ -203,7 +203,7 @@ sub _get_len {
  Usage   : $obj->width($newwidth)
            $width = $obj->width;
  Function: Get/set width of alignment
- Returns : integer value of width 
+ Returns : integer value of width
  Args    : on set, new value (a scalar or undef, optional)
 
 
@@ -222,9 +222,11 @@ sub _process_seq {
     my ($self, $entry, $seq) = @_;
     my ($start, $end, $strand, $seqname, $desc, $all);
     # put away last name and sequence
-    if ( $entry =~ m{^>\s*\d+:(\d+)-(\d+)\s([+-]{1})(?:\s+(\S+)\s*(\S\.*)?)?} ) {
+    if ( $entry =~ m{^>\s*\d+:(\d+)-(\d+)\s+([+-]{1})(?:\s+(\S+)\s*(\S\.*)?)?} ) {
         ($start, $end, $seqname, $desc) = ($1, $2, $4, $5);
         $strand = ($3 eq '+')  ?  1  : -1;
+    } elsif ( $entry !~ /^>\s*\d+:/ ) {
+        $self->throw("First field after '>' must be a number:\n$entry");
     } else {
         $self->throw("Line does not comform to XMFA format:\n$entry");
     }
