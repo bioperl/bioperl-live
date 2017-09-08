@@ -171,12 +171,14 @@ for my $db ($db_entrez, $db_flatfile) {
         is_deeply \@ids, [200795, 32061];
 
         $id = $db->get_taxonids('Chloroflexi (class)');
-        $db eq $db_entrez ? is($id, undef) : is($id, 32061);
+        $db eq $db_entrez ? is($id, 'No hit') : is($id, 32061);
 
         @ids = $db->get_taxonids('Rhodotorula');
-        cmp_ok @ids, '>=' , 2;
+        cmp_ok @ids, '>=' , 1;
         if ($db eq $db_entrez) {
-            ok grep { $_ == 592558 } @ids;
+            diag(join(",", @ids));
+            # From NCBI: Taxid 592558 was merged into taxid 5533 on June 16, 2017
+            is( (grep { $_ == 592558 } @ids), 0, 'Value no longer found');
             ok grep { $_ == 5533 } @ids;
         } else {
             # note the locally cached flatfile is out-of-date, but technically
