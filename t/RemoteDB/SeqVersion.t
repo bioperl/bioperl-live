@@ -22,7 +22,7 @@ SKIP: {
     test_skip( -tests => 8, -requires_networking => 1 );
 
     throws_ok { $query->get_history('DODGY_ID_WHICH_SHOULD_FAIL') }
-    qr/ID likely does not exist/i, 'throw on bad ID';
+    qr/ID likely does not exist|No table found/i, 'throw on bad ID';
 
     my $latest_gi = $query->get_recent(2);
     is($latest_gi, 2, 'get_recent');
