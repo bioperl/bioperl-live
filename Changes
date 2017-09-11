@@ -31,6 +31,27 @@ them separately on CPAN. Modules considered obsolute (relies on a dead web
 service or utilizes strict dependencies that are also considered obsolete) will
 be removed.
 
+1.7.2 - "Entebbe"
+
+    [Bugs]
+    
+    * #247 - Omit unnecessary parent_id attribute added by GFF3Loader [nathanweeks]
+    * #245 - Code coverage fixes [zmughal,cjfields]
+    * #237 - Fix warning in Bio::DB::IndexedBase [willmclaren,bosborne]
+    * #238 - Use a Travis cron job for network tests [zmughal,cjfields]
+    * #218 - Bio::DB::Flat::BinarySearch should use _fh() instead of fh() as fh() does not take arguments in [thibauthourlier,bosborne]
+    * #227 - Bio::SeqIO Ignores first line of sequence [VAR121,bosborne]
+    * #223 - Use Travis Perl helper script and enable coverage [zmughal,cjfields]
+    * #222 - Fix test RemoteDB/Taxonomy.t: requires networking [zmughal,cjfields]
+    * #216 - Apply carsonhh's patch (Inline::C fixes) [carsonh,bosborne]
+    * #213 - Support FTS5 in Bio::DB::SeqFeature::Store::DBI::SQLite [nathanweeks,bosborne]
+    * #210 - Sorting qualifiers while write embl files [hdevillers,cjfields]
+    * #209 - Fixed bug in _toDsspKey() [jvolkening,hlapp]
+    
+    [Code changes]
+    
+    * PAML-related code from bioperl and bioperl-run are now in a separate distribution on CPAN [carandraug]
+
 1.7.1 - "Election"
 
     [Bugs]
