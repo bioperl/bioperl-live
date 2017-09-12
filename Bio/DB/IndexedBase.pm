@@ -842,7 +842,7 @@ sub _fh {
     my $file = $self->file($id) or return;
     return eval {
       $self->_fhcache( File::Spec->catfile($self->{dirname}, $file));
-    } or $self->throw( "Can't open file $file" );
+    } || $self->throw( "Can't open file $file" );
 }
 
 
