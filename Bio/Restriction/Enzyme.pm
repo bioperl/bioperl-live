@@ -374,7 +374,7 @@ sub new {
 
     # create the cut site if appropriate/this is a kludge due to 
     # the base.pm format in the new B:R order...
-    if ( $cut and $cut <= length $site) {
+    if ( defined $cut and $cut <= length $site) {
 	    $site = substr($site, 0, $cut).'^'.substr($site, $cut);
     }
     
@@ -1124,11 +1124,11 @@ sub overhang_seq {
 
     return '' if $self->overhang eq 'blunt' ;
 
-    unless ($self->{_cut} && $self->{_rc_cut}) {
+    unless (defined $self->{_cut} && defined $self->{_rc_cut}) {
         # lets just check that we really can't figure it out
         $self->cut;
         $self->complementary_cut;
-        unless ($self->{_cut} && $self->{_rc_cut}) {
+        unless (defined $self->{_cut} && defined $self->{_rc_cut}) {
             return;
         }
     }
