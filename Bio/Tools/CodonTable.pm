@@ -1,7 +1,7 @@
 #
 # bioperl module for Bio::Tools::CodonTable
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 #
@@ -59,7 +59,7 @@ Bio::Tools::CodonTable - Codon table object
 
   # boolean tests
   print "Is a start\n"       if $myCodonTable->is_start_codon('ATG');
-  print "Is a terminator\n" if $myCodonTable->is_ter_codon('tar');
+  print "Is a terminator\n"  if $myCodonTable->is_ter_codon('tar');
   print "Is a unknown\n"     if $myCodonTable->is_unknown_codon('JTG');
 
 =head1 DESCRIPTION
@@ -83,7 +83,7 @@ acid transcripts. The CodonTable object accepts codons of both type as
 input and allows the user to set the mode for output when reverse
 translating. Its default for output is DNA.
 
-Note: 
+Note:
 
 This class deals primarily with individual codons and amino
 acids. However in the interest of speed you can L<translate>
@@ -127,7 +127,7 @@ only differences are in available initiator codons.
 
 
 NCBI Genetic Codes home page:
-     (Last update of the Genetic Codes: April 30, 2013)
+     (Last update of the Genetic Codes: Nov. 18, 2016)
      https://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi?mode=c
 
 ASN.1 version with ids 1 to 25 is at:
@@ -147,15 +147,15 @@ Bioperl mailing lists  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -193,7 +193,7 @@ use base qw(Bio::Root::Root);
 
 # first set internal values for all translation tables
 
-BEGIN { 
+BEGIN {
     use constant CODONSIZE => 3;
     $GAP = '-';
     $CODONGAP = $GAP x CODONSIZE;
@@ -214,7 +214,7 @@ BEGIN {
      'Alternative Yeast Nuclear',# 12
      'Ascidian Mitochondrial',# 13
      'Alternative Flatworm Mitochondrial',# 14
-     'Blepharisma Nuclear',# 15
+     '',
      'Chlorophycean Mitochondrial',# 16
      '', '',  '', '',
      'Trematode Mitochondrial',# 21
@@ -222,7 +222,13 @@ BEGIN {
      'Thraustochytrium Mitochondrial', #23
      'Pterobranchia Mitochondrial', #24
      'Candidate Division SR1 and Gracilibacteria', #25
-     );
+     'Pachysolen tannophilus Nuclear Code',        #26
+     'Karyorelict Nuclear', #27
+     'Condylostoma Nuclear', #28
+     'Mesodinium Nuclear', #29
+     'Peritrich Nuclear', #30
+     'Blastocrithidia Nuclear' #31
+ );
 
     @TABLES =
     qw(
@@ -240,7 +246,7 @@ BEGIN {
        FFLLSSSSYY**CC*WLLLSPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSGGVVVVAAAADDEEGGGG
        FFLLSSSSYYY*CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG
-       FFLLSSSSYY*QCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       ''
        FFLLSSSSYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        '' '' '' ''
        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG
@@ -248,38 +254,50 @@ BEGIN {
        FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSSKVVVVAAAADDEEGGGG
        FFLLSSSSYY**CCGWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       );
+       FFLLSSSSYY**CC*WLLLAPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       FFLLSSSSYYQQCCWWLLLAPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       FFLLSSSSYYQQCCWWLLLAPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       FFLLSSSSYYYYCC*WLLLAPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       FFLLSSSSYYEECC*WLLLAPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       FFLLSSSSYYEECCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+  );
 
-   #           (bases used for these tables, for reference)
-   # 1 TTTTTTTTTTTTTTTTCCCCCCCCCCCCCCCCAAAAAAAAAAAAAAAAGGGGGGGGGGGGGGGG
-   # 2 TTTTCCCCAAAAGGGGTTTTCCCCAAAAGGGGTTTTCCCCAAAAGGGGTTTTCCCCAAAAGGGG
-   # 3 TCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAG
+    #           (bases used for these tables, for reference)
+    # 1 TTTTTTTTTTTTTTTTCCCCCCCCCCCCCCCCAAAAAAAAAAAAAAAAGGGGGGGGGGGGGGGG
+    # 2 TTTTCCCCAAAAGGGGTTTTCCCCAAAAGGGGTTTTCCCCAAAAGGGGTTTTCCCCAAAAGGGG
+    # 3 TCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAG
 
     @STARTS =
-    qw(
-       -----------------------------------M----------------------------
-       ---M---------------M---------------M----------------------------
-       --------------------------------MMMM---------------M------------
-       ----------------------------------MM----------------------------
-       --MM---------------M------------MMMM---------------M------------
-       ---M----------------------------MMMM---------------M------------
-       -----------------------------------M----------------------------
-       '' ''
-       -----------------------------------M---------------M------------
-       -----------------------------------M----------------------------
-       ---M---------------M------------MMMM---------------M------------
-       -------------------M---------------M----------------------------
-       ---M------------------------------MM---------------M------------
-       -----------------------------------M----------------------------
-       -----------------------------------M----------------------------
-       -----------------------------------M----------------------------
-       '' ''  '' ''
-       -----------------------------------M---------------M------------
-       -----------------------------------M----------------------------
-       --------------------------------M--M---------------M------------
-       ---M---------------M---------------M---------------M------------
-       ---M-------------------------------M---------------M------------
-       );
+        qw(
+           ----------**--*--------------------M----------------------------
+           ---M------**--*----M---------------M----------------------------
+           ----------**--------------------MMMM----------**---M------------
+           ----------**----------------------MM----------------------------
+           --MM------**-------M------------MMMM---------------M------------
+           ---M------**--------------------MMMM---------------M------------
+           --------------*--------------------M----------------------------
+           '' ''
+           ----------**-----------------------M---------------M------------
+           ----------**-----------------------M----------------------------
+           ---M------**--*----M------------MMMM---------------M------------
+           ----------**--*----M---------------M----------------------------
+           ---M------**----------------------MM---------------M------------
+           -----------*-----------------------M----------------------------
+           ''
+           ----------*---*--------------------M----------------------------
+           '' ''  '' ''
+           ----------**-----------------------M---------------M------------
+           ------*---*---*--------------------M----------------------------
+           --*-------**--*-----------------M--M---------------M------------
+           ---M------**-------M---------------M---------------M------------
+           ---M------**-----------------------M---------------M------------
+           ----------**--*----M---------------M----------------------------
+           --------------*--------------------M----------------------------
+           ----------**--*--------------------M----------------------------
+           --------------*--------------------M----------------------------
+           --------------*--------------------M----------------------------
+           ----------**-----------------------M----------------------------
+      );
 
     my @nucs = qw(t c a g);
     my $x = 0;
@@ -306,7 +324,7 @@ sub new {
     my $self = $class->SUPER::new(@args);
 
     my($id) =
-    $self->_rearrange([qw(ID
+        $self->_rearrange([qw(ID
                  )],
              @args);
 
@@ -388,7 +406,7 @@ sub tables{
 
  Title   : translate
  Usage   : $obj->translate('YTR')
- Function: Returns a string of one letter amino acid codes from 
+ Function: Returns a string of one letter amino acid codes from
            nucleotide sequence input. The imput can be of any length.
 
            Returns 'X' for unknown codons and codons that code for
@@ -422,7 +440,7 @@ sub translate {
     my $id = $self->id;
     my ($partial) = 0;
     $partial = 2 if length($seq) % CODONSIZE == 2;
-    
+
     $seq = lc $seq;
     $seq =~ tr/u/t/;
     my $protein = "";
@@ -621,7 +639,7 @@ sub reverse_translate_all {
 
     ## if we're not supplying a codon usage table...
     if( !$cut && !$threshold) {
-        ## get lists of possible codons for each aa. 
+        ## get lists of possible codons for each aa.
         for my $aa (@seq) {
             if ($aa =~ /x/i) {
                 push @data, (['NNN']);
@@ -632,7 +650,7 @@ sub reverse_translate_all {
         }
     }else{
     #else we are supplying a codon usage table, we just want common codons
-    #check args first. 
+    #check args first.
         if(!$cut->isa('Bio::CodonUsage::Table'))    {
             $self->throw("I need a Bio::CodonUsage::Table object, not a [".
                      ref($cut). "].");
@@ -869,7 +887,7 @@ sub _make_iupac_string {
     my $iupac_string = ''; ## the string to be returned
     for my $aa (@$cod_ref) {
 
-        ## scan through codon positions, record the differing values,   
+        ## scan through codon positions, record the differing values,
         # then look up in the iub hash
         for my $index(0..2) {
             my %h;
@@ -877,7 +895,7 @@ sub _make_iupac_string {
                 $h{$k}  = undef;} @$aa;
             my $lookup_key = join '', sort{$a cmp $b}keys %h;
 
-            ## extend string 
+            ## extend string
             $iupac_string .= $iupac_hash{uc$lookup_key};
         }
     }
