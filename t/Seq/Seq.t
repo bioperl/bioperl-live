@@ -151,11 +151,12 @@ is $string, 'MW*LPHCGYHVVTT';
 
 #Translating with all codon tables using method defaults
 $string = '';
-my @codontables = qw( 1 2 3 4 5 6 9 10 11 12 13 14 15 16 21 22 23);
+my @codontables = qw(0 1 2 3 4 5 6 9 10 11 12 13 14 16 21
+    22 23 24 25 26 27 28 29 30 31);
 foreach my $ct (@codontables) {
     $string .= $seq->translate(undef, undef, undef, $ct)->seq;
 }
-is $string, 'MW*MW*MW*MW*MW*MWQMW*MW*MW*MW*MW*MWYMW*MW*MW*MW*MW*';
+is $string, 'MW*MW*MW*MW*MW*MW*MWQMW*MW*MW*MW*MW*MWYMW*MW*MW*MW*MW*MW*MW*MWQMWQMWYMWEMWE';
 
 # CDS translation set to throw an exception for internal stop codons
 $seq->seq('atgtggtaataa');
