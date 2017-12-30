@@ -1,0 +1,75 @@
+# ./ssearch36 -E 0.001 -q -n -z 11 A3_target.fa Ready_sorted.fa
+SSEARCH performs a Smith-Waterman search
+ version 36.3.8f May, 2017
+Please cite:
+ T. F. Smith and M. S. Waterman, (1981) J. Mol. Biol. 147:195-197; 
+ W.R. Pearson (1991) Genomics 11:635-650
+
+Query: A3_target.fa
+  1>>>A3_100bp_start38 refined - 100 nt
+Library: Ready_sorted.fa
+      150 residues in     1 sequences
+
+Statistics: (shuffled [500]) MLE statistics: Lambda= 0.1633;  K=0.1625
+ statistics sampled from 1 (1) to 500 sequences
+Algorithm: Smith-Waterman (SSE2, Michael Farrar 2006) (7.2 Nov 2010)
+Parameters: +5/-4 matrix (5:-4), open/ext: -12/-4
+ Scan time:  0.020
+
+The best scores are:                                      s-w bits E(1)
+17271.26                                       ( 150) [f]  345 83.9 8.2e-22
+
+>>17271.26                                                (150 nt)
+ s-w opt: 345  Z-score: 424.1  bits: 83.9 E(1): 8.2e-22
+Smith-Waterman score: 345; 100.0% identity (100.0% similar) in 69 nt overlap (1-69:82-150)
+
+                                             10        20        30
+A3_100                               AGAATTTGGAATTCCCTACAATCCCCAAAG
+                                     ::::::::::::::::::::::::::::::
+17271. CCTAGAATTTGGAATTCCCTACAATCCCCTAGAATTTGGAATTCCCTACAATCCCCAAAG
+              60        70        80        90       100       110 
+
+               40        50        60        70        80        90
+A3_100 TCAAGGAGTAGTGGAGTCTATGAATAAGGAATTAAAGAAAATTATAGGGCAGGTAAGAGA
+       :::::::::::::::::::::::::::::::::::::::                     
+17271. TCAAGGAGTAGTGGAGTCTATGAATAAGGAATTAAAGAA                     
+             120       130       140       150                     
+
+              100
+A3_100 GCAAGCTGAA
+
+>--
+ s-w opt: 131  Z-score: 151.5  bits: 33.5 E(1): 1.2e-06
+Smith-Waterman score: 131; 96.4% identity (96.4% similar) in 28 nt overlap (1-28:1-28)
+
+               10        20        30        40        50        60
+A3_100 AGAATTTGGAATTCCCTACAATCCCCAAAGTCAAGGAGTAGTGGAGTCTATGAATAAGGA
+       :::::::::::::::::::::::::: :                                
+17271. AGAATTTGGAATTCCCTACAATCCCCTAGAATTTGGAATTCCCTACAATCCCCTAGAATT
+               10        20        30        40        50        60
+
+>--
+ s-w opt: 130  Z-score: 150.3  bits: 33.3 E(1): 1.5e-06
+Smith-Waterman score: 130; 100.0% identity (100.0% similar) in 26 nt overlap (1-26:55-80)
+
+                                             10        20        30
+A3_100                               AGAATTTGGAATTCCCTACAATCCCCAAAG
+                                     ::::::::::::::::::::::::::    
+17271. CCTAGAATTTGGAATTCCCTACAATCCCCTAGAATTTGGAATTCCCTACAATCCCCTAGA
+           30        40        50        60        70        80    
+
+               40        50        60        70        80        90
+A3_100 TCAAGGAGTAGTGGAGTCTATGAATAAGGAATTAAAGAAAATTATAGGGCAGGTAAGAGA
+                                                                   
+17271. ATTTGGAATTCCCTACAATCCCCAAAGTCAAGGAGTAGTGGAGTCTATGAATAAGGAATT
+           90       100       110       120       130       140    
+
+
+
+100 residues in 1 query   sequences
+150 residues in 1 library sequences
+ Tcomplib [36.3.8f May, 2017] (12 proc in memory [0G])
+ start: Fri Nov 24 22:53:09 2017 done: Fri Nov 24 22:53:09 2017
+ Total Scan time:  0.020 Total Display time:  0.000
+
+Function used was SSEARCH [36.3.8f May, 2017]

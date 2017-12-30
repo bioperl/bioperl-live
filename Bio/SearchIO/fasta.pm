@@ -1165,6 +1165,9 @@ sub next_result {
                         if ( length($_) >= $len ) {
                             push @{ $data[ $count - 1 ] }, substr( $_, $len );
                         }
+                        elsif (/^$/) {  # fix issue #255
+                            $count = 5;
+                        }
                     }
                 }
                 last if ( $count++ >= 5 );

@@ -6,9 +6,9 @@ use strict;
 BEGIN {
 	use lib '.';
     use Bio::Root::Test;
-    
-    test_begin(-tests => 299);
-	
+
+    test_begin(-tests => 301);
+
 	use_ok('Bio::SearchIO');
 }
 
@@ -56,19 +56,19 @@ while( my $hit = $result->next_hit ) {
             is($hsp->hit->end, 65167);
             is($hsp->hit->start, 64902);
             is($hsp->hit->strand, 1);
-            is($hsp->length('total'), 267);	    
+            is($hsp->length('total'), 267);
             float_is($hsp->evalue, 0.017);
             is($hsp->score, 134.5);
             is($hsp->bits,44.2);
             is(sprintf("%.2f",$hsp->percent_identity), '57.30');
-            is(sprintf("%.4f",$hsp->frac_identical('query')), 0.5907); 
+            is(sprintf("%.4f",$hsp->frac_identical('query')), 0.5907);
             is(sprintf("%.4f",$hsp->frac_identical('hit')), 0.5752);
 			# these are really UNGAPPED values not CONSERVED
 			# otherwise ident and conserved would be identical for
 			# nucleotide alignments
-			is(sprintf("%.4f",$hsp->frac_conserved('total')), '0.5918'); 
-			is(sprintf("%.4f",$hsp->frac_conserved('query')), '0.6100'); 
-			is(sprintf("%.4f",$hsp->frac_conserved('hit')), '0.5940'); 
+			is(sprintf("%.4f",$hsp->frac_conserved('total')), '0.5918');
+			is(sprintf("%.4f",$hsp->frac_conserved('query')), '0.6100');
+			is(sprintf("%.4f",$hsp->frac_conserved('hit')), '0.5940');
             is($hsp->query->frame(), 0);
             is($hsp->hit->frame(), 0);
             is($hsp->gaps('query'), 8);
@@ -82,7 +82,7 @@ while( my $hit = $result->next_hit ) {
             is(join(' ', $hsp->seq_inds('query', 'conserved',1)), '31 32 34-36 38 40 42 44-46 50 51 53 54 57 59 61-63 65-69 72 73 75-77 79-81 83 85 88 89 97 99 101 102 104 106 108 109 113 115 116 118 120 124 126 130 131 133 136-138 141 142 144 149 154 157-159 162 163 165-172 174-179 185-187 189-191 193-195 199 200 202 203 205 210 211 214 216 218 220 222 226 228 230 231 234 235 238-245 247-251 253-255 257 259 261 262 264-268 270 272-289');
             is(join(' ', $hsp->seq_inds('hit', 'nomatch',1)), '64920 64922 64928 64931 64933 64935 64939 64945 64954 64955 64958 64959 64962 64964 64966-64968 64970 64972 64974 64976 64978 64979 64982-64985 64987 64990 64993-64995 64998-65001 65003 65007 65011-65015 65022 65026-65028 65034 65037 65038 65042 65043 65045-65048 65050-65053 65055 65058-65060 65064 65065 65067 65070-65072 65074 65076-65078 65080 65082 65085 65087-65089 65092 65094 65096 65099 65101 65103-65109 65112 65113 65115 65117 65121 65125 65128 65129 65135 65139 65141 65143 65144 65147 65150-65152 65156 65158 65161 65165');
             is(join(' ', $hsp->seq_inds('hit', 'mismatch',1)), '64920 64922 64928 64931 64933 64935 64939 64945 64954 64955 64958 64959 64962 64964 64966-64968 64970 64972 64974 64976 64978 64979 64982-64985 64987 64990 64993-64995 65003 65007 65011-65015 65022 65034 65037 65038 65042 65043 65045-65048 65050-65053 65055 65059 65060 65064 65065 65067 65070-65072 65074 65076-65078 65080 65082 65085 65087-65089 65092 65094 65096 65099 65101 65103-65109 65112 65113 65115 65117 65121 65125 65128 65129 65135 65139 65141 65143 65144 65147 65150-65152 65156 65158 65161 65165');
-            is(join(' ', $hsp->seq_inds('hit', 'conserved',1)), '64902-64919 64921 64923-64927 64929 64930 64932 64934 64936-64938 64940-64944 64946-64953 64956 64957 64960 64961 64963 64965 64969 64971 64973 64975 64977 64980 64981 64986 64988 64989 64991 64992 64996 64997 65002 65004-65006 65008-65010 65016-65021 65023-65025 65029-65033 65035 65036 65039-65041 65044 65049 65054 65056 65057 65061-65063 65066 65068 65069 65073 65075 65079 65081 65083 65084 65086 65090 65091 65093 65095 65097 65098 65100 65102 65110 65111 65114 65116 65118-65120 65122-65124 65126 65127 65130-65134 65136-65138 65140 65142 65145 65146 65148 65149 65153-65155 65157 65159 65160 65162-65164 65166 65167');            
+            is(join(' ', $hsp->seq_inds('hit', 'conserved',1)), '64902-64919 64921 64923-64927 64929 64930 64932 64934 64936-64938 64940-64944 64946-64953 64956 64957 64960 64961 64963 64965 64969 64971 64973 64975 64977 64980 64981 64986 64988 64989 64991 64992 64996 64997 65002 65004-65006 65008-65010 65016-65021 65023-65025 65029-65033 65035 65036 65039-65041 65044 65049 65054 65056 65057 65061-65063 65066 65068 65069 65073 65075 65079 65081 65083 65084 65086 65090 65091 65093 65095 65097 65098 65100 65102 65110 65111 65114 65116 65118-65120 65122-65124 65126 65127 65130-65134 65136-65138 65140 65142 65145 65146 65148 65149 65153-65155 65157 65159 65160 65162-65164 65166 65167');
             is(join(' ', $hsp->seq_inds('query', 'gap',1)), '141 170 194');
             is(join(' ', $hsp->seq_inds('hit', 'frameshift')), '');
             is(join(' ', $hsp->seq_inds('query', 'frameshift')), '');
@@ -140,7 +140,7 @@ while( my $hit = $result->next_hit ) {
             is($hsp->hit->start, 2);
             is($hsp->hit->end, 181);
             is($hsp->hit->strand, 0);
-            is($hsp->length('total'), 188);	    
+            is($hsp->length('total'), 188);
             float_is($hsp->evalue, 1.2);
             is($hsp->score, 109.2);
             is($hsp->bits,29.2);
@@ -201,11 +201,11 @@ is($result->get_statistic('dbletters'), 7177762 );
 is($result->get_statistic('dbentries'), 14334);
 
 
-@valid = ( [ 'Cp1|FBgn0013770|pp-CT20780|FBan0006692', 341, 
+@valid = ( [ 'Cp1|FBgn0013770|pp-CT20780|FBan0006692', 341,
 	     'FBan0006692', '3.1e-59', 227.8],
-	   [ 'CG11459|FBgn0037396|pp-CT28891|FBan0011459', 336, 
+	   [ 'CG11459|FBgn0037396|pp-CT28891|FBan0011459', 336,
 	     'FBan0011459', '6.4e-41',  166.9],
-	   [ 'CG4847|FBgn0034229|pp-CT15577|FBan0004847', 390, 
+	   [ 'CG4847|FBgn0034229|pp-CT15577|FBan0004847', 390,
 	     'FBan0004847',  '2.5e-40', 165.2]);
 $count = 0;
 
@@ -227,7 +227,7 @@ while( my $hit = $result->next_hit ) {
             is($hsp->hit->start, 5);
             is($hsp->hit->end, 341);
             is($hsp->hit->strand, 0);
-            is($hsp->length('total'), 345);	    
+            is($hsp->length('total'), 345);
             float_is($hsp->evalue, 3.1e-59);
             is($hsp->score, 1170.6);
             is($hsp->bits,227.8);
@@ -307,7 +307,7 @@ while( my $hit = $result->next_hit ) {
             is($hsp->hit->end, 287);
             is($hsp->hit->strand, 0);
             is($hsp->length('total'), 330);
-            
+
             float_is($hsp->evalue, 1.3e-25);
             is($hsp->score, 563.4);
             is($hsp->bits,'117.1');
@@ -348,7 +348,7 @@ while( my $hit = $result->next_hit ) {
 is(@valid, 0);
 is($result->hits, 58);
 
-# test FASTA v35.04, params encoding changed 
+# test FASTA v35.04, params encoding changed
 # test on TFASTXY
 $searchio = Bio::SearchIO->new(-format => 'fasta',
 			      -file   => test_input_file('BOSS_DROME.FASTP_v35_04'));
@@ -421,7 +421,7 @@ while ( my $result = $searchio->next_result() ) {
    is($result->query_description, '', 'query description');
    is($result->query_length, 70, 'query length');
    is($result->algorithm, 'FASTN', 'algorithm');
-   
+
    while( my $hit = $result->next_hit ) {
       # process the Bio::Search::Hit::HitI object
       while( my $hsp = $hit->next_hsp ) {
@@ -434,4 +434,13 @@ while ( my $result = $searchio->next_result() ) {
 		 is($hsp->query->strand, '-1', 'hsp->query->strand');
       }
    }
+}
+
+$searchio = Bio::SearchIO->new( -format => 'fasta',
+                                -file => test_input_file('issue255_ssearch.fasta'),);
+ok($searchio, 'issue 255');
+while (my $result = $searchio->next_result() ) {
+  while (my $hit = $result->next_hit ) {
+    is ($hit->next_hsp->score, '424.1', 'issue 255: first hsp score');
+  }
 }
