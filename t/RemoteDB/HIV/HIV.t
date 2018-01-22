@@ -84,13 +84,13 @@ SKIP: {
 	# skip the rest
 	eval { $seqio = $tobj->get_Stream_by_acc(['K03455']) };
     if ($@) {
-		ok(1, "Server-side request problem, bypassing...");
-        skip("Network problems, skipping all tests", 7)
+            ok(1, "Server-side request problem, bypassing...");
+            $seqio = $tobj->get_Stream_by_id(['17756']); # get HXB2 elsewise
     } else {
 		ok(1, 'get HXB2 in a stream by accession');
 	}
     $hxb2 =  $seqio->next_seq;
-    is($hxb2->primary_id, 'K03455', 'checking returned stream');
+    like $hxb2->primary_id, qr/K03455|17756/, 'checking returned stream';
     is($hxb2->alphabet,'dna', 'checking returned stream');
     ok(!($hxb2->seq !~ /atgc/i), 'checking returned sequence');
     #network exceptions

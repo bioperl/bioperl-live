@@ -106,8 +106,8 @@ use base qw(Bio::DB::WebDBSeqI);
 
 
 BEGIN {
-    # base change of 01/14/09
-    $LANL_BASE = "http://www.hiv.lanl.gov/components/sequence/HIV/asearch";
+    # base change -> https 01/21/18
+    $LANL_BASE = "https://www.hiv.lanl.gov/components/sequence/HIV/asearch";
     $LANL_MAP_DB = "map_db.comp";
     $LANL_MAKE_SEARCH_IF = "make_search_if.comp";
     $LANL_SEARCH = "search.comp";
