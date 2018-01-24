@@ -217,8 +217,8 @@ use base qw(Bio::Root::Root Bio::DB::QueryI);
 
 # globals
 BEGIN {
-    # change base to new search page 01/14/09 /maj
-    $LANL_BASE = "http://www.hiv.lanl.gov/components/sequence/HIV/asearch";
+  # change base from http -> https /maj 1/23/18
+    $LANL_BASE = "https://www.hiv.lanl.gov/components/sequence/HIV/asearch";
     $LANL_MAP_DB = "map_db.comp";
     $LANL_MAKE_SEARCH_IF = "make_search_if.comp";
     $LANL_SEARCH = "search.comp";
