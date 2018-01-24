@@ -144,7 +144,7 @@ throws_ok {$tobj->get_annotations_by_id($tobj->ids)} qr/Requires query run/, "qu
 # network tests
 SKIP : {
     test_skip(-tests => 10,
-          -requires_networking => 1);
+	      -requires_networking => 1);
     eval {$tobj  = Bio::DB::Query::HIVQuery->new(-QUERY=>"(SI[phenotype] ('CCR5 CXCR4')[coreceptor] C[subtype] OR NSI[phenotype] D[subtype]) AND ZA[country]",-RUN_OPTION=>2)};
     if ($@) {
         diag($@);

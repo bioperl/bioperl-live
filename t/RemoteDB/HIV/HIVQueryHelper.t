@@ -15,8 +15,8 @@ BEGIN {
 }
 
 
-# lanl-schema.xml characteristics as of $Date: 2008-12-11 08:05:24 -0500 (Thu, 11 Dec 2008) $
-my ($naliases, $nfields, $ntables) = (165, 97, 14);
+# lanl-schema.xml characteristics as of 1/23/18
+my ($naliases, $nfields, $ntables) = (166, 100, 14);
 my ($Q, $r, $q);
 # object tests
 isa_ok(new HIVSchema(), "HIVSchema");
