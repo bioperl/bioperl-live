@@ -350,7 +350,7 @@ sub mode {
 
     if ( $arg{-force} || not exists $self->{'_mode'} ) {
         # Determine stream mode
-        my $mode;
+        my $mode = 0;
         my $fh = $self->_fh;
         if (defined $fh) {
             # use fcntl if not Windows-based
