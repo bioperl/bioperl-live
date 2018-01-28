@@ -350,12 +350,12 @@ sub mode {
 
     if ( $arg{-force} || not exists $self->{'_mode'} ) {
         # Determine stream mode
-        my $mode = 0;
+        my $mode;
         my $fh = $self->_fh;
         if (defined $fh) {
             # use fcntl if not Windows-based
             if ($^O !~ /MSWin32/) {
-                my $m = fcntl($fh, F_GETFL, 0);
+                my $m = fcntl($fh, F_GETFL, 0) || 0;
                 $mode = exists $modes{$m & 3}  ? $modes{$m & 3} : '?';
             } else {
                 # Determine read/write status of filehandle
