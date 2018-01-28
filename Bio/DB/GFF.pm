@@ -73,11 +73,11 @@ The following operations are supported by this module:
     segment, or globally
   - conversion from absolute to relative coordinates and back again,
     using any arbitrary landmark for the relative coordinates
-  - using a sequence segment to create new segments based on relative 
+  - using a sequence segment to create new segments based on relative
     offsets
 
 The data model used by Bio::DB::GFF is compatible with the GFF flat
-file format (L<http://www.sequenceontology.org/gff3.shtml>). The module 
+file format (L<http://www.sequenceontology.org/gff3.shtml>). The module
 can load a set of GFF files into the database, and serves objects that
 have methods corresponding to GFF fields.
 
@@ -194,7 +194,7 @@ the annotation type.
 
 start position
 
-The start of the annotation relative to the reference sequence. 
+The start of the annotation relative to the reference sequence.
 
 =item 5.
 
@@ -597,7 +597,7 @@ package Bio::DB::GFF;
 use strict;
 
 use IO::File;
-use File::Glob ':glob';
+use File::Glob ':bsd_glob';
 use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::GFF::RelSegment;
 use Bio::DB::GFF::Feature;
@@ -653,7 +653,7 @@ example, if you wish to change the components aggregated by the
 transcript aggregator, you could pass it to the GFF constructor this
 way:
 
-  my $transcript = 
+  my $transcript =
      Bio::DB::Aggregator::transcript->new(-sub_parts=>[qw(exon intron utr
                                                           polyA spliced_leader)]);
 
@@ -788,7 +788,7 @@ Arguments are as follows:
   -enumerate  if true, count the features
 
 The returned value will be a list of Bio::DB::GFF::Typename objects,
-which if evaluated in a string context will return the feature type in 
+which if evaluated in a string context will return the feature type in
 "method:source" format.  This object class also has method() and
 source() methods for retrieving the like-named fields.
 
@@ -1068,7 +1068,7 @@ are ANDed together.
 sub features {
   my $self = shift;
   my ($types,$automerge,$sparse,$iterator,$refseq,$start,$end,$other);
-  if (defined $_[0] && 
+  if (defined $_[0] &&
       $_[0] =~ /^-/) {
     ($types,$automerge,$sparse,$iterator,
      $refseq,$start,$end,
@@ -1332,9 +1332,9 @@ sub get_feature_by_gid {
  Args    : list of features or feature ids
  Status  : public
 
-Pass this method a list of numeric feature ids or a set of features.  
+Pass this method a list of numeric feature ids or a set of features.
 It will attempt to remove the fattribute_to_features rows of those features
-from the database and return a count of the rows removed.  
+from the database and return a count of the rows removed.
 
 NOTE: This method is also called delete_fattribute_to_feature().  Also see
 delete_groups() and delete_features().
@@ -1362,7 +1362,7 @@ sub delete_fattribute_to_features {
 
 Pass this method a list of numeric feature ids or a set of features.
 It will attempt to remove the features from the database and return a
-count of the features removed.  
+count of the features removed.
 
 NOTE: This method is also called delete_feature().  Also see
 delete_groups().
@@ -1624,7 +1624,7 @@ sub  get_Seq_by_acc {
   Usage   : $seq = $db->get_Stream_by_name(@ids);
   Function: Retrieves a stream of Seq objects given their names
   Returns : a Bio::SeqIO stream object
-  Args    : an array of unique ids/accession numbers, or 
+  Args    : an array of unique ids/accession numbers, or
             an array reference
 
 NOTE: This is also called get_Stream_by_batch()
@@ -1644,7 +1644,7 @@ sub get_Stream_by_name {
   Usage   : $seq = $db->get_Stream_by_id(@ids);
   Function: Retrieves a stream of Seq objects given their ids
   Returns : a Bio::SeqIO stream object
-  Args    : an array of unique ids/accession numbers, or 
+  Args    : an array of unique ids/accession numbers, or
             an array reference
 
 NOTE: This is also called get_Stream_by_batch()
@@ -1664,7 +1664,7 @@ sub get_Stream_by_id {
   Usage   : $seq = $db->get_Stream_by_batch(@ids);
   Function: Retrieves a stream of Seq objects given their ids
   Returns : a Bio::SeqIO stream object
-  Args    : an array of unique ids/accession numbers, or 
+  Args    : an array of unique ids/accession numbers, or
             an array reference
 
 NOTE: This is the same as get_Stream_by_id().
@@ -1750,7 +1750,7 @@ sub initialize {
   return unless $self->do_initialize($erase);
   my @default = $self->default_meta_values;
 
-  # this is an awkward way of uppercasing the 
+  # this is an awkward way of uppercasing the
   # even-numbered values (necessary for case-insensitive SQL databases)
   for (my $i=0; $i<@default; $i++) {
     $default[$i] = uc $default[$i] if !($i % 2);
@@ -1770,7 +1770,7 @@ sub initialize {
  Usage   : $db->load_gff($file|$directory|$filehandle [,$verbose]);
  Function: load GFF data into database
  Returns : count of records loaded
- Args    : a directory, a file, a list of files, 
+ Args    : a directory, a file, a list of files,
            or a filehandle
  Status  : Public
 
@@ -1834,7 +1834,7 @@ sub load_gff {
   my $verbose           = shift;
 
   local $self->{__verbose__} = $verbose;
-  return $self->do_load_gff($file_or_directory) if ref($file_or_directory) 
+  return $self->do_load_gff($file_or_directory) if ref($file_or_directory)
                                                    && tied *$file_or_directory;
 
   my $tied_stdin = tied(*STDIN);
@@ -1875,7 +1875,7 @@ sub load_gff_file {
  Usage   : $db->load_fasta($file|$directory|$filehandle);
  Function: load FASTA data into database
  Returns : count of records loaded
- Args    : a directory, a file, a list of files, 
+ Args    : a directory, a file, a list of files,
            or a filehandle
  Status  : Public
 
@@ -1997,7 +1997,7 @@ sub setup_argv {
     # Because glob() is broken with long file names that contain spaces
     $file_or_directory = Win32::GetShortPathName($file_or_directory)
       if $^O =~ /^MSWin/i && eval 'use Win32; 1';
-    @argv = map { glob("$file_or_directory/*.{$_,$_.gz,$_.Z,$_.bz2}")} @suffixes;
+    @argv = map { bsd_glob("$file_or_directory/*.{$_,$_.gz,$_.Z,$_.bz2}")} @suffixes;
   }elsif (my $fd = fileno($file_or_directory)) {
     open STDIN,"<&=$fd" or $self->throw("Can't dup STDIN");
     @argv = '-';
@@ -2808,7 +2808,7 @@ sub dna {
   $self->get_dna($id,$start,$stop,$class);
 }
 
-sub fetch_sequence { shift->dna(@_) } 
+sub fetch_sequence { shift->dna(@_) }
 
 sub features_in_range {
   my $self = shift;
@@ -2885,7 +2885,7 @@ retrieving features.  It contains the following keys:
    rangetype One of "overlaps", "contains" or "contained_in".  Indicates
               the type of range query requested.
 
-   refseq    ID of the landmark that establishes the absolute 
+   refseq    ID of the landmark that establishes the absolute
               coordinate system.
 
    refclass  Class of this landmark.  Can be ignored by implementations
@@ -2906,7 +2906,7 @@ that affect the way information is retrieved:
              A flag.  If true, means that the returned features should be
              sorted by the group that they're in.
 
-   sparse    A flag.  If true, means that the expected density of the 
+   sparse    A flag.  If true, means that the expected density of the
              features is such that it will be more efficient to search
              by type rather than by range.  If it is taking a long
              time to fetch features, give this a try.
@@ -3283,7 +3283,7 @@ sub make_aggregated_feature {
   my $feature = $self->make_feature($parent,undef,@_);
   return [$feature] if $feature && !$feature->group;
 
-  # if we have accumulated features and either: 
+  # if we have accumulated features and either:
   # (1) make_feature() returned undef, indicated very end or
   # (2) the current group is different from the previous one
 
@@ -3487,7 +3487,7 @@ sub _features {
     my @accumulated_features;
     my $callback = $options->{automerge} ? sub { $self->make_aggregated_feature(\@accumulated_features,$parent,\@aggregators,@_) }
                                          : sub { [$self->make_feature($parent,undef,@_)] };
-    return $self->get_features_iterator({ %$search, 
+    return $self->get_features_iterator({ %$search,
 					  types => \@aggregated_types  },
 					{ %$options,
 					 sort_by_group => $options->{automerge}  },
@@ -3641,7 +3641,7 @@ sub _split_gff2_group {
 
     for my $pair (@attributes) {
       my ($c,$n) = @$pair;
-      ($gclass,$gname) = ($c,$n) 
+      ($gclass,$gname) = ($c,$n)
 	if !$gclass # pick up first one
 	  ||
 	    ($preferred->{lc $gclass}||0) < ($preferred->{lc $c}||0); # pick up higher priority one
