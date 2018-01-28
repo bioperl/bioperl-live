@@ -2,13 +2,13 @@
 
 use strict;
 
-BEGIN {     
+BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    
+
     test_begin(-tests => 463,
 			   -requires_module => 'IO::Scalar');
-	
+
 	use_ok('Bio::Tools::CodonTable');
 	use_ok('Bio::SeqIO::table');
 }
@@ -82,9 +82,9 @@ ok $seqin = Bio::SeqIO->new(
     -file   => test_input_file("test-1.tab"),
     -format => 'table',
     -header => 1,
-    -display_id => 1, 
-    -accession_number => 1, 
-    -seq => 3, 
+    -display_id => 1,
+    -accession_number => 1,
+    -seq => 3,
     -desc => 2
 );
 ok($seqin);
@@ -107,7 +107,7 @@ ok $seqin = Bio::SeqIO->new(
     -format => 'genbank'
 );
 ok($seqin);
-my $seq = $seqin->next_seq;
+$seq = $seqin->next_seq;
 ok($seq);
 my $tmpfile = test_output_file();
 my $seqout = Bio::SeqIO->new( -format => 'table', -file => ">$tmpfile" );
@@ -128,7 +128,7 @@ SKIP: {
 							 -annotation => 1,
 							 -trim => 1);
 	run_tests([@names],[@accs],[@num_anns],[@psg],[@rs]);
-	
+
 	$seqin->close();
 }
 
@@ -151,10 +151,10 @@ sub run_tests {
         is ($seq->species->binomial, "Homo sapiens");
         my @anns = $seq->annotation->get_Annotations();
         is (scalar(@anns), shift(@num_anns));
-        @anns = grep { $_->value eq "Y"; 
+        @anns = grep { $_->value eq "Y";
                      } $seq->annotation->get_Annotations("Pseudogene?");
         is (scalar(@anns), shift(@psg));
-        
+
         # check sequences and that they translate to what we expect
         if (($n >= 5) && ($seq->display_id ne "MARK3")) {
             my $dna = $seq->seq;
@@ -175,16 +175,16 @@ sub run_tests {
             ok (defined $protann);
             is ($protein, $protann->value);
         }
-        
-        @anns = grep { $_->value eq "Known - Refseq"; 
+
+        @anns = grep { $_->value eq "Known - Refseq";
                      } $seq->annotation->get_Annotations("Novelty");
         is (scalar(@anns), shift(@rs));
         @anns = $seq->annotation->get_Annotations("Subfamily");
         is (scalar(@anns), ($n <= 5) ? 0 : 1);
         @anns = $seq->annotation->get_Annotations("Family");
         is (scalar(@anns), 1);
-        is (substr($anns[0]->value,0,4), ($n <= 4) ? "A6" : "CAMK");    
+        is (substr($anns[0]->value,0,4), ($n <= 4) ? "A6" : "CAMK");
     }
-    
+
     is ($n, 10);
 }
