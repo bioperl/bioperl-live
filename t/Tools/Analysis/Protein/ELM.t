@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests               => 15,
+    test_begin(-tests               => 16,
                -requires_modules    => [qw(IO::String
                                            LWP::UserAgent
                                            HTML::HeadParser
@@ -40,6 +40,8 @@ my $req_status = $tool->run();
 ok $req_status, 'run';
 
 my $status = $tool->status();
+
+ok(defined($status), 'This returns something valid');
 
 SKIP: {
     skip "Bad run() status, possible time out or error so skipping tests", 4 if !$req_status or $status eq 'TERMINATED_BY_ERROR';
