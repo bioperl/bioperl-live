@@ -19,13 +19,13 @@ Bio::SeqIO::entrezgene - Entrez Gene ASN1 parser
 
 =head1 DESCRIPTION
 
-This is EntrezGene ASN bioperl parser. It is built on top of 
-L<Bio::ASN1::EntrezGene>, a low level ASN parser built by Mingyi Liu 
-(L<http://sourceforge.net/projects/egparser>). The easiest way to 
+This is EntrezGene ASN bioperl parser. It is built on top of
+L<Bio::ASN1::EntrezGene>, a low level ASN parser built by Mingyi Liu
+(L<http://sourceforge.net/projects/egparser>). The easiest way to
 use it is shown above.
 
-You will get most of the Entrez Gene annotation such as gene symbol, 
-gene name and description, accession numbers associated 
+You will get most of the Entrez Gene annotation such as gene symbol,
+gene name and description, accession numbers associated
 with the gene, etc. Almost all of these are given as  L<Bio::AnnotationI> objects.
 
 If you need all the data do:
@@ -36,11 +36,11 @@ If you need all the data do:
    my ($gene,$genestructure,$uncaptured) = $seqio->next_seq;
 
 The second variable returned, C<$genestructure>, is a L<Bio::Cluster::SequenceFamily>
-object. It contains all Refseqs and the genomic contigs that are associated 
-with the particular gene. The third variable, C<$uncaptured>, is a reference 
+object. It contains all Refseqs and the genomic contigs that are associated
+with the particular gene. The third variable, C<$uncaptured>, is a reference
 to a plain array.
 
-You can also modify the output to allow back compatibility with the old 
+You can also modify the output to allow back compatibility with the old
 LocusLink parser:
 
    my $seqio = Bio::SeqIO->new(-format => 'entrezgene',
@@ -80,15 +80,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -681,8 +681,11 @@ sub _process_comments {
                         $l1   =~ s/\D//g;
                         $rest =~ s/^\s//;
                         my ( $l2, $scorestr ) = split( /\s/, $rest, 2 );
-                        my ( $scoresrc, $score ) = split( /:/, $scorestr );
-                        $score =~ s/\D//g;
+                        my ( $scoresrc, $score );
+                        if (defined $scorestr) {
+                            my ( $scoresrc, $score ) = split( /:/, $scorestr );
+                            $score =~ s/\D//g;
+                        } 
                         my ( %tags, $tag );
                         unless ($l1) {
                             next;
