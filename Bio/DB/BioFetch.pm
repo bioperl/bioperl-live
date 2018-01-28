@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::DB::BioFetch
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Lincoln Stein <lstein@cshl.org>
 #
@@ -68,15 +68,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -109,12 +109,12 @@ use base qw(Bio::DB::WebDBSeqI Bio::Root::Root);
 use constant DEFAULT_LOCATION => 'http://www.ebi.ac.uk/Tools/dbfetch/dbfetch';
 
 BEGIN {
-    
+
     %FORMATMAP = (
 	'embl' => {
 	    default   => 'embl',  # default BioFetch format/SeqIOmodule pair
-	    embl      => 'embl',  # alternative BioFetch format/module pair 
-	    fasta     => 'fasta', # alternative BioFetch format/module pair 
+	    embl      => 'embl',  # alternative BioFetch format/module pair
+	    fasta     => 'fasta', # alternative BioFetch format/module pair
 	    namespace => 'embl',
 	},
 	'swissprot' => {
@@ -202,7 +202,7 @@ sub new {
  Function: Creates a BioFetch object from the registry config hash
  Returns : itself
  Args    : A configuration hash (see Registry.pm)
- Throws  : 
+ Throws  :
 
 
 =cut
@@ -318,7 +318,7 @@ is provided as an alias.
  Title   : get_request
  Usage   : my $url = $self->get_request
  Function: returns a HTTP::Request object
- Returns : 
+ Returns :
  Args    : %qualifiers = a hash of qualifiers (ids, format, etc)
 
 =cut
@@ -356,11 +356,11 @@ sub get_request {
  Usage   : $format = $self->default_format
  Function: return the default format
  Returns : a string
- Args    : 
+ Args    :
 
 =cut
 
-sub default_format { 
+sub default_format {
     return 'default';
 }
 
@@ -403,7 +403,7 @@ sub db {
 sub _namespace {
   my $self = shift;
   my $db = $self->db;
-  return $FORMATMAP{$db}{namespace} or $db;
+  return $FORMATMAP{$db}{namespace} || $db;
 }
 
 =head2 postprocess_data
@@ -414,7 +414,7 @@ sub _namespace {
  Function: process downloaded data before loading into a Bio::SeqIO
  Returns : void
  Args    : hash with two keys - 'type' can be 'string' or 'file'
-                              - 'location' either file location or string 
+                              - 'location' either file location or string
                                  reference containing data
 
 =cut
@@ -463,12 +463,12 @@ sub postprocess_data {
 
 sub request_format {
     my ($self, $value) = @_;
-    if ( defined $value ) { 
+    if ( defined $value ) {
 	my $db = $self->db;
 	my $namespace = $self->_namespace;
 	my $format = lc $value;
-	print "format:", $format, " module:", $FORMATMAP{$db}->{$format}, " ($namespace)\n" 
-	    if $self->verbose > 0; 
+	print "format:", $format, " module:", $FORMATMAP{$db}->{$format}, " ($namespace)\n"
+	    if $self->verbose > 0;
 	$self->throw("Invalid format [$format], must be one of [".
 		     join(' ',keys %{$FORMATMAP{$db}}). "]")
 	    unless  $format eq 'default' || $FORMATMAP{$db}->{$format};
@@ -507,10 +507,10 @@ sub get_Stream_by_acc {
 =head2 _check_id
 
   Title   : _check_id
-  Usage   : 
+  Usage   :
   Function: Throw on whole chromosome NCBI sequences not in sequence databases
             and redirect RefSeq accession requests sent to EMBL.
-  Returns : 
+  Returns :
   Args    : $id(s), $string
   Throws  : if accessionn number indicates whole chromosome NCBI sequence
 
@@ -521,7 +521,7 @@ sub _check_id {
 
     # NT contigs can not be retrieved
     $self->throw("NT_ contigs are whole chromosome files which are not part of regular ".
-		 "database distributions. Go to ftp://ftp.ncbi.nih.gov/genomes/.") 
+		 "database distributions. Go to ftp://ftp.ncbi.nih.gov/genomes/.")
 	if $id =~ /NT_/;
 
     # Asking for a RefSeq from EMBL/GenBank
