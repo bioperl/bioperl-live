@@ -221,7 +221,7 @@ sub _cgi_url {
     my($self, $field, $term) = @_;
 
     # we don't bother to URI::Escape $field and $term as this is an untainted private sub
-    my $base_url = $self->url;
+    my $base_url = $self->url || '';
     return "$base_url?field=$field&term=$term";
 }
 
