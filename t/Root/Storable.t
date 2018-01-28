@@ -59,7 +59,7 @@ foreach my $mode( "BINARY", "ASCII" ){
     $obj2->template('TEST_XXXXXX');
     $obj2->suffix('.state');
     my $file2 = $obj2->store;
-    ok $file2 =~ /TEST_\w{6}?\.state$/ and -f $file2;
+    ok $file2 =~ /TEST_(\w{6})?\.state$/ and -f $file2;
 
     #------------------------------
     # Test recursive file IO
