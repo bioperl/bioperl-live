@@ -26,7 +26,7 @@ same type will share the same Bio::DB::GFF::Typename object.
 package Bio::DB::GFF::Typename;
 
 use strict;
-use overload 
+use overload
   '""'     => 'asString',
   fallback => 1;
 
@@ -52,7 +52,7 @@ sub new    {
   my ($method,$source) = @_;
   $method ||= '';
   $source ||= '';
-  if ($source eq '' && $method =~ /^([\w-\.]+):([\w-\.]*)$/) {
+  if ($source eq '' && $method =~ /^([\w\-\.]+):([\w\-\.]*)$/) {
     $method = $1;
     $source = $2;
   }
