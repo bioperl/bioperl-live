@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Bio::SeqIO::msout - input stream for output by Hudson's ms 
+Bio::SeqIO::msout - input stream for output by Hudson's ms
 
 =head1 SYNOPSIS
 
@@ -37,18 +37,18 @@ Thanks to Filipe G. Vieira <fgvieira@berkeley.edu> for the idea and code.
 
 User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to the
-Bioperl mailing list. Your participation is much appreciated. 
+Bioperl mailing list. Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Reporting Bugs 
+=head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  https://github.com/bioperl/bioperl-live/issues  
+  https://github.com/bioperl/bioperl-live/issues
 
 =head1 AUTHOR - Warren Kretzschmar
 
@@ -98,7 +98,7 @@ Usage   : $stream = Bio::SeqIO::msOUT->new($infile)
 Function: extracts basic information about the file.
 Returns : Bio::SeqIO object
 Args    : no_og, gunzip, gzip, n_sites
-Details	: 
+Details	:
     - include 'no_og' flag if the last population of an msout file contains
       only one haplotype and you don't want the last haplotype to be
       treated as the outgroup ( suggested when reading data created by ms ).
@@ -162,7 +162,7 @@ sub _initialize {
 
 Title   : _read_start
 Usage   : $stream->_read_start()
-Function: reads from the filehandle $stream->{_filehandle} all information up to the first haplotype (sequence).  Closes the filehandle if all lines have been read.  
+Function: reads from the filehandle $stream->{_filehandle} all information up to the first haplotype (sequence).  Closes the filehandle if all lines have been read.
 Returns : void
 Args    : none
 
@@ -227,7 +227,7 @@ sub _read_start {
 
 Title   : get_segsites
 Usage   : $segsites = $stream->get_segsites()
-Function: returns the number of segsites in the msOUT file (according to the msOUT header line's -s option), or the current run's segsites if -s was not specified in the command line (in this case the number of segsites varies from run to run). 
+Function: returns the number of segsites in the msOUT file (according to the msOUT header line's -s option), or the current run's segsites if -s was not specified in the command line (in this case the number of segsites varies from run to run).
 Returns : scalar
 Args    : NONE
 
@@ -286,11 +286,11 @@ Function: Sets the number of total sites (variable or not) to be output.
 Returns : 1 on success; throws an error if $value is not a positive integer or undef
 Args    : positive integer
 Note    :
-          WARNING: Final sequence length might not be equal to n_sites if it is 
+          WARNING: Final sequence length might not be equal to n_sites if it is
                    too close to number of segregating sites.
-          - n_sites needs to be at least as large as the number of segsites of 
+          - n_sites needs to be at least as large as the number of segsites of
             the next haplotype returned
-          - n_sites may also be set to undef, in which case haplotypes are returned 
+          - n_sites may also be set to undef, in which case haplotypes are returned
             under the infinite sites model assumptions.
 
 =cut
@@ -578,7 +578,9 @@ sub get_next_seq {
         my @pos = $self->get_Positions;
         for ( my $i = 0 ; $i <= $#pos ; $i++ ) {
             $pos[$i] *= $n_sites;
-            push( @seq, "A" x ( $pos[$i] - 1 - $seq_len ) );
+            my $rpt = $pos[$i] - 1 - $seq_len;
+            $rpt = $rpt >= 1 ? $rpt : 0;
+            push( @seq, "A" x ( $rpt ) );
             $seq_len += length( $seq[-1] );
             push( @seq, substr( $seqstring, $i, 1 ) );
             $seq_len += length( $seq[-1] );
@@ -614,7 +616,7 @@ Usage   : $seq = $stream->next_seq()
 Function: Alias to get_next_seq()
 Returns : Bio::Seq object or void if end of file
 Args    : NONE
-Note    : This function is only included for convention.  It calls get_next_seq().  
+Note    : This function is only included for convention.  It calls get_next_seq().
           See get_next_seq() for details.
 
 =cut
@@ -633,7 +635,7 @@ Function: reads and returns the next sequence (haplotype) in the stream.
 Returns : Haplotype string (e.g. '110110000101101045454000101'
 Args    : NONE
 Note	: Use get_next_seq() if you want the halpotype returned as a
-          Bio::Seq object.  
+          Bio::Seq object.
 
 =cut
 
@@ -669,10 +671,10 @@ sub get_next_hap {
 Title   : get_next_pop
 Usage   : @seqs = $stream->next_pop()
 Function: reads and returns all the remaining sequences (haplotypes) in the
-          population of the next sequence.  Returns an empty list if no more 
-          haps remain to be read in the stream  
+          population of the next sequence.  Returns an empty list if no more
+          haps remain to be read in the stream
 Returns : array of Bio::Seq objects
-Args    : NONE  
+Args    : NONE
 
 =cut
 
@@ -711,9 +713,9 @@ Title   : next_run
 Usage   : @seqs = $stream->next_run()
 Function: reads and returns all the remaining sequences (haplotypes) in the ms
           run of the next sequence.  Returns an empty list if all haps have been
-          read from the stream.  
+          read from the stream.
 Returns : array of Bio::Seq objects
-Args    : NONE  
+Args    : NONE
 
 =cut
 
@@ -756,19 +758,19 @@ Function: returns a reference to a hash.  The keys of the hash are the letters '
           each letter in the sequence of a seq object returned by a
           Bio::SeqIO::msout stream should be translated to.
 Returns : reference to a hash
-Args    : NONE  
+Args    : NONE
 Synopsis:
-	
+
 	# retrieve the Bio::Seq object's sequence
 	my $haplotype = $seq->seq;
-	
+
 	# need to convert all letters to their corresponding numbers.
 	foreach my $base (keys %{$rh_base_conversion_table}){
 		$haplotype =~ s/($base)/$rh_base_conversion_table->{$base}/g;
 	}
-	
+
 	# $haplotype is now an ms style haplotype. (e.g. '100101101455')
-	
+
 =cut
 
 sub get_base_conversion_table {
