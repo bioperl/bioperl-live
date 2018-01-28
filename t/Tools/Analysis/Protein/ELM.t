@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests               => 16,
+    test_begin(-tests               => 15,
                -requires_modules    => [qw(IO::String
                                            LWP::UserAgent
                                            HTML::HeadParser
@@ -27,7 +27,7 @@ my $seqio=Bio::SeqIO->new( -verbose => $verbose,
                   -file   => test_input_file('swiss.dat'));
 
 my $seq = $seqio->next_seq();
-ok $tool = Bio::Tools::Analysis::Protein::ELM->new( 
+ok $tool = Bio::Tools::Analysis::Protein::ELM->new(
 					-seq=>$seq->primary_seq), 'new object';
 ok $tool->compartment(['golgi', 'er']), 'set compartment';
 ok my $cmp = $tool->compartment(), 'get compartment';
@@ -39,15 +39,15 @@ my $req_status = $tool->run();
 
 ok $req_status, 'run';
 
-is $tool->status(), 'TERMINATED_BY_ERROR';
+my $status = $tool->status();
 
 SKIP: {
-    skip "Bad run() status, possible time out or error so skipping tests", 4 if !$req_status or $tool->status eq 'TERMINATED_BY_ERROR';
- 
+    skip "Bad run() status, possible time out or error so skipping tests", 4 if !$req_status or $status eq 'TERMINATED_BY_ERROR';
+
     ok my $raw = $tool->result('');
     print $raw if $verbose;
     ok my $parsed = $tool->result('parsed');
-    
+
     is $parsed->{'CLV_NRD_NRD_1'}{'locus'}[0], '54-56';
     ok my @res = $tool->result('Bio::SeqFeatureI');
 };
