@@ -31,7 +31,7 @@ NCBI taxonomy using a simple SQLite3 database stored locally on disk.
 
 With this implementation, one can do the same basic searches as with the 'flatfile'
 database.  A test lookup of 1000 NCBI TaxIDs with full lineage information took
-about 2 seconds on my older MacBook Pro laptop with an on-disk implementation.  
+about 2 seconds on my older MacBook Pro laptop with an on-disk implementation.
 
 A few key differences:
 
@@ -59,7 +59,7 @@ ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
 
 =item * Small optimizations, such as optimizing name lookups
 
-=item * Possibly use L<recursive CTE|http://www.sqlite.org/lang_with.html> to do lineage lookups 
+=item * Possibly use L<recursive CTE|http://www.sqlite.org/lang_with.html> to do lineage lookups
 
 =item * Clean up SQL (still kind of a mess right now)
 
@@ -85,15 +85,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -154,7 +154,7 @@ use base qw(Bio::DB::Taxonomy);
 
  Title   : new
  Usage   : my $obj = Bio::DB::Taxonomy::flatfile->new();
- Function: Builds a new Bio::DB::Taxonomy::flatfile object 
+ Function: Builds a new Bio::DB::Taxonomy::flatfile object
  Returns : an instance of Bio::DB::Taxonomy::flatfile
  Args    : -directory => name of directory where index files should be created
            -nodesfile => name of file containing nodes (nodes.dmp from NCBI)
@@ -168,20 +168,20 @@ sub new {
     my ( $class, @args ) = @_;
 
     my $self = $class->SUPER::new(@args);
-    
+
     my ( $dir, $nodesfile, $namesfile, $db, $force, $cs ) =
       $self->_rearrange( [qw(DIRECTORY NODESFILE NAMESFILE DB FORCE CACHE_SIZE)], @args );
 
     $self->index_directory( $dir || $DEFAULT_INDEX_DIR );
-    
+
     $self->db_name( $db || $DEFAULT_DB_NAME );
-    
+
     $self->cache_size($cs // $DEFAULT_CACHE_SIZE);
-    
+
     if ($nodesfile) {
         $self->_build_index( $nodesfile, $namesfile, $force );
     }
-    
+
     $self->_db_connect;
     return $self;
 }
@@ -200,11 +200,11 @@ sub new {
 
 sub get_num_taxa {
     my ($self) = @_;
-    
+
     my $ct = $self->_dbh_fetch(<<SQL);
     SELECT COUNT(*) FROM taxon
 SQL
-    
+
     return @{$ct}[0];
 }
 
@@ -217,7 +217,7 @@ SQL
  Args    : just a single value which is the database id, OR named args:
            -taxonid => taxonomy id (to query by taxonid)
             OR
-           -name    => string (to query by a taxonomy name: common name, 
+           -name    => string (to query by a taxonomy name: common name,
                                scientific name, etc)
 
 =cut
@@ -242,7 +242,7 @@ sub get_taxon {
     return unless $taxonid;
 
     $taxonid =~ /^\d+$/ || $self->throw("TaxID must be integer, got [$taxonid]");
-    
+
     my ( $parent_id, $rank, $code, $divid, $gen_code, $mito, $nm, $uniq, $class );
     # single join or two calls?
     my $sth = $self->_prepare_cached(<<SQL);
@@ -253,13 +253,13 @@ sub get_taxon {
     AND
         names.taxon_id = tax.taxon_id
 SQL
-    
+
     $sth->bind_columns(\$parent_id, \$rank, \$code, \$divid, \$gen_code, \$mito, \$nm, \$uniq, \$class);
-    
+
     $sth->execute($taxonid) or $self->throw($sth->errstr);
-    
+
     my ($sci_name, @common_names);
-    
+
     while ($sth->fetch) {
         if ($class eq 'scientific name') {
             $sci_name = $nm;
@@ -267,24 +267,24 @@ SQL
             push @common_names, $nm;
         }
     }
-        
+
     my $taxon = Bio::Taxon->new(
         -name         => $sci_name,
         -common_names => [@common_names],
         -ncbi_taxid   => $taxonid,
-        -parent_id    => $parent_id,   
+        -parent_id    => $parent_id,
         -rank              => $rank,
         -division          => $DIVISIONS[$divid]->[1],
         -genetic_code      => $gen_code,
         -mito_genetic_code => $mito
     );
-    
+
     # we can't use -dbh or the db_handle() method ourselves or we'll go
     # infinite on the merge attempt
     $taxon->{'db_handle'} = $self;
-    
+
     $self->_handle_internal_id($taxon);
-    
+
     return $taxon;
 }
 
@@ -304,10 +304,10 @@ SQL
 
 sub get_taxonids {
     my ( $self, $query ) = @_;
-    
+
     # TODO: note we're not cleaning the query here, so you could technically
     # have a fuzzy match (or Bobby Tables someone)
-    
+
     # TODO: OR'd match seems poor optimally
     my $taxids = $self->{dbh}->selectcol_arrayref(<<SQL);
     SELECT DISTINCT taxon_id FROM names
@@ -325,7 +325,7 @@ SQL
 =head2 get_Children_Taxids
 
  Title   : get_Children_Taxids
- Usage   : my @childrenids = $db->get_Children_Taxids 
+ Usage   : my @childrenids = $db->get_Children_Taxids
  Function: Get the ids of the children of a node in the taxonomy
  Returns : Array of Ids
  Args    : Bio::Taxon or a taxon_id
@@ -364,7 +364,7 @@ sub get_Children_Taxids {
  Title   : ancestor
  Usage   : my $ancestor_taxon = $db->ancestor($taxon)
  Function: Retrieve the full ancestor taxon of a supplied Taxon from the
-           database. 
+           database.
  Returns : Bio::Taxon
  Args    : Bio::Taxon (that was retrieved from this database)
 
@@ -378,13 +378,13 @@ sub ancestor {
       unless $taxon->db_handle && $taxon->db_handle eq $self;
     my $id =
       $taxon->id || $self->throw("The supplied Taxon is missing its id!");
-    
+
     # TODO:
     # Note here we explicitly set the parent ID, but use a separate method to
     # check whether it is defined. Mixing back-end databases, even if from the
     # same source, should still work (since a different backend wouldn't
     # explicitly set the parent_id)
-    
+
     if ($taxon->trusted_parent_id) {
         # this is the failsafe when we hit the root node
         if ($taxon->parent_id eq $id) {
@@ -404,7 +404,7 @@ sub ancestor {
 # Title   : ancestors
 # Usage   : my @ancestor_taxa = $db->ancestors($taxon)
 # Function: Retrieve the full ancestor taxon of a supplied Taxon from the
-#           database. 
+#           database.
 # Returns : List of Bio::Taxon
 # Args    : Bio::Taxon (that was retrieved from this database)
 #
@@ -429,13 +429,13 @@ sub each_Descendent {
       unless ref($taxon) && $taxon->isa('Bio::Taxon');
     $self->throw("The supplied Taxon must belong to this database")
       unless $taxon->db_handle && $taxon->db_handle eq $self;  # yikes
-    
+
     my $id =
       $taxon->id || $self->throw("The supplied Taxon is missing its id!");
-    
+
     #my ( $parent_id, $rank, $code, $divid, $gen_code, $mito, $nm, $uniq, $class );
     # single join or two calls?
-    
+
     # probably not optimal, maybe set up as a cached statement with bindings?
     my $desc_ids = $self->{dbh}->selectcol_arrayref(<<SQL) or $self->throw($self->{dbh}->errstr);
     SELECT tax.taxon_id
@@ -443,9 +443,9 @@ sub each_Descendent {
     WHERE
         tax.parent_id = $id
 SQL
-    
+
     return unless ref $desc_ids eq 'ARRAY';
-    
+
     my @descs;
     foreach my $desc_id (@$desc_ids) {
         push( @descs, $self->get_taxon($desc_id) || next );
@@ -453,7 +453,7 @@ SQL
     return @descs;
 }
 
-=head2 Helper methods 
+=head2 Helper methods
 
 =cut
 
@@ -520,31 +520,31 @@ sub _build_index {
     # one file.  Mayeb ignore it in favor of having full path for db_name?
     my ($dir, $db_name) = ($self->index_directory, $self->db_name);
     if (! -e $db_name || $force) {
-        
+
         # TODO: we're ignoring index_directory for now, may add support for this
         # down the way
         my $dbh = DBI->connect("dbi:SQLite:dbname=$db_name","","") or die $!;
-        
+
         $self->debug("Running SQLite version:".$dbh->{sqlite_version}."\n");
-    
+
         #$dbh->do('PRAGMA synchronous = 0');      # Non transaction safe!!!
-        
+
         if ($self->cache_size) {
             my $cs = $self->cache_size;
             $self->debug("Setting cache size $cs\n");
-            $dbh->do("PRAGMA cache_size = $cs") 
+            $dbh->do("PRAGMA cache_size = $cs")
         }
 
         $self->debug("Loading taxon table data\n");
         $self->_init_db($dbh);
         open my $NODES, '<', $nodesfile
             or $self->throw("Could not read node file '$nodesfile': $!");
-    
+
         # TODO: this has the really unnecessary 'OR IGNORE' option added,
         # apparently b.c the test data expects to handle cases where the TaxID
         # is repeated in this table (which should never happen in this table). I
         # will likely change this to throw under those circumstances
-        
+
         my $sth = $dbh->prepare_cached(<<SQL);
     INSERT OR IGNORE INTO taxon (taxon_id, parent_id, rank, code, division_id, gencode_id, mito_id) VALUES (?,?,?,?,?,?,?)
 SQL
@@ -557,18 +557,18 @@ SQL
             if ($parent == 1) {
                 $parent = undef;
             }
-            
+
             $sth->execute($taxid, $parent, $rank, $code, $divid, $gen_code, $mito) or die $sth->errstr.": TaxID $taxid";
         }
         $dbh->do("COMMIT") or $self->throw($dbh->errstr);
-        
+
         close $NODES;
-        
+
         $self->debug("Loading name table data\n");
         open my $NAMES, '<', $namesfile
             or $self->throw("Could not read names file '$namesfile': $!");
-    
-        my $sth = $dbh->prepare_cached(<<SQL) or $self->throw($dbh->errstr);
+
+        $sth = $dbh->prepare_cached(<<SQL) or $self->throw($dbh->errstr);
     INSERT INTO names (taxon_id, name, uniq_name, class) VALUES (?,?,?,?)
 SQL
         $dbh->do("BEGIN");
@@ -576,22 +576,22 @@ SQL
             next if /^$/;
             chomp;
             my ($taxid, $name, $unique_name, $class) = split(/\t\|\t/,$_);
-            
+
             # don't include the fake root node 'root' or 'all' with id 1
             next if $taxid == 1;
-            
+
             $class =~ s/\s+\|\s*$//;
-            
+
             #if ($name =~ /\(class\)$/) { # it seems that only rank of class is ever used in this situation
             #    $name =~ s/\s+\(class\)$//;
             #}
-            
+
             $sth->execute($taxid, $name, $unique_name, $class) or $self->throw($sth->errstr);
         }
         close $NAMES;
 
         $dbh->do("COMMIT");
-        
+
         $self->debug("Creating taxon index\n");
         $dbh->do("CREATE INDEX parent_idx ON taxon (parent_id)") or $self->throw($dbh->errstr);
         $self->debug("Creating name index\n");
@@ -600,7 +600,7 @@ SQL
         $dbh->do("CREATE INDEX taxon_name_idx ON names (taxon_id)") or $self->throw($dbh->errstr);
 
         $dbh->do("PRAGMA foreign_keys = ON");
-        
+
         #$dbh->do('PRAGMA synchronous = 1');
         $self->{dbh} = $dbh;
         $self->{'_initialized'} = 1;
@@ -614,7 +614,7 @@ sub _db_connect {
     return if $self->{'_initialized'};
 
     my ($dir, $db_name) = ($self->index_directory, $self->db_name);
-    
+
     # TODO: we're ignoring index_directory for now, may add support for this
     # down the way
     my $dbh = DBI->connect("dbi:SQLite:dbname=$db_name","","") or die $!;
@@ -622,7 +622,7 @@ sub _db_connect {
     if ($self->cache_size) {
         my $cs = $self->cache_size;
         $self->debug("Setting cache size $cs\n");
-        $dbh->do("PRAGMA cache_size = $cs") 
+        $dbh->do("PRAGMA cache_size = $cs")
     }
     $self->{dbh} = $dbh;
 
@@ -673,7 +673,7 @@ sub taxon_schema {
         FOREIGN KEY(parent_id) REFERENCES taxon(taxon_id)
     )
 SCHEMA
-    
+
     names   => <<SCHEMA,
     (
         name_id         INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -693,4 +693,3 @@ sub DESTROY {
 }
 
 1;
-
