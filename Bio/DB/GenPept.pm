@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::DB::GenPept
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Aaron Mackey <amackey@virginia.edu>
 #
@@ -25,9 +25,9 @@ Bio::DB::GenPept - Database object interface to GenPept
 
     # or ...
 
-    $seq = $gb->get_Seq_by_acc('DEECTH'); # Accession Number
+    $seq = $gb->get_Seq_by_acc('P09651.5'); # Accession Number
 
-    my $seqio = $gb->get_Stream_by_id(['195055', 'DEECTH']);
+    my $seqio = $gb->get_Stream_by_id(['195055', 'P09651.5']);
     while( my $seq = $seqio->next_seq ) {
 	    print "seq is is ", $seq->display_id, "\n";
     }
@@ -59,15 +59,15 @@ is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -97,10 +97,10 @@ use strict;
 use vars qw($DEFAULTFORMAT $DEFAULTMODE %PARAMSTRING);
 
 use base qw(Bio::DB::NCBIHelper);
-BEGIN { 
+BEGIN {
     $DEFAULTMODE   = 'single';
-    $DEFAULTFORMAT = 'gp';	    
-    %PARAMSTRING = ( 
+    $DEFAULTFORMAT = 'gp';
+    %PARAMSTRING = (
 		     'batch' => { 'db'     => 'protein',
 				  'usehistory' => 'n',
 				  'tool'   => 'bioperl'},
@@ -117,7 +117,7 @@ BEGIN {
 				   'usehistory' => 'n',
 				   'tool'   => 'bioperl',
 				   'retmode' => 'text'},
-			 'webenv' => {    
+			 'webenv' => {
 				  'query_key'  => 'querykey',
 				  'WebEnv'  => 'cookie',
 				  'db'     => 'protein',
@@ -172,7 +172,7 @@ sub default_format {
 =head2 get_Seq_by_id
 
  Title   : get_Seq_by_id
- Usage   : $seq = $db->get_Seq_by_id('ROA1_HUMAN')
+ Usage   : $seq = $db->get_Seq_by_id('P09651.5')
  Function: Gets a Bio::Seq object by its name
  Returns : a Bio::Seq object
  Args    : the id (as a string) of a sequence
@@ -193,7 +193,7 @@ sub default_format {
  Title   : get_request
  Usage   : my $url = $self->get_request
  Function: HTTP::Request
- Returns : 
+ Returns :
  Args    : %qualifiers = a hash of qualifiers (ids, format, etc)
 
 =head2 get_Stream_by_id
@@ -234,19 +234,3 @@ sub request_format {
 
 1;
 __END__
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
