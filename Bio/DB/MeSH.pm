@@ -23,7 +23,7 @@ Bio::DB::MeSH - Term retrieval from a Web MeSH database
 
 This class retrieves a term from the Medical Subject Headings database
 by the National Library of Medicine of USA. See
-L<http://www.nlm.nih.gov/mesh/meshhome.html>. It uses the latest
+L<https://www.nlm.nih.gov/mesh/meshhome.html>. It uses the latest
 data available (updates happen on weekdays). If it fails, an archive
 cgi scripts accessing older data from previous year is used.
 
@@ -47,7 +47,7 @@ Bioperl modules. Send your comments and suggestions preferably to the
 Bioperl mailing lists Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+  https://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support
 
@@ -92,7 +92,7 @@ use Bio::Phenotype::MeSH::Twig;
 use base qw(Bio::Tools::Analysis::SimpleAnalysisBase);
 
 
-my $URL = 'http://www.nlm.nih.gov/mesh/MBrowser.html';
+my $URL = 'https://www.nlm.nih.gov/mesh/MBrowser.html';
 
 my $ANALYSIS_SPEC= {name => 'MeSH term retrival',
                     type => 'Entry retrieval'};
@@ -162,7 +162,7 @@ sub _set_cgi_base_url {
     while ($pass == 0 and $year > 2003) {
         my $response;
         eval {
-            $response = $self->get( "http://www.nlm.nih.gov/cgi/mesh/$year/MB_cgi" )
+            $response = $self->get( "https://www.nlm.nih.gov/cgi/mesh/$year/MB_cgi" )
         };
         # Note: error 404 is acceptable because it can mean that webpage is not yet
         # implemented for current year. Absence of internet generates error 500.
@@ -177,7 +177,7 @@ sub _set_cgi_base_url {
             $year -= 1;
         }
     }
-    $self->url("http://www.nlm.nih.gov/cgi/mesh/$year/MB_cgi");
+    $self->url("https://www.nlm.nih.gov/cgi/mesh/$year/MB_cgi");
 }
 
 =head2 get_exact_term
