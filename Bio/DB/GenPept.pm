@@ -215,6 +215,14 @@ sub default_format {
                    the desired sequence entries
   Note    : For GenBank, this just calls the same code for get_Stream_by_id()
 
+=head2 get_Stream_by_query
+
+  Title   : get_Stream_by_query
+  Usage   : $seq = $db->get_Stream_by_query('ROA1_HUMAN');
+  Function: Gets a series of Seq objects by unique display_id
+  Returns : a Bio::SeqIO stream object
+  Args    : $ref : display_id to query by
+
 =head2 request_format
 
  Title   : request_format
