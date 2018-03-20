@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::Tree::DistanceFactory
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Jason Stajich <jason-at-bioperl.org>
 #
@@ -29,7 +29,7 @@ Bio::Tree::DistanceFactory - Construct a tree using distance based methods
   # Of course matrix can come from a different place
   # like PHYLIP if you prefer, Bio::Matrix::IO should be able
   # to parse many things
-  my $jcmatrix = $stats->distance(-align => $aln, 
+  my $jcmatrix = $stats->distance(-align => $aln,
                                   -method => 'Jukes-Cantor');
   my $tree = $tfactory->make_tree($jcmatrix);
 
@@ -64,15 +64,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -110,7 +110,7 @@ use base qw(Bio::Root::Root);
 
  Title   : new
  Usage   : my $obj = Bio::Tree::DistanceFactory->new();
- Function: Builds a new Bio::Tree::DistanceFactory object 
+ Function: Builds a new Bio::Tree::DistanceFactory object
  Returns : an instance of Bio::Tree::DistanceFactory
  Args    : -method => 'NJ' or 'UPGMA'
 
@@ -118,7 +118,7 @@ use base qw(Bio::Root::Root);
 =cut
 
 sub new {
-  my($class,@args) = @_;  
+  my($class,@args) = @_;
   my $self = $class->SUPER::new(@args);
 
   my ($method) = $self->_rearrange([qw(METHOD)],
@@ -140,7 +140,7 @@ sub new {
 
 sub make_tree{
    my ($self,$matrix) = @_;
-   if( ! defined $matrix || !ref($matrix) || 
+   if( ! defined $matrix || !ref($matrix) ||
        ! $matrix->isa('Bio::Matrix::MatrixI') ) {
        $self->warn("Need to provide a valid Bio::Matrix::MatrixI object to make_tree");
        return;
@@ -151,11 +151,11 @@ sub make_tree{
        return $self->_nj($matrix);
    } elsif( $method =~ /UPGMA/i ) {
        return $self->_upgma($matrix);
-   } else { 
+   } else {
        $self->warn("Unknown tree construction method '$method'.  Cannot run.");
        return;
    }
-   
+
 }
 
 
@@ -163,7 +163,7 @@ sub make_tree{
 
  Title   : _nj
  Usage   : my $tree = $disttreefact->_nj($matrix);
- Function: Construct a tree based on distance matrix using the 
+ Function: Construct a tree based on distance matrix using the
            Neighbor Joining algorithm (Saitou and Nei, 1987)
            Implementation based on Kevin Howe's Quicktree implementation
            and uses his tricks (some based on Bill Bruno's work) to eliminate
@@ -179,7 +179,7 @@ sub _nj {
    # we assume type checking of $aln has already been done
    # client shouldn't be calling this directly anyways, using the
    # make_tree method is preferred
-   
+
    # so that we can trim the number of digits shown as the branch length
    my $precisionstr = "%.$Precision"."f";
 
@@ -197,13 +197,13 @@ sub _nj {
 		       $distmat->get_entry($names[0],$names[1]) / 2);
        my $root = Bio::Tree::Node->new();
        for my $nm ( @names ) {
-	   $root->add_Descendents( Bio::Tree::Node->new(-id => $nm,
+	   $root->add_Descendent( Bio::Tree::Node->new(-id => $nm,
 							-branch_length => $d));
        }
-       return Bio::Tree::Tree(-root => $root);
+       return Bio::Tree::Tree->new(-root => $root);
    }
    my $c = 0;
-   
+
    for ( $i = 0; $i < $N; $i++ ) {
        push @nodes, Bio::Tree::Node->new(-id => $names[$i]);
        my $ri = 0;
@@ -213,7 +213,7 @@ sub _nj {
        }
        $r[$i] = $ri / ($L -2);
    }
-   
+
    for( my $nodecount = 0; $nodecount < $N-3; $nodecount++) {
        my ($mini,$minj,$min);
        for($i = 0; $i < $N; $i++ ) {
@@ -230,40 +230,40 @@ sub _nj {
        my $dij    = $mat->[$mini][$minj];
        my $dist_i = ($dij + $r[$mini] - $r[$minj]) / 2;
        my $dist_j = $dij - $dist_i;
-       
+
        # deal with negative branch lengths
        # per code in K.Howe's quicktree
        if( $dist_i < 0 ) {
 	   $dist_i = 0;
 	   $dist_j = $dij;
 	   $dist_j = 0 if( $dist_j < 0 );
-       } elsif( $dist_j < 0 ) { 
+       } elsif( $dist_j < 0 ) {
 	   $dist_j = 0;
 	   $dist_i = $dij;
 	   $dist_i = 0 if( $dist_i < 0 );
        }
-       
+
        $nodes[$mini]->branch_length(sprintf($precisionstr,$dist_i));
        $nodes[$minj]->branch_length(sprintf($precisionstr,$dist_j));
-       
+
        my $newnode = Bio::Tree::Node->new(-descendents => [ $nodes[$mini],
 							    $nodes[$minj] ]);
 
        $nodes[$mini] = $newnode;
        delete $nodes[$minj];
-       
+
        # update the distance matrix
        $r[$mini] = 0;
        my ($dmi,$dmj);
-       for( $m = 0; $m < $N; $m++ ) {	   
+       for( $m = 0; $m < $N; $m++ ) {
 	   next unless defined $nodes[$m];
 	   if( $m != $mini ) {
 	       $dmj = $mat->[$m][$minj];
-	       
+
 	       my ($row,$col);
 	       ($row,$col) = ($m,$mini);
 	       $dmi = $mat->[$row][$col];
-	       
+
 	       # from K.Howe's notes in quicktree
 	       # we can actually adjust r[m] here, by using the form:
 	       # rm = ((rm * numseqs) - dmi - dmj + dmk) / (numseqs-1)
@@ -278,14 +278,14 @@ sub _nj {
 	       # certainly true if dij is equal to dist_i + dist_j,
 	       # which it should have been fixed to
 
-	       my $dmk = $mat->[$row][$col] = $mat->[$col][$row] = 
+	       my $dmk = $mat->[$row][$col] = $mat->[$col][$row] =
 		   ($dmi + $dmj - $dij) / 2;
-	       
+
 	       # If we don't want to try and correct negative brlens
 	       # this is essentially what is in Edddy et al, BSA book.
 	       # $r[$m] = (($r[$m] * $L) - $dmi - $dmj + $dmk) / ($L-1);
-	       # 
-	       $r[$m] = (($r[$m] * ($L - 2)) - $dmi - $dmj + 
+	       #
+	       $r[$m] = (($r[$m] * ($L - 2)) - $dmi - $dmj +
 			 $mat->[$row][$col]) / ( $L - 3);
 	       $r[$mini] += $dmk;
 	   }
@@ -293,7 +293,7 @@ sub _nj {
        $L--;
        $r[$mini] /= $L - 2;
    }
-   
+
    # should be 3 nodes left
    my (@leftovernodes,@leftovers);
    for( my $k = 0; $k < $N; $k++ ) {
@@ -303,19 +303,19 @@ sub _nj {
        }
    }
    my ($l_0,$l_1,$l_2) = @leftovers;
-   
+
    my $dist_i = ( $mat->[$l_1][$l_0] + $mat->[$l_2][$l_0] -
 		  $mat->[$l_2][$l_1] ) / 2;
-   
+
    my $dist_j = ( $mat->[$l_1][$l_0] - $dist_i);
    my $dist_k = ( $mat->[$l_2][$l_0] - $dist_i);
 
    # This is Kev's code to get rid of negative branch lengths
-   if( $dist_i < 0 ) { 
+   if( $dist_i < 0 ) {
        $dist_i = 0;
        $dist_j = $mat->[$l_1][$l_0];
        $dist_k = $mat->[$l_2][$l_0];
-       if( $dist_j < 0 ) { 
+       if( $dist_j < 0 ) {
 	   $dist_j = 0;
 	   $dist_k = ( $mat->[$l_2][$l_0] + $mat->[$l_2][$l_1] ) / 2;
 	   $dist_k = 0 if( $dist_k < 0 );
@@ -328,11 +328,11 @@ sub _nj {
        $dist_j = 0;
        $dist_i = $mat->[$l_1][$l_0];
        $dist_k = $mat->[$l_2][$l_1];
-       if( $dist_i < 0 ) { 
+       if( $dist_i < 0 ) {
 	   $dist_i = 0;
 	   $dist_k = ( $mat->[$l_2][$l_0] + $mat->[$l_2][$l_1]) / 2;
 	   $dist_k = 0 if( $dist_k  < 0 );
-       } elsif( $dist_k < 0 ) { 
+       } elsif( $dist_k < 0 ) {
 	   $dist_k = 0;
 	   $dist_i = ( $mat->[$l_1][$l_0] + $mat->[$l_2][$l_0]) / 2;
 	   $dist_i = 0 if( $dist_i < 0 );
@@ -341,7 +341,7 @@ sub _nj {
        $dist_k = 0;
        $dist_i = $mat->[$l_2][$l_0];
        $dist_j = $mat->[$l_2][$l_1];
-       if( $dist_i < 0 ) { 
+       if( $dist_i < 0 ) {
 	   $dist_i = 0;
 	   $dist_j = ( $mat->[$l_1][$l_0] + $mat->[$l_2][$l_1] ) / 2;
 	   $dist_j = 0 if $dist_j < 0;
@@ -375,17 +375,17 @@ sub _upgma{
    # we assume type checking of $matrix has already been done
    # client shouldn't be calling this directly anyways, using the
    # make_tree method is preferred
-   
+
    # algorithm, from Eddy, Durbin, Krogh, Mitchison, 1998
    # originally by Sokal and Michener 1956
 
    my $precisionstr = "%.$Precision"."f";
-   
+
    my ($i,$j,$x,$y,@dmat,@orig,@nodes);
 
    my @names = $distmat->column_names;
    my $c = 0;
-   my @clusters = map { 
+   my @clusters = map {
        my $r = { 'id'        => $c,
 		 'height'    => 0,
 		 'contains'  => [$c],
@@ -403,9 +403,9 @@ sub _upgma{
 	   $dmat[$j][$i] = $dmat[$i][$j] = $d;
 	   $orig[$i][$j] = $orig[$j][$i] = $d;
 	   if ( ! defined $min || $d <= $min ) {
-	       if( defined $min && $min == $d ) { 
+	       if( defined $min && $min == $d ) {
 		   push @mins, [$i,$j];
-	       } else { 
+	       } else {
 		   @mins = [$i,$j];
 		   $min  = $d;
 	       }
@@ -414,7 +414,7 @@ sub _upgma{
    }
    # distance between each cluster is avg distance
    # between pairs of sequences from each cluster
-   while( $K > 1 ) {       
+   while( $K > 1 ) {
        # fencepost - we already have found the $min
        # so very first time loop is executed we can skip checking
        unless( defined $min ) {
@@ -424,9 +424,9 @@ sub _upgma{
 		   if( ! defined $min ||
 		       $dij <= $min) {
 		       if( defined $min &&
-			   $min == $dij ) { 
+			   $min == $dij ) {
 			   push @mins, [$i,$j];
-		       } else { 
+		       } else {
 			   @mins = [ $i,$j ];
 			   $min = $dij;
 		       }
@@ -435,11 +435,11 @@ sub _upgma{
 	   }
        }
        # randomly break ties
-       ($x,$y) = @{ $mins[int(rand(scalar @mins))] };   
+       ($x,$y) = @{ $mins[int(rand(scalar @mins))] };
 
        # now we are going to join clusters x and y, make a new cluster
 
-       my $node = Bio::Tree::Node->new();   
+       my $node = Bio::Tree::Node->new();
        my @subids;
        for my $cid ( $x,$y ) {
 	   my $nid = $clusters[$cid]->{'id'};
@@ -468,11 +468,11 @@ sub _upgma{
        delete $clusters[$K];
        $clusters[$x] = $cluster;
        # now recalculate @dmat
-       for( $i = 0; $i < $K; $i++ ) {	   
+       for( $i = 0; $i < $K; $i++ ) {
 	   if( $i != $x) {
-	       $dmat[$i][$x] = $dmat[$x][$i] = 
+	       $dmat[$i][$x] = $dmat[$x][$i] =
 		   &_upgma_distance($clusters[$i],$clusters[$x],\@orig);
-	   } else { 
+	   } else {
 	       $dmat[$i][$i] = 0;
 	   }
        }
@@ -487,22 +487,22 @@ sub _upgma{
 # calculate avg distance between clusters - be they
 # single sequences or the combination of multiple seqences
 # $cluster_i and $cluster_j are the clusters to operate on
-# and $distances is a matrix (arrayref of arrayrefs) of pairwise 
-# differences indexed on the sequence ids - 
+# and $distances is a matrix (arrayref of arrayrefs) of pairwise
+# differences indexed on the sequence ids -
 # so $distances->[0][1] is the distance between sequences 0 and 1
 
-sub _upgma_distance { 
+sub _upgma_distance {
     my ($cluster_i, $cluster_j, $distances) = @_;
     my $ilen = scalar @{ $cluster_i->{'contains'} };
     my $jlen = scalar @{ $cluster_j->{'contains'} };
     my ($d,$count);
     for( my $i = 0; $i < $ilen; $i++ ) {
 	my $i_id = $cluster_i->{'contains'}->[$i];
-	for( my $j = 0; $j < $jlen; $j++) {	    
+	for( my $j = 0; $j < $jlen; $j++) {
 	    my $j_id = $cluster_j->{'contains'}->[$j];
 	    if( ! defined $distances->[$i_id][$j_id] ) {
 		warn("no value for $i_id $j_id\n");
-	    } else { 
+	    } else {
 		$d += $distances->[$i_id][$j_id];
 	    }
 	    $count++;
@@ -515,8 +515,8 @@ sub _upgma_distance {
 
  Title   : method
  Usage   : $obj->method($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of method (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -537,12 +537,12 @@ sub method{
              }
  Function  : See if matrix obeys additivity principal
  Returns   : boolean
- Args      : Bio::Matrix::MatrixI 
+ Args      : Bio::Matrix::MatrixI
  References: Based on a Java implementation by
              Peter Sestoft, sestoft@dina.kvl.dk 1999-12-07 version 0.3
              http://www.dina.kvl.dk/~sestoft/bsa.html
-             which in turn is based on algorithms described in 
-             R. Durbin, S. Eddy, A. Krogh, G. Mitchison. 
+             which in turn is based on algorithms described in
+             R. Durbin, S. Eddy, A. Krogh, G. Mitchison.
              Biological Sequence Analysis CUP 1998, Chapter 7.
 
 =cut
@@ -553,15 +553,15 @@ sub check_additivity{
    my $len = scalar @names;
    return unless $len >= 4;
    # look at all sets of 4
-   for( my $i = 0; $i < $len; $i++ ) { 
+   for( my $i = 0; $i < $len; $i++ ) {
        for( my $j = $i+1; $j< $len; $j++) {
 	   for( my $k = $j+1; $k < $len; $k ++ ) {
 	       for( my $m = $k +1; $m < $len; $m++ ) {
-		   my $DijDkm = $matrix->get_entry($names[$i],$names[$j]) + 
+		   my $DijDkm = $matrix->get_entry($names[$i],$names[$j]) +
 		       $matrix->get_entry($names[$k],$names[$m]);
-		   my $DikDjm = $matrix->get_entry($names[$i],$names[$k]) + 
+		   my $DikDjm = $matrix->get_entry($names[$i],$names[$k]) +
 		       $matrix->get_entry($names[$j],$names[$m]);
-		   my $DimDjk = $matrix->get_entry($names[$i],$names[$m]) + 
+		   my $DimDjk = $matrix->get_entry($names[$i],$names[$m]) +
 		       $matrix->get_entry($names[$j],$names[$k]);
 		   if( !( ( $DijDkm == $DikDjm && $DijDkm >= $DimDjk)
 			  || ( $DijDkm == $DimDjk && $DijDkm >= $DikDjm)
@@ -570,7 +570,7 @@ sub check_additivity{
 		   }
 	       }
 	   }
-       } 
+       }
    }
    return 1;
 }
