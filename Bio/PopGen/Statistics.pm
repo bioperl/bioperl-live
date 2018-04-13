@@ -1307,6 +1307,8 @@ sub composite_LD {
            for intraspecific comparisons and with the outgroup 
  Returns : 2x2 table, followed by a hash reference indicating any 
            warning messages about the status of the alleles or codons 
+	   $status is an hash reference of error messages;
+	   my ($polyN, $fixedN, $polyS, $fixedS, $status) = Bio::PopGen::Statsitics->mcdonald_kreitman($ingrp,$outgrp);
  Args    : -ingroup    => L<Bio::PopGen::Population> object or 
                           arrayref of L<Bio::PopGen::Individual>s 
            -outgroup   => L<Bio::PopGen::Population> object or 
