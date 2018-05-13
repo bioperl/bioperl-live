@@ -1445,7 +1445,7 @@ sub primary_index_filehandle {
     unless ( defined( $self->{'_primary_index_handle'} ) ) {
         my $primary_file = $self->primary_index_file;
         open $self->{'_primary_index_handle'}, '<', $primary_file
-          or self->throw("Could not read file '$primary_file': $!\n");
+          or $self->throw("Could not read file '$primary_file': $!\n");
     }
     return $self->{'_primary_index_handle'};
 }
