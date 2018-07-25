@@ -20,7 +20,7 @@ Bio::MolEvol::CodonModel - Codon Evolution Models
   use Bio::MolEvol::CodonModel;
 
   my $codon_path = Bio::MolEvol::CodonModel->codon_path;
-  my ($ns, $syn) = $codon_path->{'AATAAC'};
+  my ($ns, $syn) = @{$codon_path->{'AATAAC'}};
   print "AAT -> AAC: $ns ns mutations, $syn syn mutations\n";
 
 
