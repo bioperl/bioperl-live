@@ -1,5 +1,6 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 use strict;
+use warnings;
 
 my $base       = '/home/websites/bioperl.org';
 my $srcdir     = "$base/src/git";
