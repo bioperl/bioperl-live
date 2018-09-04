@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/perl
 # Author:  Jason Stajich <jason@bioperl.org>
 # Purpose: Retrieve the NCBI Taxa ID for organism(s)
 

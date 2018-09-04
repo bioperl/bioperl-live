@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/perl
 #
 # OBDA Registry compliant sequence retrieval script
 #

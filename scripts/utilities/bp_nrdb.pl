@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/perl
 
 # Author Jason Stajich <jason-at-bioperl-dot-org>
 # 

@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/perl
 # Author:  Jason Stajich <jason-at-bioperl-dot-org>
 # Purpose: Bioperl implementation of Sean Eddy's sreformat
 #          We're not as clever as Sean's squid library though so

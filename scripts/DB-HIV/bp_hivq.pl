@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/perl
 # command-line script for HIV sequence queries
 # using HIV.pm and HIVQuery.pm
 

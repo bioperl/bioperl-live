@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 # AUTHOR: malcolm.cook@stowers-institute.org
 
 use strict;

@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/perl
 # -*-Perl-*-
 #
 # Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>

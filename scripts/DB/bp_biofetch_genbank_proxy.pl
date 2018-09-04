@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/perl
 
 # dbfetch style caching proxy for GenBank
 use strict;

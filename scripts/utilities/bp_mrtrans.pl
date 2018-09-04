@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/perl
 use strict;
 
 # Author:      Jason Stajich <jason-at-bioperl-dot-org>
