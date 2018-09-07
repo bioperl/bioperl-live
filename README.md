@@ -34,8 +34,6 @@ The BioPerl directory structure is organized as follows:
 
 * **`Bio/`** - BioPerl modules
 
-* **`deobfuscator/`** - Code for tracing OOP relationships
-
 * **`examples/`** - Scripts demonstrating the many uses of BioPerl
 
 * **`ide/`** - Files for developing BioPerl using an IDE

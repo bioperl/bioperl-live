@@ -31,6 +31,12 @@ them separately on CPAN. Modules considered obsolute (relies on a dead web
 service or utilizes strict dependencies that are also considered obsolete) will
 be removed.
 
+1.7.3 - "To Be Named"
+
+    [Code changes]
+
+    * The deobfuscator has been removed.
+
 1.7.2 - "Entebbe"
 
     [Bugs]
