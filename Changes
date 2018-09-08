@@ -36,6 +36,8 @@ be removed.
     [Code changes]
 
     * The deobfuscator has been removed.
+    * The script `bp_blast2tree` has been moved to the BioPerl-Run
+      distribution since it's mainly a wrapper to modules in there.
 
 1.7.2 - "Entebbe"
 
