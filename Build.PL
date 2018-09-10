@@ -140,8 +140,6 @@ my %recommends = (
             . 'Bio::PopGen::TagHaplotype,Bio::DB::GFF::Adaptor::berkeleydb,Bio::Root::Root'
     ],
 
-    'SVG' => [ 2.26, 'Creating SVG images/Bio::Draw::Pictogram' ],
-
     'SVG::Graph' => [ 0.01, 'Creating SVG images/Bio::TreeIO::svggraph' ],
 
     'Text::ParseWords' =>

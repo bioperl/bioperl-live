@@ -65,6 +65,11 @@ be removed.
 
       This also means BioPerl is no longer dependent on AcePerl.
 
+    * The module Bio::Draw::Pictogram has been moved to a separate
+      distribution named Bio-Draw-Pictogram.  This also means BioPerl
+      is no longer dependent on SVG.
+
+
 1.7.2 - "Entebbe"
 
     [Bugs]
