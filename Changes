@@ -44,6 +44,17 @@ be removed.
       module, and scripts bp_composite_LD and bp_heterogeneity_test
       have been moved into a separate distribution named Bio-PopGen.
 
+    * All modules related to the NeXML format have been moved into a
+      separate distribution named Bio-NeXMLIO.  These are:
+
+          * Bio::AlignIO::nexml
+          * Bio::Nexml::Factory
+          * Bio::NexmlIO
+          * Bio::SeqIO::nexml
+          * Bio::TreeIO::nexml
+
+      This also means BioPerl is no longer dependent on Bio-Phylo.
+
 1.7.2 - "Entebbe"
 
     [Bugs]

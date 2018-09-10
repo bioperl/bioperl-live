@@ -64,12 +64,6 @@ my %recommends = (
     #'Bio::ASN1::EntrezGene'     => [0,
     #    'Parsing entrezgene/Bio::SeqIO::entrezgene [circular dependency!]'],
 
-    'Bio::Phylo' => [
-        0,
-        'NeXML related modules/Bio::AlignIO::nexml,Bio::Nexml::Factory,'
-            . 'Bio::SeqIO::nexml,Bio::TreeIO::nexml'
-    ],
-
     'CGI' => [ 0, 'CGI-y things/Bio::DB::Query::HIVQuery' ],
 
     'Clone' => [ 0, 'Cloning objects/Bio::Root::Root,Bio::Tools::Primer3' ],
