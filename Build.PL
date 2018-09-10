@@ -120,8 +120,6 @@ my %recommends = (
         'Remote access/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::WebAgent'
     ],
 
-    'PostScript::TextBlock' => [ 0, 'EPS output/Bio::Tree::Draw::Cladogram' ],
-
     'Set::Scalar' => [ 0, 'Proper operation/Bio::Tree::Compatible' ],
 
     'Sort::Naturally' => [

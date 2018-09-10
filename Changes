@@ -69,6 +69,10 @@ be removed.
       distribution named Bio-Draw-Pictogram.  This also means BioPerl
       is no longer dependent on SVG.
 
+    * The module Bio::Tree::Draw::Cladogram has been moved to a
+      separate distribution named Bio-Tree-Draw-Cladogram.  This also
+      means BioPerl is no longer dependent on PostScript.
+
 
 1.7.2 - "Entebbe"
 
