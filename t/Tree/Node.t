@@ -7,9 +7,8 @@ BEGIN {
   use lib '.';
   use Bio::Root::Test;
   use File::Temp qw(tempfile);
-  test_begin( -tests => 40 );
+  test_begin( -tests => 33 );
   use_ok('Bio::Tree::Node');
-  use_ok('Bio::Tree::AlleleNode');
   use_ok('Bio::TreeIO');
 }
 
@@ -59,37 +58,6 @@ ok $node1->is_Leaf;
 is my @descs = $node2->each_Descendent, 1;
 is $descs[0], $phylo_node;
 
-my $allele_node = Bio::Tree::AlleleNode->new();
-$allele_node->add_Genotype(
-  Bio::PopGen::Genotype->new(
-    -marker_name => 'm1',
-    -alleles     => [0]
-  )
-);
-$allele_node->add_Genotype(
-  Bio::PopGen::Genotype->new(
-    -marker_name => 'm3',
-    -alleles     => [ 1, 1 ]
-  )
-);
-$allele_node->add_Genotype(
-  Bio::PopGen::Genotype->new(
-    -marker_name => 'm4',
-    -alleles     => [ 0, 4 ]
-  )
-);
-ok($allele_node);
-my @mkrs = $allele_node->get_marker_names;
-
-is( @mkrs, 3 );
-my ($m3) = $allele_node->get_Genotypes( -marker => 'm3' );
-is( $m3->get_Alleles, 2 );
-my ($a1) = $allele_node->get_Genotypes( -marker => 'm1' )->get_Alleles;
-is( $a1, 0 );
-
-my ( $a2, $a3 ) = $allele_node->get_Genotypes( -marker => 'm4' )->get_Alleles;
-is( $a2, 0 );
-is( $a3, 4 );
 
 # bug 2877
 my $str = "(A:52,(B:46,C:50):11,D:70)68"; 

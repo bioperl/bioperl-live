@@ -36,8 +36,13 @@ be removed.
     [Code changes]
 
     * The deobfuscator has been removed.
+
     * The script `bp_blast2tree` has been moved to the BioPerl-Run
       distribution since it's mainly a wrapper to modules in there.
+
+    * The entire Bio::PopGen namespace, Bio::Tree::AlleleNode
+      module, and scripts bp_composite_LD and bp_heterogeneity_test
+      have been moved into a separate distribution named Bio-PopGen.
 
 1.7.2 - "Entebbe"
 
