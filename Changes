@@ -55,6 +55,16 @@ be removed.
 
       This also means BioPerl is no longer dependent on Bio-Phylo.
 
+    * All modules interfacing to ACeDB servers have been moved into a
+      separate distribution named Bio-DB-Ace.  These are:
+
+          * Bio::DB::Ace
+          * Bio::DB::GFF::Adaptor::ace
+          * Bio::DB::GFF::Adaptor::dbi::mysqlace
+          * Bio::DB::GFF::Adaptor::dbi::oracleace
+
+      This also means BioPerl is no longer dependent on AcePerl.
+
 1.7.2 - "Entebbe"
 
     [Bugs]

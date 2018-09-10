@@ -47,11 +47,6 @@ WARN
 
 my %recommends = (
 
-    # AcePerl support is deprecated, per LDS - cjfields - 5-5-2011
-
-    #'Ace'                       => [0,
-    #    'Access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace'],
-
     'Algorithm::Munkres' => [ 0, 'Phylogenetic Networks/Bio::PhyloNetwork' ],
 
     'Array::Compare' => [ 0, 'Phylogenetic Networks/Bio::PhyloNetwork' ],
