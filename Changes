@@ -73,6 +73,10 @@ be removed.
       separate distribution named Bio-Tree-Draw-Cladogram.  This also
       means BioPerl is no longer dependent on PostScript.
 
+    * The module Bio::TreeIO::svggraph has been moved to a separate
+      distribution named Bio-TreeIO-svggraph.  This also means that
+      BioPerl is no longer dependent on SVG-Graph and Tree-DAG_Node.
+
 
 1.7.2 - "Entebbe"
 

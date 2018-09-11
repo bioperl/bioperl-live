@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 78);
+    test_begin(-tests => 76);
     
     use_ok('Bio::TreeIO');
 }
@@ -125,15 +125,6 @@ if( $verbose > 0  ) {
 $treeio = Bio::TreeIO->new(-verbose => $verbose,
               -file   => test_input_file('test.nhx'));
 
-SKIP: {
-    test_skip(-tests => 2, -requires_module => 'SVG::Graph');
-    my $FILE3 = test_output_file();
-    my $treeout3 = Bio::TreeIO->new(-format => 'svggraph',
-                                             -file => ">$FILE3");
-    ok($treeout3);
-    eval {$treeout3->write_tree($tree);};
-    ok (-s $FILE3);
-}
 
 ok($treeio);
 $tree = $treeio->next_tree;
