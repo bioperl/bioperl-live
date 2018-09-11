@@ -93,6 +93,8 @@ be removed.
     * The entire Bio::Structure namespace has been moved to a
       separate distribution named Bio-Structure.
 
+    * The entire Bio::SeqEvolution namespace has been moved to a
+      separate distribution named Bio-SeqEvolution.
 
 1.7.2 - "Entebbe"
 
