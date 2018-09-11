@@ -86,6 +86,10 @@ be removed.
       that BioPerl is no longer dependent on Algorithm::Munkres,
       GraphViz, and Array::Compare.
 
+    * The entire Bio::Asembly namespace has been moved to a separate
+      distribution named Bio-Assembly.  This also means that BioPerl
+      is no longer dependent on Bio-SamTools and Sort-Naturally.
+
 
 1.7.2 - "Entebbe"
 

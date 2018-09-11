@@ -62,7 +62,7 @@ my %recommends = (
     'Convert::Binary::C' =>
         [ 0, 'Strider functionality/Bio::SeqIO::strider' ],
 
-    'DB_File' => [ 0, 'Database functionality/Bio::Assemby,Bio::DB' ],
+    'DB_File' => [ 0, 'Database functionality/Bio::DB' ],
 
     'Error' => [
         0, 'OO-based exception handling (very optional)/Bio::Root::Exception'
@@ -73,8 +73,7 @@ my %recommends = (
     'Graph' => [
         0.50,
         'Phylogenetic Networks, ontology engine implementation, contig analysis'
-            . '/Bio::Ontology::SimpleGOEngine::GraphAdaptor,'
-            . 'Bio::Assembly::Tools::ContigSpectrum'
+            . '/Bio::Ontology::SimpleGOEngine::GraphAdaptor'
     ],
 
     'HTML::Entities' =>
@@ -113,12 +112,6 @@ my %recommends = (
     ],
 
     'Set::Scalar' => [ 0, 'Proper operation/Bio::Tree::Compatible' ],
-
-    'Sort::Naturally' => [
-        0,
-        'Sort lexically, but sort numeral parts numerically/'
-            . 'Bio::Assembly::IO::ace,Bio::Assembly::IO::tigr'
-    ],
 
     'Spreadsheet::ParseExcel' =>
         [ 0, 'Parsing Excel files/Bio::SeqIO::excel' ],
