@@ -96,6 +96,10 @@ be removed.
     * The entire Bio::SeqEvolution namespace has been moved to a
       separate distribution named Bio-SeqEvolution.
 
+    * The Bio::Tools::Gel module has been moved into its own
+      distribution named Bio-Tools-Gel.
+
+
 1.7.2 - "Entebbe"
 
     [Bugs]
