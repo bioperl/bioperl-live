@@ -90,6 +90,9 @@ be removed.
       distribution named Bio-Assembly.  This also means that BioPerl
       is no longer dependent on Bio-SamTools and Sort-Naturally.
 
+    * The entire Bio::Structure namespace has been moved to a
+      separate distribution named Bio-Structure.
+
 
 1.7.2 - "Entebbe"
 
