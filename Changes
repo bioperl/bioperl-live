@@ -81,6 +81,11 @@ be removed.
       distribution named Bio-SeqIO-excel.  This also means that
       BioPerl is no longer dependent on Spreadsheet-ParseExcel.
 
+    * The entire Bio::PhyloNetwork namespace has been moved to a
+      separate distribution named Bio-PhyloNetwork.  This also means
+      that BioPerl is no longer dependent on Algorithm::Munkres,
+      GraphViz, and Array::Compare.
+
 
 1.7.2 - "Entebbe"
 

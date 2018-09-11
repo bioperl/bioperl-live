@@ -47,10 +47,6 @@ WARN
 
 my %recommends = (
 
-    'Algorithm::Munkres' => [ 0, 'Phylogenetic Networks/Bio::PhyloNetwork' ],
-
-    'Array::Compare' => [ 0, 'Phylogenetic Networks/Bio::PhyloNetwork' ],
-
     # this won't actually install due to circular dep, but we have no way of
     # doing a post-install the [circular dependency!] specifies it is only
     # installed on explicit request for this specific module, not when simply
@@ -77,12 +73,8 @@ my %recommends = (
     'Graph' => [
         0.50,
         'Phylogenetic Networks, ontology engine implementation, contig analysis'
-            . '/Bio::PhyloNetwork,Bio::Ontology::SimpleGOEngine::GraphAdaptor,'
+            . '/Bio::Ontology::SimpleGOEngine::GraphAdaptor,'
             . 'Bio::Assembly::Tools::ContigSpectrum'
-    ],
-
-    'GraphViz' => [
-        0, 'Phylogenetic Network Visualization/Bio::PhyloNetwork::GraphViz'
     ],
 
     'HTML::Entities' =>
