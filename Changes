@@ -77,6 +77,10 @@ be removed.
       distribution named Bio-TreeIO-svggraph.  This also means that
       BioPerl is no longer dependent on SVG-Graph and Tree-DAG_Node.
 
+    * The module Bio::SeqIO::excel has been moved to a separate
+      distribution named Bio-SeqIO-excel.  This also means that
+      BioPerl is no longer dependent on Spreadsheet-ParseExcel.
+
 
 1.7.2 - "Entebbe"
 

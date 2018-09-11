@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 463,
+    test_begin(-tests => 351,
 			   -requires_module => 'IO::Scalar');
 
 	use_ok('Bio::Tools::CodonTable');
@@ -113,24 +113,6 @@ my $tmpfile = test_output_file();
 my $seqout = Bio::SeqIO->new( -format => 'table', -file => ">$tmpfile" );
 # dies_ok not available
 # dies_ok { $seqout->write_seq($seq) } "write_seq() not implemented";
-
-# Need Spreadsheet::ParseExcel installed for testing Excel format
-SKIP: {
-	test_skip(-tests => 112, -requires_module => 'Spreadsheet::ParseExcel');
-
-	ok $seqin = Bio::SeqIO->new(-file => test_input_file("test.xls"),
-							 -format  => 'excel',
-							 -species => "Homo sapiens",
-							 -header  => 1,
-							 -display_id => 1,
-							 -accession_number => 2,
-							 -seq => 7,
-							 -annotation => 1,
-							 -trim => 1);
-	run_tests([@names],[@accs],[@num_anns],[@psg],[@rs]);
-
-	$seqin->close();
-}
 
 sub run_tests {
     my ($names_,$accs_,$num_anns_,$psg_,$rs_) = @_;
