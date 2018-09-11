@@ -99,6 +99,9 @@ be removed.
     * The Bio::Tools::Gel module has been moved into its own
       distribution named Bio-Tools-Gel.
 
+    * The entire Bio::Restriction namespace has been moved to a
+      separate distribution named Bio-Restriction.
+
 
 1.7.2 - "Entebbe"
 
