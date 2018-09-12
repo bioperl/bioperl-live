@@ -68,8 +68,6 @@ my %recommends = (
         0, 'OO-based exception handling (very optional)/Bio::Root::Exception'
     ],
 
-    'GD' => [ 0, 'Alignment graphic output/Bio::Align::Graphics' ],
-
     'Graph' => [
         0.50,
         'Phylogenetic Networks, ontology engine implementation, contig analysis'

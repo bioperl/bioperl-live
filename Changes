@@ -114,6 +114,10 @@ be removed.
     * The module Bio::Tools::Run::RemoteBlast has moved to a new
       distribution named after itself.
 
+    * The module Bio::Align::Graphics has been moved to a new distribution
+      named after itself.  This also means that BioPerl is no longer
+      dependent on GD.
+
 
 1.7.2 - "Entebbe"
 
