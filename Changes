@@ -105,6 +105,9 @@ be removed.
     * The module Bio::SeqIO::entrezgene has been moved to the
       Bio-ASN1-EntrezGene distribution.
 
+    * The module Bio::MolEvol::CodonModel has moved to a distribution
+      of its own, named after itself.
+
 
 1.7.2 - "Entebbe"
 
