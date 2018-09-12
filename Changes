@@ -102,6 +102,9 @@ be removed.
     * The entire Bio::Restriction namespace has been moved to a
       separate distribution named Bio-Restriction.
 
+    * The module Bio::SeqIO::entrezgene has been moved to the
+      Bio-ASN1-EntrezGene distribution.
+
 
 1.7.2 - "Entebbe"
 
