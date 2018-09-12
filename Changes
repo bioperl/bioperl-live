@@ -108,6 +108,9 @@ be removed.
     * The module Bio::MolEvol::CodonModel has moved to a distribution
       of its own, named after itself.
 
+    * The module Bio::Perl has moved to a new distribution named
+      Bio-Procedural.
+
 
 1.7.2 - "Entebbe"
 
