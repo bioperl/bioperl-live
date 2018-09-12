@@ -111,6 +111,9 @@ be removed.
     * The module Bio::Perl has moved to a new distribution named
       Bio-Procedural.
 
+    * The module Bio::Tools::Run::RemoteBlast has moved to a new
+      distribution named after itself.
+
 
 1.7.2 - "Entebbe"
 
