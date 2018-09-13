@@ -110,7 +110,7 @@ email or the web:
 
 =head1 DEPENDANCIES
 
-Getopt::long, Pod::Usage, Bio::SearchIO, Bio::Seq, Bio::SeqIO, Bio::Perl,
+Getopt::long, Pod::Usage, Bio::SearchIO, Bio::Seq, Bio::SeqIO,
 File::Basename
 
 =cut
@@ -120,7 +120,6 @@ File::Basename
 use Bio::SearchIO qw(new);
 use Bio::Seq qw(new);
 use Bio::SeqIO qw(new);
-use Bio::Perl qw(revcom_as_string);
 use File::Basename qw(basename);
 use Getopt::Long qw(GetOptions);
 use Pod::Usage;
@@ -447,7 +446,6 @@ for my $m ( 0 .. $#scaffolds )
             $baseList = substr $baseList, $start[$m] - 1,
               $end[$m] - $start[$m] + 1;
         }
-        $baseList = revcom_as_string($baseList);
     }
     $default_header .= "$real_start-$real_end)";
     $default_header .= " showing 5' region ($promoter_only bp) only"
@@ -455,7 +453,11 @@ for my $m ( 0 .. $#scaffolds )
     $default_header .= " showing 3' region ($three_prime bp)"
       if defined($three_prime);
     $default_header .= " with 5' region ($promoter bp)" if defined($promoter);
+
     my $seq_obj = Bio::Seq->new( -seq => "$baseList", -alphabet => 'dna' );
+    if ($strand[$m] == -1) {
+        $seq_obj = $seq_obj->revcom();
+    }
 
     if ( defined $header ) {
         $header =~ s/^\s*//;
