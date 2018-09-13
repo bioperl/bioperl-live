@@ -118,6 +118,11 @@ be removed.
       named after itself.  This also means that BioPerl is no longer
       dependent on GD.
 
+    * The entire Bio::DB::HIV namespace, the Bio::DB::Query::HIVQuery
+      module, and the the bp_hivq program have been moved to their
+      own distribution named Bio-DB-HIV.  This also drops the bioperl
+      dependency on XML-Simple and Term-ReadLine.
+
 
 1.7.2 - "Entebbe"
 

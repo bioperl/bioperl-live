@@ -55,8 +55,6 @@ my %recommends = (
     #'Bio::ASN1::EntrezGene'     => [0,
     #    'Parsing entrezgene/Bio::SeqIO::entrezgene [circular dependency!]'],
 
-    'CGI' => [ 0, 'CGI-y things/Bio::DB::Query::HIVQuery' ],
-
     'Clone' => [ 0, 'Cloning objects/Bio::Root::Root,Bio::Tools::Primer3' ],
 
     'Convert::Binary::C' =>
@@ -147,11 +145,6 @@ my %recommends = (
     ],
 
     'XML::SAX::Writer' => [ 0, 'Writing XML/Bio::SeqIO::tigrxml' ],
-
-    'XML::Simple' => [
-        0,
-        'Reading custom XML/Bio::Tools::EUtilities,Bio::DB::HIV,Bio::DB::Query::HIVQuery'
-    ],
 
     'XML::Twig' => [
         0,
@@ -254,11 +247,6 @@ my $build = Bio::Root::Build->new(
     },
     dynamic_config       => 1,
     recursive_test_files => 1,
-
-    # Extra files needed for BioPerl modules
-    xml_files => {
-        './Bio/DB/HIV/lanl-schema.xml' => 'lib/Bio/DB/HIV/lanl-schema.xml'
-    },
 
 #pm_files           => {} # modules in Bio are treated as if they were in lib and auto-installed
 #script_files       => [] # scripts in scripts directory are installed on-demand
