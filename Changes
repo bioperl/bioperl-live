@@ -130,6 +130,9 @@ be removed.
       own distribution named Bio-SearchIO-hmmer.  This also includes the
       programs bp_hmmer_to_table and bp_parse_hmmsearch.
 
+    * Bio::DB::MeSH and related Bio::Phenotype::MeSH modules have moved
+      to their own distribution Bio-DB-MeSH.
+
 
 1.7.2 - "Entebbe"
 
