@@ -123,6 +123,9 @@ be removed.
       own distribution named Bio-DB-HIV.  This also drops the bioperl
       dependency on XML-Simple and Term-ReadLine.
 
+    * The entire Bio::DB::TFBS namespace has been moved to its own
+      distribution named after itself.
+
 
 1.7.2 - "Entebbe"
 
