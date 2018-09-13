@@ -126,6 +126,10 @@ be removed.
     * The entire Bio::DB::TFBS namespace has been moved to its own
       distribution named after itself.
 
+    * All modules to handle HMMER programs output have been moved to their
+      own distribution named Bio-SearchIO-hmmer.  This also includes the
+      programs bp_hmmer_to_table and bp_parse_hmmsearch.
+
 
 1.7.2 - "Entebbe"
 
