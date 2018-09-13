@@ -33,6 +33,14 @@ be removed.
 
 1.7.3 - "To Be Named"
 
+    * The following modules have been moved here from the BioPerl-Run
+      distribution:
+
+          Bio::Tools::Run::Analysis
+          Bio::Tools::Run::AnalysisFactory
+          Bio::Tools::Run::WrapperBase
+          Bio::Tools::Run::WrapperBase::CommandExts
+
     [Code changes]
 
     * The deobfuscator has been removed.
