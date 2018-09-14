@@ -141,6 +141,8 @@ be removed.
     * Bio::DB::MeSH and related Bio::Phenotype::MeSH modules have moved
       to their own distribution Bio-DB-MeSH.
 
+    * The Bio::DB::Universal module has been moved to its own distribution.
+
 
 1.7.2 - "Entebbe"
 
