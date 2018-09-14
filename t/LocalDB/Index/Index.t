@@ -7,7 +7,7 @@ BEGIN {
    use lib '.';
    use Bio::Root::Test;
    
-   test_begin(-tests => 69,
+   test_begin(-tests => 65,
               -requires_modules => [qw(DB_File
                                        Storable
                                        Fcntl)]);
@@ -17,7 +17,6 @@ BEGIN {
    use_ok('Bio::Index::SwissPfam');
    use_ok('Bio::Index::EMBL');
    use_ok('Bio::Index::GenBank');
-   use_ok('Bio::Index::Stockholm');
    use_ok('Bio::Index::Swissprot');
    use_ok('Bio::DB::InMemoryCache');
    use_ok('Bio::DB::InMemoryCache');
@@ -181,16 +180,6 @@ ok ( -e "Wibbl5" || -e "Wibbl5.pag" );
 $seq = $gb_ind->fetch('alpha D-globin');
 is ($seq->length,141);
 
-# test Stockholm
-my $st_ind = Bio::Index::Stockholm->new(-filename => 'Wibbl6',
-                                        -write_flag => 1,
-                                        -verbose    => 0);
-isa_ok $st_ind, 'Bio::Index::Stockholm';
-$st_ind->make_index(test_input_file('testaln.stockholm'));
-ok ( -e "Wibbl6" );
-my $aln = $st_ind->fetch_aln('PF00244');
-isa_ok($aln,'Bio::SimpleAlign');
-
 sub get_id {
    my $line = shift;
    return $1 if ($line =~ /product="([^"]+)"/);
@@ -202,7 +191,7 @@ END {
 }
 
 sub cleanup {
-   for my $root ( qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5 Wibbl6
+   for my $root ( qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5
                       multifa_index multifa_qual_index ) ) {
       unlink $root if( -e $root );
       unlink "$root.pag" if( -e "$root.pag");

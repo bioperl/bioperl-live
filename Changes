@@ -41,6 +41,14 @@ be removed.
           Bio::Tools::Run::WrapperBase
           Bio::Tools::Run::WrapperBase::CommandExts
 
+    * The following modules have been removed from the BioPerl
+      distribution to be part of a separate distribution also
+      on CPAN:
+
+          Bio::AlignIO::stockholm
+          Bio::Index::Stockholm
+
+
     [Code changes]
 
     * The deobfuscator has been removed.
