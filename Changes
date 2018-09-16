@@ -151,6 +151,9 @@ be removed.
 
     * The Bio::DB::Universal module has been moved to its own distribution.
 
+    * The emacs bioperl minor mode is no longer distributed as part of the
+      perl module distributions.  See
+      https://github.com/bioperl/emacs-bioperl-mode
 
 1.7.2 - "Entebbe"
 
