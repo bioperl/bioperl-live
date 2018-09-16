@@ -159,7 +159,7 @@ sub open_writefile {
 	    chomp ($_ = <STDIN>);
 	}
 	if (/n/i) { die "$filename not overwritten.\n"; }
-	else { open $filehandle, '>', $filename or die "Could nott write file '$filename':·$!\n"; }
+	else { open $filehandle, '>', $filename or die "Could nott write file '$filename': $!\n"; }
     }
     else { open $filehandle, '>', $filename or die "Could not write file '$filename': $!\n"; }
     $filehandle = '';

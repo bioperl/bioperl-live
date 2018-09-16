@@ -713,7 +713,7 @@ sub length {
         my $start   = $sublocs[0]->start;
         my $end     = $sublocs[-1]->end;
 
-        # If Start > ·End, its a possible case of cut by origin
+        # If Start > End, its a possible case of cut by origin
         # location in circular sequences (e.g "join(16..20,1..2)")
         if ($start > $end) {
             # Figure out which segments are located before

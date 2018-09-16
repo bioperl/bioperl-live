@@ -4,7 +4,7 @@
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #
-# Cared for by Andreas Kähäri, andreas.kahari@ebi.ac.uk
+# Cared for by Andreas KÃ¤hÃ¤ri, andreas.kahari@ebi.ac.uk
 #
 # You may distribute this module under the same terms as perl itself
 #------------------------------------------------------------------
