@@ -22,3 +22,7 @@ blib*
 MANIFEST
 MYMETA.yml
 MYMETA.json
+
+# ignore dzil builds
+BioPerl-*
+.build/

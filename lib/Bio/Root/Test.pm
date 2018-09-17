@@ -355,12 +355,11 @@ sub test_input_file {
 =cut
 
 sub test_network {
-    require Module::Build;
-    my $build = Module::Build->current();
-    return
-           $build->notes('network')
-        || $ENV{AUTHOR_TESTING}
-        || $ENV{RELEASE_TESTING};
+    if ($ENV{AUTHOR_TESTING} || $ENV{RELEASE_TESTING}) {
+        return 1;
+    } else {
+        require Test::RequiresInternet;
+    }
 }
 
 =head2 test_email
