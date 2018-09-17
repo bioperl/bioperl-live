@@ -54,6 +54,7 @@ before_install:
       export TRAVIS_RELEASE_TESTING=1;
       cpanm LWP::UserAgent LWP::Protocol::https 2>&1 | tail -n 1;
     fi
+  - cpanm Dist::Zilla::PluginBundle::BioPerl
   - build-dist
   - cd $BUILD_DIR
 install:
@@ -64,7 +65,7 @@ before_script:
 script:
   - export AUTHOR_TESTING=${TRAVIS_AUTHOR_TESTING:=0}
   - export RELEASE_TESTING=${TRAVIS_RELEASE_TESTING:=0}
-  - prove -l -j$(test-jobs) $(test-files)
+  - dzil test
 after_success:
   - coverage-report
   - ./travis_scripts/trigger-dockerhub.sh

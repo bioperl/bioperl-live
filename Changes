@@ -49,6 +49,7 @@ be removed.
           Bio::DB::Expression
           Bio::DB::Expression::geo
           Bio::Index::Stockholm
+          Bio::Root::Build
           Bio::SearchDist
           Bio::Tools::AlignFactory
           Bio::Tools::dpAlign
