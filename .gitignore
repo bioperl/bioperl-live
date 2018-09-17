@@ -1,28 +1,11 @@
+.*
 *~
-.tmp
-*#
-.#*
-.*.swp
-*(Autosaved)blib*
-Build
-Build.bat
-_build*
-_Inline
-pm_to_blib*
-*.tar.gz
-*.tar.bz2
-*.zip
-.lwpcookies
-cover_db
-pod2htm*.tmp
-.emacs.*
-t/LocalDB/SeqFeature_*.t
-blib*
-*.bak
-MANIFEST
-MYMETA.yml
-MYMETA.json
+!.gitignore
 
 # ignore dzil builds
 BioPerl-*
 .build/
+
+# ignore text editors stuff
+.emacs.*
+*.komodoproject
