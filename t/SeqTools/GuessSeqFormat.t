@@ -98,7 +98,20 @@ for my $fmt (@fmts) {
 # Test AlignIO formats
 #
 
-@fmts = qw{clustalw fasta fastq mase mega msf nexus pfam phylip prodom selex stockholm};
+@fmts = qw{clustalw fasta fastq mase mega msf nexus pfam phylip prodom selex};
+
+## Instead of this, we should instead have a mock of those modules.
+## Two reasons: 1) this modules are dependent on ourselves so this
+## tests will only be triggered when updating. 2) it's not really our
+## job to check if the other module reads file correctly, we just need
+## to ensure that it's called to read the file.
+SKIP: {
+    test_skip(-tests => 4,
+              -requires_modules => ['Bio::AlignIO::stockholm']);
+    push(@fmts, 'stockholm');
+}
+
+
 my %skip_module = map {$_=>1} qw{ fastq };
 
 for my $fmt (@fmts) {

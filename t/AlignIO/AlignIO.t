@@ -24,7 +24,6 @@ my %files = (
     'testaln.phylip'     => ['phylip',     1, 1],
     'testaln.psi'         => ['psi',        1, 1],
     'testaln.arp'       => ['arp',        1, 0],
-    'rfam_tests.stk'    => ['stockholm',  1, 1],
     'testaln.pfam'      => ['pfam',       1, 1],
     'testaln.msf'       => ['msf',        1, 1],
     'testaln.fasta'     => ['fasta',      1, 1],
