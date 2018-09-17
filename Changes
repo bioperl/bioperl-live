@@ -46,8 +46,9 @@ be removed.
       on CPAN:
 
           Bio::AlignIO::stockholm
+          Bio::DB::Expression
+          Bio::DB::Expression::geo
           Bio::Index::Stockholm
-
 
     [Code changes]
 
