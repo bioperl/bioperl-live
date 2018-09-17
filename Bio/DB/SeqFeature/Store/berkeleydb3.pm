@@ -492,10 +492,10 @@ sub build_summary_statistics {
     # features by typeid,seqid,start. In the second step, we read through
     # this sorted list. To avoid running out of memory, we use a db_file
     # temporary database
-    my $fh   = File::Temp->new() or $self->throw("Could not create temporary file '$name' for sorting: $!");
+    my $fh   = File::Temp->new() or $self->throw("Could not create temporary file for sorting: $!");
     my $name = $fh->filename;
     my %sort;
-    my $num_cmp_tre         = DB_File::BTREEINFO->new;
+    my $num_cmp_tree         = DB_File::BTREEINFO->new;
     $num_cmp_tree->{compare} = sub { $_[0] <=> $_[1] };
     $num_cmp_tree->{flags}   = R_DUP;
     my $s = tie %sort, 'DB_File', $name, O_CREAT|O_RDWR, 0666, $num_cmp_tree 
