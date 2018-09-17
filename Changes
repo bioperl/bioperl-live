@@ -49,6 +49,10 @@ be removed.
           Bio::DB::Expression
           Bio::DB::Expression::geo
           Bio::Index::Stockholm
+          Bio::SearchDist
+          Bio::Tools::AlignFactory
+          Bio::Tools::dpAlign
+          Bio::Tools:pSW
 
     [Code changes]
 
