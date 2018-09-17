@@ -54,6 +54,10 @@ be removed.
           Bio::Tools::dpAlign
           Bio::Tools:pSW
 
+    * The following programs have been removed:
+
+          bp_netinstall
+
     [Code changes]
 
     * The deobfuscator has been removed.
