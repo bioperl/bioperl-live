@@ -51,8 +51,9 @@ be removed.
           Bio::Index::Stockholm
           Bio::SearchDist
           Bio::Tools::AlignFactory
+          Bio::Tools::Phylo::Gumby
           Bio::Tools::dpAlign
-          Bio::Tools:pSW
+          Bio::Tools::pSW
 
     * The following programs have been removed:
 
