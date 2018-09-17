@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests           => 152,
+    test_begin(-tests           => 148,
                -requires_module => 'Data::Stag');
 
     use_ok('Bio::Annotation::Collection');
@@ -170,20 +170,6 @@ SKIP: {
   is ($termann->tagname, 'dumpster');
   is ($termann->ontology->name, 'dumpster');
   is ($termann->as_text, "dumpster|test case|");
-}
-
-# AnnotatableI
-use Bio::Seq;
-my $seq = Bio::Seq->new();
-SKIP: {
-        test_skip(-requires_modules => [qw(Bio::SeqFeature::Annotated URI::Escape)],
-                          -tests => 4);
-        my $fea = Bio::SeqFeature::Annotated->new();
-        isa_ok($fea, "Bio::SeqFeatureI",'isa SeqFeatureI');
-        isa_ok($fea, "Bio::AnnotatableI",'isa AnnotatableI');
-        $fea = Bio::SeqFeature::Generic->new();
-        isa_ok($fea, "Bio::SeqFeatureI",'isa SeqFeatureI');
-        isa_ok($fea, "Bio::AnnotatableI",'isa AnnotatableI');
 }
 
 # tests for Bio::Annotation::AnnotationFactory
