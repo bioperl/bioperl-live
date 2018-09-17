@@ -57,6 +57,7 @@ be removed.
     * The following programs have been removed:
 
           bp_netinstall
+          bp_process_wormbase
 
     [Code changes]
 
