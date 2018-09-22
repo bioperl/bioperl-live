@@ -50,6 +50,7 @@ be removed.
           Bio::DB::Expression
           Bio::DB::Expression::geo
           Bio::Index::Stockholm
+          Bio::LiveSeq::*
           Bio::Root::Build
           Bio::SearchDist
           Bio::Tools::AlignFactory

@@ -7,12 +7,11 @@ BEGIN {
     use lib '.';
 #    use List::MoreUtils qw(uniq);
     use Bio::Root::Test;
-    
+
     test_begin(-tests => 133);
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::SeqUtils');
-    use_ok('Bio::LiveSeq::Mutation');
     use_ok('Bio::SeqFeature::Generic');
     use_ok('Bio::Annotation::SimpleValue');
     use_ok('Bio::Annotation::Collection');
@@ -93,42 +92,46 @@ is( $valid_aa{'Cys'}, 'C');
 # Mutate
 #
 
-my $string1 = 'aggt';
-$seq = Bio::PrimarySeq->new('-seq'=> 'aggt',
-                            '-alphabet'=>'dna',
-                            '-id'=>'test3');
+SKIP: {
+    test_skip(-tests => 4,
+              -requires_modules => ['Bio::LiveSeq::Mutation']);
+    use_ok('Bio::LiveSeq::Mutation');
+    my $string1 = 'aggt';
+    $seq = Bio::PrimarySeq->new('-seq'=> 'aggt',
+                                '-alphabet'=>'dna',
+                                '-id'=>'test3');
 
-# point
-Bio::SeqUtils->mutate($seq,
-                      Bio::LiveSeq::Mutation->new(-seq => 'c',
-                                                  -pos => 3
-                                                 )
-                     );
-is $seq->seq, 'agct';
+    # point
+    Bio::SeqUtils->mutate($seq,
+                          Bio::LiveSeq::Mutation->new(-seq => 'c',
+                                                      -pos => 3
+                          )
+        );
+    is $seq->seq, 'agct';
 
-# insertion and deletion
-my @mutations = (
-                 Bio::LiveSeq::Mutation->new(-seq => 'tt',
-                                             -pos => 2,
-                                             -len => 0
-                                            ),
-                 Bio::LiveSeq::Mutation->new(-pos => 2,
-                                             -len => 2
-                                            )
-);
+    # insertion and deletion
+    my @mutations = (
+        Bio::LiveSeq::Mutation->new(-seq => 'tt',
+                                    -pos => 2,
+                                    -len => 0
+        ),
+        Bio::LiveSeq::Mutation->new(-pos => 2,
+                                    -len => 2
+        )
+        );
 
-Bio::SeqUtils->mutate($seq, @mutations);
-is $seq->seq, 'agct';
+    Bio::SeqUtils->mutate($seq, @mutations);
+    is $seq->seq, 'agct';
 
-# insertion to the end of the sequence
-Bio::SeqUtils->mutate($seq,
-                      Bio::LiveSeq::Mutation->new(-seq => 'aa',
-                                                  -pos => 5,
-                                                  -len => 0
-                                                 )
-                     );
-is $seq->seq, 'agctaa';
-
+    # insertion to the end of the sequence
+    Bio::SeqUtils->mutate($seq,
+                          Bio::LiveSeq::Mutation->new(-seq => 'aa',
+                                                      -pos => 5,
+                                                      -len => 0
+                          )
+        );
+    is $seq->seq, 'agctaa';
+}
 
 
 #
