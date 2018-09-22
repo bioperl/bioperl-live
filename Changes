@@ -53,6 +53,7 @@ be removed.
           Bio::LiveSeq::*
           Bio::Root::Build
           Bio::SearchDist
+          Bio::Phenotype::*
           Bio::Tools::AlignFactory
           Bio::Tools::Phylo::Gumby
           Bio::Tools::dpAlign
