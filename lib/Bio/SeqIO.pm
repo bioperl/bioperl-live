@@ -216,11 +216,6 @@ throw a fatal error.
 The format name is case-insensitive: 'FASTA', 'Fasta' and 'fasta' are
 all valid.
 
-Currently, the tracefile formats (except for SCF) require installation
-of the external Staden "io_lib" package, as well as the
-Bio::SeqIO::staden::read package available from the bioperl-ext
-repository.
-
 =item -alphabet
 
 Sets the alphabet ('dna', 'rna', or 'protein'). When the alphabet is

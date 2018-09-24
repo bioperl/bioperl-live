@@ -55,9 +55,15 @@ be removed.
           Bio::DB::Expression::geo
           Bio::Index::Stockholm
           Bio::LiveSeq::*
+          Bio::Phenotype::*
           Bio::Root::Build
           Bio::SearchDist
-          Bio::Phenotype::*
+          Bio::SeqIO::abi
+          Bio::SeqIO::alf
+          Bio::SeqIO::ctf
+          Bio::SeqIO::exp
+          Bio::SeqIO::pln
+          Bio::SeqIO::ztr
           Bio::Tools::AlignFactory
           Bio::Tools::Phylo::Gumby
           Bio::Tools::dpAlign
@@ -67,6 +73,10 @@ be removed.
 
           bp_netinstall
           bp_process_wormbase
+
+    * The following modules are no longer dependencies:
+
+          Bio::SeqIO::staden::read
 
     [Code changes]
 
