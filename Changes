@@ -47,6 +47,10 @@ be removed.
       on CPAN:
 
           Bio::AlignIO::stockholm
+          Bio::Cluster::*
+          Bio::ClusterI
+          Bio::ClusterIO
+          Bio::ClusterIO::*
           Bio::DB::Expression
           Bio::DB::Expression::geo
           Bio::Index::Stockholm
