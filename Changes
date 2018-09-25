@@ -53,6 +53,16 @@ be removed.
           Bio::ClusterIO::*
           Bio::DB::Expression
           Bio::DB::Expression::geo
+          Bio::DB::GFF
+          Bio::DB::GFF::Adaptor::*
+          Bio::DB::GFF::Aggregator
+          Bio::DB::GFF::Aggregator::*
+          Bio::DB::GFF::Featname
+          Bio::DB::GFF::Feature
+          Bio::DB::GFF::Homol
+          Bio::DB::GFF::RelSegment
+          Bio::DB::GFF::Segment
+          Bio::DB::GFF::Typename
           Bio::DB::SeqFeature
           Bio::DB::SeqFeature::*
           Bio::Index::Stockholm
@@ -66,15 +76,22 @@ be removed.
           Bio::SeqIO::exp
           Bio::SeqIO::pln
           Bio::SeqIO::ztr
-          Bio::Variation::*
           Bio::Tools::AlignFactory
           Bio::Tools::Phylo::Gumby
           Bio::Tools::dpAlign
           Bio::Tools::pSW
+          Bio::Variation::*
 
     * The following programs have been removed:
 
+          bp_bulk_load_gff
+          bp_das_server
+          bp_fast_load_gff
           bp_flanks
+          bp_genbank2gff
+          bp_generate_histogram
+          bp_load_gff
+          bp_meta_gff
           bp_netinstall
           bp_process_wormbase
           bp_seqfeature_delete
