@@ -4,7 +4,6 @@
 use strict;
 
 BEGIN {
-    use lib '.';
     use lib '../..';
     use Bio::Root::Test;
 

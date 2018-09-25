@@ -4,7 +4,6 @@ use strict;
 use warnings;
     use vars qw($EXHAUSTIVE $VERBOSE);
 BEGIN {
-    use lib '.';
     use lib '../..';
 
     use Bio::Root::Test;

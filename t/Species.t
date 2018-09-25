@@ -5,7 +5,6 @@ my $CYCLE;
 my $WEAKEN;
 
 BEGIN {
-    use lib '.';
     use Bio::Root::Test;
     eval { require Test::Memory::Cycle; 1; };
     $CYCLE = $@ ? 0 : 1;

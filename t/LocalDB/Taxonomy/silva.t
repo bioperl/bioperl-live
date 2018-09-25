@@ -1,7 +1,6 @@
 use strict;
 
 BEGIN { 
-    use lib '.';
     use Bio::Root::Test;
     test_begin( -tests => 42 );
     use_ok('Bio::DB::Taxonomy');

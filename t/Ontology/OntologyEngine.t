@@ -6,7 +6,6 @@ use strict;
 my $ERROR_CLASS;
 
 BEGIN {
-    use lib '.';
     use Bio::Root::Test;
 
     test_begin(

@@ -4,7 +4,6 @@
 use strict;
 
 BEGIN {
-    use lib '.';
 #    use List::MoreUtils qw(uniq);
     use Bio::Root::Test;
 

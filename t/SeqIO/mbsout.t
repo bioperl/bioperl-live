@@ -7,7 +7,6 @@ use File::Path qw(mkpath rmtree);
 use Carp;
 
 BEGIN {
-    use lib '.';    # for core package test scripts only
     use Bio::Root::Test;
 
     test_begin(

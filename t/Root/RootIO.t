@@ -6,7 +6,6 @@ use strict;
 use warnings;
 
 BEGIN {
-    use lib '.';
     use Bio::Root::Test;
     test_begin(-tests => 3,
 	       -requires_networking => 1);

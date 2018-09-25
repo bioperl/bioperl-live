@@ -4,7 +4,6 @@
 use strict;
 use Data::Dumper;
 BEGIN {
-	use lib '.';
     use Bio::Root::Test;
     
     test_begin(-tests => 185);

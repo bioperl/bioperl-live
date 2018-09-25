@@ -5,7 +5,6 @@ use strict;
 use File::Path qw(mkpath rmtree);
 
 BEGIN {
-    use lib '.';    # for core package test scripts only
     use Bio::Root::Test;
 
     test_begin(
