@@ -51,6 +51,7 @@ be removed.
           Bio::ClusterI
           Bio::ClusterIO
           Bio::ClusterIO::*
+          Bio::DB::CUTG
           Bio::DB::Expression
           Bio::DB::Expression::geo
           Bio::DB::GFF
