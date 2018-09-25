@@ -53,6 +53,8 @@ be removed.
           Bio::ClusterIO::*
           Bio::DB::Expression
           Bio::DB::Expression::geo
+          Bio::DB::SeqFeature
+          Bio::DB::SeqFeature::*
           Bio::Index::Stockholm
           Bio::LiveSeq::*
           Bio::Phenotype::*
@@ -75,10 +77,18 @@ be removed.
           bp_flanks
           bp_netinstall
           bp_process_wormbase
+          bp_seqfeature_delete
+          bp_seqfeature_gff3
+          bp_seqfeature_load
 
     * The following modules are no longer dependencies:
 
           Bio::SeqIO::staden::read
+          DBD::Pg
+          DBD::SQLite
+          MIME::Base64
+          Memoize
+          Text::ParseWords
 
     [Code changes]
 
