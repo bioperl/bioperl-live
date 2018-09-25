@@ -65,6 +65,7 @@ be removed.
           Bio::DB::GFF::Typename
           Bio::DB::SeqFeature
           Bio::DB::SeqFeature::*
+          Bio::DB::Taxonomy::sqlite
           Bio::Index::Stockholm
           Bio::LiveSeq::*
           Bio::Phenotype::*
