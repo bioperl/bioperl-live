@@ -91,7 +91,7 @@ $instance = {
     # No longer maintained, only OBO and OWL supported
    'Sequence Ontology' => {
 	    ontology => "http://song.cvs.sourceforge.net/*checkout*/song/ontology/so.ontology?rev=HEAD",
-        definitions => "http://song.cvs.sourceforge.net/*checkout*/song/ontology/so.definition?rev=HEAD",
+        # definitions => "http://song.cvs.sourceforge.net/*checkout*/song/ontology/so.definition?rev=HEAD",
         format => 'soflat',
                                     },
    'Sequence Ontology OBO' => {
@@ -99,18 +99,17 @@ $instance = {
         # definitions => "http://song.cvs.sourceforge.net/*checkout*/song/ontology/so.definition?rev=HEAD",
         format => 'obo',
                                     },
-
    #### TODO Server http://umn.dl.sourceforge.net/ does not respond, are there
    #### alternative sources?
    'Sequence Ontology Feature Annotation' => {
-        ontology => 'http://umn.dl.sourceforge.net/sourceforge/song/sofa.ontology',
-        definitions =>'http://umn.dl.sourceforge.net/sourceforge/song/sofa.definition',
-        format => 'soflat',
+        ontology => 'https://raw.githubusercontent.com/The-Sequence-Ontology/SO-Ontologies/master/subsets/SOFA.obo',
+        #definitions =>'http://umn.dl.sourceforge.net/sourceforge/song/sofa.definition',
+        format => 'obo',
                                     },
     # TODO: No longer available as separate files
     'Gene Ontology' => {
          ontology => 'http://purl.obolibrary.org/obo/go/go-basic.obo',
-			#definitions => 'http://www.geneontology.org/ontology/GO.defs',
+		 #definitions => 'http://www.geneontology.org/ontology/GO.defs',
          format => 'soflat',
 							  },
             };
