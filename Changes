@@ -78,6 +78,8 @@ be removed.
           Bio::SeqIO::exp
           Bio::SeqIO::pln
           Bio::SeqIO::ztr
+          Bio::Taxonomy
+          Bio::Taxonomy::*
           Bio::Tools::AlignFactory
           Bio::Tools::Phylo::Gumby
           Bio::Tools::dpAlign
