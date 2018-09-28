@@ -84,6 +84,7 @@ be removed.
           Bio::SeqIO::ctf
           Bio::SeqIO::exp
           Bio::SeqIO::pln
+          Bio::SeqIO::strider
           Bio::SeqIO::ztr
           Bio::Taxonomy::*
           Bio::Tools::AlignFactory
@@ -117,6 +118,7 @@ be removed.
     * The following modules are no longer dependencies:
 
           Bio::SeqIO::staden::read
+          Convert::Binary::C
           DBD::Pg
           DBD::SQLite
           HTML::HeadParser
