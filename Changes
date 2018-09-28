@@ -52,6 +52,8 @@ be removed.
           Bio::ClusterIO
           Bio::ClusterIO::*
           Bio::DB::CUTG
+          Bio::DB::EMBL
+          Bio::DB::EntrezGene
           Bio::DB::Expression
           Bio::DB::Expression::geo
           Bio::DB::GFF
@@ -64,8 +66,14 @@ be removed.
           Bio::DB::GFF::RelSegment
           Bio::DB::GFF::Segment
           Bio::DB::GFF::Typename
+          Bio::DB::GenBank
+          Bio::DB::GenPept
+          Bio::DB::NCBIHelper
+          Bio::DB::Query::GenBank
+          Bio::DB::RefSeq
           Bio::DB::SeqFeature
           Bio::DB::SeqFeature::*
+          Bio::DB::Taxonomy::entrez
           Bio::DB::Taxonomy::sqlite
           Bio::Index::Stockholm
           Bio::LiveSeq::*
@@ -90,6 +98,7 @@ be removed.
 
           bp_bulk_load_gff
           bp_das_server
+          bp_download_query_genbank
           bp_fast_load_gff
           bp_flanks
           bp_genbank2gff
@@ -98,6 +107,7 @@ be removed.
           bp_meta_gff
           bp_netinstall
           bp_process_wormbase
+          bp_query_entrez_taxa
           bp_seqfeature_delete
           bp_seqfeature_gff3
           bp_seqfeature_load
@@ -110,6 +120,7 @@ be removed.
           MIME::Base64
           Memoize
           Text::ParseWords
+          URI::Escape
 
     [Code changes]
 

@@ -183,7 +183,7 @@ my $db;
 SKIP: {
     test_skip(-tests => 5,
               -requires_modules => [qw(IO::String
-                                       LWP::UserAgent
+                                       Bio::DB::Genbank
                                        HTTP::Request::Common)],
               -requires_networking => 1);
     

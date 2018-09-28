@@ -3,21 +3,14 @@
 
 use strict;
 
-BEGIN { 
+BEGIN {
     use Bio::Root::Test;
-    
-    test_begin(-tests => 18,
-			   -requires_modules => [qw(IO::String
-									    LWP::UserAgent
-										HTTP::Request::Common)],
-			   -requires_networking => 1);
-	
-	use_ok('Bio::DB::GenBank');
-	use_ok('Bio::DB::GenPept');
-	use_ok('Bio::DB::SwissProt');
-	use_ok('Bio::DB::RefSeq');
-	use_ok('Bio::DB::EMBL');
-	use_ok('Bio::DB::BioFetch');
+
+    test_begin(-tests => 12,
+               -requires_modules => [qw(IO::String
+                                        LWP::UserAgent
+                                        HTTP::Request::Common)],
+               -requires_networking => 1);
 }
 
 my $verbose = test_debug();
@@ -48,6 +41,15 @@ my @classes = qw( Bio::DB::BioFetch Bio::DB::GenBank Bio::DB::GenPept
 
 my $id = 'XXX111';  # nonsense id
 
-for (@classes) {
-    fetch($id, $_);
+## This is really stupid since many of this modules are not longer
+## part of this distribution.  However, they are split over many
+## distributions and we don't want to have this test code duplicated
+## all over the place.  We should instead have this a Bio::Test module
+## but that's work.  See bioperl-live issue #290
+for my $class (@classes) {
+    SKIP: {
+        eval "require $class";
+        skip "failed to use $class (guessing it's not available)", 2 if $@;
+        fetch($id, $class);
+    }
 }
