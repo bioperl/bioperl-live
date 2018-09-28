@@ -89,9 +89,8 @@ be removed.
           Bio::Taxonomy
           Bio::Taxonomy::*
           Bio::Tools::AlignFactory
-          Bio::Tools::Analysis::DNA::ESEfinder
-          Bio::Tools::Analysis::Protein::ELM
-          Bio::Tools::Analysis::Protein::Scansite
+          Bio::Tools::Analysis::DNA::*
+          Bio::Tools::Analysis::Protein::*
           Bio::Tools::Phylo::Gumby
           Bio::Tools::dpAlign
           Bio::Tools::pSW
