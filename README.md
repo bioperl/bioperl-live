@@ -38,8 +38,10 @@ it available through their package manager.
 
 # Documentation and Support
 
-Documentation for individual modules is in POD and can be read on
-[metacpan](https://metacpan.org/pod/BioPerl).
+Documentation for individual modules is in POD and can also be read
+online at [metacpan](https://metacpan.org/pod/BioPerl).  Useful
+documentation in the form of example code can also be found in the
+`examples/` and `bin/` directories.
 
 Additional resources and information about the project is available on
 the [project website](https://bioperl.org), with discussion happening
