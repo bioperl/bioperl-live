@@ -49,7 +49,6 @@ be removed.
           Bio::AlignIO::stockholm
           Bio::Cluster::*
           Bio::ClusterI
-          Bio::ClusterIO
           Bio::ClusterIO::*
           Bio::DB::CUTG
           Bio::DB::EMBL
@@ -58,7 +57,6 @@ be removed.
           Bio::DB::Expression::geo
           Bio::DB::GFF
           Bio::DB::GFF::Adaptor::*
-          Bio::DB::GFF::Aggregator
           Bio::DB::GFF::Aggregator::*
           Bio::DB::GFF::Featname
           Bio::DB::GFF::Feature
@@ -71,8 +69,8 @@ be removed.
           Bio::DB::NCBIHelper
           Bio::DB::Query::GenBank
           Bio::DB::RefSeq
-          Bio::DB::SeqFeature
           Bio::DB::SeqFeature::*
+          Bio::DB::SeqVersion::*
           Bio::DB::Taxonomy::entrez
           Bio::DB::Taxonomy::sqlite
           Bio::Index::Stockholm
@@ -80,18 +78,19 @@ be removed.
           Bio::Phenotype::*
           Bio::Root::Build
           Bio::SearchDist
+          Bio::SeqFeature::SiRNA::*
           Bio::SeqIO::abi
           Bio::SeqIO::alf
           Bio::SeqIO::ctf
           Bio::SeqIO::exp
           Bio::SeqIO::pln
           Bio::SeqIO::ztr
-          Bio::Taxonomy
           Bio::Taxonomy::*
           Bio::Tools::AlignFactory
           Bio::Tools::Analysis::DNA::*
           Bio::Tools::Analysis::Protein::*
           Bio::Tools::Phylo::Gumby
+          Bio::Tools::SiRNA::*
           Bio::Tools::dpAlign
           Bio::Tools::pSW
           Bio::Variation::*
@@ -120,6 +119,7 @@ be removed.
           DBD::Pg
           DBD::SQLite
           HTML::HeadParser
+          HTML::TableExtract
           MIME::Base64
           Memoize
           Text::ParseWords
