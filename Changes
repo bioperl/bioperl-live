@@ -90,6 +90,7 @@ be removed.
           Bio::Tools::Analysis::DNA::*
           Bio::Tools::Analysis::Protein::*
           Bio::Tools::Phylo::Gumby
+          Bio::Tools::Protparam
           Bio::Tools::SiRNA::*
           Bio::Tools::dpAlign
           Bio::Tools::pSW
