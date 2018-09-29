@@ -81,10 +81,12 @@ be removed.
           Bio::SeqFeature::SiRNA::*
           Bio::SeqIO::abi
           Bio::SeqIO::alf
+          Bio::SeqIO::chadoxml
           Bio::SeqIO::chaos
           Bio::SeqIO::chaosxml
           Bio::SeqIO::ctf
           Bio::SeqIO::exp
+          Bio::SeqIO::flybase_chadoxml
           Bio::SeqIO::pln
           Bio::SeqIO::strider
           Bio::SeqIO::ztr
@@ -124,6 +126,7 @@ be removed.
           DBD::Pg
           DBD::SQLite
           Data::Stag::XMLWriter
+          English
           HTML::HeadParser
           HTML::TableExtract
           MIME::Base64
