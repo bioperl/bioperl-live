@@ -80,6 +80,7 @@ be removed.
           Bio::SearchDist
           Bio::SeqFeature::SiRNA::*
           Bio::SeqIO::abi
+          Bio::SeqIO::agave
           Bio::SeqIO::alf
           Bio::SeqIO::chadoxml
           Bio::SeqIO::chaos
