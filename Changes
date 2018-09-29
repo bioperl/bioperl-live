@@ -123,6 +123,7 @@ be removed.
           Convert::Binary::C
           DBD::Pg
           DBD::SQLite
+          Data::Stag::XMLWriter
           HTML::HeadParser
           HTML::TableExtract
           MIME::Base64
