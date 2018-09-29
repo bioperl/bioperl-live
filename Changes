@@ -81,6 +81,8 @@ be removed.
           Bio::SeqFeature::SiRNA::*
           Bio::SeqIO::abi
           Bio::SeqIO::alf
+          Bio::SeqIO::chaos
+          Bio::SeqIO::chaosxml
           Bio::SeqIO::ctf
           Bio::SeqIO::exp
           Bio::SeqIO::pln
