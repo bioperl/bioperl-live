@@ -75,6 +75,8 @@ be removed.
           Bio::DB::Taxonomy::sqlite
           Bio::Index::Stockholm
           Bio::LiveSeq::*
+          Bio::Map::*
+          Bio::MapIO::*
           Bio::Phenotype::*
           Bio::Root::Build
           Bio::SearchDist
@@ -123,6 +125,7 @@ be removed.
     * The following modules are no longer dependencies:
 
           Bio::SeqIO::staden::read
+          Bio::Tools::Run::Ensembl
           Convert::Binary::C
           DBD::Pg
           DBD::SQLite
@@ -133,6 +136,7 @@ be removed.
           MIME::Base64
           Memoize
           Text::ParseWords
+          Time::Local
           URI::Escape
 
     [Code changes]
