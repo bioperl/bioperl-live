@@ -31,7 +31,6 @@ use vars qw(@EXPORT @EXPORT_OK);
 use base qw(Exporter);
 @EXPORT_OK = qw(bin bin_bot bin_top);
 @EXPORT = @EXPORT_OK;
-use Bio::Root::Version;
 
 =item $bin_name = bin($start,$stop,$bin_size)
 

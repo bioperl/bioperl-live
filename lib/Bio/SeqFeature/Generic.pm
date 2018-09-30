@@ -996,8 +996,8 @@ sub slurp_gff_file {
     }
 
     Bio::Root::Root->deprecated( -message => "deprecated method slurp_gff_file() called in Bio::SeqFeature::Generic. Use Bio::Tools::GFF instead.",
-                                 -warn_version  => '1.005',
-                                 -throw_version => '1.007',
+                                 -warn_version  => '1.5',
+                                 -throw_version => '1.7',
                                );
 
     while(<$f>) {

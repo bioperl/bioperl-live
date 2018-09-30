@@ -112,7 +112,7 @@ use Bio::SearchIO;
 use base qw(Bio::Index::Abstract Bio::Root::Root);
 
 sub _version {
-	return ${Bio::Root::Version::VERSION};
+    return $Bio::Index::Blast::VERSION;
 }
 
 =head2 new

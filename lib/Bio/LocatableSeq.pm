@@ -691,8 +691,8 @@ sub validate_seq {
 
 sub no_gaps {
     my $self = shift;
-    $self->deprecated( -warn_version  => 1.0069,
-                       -throw_version => 1.0075,
+    $self->deprecated( -warn_version  => '1.6.9',
+                       -throw_version => '1.7.5',
                        -message => 'Use of method no_gaps() is deprecated, use num_gaps() instead' );
     return $self->num_gaps(@_);
 }
@@ -711,8 +711,8 @@ sub no_gaps {
 
 sub no_sequences {
     my $self = shift;
-    $self->deprecated( -warn_version  => 1.0069,
-                       -throw_version => 1.0075,
+    $self->deprecated( -warn_version  => '1.6.9',
+                       -throw_version => '1.7.5',
                        -message => 'Use of method no_sequences() is deprecated, use num_sequences() instead' );
     return $self->num_sequences(@_);
 }

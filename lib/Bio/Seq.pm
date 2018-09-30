@@ -1137,8 +1137,8 @@ sub add_SeqFeature {
          -message => 'Providing an array of features to Bio::Seq add_SeqFeature()'.
                      ' is deprecated and will be removed in a future version. '.
                      'Add a single feature at a time instead.',
-         -warn_version    => 1.007,
-         -throw_version   => 1.009,
+         -warn_version    => '1.7',
+         -throw_version   => '1.9',
       );
    }
 

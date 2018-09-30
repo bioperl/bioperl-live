@@ -73,8 +73,6 @@ package Bio::Search::Processor;
 
 use strict;
 
-use Bio::Root::Version;
-
 =head2 new
 
  Title   : new

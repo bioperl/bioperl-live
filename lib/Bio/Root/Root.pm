@@ -1,11 +1,8 @@
 package Bio::Root::Root;
 use strict;
 use Bio::Root::IO;
-use Bio::Root::Version;
 use Scalar::Util qw(blessed reftype);
 use base qw(Bio::Root::RootI);
-
-our $VERSION = eval "$VERSION";
 
 =head1 SYNOPSIS
 

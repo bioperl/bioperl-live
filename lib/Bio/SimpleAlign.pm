@@ -3064,8 +3064,8 @@ sub add_SeqFeature {
          -message => 'Providing an array of features to Bio::SimpleAlign add_SeqFeature()'.
                      ' is deprecated and will be removed in a future version. '.
                      'Add a single feature at a time instead.',
-         -warn_version    => 1.007,
-         -throw_version   => 1.009,
+         -warn_version    => '1.7',
+         -throw_version   => '1.9',
       );
    }
 
@@ -3184,8 +3184,8 @@ sub annotation {
 
 sub no_residues {
 	my $self = shift;
-	$self->deprecated(-warn_version => 1.0069,
-					  -throw_version => 1.0075,
+        $self->deprecated(-warn_version => '1.6.9',
+                          -throw_version => '1.7.5',
                       -message => 'Use of method no_residues() is deprecated, use num_residues() instead');
   $self->num_residues(@_);
 }
@@ -3203,8 +3203,8 @@ sub no_residues {
 
 sub no_sequences {
 	my $self = shift;
-	$self->deprecated(-warn_version => 1.0069,
-					  -throw_version => 1.0075,
+        $self->deprecated(-warn_version => '1.6.9',
+                          -throw_version => '1.7.5',
                       -message => 'Use of method no_sequences() is deprecated, use num_sequences() instead');
     $self->num_sequences(@_);
 }

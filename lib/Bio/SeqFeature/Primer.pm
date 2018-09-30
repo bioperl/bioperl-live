@@ -133,8 +133,8 @@ sub new {
     if ($sequence) {
         Bio::Root::Root->deprecated(
             -message => 'Creating a Bio::SeqFeature::Primer with -sequence is deprecated. Use -seq instead.',
-            -warn_version  => '1.006',
-            -throw_version => '1.008',
+            -warn_version  => '1.6',
+            -throw_version => '1.8',
         );
         $args{-seq} = $sequence;
     }
@@ -157,8 +157,8 @@ sub location {
             # Use location as a string for backward compatibility
             Bio::Root::Root->deprecated(
                 -message => 'Passing a string to location() is deprecated. Pass a Bio::Location::Simple object or use start() and end() instead.',
-                -warn_version  => '1.006',
-                -throw_version => '1.008',
+                -warn_version  => '1.6',
+                -throw_version => '1.8',
             );
             $self->{'_location'} = $location;
         } else {

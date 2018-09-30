@@ -24,7 +24,6 @@ Sendu Bala, bix@sendu.me.uk
 =cut
 
 package Bio::Search::SearchUtils;
-use Bio::Root::Version;
 
 use strict;
 

@@ -2,7 +2,6 @@ package Bio::Align::Utilities;
 use strict;
 use warnings;
 use Carp;
-use Bio::Root::Version;
 
 use Exporter 'import';
 our @EXPORT_OK = qw(

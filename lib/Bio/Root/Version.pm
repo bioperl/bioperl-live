@@ -36,8 +36,6 @@ variable set if it's not already.
 
 =cut
 
-our $VERSION = '1.007002';
-
 sub import {
     # try to handle multiple levels of inheritance:
     my $i = 0;
@@ -47,7 +45,7 @@ sub import {
         if (    $pkg =~ m/^Bio::/o
             and not defined ${$pkg . "::VERSION"}
             ) {
-            ${$pkg . "::VERSION"} = $VERSION;
+            ${$pkg . "::VERSION"} = $Bio::Root::Version::VERSION;
         }
         $pkg = caller(++$i);
     }

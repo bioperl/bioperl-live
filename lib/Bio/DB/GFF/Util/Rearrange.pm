@@ -61,7 +61,6 @@ use vars qw(@EXPORT @EXPORT_OK);
 use base qw(Exporter);
 @EXPORT_OK = qw(rearrange);
 @EXPORT = qw(rearrange);
-use Bio::Root::Version;
 
 # default export
 sub rearrange {
