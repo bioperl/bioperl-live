@@ -29,7 +29,6 @@
 
 use strict;
 
-use lib '../../';
 
 use Bio::SearchIO;
 

@@ -16,7 +16,6 @@
 #
 
 use strict;
-use lib qw(lib/ ../../);
 use Error qw(:try);
 use Bio::Root::Exception;
 

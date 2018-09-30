@@ -34,7 +34,6 @@
 package MyBlastWriter;
 
 use strict;
-use lib '../../';
 use Bio::Root::Root;
 use Bio::SearchIO::SearchWriterI;
 
@@ -80,7 +79,6 @@ package main;
 
 use strict;
 
-use lib '../../../';
 use Bio::SearchIO;
 
 select STDOUT; $|=1; 

@@ -20,16 +20,11 @@
 #    
 #     Functionality is not yet complete but it may be of use as-is. 
 # 
-# INSTALLATION
-#    Edit the use lib "...." line to point the directory
-#    containing your Bioperl modules.
-#
 # DOCUMENTATION:
 #  http://genome-www.stanford.edu/perlOOP/bioperl/lib/Bio/Tools/SeqPattern.pm.html
 #
 #-----------------------------------------------------------------------------
 
-use lib "/Users/steve/lib/perl";
 use Bio::Tools::SeqPattern ();
 use Getopt::Std;
 
@@ -127,10 +122,4 @@ sub test_pep {
     printf "%18s: %s\n", 'Original',$ppat->str;
     printf "%18s: %s\n", 'Expanded', $ppat->expand;
     print "\n";
-}    
-
-
-
-
-
-
+}

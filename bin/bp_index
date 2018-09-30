@@ -103,29 +103,11 @@ use warnings;
 # installing bioperl
 #
 
-BEGIN {
-    eval {
-	require Bio::Index::Fasta;
-	require Bio::Index::EMBL;
-	require Bio::Index::Swissprot;
-	require Bio::Index::GenBank;
-	require Bio::Index::SwissPfam;
-    };
-    if ( $@ ) {
-	# one up from here is Bio directory - we hope!
-	push(@INC,"..");
-	eval {
-	    require Bio::Index::Fasta;
-	    require Bio::Index::EMBL;
-	};
-	if ( $@ ) {
-	    print STDERR ("\nbp_index cannot find Bio::Index::Fasta and Bio::Index::EMBL\nbp_index needs to have bioperl installed for it to run.\nBioperl is very easy to install\nSee http://bio.perl.org for more information\n\n");
-	    exit(1);
-	} else {
-	    print STDERR ("\nYou are running bp_index.pl without installing bioperl.\nYou have done it from bioperl/scripts, and so we can find the necessary information\nbut it is much better to install bioperl\n\nPlease read the README in the bioperl distribution\n\n");
-	}
-    }
-}
+use Bio::Index::Fasta;
+use Bio::Index::EMBL;
+use Bio::Index::Swissprot;
+use Bio::Index::GenBank;
+use Bio::Index::SwissPfam;
 
 my $dir = $ENV{'BIOPERL_INDEX'};
 my $type = $ENV{'BIOPERL_INDEX_TYPE'};

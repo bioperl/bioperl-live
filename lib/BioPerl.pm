@@ -93,9 +93,7 @@ check the self-described I<examples/> directory as well. You are more than
 welcome to contribute your script!
 
 If you have installed BioPerl in the standard way, as detailed in the INSTALL in
-the distribution, these scripts should work by just running them. If you have
-not installed it in a standard way you will have to change the 'use lib' to
-point to your installation (see INSTALL for details).
+the distribution, these scripts should work by just running them.
 
 =head1 GETTING INVOLVED
 

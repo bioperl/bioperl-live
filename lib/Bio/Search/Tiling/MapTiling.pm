@@ -171,9 +171,6 @@ package Bio::Search::Tiling::MapTiling;
 use strict;
 use warnings;
 
-# Object preamble - inherits from Bio::Root::Root
-#use lib '../../..';
-
 use Bio::Root::Root;
 use Bio::Search::Tiling::TilingI;
 use Bio::Search::Tiling::MapTileUtils;

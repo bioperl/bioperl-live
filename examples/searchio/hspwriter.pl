@@ -38,7 +38,6 @@
 # Author: Steve Chervitz <sac@bioperl.org>
 
 use strict;
-use lib '../../';
 
 use Bio::SearchIO;
 use Bio::SearchIO::Writer::HSPTableWriter;

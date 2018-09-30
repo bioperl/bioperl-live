@@ -15,7 +15,6 @@
 
 use strict;
 
-use lib qw(lib/ ../../);
 
 # Uncomment this line to force Bio::Root::Root::throw() to 
 # not use Error.pm even if it's available.

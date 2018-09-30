@@ -4,8 +4,6 @@ use strict;
 use warnings;
     use vars qw($EXHAUSTIVE $VERBOSE);
 BEGIN {
-    use lib '../..';
-
     use Bio::Root::Test;
     $EXHAUSTIVE = $ENV{BIOPERL_TILING_EXHAUSTIVE_TESTS};
     $VERBOSE    = $ENV{BIOPERL_TILING_VERBOSE_TESTS};

@@ -5,7 +5,6 @@ use strict;
 BEGIN {
     eval {require Error;};
 
-    use lib qw( . t/lib );
     use Bio::Root::Test;
 
     test_begin(-tests => 7,

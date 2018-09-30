@@ -15,7 +15,6 @@
 BEGIN { $DONT_USE_ERROR = 1; }
 
 use strict;
-use lib qw(lib/ ../../);
 use TestObject;
 use Getopt::Long;
 

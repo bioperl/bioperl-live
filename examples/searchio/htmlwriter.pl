@@ -27,7 +27,6 @@
 
 
 use strict;
-use lib '../../';
 
 use Bio::SearchIO;
 use Bio::SearchIO::Writer::HTMLResultWriter;

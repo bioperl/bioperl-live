@@ -199,12 +199,6 @@ Don Gilbert (gilbertd@indiana.edu)
 use strict;
 use warnings;
 
-use lib "$ENV{HOME}/bioperl-live";
-# chad put this here to enable situations when this script is tested
-# against bioperl compiled into blib along with other programs using blib
-BEGIN {
-        unshift(@INC,'blib/lib');
-};
 use Pod::Usage;
 use Bio::Root::RootI;
 use Bio::SeqIO;
