@@ -128,16 +128,6 @@ use Bio::Index::SwissPfam;
 use Bio::Index::Swissprot;
 use Bio::SeqIO;
 
-eval {
-  require Bio::DB::GenBank;
-  require Bio::DB::GenPept;
-  require Bio::DB::EMBL;
-  require Bio::DB::SwissProt;
-};
-if ($@ && ! exists $ENV{'BIOPERL_SAVVY'}) {
-   print STDERR ("\nbp_fetch cannot find Bio::DB::GenBank and Bio::DB::EMBL modules\nThis does not effect local indexing\nset environment variable BIOPERL_SAVVY to suppress this message\n\n");
-}
-
 #
 # Start processing the command line
 #
@@ -201,16 +191,19 @@ for my $arg ( @ARGV ) {
     SWITCH : {
       $_ = $meta;
       /^net$/ && do {
-	if ( $db =~ /genbank/i ) {
-	  $dbobj = Bio::DB::GenBank->new(-format => $fmt);
-	} elsif ( $db =~ /genpept/i ) {
-	  $dbobj = Bio::DB::GenPept->new();
-	} elsif ( $db =~ /embl/i ) {
-	  $dbobj = Bio::DB::EMBL->new();
-	} else {
-	  die "Net database $db not available";
-	}
-	last SWITCH;
+        if ( $db =~ /genbank/i ) {
+          require Bio::DB::GenBank;
+          $dbobj = Bio::DB::GenBank->new(-format => $fmt);
+        } elsif ( $db =~ /genpept/i ) {
+          require Bio::DB::GenPept;
+          $dbobj = Bio::DB::GenPept->new();
+        } elsif ( $db =~ /embl/i ) {
+          require Bio::DB::EMBL;
+          $dbobj = Bio::DB::EMBL->new();
+        } else {
+          die "Net database $db not available";
+        }
+        last SWITCH;
       };
       /^ace$/ && do {
 	# yank in Bio::DB::Ace at runtime
