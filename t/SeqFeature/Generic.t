@@ -3,9 +3,9 @@
 
 use strict;
 
-BEGIN { 
+BEGIN {
     use Bio::Root::Test;
-    
+
     test_begin(-tests => 364);
 
     use_ok 'Bio::Seq';
@@ -14,7 +14,7 @@ BEGIN {
 }
 
 
-my ($feat, $str, $feat2, $pair, @sft); 
+my ($feat, $str, $feat2, $pair, @sft);
 
 my $DEBUG = test_debug();
 
@@ -74,17 +74,17 @@ is $feat2->phase, 1, 'Set phase from constructor';
         -display_id => 'test',
         -alphabet   => 'dna',
     );
-    
+
     # Make a SeqFeature
     ok my $sf1 = Bio::SeqFeature::Generic->new(
         -start  => 4,
         -end    => 9,
         -strand => 1,
     );
-    
+
     # Add the SeqFeature to the parent
     ok $seq->add_SeqFeature($sf1);
-    
+
     # Test that it gives the correct sequence
     is $sf1->start, 4, 'Start of first seqfeature';
     is $sf1->end, 9, 'End of first seqfeature';
@@ -98,11 +98,11 @@ is $feat2->phase, 1, 'Set phase from constructor';
         -end    => 9,
         -strand => -1,
     );
-    
+
     # Now add the PrimarySeq to the seqfeature before adding it to the parent
     ok $sf2->attach_seq($seq->primary_seq);
     ok $seq->add_SeqFeature($sf2);
-    
+
     # Test again that we have the correct sequence
     is $sf2->start, 4, 'Start of second seqfeature';
     is $sf2->end, 9, 'End of second seqfeature';
@@ -182,30 +182,28 @@ my $db;
 
 SKIP: {
     test_skip(-tests => 5,
-              -requires_modules => [qw(IO::String
-                                       Bio::DB::Genbank
-                                       HTTP::Request::Common)],
+              -requires_modules => [qw(Bio::DB::Genbank)],
               -requires_networking => 1);
-    
+
     use_ok 'Bio::DB::GenBank';
-    
+
     $db = Bio::DB::GenBank->new(-verbose=> $DEBUG);
     $CDS->verbose(-1);
     my $cdsseq = $CDS->spliced_seq(-db => $db,-nosort => 1);
-    
+
     is $cdsseq->subseq(1,76),
        'ATGCAGCCATACGCTTCCGTGAGCGGGCGATGTCTATCTAGACCAGATGCATTGCATGTGATACCGTTTGGGCGAC';
     is $cdsseq->translate->subseq(1,100),
        'MQPYASVSGRCLSRPDALHVIPFGRPLQAIAGRRFVRCFAKGGQPGDKKKLNVTDKLRLGNTPPTLDVLK'.
        'APRPTDAPSAIDDAPSTSGLGLGGGVASPR';
-    # Test what happens without 
-    $cdsseq = $CDS->spliced_seq(-db => $db,-nosort => 1);    
-    is $cdsseq->subseq(1,76), 
+    # Test what happens without
+    $cdsseq = $CDS->spliced_seq(-db => $db,-nosort => 1);
+    is $cdsseq->subseq(1,76),
        'ATGCAGCCATACGCTTCCGTGAGCGGGCGATGTCTATCTAGACCAGATGCATTGCATGTGATACCGTTTGGGCGAC';
-    is $cdsseq->translate->subseq(1,100), 
+    is $cdsseq->translate->subseq(1,100),
        'MQPYASVSGRCLSRPDALHVIPFGRPLQAIAGRRFVRCFAKGGQPGDKKKLNVTDKLRLGNTPPTLDVLK'.
        'APRPTDAPSAIDDAPSTSGLGLGGGVASPR';
-} 
+}
 
 ok $seqio = Bio::SeqIO->new(
     -file => test_input_file('AF032047.gbk'),
@@ -215,13 +213,11 @@ isa_ok $seqio, 'Bio::SeqIO';
 ok $geneseq = $seqio->next_seq;
 isa_ok $geneseq, 'Bio::Seq';
 ok( ($CDS) = grep { $_->primary_tag eq 'CDS' } $geneseq->get_SeqFeatures );
-SKIP: { 
+SKIP: {
     test_skip(-tests => 2,
-              -requires_modules => [qw(IO::String
-                                       LWP::UserAgent
-                                       HTTP::Request::Common)],
+              -requires_modules => ['Bio::DB::GenBank'],
               -requires_networking => 1);
-    
+
     my $cdsseq = $CDS->spliced_seq( -db => $db, -nosort => 1);
     is $cdsseq->subseq(1,70),
        'ATGGCTCGCTTCGTGGTGGTAGCCCTGCTCGCGCTACTCTCTCTGTCTGGCCTGGAGGCTATCCAGCATG';
@@ -231,7 +227,7 @@ SKIP: {
 }
 
 
-# Trans-spliced 
+# Trans-spliced
 
 ok $seqio = Bio::SeqIO->new(
     -format => 'genbank',
@@ -246,7 +242,7 @@ for my $cds (grep { $_->primary_tag eq 'CDS' } $genome->get_SeqFeatures) {
    is $spliced, ($cds->get_tag_values('translation'))[0], 'spliced_seq translation matches expected';
 }
 
-# Spliced_seq phase 
+# Spliced_seq phase
 ok my $seq = Bio::SeqIO->new(
     -format => 'fasta',
     -file   => test_input_file('sbay_c127.fas')
@@ -281,10 +277,10 @@ ok $sf->add_tag_value('comment','c1');
 is_deeply [sort $sf->get_all_tags()], [sort qw(note comment)] , 'Tags found';
 is_deeply [sort $sf->get_tagset_values('note')], [sort qw(n1 n2)] , 'get_tagset_values tag values found';
 is_deeply [sort $sf->get_tagset_values(qw(note comment))], [sort qw(c1 n1 n2)] , 'get_tagset_values tag values for multiple tags found';
-lives_ok { 
+lives_ok {
   is_deeply [sort $sf->get_tag_values('note')], [sort qw(n1 n2)] , 'get_tag_values tag values found';
 } 'get_tag_values lives with tag';
-lives_ok { 
+lives_ok {
   is_deeply [$sf->get_tagset_values('notag') ], [], 'get_tagset_values no tag values found';
 } 'get_tagset_values lives with no tag';
 throws_ok { $sf->get_tag_values('notag') } qr/tag value that does not exist/, 'get_tag_values throws with no tag';
@@ -316,7 +312,7 @@ for my $sf (@split_sfs) {
     isa_ok $sf->location, 'Bio::Location::SplitLocationI';
     ok my ($tag) = $sf->get_tag_values('product');
     my ($start, $end, $strand, $length, $ftstring, $first_ten) = @{$sf_data{$tag}};
-    
+
     is $sf->location->to_FTstring, $ftstring, 'Feature string';
     is $sf->spliced_seq->subseq(1,10), $first_ten, 'First ten nucleotides';
     is $sf->strand, $strand, 'Strand';
@@ -331,5 +327,3 @@ $seq = Bio::SeqIO->new( -file => test_input_file('AF222649-rc.gbk') )->next_seq;
 for my $feat ( $seq->get_SeqFeatures('CDS') ) {
     ok $feat->spliced_seq->seq =~ /^ATG/, "Reverse strand is spliced correctly";
 }
-        
-
