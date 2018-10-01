@@ -108,6 +108,7 @@ be removed.
 
     * The following programs have been removed:
 
+          bp_biofetch_genbank_proxy
           bp_bulk_load_gff
           bp_das_server
           bp_download_query_genbank
@@ -128,6 +129,8 @@ be removed.
 
           Bio::SeqIO::staden::read
           Bio::Tools::Run::Ensembl
+          CGI
+          Cache::FileCache
           Convert::Binary::C
           DBD::Pg
           DBD::SQLite
