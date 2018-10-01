@@ -50,6 +50,7 @@ be removed.
           Bio::Cluster::*
           Bio::ClusterI
           Bio::ClusterIO::*
+          Bio::DB::BioFetch
           Bio::DB::CUTG
           Bio::DB::EMBL
           Bio::DB::EntrezGene
