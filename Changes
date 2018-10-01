@@ -72,6 +72,7 @@ be removed.
           Bio::DB::RefSeq
           Bio::DB::SeqFeature::*
           Bio::DB::SeqVersion::*
+          Bio::DB::SwissProt
           Bio::DB::Taxonomy::entrez
           Bio::DB::Taxonomy::sqlite
           Bio::Index::Stockholm
