@@ -1,13 +1,13 @@
 package BioPerl;
 
+use utf8;
 use strict;
-1;
+use warnings;
 
-__END__
-
-=head1 NAME
-
-BioPerl - Perl Modules for Biology
+# ABSTRACT: Perl modules for biology
+# AUTHOR: See the individual modules for their authors.
+# OWNER: many people (see the individual modules for their copyright holders)
+# LICENSE: Perl_5
 
 =head1 SYNOPSIS
 
@@ -152,11 +152,7 @@ BioPerl:
 
 L<http://bioperl.org/articles/History_of_BioPerl.html>
 
-=head1 COPYRIGHT
-
-Copyright (c) 1996-2009 Georg Fuellen, Richard Resnick, Steven E. Brenner, Chris
-Dagdigian, Steve Chervitz, Ewan Birney, James Gilbert, Elia Stupka, and others.
-All Rights Reserved. This module is free software; you can redistribute it
-and/or modify it under the same terms as Perl itself.
-
 =cut
+
+
+1;
