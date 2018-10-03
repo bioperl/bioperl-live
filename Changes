@@ -33,29 +33,24 @@ be removed.
 
 1.7.3 - "To Be Named"
 
-    * The following modules have been moved here from the BioPerl-Run
-      distribution:
-
-          Bio::Tools::Run::Analysis
-          Bio::Tools::Run::AnalysisFactory
-          Bio::Tools::Run::Phylo::PhyloBase
-          Bio::Tools::Run::WrapperBase
-          Bio::Tools::Run::WrapperBase::CommandExts
-
     * The following modules have been removed from the BioPerl
-      distribution to be part of a separate distribution also
-      on CPAN:
+      distribution to be part of a separate distribution.  They have
+      been integrated into other module distributions for independent
+      development:
 
+          Bio::Align::Graphics
+          Bio::AlignIO::nexml
           Bio::AlignIO::stockholm
+          Bio::Assembly::*
           Bio::Cluster::*
-          Bio::ClusterI
+          Bio::ClusterI::*
           Bio::ClusterIO::*
+          Bio::DB::Ace
           Bio::DB::BioFetch
           Bio::DB::CUTG
           Bio::DB::EMBL
           Bio::DB::EntrezGene
-          Bio::DB::Expression
-          Bio::DB::Expression::geo
+          Bio::DB::Expression::*
           Bio::DB::GFF
           Bio::DB::GFF::Adaptor::*
           Bio::DB::GFF::Aggregator::*
@@ -67,21 +62,49 @@ be removed.
           Bio::DB::GFF::Typename
           Bio::DB::GenBank
           Bio::DB::GenPept
+          Bio::DB::HIV::*
+          Bio::DB::MeSH
           Bio::DB::NCBIHelper
           Bio::DB::Query::GenBank
+          Bio::DB::Query::HIVQuery
           Bio::DB::RefSeq
           Bio::DB::SeqFeature::*
           Bio::DB::SeqVersion::*
           Bio::DB::SwissProt
+          Bio::DB::TFBS::*
           Bio::DB::Taxonomy::entrez
           Bio::DB::Taxonomy::sqlite
+          Bio::DB::Universal
+          Bio::Draw::Pictogram
+          Bio::Factory::MapFactoryI
+          Bio::Index::Hmmer
           Bio::Index::Stockholm
           Bio::LiveSeq::*
           Bio::Map::*
           Bio::MapIO::*
+          Bio::MolEvol::CodonModel
+          Bio::Nexml::Factory
+          Bio::NexmlIO
+          Bio::Perl
           Bio::Phenotype::*
+          Bio::PhyloNetwork::*
+          Bio::PopGen::*
+          Bio::Restriction::*
           Bio::Root::Build
+          Bio::Search::HSP::HMMERHSP
+          Bio::Search::HSP::HmmpfamHSP
+          Bio::Search::Hit::HMMERHit
+          Bio::Search::Hit::HmmpfamHit
+          Bio::Search::Hit::hmmer3Hit
+          Bio::Search::Result::HMMERResult
+          Bio::Search::Result::HmmpfamResult
+          Bio::Search::Result::hmmer3Result
           Bio::SearchDist
+          Bio::SearchIO::hmmer
+          Bio::SearchIO::hmmer2
+          Bio::SearchIO::hmmer3
+          Bio::SearchIO::hmmer_pull
+          Bio::SeqEvolution::*
           Bio::SeqFeature::SiRNA::*
           Bio::SeqIO::abi
           Bio::SeqIO::agave
@@ -90,165 +113,153 @@ be removed.
           Bio::SeqIO::chaos
           Bio::SeqIO::chaosxml
           Bio::SeqIO::ctf
+          Bio::SeqIO::entrezgene
+          Bio::SeqIO::excel
           Bio::SeqIO::exp
           Bio::SeqIO::flybase_chadoxml
+          Bio::SeqIO::nexml
           Bio::SeqIO::pln
           Bio::SeqIO::strider
           Bio::SeqIO::ztr
+          Bio::Structure::*
           Bio::Taxonomy::*
           Bio::Tools::AlignFactory
-          Bio::Tools::Analysis::DNA::*
-          Bio::Tools::Analysis::Protein::*
+          Bio::Tools::Analysis::* (except SimpleAnalysisBase)
+          Bio::Tools::Gel
+          Bio::Tools::HMMER::*
+          Bio::Tools::Hmmpfam
           Bio::Tools::Phylo::Gumby
           Bio::Tools::Protparam
+          Bio::Tools::Run::RemoteBlast
           Bio::Tools::SiRNA::*
           Bio::Tools::dpAlign
           Bio::Tools::pSW
+          Bio::Tree::AlleleNode
+          Bio::Tree::Draw::Cladogram
+          Bio::TreeIO::nexml
+          Bio::TreeIO::svggraph
           Bio::Variation::*
+
+    * The following modules are new in the BioPerl distribution.  They
+      have been previously released in the BioPerl-Run distribution.
+      This will enable smaller distributions that provide a
+      Bio::Tool::Run interface, to be only dependent on the BioPerl
+      distribution instead of the whole (very large) BioPerl-Run:
+
+          Bio::Tools::Run::Analysis
+          Bio::Tools::Run::AnalysisFactory
+          Bio::Tools::Run::Phylo::PhyloBase
+          Bio::Tools::Run::WrapperBase
+          Bio::Tools::Run::WrapperBase::CommandExts
 
     * The following programs have been removed:
 
           bp_biofetch_genbank_proxy
+          bp_blast2tree
           bp_bulk_load_gff
+          bp_composite_LD
           bp_das_server
           bp_download_query_genbank
           bp_fast_load_gff
           bp_flanks
           bp_genbank2gff
           bp_generate_histogram
+          bp_heterogeneity_test
+          bp_hivq
+          bp_hmmer_to_table
           bp_load_gff
           bp_meta_gff
           bp_netinstall
+          bp_parse_hmmsearch
           bp_process_wormbase
           bp_query_entrez_taxa
+          bp_remote_blast
           bp_seqfeature_delete
           bp_seqfeature_gff3
           bp_seqfeature_load
 
-    * The following modules are no longer dependencies:
+    * Because of the move of so many modules and programs into
+      separate distributions, the following modules are no longer
+      prerequisites:
 
+          Ace
+          Ace::Sequence::Homol
+          Algorithm::Munkres
+          Apache::DBI
+          Archive::Tar
+          Array::Compare
+          Bio::ASN1::EntrezGene
+          Bio::Expression::Contact
+          Bio::Expression::DataSet
+          Bio::Expression::Platform
+          Bio::Expression::Sample
+          Bio::Ext::Align
+          Bio::GMOD::CMap::Utils
+          Bio::Phylo::Factory
+          Bio::Phylo::Forest::Tree
+          Bio::Phylo::IO
+          Bio::Phylo::Matrices
+          Bio::Phylo::Matrices::Datum
+          Bio::Phylo::Matrices::Matrix
+          Bio::SeqFeature::Annotated
           Bio::SeqIO::staden::read
+          Bio::Tools::Run::Alignment::Clustalw
           Bio::Tools::Run::Ensembl
+          Bio::Tools::Run::Phylo::Molphy::ProtML
+          Bio::Tools::Run::Phylo::Phylip::Neighbor
+          Bio::Tools::Run::Phylo::Phylip::ProtDist
+          Bio::Tools::Run::Phylo::Phylip::ProtPars
+          Bio::Tools::Run::Samtools
           CGI
+          CPAN
           Cache::FileCache
+          Config
           Convert::Binary::C
           DBD::Pg
           DBD::SQLite
           Data::Stag::XMLWriter
+          Encode
           English
+          ExtUtils::Install
+          ExtUtils::Manifest
+          File::Glob
+          GD::Simple
+          Getopt::Std
+          Graph::Undirected
+          GraphViz
           HTML::HeadParser
           HTML::TableExtract
+          LWP
+          LWP::Simple
           MIME::Base64
           Memoize
+          PostScript::TextBlock
+          SVG
+          SVG::Graph
+          SVG::Graph::Data
+          SVG::Graph::Data::Node
+          SVG::Graph::Data::Tree
+          Sort::Naturally
+          Spreadsheet::ParseExcel
+          Term::ReadLine
+          Text::NSP::Measures::2D::Fisher2::twotailed
           Text::ParseWords
           Time::Local
+          Tree::DAG_Node
           URI::Escape
+          WWW::Mechanize
+          XML::Simple
 
-    [Code changes]
+    * The following is a new prerequisite:
+
+          Test::RequiresInternet
 
     * The deobfuscator has been removed.
-
-    * The script `bp_blast2tree` has been moved to the BioPerl-Run
-      distribution since it's mainly a wrapper to modules in there.
-
-    * The entire Bio::PopGen namespace, Bio::Tree::AlleleNode
-      module, and scripts bp_composite_LD and bp_heterogeneity_test
-      have been moved into a separate distribution named Bio-PopGen.
-
-    * All modules related to the NeXML format have been moved into a
-      separate distribution named Bio-NeXMLIO.  These are:
-
-          * Bio::AlignIO::nexml
-          * Bio::Nexml::Factory
-          * Bio::NexmlIO
-          * Bio::SeqIO::nexml
-          * Bio::TreeIO::nexml
-
-      This also means BioPerl is no longer dependent on Bio-Phylo.
-
-    * All modules interfacing to ACeDB servers have been moved into a
-      separate distribution named Bio-DB-Ace.  These are:
-
-          * Bio::DB::Ace
-          * Bio::DB::GFF::Adaptor::ace
-          * Bio::DB::GFF::Adaptor::dbi::mysqlace
-          * Bio::DB::GFF::Adaptor::dbi::oracleace
-
-      This also means BioPerl is no longer dependent on AcePerl.
-
-    * The module Bio::Draw::Pictogram has been moved to a separate
-      distribution named Bio-Draw-Pictogram.  This also means BioPerl
-      is no longer dependent on SVG.
-
-    * The module Bio::Tree::Draw::Cladogram has been moved to a
-      separate distribution named Bio-Tree-Draw-Cladogram.  This also
-      means BioPerl is no longer dependent on PostScript.
-
-    * The module Bio::TreeIO::svggraph has been moved to a separate
-      distribution named Bio-TreeIO-svggraph.  This also means that
-      BioPerl is no longer dependent on SVG-Graph and Tree-DAG_Node.
-
-    * The module Bio::SeqIO::excel has been moved to a separate
-      distribution named Bio-SeqIO-excel.  This also means that
-      BioPerl is no longer dependent on Spreadsheet-ParseExcel.
-
-    * The entire Bio::PhyloNetwork namespace has been moved to a
-      separate distribution named Bio-PhyloNetwork.  This also means
-      that BioPerl is no longer dependent on Algorithm::Munkres,
-      GraphViz, and Array::Compare.
-
-    * The entire Bio::Asembly namespace has been moved to a separate
-      distribution named Bio-Assembly.  This also means that BioPerl
-      is no longer dependent on Bio-SamTools and Sort-Naturally.
-
-    * The entire Bio::Structure namespace has been moved to a
-      separate distribution named Bio-Structure.
-
-    * The entire Bio::SeqEvolution namespace has been moved to a
-      separate distribution named Bio-SeqEvolution.
-
-    * The Bio::Tools::Gel module has been moved into its own
-      distribution named Bio-Tools-Gel.
-
-    * The entire Bio::Restriction namespace has been moved to a
-      separate distribution named Bio-Restriction.
-
-    * The module Bio::SeqIO::entrezgene has been moved to the
-      Bio-ASN1-EntrezGene distribution.
-
-    * The module Bio::MolEvol::CodonModel has moved to a distribution
-      of its own, named after itself.
-
-    * The module Bio::Perl has moved to a new distribution named
-      Bio-Procedural.
-
-    * The module Bio::Tools::Run::RemoteBlast has moved to a new
-      distribution named after itself.
-
-    * The module Bio::Align::Graphics has been moved to a new distribution
-      named after itself.  This also means that BioPerl is no longer
-      dependent on GD.
-
-    * The entire Bio::DB::HIV namespace, the Bio::DB::Query::HIVQuery
-      module, and the the bp_hivq program have been moved to their
-      own distribution named Bio-DB-HIV.  This also drops the bioperl
-      dependency on XML-Simple and Term-ReadLine.
-
-    * The entire Bio::DB::TFBS namespace has been moved to its own
-      distribution named after itself.
-
-    * All modules to handle HMMER programs output have been moved to their
-      own distribution named Bio-SearchIO-hmmer.  This also includes the
-      programs bp_hmmer_to_table and bp_parse_hmmsearch.
-
-    * Bio::DB::MeSH and related Bio::Phenotype::MeSH modules have moved
-      to their own distribution Bio-DB-MeSH.
-
-    * The Bio::DB::Universal module has been moved to its own distribution.
 
     * The emacs bioperl minor mode is no longer distributed as part of the
       perl module distributions.  See
       https://github.com/bioperl/emacs-bioperl-mode
+
 
 1.7.2 - "Entebbe"
 
