@@ -1,37 +1,7 @@
----------------------------------------------------------
-Revision history for BioPerl core modules
----------------------------------------------------------
-The comprehensive history and ongoing development of BioPerl:
+Summary of important user-visible changes for BioPerl
+-----------------------------------------------------
 
-   http://github.com/bioperl/bioperl-live
-
-Some of that history is also highlighted on our wiki:
-
-   http://www.bioperl.org/wiki/Change_log
-   http://www.bioperl.org/wiki/History_of_BioPerl
-
-Bugs and requested features list:
-
-   https://github.com/bioperl/bioperl-live/issues
-
-CPAN releases are branched from 'master'.
----------------------------------------------------------
-
-Philosophy for 1.7.x:
-
-In order to reduce the number of dependencies, we are actively encouraging
-developers wanting to submit new code with additional dependencies to release
-code in a separate repository and release it on CPAN. We can help assist in this
-process and can also place this under the 'bioperl' Github organization (and
-similarly under the bioperl umbrella account in CPAN), though this is not
-required.
-
-We will also be moving additonal code to other repositories and will release
-them separately on CPAN. Modules considered obsolute (relies on a dead web
-service or utilizes strict dependencies that are also considered obsolete) will
-be removed.
-
-1.7.3 - "To Be Named"
+{{$NEXT}}
 
     * The following modules have been removed from the BioPerl
       distribution to be part of a separate distribution.  They have
@@ -264,7 +234,7 @@ be removed.
 1.7.2 - "Entebbe"
 
     [Bugs]
-    
+
     * #247 - Omit unnecessary parent_id attribute added by GFF3Loader [nathanweeks]
     * #245 - Code coverage fixes [zmughal,cjfields]
     * #237 - Fix warning in Bio::DB::IndexedBase [willmclaren,bosborne]
@@ -277,15 +247,15 @@ be removed.
     * #213 - Support FTS5 in Bio::DB::SeqFeature::Store::DBI::SQLite [nathanweeks,bosborne]
     * #210 - Sorting qualifiers while write embl files [hdevillers,cjfields]
     * #209 - Fixed bug in _toDsspKey() [jvolkening,hlapp]
-    
+
     [Code changes]
-    
+
     * PAML-related code from bioperl and bioperl-run are now in a separate distribution on CPAN [carandraug]
 
 1.7.1 - "Election"
 
     [Bugs]
-    
+
     * Minor release to incorporate fix for CPAN indexing, which
       prevented proper updates [cjfields]
     * Fix problem in managing Target attribute for gff3 [Jukes34]
@@ -294,20 +264,20 @@ be removed.
 1.7.0 - "Disney"
 
     [New site]
-    
+
     * We have migrated to Github Pages. This was actually planned, but the
       recent OBF server compromise forced our hand.
-      
+
       Brian Osborne [bosborne] took this under his wing to move docs and has
       done a tremendous amount of work formatting the site and working out some
       of the idiosyncracies with the new Jekyll-based design.  Mark Jensen, Paul
       Cantalupo and Franscison Ossandon also helped.  Kudos!!
-      
+
     * Similarly, the official issue tracker is now Github Issues.  This has
-      been updated in the relevant documentation bits (we hope!) 
+      been updated in the relevant documentation bits (we hope!)
 
     [Code changes]
-    
+
     * Previously deprecated modules removed
       * Bio::Tools::Infernal, Bio::Tools::ERPIN, Bio::Tools::RNAMotif
     * Bio::DB::SeqHound has been removed due to the service no longer being
@@ -333,9 +303,9 @@ be removed.
     * Bio::DB::Taxonomy SQLite option [cjfields]
     * WrapperBase quoted option values [majensen]
     * Various documentation fixes and updates [bosborne]
-    
+
    [Bug Fixes]
-   
+
     * Fixes in Bio::Root::Build to deal with META.json/yml for CPAN indexing [cjfields]
     * Bio::SeqFeature::Generic spliced_seq() bug fix [Eric Snyder, via bosborne]
     * NeXML parser fixes [fjossandon]
@@ -453,7 +423,7 @@ be removed.
     * Fixed missing detection of format in SeqIO when given a -string [fangly]
 
 1.6.923
-    
+
     * Major Windows support updates! [fjossandon]
     * MAKER update to allow for stricter standard codon table [cjfields]
     * Better support for circular sequences [fjossandon]
