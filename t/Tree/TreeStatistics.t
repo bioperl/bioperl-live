@@ -6,7 +6,7 @@ use strict;
 BEGIN { 
     use Bio::Root::Test;
     
-    test_begin(-tests => 42);
+    test_begin(-tests => 43);
 
     use_ok('Bio::TreeIO');
     use_ok('Bio::Tree::Statistics');
@@ -23,6 +23,16 @@ my $node = $tree->find_node(-id => 'N14');
 my $stats = Bio::Tree::Statistics->new();
 is $stats->cherries($tree), 8, 'cherries';
 is $stats->cherries($tree, $node), 4, 'cherries';
+
+subtest 'bootstrapping' => sub{
+  plan tests=>15;
+  my @bs_trees = ($tree) x 10;
+  my $bs_tree  = $stats->assess_bootstrap(\@bs_trees, $tree);
+  for my $node ($bs_tree->get_nodes){
+    next if($node->is_Leaf);
+    is $node->bootstrap, 100, "Testing bootstrap for node"
+  }
+};
 
 # traits
 my $key = $tree->add_trait(test_input_file('traits.tab'), 4);
@@ -136,5 +146,4 @@ $node = $tree->find_node(-id => 'N10');
 $mc = $stats->mc($tree, $key, $node);
 is ($mc->{blue}, 2, 'monophyletic clade size');
 is ($mc->{red}, 2, 'monophyletic clade size');
-
 

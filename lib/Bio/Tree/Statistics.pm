@@ -106,6 +106,14 @@ sub assess_bootstrap{
    my ($self,$bs_trees,$guide_tree) = @_;
    my @consensus;
 
+   if(!defined($bs_trees) || ref($bs_trees) ne 'ARRAY'){
+     die "ERROR: second parameter in assess_bootstrap() must be a list";
+   }
+   my $num_bs_trees = scalar(@$bs_trees);
+   if($num_bs_trees < 1){
+     die "ERROR: no bootstrap trees were passed to assess_bootstrap()";
+   }
+
    # internal nodes are defined by their children
 
    my (%lookup,%internal);
@@ -129,11 +137,11 @@ sub assess_bootstrap{
        }
        $i++;
    }
-   my @save;
+   #my @save; # unsure why this variable is needed
    for my $l ( keys %lookup ) {
        if( defined $internal{$l} ) {#&& $lookup{$l} > $min_seen ) {
            my $intnode = $guide_tree->find_node(-internal_id => $internal{$l});
-           $intnode->bootstrap(sprintf("%d",100 * $lookup{$l} / $i));
+           $intnode->bootstrap(sprintf("%d",100 * $lookup{$l} / $num_bs_trees));
        }
    }
    return $guide_tree;
