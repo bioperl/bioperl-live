@@ -87,6 +87,7 @@ Summary of important user-visible changes for BioPerl
           Bio::SeqIO::excel
           Bio::SeqIO::exp
           Bio::SeqIO::flybase_chadoxml
+          Bio::SeqIO::lasergene
           Bio::SeqIO::nexml
           Bio::SeqIO::pln
           Bio::SeqIO::strider
