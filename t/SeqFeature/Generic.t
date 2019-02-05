@@ -182,7 +182,7 @@ my $db;
 
 SKIP: {
     test_skip(-tests => 5,
-              -requires_modules => [qw(Bio::DB::Genbank)],
+              -requires_modules => [qw(Bio::DB::GenBank)],
               -requires_networking => 1);
 
     use_ok 'Bio::DB::GenBank';
