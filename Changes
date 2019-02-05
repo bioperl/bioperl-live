@@ -3,6 +3,12 @@ Summary of important user-visible changes for BioPerl
 
 {{$NEXT}}
 
+    * Fix Bio::Root::Test, and the testuite, to properly check for
+      internet connection and the NO_NETWORK_TESTING environment
+      variable.  Previously, tests that required internet connection
+      were not being skipped, causing tests to fail.
+
+
 1.7.3     2019-01-30 13:30:34+00:00 Europe/London
 
     * The following modules have been removed from the BioPerl
