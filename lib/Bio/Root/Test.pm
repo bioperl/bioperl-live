@@ -358,7 +358,30 @@ sub test_network {
     if ($ENV{AUTHOR_TESTING} || $ENV{RELEASE_TESTING}) {
         return 1;
     } else {
+        my $run_network_tests = 1;
+
+        ## Test::RequiresInternet calls exit.  We monkey patch it to
+        ## use die instead which allow us to catch it in an eval.
+        ## However, better solutions would be to have it call
+        ## 'Test::More::plan skip_all' and have this done only within
+        ## a subtest instead of a SKIP.  Even better would be to have
+        ## this done upstream and have the test units call it
+        ## directly.
         require Test::RequiresInternet;
+        my $original_skip_all = *Test::RequiresInternet::skip_all;
+        {
+            no warnings 'redefine';
+            *Test::RequiresInternet::skip_all = sub { die @_ };
+        }
+        eval {
+            Test::RequiresInternet->import();
+            1;
+        } or do {
+            $run_network_tests = 0;
+        };
+        *Test::RequiresInternet::skip_all = $original_skip_all;
+
+        return $run_network_tests;
     }
 }
 
