@@ -3,6 +3,8 @@ Summary of important user-visible changes for BioPerl
 
 {{$NEXT}}
 
+1.7.4     2019-02-05 16:23:53+00:00 Europe/London
+
     * Fix Bio::Root::Test, and the testuite, to properly check for
       internet connection and the NO_NETWORK_TESTING environment
       variable.  Previously, tests that required internet connection
