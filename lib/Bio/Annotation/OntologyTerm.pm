@@ -106,6 +106,8 @@ Internal methods are usually preceded with a _
 package Bio::Annotation::OntologyTerm;
 use strict;
 
+use Carp;
+
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::Ontology::Term;
@@ -440,7 +442,7 @@ sub remove_synonyms {
 
 sub get_dblinks {
     my $self = shift;
-    $self->deprecated('get_dblinks() is deprecated; use get_dbxrefs()');
+    Carp::carp('get_dblinks() is deprecated; use get_dbxrefs()');
     return $self->term->get_dbxrefs(@_);
 } # get_dblinks
 
@@ -476,7 +478,7 @@ sub get_dbxrefs {
 
 sub add_dblink {
     my $self = shift;
-    $self->deprecated('add_dblink() is deprecated; use add_dbxref()');
+    Carp::carp('add_dblink() is deprecated; use add_dbxref()');
     return $self->term->add_dbxref(@_);
 } # add_dblink
 
@@ -511,7 +513,7 @@ sub add_dbxref {
 
 sub remove_dblinks {
     my $self = shift;
-    $self->deprecated('remove_dblinks() is deprecated; use remove_dbxrefs()');
+    Carp::carp('remove_dblinks() is deprecated; use remove_dbxrefs()');
     return $self->term->remove_dbxrefs(@_);
 } # remove_dblinks
 

@@ -273,12 +273,6 @@ sub next_result {
             last;
         }
         $self->_pushback($line);
-		#if ($self->{'_handlerset'} ne '1.0') {
-		#	$self->deprecated(
-		#	-message => "Parsing of Infernal pre-1.0 release is deprecated;\n".
-		#		"upgrading to Infernal 1.0 or above is highly recommended",
-		#	-version => 1.007);
-		#}
     }
     return ($self->{'_handlerset'} eq '1.1')     ? $self->_parse_v1_1 :
            ($self->{'_handlerset'} eq 'latest')  ? $self->_parse_latest :

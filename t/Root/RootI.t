@@ -6,7 +6,7 @@ use strict;
 BEGIN {
     use Bio::Root::Test;
 
-    test_begin(-tests => 61);
+    test_begin(-tests => 43);
 
     use_ok 'Bio::Root::Root';
 }
@@ -86,45 +86,6 @@ my @vals = Bio::Root::RootI->_rearrange([qw(apples pears)],
                                         -pears  => 'stairs');
 is shift @vals, 'up the';
 is shift @vals, 'stairs';
-
-# test deprecated()
-
-# class method
-{
-    local $Bio::Root::Root::VERSION = 8.9;
-    warning_like{ Bio::Root::Root->deprecated('Test1') } qr/Test1/, 'simple';
-    warning_like{ Bio::Root::Root->deprecated(-message => 'Test2') } qr/Test2/;
-    warning_like{ Bio::Root::Root->deprecated('Test3', 999.999) } qr/Test3/,
-        'warns for versions below current version';
-    warning_like{ Bio::Root::Root->deprecated(-message => 'Test4',
-                                              -version => 999.999) } qr/Test4/,
-        'warns for versions below current version';
-    throws_ok{ Bio::Root::Root->deprecated('Test5', 0.001) } qr/Test5/,
-        'throws for versions above current version';
-    throws_ok{ Bio::Root::Root->deprecated(-message => 'Test6',
-                                       -version => 0.001) } qr/Test6/,
-        'throws for versions above current version';
-
-    throws_ok{ Bio::Root::Root->deprecated(-message => 'Test6',
-                                           -version => $Bio::Root::Root::VERSION) } qr/Test6/,
-        'throws for versions equal to current version';
-
-    # object method
-    my $root = Bio::Root::Root->new();
-    warning_like{ $root->deprecated('Test1') } qr/Test1/, 'simple';
-    warning_like{ $root->deprecated(-message => 'Test2') } qr/Test2/, 'simple';
-    warning_like{ $root->deprecated('Test3', 999.999) } qr/Test3/,
-        'warns for versions below current version';
-    warning_like{ $root->deprecated(-message => 'Test4',
-                                    -version => 999.999) } qr/Test4/,
-                                'warns for versions below current version';
-    throws_ok{ $root->deprecated('Test5', 0.001) } qr/Test5/,
-      'throws for versions above current version';
-    throws_ok{ $root->deprecated(-message => 'Test6',
-                                 -version => 0.001) } qr/Test6/,
-                             'throws for versions above current version';
-
-}
 
 # tests for _set_from_args()
 # Let's not pollute Bio::Root::Root namespace if possible
@@ -244,66 +205,3 @@ my $clone2 = $obj->clone(-t7 => 'foo');
 
 is $clone2->t7, 'foo', 'parameters passed to clone() modify object';
 is $obj->t7, 1, 'original is not modified';
-
-
-
-# test deprecations using start_version
-{
-    package Bio::Foo5;
-    use base qw(Bio::Root::Root);
-
-    our $v = '18.001';
-    our $VERSION = $v;
-
-    sub not_good {
-        my $self = shift;
-        $self->deprecated(-message => 'This is not good',
-                          -warn_version  => $v,
-                          -throw_version => $v + 0.001);
-    }
-
-    sub not_good2 {
-        my $self = shift;
-        # note, due to _rearrange, ordering is throw version, then warn version
-        $self->deprecated('This is not good',$v + 0.001,$v);
-    }
-
-    sub really_not_good {
-        my $self = shift;
-        $self->deprecated(-message => 'This is really not good',
-                          -warn_version  => $v - 0.001,
-                          -throw_version => $v,);
-    }
-
-    # version is the same as throw_version (and vice versa)
-    sub still_very_bad {
-        my $self = shift;
-        $self->deprecated(-message => 'This is still very bad',
-                          -warn_version  => $v - 0.001,
-                          -version => $v);
-    }
-
-    sub okay_for_now {
-        my $self = shift;
-        $self->deprecated(-message => 'This is okay for now',
-                          -warn_version  => $v + 0.001,
-                          -throw_version => $v + 0.002);
-    }
-}
-
-my $foo = Bio::Foo5->new();
-
-warning_like{ $foo->not_good } qr/This is not good/,
-    'warns for versions >= current version';
-# this tests the three-arg (non-named) form just to make sure it works, even
-# though we probably won't support it
-warning_like{ $foo->not_good2 } qr/This is not good/,
-    'warns for versions >= current version';
-
-throws_ok { $foo->really_not_good } qr/This is really not good/,
-    'throws for versions >= current version';
-throws_ok { $foo->still_very_bad } qr/This is still very bad/,
-    'throws for versions >= current version';
-lives_ok { $foo->okay_for_now } 'No warnings/exceptions below current version';
-
-

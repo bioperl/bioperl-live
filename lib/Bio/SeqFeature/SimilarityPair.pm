@@ -129,8 +129,6 @@ sub new {
                               )],@args);
     
     if( $sbjct ) { 
-        # undeprecated by Jason before 1.1 release 
-        # $self->deprecated("use of -subject deprecated: SimilarityPair now uses 'hit'");
         if(! $hit) { $hit = $sbjct } 
         else { 
             $self->warn("-hit and -subject were specified, using -hit and ignoring -subject");
@@ -184,13 +182,11 @@ sub query {
  Function: Get/Set Subject for a SimilarityPair 
  Returns : Bio::SeqFeature::Similarity
  Args    : [optional] Bio::SeqFeature::Similarity
- Notes   : Deprecated.  Use the method 'hit' instead
 
 =cut
 
 sub subject { 
     my $self = shift;
-#    $self->deprecated("Method subject deprecated: use hit() instead");
     $self->hit(@_); 
 }
 

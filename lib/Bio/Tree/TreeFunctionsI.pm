@@ -94,6 +94,7 @@ package Bio::Tree::TreeFunctionsI;
 use strict;
 use base qw(Bio::Tree::TreeI);
 
+use Carp;
 
 =head2 find_node
 
@@ -1092,8 +1093,7 @@ sub reroot_at_midpoint {
 
 sub findnode_by_id {
     my $tree = shift;
-    $tree->deprecated("use of findnode_by_id() is deprecated; ".
-                      "use find_node() instead");
+    Carp::carp('use of findnode_by_id() is deprecated; use find_node()');
     my $id = shift;
     my $rootnode = $tree->get_root_node;
     if ( ($rootnode->id) and ($rootnode->id eq $id) ) {

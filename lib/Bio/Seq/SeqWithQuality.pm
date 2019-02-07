@@ -119,8 +119,10 @@ Internal methods are usually preceded with a _
 
 package Bio::Seq::SeqWithQuality;
 
-
 use strict;
+
+use Carp;
+
 use Bio::PrimarySeq;
 use Bio::Seq::PrimaryQual;
 
@@ -168,6 +170,9 @@ use base qw(Bio::Root::Root Bio::PrimarySeqI Bio::Seq::QualI);
 =cut
 
 sub new {
+  Carp::carp('Bio::Seq::SeqWithQuality is deprecated.'
+             . ' Use Bio::Seq::Quality instead');
+
    my ($class, @args) = @_;
    my $self = $class->SUPER::new(@args);
    # default: turn OFF the warnings
@@ -240,7 +245,6 @@ sub new {
    # Now try to set the descriptors for this object
    $self->_set_descriptors($qual,$seq,$id,$acc,$pid,$desc,$given_id,$alphabet);
    $self->length();
-   $self->deprecated("deprecated class - use Bio::Seq::Quality instead");
 
    return $self;
 }

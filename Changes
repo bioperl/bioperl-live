@@ -3,6 +3,10 @@ Summary of important user-visible changes for BioPerl
 
 {{$NEXT}}
 
+    * The deprecated() method has been deprecated.  It is recommended
+      to use Carp::carp to warn.
+
+
 1.7.4     2019-02-05 16:23:53+00:00 Europe/London
 
     * Fix Bio::Root::Test, and the testuite, to properly check for

@@ -1,6 +1,9 @@
 package Bio::SimpleAlign;
 use strict;
 use warnings;
+
+use Carp;
+
 use Bio::LocatableSeq;  # uses Seq's as list
 use Bio::Seq;
 use Bio::SeqFeature::Generic;
@@ -263,7 +266,7 @@ See L<Bio::LocatableSeq> for more information
 
 sub addSeq {
     my $self = shift;
-    $self->deprecated("addSeq - deprecated method. Use add_seq() instead.");
+    Carp::carp("addSeq - deprecated method. Use add_seq() instead.");
     $self->add_seq(@_);
 }
 
@@ -340,7 +343,7 @@ sub add_seq {
 
 sub removeSeq {
     my $self = shift;
-    $self->deprecated("removeSeq - deprecated method. Use remove_seq() instead.");
+    Carp::carp("removeSeq - deprecated method. Use remove_seq() instead.");
     $self->remove_seq(@_);
 }
 
@@ -724,7 +727,7 @@ Methods returning one or more sequences objects.
 
 sub eachSeq {
     my $self = shift;
-    $self->deprecated("eachSeq - deprecated method. Use each_seq() instead.");
+    Carp::carp("eachSeq - deprecated method. Use each_seq() instead.");
     $self->each_seq();
 }
 
@@ -795,7 +798,7 @@ sub _alpha_startend {
 
 sub eachSeqWithId {
     my $self = shift;
-    $self->deprecated("eachSeqWithId - deprecated method. Use each_seq_with_id() instead.");
+    Carp::carp("eachSeqWithId - deprecated method. Use each_seq_with_id() instead.");
     $self->each_seq_with_id(@_);
 }
 
@@ -2309,7 +2312,7 @@ sub is_flush {
 
 sub length_aln {
     my $self = shift;
-    $self->deprecated("length_aln - deprecated method. Use length() instead.");
+    Carp::carp("length_aln - deprecated method. Use length() instead.");
     $self->length(@_);
 }
 
@@ -2343,15 +2346,15 @@ sub length {
 
 sub maxname_length {
     my $self = shift;
-    $self->deprecated("maxname_length - deprecated method.".
-		      " Use maxdisplayname_length() instead.");
+    Carp::carp("maxname_length - deprecated method."
+               . " Use maxdisplayname_length() instead.");
     $self->maxdisplayname_length();
 }
 
 sub maxnse_length {
     my $self = shift;
-    $self->deprecated("maxnse_length - deprecated method.".
-		      " Use maxnse_length() instead.");
+    Carp::carp("maxnse_length - deprecated method."
+               . " Use maxnse_length() instead.");
     $self->maxdisplayname_length();
 }
 
@@ -2718,13 +2721,13 @@ sub displayname {
 
 sub get_displayname {
     my $self = shift;
-    $self->deprecated("get_displayname - deprecated method. Use displayname() instead.");
+    Carp::carp("get_displayname - deprecated method. Use displayname() instead.");
     $self->displayname(@_);
 }
 
 sub set_displayname {
     my $self = shift;
-    $self->deprecated("set_displayname - deprecated method. Use displayname() instead.");
+    Carp::carp("set_displayname - deprecated method. Use displayname() instead.");
     $self->displayname(@_);
 }
 
@@ -3060,13 +3063,9 @@ sub add_SeqFeature {
    $self->{'_as_feat'} = [] unless $self->{'_as_feat'};
 
    if (scalar @feat > 1) {
-      $self->deprecated(
-         -message => 'Providing an array of features to Bio::SimpleAlign add_SeqFeature()'.
-                     ' is deprecated and will be removed in a future version. '.
-                     'Add a single feature at a time instead.',
-         -warn_version    => '1.7',
-         -throw_version   => '1.9',
-      );
+      Carp::carp('Providing an array of features to Bio::SimpleAlign'
+                 . 'add_SeqFeature() is deprecated and will be removed in a'
+                 . ' future version.  Add a single feature at a time instead.');
    }
 
    for my $feat ( @feat ) {
@@ -3168,46 +3167,6 @@ sub annotation {
 }
 
 =head1 Deprecated methods
-
-=cut
-
-=head2 no_residues
-
- Title     : no_residues
- Usage     : $no = $ali->no_residues
- Function  : number of residues in total in the alignment
- Returns   : integer
- Argument  :
- Note      : deprecated in favor of num_residues() 
-
-=cut
-
-sub no_residues {
-	my $self = shift;
-        $self->deprecated(-warn_version => '1.6.9',
-                          -throw_version => '1.7.5',
-                      -message => 'Use of method no_residues() is deprecated, use num_residues() instead');
-  $self->num_residues(@_);
-}
-
-=head2 no_sequences
-
- Title     : no_sequences
- Usage     : $depth = $ali->no_sequences
- Function  : number of sequence in the sequence alignment
- Returns   : integer
- Argument  :
- Note      : deprecated in favor of num_sequences()
-
-=cut
-
-sub no_sequences {
-	my $self = shift;
-        $self->deprecated(-warn_version => '1.6.9',
-                          -throw_version => '1.7.5',
-                      -message => 'Use of method no_sequences() is deprecated, use num_sequences() instead');
-    $self->num_sequences(@_);
-}
 
 =head2 mask_columns
 

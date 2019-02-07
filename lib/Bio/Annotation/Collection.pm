@@ -87,6 +87,8 @@ package Bio::Annotation::Collection;
 
 use strict;
 
+use Carp;
+
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::Annotation::TypeManager;
@@ -586,7 +588,7 @@ Bio::Annotation.pm stuff
 sub description{
    my ($self,$value) = @_;
 
-   $self->deprecated("Using old style annotation call on new Annotation::Collection object");
+   Carp::carp("old style annotation called on new Annotation::Collection object");
 
    if( defined $value ) {
        my $val = Bio::Annotation::SimpleValue->new();
@@ -616,7 +618,7 @@ sub description{
 sub add_gene_name{
    my ($self,$value) = @_;
 
-   $self->deprecated("Old style add_gene_name called on new style Annotation::Collection");
+   Carp::carp("Old style add_gene_name called on new style Annotation::Collection");
 
    my $val = Bio::Annotation::SimpleValue->new();
    $val->value($value);
@@ -638,7 +640,7 @@ sub add_gene_name{
 sub each_gene_name{
    my ($self) = @_;
 
-   $self->deprecated("Old style each_gene_name called on new style Annotation::Collection");
+   Carp::carp("Old style each_gene_name called on new style Annotation::Collection");
 
    my @out;
    my @gene = $self->get_Annotations('gene_name');
@@ -665,7 +667,7 @@ sub each_gene_name{
 sub add_Reference{
    my ($self, @values) = @_;
 
-   $self->deprecated("add_Reference (old style Annotation) on new style Annotation::Collection");
+   Carp::carp("add_Reference (old style Annotation) on new style Annotation::Collection");
    
    # Allow multiple (or no) references to be passed, as per old method
    foreach my $value (@values) {
@@ -688,7 +690,7 @@ sub add_Reference{
 sub each_Reference{
    my ($self) = @_;
 
-   $self->deprecated("each_Reference (old style Annotation) on new style Annotation::Collection");
+   Carp::carp("each_Reference (old style Annotation) on new style Annotation::Collection");
    
    return $self->get_Annotations('reference');
 }
@@ -709,7 +711,7 @@ sub each_Reference{
 sub add_Comment{
    my ($self,$value) = @_;
 
-   $self->deprecated("add_Comment (old style Annotation) on new style Annotation::Collection");
+   Carp::carp("add_Comment (old style Annotation) on new style Annotation::Collection");
 
    $self->add_Annotation('comment',$value);
 
@@ -730,7 +732,7 @@ sub add_Comment{
 sub each_Comment{
    my ($self) = @_;
 
-   $self->deprecated("each_Comment (old style Annotation) on new style Annotation::Collection");
+   Carp::carp("each_Comment (old style Annotation) on new style Annotation::Collection");
    
    return $self->get_Annotations('comment');
 }
@@ -752,7 +754,7 @@ sub each_Comment{
 sub add_DBLink{
    my ($self,$value) = @_;
 
-   $self->deprecated("add_DBLink (old style Annotation) on new style Annotation::Collection");
+   Carp::carp("add_DBLink (old style Annotation) on new style Annotation::Collection");
 
    $self->add_Annotation('dblink',$value);
 
@@ -773,7 +775,7 @@ sub add_DBLink{
 sub each_DBLink{
    my ($self) = @_;
 
-   $self->deprecated("each_DBLink (old style Annotation) on new style Annotation::Collection - use get_Annotations('dblink')");
+   Carp::carp("each_DBLink (old style Annotation) on new style Annotation::Collection - use get_Annotations('dblink')");
    
    return $self->get_Annotations('dblink');
 }

@@ -82,6 +82,9 @@ preceded with a _
 
 package Bio::DB::WebDBSeqI;
 use strict;
+
+use Carp;
+
 use vars qw($MODVERSION %RETRIEVAL_TYPES $DEFAULT_RETRIEVAL_TYPE
 	    $DEFAULTFORMAT $LAST_INVOCATION_TIME @ATTRIBUTES);
 
@@ -296,7 +299,7 @@ sub get_Stream_by_id {
 
 *get_Stream_by_batch = sub {
   my $self = shift;
-  $self->deprecated('get_Stream_by_batch() is deprecated; use get_Stream_by_id() instead');
+  Carp::carp('get_Stream_by_batch() is deprecated; use get_Stream_by_id() instead');
   $self->get_Stream_by_id(@_)
 };
 
