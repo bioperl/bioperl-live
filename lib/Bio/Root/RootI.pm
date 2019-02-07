@@ -190,6 +190,20 @@ sub deprecated{
 
     carp "deprecated() is deprecated.  Just use Carp::carp to warn.";
 
+    my ($msg, $version, $warn_version, $throw_version) =
+        $self->_rearrange([qw(MESSAGE VERSION WARN_VERSION THROW_VERSION)], @_);
+    # below default insinuates we're deprecating a method and not a full module
+    # but it's the most common use case
+    $msg ||= "Use of ".(caller(1))[3]."() is deprecated.";
+
+    ## Never documented, but if there is no version information, just
+    ## give a warning.
+    if (! defined($version) && ! defined($warn_version)
+        && ! defined($throw_version)) {
+        carp($msg);
+        return;
+    }
+
     my $class = ref $self || $self;
     my $class_version = do {
         no strict 'refs';
@@ -199,9 +213,6 @@ sub deprecated{
     if( $class_version && $class_version =~ /set by/ ) {
         $class_version = 0.0001;
     }
-
-    my ($msg, $version, $warn_version, $throw_version) =
-        $self->_rearrange([qw(MESSAGE VERSION WARN_VERSION THROW_VERSION)], @_);
 
     $throw_version ||= $version;
     $warn_version  ||= $class_version;
@@ -214,10 +225,6 @@ sub deprecated{
         $self->throw("Version must be numerical, such as 1.006000 for v1.6.0, not $v")
             unless !defined $v || $v + 0 == $v;
     }
-
-    # below default insinuates we're deprecating a method and not a full module
-    # but it's the most common use case
-    $msg ||= "Use of ".(caller(1))[3]."() is deprecated.";
 
     if( $throw_version && $class_version && $class_version >= $throw_version ) {
         $self->throw($msg)
