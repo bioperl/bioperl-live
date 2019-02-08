@@ -926,7 +926,7 @@ sub _collate_subcmd_args {
 
  Title   : _run
  Usage   : $fac->_run( @file_args )
- Function: Run a command as specified during object contruction
+ Function: Run a command as specified during object construction
  Returns : true on success
  Args    : a specification of the files to operate on according
            to the filespec

@@ -113,7 +113,7 @@ sub _alignment {
  Function: Writes the alignment object returned by _alignment() out in the
            desired format to a temp file.
  Returns : filename
- Args    : string to desribe format (default 'fasta'), any other options to pass
+ Args    : string to describe format (default 'fasta'), any other options to pass
            to AlignIO
 
 =cut
@@ -194,7 +194,7 @@ sub _tree {
  Function: Writes the tree object returned by _tree() out in the desired format
            to a temp file.
  Returns : filename
- Args    : string to desribe format (default 'newick')
+ Args    : string to describe format (default 'newick')
 
 =cut
 

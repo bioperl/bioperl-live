@@ -31,7 +31,7 @@ you do not want to inspect the sequence unless absolutely
 necessary. These sequences typically override the length() method not
 to check the sequence.
 
-The seq() method is not resetable, if you want to add to the end of the
+The seq() method is not resettable, if you want to add to the end of the
 sequence you have to use add_sequence_as_string(), for any other sequence changes you'll
 have to create a new object.
 
