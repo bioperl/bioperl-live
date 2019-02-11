@@ -387,7 +387,10 @@ my $feature6 = Bio::SeqFeature::Generic->new(
   -start       => 11,
   -end         => 25
 );
-$seq_obj->add_SeqFeature( $composite_feat1, $feature1, $feature2, $feature3, $feature4, $feature5, $feature6);
+
+$seq_obj->add_SeqFeature($_)
+    foreach ($composite_feat1, $feature1, $feature2, $feature3,
+             $feature4, $feature5, $feature6);
 
 my $coll = Bio::Annotation::Collection->new;
 $coll->add_Annotation(
