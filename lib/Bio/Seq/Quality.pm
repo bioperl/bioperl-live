@@ -58,9 +58,6 @@ Bio::Seq::Quality - Implementation of sequence with residue quality
 This object stores base quality values together with the sequence
 string.
 
-It is a reimplementation of Chad Matsalla's Bio::Seq::SeqWithQuality
-module using Bio::Seq::MetaI.
-
 The implementation is based on Bio::Seq::Meta::Array. qual() and
 trace() are base methods to store and retrieve information that have
 extensions to retrieve values as a scalar (e.g. qual_text() ), or get
@@ -72,46 +69,6 @@ All the functional code is in Bio::Seq::Meta::Array.
 There deprecated methods that are included for compatibility with
 Bio::Seq::SeqWithQuality. These will print a warning unless verbosity
 of the object is set to be less than zero.
-
-=head2 Differences from Bio::Seq::SeqWithQuality
-
-It is not possible to fully follow the interface of
-Bio::Seq::SeqWithQuality since internally a Bio::Seq::SeqWithQuality
-object is a composite of two independent objects: a Bio::PrimarySeq
-object and Bio::Seq::PrimaryQual object. Both of these objects can be
-created separately and merged into Bio::Seq::SeqWithQuality.
-
-This implementation is based on Bio::Seq::Meta::Array that is a
-subclass of Bio::PrimarySeq that stores any number of meta information
-in unnamed arrays.
-
-Here we assume that two meta sets, called 'qual' and 'trace_indices'
-are attached to a sequence. (But there is nothing that prevents you to
-add as many named meta sets as you need using normal meta() methods).
-
-qual() is an alias to meta(), qualat($loc) is an alias to
-submeta($loc,$loc).
-
-trace_indices() in Bio::Seq::SeqWithQuality has been abbreviated to
-trace() and is an alias to named_meta('trace').
-
-You can create an object without passing any arguments to the
-constructor (Bio::Seq::SeqWithQuality fails without alphabet). It will
-warn about not being able to set alphabet unless you set verbosity of
-the object to a negative value.
-
-After the latest rewrite, the meta information sets (quality and
-trace) no longer cover all the residues automatically. Methods to
-check the length of meta information (L<quality_length>,
-L<trace_length>)and to see if the ends are flushed to the sequence
-have been added (L<quality_is_flush>, L<trace_is_flush>). To force the
-old functinality, set L<force_flush> to true.
-
-qual_obj() and seq_obj() methods do not exist!
-
-Finally, there is only one set of descriptors (primary_id, display_id,
-accession_number) for the object.
-
 
 =head1 SEE ALSO
 
@@ -765,10 +722,7 @@ sub _empty_cache {
 }
 
 
-
-
 ################## deprecated methods ##################
-
 
 sub trace_indices {
     my $self = shift;
@@ -801,4 +755,3 @@ sub baseat {
 
 
 1;
-

@@ -9,6 +9,9 @@ Summary of important user-visible changes for BioPerl
 
           Bio::Symbol::*
 
+    * The Bio::Seq::SeqWithQuality module, which was deprecated since
+      2001, was finally removed.
+
     * The deprecated() method has been deprecated.  It is recommended
       to use Carp::carp to warn.
 

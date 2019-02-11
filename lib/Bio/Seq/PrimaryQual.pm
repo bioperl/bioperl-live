@@ -53,7 +53,7 @@ Bio::Seq::PrimaryQual - Bioperl lightweight Quality Object
 
 This module provides a mechanism for storing quality
 values. Much more useful as part of
-Bio::Seq::SeqWithQuality where these quality values
+Bio::Seq::Quality where these quality values
 are associated with the sequence information.
 
 =head1 FEEDBACK
