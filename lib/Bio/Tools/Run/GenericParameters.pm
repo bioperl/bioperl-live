@@ -74,6 +74,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Tools::Run::GenericParameters;
+
 use strict;
 
 use base qw(Bio::Root::Root Bio::Tools::Run::ParametersI);

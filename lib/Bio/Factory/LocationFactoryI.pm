@@ -88,6 +88,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Factory::LocationFactoryI;
+
 use strict;
 use Carp;
 

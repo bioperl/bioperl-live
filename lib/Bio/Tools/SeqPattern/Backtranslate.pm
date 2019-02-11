@@ -1,4 +1,5 @@
 package Bio::Tools::SeqPattern::Backtranslate;
+
 use strict;
 use warnings;
 

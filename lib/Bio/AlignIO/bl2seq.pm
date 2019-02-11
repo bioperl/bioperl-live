@@ -103,6 +103,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::bl2seq;
+
 use strict;
 
 use Bio::SearchIO;

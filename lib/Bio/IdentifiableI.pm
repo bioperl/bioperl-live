@@ -90,6 +90,7 @@ Email birney@ebi.ac.uk
 =cut
 
 package Bio::IdentifiableI;
+
 use strict;
 
 

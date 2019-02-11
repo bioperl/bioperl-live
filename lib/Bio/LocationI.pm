@@ -72,6 +72,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LocationI;
+
 use strict;
 
 use Carp;

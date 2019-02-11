@@ -116,6 +116,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::embldriver;
+
 use vars qw(%FTQUAL_NO_QUOTE);
 use strict;
 use Bio::SeqIO::Handler::GenericRichSeqHandler;

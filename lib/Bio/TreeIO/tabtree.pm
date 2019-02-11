@@ -75,6 +75,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::TreeIO::tabtree;
+
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root

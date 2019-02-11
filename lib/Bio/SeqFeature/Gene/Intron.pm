@@ -69,6 +69,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::Gene::Intron;
+
 use strict;
 
 use Bio::SeqFeature::Gene::Exon;

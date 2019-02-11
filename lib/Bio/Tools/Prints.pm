@@ -70,6 +70,7 @@ with code and data examples if at all possible.
 =cut
 
 package Bio::Tools::Prints;
+
 use strict;
 
 use Bio::SeqFeature::FeaturePair;

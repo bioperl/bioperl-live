@@ -109,6 +109,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO;
+
 use strict;
 use warnings;
 

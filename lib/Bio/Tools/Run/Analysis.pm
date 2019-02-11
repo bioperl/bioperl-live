@@ -209,6 +209,7 @@ with an underscore _.
 # Let the code begin...
 
 package Bio::Tools::Run::Analysis;
+
 use vars qw(@ISA $Revision);
 use strict;
 
@@ -521,6 +522,7 @@ sub _save_result {
 
 package Bio::Tools::Run::Analysis::Job;
 
+
 =head1 Module Bio::Tools::Run::Analysis::Job
 
 It represents a job, a single execution of an analysis tool. Usually
@@ -656,6 +658,7 @@ sub id { shift->{'_id'}; }
 # ---------------------------------------------------------------------
 
 package Bio::Tools::Run::Analysis::Utils;
+
 
 =head1 Module Bio::Tools::Run::Analysis::Utils
 

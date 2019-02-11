@@ -139,6 +139,7 @@ methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::Handler::GenericRichSeqHandler;
+
 use strict;
 use warnings;
 

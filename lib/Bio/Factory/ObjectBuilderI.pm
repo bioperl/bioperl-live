@@ -92,6 +92,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Factory::ObjectBuilderI;
+
 use strict;
 use Carp;
 

@@ -124,6 +124,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Das::FeatureTypeI;
+
 use strict;
 
 use overload '""'     => 'name',

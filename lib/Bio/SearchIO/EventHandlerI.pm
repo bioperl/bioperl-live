@@ -74,6 +74,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::EventHandlerI;
+
 use strict;
 use Carp;
 

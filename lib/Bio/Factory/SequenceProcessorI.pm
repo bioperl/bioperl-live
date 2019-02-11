@@ -119,6 +119,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Factory::SequenceProcessorI;
+
 use strict;
 use Bio::Root::RootI;
 

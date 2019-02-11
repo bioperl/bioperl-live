@@ -112,6 +112,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Spidey::Results;
+
 use strict;
 
 use File::Basename;

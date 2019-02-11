@@ -108,6 +108,7 @@ Email skirov@utk.edu
 
 # Let the code begin...
 package Bio::Matrix::PSM::IO;
+
 use vars qw(@PSMFORMATS);
 use strict;
 

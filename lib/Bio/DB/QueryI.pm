@@ -92,6 +92,7 @@ preceded with a _
 # Let the code begin...
 
 package Bio::DB::QueryI;
+
 use strict;
 
 

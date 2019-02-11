@@ -82,6 +82,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::TreeIO::nexus;
+
 use strict;
 
 use Bio::Event::EventGeneratorI;

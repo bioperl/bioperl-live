@@ -120,6 +120,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Tree::NodeI;
+
 use strict;
 no warnings 'recursion';
 

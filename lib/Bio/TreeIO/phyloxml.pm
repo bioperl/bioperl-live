@@ -74,6 +74,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::TreeIO::phyloxml;
+
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root

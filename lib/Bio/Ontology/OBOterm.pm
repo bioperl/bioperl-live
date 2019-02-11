@@ -76,6 +76,7 @@ methods.
 # Let the code begin...
 
 package Bio::Ontology::OBOterm;
+
 use strict;
 
 use constant TRUE  => 1;

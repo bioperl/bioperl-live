@@ -82,6 +82,7 @@ particular purpose.
 =cut
 
 package Bio::SeqIO::msout;
+
 use version;
 our $API_VERSION = qv('1.1.8');
 

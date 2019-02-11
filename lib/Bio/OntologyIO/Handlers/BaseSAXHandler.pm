@@ -111,6 +111,7 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::OntologyIO::Handlers::BaseSAXHandler;
+
 use strict;
 use base qw(Bio::Root::Root);
 

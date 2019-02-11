@@ -95,6 +95,7 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Tools::TandemRepeatsFinder;
+
 use strict;
 use constant DEBUG => 0;
 use Bio::SeqFeature::Generic;

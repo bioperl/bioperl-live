@@ -85,6 +85,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::SimilarityPair;
+
 use strict;
 
 use Bio::SeqFeature::Similarity;

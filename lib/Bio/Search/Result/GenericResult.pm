@@ -136,6 +136,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Search::Result::GenericResult;
+
 use strict;
 
 use Bio::Search::GenericStatistics;

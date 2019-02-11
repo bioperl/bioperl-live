@@ -79,6 +79,7 @@ methods are usually preceded with a _
 
 
 package Bio::Seq::RichSeqI;
+
 use strict;
 
 use base qw(Bio::SeqI);

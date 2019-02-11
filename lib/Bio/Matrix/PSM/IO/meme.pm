@@ -54,6 +54,7 @@ Email skirov@utk.edu
 
 # Let the code begin...
 package Bio::Matrix::PSM::IO::meme;
+
 use Bio::Matrix::PSM::InstanceSite;
 use Bio::Matrix::PSM::SiteMatrix;
 use Bio::Matrix::PSM::Psm;

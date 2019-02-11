@@ -1,6 +1,7 @@
 # POD at __END__, let the code begin...
 
 package Bio::SeqIO::fastq;
+
 use strict;
 
 use Bio::Seq::SeqFactory;

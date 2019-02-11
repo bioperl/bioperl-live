@@ -97,6 +97,7 @@ message.
 # Let the code begin...
 
 package Bio::SimpleAnalysisI;
+
 use strict;
 
 use base qw(Bio::Root::RootI);

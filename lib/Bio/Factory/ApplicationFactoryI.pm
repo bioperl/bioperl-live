@@ -67,6 +67,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Factory::ApplicationFactoryI;
+
 use strict;
 
 use base qw(Bio::Root::RootI);

@@ -68,6 +68,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 #'
 package Bio::Factory::DriverFactory;
+
 use strict;
 use File::Spec;
 

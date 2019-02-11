@@ -103,6 +103,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Index::BlastTable;
+
 use strict;
 
 use IO::String;

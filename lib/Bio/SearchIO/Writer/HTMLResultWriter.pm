@@ -104,6 +104,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::Writer::HTMLResultWriter;
+
 use strict;
 use vars qw(%RemoteURLDefault
             $MaxDescLen $DATE $AlignmentLineWidth $Revision);

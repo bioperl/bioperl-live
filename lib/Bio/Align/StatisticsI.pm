@@ -69,6 +69,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Align::StatisticsI;
+
 use strict;
 
 

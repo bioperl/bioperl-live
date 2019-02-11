@@ -100,6 +100,7 @@ methods.
 # Let the code begin...
 
 package Bio::Ontology::TermI;
+
 use strict;
 
 use base qw(Bio::Root::RootI);

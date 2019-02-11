@@ -96,6 +96,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Event::EventHandlerI;
+
 use strict;
 use Carp;
 

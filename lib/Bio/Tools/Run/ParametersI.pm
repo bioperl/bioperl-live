@@ -73,6 +73,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Run::ParametersI;
+
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root

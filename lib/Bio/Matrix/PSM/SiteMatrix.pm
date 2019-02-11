@@ -156,6 +156,7 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 package Bio::Matrix::PSM::SiteMatrix;
+
 use strict;
 
 use base qw(Bio::Root::Root Bio::Matrix::PSM::SiteMatrixI);

@@ -95,6 +95,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Search::Hit::GenericHit;
+
 use strict;
 
 use Bio::Search::SearchUtils;

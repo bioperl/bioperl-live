@@ -118,6 +118,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqIO::embl;
+
 use vars qw(%FTQUAL_NO_QUOTE);
 use strict;
 use Bio::SeqIO::FTHelper;

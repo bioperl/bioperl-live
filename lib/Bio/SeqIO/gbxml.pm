@@ -71,6 +71,7 @@ Email golharam-at-umdnj-dot-edu
 =cut
 
 package Bio::SeqIO::gbxml;
+
 use vars qw($Default_Source);
 use strict;
 

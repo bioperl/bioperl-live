@@ -81,6 +81,7 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Matrix::Generic;
+
 use strict;
 
 

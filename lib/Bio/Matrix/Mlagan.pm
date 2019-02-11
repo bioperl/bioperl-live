@@ -73,6 +73,7 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Matrix::Mlagan;
+
 use strict;
 
 use base qw(Bio::Matrix::Generic);

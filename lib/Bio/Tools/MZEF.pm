@@ -101,6 +101,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Tools::MZEF;
+
 use strict;
 
 use Bio::Tools::Prediction::Gene;

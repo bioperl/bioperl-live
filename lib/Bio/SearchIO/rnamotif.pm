@@ -70,6 +70,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SearchIO::rnamotif;
+
 use strict;
 
 use base qw(Bio::SearchIO);

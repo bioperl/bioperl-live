@@ -1,4 +1,5 @@
 package Bio::Root::Root;
+
 use strict;
 use Bio::Root::IO;
 use Scalar::Util qw(blessed reftype);

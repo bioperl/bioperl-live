@@ -86,6 +86,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::PositionProxy;
+
 use strict;
 
 use Bio::Tools::GFF;

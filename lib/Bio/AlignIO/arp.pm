@@ -93,6 +93,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::arp;
+
 use strict;
 use base qw(Bio::AlignIO);
 

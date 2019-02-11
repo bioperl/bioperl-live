@@ -124,6 +124,7 @@ SiteMatrix, meme, transfac, InstanceSite
 
 # Let the code begin...
 package Bio::Matrix::PSM::Psm;
+
 use Bio::Matrix::PSM::InstanceSite;
 use strict;
 

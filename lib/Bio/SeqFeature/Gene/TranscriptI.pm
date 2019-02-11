@@ -71,6 +71,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::Gene::TranscriptI;
+
 use strict;
 
 use Carp;

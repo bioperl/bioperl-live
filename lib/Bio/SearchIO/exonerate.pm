@@ -115,6 +115,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::exonerate;
+
 use strict;
 use vars qw(@STATES %MAPPING %MODEMAP $DEFAULT_WRITER_CLASS $MIN_INTRON);
 

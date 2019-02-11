@@ -88,6 +88,7 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::SeqAnalysisParserI;
+
 use strict;
 use Carp;
 use base qw(Bio::Root::RootI);

@@ -73,6 +73,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::proda;
+
 use vars qw($LINELENGTH);
 use strict;
 

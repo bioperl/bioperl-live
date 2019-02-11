@@ -82,6 +82,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::axt;
+
 use vars qw(%MODEMAP %MAPPING @STATES $GAPCHAR);
 use strict;
 

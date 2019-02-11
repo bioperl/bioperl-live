@@ -191,6 +191,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Seq::Meta;
+
 use vars qw($DEFAULT_NAME $GAP $META_GAP);
 use strict;
 

@@ -64,6 +64,7 @@ Email birney@sanger.ac.uk
 =cut
 
 package Bio::DescribableI;
+
 use strict;
 
 

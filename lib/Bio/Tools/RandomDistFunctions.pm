@@ -86,6 +86,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::RandomDistFunctions;
+
 require Exporter;
 use vars qw(%LOADED @EXPORT_OK); use strict;
 

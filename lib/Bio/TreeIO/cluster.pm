@@ -83,6 +83,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::TreeIO::cluster;
+
 use strict;
 
 use Bio::Event::EventGeneratorI;

@@ -67,6 +67,7 @@ web:
 
 
 package Bio::Tools::Profile;
+
 use strict;
 
 use Bio::SeqFeature::FeaturePair;

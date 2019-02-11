@@ -79,6 +79,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Location::Fuzzy;
+
 use strict;
 
 use base qw(Bio::Location::Atomic Bio::Location::FuzzyLocationI);

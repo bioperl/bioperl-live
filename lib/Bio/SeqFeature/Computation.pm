@@ -98,6 +98,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqFeature::Computation;
+
 use strict;
 
 use base qw(Bio::SeqFeature::Generic);

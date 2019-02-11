@@ -88,6 +88,7 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 package Bio::Tools::ESTScan;
+
 use strict;
 use Symbol;
 

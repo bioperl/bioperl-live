@@ -177,6 +177,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::genbank;
+
 use strict;
 
 use Bio::SeqIO::FTHelper;

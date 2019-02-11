@@ -88,6 +88,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::EPCR;
+
 use strict;
 
 use Bio::SeqFeature::FeaturePair;

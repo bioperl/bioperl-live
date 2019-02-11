@@ -95,6 +95,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Tools::Grail;
+
 use strict;
 
 use Bio::Tools::Prediction::Gene;

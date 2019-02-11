@@ -93,6 +93,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Ontology::TermFactory;
+
 use strict;
 
 use Bio::Root::Root;

@@ -131,6 +131,7 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Tools::OddCodes;
+
 use strict;
 
 

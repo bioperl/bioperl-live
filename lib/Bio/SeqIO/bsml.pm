@@ -156,6 +156,7 @@ for many of the subroutines that are common to SeqIO modules.
 =cut
 
 package Bio::SeqIO::bsml;
+
 use strict;
 
 use Bio::SeqFeature::Generic;

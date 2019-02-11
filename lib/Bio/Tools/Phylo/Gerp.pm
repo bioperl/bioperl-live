@@ -86,6 +86,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Tools::Phylo::Gerp;
+
 use strict;
 
 use Bio::SeqFeature::Generic;

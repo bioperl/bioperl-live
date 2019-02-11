@@ -104,6 +104,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Annotation::OntologyTerm;
+
 use strict;
 
 use Carp;

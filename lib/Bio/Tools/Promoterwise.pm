@@ -91,6 +91,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Promoterwise;
+
 use strict;
 
 use Bio::SeqFeature::FeaturePair;

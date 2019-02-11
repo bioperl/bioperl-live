@@ -85,6 +85,7 @@ Email skirov@utk.edu
 
 # Let the code begin...
 package Bio::Matrix::PSM::InstanceSite;
+
 use strict;
 
 use base qw(Bio::LocatableSeq Bio::Matrix::PSM::InstanceSiteI);

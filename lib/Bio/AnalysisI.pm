@@ -91,6 +91,7 @@ message. You need to call them on a C<Bio::Tools::Run::Analysis> object instead.
 # Let the code begin...
 
 package Bio::AnalysisI;
+
 use strict;
 
 use base qw(Bio::Root::RootI);

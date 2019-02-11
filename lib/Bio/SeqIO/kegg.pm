@@ -135,6 +135,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::kegg;
+
 use strict;
 
 use Bio::SeqFeature::Generic;

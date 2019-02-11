@@ -149,6 +149,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Taxon;
+
 use strict;
 use Scalar::Util qw(blessed);
 

@@ -104,6 +104,7 @@ methods.
 # Let the code begin...
 
 package Bio::Ontology::GOterm;
+
 use strict;
 
 use constant GOID_DEFAULT => "GO:0000000";

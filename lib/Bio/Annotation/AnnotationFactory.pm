@@ -97,6 +97,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Annotation::AnnotationFactory;
+
 use strict;
 
 

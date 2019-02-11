@@ -113,6 +113,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::DasI;
+
 use strict;
 
 use Bio::Das::SegmentI;

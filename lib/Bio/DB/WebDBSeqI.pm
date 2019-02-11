@@ -81,6 +81,7 @@ preceded with a _
 # Let the code begin...
 
 package Bio::DB::WebDBSeqI;
+
 use strict;
 
 use Carp;

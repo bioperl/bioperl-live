@@ -69,6 +69,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Search::HSP::PSLHSP;
+
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root

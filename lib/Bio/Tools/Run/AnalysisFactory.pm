@@ -145,6 +145,7 @@ with an underscore _.
 # Let the code begin...
 
 package Bio::Tools::Run::AnalysisFactory;
+
 use vars qw(@ISA $Revision);
 use strict;
 

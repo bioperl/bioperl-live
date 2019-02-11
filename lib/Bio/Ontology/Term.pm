@@ -102,6 +102,7 @@ methods.
 # Let the code begin...
 
 package Bio::Ontology::Term;
+
 use strict;
 
 use Carp;

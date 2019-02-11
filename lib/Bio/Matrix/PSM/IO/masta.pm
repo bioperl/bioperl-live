@@ -75,6 +75,7 @@ Email skirov@utk.edu
 
 # Let the code begin...
 package Bio::Matrix::PSM::IO::masta;
+
 use Bio::Matrix::PSM::SiteMatrix;
 use vars qw(@HEADER);
 use strict;

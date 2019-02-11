@@ -53,6 +53,7 @@ Email skirov@utk.edu
 
 # Let the code begin...
 package Bio::Matrix::PSM::IO::transfac;
+
 use Bio::Matrix::PSM::Psm;
 use Bio::Root::Root;
 use Bio::Annotation::Reference;

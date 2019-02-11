@@ -92,6 +92,7 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Tools::Signalp;
+
 use strict;
 
 use Bio::SeqFeature::Generic;

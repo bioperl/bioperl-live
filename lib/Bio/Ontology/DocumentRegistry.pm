@@ -80,6 +80,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Ontology::DocumentRegistry;
+
 use strict;
 use base qw(Bio::Root::Root);
 use Data::Dumper;

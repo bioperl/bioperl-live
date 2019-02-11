@@ -73,6 +73,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Phylo::Phylip::ProtDist;
+
 use strict;
 
 use Bio::Matrix::PhylipDist;

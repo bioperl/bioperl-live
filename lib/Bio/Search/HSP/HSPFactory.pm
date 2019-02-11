@@ -76,6 +76,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Search::HSP::HSPFactory;
+
 use vars qw($DEFAULT_TYPE);
 use strict;
 

@@ -1,4 +1,5 @@
 package Bio::SimpleAlign;
+
 use strict;
 use warnings;
 

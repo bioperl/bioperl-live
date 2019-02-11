@@ -86,6 +86,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin
 
 package Bio::CodonUsage::IO;
+
 use Bio::CodonUsage::Table;
 
 use base qw(Bio::Root::IO);

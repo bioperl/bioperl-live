@@ -105,6 +105,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::TargetP;
+
 use strict;
 use Bio::Tools::AnalysisResult;
 use Bio::SeqFeature::Generic;

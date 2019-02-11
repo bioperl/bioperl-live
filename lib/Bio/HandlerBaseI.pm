@@ -134,6 +134,7 @@ methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::HandlerBaseI;
+
 use strict;
 use warnings;
 

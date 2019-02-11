@@ -167,6 +167,7 @@ preceded with a _
 # Let the code begin...
 
 package Bio::ParameterBaseI;
+
 use strict;
 use warnings;
 

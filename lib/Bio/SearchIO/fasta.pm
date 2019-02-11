@@ -81,6 +81,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SearchIO::fasta;
+
 use vars qw(%MODEMAP %MAPPING $IDLENGTH);
 use strict;
 

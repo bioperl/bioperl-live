@@ -83,6 +83,7 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 package Bio::Factory::SeqAnalysisParserFactoryI;
+
 use strict;
 
 use Carp;

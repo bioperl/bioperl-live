@@ -63,6 +63,7 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::OntologyIO::Handlers::InterPro_BioSQL_Handler;
+
 use strict;
 use Bio::Ontology::Ontology;
 use Bio::Ontology::Term;

@@ -77,6 +77,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::TreeIO::pag;
+
 use strict;
 
 our $TaxonNameLen = 10;

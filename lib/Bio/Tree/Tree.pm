@@ -104,6 +104,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tree::Tree;
+
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root

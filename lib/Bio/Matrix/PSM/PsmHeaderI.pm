@@ -82,6 +82,7 @@ Email skirov@utk.edu
 
 # Let the code begin...
 package Bio::Matrix::PSM::PsmHeaderI;
+
 use Bio::Matrix::PSM::InstanceSite;
 use Bio::Matrix::PSM::Psm;
 use Bio::Matrix::PSM::IO;

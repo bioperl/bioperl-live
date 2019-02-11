@@ -1,5 +1,7 @@
 #$Id$
 package Bio::Search::Tiling::MapTileUtils;
+
+
 use strict;
 use warnings;
 use Exporter;
@@ -519,6 +521,8 @@ sub covering_groups {
 
 package Bio::Search::HSP::HSPI;
 
+
+
 use strict;
 use warnings;
 
@@ -636,6 +640,8 @@ sub matches_MT {
 1;
 
 package Bio::LocatableSeq;
+
+
 use strict;
 use warnings;
 

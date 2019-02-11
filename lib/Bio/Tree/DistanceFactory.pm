@@ -94,6 +94,7 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Tree::DistanceFactory;
+
 use vars qw($DefaultMethod $Precision);
 use strict;
 

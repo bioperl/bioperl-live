@@ -59,6 +59,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Annotation::Target;
+
 use strict;
 
 use base qw(Bio::Annotation::DBLink Bio::AnnotationI Bio::Range);

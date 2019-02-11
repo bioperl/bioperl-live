@@ -74,6 +74,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Factory::ObjectFactoryI;
+
 use strict;
 use Carp;
 

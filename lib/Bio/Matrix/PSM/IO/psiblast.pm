@@ -54,6 +54,7 @@ Email tex@biosysadmin.com
 
 # Let the code begin...
 package Bio::Matrix::PSM::IO::psiblast;
+
 use Bio::Matrix::PSM::Psm;
 use Bio::Matrix::PSM::ProtMatrix;
 use strict;

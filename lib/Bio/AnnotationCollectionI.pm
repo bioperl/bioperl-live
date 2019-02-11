@@ -129,6 +129,7 @@ are usually preceded with a _
 # Let the code begin...
 
 package Bio::AnnotationCollectionI;
+
 use strict;
 
 # Interface preamble - inherits from Bio::Root::RootI

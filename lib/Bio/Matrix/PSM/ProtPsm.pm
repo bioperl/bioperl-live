@@ -110,6 +110,7 @@ ProtMatrix, meme, transfac, psiblast, InstanceSite
 
 # Let the code begin...
 package Bio::Matrix::PSM::ProtPsm;
+
 use Bio::Matrix::PSM::InstanceSite;
 use strict;
 

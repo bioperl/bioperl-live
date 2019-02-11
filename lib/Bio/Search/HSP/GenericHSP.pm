@@ -114,6 +114,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Search::HSP::GenericHSP;
+
 use strict;
 
 use Bio::Root::Root;

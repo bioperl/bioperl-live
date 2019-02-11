@@ -110,6 +110,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Phylo::Molphy;
+
 use strict;
 
 use Bio::Tools::Phylo::Molphy::Result;

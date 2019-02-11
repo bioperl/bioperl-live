@@ -101,6 +101,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Ontology::RelationshipI;
+
 use strict;
 
 use base qw(Bio::Root::RootI);

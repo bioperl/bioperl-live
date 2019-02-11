@@ -103,6 +103,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqFeature::Tools::FeatureNamer;
+
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root

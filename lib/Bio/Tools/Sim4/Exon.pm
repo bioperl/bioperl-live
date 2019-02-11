@@ -103,6 +103,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Tools::Sim4::Exon;
+
 use strict;
 
 

@@ -1,4 +1,5 @@
 package Bio::Search::Result::CrossMatchResult;
+
 #
 # BioPerl module for Bio::Search::Result::CrossMatchResult
 #
@@ -93,7 +94,6 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::Search::Result::CrossMatchResult;
 use strict;
 
 use Bio::Search::Result::GenericResult;

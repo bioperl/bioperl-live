@@ -112,6 +112,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::phylip;
+
 use vars qw($DEFAULTIDLENGTH $DEFAULTLINELEN $DEFAULTTAGLEN);
 use strict;
 

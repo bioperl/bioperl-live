@@ -94,6 +94,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Ontology::OntologyEngineI;
+
 use strict;
 use Carp;
 

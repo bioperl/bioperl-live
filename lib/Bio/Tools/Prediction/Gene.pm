@@ -80,6 +80,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Prediction::Gene;
+
 use strict;
 
 

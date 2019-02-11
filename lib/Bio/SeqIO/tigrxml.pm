@@ -76,6 +76,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SeqIO::tigrxml;
+
 use vars qw($Default_Source);
 use strict;
 use XML::SAX;

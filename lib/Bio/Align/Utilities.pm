@@ -1,4 +1,5 @@
 package Bio::Align::Utilities;
+
 use strict;
 use warnings;
 use Carp;

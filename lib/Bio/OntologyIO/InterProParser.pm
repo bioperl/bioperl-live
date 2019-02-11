@@ -84,6 +84,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::OntologyIO::InterProParser;
+
 use strict;
 #use Carp;
 use XML::Parser::PerlSAX;

@@ -76,6 +76,7 @@ Email jason-at-bioperl-dot-org
 =cut
 
 package Bio::SeqIO::bsml_sax;
+
 use vars qw($Default_Source);
 use strict;
 

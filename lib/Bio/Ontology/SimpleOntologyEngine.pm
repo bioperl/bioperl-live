@@ -80,6 +80,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Ontology::SimpleOntologyEngine;
+
 use strict;
 use Carp;
 use Bio::Ontology::RelationshipFactory;

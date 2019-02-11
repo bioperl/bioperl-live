@@ -75,6 +75,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Seq::SeqFastaSpeedFactory;
+
 use strict;
 
 use Bio::Seq;

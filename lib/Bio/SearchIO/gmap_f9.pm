@@ -122,6 +122,7 @@ Internal methods are usually preceded with an underscore (_).
 
 
 package Bio::SearchIO::gmap_f9;
+
 use strict;
 use warnings;
 

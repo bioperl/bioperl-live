@@ -76,6 +76,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Align::PairwiseStatistics;
+
 use vars qw($GapChars);
 use strict;
 

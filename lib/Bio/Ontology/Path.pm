@@ -86,6 +86,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Ontology::Path;
+
 use strict;
 
 use base qw(Bio::Ontology::Relationship Bio::Ontology::PathI);

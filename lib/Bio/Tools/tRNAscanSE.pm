@@ -79,6 +79,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::tRNAscanSE;
+
 use strict;
 
 use Bio::SeqFeature::Generic;

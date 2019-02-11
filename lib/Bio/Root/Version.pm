@@ -1,4 +1,5 @@
 package Bio::Root::Version;
+
 use strict;
 
 =head1 NAME

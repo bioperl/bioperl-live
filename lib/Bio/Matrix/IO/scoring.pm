@@ -72,6 +72,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Matrix::IO::scoring;
+
 use strict;
 
 use Bio::Matrix::Scoring;

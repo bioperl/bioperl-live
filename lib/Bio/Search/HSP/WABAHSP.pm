@@ -73,6 +73,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Search::HSP::WABAHSP;
+
 use strict;
 use Bio::Root::RootI;
 

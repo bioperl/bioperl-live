@@ -69,6 +69,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::AlignIO::psi;
+
 use vars qw($BlockLen $IdLength);
 use strict;
 

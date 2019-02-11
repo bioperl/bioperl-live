@@ -92,6 +92,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Seq::TraceI;
+
 use strict;
 use Carp;
 use Dumpvalue;

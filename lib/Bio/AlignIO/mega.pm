@@ -77,6 +77,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::AlignIO::mega;
+
 use vars qw($MEGANAMELEN %VALID_TYPES $LINELEN $BLOCKLEN);
 use strict;
 

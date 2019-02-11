@@ -83,6 +83,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Est2Genome;
+
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root

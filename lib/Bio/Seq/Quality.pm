@@ -127,6 +127,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Seq::Quality;
+
 use strict;
 
 use base qw(Bio::Seq::Meta::Array);

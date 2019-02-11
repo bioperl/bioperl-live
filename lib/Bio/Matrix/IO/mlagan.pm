@@ -73,6 +73,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Matrix::IO::mlagan;
+
 use strict;
 
 use Bio::Matrix::Mlagan;

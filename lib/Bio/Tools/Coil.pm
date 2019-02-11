@@ -77,6 +77,7 @@ web:
 =cut
 
 package Bio::Tools::Coil;
+
 use strict;
 
 use Bio::SeqFeature::FeaturePair;

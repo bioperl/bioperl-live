@@ -1,4 +1,5 @@
 package Bio::Root::Exception;
+
 use strict;
 
 =head1 NAME

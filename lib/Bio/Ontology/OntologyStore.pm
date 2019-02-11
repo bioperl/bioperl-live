@@ -102,6 +102,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Ontology::OntologyStore;
+
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root

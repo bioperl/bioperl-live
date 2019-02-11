@@ -80,6 +80,7 @@ preceded with a _
 # Let the code begin...
 
 package Bio::DB::Query::WebQuery;
+
 use strict;
 use URI;
 use LWP::UserAgent;

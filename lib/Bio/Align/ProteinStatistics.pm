@@ -86,6 +86,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Align::ProteinStatistics;
+
 use vars qw(%DistanceMethods $Precision $DefaultGapPenalty);
 use strict;
 

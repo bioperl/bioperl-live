@@ -85,6 +85,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Seq::LargeSeqI;
+
 use strict;
 
 

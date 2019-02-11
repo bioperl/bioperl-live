@@ -94,6 +94,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::ipcress;
+
 use strict;
 
 use Bio::SeqFeature::Generic;

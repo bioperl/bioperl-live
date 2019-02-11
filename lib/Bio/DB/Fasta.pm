@@ -355,6 +355,7 @@ sub header {
 # Bio::PrimarySeqI compatibility
 #
 package Bio::PrimarySeq::Fasta;
+
 use overload '""' => 'display_id';
 
 use base qw(Bio::Root::Root Bio::PrimarySeqI);

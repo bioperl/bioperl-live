@@ -82,6 +82,7 @@ from L<Bio::Index::Abstract>
 # Let's begin the code ...
 
 package Bio::Index::AbstractSeq;
+
 use strict;
 
 use Bio::SeqIO::MultiFile;

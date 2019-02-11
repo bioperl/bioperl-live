@@ -43,6 +43,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Annotation::Comment;
+
 use strict;
 
 use base qw(Bio::Root::Root Bio::AnnotationI);

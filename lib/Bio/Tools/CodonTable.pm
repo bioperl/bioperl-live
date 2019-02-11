@@ -180,6 +180,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Tools::CodonTable;
+
 use vars qw(@NAMES @TABLES @STARTS $TRCOL $CODONS %IUPAC_DNA $CODONGAP $GAP
                 %IUPAC_AA %THREELETTERSYMBOLS $VALID_PROTEIN $TERMINATOR);
 use strict;

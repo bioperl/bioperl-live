@@ -94,6 +94,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeatureI;
+
 use vars qw($HasInMemory);
 use strict;
 BEGIN {

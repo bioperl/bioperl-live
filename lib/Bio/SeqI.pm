@@ -108,6 +108,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqI;
+
 use strict;
 
 

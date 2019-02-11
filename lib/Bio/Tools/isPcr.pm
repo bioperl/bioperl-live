@@ -94,6 +94,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::isPcr;
+
 use strict;
 
 use Bio::SeqIO;

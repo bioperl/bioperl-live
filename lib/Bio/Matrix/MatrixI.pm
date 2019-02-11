@@ -73,6 +73,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Matrix::MatrixI;
+
 use strict;
 
 

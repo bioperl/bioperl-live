@@ -77,6 +77,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::AlignIO::emboss;
+
 use vars qw($EMBOSSTitleLen $EMBOSSLineLen);
 use strict;
 

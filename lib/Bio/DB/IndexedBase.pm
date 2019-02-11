@@ -239,6 +239,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::IndexedBase;
 
+
 BEGIN {
     @AnyDBM_File::ISA = qw(DB_File GDBM_File NDBM_File SDBM_File)
         if(!$INC{'AnyDBM_File.pm'});
@@ -1149,6 +1150,7 @@ sub DESTROY {
 #
 
 package Bio::DB::Indexed::Stream;
+
 use base qw(Tie::Handle Bio::DB::SeqI);
 
 

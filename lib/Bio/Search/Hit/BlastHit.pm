@@ -81,6 +81,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Search::Hit::BlastHit;
+
 use strict;
 
 use Bio::Search::SearchUtils;

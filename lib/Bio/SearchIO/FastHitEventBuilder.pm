@@ -90,6 +90,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::FastHitEventBuilder;
+
 use vars qw(%KNOWNEVENTS);
 use strict;
 

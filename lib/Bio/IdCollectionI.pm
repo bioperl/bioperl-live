@@ -64,6 +64,7 @@ Email lstein@cshl.org
 =cut
 
 package Bio::IdCollectionI;
+
 use strict;
 
 

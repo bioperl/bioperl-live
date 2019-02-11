@@ -74,6 +74,7 @@ methods. Internal methods are usually preceded with a _
 #
 
 package Bio::SeqIO::phd;
+
 use strict;
 use Bio::Seq::SeqFactory;
 use Bio::Seq::RichSeq;

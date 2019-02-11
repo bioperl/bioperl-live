@@ -79,6 +79,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::interpro;
+
 use strict;
 use Bio::SeqFeature::Generic;
 use XML::DOM;

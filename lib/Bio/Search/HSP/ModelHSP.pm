@@ -73,6 +73,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Search::HSP::ModelHSP;
+
 use strict;
 use Bio::Seq::Meta;
 

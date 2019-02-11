@@ -335,6 +335,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Align::DNAStatistics;
+
 use vars qw(%DNAChanges @Nucleotides %NucleotideIndexes
 	    $GapChars $SeqCount $DefaultGapPenalty %DistanceMethods
             $CODONS %synchanges $synsites $Precision $GCChhars);
