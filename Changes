@@ -3,6 +3,8 @@ Summary of important user-visible changes for BioPerl
 
 {{$NEXT}}
 
+1.7.5     2019-02-11 14:57:45+00:00 Europe/London
+
     * The following modules have been removed from the BioPerl
       distribution to be part of a separate distribution with
       independent development:
