@@ -1,4 +1,4 @@
-#!/usr/bin/env perl 
+#!/usr/bin/perl
 
 # Demonstrates the use of a SearchIO Blast parser for producing
 # output of raw HSP data from a Blast report input stream.

@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 
 # This shows that Error objects can be subclassed into more specialized types.
 # Bio::Root::FileOpenException is a subclass of  Bio::Root::IOException. 

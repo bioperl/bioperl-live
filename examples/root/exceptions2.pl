@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 
 # This shows how Error.pm-based objects can be thrown 
 # by Bio::Root::Root::throw() when Error.pm is available.

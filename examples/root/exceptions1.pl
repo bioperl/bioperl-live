@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 
 # A simple tester script for demonstrating how to throw and catch
 # Error.pm objects. It also shows how to define new types of

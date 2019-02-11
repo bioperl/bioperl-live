@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 
 # This shows how the examples work when Error.pm isn't installed.
 # It also shows how to supress using Error.pm if it is installed

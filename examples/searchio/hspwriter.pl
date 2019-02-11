@@ -1,4 +1,4 @@
-#!/usr/bin/env perl 
+#!/usr/bin/perl
 
 # Demonstrates the use of a SearchIO Blast parser and a SearchWriterI object
 # for producing tab-delimited output of HSP data from a Blast report 
