@@ -4,6 +4,10 @@ use Bio::Root::IO;
 use Bio::Root::Exception;
 use base qw(Bio::Root::Root Exporter);
 
+=head1 NAME
+
+Bio::Root::Utilities - general-purpose utilities
+
 =head1 SYNOPSIS
 
 =head2 Object Creation

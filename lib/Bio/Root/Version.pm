@@ -1,6 +1,10 @@
 package Bio::Root::Version;
 use strict;
 
+=head1 NAME
+
+Bio::Root::Version - don't use, get version from each module
+
 =head1 SYNOPSIS
 
   package Bio::Tools::NiftyFeature;

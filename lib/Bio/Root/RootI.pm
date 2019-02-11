@@ -2,6 +2,10 @@ package Bio::Root::RootI;
 use strict;
 use Carp 'confess','carp';
 
+=head1 NAME
+
+Bio::Root::RootI - base interface for all BioPerl classes
+
 =head1 SYNOPSIS
 
   # any bioperl or bioperl compliant object is a RootI

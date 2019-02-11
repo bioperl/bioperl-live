@@ -2,16 +2,7 @@
 
 =head1 NAME
 
-Module which implements a newick string parser as a finite state
-machine which enables it to parse the full Newick specification.
-
-Taken largely from the Ensembl Compara file with the same name
-(Bio::EnsEMBL::Compara::Graph::NewickParser), this module adapts the
-parser to work with BioPerl's event handler-based parsing scheme.
-
-This module is used by nhx.pm and newick.pm, and is NOT called
-directly. Instead, both of those parsing modules extend this module in
-order to gain access to the main parsing method.
+Bio::TreeIO::NewickParser - newick string parser
 
 =head1 SYNOPSIS
 
@@ -26,6 +17,17 @@ order to gain access to the main parsing method.
 This module correctly parses the Newick and NHX formats, sending calls
 to the BioPerl TreeEventHandler when appropriate in order to build and
 populate the node objects.
+
+Module which implements a newick string parser as a finite state
+machine which enables it to parse the full Newick specification.
+
+Taken largely from the Ensembl Compara file with the same name
+(Bio::EnsEMBL::Compara::Graph::NewickParser), this module adapts the
+parser to work with BioPerl's event handler-based parsing scheme.
+
+This module is used by nhx.pm and newick.pm, and is NOT called
+directly. Instead, both of those parsing modules extend this module in
+order to gain access to the main parsing method.
 
 =head1 FEEDBACK
 

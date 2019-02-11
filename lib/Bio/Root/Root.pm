@@ -4,6 +4,10 @@ use Bio::Root::IO;
 use Scalar::Util qw(blessed reftype);
 use base qw(Bio::Root::RootI);
 
+=head1 NAME
+
+Bio::Root::Root - implementation of Bio::Root::RootI interface
+
 =head1 SYNOPSIS
 
   # Any Bioperl-compliant object is a RootI compliant object

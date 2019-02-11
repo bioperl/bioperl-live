@@ -7,7 +7,7 @@ use base qw(Exporter);
 
 =head1 NAME
 
-Bio::Tools::SeqPattern::Backtranslate
+Bio::Tools::SeqPattern::Backtranslate - reverse translate protein patterns
 
 =head1 DESCRIPTION
 

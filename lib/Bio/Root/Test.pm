@@ -13,6 +13,10 @@ use File::Spec;
 
 our @ISA = qw(Test::Builder::Module);
 
+=head1 NAME
+
+Bio::Root::Test - common base for all BioPerl test scripts
+
 =head1 SYNOPSIS
 
   use lib '.'; # (for core package tests only)

@@ -10,6 +10,10 @@ use base qw(Bio::Root::Root);
 # as of 2016, worked on most systems, but will test this in a RC
 my %modes = ( 0 => 'r', 1 => 'w', 2 => 'rw' );
 
+=head1 NAME
+
+Bio::Root::IO - BioPerl base IO handling class
+
 =head1 SYNOPSIS
 
     # Use stream I/O in your module

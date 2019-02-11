@@ -1,6 +1,10 @@
 package Bio::Root::Exception;
 use strict;
 
+=head1 NAME
+
+Bio::Root::Exception - BioPerl exceptions
+
 =head1 SYNOPSIS
 
 =head2 Throwing exceptions using L<Error.pm throw|Error::throw>:

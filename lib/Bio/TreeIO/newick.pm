@@ -13,7 +13,7 @@
 
 =head1 NAME
 
-Bio::TreeIO::newick
+Bio::TreeIO::newick - parsing and writing of Newick/PHYLIP/New Hampshire format
 
 =head1 SYNOPSIS
 

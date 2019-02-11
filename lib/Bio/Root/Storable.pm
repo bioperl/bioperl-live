@@ -5,6 +5,10 @@ use Data::Dumper qw( Dumper );
 use File::Spec;
 use base qw(Bio::Root::Root);
 
+=head1 NAME
+
+Bio::Root::Storable - Safely store/retrieve objects from disk
+
 =head1 SYNOPSIS
 
   my $storable = Bio::Root::Storable->new();
