@@ -292,7 +292,7 @@ sub subseq {
     seek($fh, $filestart,0);
     read($fh, $data, $filestop-$filestart+1);
 
-    $data = Bio::DB::IndexedBase::_strip_crnl($data);
+    $data =~ tr/\n\r//d; #strip control characters
 
     if ($strand == -1) {
         # Reverse-complement the sequence
@@ -334,7 +334,7 @@ sub header {
     read($fh, $data, $headerlen);
     # On Windows chomp remove '\n' but leaves '\r'
     # when reading '\r\n' in binary mode
-    $data = Bio::DB::IndexedBase::_strip_crnl($data);
+    $data =~ tr/\n\r//d; #strip control characters
     substr($data, 0, 1) = '';
     return $data;
 }
