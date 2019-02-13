@@ -243,42 +243,6 @@ package Bio::DB::IndexedBase;
 BEGIN {
     @AnyDBM_File::ISA = qw(DB_File GDBM_File NDBM_File SDBM_File)
         if(!$INC{'AnyDBM_File.pm'});
-    # Remove carriage returns (\r) and newlines (\n) from a string.  When
-    # called from subseq, this can take a signficiant portion of time, in
-    # Variant Effect Prediction. Therefore we compile the match portion.
-
-    eval 'require Inline::C';
-    if ( $INC{'Inline/C.pm'} ) {
-        # C can do _strip_crnl much faster. But this requires the
-        # Inline::C module which we don't require people to have. So we make
-        # this optional by wrapping the C code in an eval. If the eval works,
-        # the Perl strip_crnl() function is overwritten.
-        Inline->bind(
-            C => q(
-        /*
-        Strip all newlines (\n) and carriage returns (\r) from the string
-        */
-        char* _strip_crnl(char* str) {
-          char *s;
-          char *s2 = str;
-          for (s = str; *s; *s++) {
-            if (*s != '\n' && *s != '\r') {
-              *s2++ = *s;
-            }
-          }
-          *s2 = '\0';
-          return str;
-        }
-        )
-        );
-    } else {
-        # "tr" is much faster than the regex, with "s"
-        *Bio::DB::IndexedBase::_strip_crnl = sub {
-            my $str = shift;
-            $str =~ tr/\n\r//d;
-            return $str;
-        };
-    }
 }
 
 use strict;
