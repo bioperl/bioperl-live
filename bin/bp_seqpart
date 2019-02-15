@@ -22,7 +22,7 @@ Script wrapping SeqIO that allows partitioning of multiple sequence files into n
 
 =head1 AUTHOR
 
-B<Matt Oates> - I<Matt.Oates@bristol.ac.uk>
+B<Matt Oates> - I<mattoates+support@gmail.com>
 
 =head1 FEEDBACK
 
