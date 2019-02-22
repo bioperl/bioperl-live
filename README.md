@@ -45,7 +45,7 @@ documentation in the form of example code can also be found in the
 
 Additional resources and information about the project is available on
 the [project website](https://bioperl.org), with discussion happening
-on the [bioperl-l@bioperl.org](mailto: bioperl-l@bioperl.org) mailing
+on the [bioperl-l@bioperl.org](mailto:bioperl-l@bioperl.org) mailing
 list, and on the `#bioperl` channel of the freenode IRC server.
 
 Bug reports are handle on the distribution github page.
