@@ -215,7 +215,7 @@ isa_ok $geneseq, 'Bio::Seq';
 ok( ($CDS) = grep { $_->primary_tag eq 'CDS' } $geneseq->get_SeqFeatures );
 SKIP: {
     test_skip(-tests => 2,
-              -requires_modules => ['Bio::DB::GenBank'],
+              -requires_modules => ['Bio::DB::GenBank', 'LWP::Protocol::https'],
               -requires_networking => 1);
 
     my $cdsseq = $CDS->spliced_seq( -db => $db, -nosort => 1);
