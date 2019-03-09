@@ -2,7 +2,7 @@
 #
 # BioPerl module Bio::SearchIO::Writer::GbrowseGFF.pm
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Mark Wilkinson <markw@illuminae.com>
 #
@@ -16,7 +16,7 @@ Bio::SearchIO::Writer::GbrowseGFF - Interface for outputting parsed search resul
 =head1 SYNOPSIS
 
   use Bio::SearchIO;
-  my $in = Bio::SearchIO->new(-file   => 'result.blast',      
+  my $in = Bio::SearchIO->new(-file   => 'result.blast',
                              -format => 'blast');
   my $out = Bio::SearchIO->new(-output_format  => 'GbrowseGFF',
                               -output_cigar   => 1,
@@ -50,15 +50,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -93,7 +93,7 @@ use base qw(Bio::Root::Root Bio::SearchIO::SearchWriterI);
 
  Title   : new
  Usage   : my $obj = Bio::SearchIO::Writer::GbrowseGFF->new(@args);
- Function: Builds a new Bio::SearchIO::Writer::GbrowseGFF object 
+ Function: Builds a new Bio::SearchIO::Writer::GbrowseGFF object
  Returns : an instance of Bio::SearchIO::Writer::GbrowseGFF
  Args    :  -e_value => 10   : set e_value parsing cutoff (default undef)
             (note the -e_value flag is deprecated.)
@@ -140,7 +140,7 @@ sub _incrementHIT {
              -match_tag => match|cDNA_match|EST_match|translated_nucleotide_match
                            nucleotide_to_protein_match|nucleotide_motif
                            This is the SO term to be placed in GFF column 3.
-             -prefix => String to prefix the group by, default is EST 
+             -prefix => String to prefix the group by, default is EST
                         (see %Defaults class variable) A default can also
                         be set on object init
  Returns   : String containing data for each search Result or any of its
@@ -155,27 +155,27 @@ sub _incrementHIT {
 
 sub to_string {
     my ($self, $result, @args) = @_;
-    my ($format, $reference, 
+    my ($format, $reference,
 	$match_tag,$hsp_tag,
 	$prefix) = $self->_rearrange([qw
-				      (VERSION 
-				       REFERENCE 
+				      (VERSION
+				       REFERENCE
 				       MATCH_TAG HSP_TAG
 				       PREFIX)], @args);
-    $self->warn($reference) if $reference; 
+    $self->warn($reference) if $reference;
     $reference ||='hit'; # default is that the hit sequence (db sequence) becomes the reference sequence.  I think this is fairly typical...
     $match_tag ||= $Defaults{'MatchTag'}; # default is the generic 'match' tag.
     $hsp_tag   ||= $Defaults{'HSPTag'}; # default is the generic 'hsp' tag.
     $prefix    ||= $self->{'_prefix'};
     $self->throw("$reference must be one of 'query', or 'hit'\n") unless $reference;
-    
-    #*************  THIS IS WHERE I STOPPED  ****************   
+
+    #*************  THIS IS WHERE I STOPPED  ****************
     # *****************************************************
     #*************************************************
-    
+
     $format ||='3';
     my $gffio = Bio::Tools::GFF->new(-gff_version => $format); # try to set it
-    
+
     # just in case that behaviour changes (at the moment, an invalid format throws an exception, but it might return undef in the future
     return "" unless defined $gffio;  # be kind and don't return undef in case the person is putting the output directly into a print statement without testing it
     # now $gffio is either false, or a valid GFF formatter
@@ -189,7 +189,7 @@ sub to_string {
     next if (defined $resultfilter && ! (&{$resultfilter}($result)) );
 
     while( my $hit = $result->next_hit ) {
-        
+
         if (defined $self->{_evalue}){
             next unless ($hit->significance < $self->{_evalue});
         }
@@ -205,17 +205,17 @@ sub to_string {
 	$self->throw("No reference sequence name found in hit; required for GFF (this may not be your fault if your report type does not include reference sequence names)\n") unless $refseq;
         my $source = $hit->algorithm;
         $self->throw("No algorithm name found in hit; required for GFF (this may not be your fault if your report type does not include algorithm names)\n") unless $refseq;
-        $self->throw("This module only works on BLASTN reports at this time.  Sorry.\n") unless $source eq "BLASTN";
-        
+        $self->throw("This module only works on (T)BLASTN reports at this time.  Sorry.\n") unless $source =~ /BLASTN/;
+
         my @plus_hsps;
         my @minus_hsps;
-        
+
         # pre-process the HSP's because we later need to know
         # the extents of the plus and munus strand
         # on both the subject and query strands individually
         my ($qpmin, $qpmax, $qmmin, $qmmax, $spmin, $spmax, $smmin, $smmax); # variables for the plus/minus strand min start and max end to know the full extents of the hit
         while( my $hsp = $hit->next_hsp ) {
-            if ( defined $self->{_evalue} ) {  
+            if ( defined $self->{_evalue} ) {
                 # for backward compatibility only
                 next unless ($hsp->significance < $self->{_evalue});
 	    }
@@ -233,7 +233,7 @@ sub to_string {
                     $spmin = $hsp->hit->start;
                     $spmax = $hsp->hit->end;
                 }
-            } 
+            }
             if ($hsp->hit->strand < 0 ){
                 push @minus_hsps, $hsp;
                 if (defined $qmmin){ # set or reset the minimum and maximum extent of the minus-strand hit
@@ -252,13 +252,13 @@ sub to_string {
         }
         next unless (scalar(@plus_hsps) + scalar(@minus_hsps));  # next if no hsps (??)
         my $ID = $self->_incrementHIT();
-        # okay, write out the index line for the entire hit before 
+        # okay, write out the index line for the entire hit before
 	# processing HSP's
-        # unfortunately (or not??), HitI objects do not implement 
+        # unfortunately (or not??), HitI objects do not implement
 	# SeqFeatureI, so we can't just call ->gff_string
-        # as a result, this module is quite brittle to changes 
+        # as a result, this module is quite brittle to changes
 	# in the GFF format since we are hard-coding the GFF output here :-(
-	
+
         if (scalar(@plus_hsps)){
 	    my %tags = ( 'ID' => "match_sequence$ID");
 
@@ -281,7 +281,7 @@ sub to_string {
                 -score       => $score,
                 -strand      => '+',
                 -frame       => '.',
-                -tag         => \%tags 
+                -tag         => \%tags
             );
 
 
@@ -308,13 +308,13 @@ sub to_string {
                 -score       => $score,
                 -strand      => '-',
                 -frame       => '.',
-                -tag         => \%tags 
+                -tag         => \%tags
 	    );
 
             my $formatter = Bio::Tools::GFF->new(-gff_version => $format);
             $GFF .= $feat->gff_string($formatter)."\n";
         }
-        
+
         # process + strand hsps
         foreach my $hsp (@plus_hsps){
             my $hspID  = $self->_incrementHSP();
@@ -323,10 +323,10 @@ sub to_string {
             my $sstart = $hsp->hit->start;
             my $send   = $hsp->hit->end;
             my $score  = $hsp->score;
-	    
+
 	    my %tags  = ( 'ID'     => "match_hsp$hspID",
 		          'Parent' => "match_sequence$ID" );
-	    
+
             if ($format==2.5) {
                 $tags{'Target'} = "$prefix:$seqname";
                 $tags{'tstart'} = $qstart;
@@ -348,7 +348,7 @@ sub to_string {
                 -score       => $score,
                 -strand      => '+',
                 -frame       => '.',
-                -tag         => \%tags 
+                -tag         => \%tags
             );
 
             my $formatter = Bio::Tools::GFF->new(-gff_version => $format);
@@ -387,7 +387,7 @@ sub to_string {
                 -score       => $score,
                 -strand      => '-',
                 -frame       => '.',
-		-tag         => \%tags 
+		-tag         => \%tags
             );
 
             my $formatter = Bio::Tools::GFF->new(-gff_version => $format);
@@ -398,7 +398,7 @@ sub to_string {
 }
 
 sub significance_filter {
-    my ($self,$method,$code) = @_;    
+    my ($self,$method,$code) = @_;
     return unless $method;
     $method = uc($method);
     if( $method ne 'HSP' &&
@@ -453,5 +453,3 @@ sub end_report {  return '' }
 =cut
 
 1;
-
-
