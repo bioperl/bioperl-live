@@ -3,6 +3,10 @@ Summary of important user-visible changes for BioPerl
 
 {{$NEXT}}
 
+    * The program bp_classify_hits_kingdom has been removed and is
+      now part of the examples documentation instead.
+
+
 1.7.5     2019-02-11 14:57:45+00:00 Europe/London
 
     * The following modules have been removed from the BioPerl
