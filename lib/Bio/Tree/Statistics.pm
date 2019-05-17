@@ -82,7 +82,6 @@ use strict;
 
 
 use base qw(Bio::Root::Root);
-use List::Util   qw/min/;
 
 =head2 new
 
@@ -251,14 +250,11 @@ sub transfer_bootstrap_expectation{
           }
         }
 
-        use Data::Dumper;
-        #print STDERR Dumper [join(" ",@$refLeaves), join(" ",@queryLeaves), $dist];
         if($dist < $minDistance){
           $minDistance = $dist;
         }
       }
       $nodeTbeTotal += $minDistance;
-      #print STDERR "MinDistance $minDistance \n";
     }
     my $avgTbe = $nodeTbeTotal / $numTrees;
     
@@ -266,8 +262,7 @@ sub transfer_bootstrap_expectation{
     # But it is also 1 - average.
     my $numRefLeaves = scalar(@$refLeaves);
     my $nodeTbe = 1 - $avgTbe/$numRefLeaves;
-    #print STDERR "NODE ".join(" ",@$refLeaves)." ~~ $nodeTbe =  1 - $avgTbe/$numRefLeaves\n\n";
-    # Round to the hundredths and convert to percentage.
+    # Round to an integer
     $refNode->bootstrap(sprintf("%0.0f",100 * $nodeTbe));
   }
    
