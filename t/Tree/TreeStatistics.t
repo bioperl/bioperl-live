@@ -2,11 +2,13 @@
 # $Id: RandomTreeFactory.t 11525 2007-06-27 10:16:38Z sendu $
 
 use strict;
+use FindBin qw/$RealBin/;
+use lib "$RealBin/../../lib";
 
 BEGIN { 
     use Bio::Root::Test;
     
-    test_begin(-tests => 43);
+    test_begin(-tests => 44);
 
     use_ok('Bio::TreeIO');
     use_ok('Bio::Tree::Statistics');
@@ -19,18 +21,52 @@ my $in = Bio::TreeIO->new(-format => 'nexus',
 my $tree = $in->next_tree;
 my $node = $tree->find_node(-id => 'N14');
 
+# Create some "bootstrap" trees for the next couple of tests
+my @bs_trees = (1) x 10; # earmark the memory but clone the tree in the next loop
+# Alter the the trees so that they end up with less
+# than 100% support
+for(my $bsTreeIndex=0; $bsTreeIndex < @bs_trees; $bsTreeIndex+=1){
+  $bs_trees[$bsTreeIndex] = $tree->clone;
+  my @bsLeaf = sort grep{$_->is_Leaf} $bs_trees[$bsTreeIndex]->get_nodes;
+  # Mix the first node with the $bsTreeIndex node
+  my $leafIndex = $bsTreeIndex % int(scalar(@bsLeaf)/2); # only messing with 1/2 the leaves
+  my($name1,$name2) = ($bsLeaf[0]->id, $bsLeaf[$leafIndex]->id);
+  $bsLeaf[0]         ->id($name2);
+  $bsLeaf[$leafIndex]->id($name1);
+  
+  # Mess with a second taxon
+  my $leafIndex = $bsTreeIndex % scalar(@bsLeaf); # mess with all leaves
+  my($name3,$name4) = ($bsLeaf[-1]->id, $bsLeaf[$leafIndex]->id);
+  $bsLeaf[-1]        ->id($name4);
+  $bsLeaf[$leafIndex]->id($name3);
+
+  #diag $bs_trees[$bsTreeIndex]->as_text("newick");
+}
 
 my $stats = Bio::Tree::Statistics->new();
 is $stats->cherries($tree), 8, 'cherries';
 is $stats->cherries($tree, $node), 4, 'cherries';
 
-subtest 'bootstrapping' => sub{
+subtest 'transfer-bootstrap-expectation (experimental)' => sub{
   plan tests=>15;
-  my @bs_trees = ($tree) x 10;
+  my %expectation = (''=>100, N1=>27, N2=>82, N3=>64, N4=>82, N5=>82, N8=>82, N6=>82, N7=>82, N9=>100, N10=>91, N11=>100, N12=>9, N13=>55, N14=>82);
+  my $bs_tree  = $stats->transfer_bootstrap_expectation(\@bs_trees, $tree);
+  my @node = sort $bs_tree->get_nodes;
+  for(my $i=0;$i<@node;$i++){
+    next if($node[$i]->is_Leaf);
+    is $node[$i]->bootstrap , $expectation{$node[$i]->id}, "Testing TBE for node ".$node[$i]->id;
+  }
+};
+
+subtest 'assess_bootstrap' => sub{
+  plan tests=>15;
+  my %expectation = (''=>100, N1=>20, N2=>80, N3=>20, N4=>80, N5=>80, N8=>80, N6=>60, N7=>20, N9=>100, N10=>80, N11=>100, N12=>9, N13=>55, N14=>20);
   my $bs_tree  = $stats->assess_bootstrap(\@bs_trees, $tree);
-  for my $node ($bs_tree->get_nodes){
-    next if($node->is_Leaf);
-    is $node->bootstrap, 100, "Testing bootstrap for node"
+  my @node = sort $bs_tree->get_nodes;
+  for(my $i=0;$i<@node;$i++){
+    next if($node[$i]->is_Leaf);
+    #print STDERR $node[$i]->id ."=>". $node[$i]->bootstrap.", ";next;
+    is $node[$i]->bootstrap, $expectation{$node[$i]->id}, "Testing bootstrap for node"
   }
 };
 
@@ -39,10 +75,10 @@ my $key = $tree->add_trait(test_input_file('traits.tab'), 4);
 is $key, undef, 'read traits'; # exceeded column number
 
 $key = $tree->add_trait(test_input_file('traits.tab'), 2, 1);
-is $key, 'disp'; # one leaf has a missing trait value, but ignore it
+is $key, 'disp', "Add traits in second column and ignore missing"; # one leaf has a missing trait value, but ignore it
 
 $key = $tree->add_trait(test_input_file('traits.tab'), 3);
-is $key, 'intermediate';
+is $key, 'intermediate', "Add traits in third column";
 
 is $stats->ps($tree, $key), 4, 'parsimony score';
 is $stats->ps($tree, $key, $node), 1, 'subtree parsimony score';
