@@ -186,6 +186,70 @@ sub next_seq {
     return $seq;
 
 }
+=head2 next_seq_fast
+
+ Title   : next_seq_fast
+ Usage   : $seq = $stream->next_seq_fast()
+ Function: returns the next sequence in the stream
+           Favors speed over perfection.
+ Returns : Bio::Seq object, or nothing if no more available
+ Args    : NONE
+
+=cut
+
+sub next_seq_fast {
+    my( $self ) = @_;
+    my $seq;
+    my $alphabet;
+    local $/ = "\n>";
+    return unless my $entry = $self->_readline;
+
+    # Replacing chomp for s///, since chomp is not working in some cases
+    $entry =~ s/\n(?:\r)$//;
+    if ($entry =~ m/\A\s*\Z/s)  { # very first one
+        return unless $entry = $self->_readline;
+        chomp($entry);
+    }
+
+    # this just checks the initial input; beyond that, due to setting $/ above,
+    # the > is part of the record separator and is removed
+    $self->throw("The sequence does not appear to be FASTA format ".
+        "(lacks a descriptor line '>')") if $. == 1 && $entry !~ /^>/;
+
+    $entry =~ s/\s*>\s*//g;
+    #$entry =~ tr/>//;
+
+    my ($top,$sequence) = split(/\n/,$entry,2);
+    $sequence ||= "";
+    $sequence =~ s/\s+//g;
+
+    my ($id,$fulldesc) = split(/\S+/, $top, 2);
+    $id       ||= $top;
+    $fulldesc ||= "";
+
+    # for empty sequences we need to know the mol.type
+    $alphabet = $self->alphabet();
+    if(defined $sequence && length($sequence) == 0) {
+        if(! defined($alphabet)) {
+            # let's default to dna
+            $alphabet = "dna";
+        }
+    }
+
+    $seq = $self->sequence_factory->create(
+        -seq         => $sequence,
+        -id          => $id,
+        # Ewan's note - I don't think this healthy
+        # but obviously to taste.
+        #-primary_id  => $id,
+        -desc        => $fulldesc,
+        -alphabet    => $alphabet,
+        -direct      => 1,
+    );
+
+    return $seq;
+
+}
 
 =head2 write_seq
 
