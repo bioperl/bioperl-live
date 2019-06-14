@@ -148,9 +148,10 @@ my %example_files = (
                )]
     );
 
-ok( $blio = new Bio::SearchIO( 
-	-file=>test_input_file('dcr1_sp.WUBLASTP'),
-	-format=>'blast'), 'parse data file');
+ok( $blio = Bio::SearchIO->new(
+	-file => test_input_file('dcr1_sp.WUBLASTP'),
+	-format => 'blast',
+    ), 'parse data file');
 
 $result = $blio->next_result;
 while ( $_ = $result->next_hit ) {

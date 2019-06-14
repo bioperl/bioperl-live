@@ -90,11 +90,11 @@ SKIP: {
     my @datain = <$FILE>;
     close $FILE;
 
-    my $in = new IO::String(join('', @datain));
-    my $seqin = new Bio::SeqIO( -fh => $in,
+    my $in = IO::String->new(join('', @datain));
+    my $seqin = Bio::SeqIO->new( -fh => $in,
                 -format => $type);
-    my $out = new IO::String;
-    my $seqout = new Bio::SeqIO( -fh => $out,
+    my $out = IO::String->new;
+    my $seqout = Bio::SeqIO->new( -fh => $out,
                  -format => $type);
     my $seq;
     while( defined($seq = $seqin->next_seq) ) {
