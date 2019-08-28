@@ -6,6 +6,17 @@ Summary of important user-visible changes for BioPerl
     * The program bp_classify_hits_kingdom has been removed and is
       now part of the examples documentation instead.
 
+    * GD is now listed as a suggestion instead of a requirement.  The
+      bp_chaos_plot program will now work with the GD module.
+
+    * New method Bio::Tree::Statistics::transfer_bootstrap_expectation
+      to compute Transfer Bootstrap Expectation (TBE) for internal
+      nodes based on the methods outlined in Lemoine et al, Nature,
+      2018.
+
+    * New method Bio::SeqIO::fasta::next_seq_fast to retrieve next
+      sequence in the stream faster but not perfect.
+
 
 1.7.5     2019-02-11 14:57:45+00:00 Europe/London
 
