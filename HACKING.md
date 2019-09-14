@@ -26,6 +26,19 @@ The bioperl-live repository structure is organized as follows:
 
 ## `Bio::` namespace summary
 
+The BioPerl project is split over multiple Perl module distributions.
+The BioPerl distribution is the BioPerl core distribution, including a
+selection of modules and namespaces but not all.  For example, the
+entire Bio::Biblio is not included in the BioPerl distribution.
+Similarly, while many Bio::SearchIO modules in the BioPerl
+distribution, there also Bio::SearchIO modules in other distributions
+such as Bio-SearchIO-blastxml.
+
+This section describes most of the Bio:: namespaces developed by the
+BioPerl project, including those which are not part of the BioPerl
+distribution.  For example, the Bio::Biblio and Bio::Assembly are
+documented here but are not part of the BioPerl distribution.
+
 * `Bio::Seq` is for *Sequences* (protein and DNA).
     * `Bio::PrimarySeq` is a plain sequence (sequence data +
       identifiers)
