@@ -191,9 +191,6 @@ use Bio::Annotation::DBLink;
 
 use base qw(Bio::SeqIO);
 
-# Note that a qualifier that exceeds one line (i.e. a long label) will
-# automatically be quoted regardless:
-
 our $FTQUAL_LINE_LENGTH = 60;
 
 our %FTQUAL_NO_QUOTE = map {$_ => 1} qw(
@@ -1298,8 +1295,16 @@ sub _print_GenBank_FTHelper {
                # There are almost 3x more quoted qualifier values and they
                # are more common too so we take quoted ones first.
                # Long qualifiers, that will be line wrapped, are always quoted
+
+               # Note (cjf): any tags explicitly *not* quoted must
+               # remain unquoted in all output for proper round trip
+               # parsing:
+               # see https://github.com/bioperl/bioperl-live/issues/321
+
+               # If this breaks *NCBI* examples please file an issue with
+               # example files
                 elsif (   not $FTQUAL_NO_QUOTE{$tag}
-                       or length("/$tag=$value") >= $FTQUAL_LINE_LENGTH
+
                     ) {
                     my ($pat) = ( $value =~ /\s/ ? '\s|$' : '.|$' );
                     $self->_write_line_GenBank_regex
