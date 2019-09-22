@@ -4,7 +4,7 @@ use strict;
 
 BEGIN {
     use Bio::Root::Test;
-    test_begin(-tests => 304);
+    test_begin(-tests => 306);
     use_ok('Bio::SeqIO::genbank');
 }
 
@@ -718,3 +718,35 @@ like( $comment->as_text, qr/^Subtype :: H1N1/m,
     "Got correct Structured Comment");
 like( $comment->as_text, qr/^##GISAID_EpiFlu\(TM\)Data-END##/m,
     "Got correct Structured Comment" );
+
+# Issue #321 (github)
+
+{
+    # Create blank sequence
+    my $seq=Bio::Seq->new(-seq => 'N' x 1200000,
+                          -id  => 'abacab');
+    my $feature= Bio::SeqFeature::Generic->new(-primary=>'tRNA',
+        -start=>1123552, -end=>1123554);
+    my $text='(pos:complement(1123552..1123554),aa:Leu,seq:caa)';
+    $feature->add_tag_value(anticodon => $text);
+    $seq->add_SeqFeature($feature);
+
+    # Write genbank
+    my $string;
+    open my $str_fh, '>', \$string or skip("Could not write string, skipping", 2);
+    my $out = Bio::SeqIO->new(-format => 'genbank',
+                              -fh     => $str_fh,
+                              -verbose => -1);
+    $out->write_seq($seq);
+
+    like($string, qr/,$/m, 'unquoted labels wrap at comma');
+
+    # Read genbank
+    my $in = Bio::SeqIO->new(-format => 'genbank',
+                              -string => $string,
+                              -verbose => -1);
+    my $genbank = $in->next_seq;
+    my ($read_feature) = $genbank->get_SeqFeatures;
+    my ($read_text) = $read_feature->get_tag_values('anticodon');
+    is($read_text, $text, 'Label is the same');
+}

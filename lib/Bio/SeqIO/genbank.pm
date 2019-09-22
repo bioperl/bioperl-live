@@ -1303,18 +1303,19 @@ sub _print_GenBank_FTHelper {
 
                # If this breaks *NCBI* examples please file an issue with
                # example files
-                elsif (   not $FTQUAL_NO_QUOTE{$tag}
-
-                    ) {
-                    my ($pat) = ( $value =~ /\s/ ? '\s|$' : '.|$' );
+                elsif (   not $FTQUAL_NO_QUOTE{$tag} ) {
+                    my ($pat) = ( $value =~ /\s/ ? '\s|$' :
+                                  '.|$' );
                     $self->_write_line_GenBank_regex
                         ( " " x 21, " " x 21,
                           "/$tag=\"$value\"", $pat, 80 );
                 }
                 else {
+                    my ($pat) = ( $value =~ /[,]/ ? '[,]|$' :
+                                  '.|$' );
                     $self->_write_line_GenBank_regex
                         ( " " x 21, " " x 21,
-                          "/$tag=$value", "\.\|\$", 80 );
+                          "/$tag=$value", $pat, 80 );
                 }
             }
         }
@@ -1841,14 +1842,14 @@ sub _write_line_GenBank {
 sub _write_line_GenBank_regex {
     my ($self, $pre1, $pre2, $line, $regex, $length) = @_;
 
-    #print STDOUT "Going to print with $line!\n";
+    # print STDOUT "Going to print with $line!\n";
 
     $length or $self->throw("Miscalled write_line_GenBank without length. Programming error!");
 
     my $subl  = $length - (length $pre1) - 2;
     my @lines = ();
 
-  CHUNK:
+    CHUNK:
     while ($line) {
         foreach my $pat ($regex, '[,;\.\/-]\s|'.$regex, '[,;\.\/-]|'.$regex) {
             if ($line =~ m/^(.{0,$subl})($pat)(.*)/ ) {
