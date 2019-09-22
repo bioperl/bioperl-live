@@ -4,7 +4,7 @@ use strict;
 
 BEGIN {
     use Bio::Root::Test;
-    test_begin(-tests => 301);
+    test_begin(-tests => 304);
     use_ok('Bio::SeqIO::genbank');
 }
 
@@ -621,7 +621,7 @@ is($dblinks[4]->version, '3');
                           -id  => 'abacab');
     my $feature=Bio::SeqFeature::Generic->new(-primary=>'CDS', -start=>1, -end=>4);
     my $label='1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r';
-    $feature->add_tag_value(label => $label);
+    $feature->add_tag_value(note => $label);
     $seq->add_SeqFeature($feature);
 
     # Write genbank
@@ -636,11 +636,11 @@ is($dblinks[4]->version, '3');
                              -string => $string);
     my $genbank = $in->next_seq;
     my ($read_feature) = $genbank->get_SeqFeatures;
-    my ($read_label) = $read_feature->get_tag_values('label');
+    my ($read_label) = $read_feature->get_tag_values('note');
     is($read_label, $label, 'Label is the same');
 }
 
-# bug 3448
+# bug 3448 (redmine)
 $in = Bio::SeqIO->new(-format  => 'genbank',
                       -file    => test_input_file('YP_007988852.gp'),
                       -verbose => $verbose);
@@ -695,12 +695,15 @@ is $#features, 9, 'Got 10 features';
 $seq = Bio::SeqIO->new(-format => 'genbank',
                        -file   => test_input_file('KF527485.gbk') )->next_seq;
 my $comment = ($seq->get_Annotations('comment') )[0];
-is($comment->as_text, "Comment: 
-##Assembly-Data-START##
-Assembly Method :: Lasergene v. 10
-Sequencing Technology :: ABI37XL; Sanger dideoxy sequencing
-##Assembly-Data-END##",
-"Got correct Structured Comment");
+
+like($comment->as_text, qr/^Comment:\s+##Assembly-Data-START##/m,
+    "Got correct Structured Comment");
+like($comment->as_text, qr/^Assembly Method :: Lasergene v. 10/m,
+    "Got correct Structured Comment");
+like($comment->as_text, qr/^Sequencing Technology :: ABI37XL; Sanger dideoxy sequencing/m,
+    "Got correct Structured Comment");
+like($comment->as_text, qr/^##Assembly-Data-END##/m,
+    "Got correct Structured Comment");
 
 $seq = Bio::SeqIO->new(-format => 'genbank',
                        -file   => test_input_file('HM138502.gbk') )->next_seq;
@@ -709,10 +712,9 @@ ok( $comment->as_text
         =~ /^Comment: Swine influenza A \(H1N1\) virus isolated during human swine flu outbreak of 2009/,
     "Got correct Structured Comment"
 );
-ok( $comment->as_text =~ /^##GISAID_EpiFlu\(TM\)Data-START##/m,
+like( $comment->as_text, qr/^##GISAID_EpiFlu\(TM\)Data-START##/m,
     "Got correct Structured Comment" );
-ok( $comment->as_text =~ /^Subtype :: H1N1/m,
-    "Got correct Structured Comment"
-);
-ok( $comment->as_text =~ /^##GISAID_EpiFlu\(TM\)Data-END##/m,
+like( $comment->as_text, qr/^Subtype :: H1N1/m,
+    "Got correct Structured Comment");
+like( $comment->as_text, qr/^##GISAID_EpiFlu\(TM\)Data-END##/m,
     "Got correct Structured Comment" );
