@@ -7,6 +7,7 @@ Summary of important user-visible changes for BioPerl
 
     * GD is now no longer a dependency, suggestion or requirement.
 
+    * #321 - GenBank format fix for un-quoted features, text wrapping
 
 1.7.6     2019-08-28 12:37:01+01:00 Europe/London
 
