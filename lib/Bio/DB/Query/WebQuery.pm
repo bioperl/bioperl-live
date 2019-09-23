@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::DB::WebQuery.pm
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Lincoln Stein <lstein@cshl.org>
 #
@@ -46,15 +46,15 @@ is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -86,7 +86,12 @@ use URI;
 use LWP::UserAgent;
 use HTTP::Request::Common;
 
+use vars qw($LAST_INVOCATION_TIME);
 use base qw(Bio::Root::Root Bio::DB::QueryI);
+
+BEGIN {
+    $LAST_INVOCATION_TIME = 0;
+}
 
 =head2 new
 
@@ -114,7 +119,7 @@ sub new {
   my $class = shift;
   my $self  = $class->SUPER::new(@_);
 
-  my ($query,$ids,$verbose) = $self->_rearrange(['QUERY','IDS','VERBOSE'],@_);
+  my ($query,$ids,$verbose,$delay) = $self->_rearrange(['QUERY','IDS','VERBOSE','DELAY'],@_);
   $self->throw('must provide one of the the -query or -ids arguments')
     unless defined($query) || defined($ids);
   if ($ids) {
@@ -122,6 +127,8 @@ sub new {
   }
   $self->query($query);
   $verbose && $self->verbose($verbose);
+  $delay          = $self->delay_policy unless defined $delay;
+  $self->delay($delay);
 
   my $ua = LWP::UserAgent->new(env_proxy => 1);
   $ua->agent(ref($self) ."/".($Bio::DB::Query::WebQuery::VERSION || '0.1'));
@@ -133,7 +140,7 @@ sub new {
 =head2 ua
 
  Title   : ua
- Usage   : my $ua = $self->ua or 
+ Usage   : my $ua = $self->ua or
            $self->ua($ua)
  Function: Get/Set a LWP::UserAgent for use
  Returns : reference to LWP::UserAgent Object
@@ -153,7 +160,7 @@ sub ua {
 =head2 proxy
 
  Title   : proxy
- Usage   : $httpproxy = $db->proxy('http')  or 
+ Usage   : $httpproxy = $db->proxy('http')  or
            $db->proxy(['http','ftp'], 'http://myproxy' )
  Function: Get/Set a proxy for use of proxy
  Returns : a string indicating the proxy
@@ -166,9 +173,9 @@ sub ua {
 
 sub proxy {
     my ($self,$protocol,$proxy,$username,$password) = @_;
-    return undef if ( !defined $self->ua || !defined $protocol 
+    return undef if ( !defined $self->ua || !defined $protocol
 		      || !defined $proxy );
-    $self->authentication($username, $password) 	
+    $self->authentication($username, $password)
 	if ($username && $password);
     return $self->ua->proxy($protocol,$proxy);
 }
@@ -178,7 +185,7 @@ sub proxy {
  Title   : authentication
  Usage   : $db->authentication($user,$pass)
  Function: Get/Set authentication credentials
- Returns : Array of user/pass 
+ Returns : Array of user/pass
  Args    : Array or user/pass
 
 
@@ -231,6 +238,71 @@ sub query   {
   my $d    = $self->{'_query'};
   $self->{'_query'} = shift if @_;
   $d;
+}
+
+=head2 delay
+
+ Title   : delay
+ Usage   : $secs = $self->delay([$secs])
+ Function: get/set number of seconds to delay between fetches
+ Returns : number of seconds to delay
+ Args    : new value
+
+NOTE: the default is to use the value specified by delay_policy().
+This can be overridden by calling this method, or by passing the
+-delay argument to new().
+
+=cut
+
+sub delay {
+   my $self = shift;
+   my $d = $self->{'_delay'};
+   $self->{'_delay'} = shift if @_;
+   $d;
+}
+
+=head2 delay_policy
+
+ Title   : delay_policy
+ Usage   : $secs = $self->delay_policy
+ Function: return number of seconds to delay between calls to remote db
+ Returns : number of seconds to delay
+ Args    : none
+
+NOTE: The default delay policy is 0s.  Override in subclasses to
+implement delays.  The timer has only second resolution, so the delay
+will actually be +/- 1s.
+
+=cut
+
+sub delay_policy {
+   my $self = shift;
+   return 0;
+}
+
+=head2 _sleep
+
+ Title   : _sleep
+ Usage   : $self->_sleep
+ Function: sleep for a number of seconds indicated by the delay policy
+ Returns : none
+ Args    : none
+
+NOTE: This method keeps track of the last time it was called and only
+imposes a sleep if it was called more recently than the delay_policy()
+allows.
+
+=cut
+
+sub _sleep {
+   my $self = shift;
+   my $last_invocation = $LAST_INVOCATION_TIME;
+   if (time - $LAST_INVOCATION_TIME < $self->delay) {
+      my $delay = $self->delay - (time - $LAST_INVOCATION_TIME);
+      warn "sleeping for $delay seconds\n" if $self->verbose > 0;
+      sleep $delay;
+   }
+   $LAST_INVOCATION_TIME = time;
 }
 
 =head2 _fetch_ids
