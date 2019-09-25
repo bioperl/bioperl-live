@@ -9,6 +9,11 @@ Summary of important user-visible changes for BioPerl
 
     * #321 - GenBank format fix for un-quoted features, text wrapping
 
+    * Bio::DB::Query::WebQuery now includes methods for delay(), delay_policy(),
+      and a 'private' _sleep() function that mirror those from
+      Bio::DB::WebDBSeqI, primarily for compliance with potential website
+      restrictions for the number and frequency of queries (e.g. NCBI eUtils).
+
 1.7.6     2019-08-28 12:37:01+01:00 Europe/London
 
     * The program bp_classify_hits_kingdom has been removed and is
