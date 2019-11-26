@@ -46,7 +46,7 @@ Bio::Index::Fastq - Interface for indexing (multiple) fastq files
 =head1 DESCRIPTION
 
 Inherits functions for managing dbm files from Bio::Index::Abstract.pm,
-and provides the basic funtionallity for indexing fastq files, and
+and provides the basic funtionality for indexing fastq files, and
 retrieving the sequence from them. Note: for best results 'use strict'.
 
 Bio::Index::Fastq supports the Bio::DB::BioSeqI interface, meaning

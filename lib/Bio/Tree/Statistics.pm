@@ -673,7 +673,7 @@ sub count_leaves {
 
   Example    : phylotype_length($tree, $node);
   Description: Sums up the branch lengths within phylotype
-               exluding the subclusters where the trait values
+               excluding the subclusters where the trait values
                are different
   Returns    : float, length
   Exceptions : all the  nodes need to have the trait defined
@@ -723,7 +723,7 @@ sub phylotype_length {
 
   Example    : sum_of_leaf_distances($tree, $node);
   Description: Sums up the branch lengths from root to leaf
-               exluding the subclusters where the trait values
+               excluding the subclusters where the trait values
                are different
   Returns    : float, length
   Exceptions : all the  nodes need to have the trait defined

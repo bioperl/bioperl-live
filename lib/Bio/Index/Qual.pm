@@ -46,7 +46,7 @@ Bio::Index::Qual - Interface for indexing (multiple) fasta qual files
 =head1 DESCRIPTION
 
 Inherits functions for managing dbm files from Bio::Index::Abstract.pm,
-and provides the basic funtionallity for indexing qual files, and
+and provides the basic funtionality for indexing qual files, and
 retrieving the sequence from them. For best results 'use strict'.
 
 Bio::Index::Qual supports the Bio::DB::BioSeqI interface, meaning

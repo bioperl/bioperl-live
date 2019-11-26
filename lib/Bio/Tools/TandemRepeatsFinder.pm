@@ -26,7 +26,7 @@ A parser for Tandem Repeats Finder output.
 Written and tested for version 4.00
 
 Location, seq_id, and score are stored in Bio::SeqFeature::Generic feature.
-All other data is stored in tags.  The availabale tags are
+All other data is stored in tags.  The available tags are
 
         period_size
         copy_number

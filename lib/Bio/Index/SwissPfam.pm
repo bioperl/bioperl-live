@@ -44,10 +44,10 @@ Bio::Index::SwissPfam - Interface for indexing swisspfam files
 SwissPfam is one of the flat files released with Pfam. This modules
 provides a way of indexing this module.
 
-Inherits functions for managing dbm files from Bio::Index::Abstract.pm, and 
-provides the basic funtionallity for indexing SwissPfam files.  Only 
-retrieves FileStreams at the moment. Once we have something better 
-(ie, an object!), will use that. Heavily snaffled from Index::Fasta system of 
+Inherits functions for managing dbm files from Bio::Index::Abstract.pm, and
+provides the basic funtionality for indexing SwissPfam files.  Only
+retrieves FileStreams at the moment. Once we have something better
+(ie, an object!), will use that. Heavily snaffled from Index::Fasta system of
 James Gilbert. Note: for best results 'use strict'.
 
 =head1 FEED_BACK

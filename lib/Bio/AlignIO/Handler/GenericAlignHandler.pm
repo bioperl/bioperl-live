@@ -469,7 +469,7 @@ to disambiguate between the two in some cases. Here I use the ALIGNMENT tag as a
 boolean flag: it must be present and set to 0 for the data to be tagged for
 Bio::LocatableSeq or similar (in all other cases it is assumed to be for the
 alignment). In some cases this will not matter (the actual sequence data, for
-instance) but it is highly recommmended adding this tag in to prevent possible
+instance) but it is highly recommended adding this tag in to prevent possible
 ambiguities.
 
 This is the current Annotation data chunk (via Data::Dumper):

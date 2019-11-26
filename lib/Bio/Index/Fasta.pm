@@ -48,7 +48,7 @@ Bio::Index::Fasta - Interface for indexing (multiple) fasta files
 =head1 DESCRIPTION
 
 Inherits functions for managing dbm files from Bio::Index::Abstract.pm,
-and provides the basic funtionallity for indexing fasta files, and
+and provides the basic funtionality for indexing fasta files, and
 retrieving the sequence from them. For best results 'use strict'.
 
 Bio::Index::Fasta supports the Bio::DB::BioSeqI interface, meaning
