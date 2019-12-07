@@ -25,9 +25,11 @@ my $node = $tree->find_node(-id => 'N14');
 my @bs_trees = (1) x 10; # earmark the memory but clone the tree in the next loop
 # Alter the the trees so that they end up with less
 # than 100% support
+
 for(my $bsTreeIndex=0; $bsTreeIndex < @bs_trees; $bsTreeIndex+=1){
+
   $bs_trees[$bsTreeIndex] = $tree->clone;
-  my @bsLeaf = sort grep{$_->is_Leaf} $bs_trees[$bsTreeIndex]->get_nodes;
+  my @bsLeaf = sort {$a->id <=> $b->id } grep{$_->is_Leaf} $bs_trees[$bsTreeIndex]->get_nodes;
   # Mix the first node with the $bsTreeIndex node
   my $leafIndex = $bsTreeIndex % int(scalar(@bsLeaf)/2); # only messing with 1/2 the leaves
   my($name1,$name2) = ($bsLeaf[0]->id, $bsLeaf[$leafIndex]->id);
@@ -40,12 +42,23 @@ for(my $bsTreeIndex=0; $bsTreeIndex < @bs_trees; $bsTreeIndex+=1){
   $bsLeaf[-1]        ->id($name4);
   $bsLeaf[$leafIndex]->id($name3);
 
-  #diag $bs_trees[$bsTreeIndex]->as_text("newick");
+  diag $bs_trees[$bsTreeIndex]->as_text("newick");
 }
 
 my $stats = Bio::Tree::Statistics->new();
 is $stats->cherries($tree), 8, 'cherries';
 is $stats->cherries($tree, $node), 4, 'cherries';
+
+subtest 'assess_bootstrap' => sub{
+  plan tests=>15;
+  my %expectation = (''=>100, N1=>20, N2=>80, N3=>20, N4=>80, N5=>80, N8=>80, N6=>60, N7=>20, N9=>100, N10=>80, N11=>100, N12=>9, N13=>55, N14=>20);
+  my $bs_tree  = $stats->assess_bootstrap(\@bs_trees, $tree);
+  my @node = sort $bs_tree->get_nodes;
+  for(my $i=0;$i<@node;$i++){
+    next if($node[$i]->is_Leaf);
+    is $node[$i]->bootstrap, $expectation{$node[$i]->id}, "Testing bootstrap for node ".$node[$i]->id;
+  }
+};
 
 subtest 'transfer-bootstrap-expectation (experimental)' => sub{
   plan tests=>15;
@@ -58,17 +71,6 @@ subtest 'transfer-bootstrap-expectation (experimental)' => sub{
   }
 };
 
-subtest 'assess_bootstrap' => sub{
-  plan tests=>15;
-  my %expectation = (''=>100, N1=>20, N2=>80, N3=>20, N4=>80, N5=>80, N8=>80, N6=>60, N7=>20, N9=>100, N10=>80, N11=>100, N12=>9, N13=>55, N14=>20);
-  my $bs_tree  = $stats->assess_bootstrap(\@bs_trees, $tree);
-  my @node = sort $bs_tree->get_nodes;
-  for(my $i=0;$i<@node;$i++){
-    next if($node[$i]->is_Leaf);
-    #print STDERR $node[$i]->id ."=>". $node[$i]->bootstrap.", ";next;
-    is $node[$i]->bootstrap, $expectation{$node[$i]->id}, "Testing bootstrap for node"
-  }
-};
 
 # traits
 my $key = $tree->add_trait(test_input_file('traits.tab'), 4);
