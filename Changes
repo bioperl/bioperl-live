@@ -3,6 +3,8 @@ Summary of important user-visible changes for BioPerl
 
 {{$NEXT}}
 
+1.7.7     2019-12-07 13:41:36-06:00 America/Chicago
+
     * The program bp_chaos_plot has been removed.
 
     * GD is now no longer a dependency, suggestion or requirement.
