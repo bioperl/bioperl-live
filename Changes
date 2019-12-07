@@ -13,6 +13,9 @@ Summary of important user-visible changes for BioPerl
       and a 'private' _sleep() function that mirror those from
       Bio::DB::WebDBSeqI, primarily for compliance with potential website
       restrictions for the number and frequency of queries (e.g. NCBI eUtils).
+      
+    * Fix bug #329, related to Bio::Tree::Statistics::transfer_bootstrap_expectation
+      in last release.
 
 1.7.6     2019-08-28 12:37:01+01:00 Europe/London
 
