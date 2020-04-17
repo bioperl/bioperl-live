@@ -127,10 +127,12 @@ use base qw(Bio::SeqIO);
 my %FTQUAL_NO_QUOTE = map {$_ => 1} qw(
     anticodon           citation
     codon               codon_start
-    cons_splice         direction
+    compare             cons_splice
+    direction           estimated_length
     evidence            label
     mod_base            number
     rpt_type            rpt_unit
+    rpt_unit_range      tag_peptide
     transl_except       transl_table
     usedin
     LOCATION
