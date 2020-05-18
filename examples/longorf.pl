@@ -142,8 +142,7 @@ printed by choosing the graph option.
 
 =head1 FEEDBACK
 
-This script is not supported by anyone, but requests can be made to the
-author.
+This script is not supported by anyone.
 
 =head1 AUTHOR - Dan Kortschak <kortschak@rsbs.anu.spanner.edu.au>
 
