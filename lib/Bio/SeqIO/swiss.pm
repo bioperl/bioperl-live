@@ -1289,7 +1289,7 @@ sub _read_FTHelper_swissprot {
         $desc,                  # The descriptive text
         $ftid,                  # feature Id is like a qualifier but there can be only one of them
        );
-    if ( m/^FT\s{3}(\w+)\s+([\d\?\<]+)\s+([\d\?\>]+)\s*(.*)$/ox) {
+    if ( m/^FT\s{3}(\w+)\s+([\d\?\<]+)[\s.]+([\d\?\>]+)\s*(.*)$/ox) {
         $key = $1;
         my $loc1 = $2;
         my $loc2 = $3;
@@ -1300,9 +1300,20 @@ sub _read_FTHelper_swissprot {
         } else {
             $desc = "";
         }
+    } elsif ( m/^FT\s{3}(\w+)\s+([\d\?\<]+)\s+(.*)$/ox) {
+        $key = $1;
+        my $loc1 = $2;
+        my $loc2 = $2;
+        $loc = "$loc1";
+        if ($3 && (length($3) > 0)) {
+            $desc = $3;
+            chomp($desc);
+        } else {
+            $desc = "";
+        }
     }
 
-    while ( defined($_ = $self->_readline) && /^FT\s{20,}(\S.*)$/ ) {
+    while ( defined($_ = $self->_readline) && /^FT\s{4,}(\S.*)$/ ) {
         my $continuation_line = $1;
         if ( $continuation_line =~ /.FTId=(.*)\./ ) {
             $ftid=$1;
