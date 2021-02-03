@@ -2,6 +2,12 @@ Summary of important user-visible changes for BioPerl
 -----------------------------------------------------
 
 {{$NEXT}}
+    * Bio::SeqIO::interpro has been moved to a separate repository to
+      deal with issues with XML::DOM::XPath bitrot [#347]
+    * Pull requests:
+      * Adjust Swiss-Prot FT A..B lines [#348] from @smoe
+      * Update %FTQUAL_NO_QUOTE: List of qualifiers without quote [#339] from 
+        @hdevillers
 
 1.7.7     2019-12-07 13:41:36-06:00 America/Chicago
 
