@@ -17,13 +17,13 @@ bp_seqcut.pl - cut FASTA sequences with a given range
 
 =head1 Description
 
-A script to cut FASTA sequences with a given range `fastacut -s 1 -e 10 *.fasta` or `fastacut 1-10 *.fasta`.
+A script to cut FASTA sequences with a given range `bp_seqcut.pl -s 1 -e 10 *.fasta` or `bp_seqcut.pl 1-10 *.fasta`.
 This is just a convenience wrapper around the Bio::SeqIO module. Useful if you wish to trim out a section of an
 alignment to build a profile of a specific region of sequence.
 
 =head1 AUTHOR
 
-B<Matt Oates> - I<Matt.Oates@bristol.ac.uk>
+B<Matt Oates> - I<mattoates+support@gmail.com>
 
 =head1 FEEDBACK
 
