@@ -1,0 +1,87 @@
+Borrelia burgdorferi B31 [gbbct]: 1639 CDS's (434334 codons)
+
+AmAcid  Codon      Number    /1000     Fraction   ..
+ 
+Gly     GGG      3206.00      7.38      0.00
+Gly     GGA      8628.00     19.86      0.00
+Gly     GGT      5544.00     12.76      0.00
+Gly     GGC      3340.00      7.69      0.00
+ 
+Glu     GAG      7531.00     17.34      0.00
+Glu     GAA     22626.00     52.09      0.00
+Asp     GAT     18112.00     41.70      0.00
+Asp     GAC      4479.00     10.31      0.00
+ 
+Val     GTG      2367.00      5.45      0.00
+Val     GTA      6437.00     14.82      0.00
+Val     GTT     12023.00     27.68      0.00
+Val     GTC      1061.00      2.44      0.00
+ 
+Ala     GCG      1076.00      2.48      0.00
+Ala     GCA      7770.00     17.89      0.00
+Ala     GCT      8330.00     19.18      0.00
+Ala     GCC      2064.00      4.75      0.00
+ 
+Arg     AGG      2594.00      5.97      0.00
+Arg     AGA      8843.00     20.36      0.00
+Ser     AGT      7123.00     16.40      0.00
+Ser     AGC      4633.00     10.67      0.00
+ 
+Lys     AAG      9593.00     22.09      0.00
+Lys     AAA     37244.00     85.75      0.00
+Asn     AAT     26349.00     60.67      0.00
+Asn     AAC      6372.00     14.67      0.00
+ 
+Met     ATG      7872.00     18.12      0.00
+Ile     ATA     16939.00     39.00      0.00
+Ile     ATT     24214.00     55.75      0.00
+Ile     ATC      3361.00      7.74      0.00
+ 
+Thr     ACG       974.00      2.24      0.00
+Thr     ACA      7829.00     18.03      0.00
+Thr     ACT      7111.00     16.37      0.00
+Thr     ACC      2388.00      5.50      0.00
+ 
+Trp     TGG      2020.00      4.65      0.00
+End     TGA       287.00      0.66      0.00
+Cys     TGT      2193.00      5.05      0.00
+Cys     TGC      1095.00      2.52      0.00
+ 
+End     TAG       315.00      0.73      0.00
+End     TAA      1037.00      2.39      0.00
+Tyr     TAT     14814.00     34.11      0.00
+Tyr     TAC      4240.00      9.76      0.00
+ 
+Leu     TTG      7433.00     17.11      0.00
+Leu     TTA     18287.00     42.10      0.00
+Phe     TTT     23094.00     53.17      0.00
+Phe     TTC      2776.00      6.39      0.00
+ 
+Ser     TCG      1074.00      2.47      0.00
+Ser     TCA      7264.00     16.72      0.00
+Ser     TCT     10341.00     23.81      0.00
+Ser     TCC      1476.00      3.40      0.00
+ 
+Arg     CGG       219.00      0.50      0.00
+Arg     CGA       764.00      1.76      0.00
+Arg     CGT       899.00      2.07      0.00
+Arg     CGC       459.00      1.06      0.00
+ 
+Gln     CAG      1758.00      4.05      0.00
+Gln     CAA      9259.00     21.32      0.00
+His     CAT      3959.00      9.12      0.00
+His     CAC      1452.00      3.34      0.00
+ 
+Leu     CTG      1158.00      2.67      0.00
+Leu     CTA      4611.00     10.62      0.00
+Leu     CTT     12539.00     28.87      0.00
+Leu     CTC      1039.00      2.39      0.00
+ 
+Pro     CCG       570.00      1.31      0.00
+Pro     CCA      3855.00      8.88      0.00
+Pro     CCT      4387.00     10.10      0.00
+Pro     CCC      1627.00      3.75      0.00
+
+
+Coding GC 28.76% 1st letter GC 37.56% 2nd letter GC 27.62% 3rd letter GC 21.09%
+Genetic code 11: Eubacterial

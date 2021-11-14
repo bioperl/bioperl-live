@@ -1,0 +1,416 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use v5.10;
+use rlib '../lib';
+use Bio::BPWrapper::SeqManipulations;
+use Getopt::Long qw( :config bundling permute no_getopt_compat );
+use Pod::Usage;
+
+####################### Option parsing ######################
+my %opts;
+GetOptions(
+    \%opts,
+    "help|h",
+    "man",
+    "version|V",
+    "anonymize|A:10",    # default 10 char (for phylip) (prefix + num_digits)
+    "break|B",
+    "codon-info=s",
+#    "codon-sim=s", # disable: requires two external modules
+    "codon-table=s",
+    "composition|c",
+    "count-codons|C",
+    "delete|d=s",
+    "feat2fas|F",
+    "hydroB|H",
+    "iep",
+    "input|i=s",
+    "lead-gaps|G",
+    "length|l",
+    "longest-orf|z", 
+    "linearize|L",
+    "mol-wt",
+    "no-gaps|g",
+    "num-gaps-dna",
+    "num-gaps-aa",
+    "num-seq|n",
+    "output|o=s",
+    "pick|p=s",
+    "reloop|R=i", # recircularize a genome at "loop_at"
+    "remove-stop|X", # for PAML/codeml
+#    "restrict|x=s",
+#    "restrict-coord=s",
+    "revcom|r",
+    "sort=s",
+    "split-cdhit=s",
+    "subseq|s=s",
+    "translate|t=i",
+    "fetch|f=s", # Retrieve sequence by accession number; broken by NCBI protocol change
+ #   "longest-orf|C",
+ #   "extract|e",
+ #   "dotplot|D=s",
+    "rename|N=s",
+    "no-revcom|Z",
+ #   "slidingwindow|S=i",
+ #   "prefix=s",
+ #   "split|S=i",
+) or pod2usage(2);
+
+use Pod::Usage;
+pod2usage(1) if $opts{"help"};
+pod2usage(-exitstatus => 0, -verbose => 2) if $opts{"man"};
+
+use constant PROGRAM => File::Basename::basename(__FILE__);
+Bio::BPWrapper::print_version(PROGRAM) if $opts{"version"};
+
+######################## Main #####################
+
+# This sets all internal variables, and loads Bio::Seq objects
+initialize(\%opts);
+
+for my $option (keys %opts) {
+    # Don't process these options: they are for SeqIO
+    next if $option eq 'input' || $option eq 'output' || $option eq 'no-revcom';
+
+    # If there is a function to handle the current option, execute it
+    if (can_handle($option)) { handle_opt($option); exit }
+    else { warn "Missing handler for: $option\n" }
+}
+
+# Let seq-manipulations act as a converter when no other options are given.
+write_out();
+
+################# POD Documentation ##################
+
+__END__
+=encoding utf8
+
+=head1 NAME
+
+bioseq - Manipulation of FASTA sequences based on L<BioPerl>
+
+=head1 SYNOPSIS
+
+B<bioseq> [options] input_file
+
+B<bioseq> [-h | --help | -V | --version | --man]
+
+=head2 FASTA descriptors
+
+ bioseq -l fasta_file       # [l]engths of sequences
+ bioseq -n fasta_file       # [n]umber of sequences
+ bioseq -c fasta_file       # base or aa [c]omposition
+
+=head2 FASTA filters
+
+=head3 Multiple FASTA-file output
+
+ bioseq -r fasta_file            # [r]everse-complement sequences
+ bioseq -p 'order:3' fasta_file  # pick the 3rd sequences
+ bioseq -p 're:B31' fasta_file   # pick sequences with regex
+ bioseq -d 'order:3' fasta_file  # delete the 3rd sequences
+ bioseq -d 're:B31' fasta_file   # delete sequences with regex
+ bioseq -t 1 dna_fasta           # translate in 1st reading frame
+ bioseq -t 3 dna_fasta           # translate in 3 reading frames
+ bioseq -t 6 dna_fasta           # translate in 6 reading frames
+ bioseq -g fasta_file            # remove gaps
+
+=head3 Single FASTA-file output
+
+ bioseq -s '1,10' fasta_file         # sub-sequence from positions 1-10
+ bioseq --reloop '10' contig_fasta   # re-circularize a genome at position 10
+
+=head3 Less common usages
+
+ bioseq --linearize fasta_file                # Linearize FASTA: one sequence per line
+ bioseq --break fasta_file                    # Break into single-seq files
+ bioseq --count-codons cds_fasta              # Codon counts (for coding sequences)
+ bioseq --hydroB pep_fasta                    # Hydrophobicity score (for protein seq)
+ bioseq --input 'genbank' --feat2fas file.gb  # extract genbank features to FASTA
+ # bioseq --restrict 'EcoRI' dna_fasta          # Fragments from restriction digest (disabled)
+
+=head3 Serialize with pipes
+
+ bioseq -p 'id:B31' dna_fasta | bioseq -g | bioseq -t1          # pick a seq, remove gaps & translate
+ bioseq -p 'order:2' dna_fasta | bioseq -r | bioseq -s '10,20'  # pick the 2nd seq, rev-com & subseq
+
+=head1 DESCRIPTION
+
+B<bioseq> is a command-line utility for common, routine sequence manipulations based on L<BioPerl> modules including L<Bio::Seq>, L<Bio::SeqIO>, L<Bio::SeqUtils>, and L<Bio::Tools::SeqStats>.
+
+By default, B<bioseq> assumes that both the input and the output files are in FASTA format, to facilitate the chaining (by UNIX pipes) of serial B<bioseq> runs.
+
+Methods that are currently I<not> wrappers should ideally be factored into individual L<Bio::Perl> modules, which are better tested and handle exceptions better than stand-alone codes in the L<Bio::BPWrapper> package. As a design principle, command-line scripts here should consist of I<only> wrapper calls.
+
+=head1 OPTIONS
+
+=over 4
+
+=item --anonymize, -A 'number'
+
+This options was designed for legacy programs (e.g., PHLIP suites) that takes only 10 character-long sequence IDs.
+
+Replace sequence IDs with serial IDs I<n> characters long. The sequence is prefaced with a leading C<'S'>. For example using option C<--anonymize '5'> the first ID will be  C<S0001>.
+
+A sed script file with a C<.sed> suffix that may be used with sed's C<-f> argument. If the filename is C<->, the sed file is named C<STDOUT.sed> instead. A message containing the sed filename is written to C<STDERR>.
+
+=item --break, -B
+
+Break into individual sequences, writing a FASTA file for each sequence.
+
+=item --codon-info <CUTG file>
+
+Calculate codon bias of a CDS using Shannon information, as deviation from the genome-wide codon usage (in CUTG GCG format). (Reference: <to be added>)
+
+=item --codon-sim <CUTG file>
+
+(Temporarily disabled) 
+
+Output a CDS with the same AA sequence with each AA replaced by a synonymous codon randomly chosen from a genome codon pool (specified by CUTG GCG file; see test-files/BbB31.cutg). Only the 1st sequence used if multiple sequences are supplied.
+
+For testing the signficcance of codon-bias information, it is necessary to run this repeatedly to generate at least 100 simulated CDSs, e.g., for i in {1..10}; do bioseq --codon-sim test-files/BbB31.cutg test-files/test-bioseq.cds; done
+
+Two non-BioPerl module dependencies: Algorithm::Numerical::Sample; Math::Random.
+
+=item --codon-table
+
+Interface to Bio::Tools::CodonTable. Methods include: translate a codon to AA & reverse list codons for an AA. Currently only takes a 3-letter DNA-base codon or a 1-letter uppercase IUPAC aa code
+
+    --codon-table 'ACG'
+    --codon-table 'L'
+
+=item --composition, -c
+
+Base or AA composition.
+
+=item --count-codons, -C
+
+Count codons for coding sequences (e.g., a genome file consisting of CDS sequences).
+
+=item --delete, -d 'tag:value'
+
+Delete a sequence or a comma-separated list of sequences, e.g.,
+
+   --delete id:foo	 # by id
+   --delete order:2	 # by order
+   --delete length:n     # by min length, where 'n' is length
+   --delete ambig:x	 # by max number of x ambiguous bases (non-ATCGs), e.g., if x=20, delete seqs w/ 20 or mroe N's
+   --delete id:foo,bar   # list by id
+   --delete re:REGEX     # using a regular expression (only one regex is expected)
+   --delete file:name    # by file, one id per line
+
+=item --feat2fas | -F
+
+Extract gene sequences in FASTA from a GenBank file of bacterial genome. Won't work for a eukaryote genbank file. For example:
+
+   bioseq -i'genbank' -F <genbank_file.gb> (throws error if not genbank file)
+
+=item --fetch, -f <genbank_accession>
+
+Retrieves a sequence from GenBank using the provided accession number, e.g.,
+   bioseq -f 'NC_003078' -o 'genbank'
+
+=item --hydroB, -H
+
+Return the mean Kyte-Doolittle hydropathicity for protein sequences.
+
+=item --iep
+
+Return iso-electric point for a protein sequences as well as charges at a series of pH values. Depends on Bio::Tools::pICalculator.
+
+=item --input, -i
+
+Input file format. By default, this is 'fasta'. For Genbank format, use 'genbank'. For EMBL format, use 'embl'. For FASTQ, use 'fastq'
+
+[We tried to guess the format using Bio::Tools::GuessSeqFormat, but it didn't work for pipe. Guess format will be delayed until this issue is fixed]
+
+=item --lead-gaps | -G
+
+Count and return the number of leading gaps in each sequence.
+
+=item --length, -l
+
+Print all sequence lengths.
+
+=item --linearize, -L
+
+Linearize FASTA, one sequence per line.
+
+=item --longest-orf, -z
+
+Find and return the longest ORF (return the original if no error for -t1, i.e., no internal stop at the 1st reading frame). This is useful for fixing out-of-frame seqs. Turn on -Z (no revcom to search only in the given strand)
+
+=item --mol-wt
+
+Print lower and upper bound of molecular weight
+
+=item --num-gaps-dna
+
+Print number of non-ATCG's for a dna sequence. 
+
+Redirect STDERR to a file to view non-ATCG positions, e.g.,:
+ bioseq --num-gaps-dna seq.fas > out 2> log
+
+=item --num-gaps-aa
+
+Print number of non-AA's for a protein sequence. 
+
+Redirect STDERR to a file to view non-AA positions, e.g.,:
+ bioseq --num-gaps-aa seq.pep > out 2> log
+
+=item --no-gaps, -g
+
+Remove gaps
+
+=item --num-seq, -n
+
+Print number of sequences.
+
+=item --output, -o 'format'
+
+Output file format. By default, this is 'fasta'. For Genbank format, use 'genbank'. For EMBL format, use 'embl'.
+
+=item --pick, -p 'tag:value'
+
+Select a single sequence:
+
+   --pick 'id:foo'        by id
+   --pick 'order:2'       by order
+   --pick 're:REGEX'      using a regular expression
+
+Select a list of sequences:
+
+   --pick 'id:foo,bar'    list by id
+   --pick 'order:2,3'     list by order
+   --pick 'order:2-10'    list by range
+   --pick 'file:name'     id list in file, one id per line
+
+=item --reloop, -R 'number'
+
+Re-circularize a bacterial genome by starting at a specified position. For example, for sequence "ABCDE",  C<bioseq -R'2'> would generate "BCDEA".
+
+=item --rename, -N 'file'; or --rename "id:old_name;new_name" (for replacing a single id)
+
+Append sequence names specified by a file (two tab-separated columns: old_name, new_name), or a single id
+
+=item --remove-stop, -X
+
+Remove stop codons (e.g., for PAML input)
+
+=item --restrict, -x 'RE'
+
+Predicted fragments from digestion by a specified restriction enzyme. Disabled (not part of bioperl dist)
+
+=item --restrict-coord 'RE'
+
+Predicted fragments from digestion by a specified restriction enzyme.  Outputs cooridnates of overhangs in BED format. Disabled (not part of bioperl dist)
+
+=item --revcom | -r
+
+Reverse complement.
+
+=item --sort 'id|length|file:<filename>'
+
+Sort by id, length, or a file with an intended order of seq ids (Contributor: Jeffery Rosario; Fall 2017)
+
+=item --split-cdhit 'cdhit .clstr file'
+
+Parse cdhit output .clstr file and generate a FASTA file for each CDHIT family.
+
+=item --subseq | -s 'beginning_index,ending_index'
+
+Select substring (of the 1st sequence).
+
+=item --translate | -t [1|3|6]
+
+Translate in 1, 3, or 6 frames. e.g., -t1, -t3, or -t6.
+
+=back
+
+=head2 Common Options
+
+=over 4
+
+=item --help, -h
+
+Print a brief help message and exit.
+
+=item --man (but not "-m")
+
+Print the manual page and exit.
+
+=item --version, -V
+
+Print current release version of this command and exit.
+
+=back
+
+=head1 SEE ALSO
+
+=over 4
+
+=item *
+
+L<Bio::BPWrapper::SeqManipulations>, the underlying Perl Module
+
+=item *
+
+L<Qiu Lab wiki page|http://diverge.hunter.cuny.edu/labwiki/Bioutils>
+
+=item *
+
+L<Github project wiki page|https://github.com/bioperl/p5-bpwrapper/wiki>
+
+=item *
+
+Lawrence et al (2015). FAST: FAST analysis of sequences toolbox. Front. Genet. 6:172. L<weblink|https://github.com/tlawrence3/FAST>
+
+=back
+
+=head1 CONTRIBUTORS
+
+=over 4
+
+=item *
+Yözen Hernández <yzhernand at gmail dot com> (Initial desgin and implementation)
+
+=item *
+Girish Ramrattan <gramratt at gmail dot com> (developer)
+
+=item  *
+Levy Vargas <levy dot vargas at gmail dot com> (developer)
+
+=item  *
+L<Weigang Qiu | mailto:weigang@genectr.hunter.cuny.edu> (Maintainer)
+
+=item *
+Rocky Bernstein (testing and release)
+
+=item *
+
+Filipe G. Vieira (developer of --restrict; --restrict-coord methods)
+
+=back
+
+=head1 TO DO
+
+=over 4
+
+=item *
+Add bioperl scripts ("bp_xxx.pl") functions?
+
+=back
+
+=head1 TO CITE
+
+=over 4
+
+=item *
+Hernandez, Bernstein, Qiu, et al (2017). "BpWrappers: Command-line utilities for manipulation of sequences, alignments, and phylogenetic trees based on BioPerl". (In prep).
+
+=item *
+Stajich et al (2002). "The BioPerl Toolkit: Perl Modules for the Life Sciences". Genome Research 12(10):1611-1618.
+
+=back

@@ -1,0 +1,232 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use Pod::Usage;
+use FindBin;                      # Find the location of pop-manipulations
+use v5.10;
+use rlib '../lib';
+use Getopt::Long qw( :config bundling permute no_getopt_compat );
+use Bio::BPWrapper;
+use Bio::BPWrapper::PopManipulations;
+
+################# Option parsing #################
+my %opts;
+#my %flags;
+GetOptions(
+    \%opts,
+    "help|h",
+    "man",
+    "version|V",
+    "bi-part",
+    "bi-sites|b",
+    "bi-sites-for-r",
+    "four-gametes|f",
+    "heterozygosity|H",
+#    "input|i=s" => \$flags{"input"},
+    "mis-match|m",
+    "pi|p",
+    "seg-sites|s",
+    "snp-coding|c",
+    "snp-coding-long|C",
+    "snp-noncoding|n",
+    "stats|t=s@",    # Comma-separated, or multiply specified, list
+    "distance|d=s",
+#    "dist-method|D=s" => \$flags{"dist-method"},
+#    "mut-info",
+#    "numseq|n=i"    => \$flags{"numseq"},
+#    "mutrec|b",
+#    "exclude|group3|seq3|r=s@",
+#    "ingroup|group1|seq1|p=s@",
+#    "simmk|k",
+#    "outgroup|group2|seq2|q=s@",
+#    "kaks=s",
+) or pod2usage(2);
+
+use constant PROGRAM => File::Basename::basename(__FILE__);
+Bio::BPWrapper::print_version(PROGRAM) if $opts{"version"};
+
+# This sets all internal variables, and loads AlignIO objects
+# initialize(\%opts, \%flags);
+initialize(\%opts);
+write_out(\%opts)
+
+################# POD Documentation ##################
+
+__END__
+=encoding utf8
+
+=head1 NAME
+
+biopop - SNP statistics based on L<BioPerl>
+
+=head1 SYNOPSIS
+
+B<biopop> [options] <alignment_file>
+
+B<biopop> [-h | --help | -V | --version | --man]
+
+ biopop -s pop.fas            # num of [s]egregating sites
+ biopop -p pop.fas            # average [p]airwise nucleotide difference
+ biopop -f pop.fas            # [f]our gamete tests
+ biopop -c pop.fas            # [c]oding SNPs
+ biopop -n pop.fas            # [n]on-coding SNPs
+ biopop -m pop.fas            # [m]is-match distribution
+ biopop -b pop.fas            # Retain only [b]inary informative sites
+
+=head1 DESCRIPTION
+
+L<biopop> is a pop-genetics utility based on L<BioPerl> modules including L<Bio::PopGen::Utilities>, L<Bio::PopGen::Statistics>, and L<Bio::PopGen::Population>. Most methods are not in BioPerl and have not been validated. Use with caution.
+
+=head1 OPTIONS
+
+=over 4
+
+=item --bi-part
+
+Prints, for each binary informative SNP sites, a NEWICK tree. This could be used to test site compatibility (recombination), similar to the four-gamete test.
+
+=item --bi-sites, -b
+
+Prints a FASTA alignment consisting of only binary-informative SNPs.
+
+=item --bi-sites-for-r
+
+Prints binary-informative SNPs for each individual, in a pseudo-diploid genotype so the output could be imported into R package "genetics" for further analysis.
+
+=item --distance|-d 'jc|k2|uncorrected|f81|t92|f84|tajimanei'
+
+Prints a distance matrix based on a specified method (JC by default)
+
+=item --four-gametes, -f
+
+Performs four-gametes test of recombination by Hudson & Kaplan (Genetics.1985. 111:147-164) and a test of epistasis (Wilson??). It identifies all binary-informative SNPs and print, for each of pair of SNPs per line, site coordinates, counts of four possible gametes, Shannon diversity of haplotypes, and whether compatible or not. Two SNPs are incompatibile if all four possible haplotypes are present, indicating recombination. Presence of only two of the four possible haplotypes indicate, on the other hand, a possible epistatic interaction.
+
+=item --heterozygosity, -H
+
+Print, for each segregating site, the observed heterozygosity [i.e., 1-sum(freq^2)].
+
+=item --input, -i <format>
+
+Input file format. By default, this is 'FASTA'. Now it tries to guess the format. No more need to set this flag.
+
+=item --mis-match, -m
+
+Print pairwise mismatches for all sequences, the distribution of which indicates population age.
+
+=item --pi, -p
+
+Nucleotide Diversity is a measure of genetic variation or differences.
+
+=item --seg-sites, -s
+
+Prints number of segregating sites.
+
+=item --snp-coding, -c
+
+Identify & print, for each 2-state SNP, codon position, aligned nucleotide position, syn/nonsyn, frequencies of each allelic state, and Shannon diversity for a coding alignment.
+
+=item --snp-coding-long, -C
+
+Print long-format of the above method.
+
+=item --snp-noncoding, -n
+
+Identify & print, for each 2-state SNP, SNP position, SNP states, frequencies of each allleic state, and Shannon diversity.
+
+=item --stats, -t <comma separated list of values>
+
+Specify the statistics ('pi', 'theda', 'tajima_d', per-site values) you would like to gather from input data. e.g., "theta,pi" will calculate the theta and pi values.
+
+Can also be specified by giving the option multiple times. e.g., biopop --stats=pi --stats=theta
+
+=back
+
+=head2 Common Options
+
+=over 4
+
+=item --help, -h
+
+Print a brief help message and exit.
+
+=item --man
+
+Print the manual page and exit.
+
+=item --version, -V
+
+Print current release version and exit.
+
+=back
+
+=head1 SEE ALSO
+
+=over 4
+
+=item *
+
+L<Bio::BPWrapper::PopManipulations>, the underlying Perl Module
+
+=item *
+
+L<Qiu Lab wiki page|http://diverge.hunter.cuny.edu/labwiki/Bioutils>
+
+=item *
+
+L<Github project wiki page|https://github.com/bioperl/p5-bpwrapper/wiki>
+
+=item *
+
+L<bioaln>: a wrapper of BioPerl class L<Bio::SimpleAlign> with additional methods
+
+=back
+
+=head1 CONTRIBUTORS
+
+=over 4
+
+=item *
+Yözen Hernández <yzhernand at gmail dot com> (initial design & implementation)
+
+=item *
+Weigang Qiu <weigang@genectr.hunter.cuny.edu> (Maintainer)
+
+=item *
+Rocky Bernstein (testing & release)
+
+=back
+
+=head1 TO DO
+
+=over 4
+
+=item *
+Clean and refactor PopManipulation codes (e.g., factor out shared variables and subroutines)
+
+=item *
+Move dist methods to bioaln
+
+=item *
+Add multiple-loci (pop-genome) capabilities
+
+=item *
+Add outgroup-based statistics, e.g, mk, iHS
+
+=item *
+Add KaKs statistiscs
+
+=back
+
+=head1 TO CITE
+
+=over 4
+
+=item *
+Hernandez, Bernstein, Qiu, et al (2017). "BpWrappers: Command-line utilities for manipulation of sequences, alignments, and phylogenetic trees based on BioPerl". (In prep).
+
+=item *
+Stajich et al (2002). "The BioPerl Toolkit: Perl Modules for the Life Sciences". Genome Research 12(10):1611-1618.
+
+=back
+
+=cut

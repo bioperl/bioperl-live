@@ -1,0 +1,102 @@
+BLASTP 2.2.28+
+
+
+Reference: Stephen F. Altschul, Thomas L. Madden, Alejandro A.
+Schaffer, Jinghui Zhang, Zheng Zhang, Webb Miller, and David J.
+Lipman (1997), "Gapped BLAST and PSI-BLAST: a new generation of
+protein database search programs", Nucleic Acids Res. 25:3389-3402.
+
+
+Reference for composition-based statistics: Alejandro A. Schaffer,
+L. Aravind, Thomas L. Madden, Sergei Shavirin, John L. Spouge, Yuri
+I. Wolf, Eugene V. Koonin, and Stephen F. Altschul (2001),
+"Improving the accuracy of PSI-BLAST protein database searches with
+composition-based statistics and other refinements", Nucleic Acids
+Res. 29:2994-3005.
+
+
+
+Database: combined.pep
+           6,248 sequences; 1,927,185 total letters
+
+
+
+Query= tr|A0A0Q9DS98|A0A0Q9DS98_9RHIZ Uncharacterized protein OS=Ensifer
+sp. Root278 GN=ASE60_09190 PE=4 SV=1
+
+Length=170
+                                                                      Score     E
+Sequences producing significant alignments:                          (Bits)  Value
+
+  SMc02361|1107820|1108965|1|cycH                                     26.2    1.9  
+  SMa0684|369951|371276|-1|na                                         25.4    3.5  
+  SMc01987|2711227|2713788|1|na                                       25.4    3.6  
+  SMc01208|1720429|1720938|1|ppiB                                     24.6    4.9  
+
+
+> SMc02361|1107820|1108965|1|cycH
+Length=382
+
+ Score = 26.2 bits (56),  Expect = 1.9, Method: Compositional matrix adjust.
+ Identities = 18/53 (34%), Positives = 24/53 (45%), Gaps = 8/53 (15%)
+
+Query  54   AYLIGWGELVTKWIDRDQRGEPVD--------FPETGYKWNELGRLAQKFYAD  98
+            A L GW  LV  ++  DQR    D        FP TG +  +L  LA++   D
+Sbjct  323  ANLEGWMRLVRSYVVLDQRDRAKDALHDGLRAFPATGEQGKQLLALARELGID  375
+
+
+> SMa0684|369951|371276|-1|na
+Length=442
+
+ Score = 25.4 bits (54),  Expect = 3.5, Method: Compositional matrix adjust.
+ Identities = 14/49 (29%), Positives = 22/49 (45%), Gaps = 5/49 (10%)
+
+Query  35   EPSLEGHAKGTTMSVGDLVAYLIGWGELVTKW-----IDRDQRGEPVDF  78
+             P++ G    T ++ GD   +LI WG  ++ W     I     G  +DF
+Sbjct  67   SPAVGGPYAYTRLAYGDFPGFLIAWGYWISIWASLPVIAVAFAGVVIDF  115
+
+
+> SMc01987|2711227|2713788|1|na
+Length=854
+
+ Score = 25.4 bits (54),  Expect = 3.6, Method: Compositional matrix adjust.
+ Identities = 17/48 (35%), Positives = 24/48 (50%), Gaps = 4/48 (8%)
+
+Query  43   KGTTMSVGDLVAYLIG-WGELVTKWIDRDQRGEPVDFPETGY-KWNEL  88
+            +GT M+  D V    G WG L+ + +  D    PVD P T +  +NE 
+Sbjct  195  RGTIMA--DHVVVCAGIWGRLIAEMVGEDLPVMPVDHPLTFFGPYNEF  240
+
+
+> SMc01208|1720429|1720938|1|ppiB
+Length=170
+
+ Score = 24.6 bits (52),  Expect = 4.9, Method: Compositional matrix adjust.
+ Identities = 12/25 (48%), Positives = 17/25 (68%), Gaps = 2/25 (8%)
+
+Query  59   WGELV--TKWIDRDQRGEPVDFPET  81
+            WG++V   + ID  +RGEPV  P+T
+Sbjct  135  WGQVVEGMENIDNIKRGEPVRDPDT  159
+
+
+
+Lambda      K        H        a         alpha
+   0.318    0.134    0.406    0.792     4.96 
+
+Gapped
+Lambda      K        H        a         alpha    sigma
+   0.267   0.0410    0.140     1.90     42.6     43.6 
+
+Effective search space used: 128461050
+
+
+  Database: combined.pep
+    Posted date:  Mar 12, 2018  4:33 PM
+  Number of letters in database: 1,927,185
+  Number of sequences in database:  6,248
+
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Neighboring words threshold: 11
+Window for multiple hits: 40

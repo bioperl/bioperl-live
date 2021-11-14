@@ -1,0 +1,72 @@
+=pod
+
+=for comment
+
+This file located in the distribution. But it is also found in a
+github project wiki:
+https://github.com/bioperl/p5-bwrapper/wiki/BPWrapper where we can
+immediately see the results and others can contribute.
+
+=begin html
+
+<a href="https://travis-ci.org/bioperl/p5-bpwrapper"><img src="https://travis-ci.org/bioperl/p5-bpwrapper.png"></a>
+
+=end html
+
+
+=head1 Name
+
+Bio::BPWrapper -- command-line utilities for L<Bio::Perl>
+
+=head2 Introduction
+
+Here we provide Perl Module Bio::BPWrapper, command-line utilities and
+Perl Modules which wrap L<Bio::Perl>. See the L<Qiu Lab Bioutils
+wiki|http://diverge.hunter.cuny.edu/labwiki/Bioutils> for more
+detailed information.
+
+=head2  What is this?
+
+The main suite of is a series of command-line scripts written in Perl
+that provide convenient command-line access to popular I<Bio::Perl>
+methods.
+
+Designed as UNIX utilities, these tools aim to circumvent a constant
+need (and urge) to write one-off I<Bio::Perl> scripts for routine
+manipulations of sequences, alignments and trees. And, of course,
+command-line tools are super-fast ways for data manipulation and
+exploration For the virtues of command-line tools see the O'Reilly
+Book: L<Data Science at Command Line by Jeroen
+Janssens|http://www.oreilly.com/pub/e/3115>.
+
+There are a few interconnected command-line scripts:
+
+=over
+
+=item L<bioseq>
+
+command-line access to BioPerl class L<Bio::Seq> with additional methods
+
+=item L<bioaln>
+
+command-line access to L<Bio::SimpleAlign> which inherits I<Bio::Seq> and additional methods)
+
+=item L<biopop>
+
+command-line access to L<Bio::PopGen> which can be converted from L<Bio::SimpleAlign> and additional methods)
+
+=item L<biotree>
+
+command-line access to L<Bio::TreeIO>, L<Bio::Tree::Tree>, and L<Bio::Tree::Node> with additional methods
+
+=back
+
+These utilities have been in development since Fall 2002 in Dr. Weigang Qiu's lab at Hunter College of the City University of New York.
+
+We welcome and encourage all developers to contribute any BioPerl-based utilities to this repository.
+
+=head2 See also
+
+L<Bio::BPWrapper::AlnManipulations>, L<Bio::BPWrapper::PopManipulations>, L<Bio::BPWrapper::SeqManipulations>
+
+=cut
