@@ -1,0 +1,75 @@
+LOCUS       X83553                   633 bp    DNA     linear   BCT 18-APR-2005
+DEFINITION  B.garinii (PHei strain) opsC gene.
+ACCESSION   X83553
+VERSION     X83553.1  GI:872025
+KEYWORDS    OspC gene; outer surface protein C.
+SOURCE      Borreliella garinii
+  ORGANISM  Borreliella garinii
+            Bacteria; Spirochaetes; Spirochaetales; Borreliaceae; Borreliella.
+REFERENCE   1  (bases 1 to 633)
+  AUTHORS   Wilske,B., Jauris-Heipke,S., Lobentanzer,R., Pradel,I.,
+            Preac-Mursic,V., Rossler,D., Soutschek,E. and Johnson,R.C.
+  TITLE     Phenotypic analysis of outer surface protein C (OspC) of Borrelia
+            burgdorferi sensu lato by monoclonal antibodies: relationship to
+            genospecies and OspA serotype
+  JOURNAL   J. Clin. Microbiol. 33 (1), 103-109 (1995)
+   PUBMED   7699024
+REFERENCE   2  (bases 1 to 633)
+  AUTHORS   Jauris-Heipke,S., Liegl,G., Preac-Mursic,V., Rossler,D.,
+            Schwab,E., Soutschek,E., Will,G. and Wilske,B.
+  TITLE     Molecular analysis of genes encoding outer surface protein C
+            (OspC) of Borrelia burgdorferi sensu lato: relationship to ospA
+            genotype and evidence of lateral gene exchange of ospC
+  JOURNAL   J. Clin. Microbiol. 33 (7), 1860-1866 (1995)
+   PUBMED   7665660
+REFERENCE   3  (bases 1 to 633)
+  AUTHORS   Roessler,D.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-JAN-1995) D. Roessler, Max von Pettenkofer Institut
+            fuer Hygiene und Medizinische Mikrobiol., Ludwig-Maximilians
+            Universitaet Muenchen, Pettenkoferstrasse 9a, D-80336 Muenchen,
+            FRG
+FEATURES             Location/Qualifiers
+     source          1..633
+                     /strain="PHei"
+                     /note="linear plasmid 26 Kb"
+                     /db_xref="taxon:29519"
+                     /organism="Borreliella garinii"
+                     /mol_type="genomic DNA"
+     gene            1..633
+                     /gene="OspC"
+     CDS             1..633
+                     /product="outer surface protein C"
+                     /transl_table=11
+                     /codon_start=1
+                     /protein_id="CAA58543.1"
+                     /gene="OspC"
+                     /translation="MKKNTLSAILMTLFLFISCNNSGGDTASTNPDESAKGPNLIEIS
+                     KKITDSNAFVLAVKEVEALISSIDELANKAIGKKINQNGLDADANHNGSLLAGAHAIS
+                     TLIKQKTDGLKDLEGLSKEIAKVKECSDKFTKKLTDSHAQLGAVGGAINDDRAKEAIL
+                     KTHGTNDKGAKELKELSESVESLAKAAQAALANSVKELTSPVVAESPKKP"
+                     /db_xref="GI:872026"
+                     /db_xref="GOA:Q57279"
+                     /db_xref="HSSP:1GGQ"
+                     /db_xref="InterPro:IPR001800"
+                     /db_xref="UniProtKB/TrEMBL:Q57279"
+     sig_peptide     1..54
+                     /gene="OspC"
+     mat_peptide     55..630
+                     /gene="OspC"
+                     /product="unnamed"
+     primer_bind     1..24
+     primer_bind     610..633
+ORIGIN      
+        1 atgaaaaaga atacattaag tgcgatatta atgactttat ttttatttat atcttgtaat
+       61 aattcaggtg gggatactgc atctactaat cctgatgagt ctgcgaaagg acctaatctt
+      121 atagaaataa gcaaaaaaat tacagattct aatgcatttg tactggctgt gaaagaagtt
+      181 gaggctttga tctcatctat agatgaactt gctaataaag ctattggtaa aaaaataaat
+      241 caaaatggtt tagatgctga tgctaatcac aacggatcat tgttagcagg agcccatgca
+      301 atatcaactc taataaaaca aaaaacagat ggattgaaag atctagaagg gttaagtaaa
+      361 gaaattgcaa aggtgaagga atgttccgat aaatttacta aaaagctaac agatagtcat
+      421 gcacagcttg gagcagttgg tggtgctatt aatgatgatc gtgcaaaaga agctatttta
+      481 aaaacacatg ggactaacga taagggtgct aaagaactta aagagttatc tgaatcagta
+      541 gaaagcttgg caaaagcagc tcaagcagca ttagctaatt cagttaaaga gcttacaagt
+      601 cctgttgtgg cagaaagtcc aaaaaaacct taa
+//

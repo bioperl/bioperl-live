@@ -2,7 +2,8 @@
 use rlib '.';
 use strict; use warnings;
 use Test::More;
-use Helper;
+require 'Helper.pm';
+
 
 my %notes = (
     'anonymize'   => 'anonymize sequence IDs',
@@ -39,8 +40,6 @@ my $multi_opts = [
      'pick-order-2,4.right', 'pick seqs by order delimited by commas'],
     ["--pick order:2-4", 'test-bioseq.nuc',
      'pick-order-2-4.right', 'pick seqs by order with range'],
-    ["--restrict EcoRI", 'test-bioseq-re.fas',
-     'restrict.right', 'restriction cut'],
     ["--hydroB", 'test-bioseq.pep',
      'hydroB.right', 'Hydrophobicity score'],
     ["--input genbank --output fasta", "test-bioseq.gb",

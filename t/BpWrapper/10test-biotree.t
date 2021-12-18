@@ -3,7 +3,7 @@ use rlib '.';
 use strict; use warnings;
 use Test::More;
 use Config;
-use Helper;
+require 'Helper.pm';
 
 my %notes = (
     # 'random' => 'build tree of random subset',

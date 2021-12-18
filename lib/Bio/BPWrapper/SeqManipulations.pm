@@ -54,7 +54,6 @@ del_by_length codon_sim codon_info);
 # Package global variables
 my ($in, $out, $seq, %opts, $filename, $in_format, $out_format, $guesser);
 use Bio::BPWrapper;
-my $VERSION = '1.0';
 
 ## For new options, just add an entry into this table with the same key as in
 ## the GetOpts function in the main program. Make the key be a reference to the handler subroutine (defined below), and test that it works.
@@ -145,8 +144,8 @@ sub initialize {
 
 # guess format won't work for piped input; remove
 #    if ($filename eq "STDIN") {
-#	my $lines; 
-#	my $line_ct = 0; 
+#	my $lines;
+#	my $line_ct = 0;
 #	while(<>) { $lines .= $_; $line_ct++; last if $line_ct >= 100 } # read the first 100 lines
 #	$guesser = Bio::Tools::GuessSeqFormat->new( -text => $lines );
 #    } else {
@@ -216,7 +215,7 @@ sub codon_sim {
 	    }
 	}
     }
-    
+
     my $myCodonTable  = Bio::Tools::CodonTable->new( -id => 1 );
 
     my (@cd_cts, %aas, %aa_cds);
@@ -226,9 +225,9 @@ sub codon_sim {
 	push @cd_cts, {codon => $cd, aa => $aa, cts => $cdtable->codon_count($cd)};
     }
 
-    foreach my $aa (keys %aas) { 
+    foreach my $aa (keys %aas) {
 	my @cds = grep {$_->{aa} eq $aa} @cd_cts;
-	my @cd_sets; 
+	my @cd_sets;
 	foreach (@cds) {
 	    for (my $i=1; $i<=$_->{cts}; $i++) {
 		push @cd_sets, $_->{codon};
@@ -261,11 +260,11 @@ sub count_gaps_dna {
 	print $num, "\n";
 	if ($num) {
 	    my @pos;
-	    foreach my $mono (keys %$ref) { 
-		foreach (@{$ref->{$mono}}) { push @pos, $_} 
+	    foreach my $mono (keys %$ref) {
+		foreach (@{$ref->{$mono}}) { push @pos, $_}
 	    }
 #	    print STDERR join "\t", sort {$a <=> $b} @pos;
-#	    print STDERR "\n"; 
+#	    print STDERR "\n";
 	}
     }
     exit;
@@ -278,11 +277,11 @@ sub count_gaps_aa {
 	print $num, "\n";
 	if ($num) {
 	    my @pos;
-	    foreach my $mono (keys %$ref) { 
-		foreach (@{$ref->{$mono}}) { push @pos, $_} 
+	    foreach my $mono (keys %$ref) {
+		foreach (@{$ref->{$mono}}) { push @pos, $_}
 	    }
 #	    print STDERR join "\t", sort {$a <=> $b} @pos;
-#	    print STDERR "\n"; 
+#	    print STDERR "\n";
 	}
     }
     exit;
@@ -381,7 +380,7 @@ sub update_longest_orf {
 		-id  => $seqobj->id() . "|$fm",
 		-seq => $fm > 0 ? $seqobj->subseq( $fm, $seqobj->length() ) : $seqobj->revcom()->subseq( abs($fm), $seqobj->length() )
 		);    # chop seq to frame first
-	    
+
 	    &_get_longest($new_seqobj, $longest, $fm);
 #	    warn "longest ORF:", $longest->{aa_length}, "\n";
 
@@ -414,7 +413,7 @@ sub _get_longest { # for each frame
     } else { # has internal stops
 	die $seq->id(), " contains ambiguous aa (X)\n" if $pep_string =~ /X/;
 	my $three_prime = $seq->length();
-    
+
 	my $start = 1;
 	my @aas = split '', $pep_string;
 	for ( my $i = 0; $i <= $#aas; $i++ ) {
@@ -435,7 +434,7 @@ sub _get_longest { # for each frame
 	    }
 	    $start = $i + 2; # re-start
 	}
-    } 
+    }
 }
 
 
@@ -452,7 +451,7 @@ sub iso_electric_point {
 }
 
 sub print_weight {
-    while ($seq = $in->next_seq()) { 
+    while ($seq = $in->next_seq()) {
 	my $ref_weight = Bio::Tools::SeqStats->get_mol_wt($seq);
 	print join "\t", $seq->id(), $ref_weight->[0], $ref_weight->[1];
 	print "\n";
@@ -488,7 +487,7 @@ sub codon_info {
 
     my $h_genome = 0;
     foreach my $aa (keys %aas) {
-	my @cds = grep {$_->{aa} eq $aa} @cd_cts; 
+	my @cds = grep {$_->{aa} eq $aa} @cd_cts;
 	$h_genome += &__cd_entropy(\@cds);
     }
 
@@ -536,12 +535,12 @@ sub codon_info {
 
 	my $h_cds = 0;
 	foreach my $aa (keys %oneLetterAA) {
-	    my @cds = grep {$_->{aa} eq $aa} @cdCTs; 
+	    my @cds = grep {$_->{aa} eq $aa} @cdCTs;
 	    $h_cds += &__cd_entropy(\@cds);
 	}
 	print $seq->id, "\t", $seq->length(), "\t", $numCodons, "\t";
 	printf "%.6f\n", $h_genome - $h_cds;
-    }    
+    }
 }
 
 sub __cd_entropy {
@@ -807,7 +806,7 @@ sub _internal_stop_or_x {
 	warn "Presence of internal stops at postions:\t", join(";", @internalStops), "\n";
     }
 
-    return @internalStops ? 1 : 0;	
+    return @internalStops ? 1 : 0;
 }
 
 =head2 reading_frame_ops
@@ -1139,7 +1138,7 @@ sub _in_list {
     my $ref_to_array = shift;
     foreach (@{$ref_to_array}) {
 	return 1 if $_ eq $scalar;
-    } 
+    }
     return 0;
 }
 

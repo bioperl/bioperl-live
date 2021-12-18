@@ -4,7 +4,6 @@ use warnings;
 use Pod::Usage;
 use FindBin;                      # Find the location of pop-manipulations
 use v5.10;
-use rlib '../lib';
 use Getopt::Long qw( :config bundling permute no_getopt_compat );
 use Bio::BPWrapper;
 use Bio::BPWrapper::PopManipulations;

@@ -60,7 +60,6 @@ my ($opts,     $aln_file, $aln,         $in,
 
 
 use Bio::BPWrapper;
-my $VERSION = $Bio::BPWrapper::VERSION;
 
 my %opt_dispatch = (
     'bi-sites' => \&bisites,
@@ -97,8 +96,8 @@ sub initialize {
     $aln_file = shift @ARGV || "STDIN";    # If no more arguments were given on the command line, assume we're getting input from standard input
 #    my $guesser;
 #    if ($aln_file eq "STDIN") {
-#	my $lines; 
-#	my $line_ct = 0; 
+#	my $lines;
+#	my $line_ct = 0;
 #	while(<>) { $lines .= $_; $line_ct++; last if $line_ct >= 100 } # read the first 100 lines
 #	$guesser = Bio::Tools::GuessSeqFormat->new( -text => $lines );
 #   } else {

@@ -1,0 +1,3 @@
+14	clade_1
+27	clade_2
+28	clade_3

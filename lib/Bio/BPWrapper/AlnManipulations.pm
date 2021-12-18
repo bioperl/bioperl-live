@@ -51,8 +51,6 @@ use Bio::BPWrapper;
 # Package global variables
 my ($in, $out, $aln, %opts, $file, $in_format, $out_format, @alns, $binary);
 
-my $VERSION = $Bio::BPWrapper::VERSION;
-
 ## For new options, just add an entry into this table with the same
 ## key as in the GetOpts function in the main program. Make the key be
 ## a reference to the handler subroutine (defined below), and test
@@ -132,7 +130,7 @@ sub initialize {
 #    my $s;
 #    my ($guesser);
 #    if ($file eq "STDIN") {
-#	my $line_ct = 0; 
+#	my $line_ct = 0;
 #	my $lines;
 #	while(<>) { $lines .= $_; $line_ct++; last if $line_ct >= 100 } # read the first 100 lines
 #	$guesser = Bio::Tools::GuessSeqFormat->new( -text => $lines );
@@ -174,9 +172,9 @@ sub initialize {
 	    $aln = $in->next_aln()
 	}
     }
-    
+
     $binary = $opts{"binary"} ? 1 : 0;
-    
+
     #### Options which *require an output FH* go *after* this ####
     $out_format = $opts{"output"} || $default_format;
     $out = Bio::AlignIO->new(-format => $out_format, -fh => \*STDOUT) unless $out_format eq 'paml'
@@ -270,17 +268,17 @@ sub phylip_non_interleaved {
 sub gap_char {
     my $char = $opts{'gap-char'};
     die "gap-char takes a single character\n" unless length($char) == 1;
-    foreach my $seq ($aln->each_seq()) { 
+    foreach my $seq ($aln->each_seq()) {
 	my $seq_str = $seq->seq();
 	$seq_str =~ s/[\.-]/$char/g;
-	$seq->seq($seq_str); 
+	$seq->seq($seq_str);
     }
 }
 
 sub pair_diff_ref {
     my $refId = $opts{'pair-diff-ref'};
     my (@seqs, $refSeq);
-    foreach my $seq ($aln->each_seq()) { 
+    foreach my $seq ($aln->each_seq()) {
 	if ($seq->id eq $refId) {
 	    $refSeq = $seq;
 	} else {
@@ -307,10 +305,10 @@ sub pair_diff_ref {
 	    my $mB = $seqB->subseq($j,$j);
 	    next if $refSeq->alphabet eq 'dna' && $seqB->alphabet eq 'dna' && ($mA !~ /^[ATCG]$/i || $mB !~ /^[ATCG]$/i);
 #		next if $match_symbols[$i] eq '*';
-	    next if $mA eq '-' || $mB eq '-'; 
+	    next if $mA eq '-' || $mB eq '-';
 	    $ct_valid++;
 	    $ct_diff++ unless $mA eq $mB;
-#	    next if $match_symbols[$i] eq '*'; 
+#	    next if $match_symbols[$i] eq '*';
 	}
 	my $pairdiff = $pair->percentage_identity();
 	print join "\t", ($refId, $idB, $ct_diff, $ct_valid, $pair->length());
@@ -328,7 +326,7 @@ sub pair_diff {
     my $num_var = 0; # contain gaps
 #    my $num_var = 0; # de-gapped variable sites
     for (my $i = 0; $i < $alnBack->length; $i++) {
-	next if $match_symbols_full[$i] eq '*'; 
+	next if $match_symbols_full[$i] eq '*';
 	$num_var++;
     }
 
@@ -358,7 +356,7 @@ sub pair_diff {
 		my $mB = $seqB->subseq($j,$j);
 		next if $seqA->alphabet eq 'dna' && $seqB->alphabet eq 'dna' && ($mA !~ /^[ATCG]$/i || $mB !~ /^[ATCG]$/i);
 		$gap_included_diff++ unless $mA eq $mB;
-#		next if $match_symbols[$i] eq '*'; 
+#		next if $match_symbols[$i] eq '*';
 		next if $mA eq '-' || $mB eq '-';
 		$ct_valid++;
 		$ct_diff++ unless $mA eq $mB;
@@ -901,7 +899,7 @@ sub binary_ref {
     # Go through each column and save variable sites
     my $ref_bases = &_get_a_site_v2(); #print Dumper($ref_bases); exit;
     my $seenRef = 0;
-    foreach (sort keys %$ref_bases) { 
+    foreach (sort keys %$ref_bases) {
 	push @seq_ids, $_;
 	next unless $_ eq $refId;
 	$seenRef++;
@@ -1025,8 +1023,8 @@ sub concat {
 	my $start = $pos + 1;
 	$pos += $refGenesInOrder[$i]->length();
 	my $end = $pos;
-	$geneRange{$i+1} = {'start' => $start, 
-			    'end' => $end, 
+	$geneRange{$i+1} = {'start' => $start,
+			    'end' => $end,
 	};
     }
 
@@ -1041,17 +1039,17 @@ sub concat {
 	    'pos_unaligned' => $refSeq->location_from_column($i)->start(),
 	    'gene_order' => $inGene,
 	    'pos_gene_aln' => $posGene,
-	    'pos_gene_unaligned' => $refGenesInOrder[$inGene-1]->location_from_column($posGene)->start() 
+	    'pos_gene_unaligned' => $refGenesInOrder[$inGene-1]->location_from_column($posGene)->start()
 	};
     }
     open LOG, ">concat.log";
     print LOG join "\t", ("seq_id", "pos_concat", "pos_residue", "gene", "pos_gene_aligned", "pos_gene");
-    print LOG "\n"; 
+    print LOG "\n";
     foreach (@locTable) {
 	print LOG join "\t", (
 	    $refSeq->id(),
-	    $_->{pos_concat}, 
-	    $_->{pos_unaligned}, 
+	    $_->{pos_concat},
+	    $_->{pos_unaligned},
 	    $_->{gene_order},
 	    $_->{pos_gene_aln},
 	    $_->{pos_gene_unaligned}
@@ -1068,7 +1066,7 @@ sub __gene_order {
     my %range = %$ref;
     foreach my $gene (keys %range) {
 	next unless $pos >= $range{$gene}->{start} && $pos <= $range{$gene}->{end};
-	return ($gene, $pos - $range{$gene}->{'start'} + 1) 
+	return ($gene, $pos - $range{$gene}->{'start'} + 1)
     }
     die "Not found in any genes: position $pos\n";
 }

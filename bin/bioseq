@@ -3,7 +3,6 @@
 use strict;
 use warnings;
 use v5.10;
-use rlib '../lib';
 use Bio::BPWrapper::SeqManipulations;
 use Getopt::Long qw( :config bundling permute no_getopt_compat );
 use Pod::Usage;
@@ -29,7 +28,7 @@ GetOptions(
     "input|i=s",
     "lead-gaps|G",
     "length|l",
-    "longest-orf|z", 
+    "longest-orf|z",
     "linearize|L",
     "mol-wt",
     "no-gaps|g",
@@ -166,7 +165,7 @@ Calculate codon bias of a CDS using Shannon information, as deviation from the g
 
 =item --codon-sim <CUTG file>
 
-(Temporarily disabled) 
+(Temporarily disabled)
 
 Output a CDS with the same AA sequence with each AA replaced by a synonymous codon randomly chosen from a genome codon pool (specified by CUTG GCG file; see test-files/BbB31.cutg). Only the 1st sequence used if multiple sequences are supplied.
 
@@ -248,14 +247,14 @@ Print lower and upper bound of molecular weight
 
 =item --num-gaps-dna
 
-Print number of non-ATCG's for a dna sequence. 
+Print number of non-ATCG's for a dna sequence.
 
 Redirect STDERR to a file to view non-ATCG positions, e.g.,:
  bioseq --num-gaps-dna seq.fas > out 2> log
 
 =item --num-gaps-aa
 
-Print number of non-AA's for a protein sequence. 
+Print number of non-AA's for a protein sequence.
 
 Redirect STDERR to a file to view non-AA positions, e.g.,:
  bioseq --num-gaps-aa seq.pep > out 2> log

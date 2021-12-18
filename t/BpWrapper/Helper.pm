@@ -5,7 +5,6 @@ use File::Basename qw(dirname basename); use File::Spec;
 # Funky terminals like xterm on cygwin can mess up output comparison.
 $ENV{'TERM'}='dumb';
 
-package Helper;
 use English qw( -no_match_vars ) ;
 use Config;
 use File::Basename qw(dirname basename); use File::Spec;
@@ -21,7 +20,7 @@ my $dirname = dirname(__FILE__);
 
 sub test_file_name($)
 {
-    File::Spec->catfile($dirname, '..', 'test-files', shift)
+    File::Spec->catfile($dirname, 'test-files', shift)
 }
 
 # Runs bio program in a subshell. 0 is returned if everything went okay.
@@ -42,7 +41,7 @@ sub run_bio_program($$$$;$)
 
     my $full_check_filename = File::Spec->catfile($dirname, 'check-data',
 						  "${bio_program}-${check_filename}");
-    my $full_bio_progname = File::Spec->catfile($dirname, '..', 'bin', $bio_program);
+    my $full_bio_progname = File::Spec->catfile($dirname, '..', '..', 'bin', $bio_program);
 
     my $ext_file = sub {
         my ($ext) = @_;
@@ -123,7 +122,7 @@ sub run_bio_program_nocheck($$$;$)
 	$full_data_filename = test_file_name($data_filename);
     }
 
-    my $full_bio_progname = File::Spec->catfile($dirname, '..', 'bin', $bio_program);
+    my $full_bio_progname = File::Spec->catfile($dirname, '..', '..', 'bin', $bio_program);
 
     my $err_filename = "$$.err";
 
@@ -168,7 +167,7 @@ sub test_one_arg_opts($$$) {
 
 # Demo program
 unless(caller) {
-    run_bio_program('bioaln', 'test-bioaln.cds', '-a', 'opt-a.right');
+    run_bio_program('bioaln', 'test-bioaln.cds', '-aln', 'opt-aln-index.right');
     Test::More::done_testing();
 }
 1;

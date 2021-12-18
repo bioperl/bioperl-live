@@ -1,7 +1,6 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use rlib '../lib';
 use v5.10;
 use Bio::BPWrapper;
 use Bio::BPWrapper::TreeManipulations;
@@ -44,17 +43,17 @@ GetOptions(\%opts,
 	   "otus-all|u",
 	   "otus-desc|U:s",
 	   "otus-num|n",
-	   "output|o=s", 
+	   "output|o=s",
 	   "random=i",
 	   "ref=s", # specify reference OTU (move to top)
-	   "rename-tips=s", 
+	   "rename-tips=s",
 	   "reroot|r=s",
  	   "rotate-node=s", # rotate around an internal node (give node id)
 	   "sis-pairs", # pairwise OTU togetherness
 #	   "sort-child=s", # sort child by height (default) or others (to make output tree consistent)
 	   "subset|s=s",
 	   "swap-otus=s", # ??
-	   "tips-to-root", 
+	   "tips-to-root",
 	   "tree-shape", # for apTreeshape package
 	   "walk|w=s",
 	   "walk-edge=s",

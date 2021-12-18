@@ -3,8 +3,7 @@ use rlib '.';
 use strict; use warnings;
 use Test::More;
 use Config;
-use Helper;
-
+require 'Helper.pm';
 
 # option background (background needs special care)
 my %notes = (

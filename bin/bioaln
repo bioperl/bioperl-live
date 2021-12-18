@@ -6,7 +6,6 @@ use warnings;
 use v5.10;
 use Getopt::Long qw( :config bundling permute no_getopt_compat );
 use Pod::Usage;
-use rlib '../lib';
 
 use Pod::Usage;
 use Bio::BPWrapper;
@@ -167,7 +166,7 @@ Print only binary informative sites (e.g., for parsimony analysis). Example PHYL
 
 =item --bin-ref "ref-id"
 
-Transform DNA strings into binary strings according to a reference seq. Gapped & non-binary sites skipped (with position returned as STDERR). 
+Transform DNA strings into binary strings according to a reference seq. Gapped & non-binary sites skipped (with position returned as STDERR).
 
 =item --boot, -b
 

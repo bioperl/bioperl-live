@@ -1,0 +1,99 @@
+CLUSTAL W (1.81) multiple sequence alignment
+
+
+JD1:1:102:1601:ORFJ00027      ------------------------------atgtataaacaacaatattttatttctggc
+94a:1:107:117:orf00001        ------------------------------atgtataaacaacaatattttatttctggc
+118a:1:106:158122218:orf00020 ------------------------------atgtataaacaacaatattttatttctggc
+B31:1:100:4091:ORFB0018       ------------------------------atgtataaacaacaatattttatttctggc
+72a:1:105:32:orf00022         ------------------------------atgtataaacaacaatattttatttctggc
+64b:1:110:473:orf00001        ------------------------------atgtataaacaacaatattttatttctggc
+29805:1:108:171:orf00001      ------------------------------atgtataaacaacaatattttatttctggc
+BOL26:1:111:60:orf00001       ------------------------------atgtataaacaacaatattttatttctggc
+CA-11.2A:1:109:33:orf00001    ------------------------------atgtataaacaacaatattttatttctggc
+WI91-23:1:112:493:orf00001    ------------------------------atgtataaacaacaatattttatttctggc
+297:1:103:411:ORFB00012       ttggatagattttatacaaagaaggtaataatgtataaacaacaatattttatttctggc
+N40:1:101:1716:ORFK00021      ------------------------------atgtataaacaacaatattttatttctggc
+ZS7:1:113:22:orf00001         ------------------------------atgtataaacaacaatattttatttctggc
+                                                            ******************************
+
+
+JD1:1:102:1601:ORFJ00027      aaggtgcaaggtgttggttttagatttttcacagagcaaatagcaaataatatgaaacta
+94a:1:107:117:orf00001        aaggtacaaggtgttggttttagattttttacagagcaaatagcaaataatatgaaacta
+118a:1:106:158122218:orf00020 aaggtacaaggtgttggttttagattttttacagagcaaatagcaaataatatgaaacta
+B31:1:100:4091:ORFB0018       aaggtgcaaggtgttggttttagatttttcacagagcaaatagcaaataatatgaaacta
+72a:1:105:32:orf00022         aaggtacaaggtgttggttttagattttttacagagcaaatagcaaataatatgaaacta
+64b:1:110:473:orf00001        aaggtgcaaggtgttggttttagatttttcacagagcaaatagcaaataatatgaaacta
+29805:1:108:171:orf00001      aaggtgcaaggtgttggttttagatttttcacagagcaaatagcaaataatatgaaacta
+BOL26:1:111:60:orf00001       aaggtacaaggtgttggttttagattttttacagagcaaatagcaaataatatgaaacta
+CA-11.2A:1:109:33:orf00001    aaggtacaaggtgttggttttagattttttacagagcaaatagcaaataatatgaaacta
+WI91-23:1:112:493:orf00001    aaggtgcaaggtgttggttttagatttttcacagagcaaatagcaaataatatgaaacta
+297:1:103:411:ORFB00012       aaggtacaaggtgttggttttagattttttacagagcaaatagcaaataatatgaaacta
+N40:1:101:1716:ORFK00021      aaggtgcaaggtgttggttttagatttttcacagagcaaatagcaaataatatgaaacta
+ZS7:1:113:22:orf00001         aaggtacaaggtgttggttttagattttttacagagcaaatagcaaataatatgaaacta
+                              ***** *********************** ******************************
+
+
+JD1:1:102:1601:ORFJ00027      aaaggatttgtaaaaaatctcaacgatggaagggtagaaattgtagctttctttaatact
+94a:1:107:117:orf00001        aaaggatttgtaaaaaatctaaacgatggaagggtagaaattgtagctttctttaatact
+118a:1:106:158122218:orf00020 aaaggatttgtaaaaaatctaaacgatggaagggtagaaattgtagctttctttaatact
+B31:1:100:4091:ORFB0018       aaaggatttgtaaaaaatctcaacgatggaagggtagaaattgtagctttctttaatact
+72a:1:105:32:orf00022         aaaggatttgtaaaaaatctaaacgatggaagggtagaaattgtagctttctttaatact
+64b:1:110:473:orf00001        aaaggatttgtaaaaaatctcaacgatggaagggtagaaattgtagctttctttaatact
+29805:1:108:171:orf00001      aaaggatttgtaaaaaatctcaacgatggaagggtagaaattgtagctttctttaatact
+BOL26:1:111:60:orf00001       aaaggatttgtaaaaaatctcaacgatggaagggtagaaattgtagctttctttaatact
+CA-11.2A:1:109:33:orf00001    aaaggatttgtaaaaaatctaaacgatggaagggtagaaattgtagctttctttaatact
+WI91-23:1:112:493:orf00001    aaaggatttgtaaaaaatctcaacgatggaagggtagaaattgtagctttctttaatact
+297:1:103:411:ORFB00012       aaaggatttgtaaaaaatctaaacgatggaagggtagaaattgtagctttctttaatact
+N40:1:101:1716:ORFK00021      aaaggatttgtaaaaaatctcaacgatggaagggtagaaattgtagctttctttaatact
+ZS7:1:113:22:orf00001         aaaggatttgtaaaaaatctcaacgatggaagggtagaaattgtagctttctttaatact
+                              ******************** ***************************************
+
+
+JD1:1:102:1601:ORFJ00027      aaagaacaaatgaaaaaatttgaaaaattattaaatgggaataagtattcaaacattaaa
+94a:1:107:117:orf00001        aaagaacaaatgaaaaaatttgaaaaattattaaatgggaataagtattcaaacattgaa
+118a:1:106:158122218:orf00020 aaagaacaaatgaaaaaatttgaaaaattattaaatgggaataagtattcaaacattgaa
+B31:1:100:4091:ORFB0018       aaagaacaaatgaaaaaatttgaaaaattattaaatgggaataagtattcaaacattaaa
+72a:1:105:32:orf00022         aaagaacaaatgaaaaaatttgaaaaattattaaatgggaataagtattcaaacattgaa
+64b:1:110:473:orf00001        aaagaacaaatgaaaaaatttgaaaaattattaaatgggaataagtattcaaacattaaa
+29805:1:108:171:orf00001      aaagaacaaatgaaaaaatttgaaaaattattaaatgggaataagtattcaaacattgaa
+BOL26:1:111:60:orf00001       aaagaacaaatgaaaaaatttgaaaaattattaaatgggaataagtattcaaacattaaa
+CA-11.2A:1:109:33:orf00001    aaagaacaaatgaaaaaatttgaaaaattattaaatgggaataagtattcaaacattgaa
+WI91-23:1:112:493:orf00001    aaagaacaaatgaaaaaatttgaaaaattattaaatgggaataagtattcaaacattgaa
+297:1:103:411:ORFB00012       aaagaacaaatgaaaaaatttgaaaaattattaaatgggaataagtattcaaacattgaa
+N40:1:101:1716:ORFK00021      aaagaacaaatgaaaaaatttgaaaaattattaaatgggaataagtattcaaacattgaa
+ZS7:1:113:22:orf00001         aaagaacaaatgaaaaaatttgaaaaattattaaatgggaataagtattcaaacattaaa
+                              ********************************************************* **
+
+
+JD1:1:102:1601:ORFJ00027      aacattgaaaaaatagttttagatgaaaattatccttttcaatttaatgattttaaaatt
+94a:1:107:117:orf00001        aacattgaaaaaatagttttagatgaaaattatccttttcaatttaatgattttaaaatt
+118a:1:106:158122218:orf00020 aacattgaaaaaatagttttagatgaaaattatccttttcaatttaatgattttaaaatt
+B31:1:100:4091:ORFB0018       aacattgaaaaaatagttttagatgaaaattatccttttcaatttaatgattttaaaatt
+72a:1:105:32:orf00022         aacattgaaaaaatagttttagatgaaaattatccttttcaatttaatgattttaaaatt
+64b:1:110:473:orf00001        aacattgaaaaaatagttttagatgaaaattatccttttcaatttaatgattttaaaatt
+29805:1:108:171:orf00001      aacattgaaaaaatagctttagatgaaaattatccttttcaatttaatgattttaaaatt
+BOL26:1:111:60:orf00001       aacattgaaaaaatagttttagatgaaaattatccttttcaatttaatgattttaaaatt
+CA-11.2A:1:109:33:orf00001    aacattgaaaaaatagttttagatgaaaattatccttttcaatttaatgattttaaaatt
+WI91-23:1:112:493:orf00001    aacattgaaaaaatagctttagatgaaaattatccttttcaatttaatgattttaaaatt
+297:1:103:411:ORFB00012       aacattgaaaaaatagttttagatgaaaattatccttttcaatttaatgattttaaaatt
+N40:1:101:1716:ORFK00021      aacattgaaaaaatagctttagatgaaaattatccttttcaatttaatgattttaaaatt
+ZS7:1:113:22:orf00001         aacattgaaaaaatagttttagatgaaaattatccttttcaatttaatgattttaaaatt
+                              **************** *******************************************
+
+
+JD1:1:102:1601:ORFJ00027      tattat
+94a:1:107:117:orf00001        tattat
+118a:1:106:158122218:orf00020 tattat
+B31:1:100:4091:ORFB0018       tattat
+72a:1:105:32:orf00022         tattat
+64b:1:110:473:orf00001        tattat
+29805:1:108:171:orf00001      tattat
+BOL26:1:111:60:orf00001       tattat
+CA-11.2A:1:109:33:orf00001    tattat
+WI91-23:1:112:493:orf00001    tattat
+297:1:103:411:ORFB00012       tattat
+N40:1:101:1716:ORFK00021      tattat
+ZS7:1:113:22:orf00001         tattat
+                              ******
+
+
