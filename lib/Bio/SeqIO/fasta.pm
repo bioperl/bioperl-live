@@ -314,7 +314,7 @@ sub write_seq {
             my $buff_max = 2000;
             my $buff_size = int($buff_max/$width)*$width; #< buffer is even multiple of widths
             my $seq_length = $seq->length;
-            my $num_chunks = int($seq_length/$buff_size+1);
+            my $num_chunks = int(($seq_length-1)/$buff_size+1);
             for( my $c = 0; $c < $num_chunks; $c++ ) {
                 my $buff_end = $buff_size*($c+1);
                 $buff_end = $seq_length if $buff_end > $seq_length;
