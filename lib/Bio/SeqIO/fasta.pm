@@ -311,7 +311,7 @@ sub write_seq {
             # for large seqs, don't call seq(), it defeats the
             # purpose of the largeseq functionality.  instead get
             # chunks of the seq, $width at a time
-            my $buff_max = 2000;
+            my $buff_max = 200000;
             my $buff_size = int($buff_max/$width)*$width; #< buffer is even multiple of widths
             my $seq_length = $seq->length;
             my $num_chunks = int(($seq_length-1)/$buff_size+1);
