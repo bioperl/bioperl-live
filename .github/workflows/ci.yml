@@ -54,13 +54,15 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
         perl: ['5']
+        author-testing: [false]
         include:
+          - { os: 'ubuntu-latest', perl: "5"    , author-testing: true  }
           - { os: 'ubuntu-latest', perl: "5.16" }
           - { os: 'ubuntu-latest', perl: "5.20" }
           - { os: 'ubuntu-latest', perl: "5.30" }
           - { os: 'ubuntu-latest', perl: "5.32" }
           - { os: 'ubuntu-latest', perl: "5.36" }
-    name: Perl ${{ matrix.perl }} on ${{ matrix.os }}
+    name: Perl ${{ matrix.perl }} on ${{ matrix.os }}, author (${{ matrix.author-testing || 'false' }})
 
     steps:
       - name: Get dist artifact
@@ -90,6 +92,17 @@ jobs:
       - name: Install Perl deps
         run: |
           cpanm --notest --installdeps .
+
+      - name: Install Perl develop deps
+        if: matrix.author-testing
+        run: |
+          cpanm --notest --installdeps --with-develop .
+
+      - name: Set AUTHOR_TESTING
+        if: matrix.author-testing
+        shell: bash
+        run: |
+          echo "AUTHOR_TESTING=1" >> $GITHUB_ENV
 
       - name: Run tests
         run: |
