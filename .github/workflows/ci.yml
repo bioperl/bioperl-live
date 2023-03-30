@@ -1,0 +1,96 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+
+env:
+  PKG_DEPS_UBUNTU: >-
+    libdb-dev
+
+jobs:
+  dist:
+    name: Make distribution using Dist::Zilla
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Cache ~/perl5
+        uses: actions/cache@v3
+        with:
+          key: ${{ runner.os }}-dist-locallib
+          path: ~/perl5
+      - name: Perl version
+        run: |
+          perl -v
+      - name: Install cpanm
+        run: |
+          curl -L https://cpanmin.us | perl - --sudo App::cpanminus
+      - name: Install local::lib
+        run: |
+          cpanm --local-lib=~/perl5 local::lib && eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
+      - name: Install Dist::Zilla
+        shell: bash
+        run: |
+          eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
+          cpanm -n Dist::Zilla
+          dzil authordeps --missing | cpanm -n
+      - name: Make distribution
+        shell: bash
+        run: |
+          eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
+          dzil build --in build-dir
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: ./build-dir
+  test:
+    needs: dist
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        perl: ['5']
+        include:
+          - { os: 'ubuntu-latest', perl: "5.16" }
+          - { os: 'ubuntu-latest', perl: "5.20" }
+          - { os: 'ubuntu-latest', perl: "5.30" }
+          - { os: 'ubuntu-latest', perl: "5.32" }
+          - { os: 'ubuntu-latest', perl: "5.36" }
+    name: Perl ${{ matrix.perl }} on ${{ matrix.os }}
+
+    steps:
+      - name: Get dist artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: dist
+
+      # Setup system deps
+      - name: Setup system deps (apt)
+        if: runner.os == 'Linux' && env.PKG_DEPS_UBUNTU
+        run: |
+          sudo apt-get -y update && sudo apt-get install -y --no-install-recommends ${{ env.PKG_DEPS_UBUNTU }}
+
+      - name: Set up perl
+        uses: shogo82148/actions-setup-perl@v1
+        if: matrix.os != 'windows-latest'
+        with:
+          perl-version: ${{ matrix.perl }}
+      - name: Set up perl (Strawberry)
+        uses: shogo82148/actions-setup-perl@v1
+        if: matrix.os == 'windows-latest'
+        with:
+          distribution: 'strawberry'
+
+      - run: perl -V
+
+      - name: Install Perl deps
+        run: |
+          cpanm --notest --installdeps .
+
+      - name: Run tests
+        run: |
+          cpanm --verbose --test-only .
