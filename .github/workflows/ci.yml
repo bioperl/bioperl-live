@@ -56,13 +56,13 @@ jobs:
         perl: ['5']
         author-testing: [false]
         include:
-          - { os: 'ubuntu-latest', perl: "5"    , author-testing: true  }
+          - { os: 'ubuntu-latest', perl: "5"    , author-testing: true  , coverage: true }
           - { os: 'ubuntu-latest', perl: "5.16" }
           - { os: 'ubuntu-latest', perl: "5.20" }
           - { os: 'ubuntu-latest', perl: "5.30" }
           - { os: 'ubuntu-latest', perl: "5.32" }
           - { os: 'ubuntu-latest', perl: "5.36" }
-    name: Perl ${{ matrix.perl }} on ${{ matrix.os }}, author (${{ matrix.author-testing || 'false' }})
+    name: Perl ${{ matrix.perl }} on ${{ matrix.os }}, author (${{ matrix.author-testing || 'false' }}), coverage (${{ matrix.coverage }})
 
     steps:
       - name: Get dist artifact
@@ -98,12 +98,27 @@ jobs:
         run: |
           cpanm --notest --installdeps --with-develop .
 
+      - name: Install Perl coverage deps
+        if: matrix.coverage
+        run: |
+          cpanm --notest Devel::Cover::Report::Coveralls
+
       - name: Set AUTHOR_TESTING
         if: matrix.author-testing
         shell: bash
         run: |
           echo "AUTHOR_TESTING=1" >> $GITHUB_ENV
 
-      - name: Run tests
+      - name: Run tests (no coverage)
+        if: ${{ ! matrix.coverage }}
         run: |
           cpanm --verbose --test-only .
+
+      - name: Run tests (with coverage)
+        if: matrix.coverage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HARNESS_PERL_SWITCHES: -MDevel::Cover
+        run: |
+          cpanm --verbose --test-only .
+          cover -report Coveralls
