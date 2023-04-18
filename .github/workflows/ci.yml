@@ -9,6 +9,8 @@ on:
 env:
   PKG_DEPS_UBUNTU: >-
     libdb-dev
+  PKG_DEPS_DEBIAN: >-
+    libdb-dev
   PERL_MIN_VERSION: '5.12'
 
 jobs:
@@ -144,3 +146,29 @@ jobs:
         run: |
           cpanm --verbose --test-only .
           cover -report Coveralls
+
+  containers:
+    needs: dist
+    runs-on: ubuntu-latest
+    container: ${{ matrix.container }}
+    strategy:
+      fail-fast: false
+      matrix:
+        container: ['debian:bullseye', 'debian:bookworm']
+    steps:
+      - name: Get dist artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: dist
+      - name: Setup system deps (apt)
+        if: ${{ startsWith(matrix.container, 'debian:') }}
+        run: |
+          apt-get -y update && apt-get install -y --no-install-recommends perl cpanminus make apt-file
+          apt-file update
+          apt-get install -y --no-install-recommends \
+            ${{ env.PKG_DEPS_DEBIAN }} \
+            $( cpanm -q --showdeps .  | perl -MConfig -MCwd=abs_path '-M5;@prefixes = map abs_path($_), @Config{qw(vendorlibexp vendorarchexp)}' -lpe 's,~.*$,,; s,::,/,g; $mod = $_; $_ = join qq{\n}, map { qq{$_/${mod}.pm} } @prefixes' | apt-file search -lFf - )
+
+      - name: Run tests
+        run: |
+          cpanm --verbose --test-only .
