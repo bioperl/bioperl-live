@@ -9,12 +9,14 @@ on:
 env:
   PKG_DEPS_UBUNTU: >-
     libdb-dev
+  PERL_MIN_VERSION: '5.12'
 
 jobs:
   dist:
     name: Make distribution using Dist::Zilla
     runs-on: ubuntu-latest
     steps:
+      # Build the dist using Dist::Zilla.
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Cache ~/perl5
@@ -47,6 +49,29 @@ jobs:
         with:
           name: dist
           path: ./build-dir
+      # Get Perl versions to test.
+      - uses: shogo82148/actions-setup-perl@v1
+      - id: set-perl-versions
+        name: Get Perl versions to test (minimum and median)
+        shell: perl {0}
+        run: |
+          use Actions::Core;
+          use List::Util qw(uniqstr first);
+
+          die 'Minimum version not specified as major version 5.xyz' unless $ENV{PERL_MIN_VERSION} =~ /^5\.[0-9]+$/;
+          my $min_perl = $ENV{PERL_MIN_VERSION};
+          info("Minimum Perl version is $min_perl");
+          set_output(min => $min_perl);
+
+          my @non_patch_versions = uniqstr map { /^(\d+\.\d+)/ } perl_versions( platform => 'linux' );
+          my $min_idx = first { $non_patch_versions[$_] eq $min_perl } 0..$#non_patch_versions;
+          my $median_perl = $non_patch_versions[int($min_idx/2)];
+          info("Median Perl version is $median_perl");
+          set_output(med => $median_perl );
+    outputs:
+      min-perl-version: ${{ steps.set-perl-versions.outputs.min }}
+      med-perl-version: ${{ steps.set-perl-versions.outputs.med }}
+
   test:
     needs: dist
     runs-on: ${{ matrix.os }}
@@ -57,11 +82,8 @@ jobs:
         author-testing: [false]
         include:
           - { os: 'ubuntu-latest', perl: "5"    , author-testing: true  , coverage: true }
-          - { os: 'ubuntu-latest', perl: "5.16" }
-          - { os: 'ubuntu-latest', perl: "5.20" }
-          - { os: 'ubuntu-latest', perl: "5.30" }
-          - { os: 'ubuntu-latest', perl: "5.32" }
-          - { os: 'ubuntu-latest', perl: "5.36" }
+          - { os: 'ubuntu-latest', perl: "${{ needs.dist.outputs.med-perl-version }}" }
+          - { os: 'ubuntu-latest', perl: "${{ needs.dist.outputs.min-perl-version }}" }
     name: Perl ${{ matrix.perl }} on ${{ matrix.os }}, author (${{ matrix.author-testing || 'false' }}), coverage (${{ matrix.coverage }})
 
     steps:
