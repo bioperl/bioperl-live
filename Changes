@@ -2,6 +2,8 @@ Summary of important user-visible changes for BioPerl
 -----------------------------------------------------
 
 {{$NEXT}}
+    * Add minimum dependency on base.pm v2.18. Fixes bug in some cases when
+      using SUPER::new() [#307].
 
 1.7.8     2021-02-02 23:02:18-06:00 America/Chicago
     * Bio::SeqIO::interpro has been moved to a separate repository to
