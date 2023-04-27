@@ -3,7 +3,7 @@ package Bio::Root::Root;
 use strict;
 use Bio::Root::IO;
 use Scalar::Util qw(blessed reftype);
-use base qw(Bio::Root::RootI);
+use base 2.18 qw(Bio::Root::RootI);
 
 =head1 NAME
 
