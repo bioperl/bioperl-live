@@ -9,6 +9,7 @@ BEGIN {
 	test_begin(-tests => 15,
 			   -requires_modules => [qw(XML::SAX
 									    XML::SAX::Writer
+									    XML::SAX::PurePerl
 										XML::SAX::Base)]);
     
 	use_ok('Bio::SeqIO');
@@ -16,6 +17,10 @@ BEGIN {
 
 my $verbose = test_debug();
 
+# Using lax parser XML::SAX::PurePerl due to external DTD error (404 for URL,
+# invalid redeclaration of predefined entity) instead of others such as
+# XML::LibXML::SAX. See GH#376.
+local $XML::SAX::ParserPackage = 'XML::SAX::PurePerl';
 my $str = Bio::SeqIO->new(-format => 'bsml_sax',
 			  -verbose => $verbose,
 			  -file => test_input_file('U83300.bsml'));
