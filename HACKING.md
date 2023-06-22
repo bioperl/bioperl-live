@@ -145,7 +145,7 @@ documented here but are not part of the BioPerl distribution.
 
 BioPerl currently uses a [semantic versioning](https://semver.org/)
 scheme for version numbers.  Basically, a version has three numbers in
-the form `MAJOR.MINOR.PATH`, each of which changes when:
+the form `MAJOR.MINOR.PATCH`, each of which changes when:
 
 1. `MAJOR` --- incompatible API changes,
 2. `MINOR` --- new functionality in a backwards-compatible manner,
