@@ -739,7 +739,7 @@ sub _gff1_string{
     if( $feat->can('seqname') ) {
         $name = $feat->seq_id();
     }
-    $name = 'SEQ' if (! $name and $name ne "0");
+    $name = 'SEQ' if ! length($name);
 
     $str = join("\t",
                 $name,
@@ -805,7 +805,7 @@ sub _gff2_string{
     if( $feat->can('seqname') ) {
         $name = $feat->seq_id();
     }
-    $name = 'SEQ' if (! $name and $name ne "0");
+    $name = 'SEQ' if ! length($name);
 
     $str1 = join("\t",
                  $name,
@@ -907,7 +907,7 @@ sub _gff25_string {
     if( $feat->can('seqname') ) {
         $name = $feat->seq_id();
     } 
-    $name = 'SEQ' if (! $name and $name ne "0");
+    $name = 'SEQ' if ! length($name);
 
     $str1 = join("\t",
                  $name,
@@ -1011,7 +1011,7 @@ sub _gff3_string {
     if( $feat->can('seqname') ) {
         $name = $feat->seq_id();
     } 
-    $name = 'SEQ' if (! $name and $name ne "0");
+    $name = 'SEQ' if ! length($name);
 
     my @groups;
 
