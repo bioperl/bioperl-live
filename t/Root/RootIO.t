@@ -12,7 +12,7 @@ BEGIN {
     use_ok 'Bio::Root::IO';
 }
 
-my $TESTURL = 'http://www.google.com/index.html';
+my $TESTURL = 'https://bioperl.org';
 
 my $rio;
 
