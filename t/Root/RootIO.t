@@ -8,7 +8,8 @@ use warnings;
 BEGIN {
     use Bio::Root::Test;
     test_begin(-tests => 3,
-	       -requires_networking => 1);
+               -requires_modules => ["LWP::Protocol::https"],
+               -requires_networking => 1);
     use_ok 'Bio::Root::IO';
 }
 
