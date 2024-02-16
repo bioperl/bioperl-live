@@ -330,7 +330,7 @@ sub new {
              @args);
 
     $id = 1 if ( ! defined ( $id ) );
-    $id  && $self->id($id);
+    $self->id($id);
     return $self; # success - we hope!
 }
 
