@@ -352,7 +352,7 @@ sub new {
 sub id{
     my ($self,$value) = @_;
     if( defined $value) {
-        if (  not defined $TABLES[$value] or $TABLES[$value] eq '' or $TABLES[$value] eq "''") {
+        if (  not defined $TABLES[$value] or $TABLES[$value] eq '' or $TABLES[$value] eq "''" or $value < 0) {
             $self->warn("Not a valid codon table ID [$value], using [1] instead ");
             $value = 1;
         }
