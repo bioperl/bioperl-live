@@ -18,6 +18,10 @@ my $myCodonTable = Bio::Tools::CodonTable -> new ( -id => 16);
 ok defined $myCodonTable;
 isa_ok $myCodonTable, 'Bio::Tools::CodonTable';
 
+# Access to ID table 0 
+$myCodonTable = Bio::Tools::CodonTable->new( -id => 0);
+is $myCodonTable->id(), 0;
+
 # defaults to ID 1 "Standard"
 $myCodonTable = Bio::Tools::CodonTable->new();
 is $myCodonTable->id(), 1;
