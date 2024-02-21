@@ -6,7 +6,7 @@ use strict;
 BEGIN {
     use Bio::Root::Test;
 
-    test_begin(-tests => 84);
+    test_begin(-tests => 87);
 
     use_ok('Bio::Tools::CodonTable');
     use_ok('Bio::CodonUsage::IO');
@@ -17,6 +17,18 @@ my $DEBUG = test_debug();
 my $myCodonTable = Bio::Tools::CodonTable -> new ( -id => 16);
 ok defined $myCodonTable;
 isa_ok $myCodonTable, 'Bio::Tools::CodonTable';
+
+# Access to ID table 0 
+$myCodonTable = Bio::Tools::CodonTable->new( -id => 0);
+is $myCodonTable->id(), 0;
+
+# Access removed table e.g. 7 should return defaut table 1
+$myCodonTable = Bio::Tools::CodonTable->new( -id => 7);
+is $myCodonTable->id(), 1;
+
+# Access negative table must return defaut table 1
+$myCodonTable = Bio::Tools::CodonTable->new( -id => -2);
+is $myCodonTable->id(), 1;
 
 # defaults to ID 1 "Standard"
 $myCodonTable = Bio::Tools::CodonTable->new();
