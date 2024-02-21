@@ -735,10 +735,10 @@ sub is_start_codon{
 =head2 is_ter_codon
 
  Title   : is_ter_codon
- Usage   : $obj->is_ter_codon('GAA')
+ Usage   : $obj->is_ter_codon('TGA')
  Function: returns true (1) for all codons that can be used as a
            translation tarminator, false (0) for others.
- Example : $myCodonTable->is_ter_codon('ATG')
+ Example : $myCodonTable->is_ter_codon('TGA')
  Returns : boolean
  Args    : codon
 
@@ -746,30 +746,7 @@ sub is_start_codon{
 
 sub is_ter_codon{
    my ($self, $value) = @_;
-   my $id = $self->{'id'};
-
-   # We need to ensure U is mapped to T (ie. UAG)
-   $value = uc $value;
-   $value =~ tr/U/T/;
-
-   if (length $value != 3  )  {
-       # Incomplete codons are not stop codons
-       return 0;
-   } else {
-       my $result = 0;
-
-       # For all the possible codons, if any are not a stop
-       # codon, fail immediately
-       for my $c ( $self->unambiguous_codons($value) ) {
-	   my $m = substr( $TABLES[$id], $CODONS->{$c}, 1 );
-	   if($m eq $TERMINATOR) {
-	       $result = 1;
-	   } else {
-	       return 0;
-	   }
-       }
-       return $result;
-   }
+   shift->_codon_is( shift, \@STARTS, '*' );
 }
 
 # desc: compares the passed value with a single entry in the given
