@@ -215,7 +215,7 @@ BEGIN {
      'Alternative Yeast Nuclear',# 12
      'Ascidian Mitochondrial',# 13
      'Alternative Flatworm Mitochondrial',# 14
-     '',
+     'Blepharisma Nuclear',#15
      'Chlorophycean Mitochondrial',# 16
      '', '',  '', '',
      'Trematode Mitochondrial',# 21
@@ -247,7 +247,7 @@ BEGIN {
        FFLLSSSSYY**CC*WLLLSPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSGGVVVVAAAADDEEGGGG
        FFLLSSSSYYY*CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG
-       ''
+       FFLLSSSSYY*QCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        FFLLSSSSYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        '' '' '' ''
        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG
@@ -284,7 +284,7 @@ BEGIN {
            ----------**--*----M---------------M----------------------------
            ---M------**----------------------MM---------------M------------
            -----------*-----------------------M----------------------------
-           ''
+           ---M------**--*----M------------MMMM---------------M------------
            ----------*---*--------------------M----------------------------
            '' ''  '' ''
            ----------**-----------------------M---------------M------------
