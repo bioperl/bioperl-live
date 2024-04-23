@@ -40,12 +40,12 @@ is $myCodonTable->name(), 'Euplotid Nuclear';
 
 # enumerate tables as object method
 my $table = $myCodonTable->tables();
-cmp_ok (keys %{$table}, '>=', 19); # currently 19 known tables
+cmp_ok (keys %{$table}, '>=', 26); # currently 25 known tables + "strict"
 is $table->{11}, 'Bacterial, Archaeal and Plant Plastid';
 
 # enumerate tables as class method
 $table = Bio::Tools::CodonTable->tables;
-cmp_ok (values %{$table}, '>=', 19); # currently 19 known tables
+cmp_ok (values %{$table}, '>=', 26); # currently 25 known tables + "strict"
 is $table->{23}, 'Thraustochytrium Mitochondrial';
 
 # translate codons
