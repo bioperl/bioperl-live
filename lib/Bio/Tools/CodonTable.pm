@@ -127,10 +127,10 @@ only differences are in available initiator codons.
 
 
 NCBI Genetic Codes home page:
-     (Last update of the Genetic Codes: Nov. 18, 2016)
+     (Last update of the Genetic Codes: Apr. 25, 2024)
      https://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi?mode=c
 
-ASN.1 version with ids 1 to 25 is at:
+The "value notation" / "print form" ASN.1 version is at:
      ftp://ftp.ncbi.nih.gov/entrez/misc/data/gc.prt
 
 Thanks to Matteo diTomasso for the original Perl implementation
@@ -199,106 +199,118 @@ BEGIN {
     $GAP = '-';
     $CODONGAP = $GAP x CODONSIZE;
 
-    @NAMES =            #id
-    (
-     'Strict', #0, special option for ATG-only start
-     'Standard',        #1
-     'Vertebrate Mitochondrial',#2
-     'Yeast Mitochondrial',# 3
-     'Mold, Protozoan, and Coelenterate Mitochondrial and Mycoplasma/Spiroplasma',#4
-     'Invertebrate Mitochondrial',#5
-     'Ciliate, Dasycladacean and Hexamita Nuclear',# 6
-     '', '',
-     'Echinoderm and Flatworm Mitochondrial',#9
-     'Euplotid Nuclear',#10
-     'Bacterial, Archaeal and Plant Plastid',# 11
-     'Alternative Yeast Nuclear',# 12
-     'Ascidian Mitochondrial',# 13
-     'Alternative Flatworm Mitochondrial',# 14
-     'Blepharisma Nuclear',#15
-     'Chlorophycean Mitochondrial',# 16
-     '', '',  '', '',
-     'Trematode Mitochondrial',# 21
-     'Scenedesmus obliquus Mitochondrial', #22
-     'Thraustochytrium Mitochondrial', #23
-     'Pterobranchia Mitochondrial', #24
-     'Candidate Division SR1 and Gracilibacteria', #25
-     'Pachysolen tannophilus Nuclear Code',        #26
-     'Karyorelict Nuclear', #27
-     'Condylostoma Nuclear', #28
-     'Mesodinium Nuclear', #29
-     'Peritrich Nuclear', #30
-     'Blastocrithidia Nuclear' #31
- );
+    @NAMES = (
+        'Strict',  # 0 (special option for ATG-only start)
+        'Standard',  # 1
+        'Vertebrate Mitochondrial',  # 2
+        'Yeast Mitochondrial',  # 3
+        'Mold Mitochondrial; Protozoan Mitochondrial; Coelenterate Mitochondrial; Mycoplasma; Spiroplasma',  # 4
+        'Invertebrate Mitochondrial',  # 5
+        'Ciliate Nuclear; Dasycladacean Nuclear; Hexamita Nuclear',  # 6
+        '',
+        '',
+        'Echinoderm Mitochondrial; Flatworm Mitochondrial',  # 9
+        'Euplotid Nuclear',  # 10
+        'Bacterial, Archaeal and Plant Plastid',  # 11
+        'Alternative Yeast Nuclear',  # 12
+        'Ascidian Mitochondrial',  # 13
+        'Alternative Flatworm Mitochondrial',  # 14
+        'Blepharisma Macronuclear',  # 15
+        'Chlorophycean Mitochondrial',  # 16
+        '',
+        '',
+        '',
+        '',
+        'Trematode Mitochondrial',  # 21
+        'Scenedesmus obliquus Mitochondrial',  # 22
+        'Thraustochytrium Mitochondrial',  # 23
+        'Rhabdopleuridae Mitochondrial',  # 24
+        'Candidate Division SR1 and Gracilibacteria',  # 25
+        'Pachysolen tannophilus Nuclear',  # 26
+        'Karyorelict Nuclear',  # 27
+        'Condylostoma Nuclear',  # 28
+        'Mesodinium Nuclear',  # 29
+        'Peritrich Nuclear',  # 30
+        'Blastocrithidia Nuclear',  # 31
+        'Balanophoraceae Plastid',  # 32
+    );
 
-    @TABLES =
-    qw(
-       FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSS**VVVVAAAADDEEGGGG
-       FFLLSSSSYY**CCWWTTTTPPPPHHQQRRRRIIMMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSSSVVVVAAAADDEEGGGG
-       FFLLSSSSYYQQCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       '' ''
-       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CCCWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CC*WLLLSPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSGGVVVVAAAADDEEGGGG
-       FFLLSSSSYYY*CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG
-       FFLLSSSSYY*QCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       '' '' '' ''
-       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG
-       FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSSKVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CCGWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CC*WLLLAPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYYQQCCWWLLLAPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYYQQCCWWLLLAPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYYYYCC*WLLLAPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYYEECC*WLLLAPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYYEECCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-  );
+    @TABLES = qw(
+        FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSS**VVVVAAAADDEEGGGG
+        FFLLSSSSYY**CCWWTTTTPPPPHHQQRRRRIIMMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSSSVVVVAAAADDEEGGGG
+        FFLLSSSSYYQQCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        ''
+        ''
+        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG
+        FFLLSSSSYY**CCCWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        FFLLSSSSYY**CC*WLLLSPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSGGVVVVAAAADDEEGGGG
+        FFLLSSSSYYY*CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG
+        FFLLSSSSYY*QCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        FFLLSSSSYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        ''
+        ''
+        ''
+        ''
+        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG
+        FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSSKVVVVAAAADDEEGGGG
+        FFLLSSSSYY**CCGWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        FFLLSSSSYY**CC*WLLLAPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        FFLLSSSSYYQQCCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        FFLLSSSSYYQQCCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        FFLLSSSSYYYYCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        FFLLSSSSYYEECC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        FFLLSSSSYYEECCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+        FFLLSSSSYY*WCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+    );
 
     #           (bases used for these tables, for reference)
     # 1 TTTTTTTTTTTTTTTTCCCCCCCCCCCCCCCCAAAAAAAAAAAAAAAAGGGGGGGGGGGGGGGG
     # 2 TTTTCCCCAAAAGGGGTTTTCCCCAAAAGGGGTTTTCCCCAAAAGGGGTTTTCCCCAAAAGGGG
     # 3 TCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAG
 
-    @STARTS =
-        qw(
-           ----------**--*--------------------M----------------------------
-           ---M------**--*----M---------------M----------------------------
-           ----------**--------------------MMMM----------**---M------------
-           ----------**----------------------MM----------------------------
-           --MM------**-------M------------MMMM---------------M------------
-           ---M------**--------------------MMMM---------------M------------
-           --------------*--------------------M----------------------------
-           '' ''
-           ----------**-----------------------M---------------M------------
-           ----------**-----------------------M----------------------------
-           ---M------**--*----M------------MMMM---------------M------------
-           ----------**--*----M---------------M----------------------------
-           ---M------**----------------------MM---------------M------------
-           -----------*-----------------------M----------------------------
-           ---M------**--*----M------------MMMM---------------M------------
-           ----------*---*--------------------M----------------------------
-           '' ''  '' ''
-           ----------**-----------------------M---------------M------------
-           ------*---*---*--------------------M----------------------------
-           --*-------**--*-----------------M--M---------------M------------
-           ---M------**-------M---------------M---------------M------------
-           ---M------**-----------------------M---------------M------------
-           ----------**--*----M---------------M----------------------------
-           --------------*--------------------M----------------------------
-           ----------**--*--------------------M----------------------------
-           --------------*--------------------M----------------------------
-           --------------*--------------------M----------------------------
-           ----------**-----------------------M----------------------------
-      );
+    @STARTS = qw(
+        ----------**--*--------------------M----------------------------
+        ---M------**--*----M---------------M----------------------------
+        ----------**--------------------MMMM----------**---M------------
+        ----------**----------------------MM---------------M------------
+        --MM------**-------M------------MMMM---------------M------------
+        ---M------**--------------------MMMM---------------M------------
+        --------------*--------------------M----------------------------
+        ''
+        ''
+        ----------**-----------------------M---------------M------------
+        ----------**-----------------------M----------------------------
+        ---M------**--*----M------------MMMM---------------M------------
+        ----------**--*----M---------------M----------------------------
+        ---M------**----------------------MM---------------M------------
+        -----------*-----------------------M----------------------------
+        ----------*---*--------------------M----------------------------
+        ----------*---*--------------------M----------------------------
+        ''
+        ''
+        ''
+        ''
+        ----------**-----------------------M---------------M------------
+        ------*---*---*--------------------M----------------------------
+        --*-------**--*-----------------M--M---------------M------------
+        ---M------**-------M---------------M---------------M------------
+        ---M------**-----------------------M---------------M------------
+        ----------**--*----M---------------M----------------------------
+        --------------*--------------------M----------------------------
+        ----------**--*--------------------M----------------------------
+        --------------*--------------------M----------------------------
+        --------------*--------------------M----------------------------
+        ----------**-----------------------M----------------------------
+        ---M------*---*----M------------MMMM---------------M------------
+    );
 
     my @nucs = qw(t c a g);
     my $x = 0;

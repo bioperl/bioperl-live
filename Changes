@@ -4,9 +4,14 @@ Summary of important user-visible changes for BioPerl
 {{$NEXT}}
     * Add minimum dependency on base.pm v2.18. Fixes bug in some cases when
       using SUPER::new() [#307].
+
     * Fix test for BSML SAX by using lax parser XML::SAX::PurePerl since
       the external DTD URL now 404s [#376].
-    * Added codon table 15 Bio::Tools::CodonTable [#389].
+
+    * Updated Bio::Tools::CodonTable for the latest version of NCBI
+      genetic code table (version 4.9).  Previously, version 4.2 was
+      being used.  This update changes codon tables 3, 15, 24, 27-30,
+      32, and 33 [#389, #391].
 
 1.7.8     2021-02-02 23:02:18-06:00 America/Chicago
     * Bio::SeqIO::interpro has been moved to a separate repository to

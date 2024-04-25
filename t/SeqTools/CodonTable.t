@@ -191,7 +191,7 @@ my @custom_table =
     );
 
 ok my $custct = $myCodonTable->add_table(@custom_table);
-is $custct, 32;
+is $custct, 33;
 is $myCodonTable->translate('atgaaraayacmacracwacka'), 'MKNTTTT';
 ok $myCodonTable->id($custct);
 is $myCodonTable->translate('atgaaraayacmacracwacka'), 'MKXXTTT';
