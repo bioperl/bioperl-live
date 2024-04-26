@@ -6,7 +6,7 @@ use strict;
 BEGIN {
     use Bio::Root::Test;
 
-    test_begin(-tests => 87);
+    test_begin(-tests => 89);
 
     use_ok('Bio::Tools::CodonTable');
     use_ok('Bio::CodonUsage::IO');
@@ -27,16 +27,20 @@ $myCodonTable = Bio::Tools::CodonTable->new();
 is $myCodonTable->id(), 1;
 is $myCodonTable->name(), "Standard";
 
-# invalid table should produce a warn and set default table (1)
-my $stderr = '';
+
+# Test invalid IDs warn and return table id=1
 {
-    # capture stderr output
-    local *STDERR;
-    open STDERR, '>', \$stderr;
-    $myCodonTable->id(99);
+    foreach my $invalid_id (99, -2) {
+        my $stderr = '';
+        # capture stderr output
+        local *STDERR;
+        open STDERR, '>', \$stderr;
+        $myCodonTable = Bio::Tools::CodonTable->new(-id => $invalid_id);
+        like $stderr, qr/Not a valid codon table ID/;
+        is $myCodonTable->id, 1;
+    }
 }
-like $stderr, qr/Not a valid codon table ID/;
-is $myCodonTable->id, 1;
+
 
 # change codon table
 $myCodonTable->id(10);
