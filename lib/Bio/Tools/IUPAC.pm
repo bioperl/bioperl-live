@@ -1,20 +1,15 @@
-#
-# BioPerl module for IUPAC
-#
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
-#
-# Cared for by Aaron Mackey <amackey@virginia.edu>
-#
-# Copyright Aaron Mackey
-#
-# You may distribute this module under the same terms as perl itself
+package Bio::Tools::IUPAC;
 
-# POD documentation - main docs before the code
+use utf8;
+use strict;
+use warnings;
 
-=head1 NAME
+use base qw(Bio::Root::Root);
 
-Bio::Tools::IUPAC - Generates unique sequence objects or regular expressions from
-an ambiguous IUPAC sequence
+# ABSTRACT:  Generates unique sequence objects or regular expressions from an ambiguous IUPAC sequence
+# AUTHOR: Aaron Mackey <amackey@virginia.edu>
+# OWNER: Aaron Mackey <amackey@virginia.edu>
+# LICENSE: Perl_5
 
 =head1 SYNOPSIS
 
@@ -39,7 +34,7 @@ an ambiguous IUPAC sequence
 =head1 DESCRIPTION
 
 Bio::Tools::IUPAC is a tool that manipulates sequences with ambiguous residues
-following the IUPAC conventions. Non-standard characters have the meaning 
+following the IUPAC conventions. Non-standard characters have the meaning
 described below:
 
     IUPAC-IUB SYMBOLS FOR NUCLEOTIDE (DNA OR RNA) NOMENCLATURE:
@@ -121,52 +116,8 @@ convert an ambiguous sequence object to a corresponding regular expression
 
 =back
 
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to one
-of the Bioperl mailing lists.  Your participation is much appreciated.
-
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
-
-=head2 Support 
-
-Please direct usage questions or support issues to the mailing list:
-
-I<bioperl-l@bioperl.org>
-
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
-with code and data examples if at all possible.
-
-=head2 Reporting Bugs
-
-Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via the
-web:
-
-  https://github.com/bioperl/bioperl-live/issues
-
-=head1 AUTHOR - Aaron Mackey
-
-Email amackey-at-virginia.edu
-
-=head1 APPENDIX
-
-The rest of the documentation details each of the object
-methods. Internal methods are usually preceded with a _
-
 =cut
 
-
-package Bio::Tools::IUPAC;
-
-use strict;
-use base qw(Bio::Root::Root);
 
 # Ambiguous nucleic residues are matched to unambiguous residues
 our %IUB = (
@@ -356,7 +307,7 @@ sub next_seq {
  Usage   : my %symbols = $iupac->iupac;
  Function: Returns a hash of symbols -> symbol components of the right type
            for the given sequence, i.e. it is the same as iupac_iup() if
-           Bio::Tools::IUPAC was given a proteic sequence, or iupac_iub() if the 
+           Bio::Tools::IUPAC was given a proteic sequence, or iupac_iub() if the
            sequence was nucleic. For example, the key 'M' has the value ['A', 'C'].
  Args    : none
  Returns : Hash

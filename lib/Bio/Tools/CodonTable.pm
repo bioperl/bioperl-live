@@ -1,19 +1,18 @@
-#
-# bioperl module for Bio::Tools::CodonTable
-#
-# Please direct questions and support issues to <bioperl-l@bioperl.org>
-#
-# Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
-#
-# Copyright Heikki Lehvaslaiho
-#
-# You may distribute this module under the same terms as perl itself
+package Bio::Tools::CodonTable;
 
-# POD documentation - main docs before the code
+use utf8;
+use strict;
+use warnings;
 
-=head1 NAME
+use Bio::Tools::IUPAC;
+use Bio::SeqUtils;
 
-Bio::Tools::CodonTable - Codon table object
+use base qw(Bio::Root::Root);
+
+# ABSTRACT: Codon table object
+# AUTHOR: Heikki Lehvaslaiho <heikki@bioperl.org>
+# OWNER: Heikki Lehvaslaiho <heikki@bioperl.org>
+# LICENSE: Perl_5
 
 =head1 SYNOPSIS
 
@@ -136,151 +135,101 @@ The "value notation" / "print form" ASN.1 version is at:
 Thanks to Matteo diTomasso for the original Perl implementation
 of these tables.
 
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to the
-Bioperl mailing lists  Your participation is much appreciated.
-
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
-
-=head2 Support
-
-Please direct usage questions or support issues to the mailing list:
-
-I<bioperl-l@bioperl.org>
-
-rather than to the module maintainer directly. Many experienced and
-reponsive experts will be able look at the problem and quickly
-address it. Please include a thorough description of the problem
-with code and data examples if at all possible.
-
-=head2 Reporting Bugs
-
-Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via the
-web:
-
-  https://github.com/bioperl/bioperl-live/issues
-
-=head1 AUTHOR - Heikki Lehvaslaiho
-
-Email:  heikki-at-bioperl-dot-org
-
-=head1 APPENDIX
-
-The rest of the documentation details each of the object
-methods. Internal methods are usually preceded with a _
-
 =cut
-
-# Let the code begin...
-
-package Bio::Tools::CodonTable;
-
-use strict;
-
-# Object preamble - inherits from Bio::Root::Root
-use Bio::Tools::IUPAC;
-use Bio::SeqUtils;
-
-use base qw(Bio::Root::Root);
-our (@NAMES, @TABLES, @STARTS, $TRCOL, $CODONS, %IUPAC_DNA, $CODONGAP, $GAP,
-     %IUPAC_AA, %THREELETTERSYMBOLS, $VALID_PROTEIN, $TERMINATOR);
 
 
 # set internal values for all translation tables
+use constant CODONSIZE => 3;
+our $GAP = '-';
+our $CODONGAP = $GAP x CODONSIZE;
+our %IUPAC_DNA = Bio::Tools::IUPAC->iupac_iub();
+our %IUPAC_AA = Bio::Tools::IUPAC->iupac_iup();
+our %THREELETTERSYMBOLS = Bio::SeqUtils->valid_aa(2);
+our $VALID_PROTEIN = '['.join('',Bio::SeqUtils->valid_aa(0)).']';
+our $TERMINATOR = '*';
+
+our (@NAMES, @TABLES, @STARTS);
+# Parse the ftp://ftp.ncbi.nih.gov/entrez/misc/data/gc.prt file which
+# is below __DATA__ in this module (see the end of the file).  This
+# fills the @NAMES, @TABLES, and @STARTS variables.  To update to a
+# new release of gc.prt, replace the content below __DATA__.
 {
-    use constant CODONSIZE => 3;
-    $GAP = '-';
-    $CODONGAP = $GAP x CODONSIZE;
+    # Init tables has with special option (id=0) for ATG-only start
+    my %tables = (
+        0 => {
+            name => "Strict",
+            ncbieaa => "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+            sncbieaa => "----------**--*--------------------M----------------------------",
+        },
+    );
 
-    # Helper private function to parse the
-    # ftp://ftp.ncbi.nih.gov/entrez/misc/data/gc.prt file which is
-    # below __DATA__ in this module (see the end of the file).  This
-    # fills the @NAMES, @TABLES, and @STARTS variables.  To update to
-    # a new release of gc.prt, replace the content below __DATA__.
-    sub parse_gc_prt {
-
-        # Init tables has with special option (id=0) for ATG-only start
-        my %tables = (
-            0 => {
-                name => "Strict",
-                ncbieaa => "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
-                sncbieaa => "----------**--*--------------------M----------------------------",
-            },
-            );
-
-        while (defined(my $line = <DATA>)) {
-            next if $line =~ /^\s*--/;  # skip comment lines
-            if ($line =~ /^\s*\{\s*$/) {  # start of a table description
-                my $name = "";
-                my $id = 0;
-                my $ncbieaa = "";
-                my $sncbieaa = "";
-                do {
-                    if ($line =~ /^\s*(name|id|ncbieaa|sncbieaa)\s+(.+)/) {
-                        my $key = $1;
-                        my $rem = $2;
-                        if ($key eq "id") {
-                            $rem =~ /^(\d+)/;
-                            $id = int $1;
-                        } else {
-                            # The remaining keys --- name, ncbieaa,
-                            # and sncbieaa --- are strings which may
-                            # be multi-line (e.g., name for table with
-                            # id 4).  We are assuming that there is no
-                            # " character inside the value so we keep
-                            # appending lines until we find an end ".
-                            while ($rem !~ /^"(.*)"/ && ! eof DATA) {
-                                $rem .= <DATA>;
-                            }
-                            $rem =~ s/\n//g;
-                            $rem =~ /^"(.*)"/;
-                            my $str = $1;
-                            if ($key eq "name" && ! $name) {
-                                # ignore alternative names, e.g. SGC0,
-                                # only keep the first name listed.
-                                $name = $str;
-                            } elsif ($key eq "ncbieaa") {
-                                $ncbieaa = $str;
-                            } elsif ($key eq "sncbieaa") {
-                                $sncbieaa = $str;
-                            }
+    while (defined(my $line = <DATA>)) {
+        next if $line =~ /^\s*--/;  # skip comment lines
+        if ($line =~ /^\s*\{\s*$/) {  # start of a table description
+            my $name = "";
+            my $id = 0;
+            my $ncbieaa = "";
+            my $sncbieaa = "";
+            do {
+                if ($line =~ /^\s*(name|id|ncbieaa|sncbieaa)\s+(.+)/) {
+                    my $key = $1;
+                    my $rem = $2;
+                    if ($key eq "id") {
+                        $rem =~ /^(\d+)/;
+                        $id = int $1;
+                    } else {
+                        # The remaining keys --- name, ncbieaa, and
+                        # sncbieaa --- are strings which may be
+                        # multi-line (e.g., name for table with id 4).
+                        # We are assuming that there is no " character
+                        # inside the value so we keep appending lines
+                        # until we find an end ".
+                        while ($rem !~ /^"(.*)"/ && ! eof DATA) {
+                            $rem .= <DATA>;
+                        }
+                        $rem =~ s/\n//g;
+                        $rem =~ /^"(.*)"/;
+                        my $str = $1;
+                        if ($key eq "name" && ! $name) {
+                            # ignore alternative names, e.g. SGC0,
+                            # only keep the first name listed.
+                            $name = $str;
+                        } elsif ($key eq "ncbieaa") {
+                            $ncbieaa = $str;
+                        } elsif ($key eq "sncbieaa") {
+                            $sncbieaa = $str;
                         }
                     }
-                } until (($line = <DATA>) =~ /^\s*}\s*,?$/);  # we reached the end of table description
-                $tables{$id} = {
-                    name => $name,
-                    ncbieaa => $ncbieaa,
-                    sncbieaa => $sncbieaa
-                };
-            }
-        }
-        close DATA;
-        # use Data::Dumper;
-        # print Dumper %tables;
-
-        my $highest_id = (sort {$a <=> $b} keys %tables)[-1];
-        for (my $i = 0; $i < $highest_id; $i++) {
-            if (defined $tables{$i}) {
-                push @NAMES, $tables{$i}->{name};
-                push @TABLES, $tables{$i}->{ncbieaa};
-                push @STARTS, $tables{$i}->{sncbieaa};
-            } else {
-                push @NAMES, '';
-                push @TABLES, '';
-                push @STARTS, '';
-            }
+                }
+            } until (($line = <DATA>) =~ /^\s*}\s*,?$/);  # we reached the end of table description
+            $tables{$id} = {
+                name => $name,
+                ncbieaa => $ncbieaa,
+                sncbieaa => $sncbieaa
+            };
         }
     }
-    parse_gc_prt();
-    undef &parse_gc_prt;
+    close DATA;
+    # use Data::Dumper;
+    # print Dumper %tables;
 
+    # After parsing gc.prt, fill in @NAMES, @TABLES, and @STARTS
+    my $highest_id = (sort {$a <=> $b} keys %tables)[-1];
+    for (my $i = 0; $i < $highest_id; $i++) {
+        if (defined $tables{$i}) {
+            push @NAMES, $tables{$i}->{name};
+            push @TABLES, $tables{$i}->{ncbieaa};
+            push @STARTS, $tables{$i}->{sncbieaa};
+        } else {
+            push @NAMES, '';
+            push @TABLES, '';
+            push @STARTS, '';
+        }
+    }
+}
 
+our ($TRCOL, $CODONS);
+{
     my @nucs = qw(t c a g);
     my $x = 0;
     ($CODONS, $TRCOL) = ({}, {});
@@ -294,11 +243,6 @@ our (@NAMES, @TABLES, @STARTS, $TRCOL, $CODONS, %IUPAC_DNA, $CODONGAP, $GAP,
             }
         }
     }
-    %IUPAC_DNA = Bio::Tools::IUPAC->iupac_iub();
-    %IUPAC_AA = Bio::Tools::IUPAC->iupac_iup();
-    %THREELETTERSYMBOLS = Bio::SeqUtils->valid_aa(2);
-    $VALID_PROTEIN = '['.join('',Bio::SeqUtils->valid_aa(0)).']';
-    $TERMINATOR = '*';
 }
 
 sub new {
