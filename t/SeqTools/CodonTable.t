@@ -6,7 +6,7 @@ use strict;
 BEGIN {
     use Bio::Root::Test;
 
-    test_begin(-tests => 84);
+    test_begin(-tests => 86);
 
     use_ok('Bio::Tools::CodonTable');
     use_ok('Bio::CodonUsage::IO');
@@ -21,6 +21,7 @@ isa_ok $myCodonTable, 'Bio::Tools::CodonTable';
 # defaults to ID 1 "Standard"
 $myCodonTable = Bio::Tools::CodonTable->new();
 is $myCodonTable->id(), 1;
+is $myCodonTable->name(), "Standard";
 
 # invalid table should produce a warn and set default table (1)
 my $stderr = '';
@@ -256,3 +257,8 @@ $myCodonTable->id(25);
 is $myCodonTable->is_start_codon('GTG'), 1;
 is $myCodonTable->is_start_codon('CTG'), 0;
 is $myCodonTable->translate_strict('TGA'), 'G';
+
+# The name for this is pretty long and spans mutliple lines.  Confirm
+# it was parsed correctly from the ASN.1 file.
+$myCodonTable->id(4);
+is $myCodonTable->name(), "Mold Mitochondrial; Protozoan Mitochondrial; Coelenterate Mitochondrial; Mycoplasma; Spiroplasma";
