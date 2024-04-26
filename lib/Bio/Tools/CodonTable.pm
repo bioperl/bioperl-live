@@ -4,6 +4,8 @@ use utf8;
 use strict;
 use warnings;
 
+use List::Util;
+
 use Bio::Tools::IUPAC;
 use Bio::SeqUtils;
 
@@ -687,24 +689,16 @@ sub is_ter_codon{
 #       position corresponding to $value.  In the case of ambiguous
 #       codons, only returns true if all possibilities match $key.
 sub _codon_is {
-   my ($self, $value, $table, $key ) = @_;
+   my ($self, $value, $tables, $key ) = @_;
 
    return 0 unless length $value == 3;
 
    $value  = lc $value;
    $value  =~ tr/u/t/;
 
-   my $id = $self->{'id'};
-   my $result = 0;
-   for my $c ( $self->unambiguous_codons($value) ) {
-       my $m = substr( $table->[$id], $CODONS->{$c}, 1 );
-       if ($m eq $key) {
-           $result = 1;
-       } else {
-           return 0;
-       }
-   }
-   return $result;
+   my $table = $tables->[$self->{'id'}];
+   return List::Util::all {substr($table, $CODONS->{$_}, 1) eq $key}
+                          $self->unambiguous_codons($value);
 }
 
 =head2 is_unknown_codon

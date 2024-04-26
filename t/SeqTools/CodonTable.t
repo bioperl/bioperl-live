@@ -169,29 +169,29 @@ ok $test;
 # boolean tests
 $myCodonTable->id(1); # Standard table
 
-ok $myCodonTable->is_start_codon('ATG'), 'is_start_codon, ATG';
-is $myCodonTable->is_start_codon('GGH'), 0, 'is_start_codon, GGH';
-ok $myCodonTable->is_start_codon('HTG'), 'is_start_codon, HTG';
-is $myCodonTable->is_start_codon('CCC'), 0, 'is_start_codon, CCC';
+ok( $myCodonTable->is_start_codon('ATG'), 'is_start_codon, ATG');
+ok( ! $myCodonTable->is_start_codon('GGH'), 'is_start_codon, GGH');
+ok( $myCodonTable->is_start_codon('HTG'), 'is_start_codon, HTG');
+ok( ! $myCodonTable->is_start_codon('CCC'), 'is_start_codon, CCC');
 
-ok $myCodonTable->is_ter_codon('UAG'), 'is_ter_codon, U should map to T, UAG';
-ok $myCodonTable->is_ter_codon('TaG'), 'is_ter_codon,TaG';
-ok $myCodonTable->is_ter_codon('TaR'), 'is_ter_codon,TaR';
-ok $myCodonTable->is_ter_codon('tRa'), 'is_ter_codon,tRa';
-is $myCodonTable->is_ter_codon('ttA'), 0, 'is_ter_codon,ttA';
+ok( $myCodonTable->is_ter_codon('UAG'), 'is_ter_codon, U should map to T, UAG');
+ok( $myCodonTable->is_ter_codon('TaG'), 'is_ter_codon,TaG');
+ok( $myCodonTable->is_ter_codon('TaR'), 'is_ter_codon,TaR');
+ok( $myCodonTable->is_ter_codon('tRa'), 'is_ter_codon,tRa');
+ok( ! $myCodonTable->is_ter_codon('ttA'), 'is_ter_codon,ttA');
 
 # Ambiguous codons should fail
-is $myCodonTable->is_ter_codon('NNN'), 0, 'is_ter_codon, ambiguous codons should fail, NNN';
-is $myCodonTable->is_ter_codon('TAN'), 0, 'is_ter_codon, ambiguous codons should fail, TAN';
-is $myCodonTable->is_ter_codon('CC'), 0, 'is_ter_codon, incomplete codons should fail, CC';
+ok ! $myCodonTable->is_ter_codon('NNN'), 'is_ter_codon, ambiguous codons should fail, NNN';
+ok ! $myCodonTable->is_ter_codon('TAN'), 'is_ter_codon, ambiguous codons should fail, TAN';
+ok ! $myCodonTable->is_ter_codon('CC'), 'is_ter_codon, incomplete codons should fail, CC';
 
-is $myCodonTable->is_start_codon('NNN'), 0, 'is_start_codon, ambiguous codons should fail, NNN';
-is $myCodonTable->is_start_codon('NTG'), 0, 'is_start_codon, ambiguous codons should fail, NTG';
-is $myCodonTable->is_start_codon('N'), 0, 'is_start_codon, incomplete codons should fail, NN';
+ok ! $myCodonTable->is_start_codon('NNN'), 'is_start_codon, ambiguous codons should fail, NNN';
+ok ! $myCodonTable->is_start_codon('NTG'), 'is_start_codon, ambiguous codons should fail, NTG';
+ok ! $myCodonTable->is_start_codon('N'), 'is_start_codon, incomplete codons should fail, NN';
 
 ok $myCodonTable->is_unknown_codon('jAG');
 ok $myCodonTable->is_unknown_codon('jg');
-is $myCodonTable->is_unknown_codon('UAG'), 0;
+ok ! $myCodonTable->is_unknown_codon('UAG');
 
 is $myCodonTable->translate_strict('ATG'), 'M';
 
@@ -245,31 +245,30 @@ is $myCodonTable->reverse_translate_all($seq, $cut, 15), 'GCNTGYGAYGARTTYGGVCAYA
 $myCodonTable = Bio::Tools::CodonTable->new(); # Default Standard table
 
 #  boolean tests
-is $myCodonTable->is_start_codon('ATG'), 1;
-is $myCodonTable->is_start_codon('GTG'), 0;
-is $myCodonTable->is_start_codon('TTG'), 1;
-is $myCodonTable->is_start_codon('CTG'), 1;
-is $myCodonTable->is_start_codon('CCC'), 0;
+ok( $myCodonTable->is_start_codon('ATG'));
+ok( ! $myCodonTable->is_start_codon('GTG'));
+ok( $myCodonTable->is_start_codon('TTG'));
+ok( $myCodonTable->is_start_codon('CTG'));
+ok( ! $myCodonTable->is_start_codon('CCC'));
 
 $myCodonTable->id(0); # Special 'Strict' table (ATG-only start)
-
-is $myCodonTable->is_start_codon('ATG'), 1;
-is $myCodonTable->is_start_codon('GTG'), 0;
-is $myCodonTable->is_start_codon('TTG'), 0;
-is $myCodonTable->is_start_codon('CTG'), 0;
-is $myCodonTable->is_start_codon('CCC'), 0;
+ok( $myCodonTable->is_start_codon('ATG'));
+ok( ! $myCodonTable->is_start_codon('GTG'));
+ok( ! $myCodonTable->is_start_codon('TTG'));
+ok( ! $myCodonTable->is_start_codon('CTG'));
+ok( ! $myCodonTable->is_start_codon('CCC'));
 
 # Pterobranchia Mitochondrial codon table
 $myCodonTable->id(24);
-is $myCodonTable->is_start_codon('GTG'), 1;
-is $myCodonTable->is_start_codon('CTG'), 1;
-is $myCodonTable->translate_strict('TGA'), 'W';
+ok( $myCodonTable->is_start_codon('GTG'));
+ok( $myCodonTable->is_start_codon('CTG'));
+is( $myCodonTable->translate_strict('TGA'), 'W');
 
 # Candidate Division SR1 and Gracilibacteria codon table
 $myCodonTable->id(25);
-is $myCodonTable->is_start_codon('GTG'), 1;
-is $myCodonTable->is_start_codon('CTG'), 0;
-is $myCodonTable->translate_strict('TGA'), 'G';
+ok( $myCodonTable->is_start_codon('GTG'));
+ok( !$myCodonTable->is_start_codon('CTG'));
+is($myCodonTable->translate_strict('TGA'), 'G');
 
 # The name for this is pretty long and spans mutliple lines.  Confirm
 # it was parsed correctly from the ASN.1 file.
