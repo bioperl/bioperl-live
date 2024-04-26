@@ -6,7 +6,7 @@ use strict;
 BEGIN {
     use Bio::Root::Test;
 
-    test_begin(-tests => 89);
+    test_begin(-tests => 91);
 
     use_ok('Bio::Tools::CodonTable');
     use_ok('Bio::CodonUsage::IO');
@@ -30,7 +30,8 @@ is $myCodonTable->name(), "Standard";
 
 # Test invalid IDs warn and return table id=1
 {
-    foreach my $invalid_id (99, -2) {
+    # ID table 7 is invalid because it has been removed
+    foreach my $invalid_id (99, -2, 7) {
         my $stderr = '';
         # capture stderr output
         local *STDERR;
