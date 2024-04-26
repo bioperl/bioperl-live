@@ -1,5 +1,5 @@
 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.16344.svg)](http://dx.doi.org/10.5281/zenodo.16344)
-[![Build Status](https://travis-ci.org/bioperl/bioperl-live.svg?branch=master)](https://travis-ci.org/bioperl/bioperl-live)
+[![Build Status](https://github.com/bioperl/bioperl-live/actions/workflows/ci.yml/badge.svg)](https://github.com/bioperl/bioperl-live/actions/workflows/ci.yml)
 [![Coverage Status](https://coveralls.io/repos/bioperl/bioperl-live/badge.svg?branch=master)](https://coveralls.io/r/bioperl/bioperl-live?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/bioperl/badge/?version=latest)](https://readthedocs.org/projects/bioperl/?badge=latest)
 
