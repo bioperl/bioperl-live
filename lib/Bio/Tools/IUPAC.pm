@@ -167,104 +167,100 @@ package Bio::Tools::IUPAC;
 
 use strict;
 use base qw(Bio::Root::Root);
-use vars qw(%IUB %IUB_AMB %REV_IUB %IUP %IUP_AMB $AUTOLOAD);
 
-BEGIN {
-    # Ambiguous nucleic residues are matched to unambiguous residues
-    %IUB = (
-        A => [qw(A)],
-        C => [qw(C)],
-        G => [qw(G)],
-        T => [qw(T)],
-        U => [qw(U)],
-        M => [qw(A C)],
-        R => [qw(A G)],
-        S => [qw(C G)],
-        W => [qw(A T)],
-        Y => [qw(C T)],
-        K => [qw(G T)],
-        V => [qw(A C G)],
-        H => [qw(A C T)],
-        D => [qw(A G T)],
-        B => [qw(C G T)],
-        N => [qw(A C G T)],
-        X => [qw(A C G T)],
+# Ambiguous nucleic residues are matched to unambiguous residues
+our %IUB = (
+    A => [qw(A)],
+    C => [qw(C)],
+    G => [qw(G)],
+    T => [qw(T)],
+    U => [qw(U)],
+    M => [qw(A C)],
+    R => [qw(A G)],
+    S => [qw(C G)],
+    W => [qw(A T)],
+    Y => [qw(C T)],
+    K => [qw(G T)],
+    V => [qw(A C G)],
+    H => [qw(A C T)],
+    D => [qw(A G T)],
+    B => [qw(C G T)],
+    N => [qw(A C G T)],
+    X => [qw(A C G T)],
+);
+
+# Same as %IUB but ambiguous residues are matched to ambiguous residues only
+our %IUB_AMB = (
+    M => [qw(M)],
+    R => [qw(R)],
+    W => [qw(W)],
+    S => [qw(S)],
+    Y => [qw(Y)],
+    K => [qw(K)],
+    V => [qw(M R S V)],
+    H => [qw(H M W Y)],
+    D => [qw(D K R W)],
+    B => [qw(B K S Y)],
+    N => [qw(B D H K M N R S V W Y)],
     );
 
-    # Same as %IUB but ambiguous residues are matched to ambiguous residues only
-    %IUB_AMB = (
-        M => [qw(M)],
-        R => [qw(R)],
-        W => [qw(W)],
-        S => [qw(S)],
-        Y => [qw(Y)],
-        K => [qw(K)],
-        V => [qw(M R S V)],
-        H => [qw(H M W Y)],
-        D => [qw(D K R W)],
-        B => [qw(B K S Y)],
-        N => [qw(B D H K M N R S V W Y)],
-    );
+# The inverse of %IUB
+our %REV_IUB = (
+    A    => 'A',
+    T    => 'T',
+    U    => 'U',
+    C    => 'C',
+    G    => 'G',
+    AC   => 'M',
+    AG   => 'R',
+    AT   => 'W',
+    CG   => 'S',
+    CT   => 'Y',
+    GT   => 'K',
+    ACG  => 'V',
+    ACT  => 'H',
+    AGT  => 'D',
+    CGT  => 'B',
+    ACGT => 'N',
+    N    => 'N'
+);
 
-    # The inverse of %IUB
-    %REV_IUB = (
-        A    => 'A',
-        T    => 'T',
-        U    => 'U',
-        C    => 'C',
-        G    => 'G',
-        AC   => 'M',
-        AG   => 'R',
-        AT   => 'W',
-        CG   => 'S',
-        CT   => 'Y',
-        GT   => 'K',
-        ACG  => 'V',
-        ACT  => 'H',
-        AGT  => 'D',
-        CGT  => 'B',
-        ACGT => 'N',
-        N    => 'N'
-    );
+# Same thing with proteins now
+our %IUP = (
+    A => [qw(A)],
+    B => [qw(D N)],
+    C => [qw(C)],
+    D => [qw(D)],
+    E => [qw(E)],
+    F => [qw(F)],
+    G => [qw(G)],
+    H => [qw(H)],
+    I => [qw(I)],
+    J => [qw(I L)],
+    K => [qw(K)],
+    L => [qw(L)],
+    M => [qw(M)],
+    N => [qw(N)],
+    O => [qw(O)],
+    P => [qw(P)],
+    Q => [qw(Q)],
+    R => [qw(R)],
+    S => [qw(S)],
+    T => [qw(T)],
+    U => [qw(U)],
+    V => [qw(V)],
+    W => [qw(W)],
+    X => [qw(X)],
+    Y => [qw(Y)],
+    Z => [qw(E Q)],
+    '*' => [qw(*)],
+);
 
-    # Same thing with proteins now
-    %IUP = (
-        A => [qw(A)],
-        B => [qw(D N)],
-        C => [qw(C)],
-        D => [qw(D)],
-        E => [qw(E)],
-        F => [qw(F)],
-        G => [qw(G)],
-        H => [qw(H)],
-        I => [qw(I)],
-        J => [qw(I L)],
-        K => [qw(K)],
-        L => [qw(L)],
-        M => [qw(M)],
-        N => [qw(N)],
-        O => [qw(O)],
-        P => [qw(P)],
-        Q => [qw(Q)],
-        R => [qw(R)],
-        S => [qw(S)],
-        T => [qw(T)],
-        U => [qw(U)],
-        V => [qw(V)],
-        W => [qw(W)],
-        X => [qw(X)],
-        Y => [qw(Y)],
-        Z => [qw(E Q)],
-        '*' => [qw(*)],
-    );
-
-    %IUP_AMB = (
-        B => [qw(B)],
-        J => [qw(J)],
-        Z => [qw(Z)],
-    );
-
-}
+our %IUP_AMB = (
+    B => [qw(B)],
+    J => [qw(J)],
+    Z => [qw(Z)],
+);
 
 
 =head2 new
@@ -550,6 +546,7 @@ sub regexp {
 
 sub AUTOLOAD {
     my $self = shift @_;
+    our $AUTOLOAD;
     my $method = $AUTOLOAD;
     $method =~ s/.*:://;
     return $self->{'_seq'}->$method(@_)
@@ -557,4 +554,3 @@ sub AUTOLOAD {
 }
 
 1;
-

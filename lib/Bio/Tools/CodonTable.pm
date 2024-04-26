@@ -181,8 +181,6 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::CodonTable;
 
-use vars qw(@NAMES @TABLES @STARTS $TRCOL $CODONS %IUPAC_DNA $CODONGAP $GAP
-                %IUPAC_AA %THREELETTERSYMBOLS $VALID_PROTEIN $TERMINATOR);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
@@ -190,11 +188,12 @@ use Bio::Tools::IUPAC;
 use Bio::SeqUtils;
 
 use base qw(Bio::Root::Root);
+our (@NAMES, @TABLES, @STARTS, $TRCOL, $CODONS, %IUPAC_DNA, $CODONGAP, $GAP,
+     %IUPAC_AA, %THREELETTERSYMBOLS, $VALID_PROTEIN, $TERMINATOR);
 
 
-# first set internal values for all translation tables
-# XXX: I'm not sure why it needs to be on an INIT block :/
-INIT {
+# set internal values for all translation tables
+{
     use constant CODONSIZE => 3;
     $GAP = '-';
     $CODONGAP = $GAP x CODONSIZE;
@@ -280,6 +279,7 @@ INIT {
     }
     parse_gc_prt();
     undef &parse_gc_prt;
+
 
     my @nucs = qw(t c a g);
     my $x = 0;
