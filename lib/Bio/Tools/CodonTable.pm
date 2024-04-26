@@ -656,7 +656,7 @@ sub reverse_translate_best {
 =cut
 
 sub is_start_codon{
-   shift->_codon_is( shift, \@STARTS, 'M' );
+   return shift->_codon_is(shift, \@STARTS, 'M');
 }
 
 =head2 is_ter_codon
@@ -674,31 +674,7 @@ sub is_start_codon{
 =cut
 
 sub is_ter_codon{
-   my ($self, $value) = @_;
-   my $id = $self->{'id'};
-
-   # We need to ensure U is mapped to T (ie. UAG)
-   $value = uc $value;
-   $value =~ tr/U/T/;
-
-   if (length $value != 3  )  {
-       # Incomplete codons are not stop codons
-       return 0;
-   } else {
-       my $result = 0;
-
-       # For all the possible codons, if any are not a stop
-       # codon, fail immediately
-       for my $c ( $self->unambiguous_codons($value) ) {
-	   my $m = substr( $TABLES[$id], $CODONS->{$c}, 1 );
-	   if($m eq $TERMINATOR) {
-	       $result = 1;
-	   } else {
-	       return 0;
-	   }
-       }
-       return $result;
-   }
+   return shift->_codon_is(shift, \@STARTS, $TERMINATOR);
 }
 
 # desc: compares the passed value with a single entry in the given
