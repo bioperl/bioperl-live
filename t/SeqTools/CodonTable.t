@@ -6,7 +6,7 @@ use strict;
 BEGIN {
     use Bio::Root::Test;
 
-    test_begin(-tests => 91);
+    test_begin(-tests => 94);
 
     use_ok('Bio::Tools::CodonTable');
     use_ok('Bio::CodonUsage::IO');
@@ -184,6 +184,10 @@ is $myCodonTable->is_ter_codon('ttA'), 0, 'is_ter_codon,ttA';
 is $myCodonTable->is_ter_codon('NNN'), 0, 'is_ter_codon, ambiguous codons should fail, NNN';
 is $myCodonTable->is_ter_codon('TAN'), 0, 'is_ter_codon, ambiguous codons should fail, TAN';
 is $myCodonTable->is_ter_codon('CC'), 0, 'is_ter_codon, incomplete codons should fail, CC';
+
+is $myCodonTable->is_start_codon('NNN'), 0, 'is_start_codon, ambiguous codons should fail, NNN';
+is $myCodonTable->is_start_codon('NTG'), 0, 'is_start_codon, ambiguous codons should fail, NTG';
+is $myCodonTable->is_start_codon('N'), 0, 'is_start_codon, incomplete codons should fail, NN';
 
 ok $myCodonTable->is_unknown_codon('jAG');
 ok $myCodonTable->is_unknown_codon('jg');

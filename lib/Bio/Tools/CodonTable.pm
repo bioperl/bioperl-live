@@ -646,7 +646,9 @@ sub reverse_translate_best {
  Title   : is_start_codon
  Usage   : $obj->is_start_codon('ATG')
  Function: returns true (1) for all codons that can be used as a
-           translation start, false (0) for others.
+           translation start, false (0) for others.  In the case of
+           ambiguous codons, e.g., 'NTG', only returns true if all
+           possible codons are true.
  Example : $myCodonTable->is_start_codon('ATG')
  Returns : boolean
  Args    : codon
@@ -662,7 +664,9 @@ sub is_start_codon{
  Title   : is_ter_codon
  Usage   : $obj->is_ter_codon('GAA')
  Function: returns true (1) for all codons that can be used as a
-           translation tarminator, false (0) for others.
+           translation terminator, false (0) for others. In the case
+           of ambiguous codons, e.g., 'TAN', only returns true if all
+           possible codons are true.
  Example : $myCodonTable->is_ter_codon('ATG')
  Returns : boolean
  Args    : codon
@@ -699,12 +703,13 @@ sub is_ter_codon{
 
 # desc: compares the passed value with a single entry in the given
 #       codon table
-# args: a value (typically a three-char string like 'atg'),
-#       a reference to the appropriate set of codon tables,
-#       a single-character value to check for at the position in the
-#       given codon table
+# args: a value (typically a three-char string like 'atg'), a
+#       reference to the appropriate set of codon tables, a
+#       single-character value to check for at the position in the
+#       given codon table.
 # ret:  boolean, true if the given codon table contains the $key at the
-#       position corresponding to $value
+#       position corresponding to $value.  In the case of ambiguous
+#       codons, only returns true if all possibilities match $key.
 sub _codon_is {
    my ($self, $value, $table, $key ) = @_;
 
@@ -714,11 +719,16 @@ sub _codon_is {
    $value  =~ tr/u/t/;
 
    my $id = $self->{'id'};
+   my $result = 0;
    for my $c ( $self->unambiguous_codons($value) ) {
        my $m = substr( $table->[$id], $CODONS->{$c}, 1 );
-       if ($m eq $key) { return 1; }
+       if ($m eq $key) {
+           $result = 1;
+       } else {
+           return 0;
+       }
    }
-   return 0;
+   return $result;
 }
 
 =head2 is_unknown_codon

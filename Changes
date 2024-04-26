@@ -13,6 +13,13 @@ Summary of important user-visible changes for BioPerl
       being used.  This update changes codon tables 3, 15, 24, 27-30,
       32, and 33 [#389, #391].
 
+    * Bio::Tools::CodonTable::is_start_codon now returns true when all
+      possible codons (in the case of ambiguous codons such as NTG)
+      are start codons.  For some recent versions it was return true
+      if any of the codons was a start codon.  This change is
+      consistent with the behaviour of is_ter_codon and returns to the
+      (very) old behaviour [#266].
+
 1.7.8     2021-02-02 23:02:18-06:00 America/Chicago
     * Bio::SeqIO::interpro has been moved to a separate repository to
       deal with issues with XML::DOM::XPath bitrot [#347]
