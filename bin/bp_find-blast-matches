@@ -117,9 +117,9 @@ File::Basename
 
 
 # Modules
-use Bio::SearchIO qw(new);
-use Bio::Seq qw(new);
-use Bio::SeqIO qw(new);
+use Bio::SearchIO;
+use Bio::Seq;
+use Bio::SeqIO;
 use File::Basename qw(basename);
 use Getopt::Long qw(GetOptions);
 use Pod::Usage;
