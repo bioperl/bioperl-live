@@ -47,7 +47,7 @@ jobs:
           eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
           dzil build --in build-dir
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dist
           path: ./build-dir
@@ -90,7 +90,7 @@ jobs:
 
     steps:
       - name: Get dist artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: dist
 
@@ -157,7 +157,7 @@ jobs:
         container: ['debian:bullseye', 'debian:bookworm']
     steps:
       - name: Get dist artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: dist
       - name: Setup system deps (apt)
