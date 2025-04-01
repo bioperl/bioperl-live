@@ -42,7 +42,9 @@ isa_ok($fh, 'IO::Socket::INET');
 
 undef($fh);
 
-is ($obj->proxy(), undef);
+# Note: this needs to handle cases when http_proxy is set in the environment
+
+is ($obj->proxy(), $ENV{http_proxy});
 is_deeply([$obj->authentication], []);
 $obj->proxy('http', $TEST_PROXY);
 $obj->authentication(@TEST_AUTHENTICATION);
@@ -58,7 +60,7 @@ isa_ok($fh, 'IO::Socket::INET');
 
 undef($fh);
 
-is (Bio::Root::HTTPget->proxy(), undef);
+is (Bio::Root::HTTPget->proxy(), $ENV{http_proxy});
 is_deeply([Bio::Root::HTTPget->authentication], []);
 Bio::Root::HTTPget->proxy('http', $TEST_PROXY);
 Bio::Root::HTTPget->authentication(@TEST_AUTHENTICATION);
@@ -78,7 +80,9 @@ undef($fh);
 Bio::Root::HTTPget->authentication(undef, undef);
 
 my $old = Bio::Root::HTTPget->clear_proxy('http');
-is (Bio::Root::HTTPget::proxy(), undef);
+
+# Note this falls back to whatever $ENV{http_proxy} is set to
+is (Bio::Root::HTTPget::proxy(), $ENV{http_proxy});
 is ($old, $TEST_PROXY);
 
 is_deeply([Bio::Root::HTTPget->authentication], [undef, undef]);
@@ -94,7 +98,7 @@ my $newobj = Bio::Root::HTTPget->new();
 
 ok defined($newobj) && $obj->isa('Bio::Root::Root');
 
-is ($newobj->proxy(), undef);
+is ($newobj->proxy(), $ENV{http_proxy});
 is_deeply([$newobj->authentication], []);
 $newobj->proxy('http', $TEST_PROXY);
 $newobj->authentication(@TEST_AUTHENTICATION);

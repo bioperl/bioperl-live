@@ -375,7 +375,7 @@ sub proxy {
     my ($protocol,$proxy,$username,$password) = @_;
     my $atts = ref($self) ? $self : \%attributes;
     $protocol ||= 'http';
-    if (!$proxy) {
+    if (!$proxy && !defined($atts->{'_proxy'}->{$protocol})) {
         if (defined $ENV{http_proxy}) {
             $proxy = $ENV{http_proxy};
             if ($proxy =~ /\@/) {
