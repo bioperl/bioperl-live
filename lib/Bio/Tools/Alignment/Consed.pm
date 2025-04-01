@@ -111,7 +111,7 @@ package Bio::Tools::Alignment::Consed;
 use strict;
 
 use FileHandle;
-use Dumpvalue qw(dumpValue);
+use Dumpvalue;
 use Bio::Tools::Alignment::Trim;
 use File::Spec;
 
