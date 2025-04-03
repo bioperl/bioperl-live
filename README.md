@@ -21,8 +21,8 @@ repositories](https://github.com/bioperl/).
 
 # Installation
 
-BioPerl distribution has the same name as the BioPerl.  However, the
-BioPerl distribution only includes a subset of the project modules.
+The BioPerl distribution and BioPerl project have the same name.  The
+BioPerl distribution includes only a subset of the project modules.
 Because of this, the meaning of "installing BioPerl" is rarely clear.
 Instead of "install BioPerl", the aim must be "install module X".
 
@@ -30,8 +30,9 @@ Instead of "install BioPerl", the aim must be "install module X".
 overview on how to install and manage Perl modules but the bottom-line
 is:
 
-1. find the module you need, for example `Bio::DB::EUtilities`
-2. install it with `cpanm`, for example `cpanm Bio::DB::EUtilities`
+1. figure out the modules you need, for example `Bio::DB::EUtilities`
+   (this is typically the modules that are `use` in your code)
+2. install them with `cpanm`, for example `cpanm Bio::DB::EUtilities`
 
 Alternatively, some Linux distributions have packaged BioPerl and have
 it available through their package manager.
