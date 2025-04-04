@@ -7,8 +7,7 @@ BEGIN {
 
     test_begin(
         -tests            => 152,
-        -requires_modules => [qw(DB_File
-                                 XML::Twig )]
+        -requires_modules => [qw(DB_File)]
     );
 
     use_ok('Bio::DB::Taxonomy');
