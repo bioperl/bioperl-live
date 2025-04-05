@@ -2,6 +2,13 @@ Summary of important user-visible changes for BioPerl
 -----------------------------------------------------
 
 {{$NEXT}}
+    * The following modules have been removed from the BioPerl
+      distribution to be part of a separate distribution.  They have
+      been integrated into other module distributions for independent
+      development:
+
+          Bio::TreeIO::phyloxml
+
     * Add minimum dependency on base.pm v2.18. Fixes bug in some cases when
       using SUPER::new() [#307].
 
