@@ -6,8 +6,7 @@ use strict;
 BEGIN {
     use Bio::Root::Test;
     
-    test_begin(-tests => 26,
-               -requires_module => 'Graph::Directed');
+    test_begin(-tests => 26);
 	
 	use_ok('Bio::SeqIO::locuslink');
 	use_ok('Bio::SeqFeature::Generic');
