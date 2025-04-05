@@ -8,8 +8,7 @@ BEGIN {
 
     test_begin(-tests => 69,
                -requires_modules => [qw(XML::Parser::PerlSAX
-                                        XML::Parser
-                                        Graph::Directed)]);
+                                        XML::Parser)]);
     use_ok('Bio::OntologyIO');
 }
 use Data::Dumper;

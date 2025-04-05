@@ -6,8 +6,7 @@ use strict;
 BEGIN {
     use Bio::Root::Test;
     
-    test_begin(-tests => 54,
-			   -requires_module => 'Graph::Directed');
+    test_begin(-tests => 54);
 	
 	use_ok('Bio::Ontology::Term');
 	use_ok('Bio::Ontology::TermFactory');

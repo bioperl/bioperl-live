@@ -10,7 +10,6 @@ BEGIN {
 
     test_begin(
         -tests           => 31,
-        -requires_module => 'Graph::Directed'
     );
     
     $ERROR_CLASS = eval "require Error; 1" ? 1 : 0;

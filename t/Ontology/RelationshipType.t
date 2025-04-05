@@ -6,8 +6,7 @@ use strict;
 BEGIN {
     use Bio::Root::Test;
     
-    test_begin(-tests => 23,
-               -requires_module => 'Graph::Directed');
+    test_begin(-tests => 23);
 	
     use_ok('Bio::Ontology::RelationshipType');
     use_ok('Bio::Ontology::Ontology');

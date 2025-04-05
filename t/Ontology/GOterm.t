@@ -7,8 +7,7 @@ use warnings;
 BEGIN {
     use Bio::Root::Test;
     
-    test_begin(-tests => 62,
-               -requires_module => 'Graph::Directed');
+    test_begin(-tests => 62);
 	
     use_ok('Bio::Ontology::GOterm');
     use_ok('Bio::Ontology::Ontology');
