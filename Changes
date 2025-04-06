@@ -8,6 +8,10 @@ Summary of important user-visible changes for BioPerl
       development:
 
           Bio::TreeIO::phyloxml
+          Bio::SeqIO::seqxml
+
+    * BioPerl no longer requires XML::LibXML and XML::LibXML::Reader
+      (part of the XML-LibXML distribution).
 
     * Add minimum dependency on base.pm v2.18. Fixes bug in some cases when
       using SUPER::new() [#307].
