@@ -68,14 +68,10 @@ throws_ok {
 # Test SeqIO formats
 #
 
-my @fmts = qw{ace embl fasta fastq game gcg genbank pir raw swiss tab};
+my @fmts = qw{ace embl fasta fastq gcg genbank pir raw swiss tab};
 
 for my $fmt (@fmts) {
     SKIP: {
-        test_skip(
-            -tests => 4,
-            -requires_modules => [qw(XML::Writer XML::Parser::PerlSAX)]
-        ) if $fmt eq 'game';
         test_skip(
             -tests => 4,
             -requires_module  => 'Data::Stag'

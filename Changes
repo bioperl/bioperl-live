@@ -7,8 +7,9 @@ Summary of important user-visible changes for BioPerl
       been integrated into other module distributions for independent
       development:
 
-          Bio::TreeIO::phyloxml
+          Bio::SeqIO::game
           Bio::SeqIO::seqxml
+          Bio::TreeIO::phyloxml
 
     * BioPerl no longer requires XML::LibXML and XML::LibXML::Reader
       (part of the XML-LibXML distribution).

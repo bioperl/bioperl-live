@@ -65,7 +65,6 @@ SKIP: {
              #'test.embl'      => 'embl',
              #'test.ace'       => 'ace',
               'test.fasta'     => 'fasta',
-             #'test.game'      => 'game',
               'test.gcg'       => 'gcg',
              #'test.genbank'   => 'genbank',
               'test.raw'       => 'raw',
