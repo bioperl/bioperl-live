@@ -10,6 +10,7 @@ Summary of important user-visible changes for BioPerl
           Bio::SeqIO::game
           Bio::SeqIO::locuslink
           Bio::SeqIO::seqxml
+          Bio::SeqIO::tinyseq
           Bio::TreeIO::phyloxml
 
     * BioPerl no longer requires XML::LibXML and XML::LibXML::Reader
