@@ -294,13 +294,8 @@ $ann_struct2->tagformat('sxpr');
 like($ann_struct2->value, qr/\(Name "CALM1"\)/,'spxr');
 $ann_struct2->tagformat('indent');
 like($ann_struct2->value, qr/Name "CALM1"/,'indent');
-
-SKIP: {
-    eval {require XML::Parser::PerlSAX};
-    skip ("XML::Parser::PerlSAX rquired for XML",1) if $@;
-    $ann_struct2->tagformat('xml');
-    like($ann_struct2->value, qr/<Name>CALM1<\/Name>/,'xml');
-}
+$ann_struct2->tagformat('xml');
+like($ann_struct2->value, qr/<Name>CALM1<\/Name>/,'xml');
 
 # grab Data::Stag nodes, use Data::Stag methods
 my @nodes = $ann_struct2->children;
