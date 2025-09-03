@@ -95,7 +95,7 @@ sub get_params {
     my $data;
     if (scalar(@ids)) {
         for my $id (@ids) {
-            if (!index($id, '-')==0) {
+            if (index($id, '-')!=0) {
                 $id = '-'.$id ;
             }
             $data->{$id} = $self->{'_params'}->{$id} if (exists $self->{'_params'}->{$id});
