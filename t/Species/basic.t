@@ -6,7 +6,7 @@ use Test::More tests => 8;
 use_ok('Bio::Species');
 
 my $sps = Bio::Species->new();
-$sps->classification(qw(sapiens Homo Hominidae Catarrhini Primates Eutheria Mammalia Vertebrata Chordata Metazoa Eukaryota));
+$sps->classification([qw(sapiens Homo Hominidae Catarrhini Primates Eutheria Mammalia Vertebrata Chordata Metazoa Eukaryota)]);
 
 is $sps->binomial, 'Homo sapiens';
 
