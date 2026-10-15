@@ -1,7 +1,7 @@
 BEGIN {
     use Bio::Root::Test;
 
-    test_begin( -tests => 109,
+    test_begin( -tests => 114,
                 -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)] );
 }
 use strict;
@@ -334,6 +334,23 @@ my $test_files = [
     # Empty lines within a sequence is bad...
     throws_ok {my $db = Bio::DB::Fasta->new(test_input_file('badfasta.fa'), -reindex => 1)}
         qr/Blank lines can only precede header lines/;
+}
+
+
+{
+    # Comment lines starting with ';' before the first header are skipped
+    my $db;
+    lives_ok {$db = Bio::DB::Fasta->new(test_input_file('leading_comments.fa'), -reindex => 1)};
+    is_deeply [sort $db->get_all_primary_ids], [qw(chr1 chr2)], 'no record for the comment lines';
+    is $db->seq('chr1'), 'ACGTACGTACGT', 'sequence after comment lines';
+    is $db->subseq('chr1', 3, 10), 'GTACGTAC', 'subseq is correct';
+    is $db->seq('chr2'), 'TTTTGGGG';
+
+    my $outfile = test_input_file('leading_comments.fa').'.index';
+    $db->DESTROY;
+    unlink $outfile if -e $outfile;
+    unlink "$outfile.dir" if -e "$outfile.dir";
+    unlink "$outfile.pag" if -e "$outfile.pag";
 }
 
 

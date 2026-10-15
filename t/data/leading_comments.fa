@@ -1,0 +1,10 @@
+;~schema: https://example.org/schema.json
+;~schemaVersion: 1
+;~taxon:
+;~  name: Homo sapiens
+;~checksum: AAAA
+>chr1 first
+ACGTACGT
+ACGT
+>chr2
+TTTTGGGG
