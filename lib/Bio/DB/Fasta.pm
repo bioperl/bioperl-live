@@ -166,6 +166,9 @@ sub _calculate_offsets {
 
     my $termination_length = $self->{termination_length};
     while (my $line = <$fh>) {
+        # Skip comment lines starting with ';' (the original FASTA comment
+        # convention) before the first header
+        next if !@ids && index($line, ';') == 0;
         # Account for crlf-terminated Windows files
         if (index($line, '>') == 0) {
             if ($line =~ /^>(\S+)/) {
