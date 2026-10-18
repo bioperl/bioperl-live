@@ -132,6 +132,17 @@ sub next_seq {
         chomp($entry);
     }
 
+    # skip comment lines (starting with ';', the original FASTA comment
+    # convention) before the first record
+    if ($. == 1 && $entry =~ /\A;/) {
+        $entry =~ s/\A(?:;[^\n]*\n)+//;
+        if ($entry =~ m/\A>?\s*\Z/s) {
+            return unless $entry = $self->_readline;
+            $entry =~ s/\n$//;
+            $entry =~ s/\r$//;
+        }
+    }
+
     # this just checks the initial input; beyond that, due to setting $/ above,
     # the > is part of the record separator and is removed
     $self->throw("The sequence does not appear to be FASTA format ".
@@ -209,6 +220,17 @@ sub next_seq_fast {
     if ($entry =~ m/\A\s*\Z/s)  { # very first one
         return unless $entry = $self->_readline;
         chomp($entry);
+    }
+
+    # skip comment lines (starting with ';', the original FASTA comment
+    # convention) before the first record
+    if ($. == 1 && $entry =~ /\A;/) {
+        $entry =~ s/\A(?:;[^\n]*\n)+//;
+        if ($entry =~ m/\A>?\s*\Z/s) {
+            return unless $entry = $self->_readline;
+            $entry =~ s/\n$//;
+            $entry =~ s/\r$//;
+        }
     }
 
     # this just checks the initial input; beyond that, due to setting $/ above,

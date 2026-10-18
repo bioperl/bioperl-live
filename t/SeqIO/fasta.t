@@ -6,7 +6,7 @@ use strict;
 BEGIN {
     use Bio::Root::Test;
     
-    test_begin(-tests               => 22,
+    test_begin(-tests               => 26,
                -requires_modules    => [],
                -requires_networking => 0,
               );
@@ -128,4 +128,21 @@ for my $file (qw(roa1.genbank test.gcg test.ace test.raw)) {
                              -format => 'fasta');
     throws_ok {$in->next_seq}
         qr/The sequence does not appear to be FASTA format/, "dies with $file";
+}
+
+# comment lines (';') before the first record are skipped
+{
+    my $in = Bio::SeqIO->new(-file   => test_input_file('leading_comments.fa'),
+                             -format => 'fasta');
+    my @seqs;
+    while (my $seq = $in->next_seq) { push @seqs, $seq }
+    is_deeply [map { $_->display_id } @seqs], [qw(chr1 chr2)], 'no record for leading comment lines';
+    is $seqs[0]->seq, 'ACGTACGTACGT', 'first sequence after comment lines';
+    is $seqs[0]->desc, 'first', 'description after comment lines';
+}
+{
+    my $in = Bio::SeqIO->new(-file   => test_input_file('leading_comments.fa'),
+                             -format => 'fasta');
+    my $seq = $in->next_seq_fast;
+    is $seq->seq, 'ACGTACGTACGT', 'next_seq_fast skips leading comment lines';
 }
