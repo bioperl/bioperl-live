@@ -6,7 +6,7 @@ use strict;
 BEGIN {
     use Bio::Root::Test;
     
-    test_begin(-tests               => 26,
+    test_begin(-tests               => 28,
                -requires_modules    => [],
                -requires_networking => 0,
               );
@@ -145,4 +145,6 @@ for my $file (qw(roa1.genbank test.gcg test.ace test.raw)) {
                              -format => 'fasta');
     my $seq = $in->next_seq_fast;
     is $seq->seq, 'ACGTACGTACGT', 'next_seq_fast skips leading comment lines';
+    is $seq->display_id, 'chr1', 'next_seq_fast parses id from header with description';
+    is $seq->desc, 'first', 'next_seq_fast parses description';
 }

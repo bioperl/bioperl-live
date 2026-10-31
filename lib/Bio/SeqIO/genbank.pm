@@ -311,10 +311,13 @@ sub next_seq {
         # shouldn't assign alphabet unless one
         # is specifically designated (such as for rc files)
         my $alphabet = lc( shift @tokens );
-        $params{'-alphabet'} =
-          ( exists $VALID_ALPHABET{$alphabet} )
-          ? $VALID_ALPHABET{$alphabet}
-          : $self->warn("Unknown alphabet: $alphabet");
+        if ( exists $VALID_ALPHABET{$alphabet} ) {
+            $params{'-alphabet'} = $VALID_ALPHABET{$alphabet};
+        }
+        else {
+            $self->warn("Unknown alphabet: $alphabet");
+            $params{'-alphabet'} = '';
+        }
 
         # for aa there is usually no 'molecule' (mRNA etc)
         if ( $params{'-alphabet'} eq 'protein' ) {
