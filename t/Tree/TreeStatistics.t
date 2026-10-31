@@ -8,7 +8,7 @@ use lib "$RealBin/../../lib";
 BEGIN { 
     use Bio::Root::Test;
     
-    test_begin(-tests => 44);
+    test_begin(-tests => 49);
 
     use_ok('Bio::TreeIO');
     use_ok('Bio::Tree::Statistics');
@@ -49,7 +49,7 @@ is $stats->cherries($tree, $node), 4, 'cherries';
 
 subtest 'transfer-bootstrap-expectation (experimental)' => sub{
   plan tests=>15;
-  my %expectation = (''=>100, N1=>27, N2=>82, N3=>64, N4=>82, N5=>82, N8=>82, N6=>82, N7=>82, N9=>100, N10=>91, N11=>100, N12=>9, N13=>55, N14=>82);
+  my %expectation = (''=>100, N1=>20, N2=>80, N3=>60, N4=>80, N5=>80, N8=>80, N6=>80, N7=>80, N9=>100, N10=>90, N11=>100, N12=>0, N13=>50, N14=>80);
   my $bs_tree  = $stats->transfer_bootstrap_expectation(\@bs_trees, $tree);
   my @node = $bs_tree->get_nodes;
   for(my $i=0;$i<@node;$i++){
@@ -61,7 +61,7 @@ subtest 'transfer-bootstrap-expectation (experimental)' => sub{
 
 subtest 'assess_bootstrap' => sub{
   plan tests=>15;
-  my %expectation = (''=>100, N1=>20, N2=>80, N3=>20, N4=>80, N5=>80, N8=>80, N6=>60, N7=>20, N9=>100, N10=>80, N11=>100, N12=>9, N13=>55, N14=>20);
+  my %expectation = (''=>100, N1=>20, N2=>80, N3=>20, N4=>80, N5=>80, N8=>80, N6=>60, N7=>20, N9=>100, N10=>80, N11=>100, N12=>0, N13=>0, N14=>20);
   my $bs_tree  = $stats->assess_bootstrap(\@bs_trees, $tree);
   my @node = $bs_tree->get_nodes;
   for(my $i=0;$i<@node;$i++){
@@ -183,3 +183,39 @@ $mc = $stats->mc($tree, $key, $node);
 is ($mc->{blue}, 2, 'monophyletic clade size');
 is ($mc->{red}, 2, 'monophyletic clade size');
 
+
+# cherries() on non-binary nodes: a polytomy of leaves is not a cherry and a
+# unary node must not crash
+{
+    my %cases = (
+        '((A,B,C),D);'   => 0,
+        '(((A)B),C);'    => 0,
+        '((A,B),(C,D));' => 2,
+    );
+    for my $newick (sort keys %cases) {
+        my $str = $newick;
+        my $t = Bio::TreeIO->new(-format => 'newick', -string => $str)->next_tree;
+        is $stats->cherries($t), $cases{$newick}, "cherries for $newick";
+    }
+}
+
+# transfer_bootstrap_expectation() must not depend on how many identical
+# bootstrap replicates are supplied (it used to divide by replicates + 1)
+{
+    my $guide_nw = '(((A,B),(C,D)),(E,F));';
+    my $bs_nw    = '(((A,B),(C,E)),(D,F));';
+    my @results;
+    for my $nreps (3, 9) {
+        my $g_str = $guide_nw;
+        my $guide = Bio::TreeIO->new(-format => 'newick', -string => $g_str)->next_tree;
+        my @bs = map { my $s = $bs_nw;
+                       Bio::TreeIO->new(-format => 'newick', -string => $s)->next_tree } 1 .. $nreps;
+        $stats->transfer_bootstrap_expectation(\@bs, $guide);
+        my %tbe = map { join(',', sort map { $_->id } grep { $_->is_Leaf } $_->get_all_Descendents)
+                        => $_->bootstrap } grep { !$_->is_Leaf } $guide->get_nodes;
+        push @results, \%tbe;
+    }
+    is_deeply $results[0], $results[1], 'TBE is independent of the number of identical replicates';
+    # (C,D) vs closest bipartition (C,E) or (D,F): transfer distance 2 of 2 leaves -> 0
+    is $results[0]{'C,D'}, 0, 'TBE for a clade two transfers away from any bootstrap clade';
+}

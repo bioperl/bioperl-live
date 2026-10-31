@@ -5,7 +5,7 @@ use strict;
 
 BEGIN { 
     use Bio::Root::Test;
-    test_begin(-tests => 66);
+    test_begin(-tests => 73);
     use_ok('Bio::TreeIO');
 }
 
@@ -284,6 +284,37 @@ ok $tree = Bio::Tree::Tree->new();
 @nodes = $tree->get_nodes;
 is scalar @nodes, 0;
 
+
+# clone() must not share tag storage with the original tree
+{
+    my $str = "((A,B)X,C)R;";
+    my $t = Bio::TreeIO->new(-format => "newick", -string => $str)->next_tree;
+    my ($orig_a) = $t->find_node("A");
+    $orig_a->add_tag_value("color", "red");
+    my $c = $t->clone;
+    my ($clone_a) = $c->find_node("A");
+    $clone_a->add_tag_value("color", "blue");
+    is_deeply [$orig_a->get_tag_values("color")], ["red"], "clone does not share tag storage";
+    is_deeply [$clone_a->get_tag_values("color")], ["red", "blue"], "clone keeps its own tag values";
+}
+
+# remove_Node() must warn and return 0 rather than die for a missing id or the root
+{
+    my $str = "((A,B)X,C)R;";
+    my $t = Bio::TreeIO->new(-format => "newick", -string => $str)->next_tree;
+    $t->verbose(-1);
+    is $t->remove_Node("no_such_node"), 0, "remove_Node on an unknown id returns 0";
+    is $t->remove_Node($t->get_root_node), 0, "remove_Node on the root returns 0";
+    is $t->remove_Node("A"), 1, "remove_Node on a leaf id returns 1";
+    is_deeply [sort map { $_->id } $t->get_leaf_nodes], ["B", "C"], "leaf A was removed";
+}
+
+# get_lineage_string() must work on plain Bio::Tree::Node trees
+{
+    my $str = "((A,B)X,C)R;";
+    my $t = Bio::TreeIO->new(-format => "newick", -string => $str)->next_tree;
+    is $t->get_lineage_string("A", "|"), "R|X|A", "get_lineage_string on a Newick tree";
+}
 
 __DATA__
 (D,(C,(A,B)));
