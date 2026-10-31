@@ -612,7 +612,7 @@ sub height {
     my $max = 0;
     foreach my $subnode ( $self->each_Descendent ) { 
 	my $bl = $subnode->branch_length;
-	$bl = 1 unless (defined $bl && $bl =~ /^\-?\d+(\.\d+)?$/);
+	$bl = 1 unless (defined $bl && $bl =~ /^[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?$/);
 	my $s = $subnode->height + $bl;
 	if( $s > $max ) { $max = $s; }
     }

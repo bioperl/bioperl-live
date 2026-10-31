@@ -191,7 +191,7 @@ sub remove_tag
 {
   my ($self,$tag) = @_;
   my $ac = $self->annotation();
-  if( @{$ac->get_Annotations($tag)} ) {
+  if( $ac->get_Annotations($tag) ) {
     $ac->remove_Annotations($tag);
     return 1;
   }

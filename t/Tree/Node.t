@@ -6,7 +6,7 @@ use strict;
 BEGIN {
   use Bio::Root::Test;
   use File::Temp qw(tempfile);
-  test_begin( -tests => 33 );
+  test_begin( -tests => 37 );
   use_ok('Bio::Tree::Node');
   use_ok('Bio::TreeIO');
 }
@@ -95,3 +95,20 @@ my $t = $in->next_tree;
   );
   $t->reroot($old_root);
   is( $t->as_text('newick',$in->params), "(A:52,(B:23,C:50):11,D:70)68;", "roundtrip" );
+
+# height() must accept branch lengths written in scientific notation
+{
+    my $str = '((A:1e-05,B:0.00001):0.5,C:0.5);';
+    my $t = Bio::TreeIO->new(-format => 'newick', -string => $str)->next_tree;
+    cmp_ok abs($t->get_root_node->height - 0.50001), '<', 1e-9,
+        'height handles branch lengths in scientific notation';
+}
+
+# Bio::Tree::AnnotatableNode::remove_tag used to die on every call
+{
+    use_ok('Bio::Tree::AnnotatableNode');
+    my $n = Bio::Tree::AnnotatableNode->new(-id => 'x');
+    $n->add_tag_value('k', 'v');
+    is $n->remove_tag('k'), 1, 'AnnotatableNode remove_tag removes an existing tag';
+    is $n->remove_tag('k'), 0, 'AnnotatableNode remove_tag returns 0 for a missing tag';
+}
