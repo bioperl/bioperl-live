@@ -82,10 +82,6 @@ package Bio::SeqIO::qual;
 
 use strict;
 use Bio::Seq::SeqFactory;
-use Dumpvalue;
-
-my $dumper = Dumpvalue->new();
-
 use base qw(Bio::SeqIO);
 
 our $WIDTH = 25;

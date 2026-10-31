@@ -705,9 +705,9 @@ sub _guess_format {
    return 'entrezgene' if /\.asn$/i;
    return 'exp'        if /\.exp$/i;
    return 'fasta'      if /\.(fasta|fast|fas|seq|fa|fsa|nt|aa|fna|faa)$/i;
-   return 'fastq'      if /\.fastq$/i;
+   return 'fastq'      if /\.(fastq|fq)$/i;
    return 'gcg'        if /\.gcg$/i;
-   return 'genbank'    if /\.(gb|gbank|genbank|gbk|gbs)$/i;
+   return 'genbank'    if /\.(gb|gbank|genbank|gbk|gbs|gbff)$/i;
    return 'phd'        if /\.(phd|phred)$/i;
    return 'pir'        if /\.pir$/i;
    return 'pln'        if /\.pln$/i;

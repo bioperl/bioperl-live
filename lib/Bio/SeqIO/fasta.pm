@@ -245,9 +245,12 @@ sub next_seq_fast {
     $sequence ||= "";
     $sequence =~ s/\s+//g;
 
-    my ($id,$fulldesc) = split(/\S+/, $top, 2);
-    $id       ||= $top;
-    $fulldesc ||= "";
+    my ($id,$fulldesc);
+    if ($top =~ /^\s*(\S+)\s*(.*)/) {
+        ($id,$fulldesc) = ($1,$2);
+    }
+    $id       = $top unless defined $id && length $id;
+    $fulldesc = ""   unless defined $fulldesc;
 
     # for empty sequences we need to know the mol.type
     $alphabet = $self->alphabet();
