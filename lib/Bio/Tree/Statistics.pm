@@ -139,11 +139,12 @@ sub assess_bootstrap{
        $i++;
    }
    #my @save; # unsure why this variable is needed
-   for my $l ( keys %lookup ) {
-       if( defined $internal{$l} ) {#&& $lookup{$l} > $min_seen ) {
-           my $intnode = $guide_tree->find_node(-internal_id => $internal{$l});
-           $intnode->bootstrap(sprintf("%d",100 * $lookup{$l} / $num_bs_trees));
-       }
+   # Every internal node of the guide tree gets a value; a clade that was
+   # never seen in a bootstrap tree gets 0 rather than being left untouched.
+   for my $l ( keys %internal ) {
+       my $seen = $lookup{$l} || 0;
+       my $intnode = $guide_tree->find_node(-internal_id => $internal{$l});
+       $intnode->bootstrap(sprintf("%d",100 * $seen / $num_bs_trees));
    }
    return $guide_tree;
 }
@@ -256,7 +257,9 @@ sub transfer_bootstrap_expectation{
       }
       $nodeTbeTotal += $minDistance;
     }
-    my $avgTbe = $nodeTbeTotal / $numTrees;
+    # Average over the bootstrap trees only; the guide tree at index 0
+    # does not contribute a distance.
+    my $avgTbe = $nodeTbeTotal / $num_bs_trees;
     
     # Calculate the average of all b to b* distances
     # But it is also 1 - average.
@@ -292,13 +295,12 @@ sub cherries ($;$) {
 
     my $cherries = 0;
     my @descs = $node->each_Descendent;
+    return 0 unless @descs; # a leaf has no cherries
 
-    if ($descs[0]->is_Leaf and $descs[1]->is_Leaf) {
-        if ($descs[3]) { #polytomy at leaf level
-            $cherries = 0;
-        } else {
-            $cherries = 1;
-        }
+    my @leaf_descs = grep { $_->is_Leaf } @descs;
+    if (@leaf_descs == @descs) {
+        # all children are leaves: a cherry only if there are exactly two
+        $cherries = (@descs == 2) ? 1 : 0;
     } else {
         # recurse
         foreach my $desc (@descs) {
@@ -788,8 +790,9 @@ sub genetic_diversity {
     my $tree = shift;
     my $node = shift  || $tree->get_root_node;
 
-    return $self->sum_of_leaf_distances($tree, $node) /
-        $self->count_leaves($tree, $node);
+    my $leaves = $self->count_leaves($tree, $node);
+    return 0 unless $leaves;
+    return $self->sum_of_leaf_distances($tree, $node) / $leaves;
 }
 
 

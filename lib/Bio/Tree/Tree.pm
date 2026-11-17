@@ -219,8 +219,7 @@ sub get_nodes {
         } elsif ($order =~ m/^d/oi) { # depth-first
             @children = ($node, $node->get_all_Descendents($sortby));
         } else {
-            $self->verbose(1);
-            $self->warn("specified an order '$order' which I don't understan\n");
+            $self->warn("specified an order '$order' which I don't understand\n");
         }
     }
 

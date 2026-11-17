@@ -169,12 +169,21 @@ sub remove_Node {
    } else { 
        $node = $input;
    }
-   if( ! $node->ancestor && 
-       $self->get_root_node->internal_id != $node->internal_id) {
-     $self->warn("Node (".$node->to_string . ") has no ancestor, can't remove!");
-   } else { 
-     $node->ancestor->remove_Descendent($node);
+   unless( defined $node ) {
+       $self->warn("Could not find a node matching '$input' to remove");
+       return 0;
    }
+   my $ancestor = $node->ancestor;
+   unless( $ancestor ) {
+       my $root = $self->get_root_node;
+       if( $root && $root->internal_id == $node->internal_id ) {
+           $self->warn("Node (".$node->to_string . ") is the root node, can't remove!");
+       } else {
+           $self->warn("Node (".$node->to_string . ") has no ancestor, can't remove!");
+       }
+       return 0;
+   }
+   return $ancestor->remove_Descendent($node);
 }
 
 
@@ -250,8 +259,10 @@ sub get_lineage_string {
     }
     my @nodes = ($self->get_lineage_nodes($node), $node);
     for my $i (0 .. scalar @nodes - 1) {
-        my $node_name = $nodes[$i]->node_name || '';
-        if ($node_name =~ m/$sep/) {
+        my $node_name = $nodes[$i]->can('node_name') ? $nodes[$i]->node_name
+                                                     : $nodes[$i]->id;
+        $node_name = '' unless defined $node_name;
+        if (index($node_name, $sep) >= 0) {
            $self->warn("Separator '$sep' is not safe to use because the node ".
                "called '$node_name' contains it. Consider using another separator".
                " or sanitizing the node name.");
@@ -429,7 +440,7 @@ sub get_lca {
     }
     return unless @paths >= 2;
     my $lca;
-    LEVEL: while ($paths[0] > 0) {
+    LEVEL: while (@{$paths[0]} > 0) {
         my %node_ids;
         my $node;
         foreach my $path (@paths) {
@@ -789,6 +800,11 @@ sub _clone_node {
         if ($key eq '_desc' || $key eq '_ancestor') {
             next;
         }
+        if ($key eq '_tags' && ref($val) eq 'HASH') {
+            # copy tag arrays so the clone does not share storage
+            ${$clone}{$key} = { map { $_ => [ @{ $val->{$_} || [] } ] } keys %$val };
+            next;
+        }
         ${$clone}{$key} = $val;
     }
 
@@ -864,7 +880,7 @@ sub distance {
     foreach my $current_node (@{$nodes}) {
         while (1) {
             last if $current_node eq $lca;
-            if ($current_node->branch_length) {
+            if (defined $current_node->branch_length) {
                 $cumul_dist += $current_node->branch_length;
             }
             elsif (! $warned) {
