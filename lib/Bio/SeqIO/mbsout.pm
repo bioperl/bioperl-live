@@ -124,6 +124,7 @@ sub _initialize {
         OPTIONS                                  => {},
         LAST_READ_ALLELES                        => [],
         LAST_READ_TRAJECTORY_FILE                => undef,
+        LAST_READ_TRAJECTORY_FILE_REPLICATION    => undef,
         LAST_READ_REPLICATION_OF_TRAJECTORY_FILE => undef,
         BASE_CONVERSION_TABLE_HASH_REF           => {
             'A' => 0,
@@ -523,6 +524,21 @@ sub outgroup {
     else                          { return 0; }
 }
 
+=head3 next_seq
+
+Title   : next_seq
+Usage   : $seq = $stream->next_seq()
+Function: Standard Bio::SeqIO iterator. Alias for get_next_seq().
+Returns : Bio::Seq object, or undef at end of stream.
+Args    : NONE
+
+=cut
+
+sub next_seq {
+    my $self = shift;
+    return $self->get_next_seq();
+}
+
 =head3 get_next_seq
 
 Title   : get_next_seq
@@ -705,10 +721,11 @@ sub _get_next_clean_hap {
         my $data = <$fh>;
         last if !defined($data);
         chomp $data;
-        while ( $data !~ /./ ) {
+        while ( defined($data) && $data !~ /./ ) {
             $data = <$fh>;
-            chomp $data;
+            chomp $data if defined $data;
         }
+        last if !defined($data);
 
         # If the next run is encountered here, then we have a programming
         # or format error
@@ -752,15 +769,17 @@ sub _load_run_info {
         my @data = split( /\s+/,  $data );
         my @temp = split( /\/\//, $data[0] );
         @temp = split( /-/, $temp[0] );
-        $self->{LAST_READ_TRAJ_FILE}             = $temp[0];
-        $self->{LAST_LEAD_TRAJ_FILE_REPLICATION} = $temp[1];
+        $self->{LAST_READ_TRAJECTORY_FILE}             = $temp[0];
+        $self->{LAST_READ_TRAJECTORY_FILE_REPLICATION} = $temp[1];
         $self->{LAST_READ_ALLELES}               = \@data[ 2 .. $#data ];
 
         for ( 1 .. 3 ) {
             $data = <$fh>;
-            while ( $data !~ /./ ) {
+            while ( defined($data) && $data !~ /./ ) {
                 $data = <$fh>;
             }
+            $self->throw("Unexpected end of file while reading run header")
+                if !defined($data);
             chomp $data;
 
             @data = split( /\s+/, $data );

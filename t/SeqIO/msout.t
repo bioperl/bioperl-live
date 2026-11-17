@@ -8,7 +8,7 @@ BEGIN {
     use Bio::Root::Test;
 
     test_begin(
-        -tests               => 165,
+        -tests               => 166,
         -requires_modules    => [q(Bio::SeqIO::msout)],
         -requires_networking => 0
     );
@@ -25,6 +25,26 @@ cmp_ok( $api_version, '>=', qv('1.1.5'),
 test_file_1( 0, "msout/msout_infile1" );    # 23 tests
 test_file_2( 0, "msout/msout_infile2" );    # 22 tests
 test_file_3( 0, "msout/msout_infile3" );    # 17 tests
+truncated_file_test( "msout/msout_infile1", 200 );
+
+# A file cut off in the middle of a run header must throw, not hang.
+sub truncated_file_test {
+    my ( $infile, $nbytes ) = @_;
+    my $outfile = test_output_file();
+    open my $IN, "<", test_input_file($infile) or die "Cannot read $infile: $!";
+    read $IN, my $buf, $nbytes;
+    close $IN;
+    open my $OUT, ">", $outfile or die "Cannot write $outfile: $!";
+    print $OUT $buf;
+    close $OUT;
+
+    my $stream = Bio::SeqIO->new( -file => $outfile, -format => "msout" );
+    local $SIG{ALRM} = sub { die "timeout\n" };
+    alarm 10;
+    throws_ok { 1 while $stream->next_seq }
+        qr/Unexpected end of file/, "truncated file throws instead of hanging";
+    alarm 0;
+}
 
 # tests to run for api versions >= 1.1.6
 SKIP: {

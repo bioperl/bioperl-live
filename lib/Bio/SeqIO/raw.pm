@@ -178,15 +178,12 @@ sub write_qual {
     my @qual = ();
     foreach (@seq) {
         unless ($_->isa("Bio::Seq::Quality")){
-           warn("You cannot write raw qualities without supplying a Bio::Seq::".
+           $self->warn("You cannot write raw qualities without supplying a Bio::Seq::".
                 "Quality object! You passed a ".ref($_)."\n");
            next;
         }
         @qual = @{$_->qual};
-        if(scalar(@qual) == 0) {
-           $qual[0] = "\n";
-        }
-        $self->_print (join " ", @qual,"\n") or return;
+        $self->_print (join(" ", @qual), "\n") or return;
     }
     return 1;
 }

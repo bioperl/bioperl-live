@@ -10,7 +10,7 @@ BEGIN {
     use Bio::Root::Test;
 
     test_begin(
-        -tests               => 74,
+        -tests               => 76,
         -requires_modules    => [q(Bio::SeqIO::mbsout)],
         -requires_networking => 0
     );
@@ -26,6 +26,37 @@ create_dir("mbsout");
 test_file_1( 0, "mbsout/mbsout_infile1" );
 test_file_2( 0, "mbsout/mbsout_infile2" );
 test_file_3( 0, "mbsout/mbsout_infile3" );
+truncated_file_test( "mbsout/mbsout_infile1", 400 );
+
+# next_seq() is the standard Bio::SeqIO iterator and must be an alias
+# for get_next_seq().
+{
+    my $stream = Bio::SeqIO->new(
+        -file   => test_input_file("mbsout/mbsout_infile1"),
+        -format => "mbsout"
+    );
+    my $seq = $stream->next_seq;
+    isa_ok( $seq, "Bio::PrimarySeqI", "next_seq returns a sequence object" );
+}
+
+# A file cut off in the middle of a run header must throw, not hang.
+sub truncated_file_test {
+    my ( $infile, $nbytes ) = @_;
+    my $outfile = test_output_file();
+    open my $IN, "<", test_input_file($infile) or croak "Cannot read $infile: $!";
+    read $IN, my $buf, $nbytes;
+    close $IN;
+    open my $OUT, ">", $outfile or croak "Cannot write $outfile: $!";
+    print $OUT $buf;
+    close $OUT;
+
+    my $stream = Bio::SeqIO->new( -file => $outfile, -format => "mbsout" );
+    local $SIG{ALRM} = sub { die "timeout\n" };
+    alarm 10;
+    throws_ok { 1 while $stream->next_seq }
+        qr/Unexpected end of file/, "truncated file throws instead of hanging";
+    alarm 0;
+}
 
 sub create_dir {
 

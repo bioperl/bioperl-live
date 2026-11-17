@@ -811,10 +811,11 @@ sub _get_next_clean_hap {
         my $data = <$fh>;
         last if !defined($data);
         chomp $data;
-        while ( $data !~ /./ ) {
+        while ( defined($data) && $data !~ /./ ) {
             $data = <$fh>;
-            chomp $data;
+            chomp $data if defined $data;
         }
+        last if !defined($data);
 
         # If the next run is encountered here, then we have a programming
         # or format error
@@ -845,11 +846,6 @@ sub _load_run_info {
     # In this case we are at EOF
     if ( !defined($data) ) { $self->{NEXT_RUN_NUM} = undef; return; }
 
-    while ( $data !~ /./ ) {
-        $data = <$fh>;
-        chomp $data;
-    }
-
     chomp $data;
 
     # If the next run is encountered, then skip to the next hap and save it in
@@ -859,10 +855,11 @@ sub _load_run_info {
         $self->{LAST_READ_HAP_NUM} = 0;
         for ( 1 .. 3 ) {
             $data = <$fh>;
-            while ( $data !~ /./ ) {
+            while ( defined($data) && $data !~ /./ ) {
                 $data = <$fh>;
-                chomp $data;
             }
+            $self->throw("Unexpected end of file while reading run header")
+                if !defined($data);
             chomp $data;
 
             if ( $_ eq '1' ) {
